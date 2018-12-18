@@ -10,6 +10,28 @@
 
 
 
+/*
+ * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
+ *
+ * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package user
+ *
+ * @return void
+ */
+function user_library_init(){
+    try{
+        load_config('user');
+
+    }catch(Exception $e){
+        throw new bException('user_library_init(): Failed', $e);
+    }
+}
+
+
+
  /*
   * Get user data with MC write through cache
   */
@@ -999,6 +1021,7 @@ function user_signout() {
         unset($_SESSION['user']);
 
         session_destroy();
+        setcookie('base', 'stub', 1, '/');
 
         if($cookie){
             file_delete(ROOT.'data/cookies/sess_'.$cookie);
@@ -1902,7 +1925,11 @@ function user_validate($user, $sections = array()){
             }
         }
 
-        $user['timezone'] = $v->isTimezone($user['timezone'], tr('Please specify a valid timezone'), VALIDATE_ALLOW_EMPTY_NULL);
+        if(!$user['timezone']){
+            $user['timezone'] = $_CONFIG['timezone']['display'];
+        }
+
+        $v->isTimezone($user['timezone'], tr('Please specify a valid timezone'), VALIDATE_ALLOW_EMPTY_NULL);
 
         if($sections['role']){
             if(!empty($user['role'])){
@@ -2463,7 +2490,7 @@ function user_update_location($user){
                     throw new bException(tr('user_update_location(): Failed to auto detect city, state, and country because the geo database has not yet been loaded'), 'not-available');
                 }
 
-                $city = geo_get_city_from_location($geo);
+                $city = geo_get_city_from_location($geo['latitude'], $geo['longitude']);
 
                 $execute[':cities_id']    = $city['id'];
                 $execute[':states_id']    = $city['states_id'];
@@ -2478,6 +2505,10 @@ function user_update_location($user){
             $execute[':states_id']    = $geo['states_id'];
             $execute[':countries_id'] = $geo['countries_id'];
         }
+
+        $execute[':latitude']  = $user['latitude'];
+        $execute[':longitude'] = $user['longitude'];
+        $execute[':accuracy']  = $user['accuracy'];
 
         /*
          * Update all user's location information
@@ -2496,7 +2527,6 @@ function user_update_location($user){
                    WHERE  `id`               = :id',
 
                    $execute);
-
 
     }catch(Exception $e){
         throw new bException(tr('user_update_location(): Failed'), $e);
