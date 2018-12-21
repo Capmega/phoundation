@@ -669,16 +669,13 @@ function html_header($params = null, $meta = array()){
         /*
          * Add viewport meta tag for mobile devices
          */
-        // :TODO: check this with Sven
-        // if(!empty($_SESSION['mobile'])){
-            if(empty($meta['viewport'])){
-                $meta['viewport'] = isset_get($_CONFIG['mobile']['viewport']);
-            }
+        if(empty($meta['viewport'])){
+            $meta['viewport'] = isset_get($_CONFIG['mobile']['viewport']);
+        }
 
-            if(!$meta['viewport']){
-                throw new bException(tr('html_header(): Meta viewport tag is not specified'), 'not-specified');
-            }
-        // }
+        if(!$meta['viewport']){
+            throw new bException(tr('html_header(): Meta viewport tag is not specified'), 'not-specified');
+        }
 
         if(!empty($params['amp'])){
             $params['links'] .= '<link rel="amphtml" href="'.domain('/amp'.$_SERVER['REQUEST_URI']).'">';
