@@ -109,4 +109,320 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
         throw new bException('linux_enable_ssh_tcp_forwarding(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Returns if the specified file exists on the specified server
+ *
+ * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server
+ * @param string $path
+ * @return boolean True if the file exists, false if not
+ */
+function linux_file_exists($server, $path){
+    try{
+        $server  = servers_get($server);
+        $results = servers_exec($server, 'ls '.$path, false, null, 2);
+
+        return true;
+
+    }catch(Exception $e){
+showdie($e);
+        throw new bException('linux_file_exists(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns if the specified file exists on the specified server
+ *
+ * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server
+ * @param string $path
+ * @return boolean True if the file exists, false if not
+ */
+function linux_scandir($server, $path){
+    try{
+        $server  = servers_get($server);
+        $results = servers_exec($server, 'ls '.$path);
+        $result  = array_shift($results);
+        $result  = strtolower(trim($result));
+
+        return $result;
+
+    }catch(Exception $e){
+        throw new bException('linux_scandir(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Delete a file, weather it exists or not, without error, from the specified
+ * server
+ *
+ * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @note If the specified file pattern does not exist (doesn't match any files), no error will be thrown
+ * @exception bException will be thrown if files, for whatever reasons, cannot be deleted
+ *
+ * @param mixed $server
+ * @param string $path
+ * @return void
+ */
+// :SECURITY: $pattern is NOT checked!!
+function linux_file_delete($server, $patterns, $clean_path = false, $sudo = false){
+    try{
+        if(!$patterns){
+            throw new bException('linux_file_delete(): No files or patterns specified');
+        }
+
+        $server = servers_get($server);
+
+        foreach(array_force($patterns) as $pattern){
+            servers_exec($server, ($sudo ? 'sudo ' : '').'rm -rf '.$pattern);
+
+            if($clean_path){
+                linux_file_clear_path(dirname($patterns));
+            }
+        }
+
+    }catch(Exception $e){
+        throw new bException('linux_file_delete(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Delete the path until directory is no longer empty on the specified server
+ *
+ * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server
+ * @param string $path
+ * @return
+ */
+function linux_file_clear_path($server, $path){
+    try{
+        $server = servers_get($server);
+
+        if(!linux_file_exists($server, $path)){
+            /*
+             * This section does not exist, jump up to the next section
+             */
+            return linux_file_clear_path($server, dirname($path));
+        }
+
+        if(!is_dir($path)){
+            /*
+             * This is a normal file. Delete it and continue with the directory above
+             */
+            unlink($path);
+
+        }else{
+            $files = linux_scandir($server, $path);
+
+            foreach($files as $file){
+                /*
+                 * Skip . and ..
+                 */
+                if(($file == '.') or ($file == '..')) continue;
+
+                $contents = true;
+                break;
+            }
+
+            if($contents){
+                /*
+                 * Do not remove anything more, there is contents here!
+                 */
+                return true;
+            }
+
+            /*
+             * Remove this entry and continue;
+             */
+            try{
+                linux_file_execute_mode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function() use ($path){
+                    linux_file_delete($server, $path);
+                });
+
+            }catch(Exception $e){
+                /*
+                 * The directory WAS empty, but cannot be removed
+                 *
+                 * In all probability, a parrallel process added a new content
+                 * in this directory, so it's no longer empty. Just register
+                 * the event and leave it be.
+                 */
+                log_console(tr('linux_file_clear_path(): Failed to remove empty path ":path" on server ":server" with exception ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $e)), 'failed');
+                return true;
+            }
+        }
+
+        /*
+         * Go one entry up and continue
+         */
+        $path = str_runtil(unslash($path), '/');
+        linux_file_clear_path($server, $path);
+
+    }catch(Exception $e){
+        throw new bException('linux_file_clear_path(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns true if the specified file is writable on the specified server with
+ * its configured user
+ *
+ * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server
+ * @param string $file The file to be tested
+ * @return boolean True if the specified file is writable, false if not
+ */
+function linux_is_writable($server, $file){
+    try{
+        $server  = servers_get($server);
+        $results = servers_exec($server, 'test -w "'.$path.'" && echo "writable"');
+        $result  = array_shift($results);
+
+        return $result;
+
+    }catch(Exception $e){
+        throw new bException('linux_is_writable(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns a list of PID's for the specified process names on the specified
+ * server
+ *
+ * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server
+ * @param string $name The name of the process to be checked
+ * @return array a list of all the process id's that were found
+ */
+function linux_pgrep($server, $name){
+    try{
+        $server  = servers_get($server);
+        $results = servers_exec($server, 'pgrep '.$name, false, null, 1);
+
+        if(count($results) == 1){
+            if(!current($results)){
+                /*
+                 * No process id's found
+                 */
+                return array();
+            }
+        }
+
+        return $results;
+
+    }catch(Exception $e){
+        throw new bException('linux_pgrep(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Kill all processes with the specified process name on the specified server
+ *
+ * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server
+ * @param string $file The file to be tested
+ * @return boolean True if the specified file is writable, false if not
+ */
+function linux_pkill($server, $process, $signal = null, $sudo = false, $verify = 3, $sigkill = true){
+    try{
+        $server = servers_get($server);
+
+        if(!$signal){
+            $signal = 15;
+        }
+
+        /*
+         * pkill returns 1 if process wasn't found, we can ignore that
+         */
+        servers_exec($server, ($sudo ? 'sudo ' : '').'pkill -'.$signal.' '.$process, false, null, 1);
+
+        if($verify){
+            while(--$verify >= 0){
+                sleep(0.5);
+
+                /*
+                 * Ensure that the progress is gone
+                 */
+                $results = linux_pgrep($server, $process);
+
+                if(!$results){
+                    /*
+                     * Killed it softly
+                     */
+                    return true;
+                }
+
+                sleep(0.5);
+            }
+
+            if($sigkill){
+                /*
+                 * Sigkill it!
+                 */
+                $result = linux_pkill($server, $process, 9, $sudo, $verify, false);
+
+                if($result){
+                    /*
+                     * Killed it the hard way!
+                     */
+                    return true;
+                }
+            }
+
+            throw new bException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
+        }
+
+    }catch(Exception $e){
+        throw new bException('linux_pkill(): Failed', $e);
+    }
+}
 ?>
