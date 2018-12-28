@@ -22,10 +22,9 @@
  * @copyright Sven Oostenbrink <support@capmega.com>
  */
 $usage = './scripts/base/init.
-./scripts/base/init -F | --force
 ./scripts/base/init -d | --drop
-./scripts/base/init -f | --frameworkversion VERSION
-./scripts/base/init -p | --projectversion VERSION
+./scripts/base/init -f [VERSION]
+./scripts/base/init -p [VERSION]
 ./scripts/base/init -s | --section SECTION [-v VERSION]';
 
 $help  = 'This script will initialize the database and system files to leave your data structures up to date with the current code version
@@ -36,11 +35,14 @@ ARGUMENTS
 
 
 
-[-p VERSION]                    - Run init from project version VERSION
-[--from-project-version VERSION]
+[-f [VERSION]]                  - Run init from framework version VERSION. If
+                                  VERSION has not been specified, the current
+                                  last framework database version will be
+                                  assumed
 
-[-f VERSION]                    - Run init from framework version VERSION
-[--from-framework-version VERSION]
+[-p [VERSION]]                  - Run init from project version VERSION. If
+                                  VERSION has not been specified, the current
+                                  last project database version will be assumed
 
 [--drop]                        - DROP, will drop the core database. Usually
                                   used on production systems in case the
@@ -64,14 +66,48 @@ ARGUMENTS
 
 require_once(__DIR__.'/../../libs/startup.php');
 
-$drop                 = cli_argument('--drop');
-$fromprojectversion   = not_empty(cli_argument('--from-project-version'  , true, null), cli_argument('-p', true, null));
-$fromframeworkversion = not_empty(cli_argument('--from-framework-version', true, null), cli_argument('-f', true, null));
-$section              = cli_argument('-s,--section', true);
-
+/*
+ * Setup database connection with core database so that FRAMEWORKDBVERSION and
+ * PROJECTDBVERSION are available
+ */
 cli_only(true);
 load_libs('init');
+sql_query('SELECT true;');
 
+
+
+/*
+ * Get command line arguments
+ */
+$drop                 = cli_argument('--drop');
+$fromprojectversion   = not_empty(cli_argument('-p', 'optional'));
+$fromframeworkversion = not_empty(cli_argument('-f', 'optional'));
+$section              = cli_argument('-s,--section', true);
+
+
+
+/*
+ * Init from specific versions?
+ */
+if($fromframeworkversion === false){
+    /*
+     * Default -f to current framework database version
+     */
+    $fromframeworkversion = FRAMEWORKDBVERSION;
+}
+
+if($fromprojectversion === false){
+    /*
+     * Default -p to current project database version
+     */
+    $fromprojectversion = PROJECTDBVERSION;
+}
+
+
+
+/*
+ * Do init of a specific section?
+ */
 if($section){
     /*
      * Section initialization
