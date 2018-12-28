@@ -12,6 +12,8 @@
  */
 $_CONFIG['ssh']                                                                 = array('function'   => 'exec',
 
+                                                                                        'persist'    => array('timeout' => '12h'),
+
                                                                                         'tunnel'     => array('target_hostname'          => '127.0.0.1'),
 
                                                                                         'arguments'  => array('port'                     => 22,
