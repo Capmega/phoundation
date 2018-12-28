@@ -46,27 +46,6 @@ function sql_library_init(){
 
 
 /*
- * Helper for building sql_in key value pairs
- *
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package sql
- *
- * @param
- * @return
- */
-function sql_in_columns($in){
-    try{
-        return implode(',', array_keys($in));
-
-    }catch(Exception $e){
-        throw new bException('sql_in_columns(): Failed', $e);
-    }
-}
-
-
-/*
  * Execute specified query
  *
  * @copyright Copyright (c) 2018 Capmega
@@ -1019,6 +998,39 @@ function sql_in($source, $column = ':value'){
     }
 }
 
+
+
+/*
+ * Helper for building sql_in key value pairs
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ *
+ * @param
+ * @param
+ * @return string a comma delimeted string of columns
+ */
+function sql_in_columns($in, $column_starts_with = null){
+    try{
+        if($column_starts_with){
+            /*
+             * Only return those columns that start with this string
+             */
+            foreach($in as $key => $column){
+                if(substr($key, 0, strlen($column_starts_with)) !== $column_starts_with){
+                    unset($in[$key]);
+                }
+            }
+        }
+
+        return implode(',', array_keys($in));
+
+    }catch(Exception $e){
+        throw new bException('sql_in_columns(): Failed', $e);
+    }
+}
 
 
 /*
