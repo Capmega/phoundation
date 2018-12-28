@@ -966,12 +966,12 @@ function geo_validate($geo){
          * Validate the states_id
          */
         if($geo['states_id']){
-            $exist = sql_query('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', array(':id' => $geo['states_id']));
+            $exist = sql_get('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', array(':id' => $geo['states_id']));
 
             if(!$exist){
                 $v->setError(tr('The specified states_id ":id" does not exist', array(':id' => $geo['states_id'])));
 
-            }elseif($exist['countries_id'] !== $geo['countries_id']){
+            }elseif($exist['id'] !== $geo['states_id']){
                 $v->setError(tr('The specified states_id ":id" does not exist in the specified countries_id ":countries_id"', array(':id' => $geo['states_id'], ':countries_id' => $geo['countries_id'])));
             }
 
@@ -1078,6 +1078,32 @@ function geo_loaded(){
     }catch(bException $e){
         throw new bException('geo_loaded() Failed', $e);
     }
+}
+
+
+/*
+ * Calculate distance of two points
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package geo
+ *
+ * @return float with distance in meters
+ */
+function geo_distance(float $latA, float $lonA, float $latB, float $lonB){
+    $RlatA = deg2rad($latA);
+    $RlonA = deg2rad($lonA);
+    $RlatB = deg2rad($latB);
+    $RlonB = deg2rad($lonB);
+
+    $deltaLat = $RlatA - $RlatB;
+    $deltaLon = $RlonA - $RlonB;
+
+    $d = sin($deltaLat/2) * sin($deltaLat/2) + cos($RlatA) * cos($RlatB) * sin($deltaLon/2) * sin($deltaLon/2);
+
+    return 2 * ASIN(SQRT($d)) * 6371.01;
 }
 
 
