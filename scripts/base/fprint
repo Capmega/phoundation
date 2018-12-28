@@ -27,27 +27,29 @@ enroll USER [FINGER]            - Add a (optionally specified) finger for the
                                   specified user to the database. If no FINGER
                                   was specified, "auto" will be used
 
-
-
 authenticate USER [FINGER]      - Verify the specified user using the
                                   (optionally) specified finger. If no vinger
                                   was specified, then "auto" will be used
 
-
-
 list [USERS]                    - List the available finger print records for
                                   the specified users
 
-
-
 delete [USERS]                  - Delete the finger print data for the
-                                  specified USERS';
+                                  specified USERS
+
+test                            - Test the fingerprint scanner by turning it on
+                                  for a second';
 
 require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('fprint');
 
 switch(cli_method()){
+    case 'test':
+        $device = fprint_test_device();
+        log_console(tr('Succesfully tested fingerprint device ":device" on server ":server"', array(':device' => $device['string'], ':server' => $device['server']['domain'])));
+        break;
+
     case 'enroll':
         $requested = cli_argument(1);
         $finger    = cli_argument(2);
@@ -96,7 +98,6 @@ switch(cli_method()){
         break;
 
     case 'list':
-under_construction();
         $requested = cli_arguments();
 
         if(!$requested){
@@ -104,6 +105,7 @@ under_construction();
              * List all available users
              */
             $users = fprint_list_users();
+
         }else{
             /*
              *
