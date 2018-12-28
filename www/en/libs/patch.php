@@ -2,7 +2,7 @@
 /*
  * Patch library
  *
- * This library contains functions to assist the base patch script
+ * This library contains functions to assist the phoundation patch script
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Sven Oostenbrink <support@capmega.com>
@@ -11,9 +11,9 @@
 
 
 /*
- * Find the location of the base project and return it
+ * Find the location of the phoundation project and return it
  */
-function patch_get_base_location(){
+function patch_get_phoundation_location(){
     static $path;
 
     try{
@@ -26,26 +26,26 @@ function patch_get_base_location(){
         while($path = dirname($path)){
             $path = slash($path);
 
-            if(file_exists($path.'base')){
-                if(file_exists($path.'base/config/base/default.php')){
+            if(file_exists($path.'phoundation')){
+                if(file_exists($path.'phoundation/config/base/default.php')){
                     /*
-                     * Found the base default configuration file, we're good
+                     * Found the phoundation default configuration file, we're good
                      */
-                    $path .= 'base/';
+                    $path .= 'phoundation/';
 
-                    log_console(tr('Using base location ":path"', array(':path' => $path)), 'VERBOSE');
+                    log_console(tr('Using phoundation location ":path"', array(':path' => $path)), 'VERBOSE');
                     return $path;
                 }
             }
 
             if($path == '/'){
-                throw new bException(tr('patch_get_base_location(): Failed to find "base" project from ":path" up', array(':path' => ROOT)), 'not-exist');
+                throw new bException(tr('patch_get_phoundation_location(): Failed to find "phoundation" project from ":path" up', array(':path' => ROOT)), 'not-exist');
             }
         }
 
     }catch(Exception $e){
         $path = null;
-        throw new bException('patch_get_base_location(): Failed', $e);
+        throw new bException('patch_get_phoundation_location(): Failed', $e);
     }
 }
 
@@ -77,9 +77,9 @@ function patch_get_toolkit_location(){
 
                 if(!file_exists($path.'capmega/toolkit.capmega.com/config/base/default.php')){
                     /*
-                     * Found the base default configuration file, we're good
+                     * Found the phoundation default configuration file, we're good
                      */
-                    throw new bException(tr('patch_get_toolkit_location(): Found the toolkit.capmega.com path in ":path", but its default base configuration file does not exist', array(':path' => $path)), 'not-exist');
+                    throw new bException(tr('patch_get_toolkit_location(): Found the toolkit.capmega.com path in ":path", but its default phoundation configuration file does not exist', array(':path' => $path)), 'not-exist');
                 }
 
                 $path .= 'capmega/toolkit.capmega.com/';
@@ -89,7 +89,7 @@ function patch_get_toolkit_location(){
             }
 
             if($path == '/'){
-                throw new bException(tr('patch_get_toolkit_location(): Failed to find "base" project from ":path" up', array(':path' => ROOT)), 'not-exist');
+                throw new bException(tr('patch_get_toolkit_location(): Failed to find "phoundation" project from ":path" up', array(':path' => ROOT)), 'not-exist');
             }
         }
 
@@ -102,16 +102,16 @@ function patch_get_toolkit_location(){
 
 
 /*
- * Check if the specified file exists in base
+ * Check if the specified file exists in phoundation
  */
-function patch_file_exists_in_base($file){
+function patch_file_exists_in_phoundation($file){
     try{
-        $path = patch_get_base_location();
+        $path = patch_get_phoundation_location();
 
         return file_exists($path.$file);
 
     }catch(Exception $e){
-        throw new bException('patch_file_exists_in_base(): Failed', $e);
+        throw new bException('patch_file_exists_in_phoundation(): Failed', $e);
     }
 }
 
