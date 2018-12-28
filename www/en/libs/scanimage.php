@@ -327,7 +327,7 @@ function scanimage_list(){
          * Get device data from cache
          */
         load_libs('drivers');
-        $devices = drivers_get_devices('scanner');
+        $devices = devices_list('scanner');
 
         if($devices){
             $devices = sql_list($devices);
@@ -429,7 +429,7 @@ function scanimage_detect_devices(){
 function scanimage_update_devices(){
     try{
         load_libs('drivers');
-        drivers_clear_devices('scanner');
+        devices_clear('scanner');
 
         $scanners = scanimage_detect_devices();
         $failed   = 0;
@@ -438,7 +438,7 @@ function scanimage_update_devices(){
             unset($options);
 
             try{
-                $scanner = drivers_add_device($scanner, 'scanner');
+                $scanner = devices_insert($scanner, 'scanner');
                 log_file(tr('Added device ":device" with device string ":string"', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'scanner');
 
             }catch(Exception $e){
@@ -457,12 +457,12 @@ function scanimage_update_devices(){
 
             try{
                 $options = scanimage_get_options($scanner['string']);
-                $count   = drivers_add_options($scanner['id'], $options);
+                $count   = devices_insert_options($scanner['id'], $options);
                 log_file(tr('Added ":count" options for device string ":string"', array(':string' => $scanner['string'], ':count' => $count)), 'scanner');
 
             }catch(Exception $e){
                 $failed++;
-                drivers_device_status($scanner['string'], 'failed');
+                devices_set_status($scanner['string'], 'failed');
 
                 /*
                  * Options for one device failed to add, continue adding the rest
@@ -744,7 +744,7 @@ function scanimage_get_default(){
             if($scanner['default']){
                 load_libs('drivers');
 
-                $scanner['options'] = drivers_get_options($devices_id);
+                $scanner['options'] = devices_list_options($devices_id);
                 return $scanner;
             }
         }
@@ -773,13 +773,13 @@ function scanimage_get_default(){
 function scanimage_get($device_string){
     try{
         load_libs('drivers');
-        $scanner = drivers_get_device($device_string);
+        $scanner = devices_get($device_string);
 
         if(!$scanner){
             throw new bException(tr('scanner_get(): Specified scanner with device string ":string" does not exist', array(':string' => $device_string)), 'not-exist');
         }
 
-        $scanner['options'] = drivers_get_options($scanner['id']);
+        $scanner['options'] = devices_list_options($scanner['id']);
         return $scanner;
 
     }catch(Exception $e){
@@ -847,16 +847,16 @@ function scanimage_select_resolution($params){
         array_default($params, 'none'      , false);
         array_default($params, 'empty'     , tr('No scanners available'));
 
-        $params['resource'] = sql_query('SELECT    `drivers_options`.`value` AS `id`,
-                                                   `drivers_options`.`value`
+        $params['resource'] = sql_query('SELECT    `devices_options`.`value` AS `id`,
+                                                   `devices_options`.`value`
 
-                                         FROM      `drivers_devices`
+                                         FROM      `devices`
 
-                                         LEFT JOIN `drivers_options`
-                                         ON        `drivers_options`.`devices_id` = `drivers_devices`.`id`
-                                         AND       `drivers_options`.`key`        = "resolution"
+                                         LEFT JOIN `devices_options`
+                                         ON        `devices_options`.`devices_id` = `devices`.`id`
+                                         AND       `devices_options`.`key`        = "resolution"
 
-                                         WHERE     `drivers_devices`.`string`     = :string',
+                                         WHERE     `devices`.`string`     = :string',
 
                                          array(':string' => $params['string']));
 

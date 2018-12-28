@@ -6,21 +6,26 @@
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Sven Oostenbrink <support@capmega.com>
+ * @category Function reference
+ * @package ssh
  */
 
 
 
 /*
- * Initialize the library
- * Automatically executed by libs_load()
+ * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
+ *
+ * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package ssh
+ *
+ * @return void
  */
 function fprint_library_init(){
     try{
-        if(!file_exists('/var/lib/fprint')){
-            throw new bException(tr('fprint_library_init(): fprintd application data directory "/var/lib/fprint" not found, it it probably is not installed. Please fix this by executing "sudo apt-get install fprintd" on the command line'), 'install');
-        }
-
-
+        load_libs('linux');
         load_config('fprint');
 
     }catch(Exception $e){
@@ -32,18 +37,35 @@ function fprint_library_init(){
 
 /*
  * Register the fingerprint with the fprintd deamon
+ *
+ * This function will start the finger print scanner and register a fingerprint for the specified user. A fingerprint requires at least 5 tests, so the user will have to place his / her finger 5 times on the finger print scanner for the function to return a result.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ * @note This function is blocking until the finger print scanner returns results
+ * @note This function will not return a result unless an error was encountered, in which case an exception will be thrown
+ *
+ * @param natural $users_id The database `id` for the user that needs to be enrolled
+ * @param string $finger One from auto, left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger.
+ * @return void
  */
 function fprint_enroll($users_id, $finger = 'auto'){
     global $_CONFIG;
 
     try{
+        $device = fprint_select_device();
         $finger = fprint_verify_finger($finger);
-        fprint_kill();
+        fprint_kill($device['server']);
 
-        $results = safe_exec('sudo timeout '.$_CONFIG['fprint']['timeouts']['enroll'].' fprintd-enroll '.($finger ? '-f '.$finger.' ' : '').$users_id);
+        $results = servers_exec($device['server'], 'sudo timeout '.$_CONFIG['fprint']['timeouts']['enroll'].' fprintd-enroll '.($finger ? '-f '.$finger.' ' : '').$users_id);
         $result  = array_pop($results);
 
         if($result == 'Enroll result: enroll-completed'){
+            sql_query('UPDATE `users` SET `fingerprint` = UTC_TIMESTAMP WHERE `id` = :id', array(':id' => $users_id));
             return true;
         }
 
@@ -58,7 +80,20 @@ function fprint_enroll($users_id, $finger = 'auto'){
 
 
 /*
- * Verify a fingerprint
+ * Verify a fingerprint for the specified user.
+ *
+ * This function will start the finger print scanner and verify the finger print for the specified user.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @param mixed $user The user that needs to have his / her finger print verified
+ * @param string $finger One from auto, left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger.
+ * @return boolean True if the finger print matches for the specified user, false if not
  */
 function fprint_verify($user, $finger = 'auto'){
     global $_CONFIG;
@@ -75,10 +110,12 @@ function fprint_verify($user, $finger = 'auto'){
             throw new bException(tr('fprint_verify(): User ":user" has no fingerprint registered', array(':user' => name($dbuser))), 'warning/empty');
         }
 
-        $finger  = fprint_verify_finger($finger);
-        fprint_kill();
+        $finger = fprint_verify_finger($finger);
+        $device = fprint_select_device();
 
-        $results = safe_exec('sudo timeout '.$_CONFIG['fprint']['timeouts']['verify'].' fprintd-verify '.($finger ? '-f '.$finger.' ' : '').$user);
+        fprint_kill($device['server']);
+
+        $results = servers_exec($device['server'], 'sudo timeout '.$_CONFIG['fprint']['timeouts']['verify'].' fprintd-verify '.($finger ? '-f '.$finger.' ' : '').$user);
         $result  = array_pop($results);
 
         log_file(tr('Started fprintd-verify process for user ":user"', array(':user' => $user)), 'fprint');
@@ -100,10 +137,21 @@ function fprint_verify($user, $finger = 'auto'){
 
 /*
  * List available users registered in the fprint database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @return array the found users that have their finger print registered
  */
 function fprint_list_users(){
     try{
-        $results = scandir('/var/lib/fprint');
+        $device  = fprint_select_device();
+        $results = linux_scandir($device['server'], '/var/lib/fprint');
+
         return $results;
 
     }catch(Exception $e){
@@ -114,11 +162,22 @@ function fprint_list_users(){
 
 
 /*
- * List available finger prints
+ * List available users registered in the fprint database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @return array the users registered in the fprint database
  */
 function fprint_list($users){
     try{
-        $results = safe_exec('sudo fprintd-list'.str_force($users, ' '));
+        $device  = fprint_select_device();
+        $results = servers_exec($device['server'], 'sudo fprintd-list'.str_force($users, ' '));
+
         return $results;
 
     }catch(Exception $e){
@@ -129,18 +188,30 @@ function fprint_list($users){
 
 
 /*
- * Delete specified fingerprint
+ * Delete fingerprint for the specified user
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @param mixed $user The user for which the finger print must be deleted
+ * @return void
  */
 function fprint_delete($user){
     try{
-        if(!file_exists('/var/lib/fprint/'.$user)){
+        $device = fprint_select_device();
+
+        if(!linux_file_exists($device['server'], '/var/lib/fprint/'.$user)){
             throw new bException(tr('fprint_delete(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
         }
 
         /*
          * Delete the directory for this user completely
          */
-        file_delete('/var/lib/fprint/'.$user, false, true);
+        linux_file_delete($device['server'], '/var/lib/fprint/'.$user, false, true);
 
     }catch(Exception $e){
         throw new bException('fprint_delete(): Failed', $e);
@@ -150,12 +221,21 @@ function fprint_delete($user){
 
 
 /*
+ * Kill the fprint process
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @return void
  */
 function fprint_kill(){
     try{
-        load_libs('cli');
-        return cli_pkill('fprintd', 15, true);
+        $device = fprint_select_device();
+        return linux_pkill($device['server'], 'fprintd', 15, true);
 
     }catch(Exception $e){
         throw new bException('fprint_kill(): Failed', $e);
@@ -165,12 +245,21 @@ function fprint_kill(){
 
 
 /*
+ * Returns the process id for the fprint process
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @return natural
  */
 function fprint_process(){
     try{
-        load_libs('cli');
-        return cli_pgrep('fprintd');
+        $device = fprint_select_device();
+        return linux_pgrep($device['server'], 'fprintd');
 
     }catch(Exception $e){
         throw new bException('fprint_kill(): Failed', $e);
@@ -180,7 +269,17 @@ function fprint_process(){
 
 
 /*
+ * Validate the specified finger type
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @param string $finger One from auto, left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger.
+ * @return string The specified finger, validated
  */
 function fprint_verify_finger($finger){
     try{
@@ -213,6 +312,8 @@ function fprint_verify_finger($finger){
                 throw new bException('fprint_verify_finger(): Unknown finger ":finger" specified. Please specify one of "left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger"', 'unknown');
         }
 
+        return $finger;
+
     }catch(Exception $e){
         throw new bException('fprint_verify_finger(): Failed', $e);
     }
@@ -222,6 +323,19 @@ function fprint_verify_finger($finger){
 
 /*
  * Show the finger print reader page, and prepare $_SESSION['fprint']
+ *
+ * This function will show the finger print reader page (typically a page without content, but with a finger print scanner symbol in the middle). Since the fprint_enroll() function is blocking, no page data can be processed until this function is ready. This function basically sets up a process that will show a nice "use the finger print scanner" page, process the results, and stores the results in $_SESSION['fprint'] so that after a page reload, it can be processed in the target page
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @param natural $users_id The id of the user that wants to perform a finger print verification
+ * @param string $html_flash_class
+ * @return die
  */
 function fprint_page_show($users_id, $html_flash_class){
     try{
@@ -245,11 +359,13 @@ function fprint_page_show($users_id, $html_flash_class){
                 throw new bException(tr('fprint_verify(): User ":user" has no fingerprint registered', array(':user' => name($user))), 'warning/empty');
             }
 
+            $device = fprint_select_device();
             $params = array('file'     => uniqid(),
                             'users_id' => $user['id']);
 
-            fprint_kill();
-            $params['pid'] = run_background('/base/fprint authenticate -Q -C '.$params['users_id'], 'tmp/fprint/'.$params['file']);
+            fprint_kill($device['server']);
+
+            $params['pid'] = linux_run_background($device['server'], '/base/fprint authenticate -Q -C '.$params['users_id'], 'tmp/fprint/'.$params['file']);
 
             if($params['pid'] === false){
                 /*
@@ -281,6 +397,17 @@ function fprint_page_show($users_id, $html_flash_class){
 
 /*
  * Try to handle fprint exceptions
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added documentation
+ *
+ * @param bException $e The exception that has to be handled
+ * @param mixed $user The user that was being processed
+ * @return void
  */
 function fprint_handle_exception($e, $user){
     try{
@@ -309,8 +436,136 @@ function fprint_handle_exception($e, $user){
             throw new bException(tr('fprint_handle_exception(): finger print scan timed out'), 'warning/timeout');
         }
 
-   }catch(Exception $e){
+    }catch(Exception $e){
         throw new bException('fprint_handle_exception(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Detect fingerprint scanner on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added function and documentation
+ *
+ * @return
+ */
+function fprint_detect_software(){
+    try{
+        $device = fprint_select_device();
+
+        if(!linux_file_exists($device['server'], '/var/lib/fprint')){
+            throw new bException(tr('fprint_detect_software(): fprintd application data directory "/var/lib/fprint" not found, it it probably is not installed. Please fix this by executing "sudo apt-get install fprintd" on the command line'), 'install');
+        }
+
+    }catch(Exception $e){
+        throw new bException('fprint_detect_software(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Detect fingerprint scanner on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.24.0: Added function and documentation
+ *
+ * @return
+ */
+function fprint_detect_device(){
+    try{
+
+    }catch(Exception $e){
+        throw new bException('fprint_detect_device(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Select a finger print device for this user
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.25.0: Added function and documentation
+ * @note This function caches the result. After the first call, it will keep returning the same device and server data for all subsequent calls.
+ *
+ * @param mixed $category id or seoname of category
+ * @return array The selected finger print scanner device with server data included
+ */
+function fprint_select_device($category = null){
+    static $device;
+
+    try{
+        if(!$device){
+            load_libs('devices');
+            $device = devices_select('fingerprint-reader', $category);
+
+            if(!$device){
+                throw new bException(t('fprint_select_device(): No fingerprint reader device found'), 'not-exist');
+            }
+
+            $device['persist'] = true;
+        }
+
+        return $device;
+
+    }catch(Exception $e){
+        throw new bException('fprint_select_device(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Test the finger print device for this user by turning it on for one second and turning it off again
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.25.0: Added function and documentation
+ *
+ * @return
+ */
+function fprint_test_device(){
+   try{
+        $device = fprint_select_device();
+
+        fprint_kill($device['server']);
+        servers_exec($device['server'], 'sudo timeout 1 fprintd-enroll test', false, null, 124);
+
+        return $device;
+
+    }catch(Exception $e){
+        $results = $e->getData();
+        $results = array_force($results);
+        $result  = array_pop($results);
+
+        if(strstr($result, 'No devices available')){
+            throw new bException(tr('fprint_test_device(): No fingerprint devices available'), 'warning/not-exist');
+        }
+
+        if(strstr($result, 'Could not attempt device open')){
+            $device = array_shift($results);
+            throw new bException(tr('fprint_test_device(): Failed to open fingerprint device ":device"', array(':device' => $device)), 'failed');
+        }
+
+        throw new bException('fprint_test_device(): Failed', $e);
     }
 }
 ?>
