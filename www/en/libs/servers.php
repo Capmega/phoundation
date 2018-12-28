@@ -279,6 +279,36 @@ function servers_insert($server){
 
 
 /*
+ * Erase the specified server from the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @provider Function reference
+ * @package servers
+ *
+ * @param mixed server
+ * @return
+ */
+function servers_erase($server){
+    try{
+        $server = servers_get($server);
+
+        servers_remove_domain($server);
+        servers_unregister_host($server);
+
+        sql_query('DELETE FROM `servers` WHERE `id` = :id', array(':id' => $server['id']));
+
+        return $server;
+
+    }catch(Exception $e){
+        throw new bException('servers_insert(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Updates the specified server in the database
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -557,8 +587,21 @@ function servers_add_domain($server, $domain){
  *
  * @return integer Amount of deleted domains
  */
-function servers_remove_domain($server, $domain){
+function servers_remove_domain($server, $domain = null){
     try{
+        if(!$domain){
+            /*
+             * Remove all domains
+             */
+            $domains = servers_list_domains($server);
+
+            foreach($domains as $domain){
+                servers_remove_domain($server, $domain);
+            }
+
+            return count($domains);
+        }
+
         $server = servers_get_id($server);
         $domain = domains_get_id($domain);
 
@@ -641,10 +684,11 @@ function servers_list_domains($server){
  * @param mixed $commands
  * @param boolean $background
  * @param string $function
+ * @param mixed $ok_exitcodes
  * @return array The results of the executed SSH commands in an array, each entry containing one line of the output
  * @see ssh_exec()
  */
-function servers_exec($server, $commands = null, $background = false, $function = null){
+function servers_exec($server, $commands = null, $background = false, $function = null, $ok_exitcodes = 0){
     try{
         array_params($server, 'domain');
         array_default($server, 'hostkey_check', true);
@@ -674,7 +718,7 @@ function servers_exec($server, $commands = null, $background = false, $function 
         /*
          * Execute command on remote server
          */
-        $results = ssh_exec($server, null, false, $function);
+        $results = ssh_exec($server, null, false, $function, $ok_exitcodes);
         return $results;
 
     }catch(Exception $e){
@@ -693,6 +737,88 @@ function servers_exec($server, $commands = null, $background = false, $function 
         }
 
         throw new bException('servers_exec(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Add SSH fingerprint all domains / ports for the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package servers
+ *
+ * @param mixed $server
+ * @return array The database entry data for the requested domain
+ */
+function servers_exec_on_all($params){
+    try{
+        if(is_executable($params)){
+            /*
+             * Just the callback function was given
+             */
+            $params['callback'] = $params;
+        }
+
+        array_ensure($params);
+        array_default($params, 'status', null);
+
+        $server = sql_query('SELECT `servers`.`id`,
+                                    `servers`.`createdon`,
+                                    `servers`.`meta_id`,
+                                    `servers`.`port`,
+                                    `servers`.`cost`,
+                                    `servers`.`status`,
+                                    `servers`.`interval`,
+                                    `servers`.`domain`,
+                                    `servers`.`seodomain`,
+                                    `servers`.`bill_duedate`,
+                                    `servers`.`ssh_accounts_id`,
+                                    `servers`.`database_accounts_id`,
+                                    `servers`.`description`,
+                                    `servers`.`ipv4`,
+                                    `servers`.`ipv6`,
+                                    `servers`.`allow_sshd_modification`,
+
+                                    `ssh_accounts`.`username`,
+                                    `ssh_accounts`.`ssh_key`,
+
+                                    `createdby`.`name`  AS `createdby_name`,
+                                    `createdby`.`email` AS `createdby_email`,
+
+                                    `providers`.`name`       AS `provider`,
+                                    `customers`.`name`       AS `customer`,
+                                    `providers`.`seoname`    AS `seoprovider`,
+                                    `customers`.`seoname`    AS `seocustomer`,
+                                    `ssh_accounts`.`seoname` AS `ssh_account`
+
+                          FROM      `servers`
+
+                          LEFT JOIN `users` AS `createdby`
+                          ON        `servers`.`createdby`            = `createdby`.`id`
+
+                          LEFT JOIN `providers`
+                          ON        `providers`.`id`                 = `servers`.`providers_id`
+
+                          LEFT JOIN `customers`
+                          ON        `customers`.`id`                 = `servers`.`customers_id`
+
+                          LEFT JOIN `ssh_accounts`
+                          ON        `ssh_accounts`.`id`              = `servers`.`ssh_accounts_id`
+
+                          WHERE `servers`.`status` '.sql_is($params['status']).' '.$params['status']);
+
+        while($server = sql_fetch($servers)){
+            $params['callback']($server);
+        }
+
+        return $servers->rowCount();
+
+    }catch(Exception $e){
+        throw new bException('servers_exec_on_all(): Failed', $e);
     }
 }
 
@@ -747,6 +873,7 @@ function servers_register_host($server){
  */
 function servers_unregister_host($server){
     try{
+        $retval  = array();
         $server  = servers_get($server);
         $domains = servers_list_domains($server);
 
@@ -806,6 +933,14 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
 
         }elseif(!is_scalar($server)){
             throw new bException(tr('servers_get(): The specified server ":server" is invalid', array(':server' => $server)), 'invalid');
+        }
+
+        if(substr($server, 0, 1) === '+'){
+            /*
+             * Use persistent connections
+             */
+            $server  = substr($server, 1);
+            $persist = true;
         }
 
         if($limited_columns){
@@ -951,6 +1086,10 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
             if(is_array($server)){
                 $dbserver = array_merge($server, $dbserver);
             }
+        }
+
+        if(isset($persist)){
+            $dbserver['persist'] = true;
         }
 
         return $dbserver;
