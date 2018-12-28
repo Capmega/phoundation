@@ -742,6 +742,16 @@ function cli_method($index = null, $default = null){
  *
  * This function will REMOVE and then return the argument when its found
  * If the argument is not found, $default will be returned
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ *
+ * @param mixed $keys (NOTE: See $next for what will be returned) If set to a numeric value, the value from $argv[$key] will be selected. If set as a string value, the $argv key where the value is equal to $key will be selected. If set specified as an array, all entries in the specified array will be selected.
+ * @params mixed $next. If set to true, cli_argument() REQUIRES that the specified key contains a next argument, and this will be returned. If set to "all", it will return all following arguments. If set to "optional", a next argument will be retuned, if available.
+ * @return mixed If $next is null, cli_argument() will return a boolean value, true if the specified key exists, false if not. If $next is true or "optional", the next value will be returned as a string. However, if "optional" was used, and the next value was not specified, boolean FALSE will be returned instead. If $next is specified as all, all subsequent values will be returned in an array
  */
 function cli_argument($keys = null, $next = null, $default = null){
     global $argv;
@@ -898,10 +908,14 @@ function cli_argument($keys = null, $next = null, $default = null){
 
             }catch(Exception $e){
                 if($e->getCode() == 'invalid'){
-                    /*
-                     * This argument requires another parameter
-                     */
-                    throw $e->setCode('missing-arguments');
+                    if($next !== 'optional'){
+                        /*
+                         * This argument requires another parameter
+                         */
+                        throw $e->setCode('missing-arguments');
+                    }
+
+                    $retval = false;
                 }
             }
 
