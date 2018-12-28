@@ -88,7 +88,7 @@ try{
 
     switch(cli_method()){
         case 'add':
-            $port      = not_empty(cli_argument('--port'), ssh_get_port());
+            $port      = not_empty(cli_argument('--port', true), ssh_get_port());
             $register  = cli_argument('--register');
             $account   = cli_argument('--ssh-account,--account', true);
             $domains   = cli_arguments();
@@ -181,42 +181,82 @@ try{
             break;
 
         case 'delete':
-            $status = ensure_variable($status, 'deleted');
+            $start  = 0;
+            $status = 'deleted';
             // FALLTHROUH
 
         case 'undelete':
-            $status = ensure_variable($status, null);
+            $start  = 0;
+            $status = isset_get($status, null);
             // FALLTHROUH
 
         case 'status':
-            $domain = cli_argument(1);
-            $status = ensure_variable($status, cli_argument(2));
+            /*
+             * Erase all specified servers
+             */
+            $count   = 0;
+            $servers = array();
+            $status  = isset_get($status, cli_argument(isset_get($start, 1)));
+            $list    = cli_arguments();
+
             cli_no_arguments_left();
 
-            $count = servers_unregister_host(array('domain'        => $domain,
-                                                   'identity_file' => $identity_file));
+            /*
+             * Get a list of all servers so we can delete them in an atomic action
+             */
+            foreach($list as $requested){
+                $server = servers_get($requested, false, false, 'id');
 
-            if($count){
-                log_console(tr('Removed ":count" hashed domains', array(':count' => $count)), 'green');
+                if(!$server){
+                    throw new bException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exist');
+                }
+
+                $servers[] = $server['id'];
+            }
+
+            $in            = sql_in($servers);
+            $in[':status'] = $status;
+
+            $r = sql_query('UPDATE `servers` SET `status` = :status WHERE `id` IN ('.sql_in_columns($in, ':value').')', $in);
+
+            if($r->rowCount()){
+                log_console(tr('Set status ":status" for ":count" servers', array(':status' => $status, ':count' => $r->rowCount())), 'green');
 
             }else{
-                log_console(tr('Removed no hashed domains, domain was probably not registered'), 'yellow');
+                log_console(tr('Did not status update servers, servers probably already had requested status'), 'yellow');
             }
 
             break;
 
         case 'erase':
-            $domain = cli_argument(1);
+            /*
+             * Erase all specified servers
+             */
+            $count   = 0;
+            $servers = array();
+            $list    = cli_arguments();
             cli_no_arguments_left();
 
-            $count = servers_unregister_host(array('domain'        => $domain,
-                                                   'identity_file' => $identity_file));
+            foreach($list as $requested){
+                $server = servers_get($requested);
+
+                if(!$server){
+                    throw new bException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exist');
+                }
+
+                $servers[] = $server;
+            }
+
+            foreach($servers as $server){
+                $count++;
+                servers_erase($server);
+            }
 
             if($count){
-                log_console(tr('Removed ":count" hashed domains', array(':count' => $count)), 'green');
+                log_console(tr('Erased ":count" servers', array(':count' => $count)), 'green');
 
             }else{
-                log_console(tr('Removed no hashed domains, domain was probably not registered'), 'yellow');
+                log_console(tr('Erased no servers, servers were probably not registered'), 'yellow');
             }
 
             break;
