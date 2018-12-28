@@ -26,6 +26,7 @@
 function ssh_library_init(){
     try{
         load_config('ssh');
+        file_ensure_path(ROOT.'data/run/ssh');
 
     }catch(Exception $e){
         throw new bException('ssh_library_init(): Failed', $e);
@@ -91,6 +92,7 @@ function ssh_exec($server, $commands = null, $background = false, $function = nu
         array_default($server, 'commands'     , $commands);
         array_default($server, 'background'   , $background);
         array_default($server, 'proxies'      , null);
+        array_default($server, 'persist'      , false);
 
         /*
          * If $server[domain] is available without identity file, then load
@@ -161,9 +163,8 @@ function ssh_exec($server, $commands = null, $background = false, $function = nu
                     /*
                      * Check if the exception perhaps was caused by missing ssh server fingerprints (common enough to test)
                      */
-show('aaaaaaaaaaaaaaaaa');
                     $known = ssh_host_is_known($server['domain'], $server['port']);
-showdie($known);
+
                     if($known === false){
                         /*
                          * There are no fingerprints availabe in either the
@@ -350,6 +351,24 @@ showdie($command);
             $server['remote_connect']  = true;
         }
 
+        /*
+         * Check if ControlMasters are already running for this connection
+         */
+        if(file_exists(ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($server['tunnel']) ? 'T' : ''))){
+            /*
+             * A master is already  running, so this connection should NOT be a
+             * master, just reuse the existing one
+             */
+            $master = 'no';
+
+        }else{
+            /*
+             * No master is running yet, so if a persistent connection was
+             * requested, this has to be a master
+             */
+            $master = 'yes';
+        }
+
         foreach($server as $parameter => &$value){
             switch($parameter){
                 case 'options':
@@ -403,7 +422,15 @@ showdie($command);
 
                 case 'goto_background':
                     /*
-                     * NOTE: This is not the same as shell background! This will execute SSH with one PID and then have it switch to an independant process with another PID!
+                     * Run this SSH connection in the background.
+                     *
+                     * NOTE: This is not the same as shell background! This will
+                     * execute SSH with one PID and then have it switch to an
+                     * independant process with another PID!
+                     *
+                     * NOTE: Though in a bash shell, running SSH -fN will run
+                     * SSH in the background and immediately return command
+                     * prompt, this does NOT work in PHP, it will hang instead!
                      */
                     if($value){
                         $command .= ' -f';
@@ -418,14 +445,20 @@ showdie($command);
 
                     break;
 
-                case 'master':
-                    if($value){
-                        $command .= ' -M';
-                    }
-
-                    break;
+                //case 'master':
+                //    /*
+                //     * Setup a reusable master connection
+                //     */
+                //    if($value){
+                //        $command .= ' -M';
+                //    }
+                //
+                //    break;
 
                 case 'no_command':
+                    /*
+                     * Do not execute a command, just wait
+                     */
                     if($value){
                         $command .= ' -N';
                     }
@@ -433,10 +466,20 @@ showdie($command);
                     break;
 
                 case 'tunnel':
+                    if(!$value) break;
+
+                    /*
+                     * Configure SSH connection to create an SSH tunnel to the
+                     * specified server, and on the server connect it to the
+                     * specified domain / IP :port
+                     */
                     array_ensure ($value, 'source_port,target_port');
                     array_default($value, 'target_domain', 'localhost');
                     array_default($value, 'persist'      , false);
 
+                    /*
+                     * Validate variables
+                     */
                     if(!$value['persist'] and !empty($server['proxies'])){
                         throw new bException(tr('ssh_build_command(): A non persistent SSH tunnel with proxies was requested, but since SSH proxies will cause another SSH process with unknown PID, we will not be able to close them automatically. Use "persisten" for this tunnel or tunnel without proxies'), 'warning/invalid');
                     }
@@ -465,10 +508,16 @@ showdie($command);
                         throw new bException(tr('ssh_build_command(): Invalid target_domain specified for parameter "tunnel". Value should be scalar, and between 1 and 253 characters'), 'invalid');
                     }
 
+                    /*
+                     * Build command
+                     */
                     $command .= ' -L '.$value['source_port'].':'.$value['target_domain'].':'.$value['target_port'];
                     break;
 
                 case 'identity_file':
+                    /*
+                     * Use the specified identity_file for the SSH connection
+                     */
                     if($value){
                         if(!is_string($value)){
                             throw new bException(tr('ssh_build_command(): Specified option "identity_file" requires string value containing the path to the identity file, but contains ":value"', array(':value' => $value)), 'invalid');
@@ -484,6 +533,10 @@ showdie($command);
                     break;
 
                 case 'proxies':
+                    /*
+                     * Configure connection to pass over one or multiple
+                     * proxies. Each proxy can require a different SSH port
+                     */
 // :TODO: Right now its assumed that every proxy uses the same SSH user and key file, though in practice, they MIGHT have different ones. Add support for each proxy server having its own user and keyfile
                     if(!$value){
                         break;
@@ -573,6 +626,11 @@ showdie($command);
 
                     break;
 
+                case 'persist':
+                    if(!$value) break;
+                    $command .= ' -o ControlMaster='.$master.' ';
+                    break;
+
                 default:
                     /*
                      * Ignore any known parameter as specified $server list may contain parameters for other functions than the SSH library functions
@@ -580,6 +638,11 @@ showdie($command);
             }
 
         }
+
+        /*
+         * Always check for persistent connections
+         */
+        $command .= ' -o ControlPersist='.$_CONFIG['ssh']['persist']['timeout'].' -o ControlPath="'.ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($server['tunnel']) ? 'T' : '').'" ';
 
         /*
          * Add the target server
@@ -707,106 +770,106 @@ function ssh_build_options($options = null){
 
 
 
-/*
- *
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package ssh
- *
- * @param
- */
-function ssh_start_control_master($server, $socket = null){
-    global $_CONFIG;
-
-    try{
-        load_libs('file');
-        file_ensure_path(TMP);
-
-        if(!$socket){
-            $socket = file_temp();
-        }
-
-        if(ssh_get_control_master($socket)){
-            return $socket;
-        }
-
-        $result = ssh_exec(array('domain'    => $server['domain'],
-                                 'port'      => $_CONFIG['cdn']['port'],
-                                 'username'  => $server['username'],
-                                 'ssh_key'   => ssh_get_key($server['username']),
-                                 'arguments' => '-nNf -o ControlMaster=yes -o ControlPath='.$socket), ' 2>&1 >'.ROOT.'data/log/ssh_master');
-
-        return $socket;
-
-    }catch(Exception $e){
-        throw new bException('ssh_start_control_master(): Failed', $e);
-    }
-}
-
-
-
-/*
- *
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package ssh
- *
- * @param
- */
-function ssh_get_control_master($socket = null){
-    global $_CONFIG;
-
-    try{
-        $result = safe_exec('ps $(pgrep --full '.$socket.') | grep "ssh -nNf" | grep --invert-match pgrep', '0,1');
-        $result = array_pop($result);
-
-        preg_match_all('/^\s*\d+/', $result, $matches);
-
-        $pid = array_pop($matches);
-        $pid = (integer) array_pop($pid);
-
-        return $pid;
-
-    }catch(Exception $e){
-        throw new bException('ssh_get_control_master(): Failed', $e);
-    }
-}
-
-
-
-/*
- *
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package ssh
- *
- * @param
- */
-function ssh_stop_control_master($socket = null){
-    global $_CONFIG;
-
-    try{
-        $pid = ssh_get_control_master($socket);
-
-        if(!posix_kill($pid, 15)){
-            return posix_kill($pid, 9);
-        }
-
-        return true;
-
-    }catch(Exception $e){
-        throw new bException('ssh_stop_control_master(): Failed', $e);
-    }
-}
+///*
+// *
+// *
+// * @author Sven Olaf Oostenbrink <sven@capmega.com>
+// * @copyright Copyright (c) 2018 Capmega
+// * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+// * @category Function reference
+// * @package ssh
+// *
+// * @param
+// */
+//function ssh_start_control_master($server, $socket = null){
+//    global $_CONFIG;
+//
+//    try{
+//        load_libs('file');
+//        file_ensure_path(TMP);
+//
+//        if(!$socket){
+//            $socket = file_temp();
+//        }
+//
+//        if(ssh_get_control_master($socket)){
+//            return $socket;
+//        }
+//
+//        $result = ssh_exec(array('domain'    => $server['domain'],
+//                                 'port'      => $_CONFIG['cdn']['port'],
+//                                 'username'  => $server['username'],
+//                                 'ssh_key'   => ssh_get_key($server['username']),
+//                                 'arguments' => '-nNf -o ControlMaster=yes -o ControlPath='.$socket), ' 2>&1 >'.ROOT.'data/log/ssh_master');
+//
+//        return $socket;
+//
+//    }catch(Exception $e){
+//        throw new bException('ssh_start_control_master(): Failed', $e);
+//    }
+//}
+//
+//
+//
+///*
+// *
+// *
+// * @author Sven Olaf Oostenbrink <sven@capmega.com>
+// * @copyright Copyright (c) 2018 Capmega
+// * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+// * @category Function reference
+// * @package ssh
+// *
+// * @param
+// */
+//function ssh_get_control_master($socket = null){
+//    global $_CONFIG;
+//
+//    try{
+//        $result = safe_exec('ps $(pgrep --full '.$socket.') | grep "ssh -nNf" | grep --invert-match pgrep', '0,1');
+//        $result = array_pop($result);
+//
+//        preg_match_all('/^\s*\d+/', $result, $matches);
+//
+//        $pid = array_pop($matches);
+//        $pid = (integer) array_pop($pid);
+//
+//        return $pid;
+//
+//    }catch(Exception $e){
+//        throw new bException('ssh_get_control_master(): Failed', $e);
+//    }
+//}
+//
+//
+//
+///*
+// *
+// *
+// * @author Sven Olaf Oostenbrink <sven@capmega.com>
+// * @copyright Copyright (c) 2018 Capmega
+// * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+// * @category Function reference
+// * @package ssh
+// *
+// * @param
+// */
+//function ssh_stop_control_master($socket = null){
+//    global $_CONFIG;
+//
+//    try{
+//        $pid = ssh_get_control_master($socket);
+//
+//        if(!posix_kill($pid, 15)){
+//            return posix_kill($pid, 9);
+//        }
+//
+//        return true;
+//
+//    }catch(Exception $e){
+//        throw new bException('ssh_stop_control_master(): Failed', $e);
+//    }
+//}
 
 
 
@@ -954,7 +1017,7 @@ function ssh_add_known_host($domain, $port){
         $fingerprints = ssh_get_fingerprints($domain, $port);
         $count        = 0;
 
-        if(empty($retval)){
+        if(empty($fingerprints)){
             throw new bException(tr('ssh_add_known_host(): ssh-keyscan found no public keys for domain ":domain"', array(':domain' => $domain)), 'not-found');
         }
 
@@ -971,9 +1034,8 @@ function ssh_add_known_host($domain, $port){
         /*
          * Auto register the fingerprints in the ssh_fingerprints tableraid
          */
-        $dbfingerprints = sql_list(' SELECT `fingerprint`, `algorithm` FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', array(':domain' => $domain, ':port' => $port));
-show($dbfingerprints);
-showdie($fingerprints);
+        $dbfingerprints = sql_list('SELECT `fingerprint`, `algorithm` FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', array(':domain' => $domain, ':port' => $port));
+
         if($dbfingerprints){
             /*
              * This host is already registered in the ssh_fingerprints table. We
@@ -986,7 +1048,7 @@ showdie($fingerprints);
                     throw new bException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does not match any of the already registered fingerprints', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'])), 'not-exist');
                 }
 
-                if($dbfingerprints[$exists] != $fingerprint['algorithm']){
+                if($dbfingerprints[$fingerprint['fingerprint']] != $fingerprint['algorithm']){
                     throw new bException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does match an already registered fingerprints, but for the wrong algorithm ":algorithm"', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'], ':algorithm' => $fingerprint['algorithm'])), 'not-match');
                 }
             }
@@ -1000,7 +1062,7 @@ showdie($fingerprints);
                                    VALUES                         (:createdby , :meta_id , :servers_id , :domain , :seodomain , :port , :fingerprint , :algorithm )');
 
 
-            foreach($retval as $fingerprint){
+            foreach($fingerprints as $fingerprint){
                 $insert->execute(array(':createdby'   => isset_get($_SESSION['user']['id']),
                                        ':meta_id'     => meta_action(),
                                        'servers_id'   => $server['id'],
@@ -1012,17 +1074,17 @@ showdie($fingerprints);
             }
 
             if($server['id']){
-                log_console(tr('Added ":count" fingerprints for registered domain ":domain" with servers id ":id"', array(':count' => count($retval), ':domain' => $domain, ':id' => $server['id'])));
+                log_console(tr('Added ":count" fingerprints for registered domain ":domain" with servers id ":id"', array(':count' => count($fingerprints), ':domain' => $domain, ':id' => $server['id'])));
 
             }else{
-                log_console(tr('Added ":count" fingerprints for unregistered domain ":domain"', array(':count' => count($retval), ':domain' => $domain)));
+                log_console(tr('Added ":count" fingerprints for unregistered domain ":domain"', array(':count' => count($fingerprints), ':domain' => $domain)));
             }
         }
 
         /*
          * Now add them to the known_hosts file
          */
-        foreach($retval as $fingerprint){
+        foreach($fingerprints as $fingerprint){
             if(ssh_append_fingerprint($fingerprint)){
                 $count++;
             }
@@ -1274,7 +1336,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
 
         $port       = ssh_get_port($port);
         $db_count   = sql_get('SELECT COUNT(`id`) FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', true, array('domain' => $domain, ':port' => $port), 'core');
-        $file_count = safe_exec('grep "['.$domain.']:'.$port.'" '.ROOT.'data/ssh/known_hosts | wc -l');
+        $file_count = safe_exec('grep "\['.$domain.'\]:'.$port.'" '.ROOT.'data/ssh/known_hosts | wc -l');
         $file_count = array_shift($file_count);
 
         if($file_count){
@@ -1887,6 +1949,69 @@ function ssh_get_port($port = null){
 
     }catch(Exception $e){
         throw new bException('ssh_get_port(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the PID (Process ID) for the specified persistent SSH connection socket
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package ssh
+ *
+ * @param string $socket The socket file
+ * @return natural the PID for the specified socket file
+ */
+function ssh_persistent_pid($socket){
+    try{
+        $results = ssh_exec('ssh -O check foobar -o controlpath="'.$socket.'"');
+        $result  = array_shift($results);
+        $result  = str_cut($result, '=', ')');
+
+        return $result;
+
+    }catch(Exception $e){
+        throw new bException('ssh_persistent_pid(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return an array with a list of all persistent SSH connections
+ *
+ * This function will return an array with a list of all available persistent SSH connections in the format PID => SOCKET_FILE
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package ssh
+ * @see ssh_persistent_pid()
+ *
+ * @return array The list of all persisten SSH connections
+ */
+function ssh_list_persistent($close = false){
+    try{
+        $retval = array();
+
+        foreach(scandir(ROOT.'data/ssh/control') as $socket){
+            $pid          = ssh_persistent_pid($socket);
+            $retval[$pid] = $socket;
+
+            if($close){
+                cli_kill($pid);
+            }
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new bException('ssh_list_persistent(): Failed', $e);
     }
 }
 ?>
