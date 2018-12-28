@@ -1,0 +1,281 @@
+#!/usr/bin/php
+<?php
+/*
+ * This script manages the available devices
+ */
+$usage = './scripts/base/devices list
+./scripts/base/devices scan PRODUCT_FILTER [SERVER]
+./scripts/base/devices list
+./scripts/base/devices show DEVICE_ID
+./scripts/base/devices modify DEVICE_ID [--category CATEGORY] [--company COMPANY] [--branch BRANCH] [--department DEPARTMENT]
+./scripts/base/devices delete|undelete|erase ID|NAME ID|NAME ...';
+
+$help  = 'This is the devices management script';
+
+require_once(__DIR__.'/../../libs/startup.php');
+
+load_libs('devices');
+
+switch(cli_method()){
+    case 'list':
+        cli_no_arguments_left();
+
+        $devices = sql_query('SELECT    `devices`.`id`,
+                                        `devices`.`status`,
+                                        `devices`.`servers_id`,
+                                        `devices`.`manufacturer`,
+                                        `devices`.`model`,
+                                        `devices`.`vendor`,
+                                        `devices`.`vendor_string`,
+                                        `devices`.`product`,
+                                        `devices`.`product_string`,
+                                        `devices`.`libusb`,
+                                        `devices`.`bus`,
+                                        `devices`.`device`,
+                                        `devices`.`string`,
+                                        `devices`.`default`,
+                                        `devices`.`description`,
+
+                                        `servers`.`domain`,
+                                        `servers`.`seodomain`
+
+                              FROM      `devices`
+
+                              LEFT JOIN `servers`
+                              ON        `servers`.`id` = `devices`.`servers_id`
+
+                              WHERE     `devices`.`status` IS NULL
+                              OR        `devices`.`status` != "_new" '.(LIMIT ? ' LIMIT '.LIMIT : ''));
+
+        if(!$devices->rowCount()){
+            log_console(tr('There are currently no devices available'), 'QUIET/yellow');
+
+        }else{
+            log_console(tr('Showing currently available devices'), 'QUIET/white');
+            log_console(str_size(tr('#id'), 6).' '.str_size(tr('Product'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 16).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
+
+            while($device = sql_fetch($devices)){
+                log_console(str_size($device['id'], 6).' '.str_size($device['product_string'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(status($device['status']), 16).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.$device['description']);
+            }
+        }
+
+        break;
+
+    case 'show':
+        $id = cli_argument(1);
+
+        cli_no_arguments_left();
+
+        $device = devices_get($id);
+
+        if(!$device){
+            throw new bException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+
+        }else{
+            ksort($device);
+
+            foreach($device as $key => $value){
+                log_console(cli_color($key.':', 'white').' '.$value);
+            }
+        }
+
+        break;
+
+    case 'modify':
+        $category   = cli_argument('--category'  , true);
+        $company    = cli_argument('--company'   , true);
+        $branch     = cli_argument('--branch'    , true);
+        $department = cli_argument('--department', true);
+        $id         = cli_argument(1);
+
+        cli_no_arguments_left();
+
+        $device = devices_get($id);
+
+        if(!$device){
+            throw new bException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+        }
+
+        if($category){
+            $device['category'] = $category;
+        }
+
+        if($company){
+            $device['company'] = $company;
+        }
+
+        if($branch){
+            $device['branch'] = $branch;
+        }
+
+        if($department){
+            $device['department'] = $department;
+        }
+
+        devices_insert($device);
+        break;
+
+    case 'scan':
+        try{
+            $category   = cli_argument('--category'  , true);
+            $company    = cli_argument('--company'   , true);
+            $branch     = cli_argument('--branch'    , true);
+            $department = cli_argument('--department', true);
+            $filters    = cli_argument(1);
+            $server     = cli_argument(2);
+
+            cli_no_arguments_left();
+            $devices = devices_lscan_usb($filters, $server);
+
+            foreach($devices as $device){
+                devices_insert($device, $server);
+            }
+
+            if(count($devices)){
+                log_console(tr('Added ":count" devices', array(':count' => count($devices))), 'green');
+
+            }else{
+                log_console(tr('No devices added'), 'yellow');
+            }
+
+        }catch(Exception $e){
+            throw new bException(tr('Failed to scan for devices'), $e);
+        }
+
+        break;
+
+    case 'delete':
+        $devices = cli_arguments();
+        $in      = sql_in($devices, 'id');
+
+        if(empty($devices)){
+            throw new bException(tr('No devices specified'), 'warning/not-specified');
+        }
+
+        if(FORCE){
+            $status = '';
+
+        }else{
+            $status = ' AND `status` IS NULL ';
+        }
+
+        $r = sql_query('UPDATE `devices`
+
+                        SET    `status` = "deleted"
+
+                        WHERE  `id`   IN ('.sql_in_columns($in).')'.$status,
+
+                        $in);
+
+        switch(!$r->rowCount()){
+            case 0:
+                log_console(tr('Not deleted any devices'), 'error');
+                break;
+
+            case count($devices):
+                log_console(tr('Deleted only ":count" devices from the specified ":specified" devices', array(':count' => $r->rowCount(), ':specified' => count($devices))), 'yellow');
+                break;
+
+            default:
+                log_console(tr('Deleted ":count" devices', array(':count' => $r->rowCount())), 'green');
+        }
+
+        break;
+
+    case 'undelete':
+        $devices = cli_arguments();
+        $in      = sql_in($devices, 'id');
+
+        if(empty($devices)){
+            throw new bException(tr('No devices specified'), 'warning/not-specified');
+        }
+
+        if(FORCE){
+            $status = '';
+
+        }else{
+            $status = ' AND `status` IS NULL ';
+        }
+
+        $r = sql_query('UPDATE `devices`
+
+                        SET    `status` = NULL
+
+                        WHERE  `id`   IN ('.sql_in_columns($in).')'.$status,
+
+                        $in);
+
+        switch(!$r->rowCount()){
+            case 0:
+                log_console(tr('Not undeleted any devices'), 'error');
+                break;
+
+            case count($devices):
+                log_console(tr('Undeleted only ":count" devices from the specified ":specified" devices', array(':count' => $r->rowCount(), ':specified' => count($devices))), 'yellow');
+                break;
+
+            default:
+                log_console(tr('Undeleted ":count" devices', array(':count' => $r->rowCount())), 'green');
+        }
+
+        break;
+
+    case 'erase':
+        $devices = cli_arguments();
+
+        if(FORCE){
+            $status = '';
+
+        }else{
+            $status = ' AND `status` IS NULL ';
+        }
+
+        switch(count($devices)){
+            case 0:
+                throw new bException(tr('No devices specified'), 'warning/not-specified');
+
+            case 1:
+                if(isset_get($devices[1]) === 'all'){
+                    $all = true;
+                    $r   = sql_query('DELETE FROM `devices` WHERE TRUE '.$status);
+                    break;
+                }
+
+                // FALLTHROUGH
+
+            default:
+                $in = sql_in($devices, 'id');
+                $r  = sql_query('DELETE FROM `devices` WHERE `id` IN ('.sql_in_columns($in).')'.$status, $in);
+        }
+
+        if(!$r->rowCount()){
+            log_console(tr('Not erased any devices'), 'yellow');
+
+        }else{
+            if(isset_get($all)){
+                log_console(tr('Erased ":count" devices', array(':count' => $r->rowCount())), 'green');
+
+            }else{
+                switch($r->rowCount()){
+                    case 0:
+                        break;
+
+                    case count($devices):
+                        log_console(tr('Erased ":count" devices', array(':count' => $r->rowCount())), 'green');
+                        break;
+
+                    default:
+                        log_console(tr('Erased only ":count" devices from the specified ":specified" devices', array(':count' => $r->rowCount(), ':specified' => count($devices))), 'yellow');
+                }
+            }
+        }
+
+        break;
+
+    case '':
+        throw new bException(tr('No method specified'), 'no-method');
+
+    default:
+        throw new bException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+}
+?>
