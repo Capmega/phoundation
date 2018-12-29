@@ -718,7 +718,7 @@ function servers_exec($server, $commands = null, $background = false, $function 
         /*
          * Execute command on remote server
          */
-        $results = ssh_exec($server, null, false, $function, $ok_exitcodes);
+        $results = ssh_exec($server, null, $server['background'], $function, $ok_exitcodes);
         return $results;
 
     }catch(Exception $e){
