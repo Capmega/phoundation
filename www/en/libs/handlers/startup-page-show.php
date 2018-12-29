@@ -14,6 +14,10 @@ try{
     array_params($params, 'message');
     array_default($params, 'exists', false);
 
+    if(!is_scalar($pagename)){
+        throw new bException(tr('page_show(): Invalid pagename ":pagename" specified', array(':pagename' => $pagename)), 'invalid');
+    }
+
     if($get){
         if(!is_array($get)){
             throw new bException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
