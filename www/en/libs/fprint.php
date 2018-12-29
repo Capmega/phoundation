@@ -322,80 +322,6 @@ function fprint_verify_finger($finger){
 
 
 /*
- * Show the finger print reader page, and prepare $_SESSION['fprint']
- *
- * This function will show the finger print reader page (typically a page without content, but with a finger print scanner symbol in the middle). Since the fprint_enroll() function is blocking, no page data can be processed until this function is ready. This function basically sets up a process that will show a nice "use the finger print scanner" page, process the results, and stores the results in $_SESSION['fprint'] so that after a page reload, it can be processed in the target page
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package fprint
- * @version 1.24.0: Added documentation
- *
- * @param natural $users_id The id of the user that wants to perform a finger print verification
- * @param string $html_flash_class
- * @return die
- */
-function fprint_page_show($users_id, $html_flash_class){
-    try{
-        if(empty($_SESSION['fprint']['results'])){
-            if(!$users_id){
-                throw new bException(tr('fprint_page_show(): No users_id specified'), 'not-specified');
-            }
-
-            if(!is_numeric($users_id)){
-                throw new bException(tr('fprint_page_show(): Invalid users_id ":users_id" specified', array(':users_id' => $users_id)), 'invalid');
-            }
-
-            load_libs('user');
-            $user = user_get($users_id);
-
-            if(!$user){
-                throw new bException(tr('fprint_verify(): Specified user ":user" does not exist', array(':user' => $users_id)), 'not-exist');
-            }
-
-            if(!$user['fingerprint']){
-                throw new bException(tr('fprint_verify(): User ":user" has no fingerprint registered', array(':user' => name($user))), 'warning/empty');
-            }
-
-            $device = fprint_select_device();
-            $params = array('file'     => uniqid(),
-                            'users_id' => $user['id']);
-
-            fprint_kill($device['server']);
-
-            $params['pid'] = linux_run_background($device['server'], '/base/fprint authenticate -Q -C '.$params['users_id'], 'tmp/fprint/'.$params['file']);
-
-            if($params['pid'] === false){
-                /*
-                 * Wut? Why no PID?
-                 */
-                throw new bException(tr('fprint_page_show(): The fprint script is already running'), 'process-runs');
-            }
-
-            $_SESSION['fprint'] = $params;
-
-        }else{
-            /*
-             * Finger print scan finished
-             */
-            $params = $_SESSION['fprint'];
-        }
-
-        $params['html_flash_class'] = $html_flash_class;
-        $params['return']           = true;
-
-        return page_show('fingerprint', $params);
-
-    }catch(Exception $e){
-        throw new bException('fprint_page_show(): Failed', $e);
-    }
-}
-
-
-
-/*
  * Try to handle fprint exceptions
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -428,7 +354,7 @@ function fprint_handle_exception($e, $user){
                 /*
                  * Do NOT send previous exception, generate a new one, its just a simple warning!
                  */
-                throw new bException(tr('fprint_handle_exception(): No finger print scanner devices found'), 'warning/no-device');
+                throw new bException(tr('fprint_handle_exception(): No finger print scanner devices found'), 'warning/no-devices');
             }
         }
 
@@ -566,6 +492,67 @@ function fprint_test_device(){
         }
 
         throw new bException('fprint_test_device(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Check the fingerprint scanner output result, and either cause an exception in case of problems, or return a success type message
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fprint
+ * @version 1.26.0: Added function and documentation
+ *
+ * @return
+ */
+function fprint_process_result(){
+    if(!isset($_SESSION['fprint'])){
+        return false;
+    }
+
+    $result = isset_get($_SESSION['fprint']['result']);
+    $action = isset_get($_SESSION['fprint']['action']);
+
+    unset($_SESSION['fprint']);
+
+    switch($result){
+        case '':
+            /*
+             * Nothing happened yet
+             */
+            return false;
+
+        case 'authenticated':
+            return $action;
+
+        case 'not-authenticated':
+            throw new bException(tr('fprint_process_result(): Finger print did not match'), 'warning/'.$result);
+
+        case 'timeout':
+            throw new bException(tr('fprint_process_result(): Finger print scan process timed out'), 'warning/'.$result);
+
+        case 'no-devices':
+            throw new bException(tr('fprint_process_result(): No finger print scan devices found'), 'warning/'.$result);
+
+        case 'no-sudo':
+            load_libs('process');
+            throw new bException(tr('fprint_process_result(): Current process owner ":owner" cannot execute fprint with sudo without password', array(':owner' => process_get_user())), 'warning/'.$result);
+
+        case 'not-exist':
+            throw new bException(tr('fprint_process_result(): User ":user" has no fingerprints registered', array(':user' => name(isset_get($_SESSION['user'])))), 'warning/'.$result);
+
+        case 'no-fprint-file':
+            throw new bException(tr('fprint_process_result(): Fingerprint process failed'), 'warning/'.$result);
+
+        case 'fingerprints-missing':
+            throw new bException(tr('fprint_process_result(): Fingerprint files missing'), 'warning/'.$result);
+
+        default:
+            throw new bException(tr('fprint_process_result(): Finger print scan process failed'), $result);
     }
 }
 ?>
