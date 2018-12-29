@@ -255,6 +255,7 @@ while($fail){
 log_console(tr('Writing project file...'), 'white');
 config_write_project($config['project']['name'], $config['project']['version'], $config['project']['seed']);
 
+$project = $config['project']['name'];
 unset($config['project']);
 
 
@@ -277,6 +278,6 @@ foreach($config as $environment => $files){
 /*
  * Add the setup to git and commit as INIT commit
  */
-git_add(ROOT);
-git_commit(tr('INIT: setup project ":project"', array(':project' => $config['project']['name'])));
+git_add(ROOT.'config/');
+git_commit(tr('INIT: setup project ":project"', array(':project' => $project)));
 ?>
