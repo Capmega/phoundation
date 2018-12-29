@@ -1,6 +1,6 @@
 <?php
 /*
- * SSH library library
+ * SSH library
  *
  * This library contains functions to manage SSH accounts
  *
