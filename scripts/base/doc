@@ -10,7 +10,9 @@ $usage = './scripts/base/doc parse
 ./scripts/base/doc list functions
 ./scripts/base/doc list LIBRARY [options]
 ./scripts/base/doc show LIBRARY [options]
-./scripts/base/doc show FUNCTION [options]';
+./scripts/base/doc show FUNCTION [options]
+./scripts/base/doc parse [PATH]
+./scripts/base/doc generate TEMPLATE';
 
 $help  = 'This is the documentation function. Use this function to get help about any command, or library
 
@@ -46,8 +48,13 @@ show script SCRIPT              - Will show the documentation for the specified
 show FUNCTION                   - Will show the documentation for the specified
                                   function
 
-parse                           - Will use PHPDocumenter to parse the entire
-                                  project, and regenerate all documentation';
+parse [PATH]                    - Will parse the entire project (or if
+                                  specified, the PATH), and update all
+                                  documentation in the database
+
+generate TEMPLATE               - Will generate new documents based on the
+                                  specified TEMPLATE from the documentation in
+                                  the database';
 
 require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
@@ -128,7 +135,10 @@ switch(cli_method()){
         break;
 
     case 'parse':
+        $path = cli_argument(0);
+        cli_no_arguments_left();
         load_libs('phpdoc');
+
         $results = phpdoc_parse_path(ROOT);
 showdie($results);
         break;
