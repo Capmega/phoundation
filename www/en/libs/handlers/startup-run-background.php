@@ -81,7 +81,7 @@ try{
 //showdie($command);
 
     $pid = exec(sprintf('cat %s; rm %s', ROOT.'data/run-background/'.$cmd.' ', ROOT.'data/run-background/'.$cmd));
-    log_file('PID:'.$pid.' '.$command, 'run-background');
+    log_file('PID:'.$pid.' '.$command, 'VERBOSE/run-background');
 
     return $pid;
 
