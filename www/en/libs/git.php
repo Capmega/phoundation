@@ -6,12 +6,24 @@
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Sven Oostenbrink <support@capmega.com>
+ * @category Function reference
+ * @package git
  */
 
 
 
 /*
  *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $file
+ * @param string $patch_file
+ * @return
  */
 function git_am($file, $patch_file){
     try{
@@ -31,6 +43,15 @@ function git_am($file, $patch_file){
 
 /*
  * Apply a git patch file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $file
+ * @return
  */
 function git_apply($file){
     try{
@@ -57,6 +78,17 @@ function git_apply($file){
 
 /*
  * Get or set the current GIT branch
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $branch
+ * @param string $path
+ * @param boolean $create
+ * @return
  */
 function git_branch($branch = null, $path = ROOT, $create = false){
     try{
@@ -90,6 +122,15 @@ function git_branch($branch = null, $path = ROOT, $create = false){
 
 /*
  * Ensure the path is specified and exists
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @return
  */
 function git_check_path(&$path){
     static $paths;
@@ -125,6 +166,16 @@ function git_check_path(&$path){
 
 /*
  * Checkout the specified file, resetting its changes
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @param string $branch
+ * @return
  */
 function git_checkout($path, $branch = null){
     try{
@@ -154,6 +205,17 @@ function git_checkout($path, $branch = null){
 
 /*
  * Clean the specified git repository
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @param boolean $directories
+ * @param boolean $force
+ * @return
  */
 function git_clean($path, $directories = false, $force = false){
     try{
@@ -168,6 +230,16 @@ function git_clean($path, $directories = false, $force = false){
 
 /*
  * Clone the specified git repository to the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $repository
+ * @param string $path
+ * @return
  */
 function git_clone($repository, $path){
     try{
@@ -185,6 +257,16 @@ function git_clone($repository, $path){
 
 /*
  * Make a patch for the specified file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $file
+ * @param string $color
+ * @return
  */
 function git_diff($file, $color = false){
     try{
@@ -204,6 +286,15 @@ function git_diff($file, $color = false){
 
 /*
  *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param params $params
+ * @return
  */
 function git_fetch($params = null){
     try{
@@ -233,6 +324,15 @@ function git_fetch($params = null){
 
 /*
  * Make a patch for the specified file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $file
+ * @return
  */
 function git_format_patch($file){
     try{
@@ -252,6 +352,15 @@ under_construction();
 
 /*
  * Return the current branch for the specified git repository
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $branch
+ * @return
  */
 function git_get_branch($branch = null){
     try{
@@ -278,6 +387,17 @@ function git_get_branch($branch = null){
 
 /*
  *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @param string $remote
+ * @param string $branch
+ * @return
  */
 function git_pull($path, $remote, $branch){
     try{
@@ -290,8 +410,19 @@ function git_pull($path, $remote, $branch){
 }
 
 
+
 /*
  *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $file
+ * @param null string $commit
+ * @return
  */
 function git_reset($file, $commit = null){
     try{
@@ -315,8 +446,18 @@ function git_reset($file, $commit = null){
 
 /*
  * Return an associative array with as key => value $file => $status
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $params
+ * @param null array $filters
+ * @return
  */
-function git_status($path = ROOT, $filters = false){
+function git_status($path = ROOT, $filters = null){
     try{
         git_check_path($path);
 
@@ -398,6 +539,15 @@ function git_status($path = ROOT, $filters = false){
 
 /*
  *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @return
  */
 function git_stash($path = ROOT){
     try{
@@ -416,6 +566,15 @@ function git_stash($path = ROOT){
 
 /*
  *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @return
  */
 function git_stash_pop($path = ROOT){
     try{
@@ -427,6 +586,65 @@ function git_stash_pop($path = ROOT){
 
     }catch(Exception $e){
         throw new bException('git_stash_pop(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @return
+ */
+function git_add($path = ROOT){
+    try{
+        git_check_path($path);
+
+        if(is_dir($path)){
+            $result = safe_exec('cd "'.$path.'"; git add "'.$path.'"');
+
+        }else{
+            $result = safe_exec('cd "'.dirname($path).'"; git add "'.$path.'"');
+        }
+
+        return $result;
+
+    }catch(Exception $e){
+        throw new bException('git_add(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @return
+ */
+function git_commit($message, $path = ROOT){
+    try{
+        git_check_path($path);
+
+        $result = safe_exec('cd '.$path.'; git commit -m "'.$message.'"');
+
+        return $result;
+
+    }catch(Exception $e){
+        throw new bException('git_commit(): Failed', $e);
     }
 }
 ?>
