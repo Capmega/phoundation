@@ -146,6 +146,9 @@ function ssh_exec($server, $commands = null, $background = false, $function = nu
 
                 log_console(tr('Created PERSISTENT SSH tunnel ":source_port::target_domain::target_port" to domain ":domain"', array(':domain' => $server['domain'], ':source_port' => $server['tunnel']['source_port'], ':target_domain' => $server['tunnel']['target_domain'], ':target_port' => $server['tunnel']['target_port'])));
             }
+
+        }elseif($server['background']){
+            $results = array_pop($results);
         }
 
         $retry = 0;
