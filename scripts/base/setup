@@ -10,7 +10,7 @@ $help  = 'This is the BASE framework install script. It will ask you a number of
 
 require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
-load_libs('config');
+load_libs('git,config');
 
 if(SEED){
     if(!FORCE){
@@ -272,4 +272,11 @@ foreach($config as $environment => $files){
         config_write($data, $environment, $file);
     }
 }
+
+
+/*
+ * Add the setup to git and commit as INIT commit
+ */
+git_add(ROOT);
+git_commit(tr('INIT: setup project ":project"', array(':project' => $config['project']['name'])));
 ?>
