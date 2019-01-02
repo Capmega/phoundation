@@ -697,28 +697,29 @@ function servers_exec($server, $commands = null, $background = false, $function 
 
         $server = servers_get($server);
 
-        if(empty($server['identity_file'])){
-            if(empty($server['ssh_key'])){
-                if(empty($server['password'])){
-                    throw new bException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server['domain'])), 'missing-data');
+        if(!empty($server['domain'])){
+            if(empty($server['identity_file'])){
+                if(empty($server['ssh_key'])){
+                    if(empty($server['password'])){
+                        throw new bException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server['domain'])), 'missing-data');
+                    }
+
+
                 }
 
-
+                /*
+                 * Copy the ssh_key to a temporal identity_file
+                 */
+                $identity_file           = servers_create_identity_file($server['ssh_key']);
+                $server['identity_file'] = ROOT.'data/ssh/keys/'.$identity_file;
+                servers_clear_key($server);
             }
-
-            /*
-             * Copy the ssh_key to a temporal identity_file
-             */
-            $identity_file           = servers_create_identity_file($server['ssh_key']);
-            $server['identity_file'] = ROOT.'data/ssh/keys/'.$identity_file;
-            servers_clear_key($server);
         }
-
 
         /*
          * Execute command on remote server
          */
-        $results = ssh_exec($server, null, $server['background'], $function, $ok_exitcodes);
+        $results = ssh_exec($server, $commands, $server['background'], $function, $ok_exitcodes);
         return $results;
 
     }catch(Exception $e){
@@ -912,7 +913,7 @@ function servers_unregister_host($server){
  */
 function servers_get($server, $database = false, $return_proxies = true, $limited_columns = false){
     try{
-        if($server === null){
+        if(!$server){
             /*
              * This means local server, no network connection needed
              */
@@ -924,18 +925,23 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
              * Specified host is an array, so it should already contain all
              * information
              *
+             * Assume that if no domain is available in the server array,
+             * that NO server should be used at all
              * Assume that if identity_file data is available, that we have a
              * complete one
              */
+            if(empty($server['domain'])){
+                return null;
+            }
+
             if(!empty($server['id'])){
                 return $server;
             }
 
         }elseif(!is_scalar($server)){
             throw new bException(tr('servers_get(): The specified server ":server" is invalid', array(':server' => $server)), 'invalid');
-        }
 
-        if(substr($server, 0, 1) === '+'){
+        }elseif(substr($server, 0, 1) === '+'){
             /*
              * Use persistent connections
              */
@@ -1008,10 +1014,6 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
             /*
              * Server host specified by array containing domain
              */
-            if(empty($server['domain'])){
-                throw new bException(tr('servers_get(): Specified server array does not contain a domain'), 'invalid');
-            }
-
             if(is_numeric($server['domain'])){
                 /*
                  * Host specified by id

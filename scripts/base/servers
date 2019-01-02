@@ -10,7 +10,8 @@
  * @package base-scripts
  */
 $usage = './scripts/servers
-./scripts/servers add DOMAIN [DOMAIN DOMAIN ...] [--port PORT] [--register] [--account ACCOUNT]
+./scripts/servers add DOMAIN [DOMAIN DOMAIN ...] [-p|--port PORT] [-r|--register] [-a|--account ACCOUNT]
+./scripts/servers modify DOMAIN [-p|--port PORT] [-a|--account ACCOUNT]
 ./scripts/servers list servers [options]
 ./scripts/servers test [ssh|database|tunnel-database] [DOMAIN]
 ./scripts/servers show server SERVER
@@ -36,6 +37,7 @@ list [%DOMAIN%]                 - List all registerd servers, or by part of
 
         --customer CUSTOMER     - List all servers for the specified customer
 
+accounts                        - List the registered SSH accounts
 
 proxies
     insert  ROOT-DOMAIN         - Inserts a new server on the proxies chain
@@ -63,7 +65,11 @@ add DOMAIN [SSH-PORT]           - Add specified domain to the database
                                   in the known_hosts file (NOT RECOMMENDED FOR
                                   SECURITY!)
 
-update DOMAIN                   - Update specified domain in the database
+modify DOMAIN                   - Update specified domain in the database
+
+    --account | --ssh-account   - What SSH account to link to these servers. The
+    [ACCOUNT]                     account can be specified by the accounts
+                                  username, or the accounts id.
 
 delete ID | DOMAIN              - Set the status of the specified domain to
                                   "deleted" and remove the SSH fingerprints from
@@ -88,9 +94,9 @@ try{
 
     switch(cli_method()){
         case 'add':
-            $port      = not_empty(cli_argument('--port', true), ssh_get_port());
-            $register  = cli_argument('--register');
-            $account   = cli_argument('--ssh-account,--account', true);
+            $port      = not_empty(cli_argument('--port,-p', true), ssh_get_port());
+            $register  = cli_argument('--register,-r');
+            $account   = cli_argument('--ssh-account,--account,-a', true);
             $domains   = cli_arguments();
             $count     = 0;
 
@@ -113,7 +119,7 @@ try{
                     servers_insert(array('domain'      => $domain,
                                          'port'        => $port,
                                          'register'    => $register,
-                                         'ssh_account' => isset_get($accounts_data['seoname'])));
+                                         'ssh_account' => $accounts_data['seoname']));
 
                     log_console(tr('Added server with domain ":domain"', array(':domain' => $domain)), 'green');
                     $count++;
@@ -141,8 +147,29 @@ try{
 
             break;
 
-        case 'update':
-            $server['domain'] = cli_argument(0);
+        case 'modify':
+            $port    = not_empty(cli_argument('--port,-p', true), ssh_get_port());
+            $account = cli_argument('--ssh-account,--account,-a', true);
+            $server  = cli_argument();
+
+            cli_no_arguments_left();
+
+            $server = servers_get($server);
+
+            if($account){
+                $accounts_data = ssh_get_account($account);
+
+                if(!$accounts_data){
+                    throw new bException(tr('Specified account ":account" does not exist, try "servers list accounts"', array(':account' => $account)), 'warning/not-exist');
+                }
+
+                $server['ssh_account'] = $accounts_data['name'];
+            }
+
+            if($port){
+                $server['port'] = $port;
+            }
+
             servers_update($server);
             break;
 
@@ -261,12 +288,54 @@ try{
 
             break;
 
+        case 'accounts':
+            cli_no_arguments_left();
+
+            if(DELETED){
+                $where[] = ' `status` = "deleted" ';
+
+            }elseif(!ALL){
+                $where[] = ' (`status` IS NULL OR `status` = "testing") ';
+            }
+
+            $query   = 'SELECT `id`,
+                               `status`,
+                               `name`,
+                               `seoname`,
+                               `username`,
+                               `description`
+
+                        FROM   `ssh_accounts` ';
+
+            if(empty($where)){
+                $where = '';
+
+            }else{
+                $where = ' WHERE '.implode(' AND ', $where);
+            }
+
+            $order   = ' ORDER BY `status` IS NOT NULL DESC, `name` ASC ';
+            $servers = sql_query($query.$where.$order.(LIMIT ? ' LIMIT '.LIMIT : ''));
+
+            if(!$servers->rowCount()){
+                    log_console(tr('There are currently no SSH accounts registered'), 'QUIET/yellow');
+
+            }else{
+                log_console(str_size(tr('#id'), 7).str_size(tr('Name'), 17).str_size(tr('Username'), 17).str_size(tr('Description'), 64), 'QUIET/cyan');
+
+                while($server = sql_fetch($servers)){
+                    log_console(str_size($server['id'], 6, ' ', true).' '.str_size($server['name'], 16).' '.str_size($server['username'], 16).' '.str_size($server['description'], 64));
+                }
+            }
+
+            break;
+
         case 'list':
             $only_domains = cli_argument('--only-domains');
-            $customer       = cli_argument('--customer', true);
-            $provider       = cli_argument('--provider', true);
-            $execute        = array();
-            $where          = array();
+            $customer     = cli_argument('--customer', true);
+            $provider     = cli_argument('--provider', true);
+            $execute      = array();
+            $where        = array();
 
             cli_no_arguments_left();
 
@@ -302,8 +371,8 @@ try{
                     throw new bException(tr('The specified provider ":provider" does not exist', array(':provider' => $provider)), 'warning');
                 }
 
-                $execute[':providerss_id'] = $providers_id;
-                $where[] = ' `servers`.`providerss_id` = :providerss_id ';
+                $execute[':providers_id'] = $providers_id;
+                $where[] = ' `servers`.`providers_id` = :providers_id ';
             }
 
             $query   = 'SELECT    `servers`.`id`,

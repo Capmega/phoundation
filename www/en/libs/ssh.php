@@ -58,7 +58,7 @@ function ssh_library_init(){
  * @param string $ok_exitcodes
  * @return array The results of the executed SSH commands in an array, each entry containing one line of the output
  */
-function ssh_exec($server, $commands = null, $background = false, $function = null, $ok_exitcodes = 0){
+function ssh_exec($ssh, $commands = null, $background = false, $function = null, $ok_exitcodes = 0){
     global $core, $_CONFIG;
     static $retry = 0;
 
@@ -71,60 +71,64 @@ function ssh_exec($server, $commands = null, $background = false, $function = nu
             $function = $_CONFIG['ssh']['function'];
         }
 
-        /*
-         * Ensure valid server variable
-         * If $server is a string, the load server information from servers
-         * table
-         */
-        if(!is_array($server) or (empty($server['identity_file']))){
-            if(!is_array($server) and !is_scalar($server)){
-                throw new bException(tr('ssh_exec(): Invalid $server specified. $server must be either a domain, or server array'), 'invalid');
-            }
-
-            $retry = 0;
-
-            load_libs('servers');
-            return servers_exec($server, $commands, $background, $function, $ok_exitcodes);
-        }
-
-        array_default($server, 'domain'       , null);
-        array_default($server, 'identity_file', null);
-        array_default($server, 'commands'     , $commands);
-        array_default($server, 'background'   , $background);
-        array_default($server, 'proxies'      , null);
-        array_default($server, 'persist'      , false);
-
-        /*
-         * If $server[domain] is available without identity file, then load
-         * server data from server table
-         */
-        if(empty($server['identity_file'])){
-            $retry = 0;
-
-            load_libs('servers');
-            return servers_exec($server, $commands, $background, $function, $ok_exitcodes);
-        }
+        array_default($ssh, 'domain'       , null);
+        array_default($ssh, 'identity_file', null);
+        array_default($ssh, 'commands'     , $commands);
+        array_default($ssh, 'background'   , $background);
+        array_default($ssh, 'proxies'      , null);
+        array_default($ssh, 'persist'      , false);
 
         /*
          * If no domain is specified, then don't execute this command on a
          * remote server, just use safe_exec and execute it locally
          */
-        if(!$server['domain']){
+        if(!$ssh['domain']){
             $retry = 0;
-            return safe_exec($server['commands'].($server['background'] ? ' &' : ''), $ok_exitcodes, true, $function);
+            return safe_exec($ssh['commands'].($ssh['background'] ? ' &' : ''), $ok_exitcodes, true, $function);
+        }
+
+        /*
+         * Ensure valid server variable
+         * If $ssh is a string, the load server information from servers
+         * table
+         */
+        if(!is_array($ssh) or (empty($ssh['identity_file']))){
+            if(!is_array($ssh) and !is_scalar($ssh)){
+                throw new bException(tr('ssh_exec(): Invalid $ssh specified. $ssh must be either a domain, or server array'), 'invalid');
+            }
+
+            $retry = 0;
+
+            load_libs('servers');
+            return servers_exec($ssh, $commands, $background, $function, $ok_exitcodes);
+        }
+
+        /*
+         * If $ssh[domain] is available without identity file, then load
+         * server data from server table
+         */
+        if(empty($ssh['identity_file'])){
+            $retry = 0;
+
+            load_libs('servers');
+            return servers_exec($ssh, $commands, $background, $function, $ok_exitcodes);
         }
 
         /*
          * Build the SSH command
          * Execute the command
          */
-        $command = ssh_build_command($server);
+        $command = ssh_build_command($ssh);
+
+        /*
+         * Execute this entire SSH command from another server?
+         */
         $results = safe_exec($command, $ok_exitcodes, true, $function);
 
         /*
          * Remove SSH warning
          */
-        if(!$server['background']){
+        if(!$ssh['background']){
             if(preg_match('/Warning: Permanently added \'\[.+?\]:\d{1,5}\' \(\w+\) to the list of known hosts\./', isset_get($results[0]))){
                 /*
                  * Remove known host warning from results
@@ -133,21 +137,21 @@ function ssh_exec($server, $commands = null, $background = false, $function = nu
             }
         }
 
-        if(!empty($server['tunnel'])){
-            if(empty($server['tunnel']['persist'])){
+        if(!empty($ssh['tunnel'])){
+            if(empty($ssh['tunnel']['persist'])){
 // :TODO: Add persist timeouts, so that these SSL tunnels can still be closed after X amount of time
                 /*
                  * This SSH tunnel must be closed automatically once the script finishes
                  */
-                log_console(tr('Created SSH tunnel ":source_port::target_domain::target_port" to domain ":domain"', array(':domain' => $server['domain'], ':source_port' => $server['tunnel']['source_port'], ':target_domain' => $server['tunnel']['target_domain'], ':target_port' => $server['tunnel']['target_port'])));
+                log_console(tr('Created SSH tunnel ":source_port::target_domain::target_port" to domain ":domain"', array(':domain' => $ssh['domain'], ':source_port' => $ssh['tunnel']['source_port'], ':target_domain' => $ssh['tunnel']['target_domain'], ':target_port' => $ssh['tunnel']['target_port'])));
                 $core->register('shutdown_ssh_close_tunnel', $results);
 
             }else{
 
-                log_console(tr('Created PERSISTENT SSH tunnel ":source_port::target_domain::target_port" to domain ":domain"', array(':domain' => $server['domain'], ':source_port' => $server['tunnel']['source_port'], ':target_domain' => $server['tunnel']['target_domain'], ':target_port' => $server['tunnel']['target_port'])));
+                log_console(tr('Created PERSISTENT SSH tunnel ":source_port::target_domain::target_port" to domain ":domain"', array(':domain' => $ssh['domain'], ':source_port' => $ssh['tunnel']['source_port'], ':target_domain' => $ssh['tunnel']['target_domain'], ':target_port' => $ssh['tunnel']['target_port'])));
             }
 
-        }elseif($server['background']){
+        }elseif($ssh['background']){
             $results = array_pop($results);
         }
 
@@ -166,108 +170,36 @@ function ssh_exec($server, $commands = null, $background = false, $function = nu
                     /*
                      * Check if the exception perhaps was caused by missing ssh server fingerprints (common enough to test)
                      */
-                    $known = ssh_host_is_known($server['domain'], $server['port']);
+                    if($ssh['domain']){
+                        $known = ssh_host_is_known($ssh['domain'], $ssh['port']);
 
-                    if($known === false){
-                        /*
-                         * There are no fingerprints availabe in either the
-                         * `ssh_fingerprints` table or known_hosts file
-                         */
-                        $e->setCode('host-verification-failed');
-                        throw new bException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $server['domain'])), $e);
+                        if($known === false){
+                            /*
+                             * There are no fingerprints availabe in either the
+                             * `ssh_fingerprints` table or known_hosts file
+                             */
+                            $e->setCode('host-verification-failed');
+                            throw new bException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $ssh['domain'])), $e);
 
-                    }elseif(is_numeric($known)){
-                        /*
-                         * There are no fingerprints availabe in the known_hosts
-                         * file, but they were in the `ssh_fingerprints` table.
-                         * The fingerprints have been added to the known_hosts
-                         * file so we can retry the command.
-                         */
-                        log_console(tr('Retrying execution of command ":command"', array(':command' => $server['commands'])), 'yellow');
-                        return ssh_exec($server, $commands, $background, $function, $ok_exitcodes);
+                        }elseif(is_numeric($known)){
+                            /*
+                             * There are no fingerprints availabe in the known_hosts
+                             * file, but they were in the `ssh_fingerprints` table.
+                             * The fingerprints have been added to the known_hosts
+                             * file so we can retry the command.
+                             */
+                            log_console(tr('Retrying execution of command ":command"', array(':command' => $ssh['commands'])), 'yellow');
+                            return ssh_exec($ssh, $commands, $background, $function, $ok_exitcodes);
+                        }
                     }
-
-// :TODO:
-                    //$data = $e->getData();
-                    //
-                    //if(($function !== 'passthru') and $data){
-                    //    foreach($data as $line){
-                    //        /*
-                    //         * SSH key authentication failed
-                    //         */
-                    //        if($line === 'Host key verification failed.'){
-                    //            $e = new bException(tr('ssh_exec(): The host ":domain" SSH key fingerprint does not match any of the available finger prints in the ROOT/data/ssh/known_hosts file. This means somegbody is faking this server, or the server was reinstalled', array(':domain' => $server['domain'])), 'host-verification-failed');
-                    //            $not_check_inet = true;
-                    //
-                    //            foreach($data as $line){
-                    //                /*
-                    //                 * Did key authentication fail because of
-                    //                 * missing fingerprint or because it didn't
-                    //                 * match?
-                    //                 */
-                    //                if(preg_match('/No [a-z0-9-]+ host key is known for/i', $line)){
-                    //                    /*
-                    //                     * It's only missing, so we only have to
-                    //                     * add it
-                    //                     */
-                    //                    $e = new bException(tr('ssh_exec(): The host ":domain" has no SSH key fingerprint in the known_hosts file.', array(':domain' => $server['domain'])), 'warning/host-verification-missing');
-                    //
-                    //                    /*
-                    //                     * Is the server fingerprint perhaps already
-                    //                     * available in the `ssh_fingerprints`
-                    //                     * table? If so, we can rebuild the
-                    //                     * known_hosts file
-                    //                     */
-                    //                    ssh_host_is_known();
-                    //
-                    //                    $exists = sql_get('SELECT `id` FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port LIMIT 1', true, array(':domain' => $server['domain'], ':port' => $server['port']));
-                    //
-                    //                    if($exists){
-                    //                        /*
-                    //                         * Hostname fingerprints are available
-                    //                         * in ssh_fingerprints. Rebuild the
-                    //                         * known_hosts file, and retry command
-                    //                         */
-                    //                        log_console(tr('The host ":domain" has no SSH key fingerprint in the ROOT/data/ssh/known_hosts file, but the keys were found in the ssh_fingerprints table. Rebuilding known_hosts file and retrying execution', array(':domain' => $server['domain'])), 'yellow');
-                    //                        ssh_rebuild_known_hosts();
-                    //                        return ssh_exec($server, $commands, $background, $function, $ok_exitcodes);
-                    //                    }
-                    //
-                    //                    /*
-                    //                     * Host fingerprints are not available, fail
-                    //                     * with a warning
-                    //                     */
-                    //                    break;
-                    //                }
-                    //            }
-                    //
-                    //            /*
-                    //             * Host fingerprint matching failed. The fingerprint
-                    //             * from the host did not match the registered
-                    //             * entries.
-                    //             */
-                    //            break;
-                    //
-                    //        }else{
-                    //            /*
-                    //             * Search for other known errors
-                    //             */
-                    //            foreach($data as $line){
-                    //                if($line === 'sudo: no tty present and no askpass program specified'){
-                    //                    throw new bException(tr('ssh_exec(): The SSH user ":user" does not have password-less sudo privileges on the host ":domain"', array(':domain' => $server['domain'], ':user' => $server['username'])), 'sudo');
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
 
                     /*
                      * Check if SSH can connect to the specified server / port
                      */
-                    if(empty($not_check_inet) and isset($server['port'])){
+                    if(empty($not_check_inet) and isset($ssh['port'])){
                         try{
                             load_libs('inet');
-                            inet_test_host_port($server['domain'], $server['port']);
+                            inet_test_host_port($ssh['domain'], $ssh['port']);
 
                         }catch(Exception $f){
                             throw new bException(tr('ssh_exec(): inet_test_host_port() failed with ":e"', array(':e' => $f->getMessage())), $e);
@@ -1657,13 +1589,21 @@ under_construction();
  */
 function ssh_tunnel($params, $reuse = true){
     try{
-        array_ensure ($params, 'domain,source_port,target_port,target_domain,persist');
+        array_ensure ($params, 'domain,source_port,target_port,target_domain,persist,server');
         array_default($params, 'tunnel'     , 'localhost');
         array_default($params, 'test_tries' , 50);
-        load_libs('inet');
+        load_libs('inet,linux');
 
         if(!$params['domain']){
             throw new bException(tr('ssh_tunnel(): No domain specified'), 'not-specified');
+        }
+
+        if($params['server']){
+            load_libs('servers');
+
+            $server                            = $params['server'];
+            $params['server']                  = servers_get($server['domain']);
+            $params['server']['identity_file'] = $server['identity_file'];
         }
 
         /*
@@ -1671,7 +1611,7 @@ function ssh_tunnel($params, $reuse = true){
          * so, use that, don't make a new one!
          */
         if($reuse){
-            $exists = ssh_tunnel_exists($params['domain'], $params['target_port'], $params['target_domain']);
+            $exists = ssh_tunnel_exists($params['domain'], $params['target_port'], $params['target_domain'], $params['server']);
 
             if($exists){
                 if($params['source_port'] === $exists['source_port']){
@@ -1680,6 +1620,7 @@ function ssh_tunnel($params, $reuse = true){
                 }else{
                     log_console(tr('Found pre-existing SSH tunnel for requested configuration ":source_port::target_domain::target_port" with pid ":pid" on different source port ":different_port", not creating a new one', array(':source_port' => $params['source_port'], ':target_domain' => $params['target_domain'], ':target_port' => $params['target_port'], ':pid' => $exists['pid'], ':different_port' => $exists['source_port'])), 'VERBOSE/warning');
                 }
+
                 return $exists;
             }
         }
@@ -1688,7 +1629,7 @@ function ssh_tunnel($params, $reuse = true){
             /*
              * Ensure port is available.
              */
-            if(!inet_port_available($params['source_port'], '127.0.0.1')){
+            if(!inet_port_available($params['source_port'], '127.0.0.1', $params['server'])){
                 throw new bException(tr('ssh_tunnel(): Source port ":port" is already in use', array(':port' => $params['source_port'])), 'not-available');
             }
 
@@ -1696,7 +1637,7 @@ function ssh_tunnel($params, $reuse = true){
             /*
              * Ensure Assign a random local port
              */
-            $params['source_port'] = inet_get_available_port('127.0.0.1');
+            $params['source_port'] = inet_get_available_port('127.0.0.1', $params['server']);
         }
 
         $params['tunnel'] = array('persist'       => $params['persist'],
@@ -1732,7 +1673,7 @@ function ssh_tunnel($params, $reuse = true){
                 /*
                  * Is the tunnel responding?
                  */
-                $exists = inet_test_host_port('127.0.0.1', $params['tunnel']['source_port']);
+                $exists = inet_test_host_port('127.0.0.1', $params['tunnel']['source_port'], $params['server']);
 
                 if($exists){
                     log_console(tr('SSH tunnel confirmed working'), 'VERBOSE/green');
@@ -1743,7 +1684,7 @@ function ssh_tunnel($params, $reuse = true){
                  * Is the SSH tunnel process still there? If not, there is no
                  * reason to be testing
                  */
-                if(!cli_pid($retval)){
+                if(!linux_pid($params['server'], $retval)){
                     throw new bException(tr('ssh_tunnel(): Failed to confirm SSH tunnel available, the SSH tunnel process ":pid" is gone', array(':pid' => $retval)), 'failed');
                 }
             }
@@ -1780,18 +1721,18 @@ function ssh_tunnel($params, $reuse = true){
  * @param numeric $target_domain
  * @return array Resulting array either is null, or an arry containing the pid (process id) and source_port of the found tunnel
  */
-function ssh_tunnel_exists($domain, $target_port, $target_domain = null){
+function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server = null){
     global $core;
 
     try{
-        load_libs('cli');
+        load_libs('linux');
 
         if(!$target_domain){
             $target_domain = 'localhost';
         }
 
         $results   = array();
-        $processes = cli_list_processes('ssh,-L');
+        $processes = linux_list_processes($server, 'ssh,-L');
 
         foreach($processes as $pid => $process){
             if(!preg_match_all('/(\d+)(\:.+?\:\d+)/', $process, $matches)){
@@ -1843,7 +1784,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null){
                 load_libs('inet');
 
                 $source_port = current($results);
-                $works       = inet_test_host_port('127.0.0.1', $source_port);
+                $works       = inet_test_host_port('127.0.0.1', $source_port, $server);
 
                 if($works){
                     /*

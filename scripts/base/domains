@@ -288,8 +288,8 @@ try{
                     throw new bException(tr('The specified provider ":provider" does not exist', array(':provider' => $provider)), 'warning');
                 }
 
-                $execute[':providerss_id'] = $providers_id;
-                $where[] = ' `domains`.`providerss_id` = :providerss_id ';
+                $execute[':providers_id'] = $providers_id;
+                $where[] = ' `domains`.`providers_id` = :providers_id ';
             }
 
             $query   = 'SELECT    `domains`.`id`,

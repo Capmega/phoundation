@@ -425,4 +425,84 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify =
         throw new bException('linux_pkill(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Return all system processes that match the specified filters on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param numeric $source_port
+ * @param numeric $hostname
+ * @param numeric $target_port
+ * @param numeric $target_hostname
+ * @return numeric PID of the found tunnel with the specified parameters, null if no tunnel was found
+ */
+function linux_list_processes($server, $filters){
+    try{
+        $filters = array_force($filters);
+
+        foreach($filters as &$filter){
+            $filter = trim($filter);
+
+            if($filter[0] == '-'){
+                $filter = '\\\\'.$filter;
+            }
+
+            $filter = '"'.$filter.'"';
+        }
+
+        unset($filter);
+
+        $filters = implode(' | grep --color=never ', $filters);
+        $command = 'ps ax | grep --color=never '.$filters;
+        $results = servers_exec($server, $command, false, null, '0,1');
+        $retval  = array();
+
+        foreach($results as $key => $result){
+            if(strstr($result, $command)){
+                unset($results[$key]);
+                continue;
+            }
+
+            $result       = trim($result);
+            $pid          = str_until($result, ' ');
+            $retval[$pid] = substr($result, 27);
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new bException('linux_list_processes(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Check if the specified PID is available on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server The server on which the pid should be tested
+ * @param natural $pid The PID to be tested
+ * @return boolean True if the specified PID is available on the specified server, false otherwise
+ */
+function linux_pid($server, $pid){
+    try{
+        return linux_file_exists($server, '/proc/'.$pid);
+
+    }catch(Exception $e){
+        throw new bException('linux_pid(): Failed', $e);
+    }
+}
 ?>

@@ -1627,7 +1627,16 @@ function cli_status_color($status){
 
 
 /*
- * Check if the specified PID is running
+ * Check if the specified PID is available
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param natural $pid The PID to be tested
+ * @return boolean True if the specified PID is available on the specified server, false otherwise
  */
 function cli_pid($pid){
     try{

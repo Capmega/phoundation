@@ -105,7 +105,7 @@ function is_ipv6($version = null){
  * @param natural $port (1 - 65535) The port on the specified hostname or IP to connect to
  * @return boolean True if the specified host / port responds, false if not
  */
-function inet_test_host_port($host, $port, $timeout = 5, $exception = false){
+function inet_test_host_port($host, $port, $server = null, $timeout = 5, $exception = false){
     try{
         if(!is_natural($port) or ($port > 65535)){
             throw new bException(tr('inet_test_host_port(): Specified port ":port" is invalid, please specify a natural number 1 - 65535', array(':port' => $port)), 'invalid');
@@ -125,11 +125,12 @@ function inet_test_host_port($host, $port, $timeout = 5, $exception = false){
         }
 
         try{
-            safe_exec('nc -zv '.$host.' '.$port.' -w '.$timeout);
+            servers_exec($server, 'nc -zv '.$host.' '.$port.' -w '.$timeout);
             return true;
 
         }catch(Exception $e){
             $data = $e->getData();
+            $data = array_force($data);
             $data = array_shift($data);
             $data = strtolower($data);
 
@@ -597,12 +598,11 @@ function inet_validate_ip($ip, $allow_all = true){
  * @param natural $port
  * @return
  */
-function inet_port_available($port, $ip = '0.0.0.0'){
+function inet_port_available($port, $ip = '0.0.0.0', $server = null){
     try{
-        $ip   = inet_validate_ip($ip);
-        $port = inet_validate_port($port);
-
-        $results = safe_exec('sudo netstat -peanut | grep :'.$port, '0,1');
+        $ip      = inet_validate_ip($ip);
+        $port    = inet_validate_port($port);
+        $results = servers_exec($server, 'sudo netstat -peanut | grep :'.$port, false, null, '0,1');
 
         foreach($results as $result){
             preg_match_all('/ (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5}) /', $result, $matches);
@@ -645,7 +645,7 @@ function inet_port_available($port, $ip = '0.0.0.0'){
  * @param string $ip
  * @return available port on the specified IP that is not being listened on yet
  */
-function inet_get_available_port($ip = '0.0.0.0', $lowest = 1025, $retries = 10){
+function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025, $retries = 10){
     try{
         $count = 1;
 
@@ -654,7 +654,7 @@ function inet_get_available_port($ip = '0.0.0.0', $lowest = 1025, $retries = 10)
                 throw new bException(tr('inet_get_available_port(): Failed to find an available port in ":retries" retries', array(':retries' => $retries)), 'failed');
             }
 
-            if(inet_port_available($port)){
+            if(inet_port_available($port, $ip, $server)){
                 return $port;
             }
         }
