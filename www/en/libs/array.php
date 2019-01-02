@@ -1148,30 +1148,31 @@ function array_hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDE
 
         $keys = array_force($keys);
 
-        foreach($keys as $key){
-            foreach($source as $source_key => &$source_value){
+        foreach($source as $source_key => &$source_value){
+            foreach($keys as $key){
+                /*
+                 *
+                 */
+                if(strstr($key, '%')){
+                    if(strstr($source_key, str_replace('%', '', $key))){
+                        $source_value = str_hide($source_value, $hide, $empty);
+                    }
+
+                }else{
+                    if($source_key === $key){
+                        $source_value = str_hide($source_value, $hide, $empty);
+                    }
+                }
+
                 if(is_array($source_value)){
                     if($recurse){
                         $source_value = array_hide($source_value, $keys, $hide, $empty, $recurse);
                     }
-
-                }else{
-                    if(strstr($key, '%')){
-                        if(strstr($source_key, str_replace('%', '', $key))){
-                            $source_value = str_hide($source_value, $hide, $empty);
-                        }
-
-                    }else{
-                        if($source_key === $key){
-                            $source_value = str_hide($source_value, $hide, $empty);
-                        }
-                    }
                 }
             }
-
-            unset($source_value);
         }
 
+        unset($source_value);
         return $source;
 
     }catch(Exception $e){
