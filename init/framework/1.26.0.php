@@ -49,7 +49,7 @@ sql_query('CREATE TABLE `doc_pages` (`id`          INT(11)     NOT NULL AUTO_INC
                                      `name`        VARCHAR(32) NOT NULL,
                                      `seoname`     VARCHAR(32) NOT NULL,
                                      `package`     VARCHAR(32)     NULL,
-                                     `type`        ENUM("function", "class", "library", "chapter", "page", "webpage", "script") NOT NULL,
+                                     `type`        ENUM("function", "class", "library", "chapter", "page", "webpage", "script", "configuration", "init", "api", "ajax") NOT NULL,
 
                                             KEY `createdon`  (`createdon`),
                                             KEY `createdby`  (`createdby`),
@@ -60,9 +60,10 @@ sql_query('CREATE TABLE `doc_pages` (`id`          INT(11)     NOT NULL AUTO_INC
                                             KEY `package`    (`package`),
                                      UNIQUE KEY `seoname`    (`seoname`),
 
-                                     CONSTRAINT `fk_doc_pages_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`     (`id`) ON DELETE RESTRICT,
-                                     CONSTRAINT `fk_doc_pages_meta_id`    FOREIGN KEY (`meta_id`)    REFERENCES `meta`      (`id`) ON DELETE RESTRICT,
-                                     CONSTRAINT `fk_doc_pages_parents_id` FOREIGN KEY (`parents_id`) REFERENCES `doc_pages` (`id`) ON DELETE RESTRICT
+                                     CONSTRAINT `fk_doc_pages_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`        (`id`) ON DELETE RESTRICT,
+                                     CONSTRAINT `fk_doc_pages_meta_id`     FOREIGN KEY (`meta_id`)     REFERENCES `meta`         (`id`) ON DELETE RESTRICT,
+                                     CONSTRAINT `fk_doc_pages_parents_id`  FOREIGN KEY (`parents_id`)  REFERENCES `doc_pages`    (`id`) ON DELETE CASCADE,
+                                     CONSTRAINT `fk_doc_pages_projects_id` FOREIGN KEY (`projects_id`) REFERENCES `doc_projects` (`id`) ON DELETE CASCADE
 
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
@@ -77,8 +78,8 @@ sql_query('CREATE TABLE `doc_values` (`id`        INT(11)     NOT NULL AUTO_INCR
                                       `meta_id`   INT(11)     NOT NULL,
                                       `status`    VARCHAR(16)     NULL DEFAULT NULL,
                                       `pages_id`  INT(11)     NOT NULL,
-                                      `key`       ENUM("header", "paragraph", "author", "copyright", "license", "see", "table", "note", "version", "example", "params", "param", "return", "exception") NOT NULL,
-                                      `values`    TEXT            NULL DEFAULT NULL,
+                                      `key`       ENUM("category", "title", "paragraph", "author", "copyright", "license", "see", "table", "note", "version", "example", "params", "param", "return", "exception") NOT NULL,
+                                      `value`     TEXT            NULL DEFAULT NULL,
 
                                              KEY `createdon` (`createdon`),
                                              KEY `createdby` (`createdby`),

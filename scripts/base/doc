@@ -58,6 +58,7 @@ generate TEMPLATE               - Will generate new documents based on the
 
 require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
+load_libs('doc');
 
 switch(cli_method()){
     case 'intro':
@@ -137,9 +138,9 @@ switch(cli_method()){
     case 'parse':
         $path = cli_argument(0);
         cli_no_arguments_left();
-        load_libs('phpdoc');
 
-        $results = phpdoc_parse_path(ROOT);
+        log_console(tr('Starting project parsing'), 'white');
+        $results = doc_parse_this();
 showdie($results);
         break;
 
