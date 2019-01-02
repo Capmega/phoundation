@@ -6,18 +6,62 @@
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Sven Oostenbrink <support@capmega.com>
+ * @category Function reference
+ * @package empty
  */
-
-
-
-load_config('ads');
 
 
 
 /*
+ * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
  *
+ * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package ssh
+ *
+ * @return void
  */
-function ads_validate_campaign($campaign, $old_campaign = null){
+function ads_library_init(){
+    try{
+        load_config('ads');
+
+    }catch(Exception $e){
+        throw new bException('ads_library_init(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Validate the specified campaign params array
+ *
+ * This function will validate the specified campaign array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package ads
+ * @see campaign_insert()
+ * @table: `empty`
+ * @note: TEST
+ * @version 1.25.0: Added documentation
+ * @example
+ * code
+ * THIS IS A TEST
+ * /code
+ *
+ * This would return
+ * code
+ * TEST TEST TEST
+ * /code
+ *
+ * @param params $campaign
+ * @return params The specified campaign, validated and sanitized
+ */
+function ads_validate_campaign($campaign){
     try{
         load_libs('validate');
 
