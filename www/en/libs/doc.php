@@ -602,7 +602,7 @@ function doc_parse_library($project, $file, $content){
                  */
                 $header_next = str_rfrom($function, '/*');
                 $function    = str_runtil($function, '/*');
-                $page        = doc_parse_function($project, $name, $file, $function);
+                $page        = doc_parse_function($project, $page, $file, $function);
 
                 doc_parse_function_header($page, $name, $file, $header);
 
@@ -639,16 +639,17 @@ function doc_parse_library($project, $file, $content){
  * @param string $content
  * @return params
  */
-function doc_parse_function($project, $library, $file, $content){
+function doc_parse_function($project, $parent, $file, $content){
     try{
         /*
          * Create function page
          */
         $name = trim(str_until($content, '('));
         $page = doc_insert_page(array('projects_id' => $project['id'],
+                                      'parents_id'  => $parent['id'],
                                       'type'        => 'function',
                                       'name'        => $name,
-                                      'package'     => $library));
+                                      'package'     => $parent['name']));
 
         log_console(tr('Processing function ":function"', array(':function' => $name)), 'VERYVERBOSE/cyan');
 
