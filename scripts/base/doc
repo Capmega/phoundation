@@ -139,9 +139,16 @@ switch(cli_method()){
         $path = cli_argument(0);
         cli_no_arguments_left();
 
-        log_console(tr('Starting project parsing'), 'white');
+        log_console(tr('Starting project documentation parsing'), 'white');
         $results = doc_parse_this();
-showdie($results);
+        break;
+
+    case 'generate':
+        $path = cli_argument(0);
+        cli_no_arguments_left();
+
+        log_console(tr('Starting project documentation generation'), 'white');
+        $results = doc_generate();
         break;
 
     case '':
