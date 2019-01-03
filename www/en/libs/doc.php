@@ -6,7 +6,7 @@
  * and generate documentation for them
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 
 
@@ -567,14 +567,14 @@ function doc_parse_library($project, $file, $content){
          * Generate page
          * Parse library header
          */
-        $name = str_until(basename($file), '.');
-        $page = doc_insert_page(array('projects_id' => $project['id'],
-                                      'type'        => 'library',
-                                      'name'        => $name,
-                                      'package'     => $name));
+        $name    = str_until(basename($file), '.');
+        $libpage = doc_insert_page(array('projects_id' => $project['id'],
+                                         'type'        => 'library',
+                                         'name'        => $name,
+                                         'package'     => $name));
 
-        log_console(tr('PArsing library file ":file"', array(':file' => $file)), 'VERBOSEDOT/cyan');
-        doc_parse_file_header($page, $file, $content);
+        log_console(tr('Parsing library file ":file"', array(':file' => $file)), 'VERBOSEDOT/cyan');
+        doc_parse_file_header($libpage, $file, $content);
 
         /*
          * Parse all function headers
@@ -602,9 +602,9 @@ function doc_parse_library($project, $file, $content){
                  */
                 $header_next = str_rfrom($function, '/*');
                 $function    = str_runtil($function, '/*');
-                $page        = doc_parse_function($project, $page, $file, $function);
+                $functons[]  = doc_parse_function($project, $libpage, $file, $function);
 
-                doc_parse_function_header($page, $name, $file, $header);
+                doc_parse_function_header($page, $libpage, $file, $header);
 
                 /*
                  * Set the header for the next function
@@ -612,6 +612,18 @@ function doc_parse_library($project, $file, $content){
                 $header = $header_next;
             }
         }
+
+        /*
+         * Add all functions to library index
+         */
+        foreach($functions as $function){
+            doc_insert_value(array('pages_id' => $libpage['id'],
+                                   'key'      => 'function',
+                                   'value'    => 'seoname'));
+        }
+
+        unset($functions);
+        unset($function);
 
         /*
          * Parse all classes
@@ -676,11 +688,11 @@ function doc_parse_function($project, $parent, $file, $content){
  * @package doc
  *
  * @param params $page
- * @param string $library
+ * @param string $parent
  * @param string $tag
  * @param string $tag
  */
-function doc_parse_function_header($page, $library, $file, $content){
+function doc_parse_function_header($page, $parent, $file, $content){
     try{
         $content = explode("\n", $content);
         $current = 'title';
@@ -812,7 +824,7 @@ function doc_validate_project($project, $language = null){
 
         $v->isNotEmpty($project['name'], tr('Please specifiy a project name'));
         $v->hasMinChars($project['name'],  2, tr('Please specifiy a project name with at least 2 characters'));
-        $v->hasMaxChars($project['name'], 32, tr('Please specifiy a project name with at least 32 characters'));
+        $v->hasMaxChars($project['name'], 32, tr('Please specifiy a project name with less than 32 characters'));
 
         $v->isNotEmpty($project['language'], tr('Please specifiy a project name'));
         $v->hasMinChars($project['language'], 2, tr('Please specifiy a project language of 2 characters'));
@@ -884,11 +896,11 @@ function doc_insert_page($page){
  */
 function doc_validate_page($page){
     try{
-        $v = new validate_form($page, 'seoparent,projects_id,name,package,type');
+        $v = new validate_form($page, 'parents_id,projects_id,name,package,type');
 
         $v->isNotEmpty($page['name'], tr('Please specifiy a page name'));
         $v->hasMinChars($page['name'],  2, tr('Please specifiy a page name with at least 2 characters'));
-        $v->hasMaxChars($page['name'], 32, tr('Please specifiy a page name with at least 32 characters'));
+        $v->hasMaxChars($page['name'], 64, tr('Please specifiy a page name with less than 64 characters'));
 
         /*
          * Validate the projects_id
@@ -906,7 +918,7 @@ function doc_validate_page($page){
          */
         if($page['package']){
             $v->hasMinChars($page['package'],  2, tr('Please specifiy a page package with at least 2 characters'));
-            $v->hasMaxChars($page['package'], 32, tr('Please specifiy a page package with at least 32 characters'));
+            $v->hasMaxChars($page['package'], 64, tr('Please specifiy a page package with less than 64 characters'));
 
         }else{
             $page['package'] = null;
@@ -915,11 +927,12 @@ function doc_validate_page($page){
         /*
          * Validate the parent
          */
-        if($page['seoparent']){
-            $page['parents_id'] = sql_get('SELECT `id` FROM `doc_pages` WHERE `seoname` = :seoname', true, array(':seoname' => $page['seoparent']));
+        if($page['parents_id']){
+            $exists = sql_get('SELECT `id` FROM `doc_pages` WHERE `id` = :id', true, array(':id' => $page['parents_id']));
 
-            if(!$page['parent']){
+            if(!$exists){
                 $v->setError(tr('The specified parents page ":parent" does not exist', array(':parent' => $page['seoparent'])));
+                $page['parents_id'] = null;
             }
 
         }else{
@@ -955,7 +968,7 @@ function doc_validate_page($page){
 function doc_parse_value(string $line){
     try{
         if(!preg_match_all('/^@\s?([a-z-]+)\s?:?\s?(.+)/', $line, $matches)){
-            throw new bException(tr('doc_parse_value(): Specified line ":line" is of an incorrect format', array(':line' => $line, ':key' => $key)), 'invalid');
+            throw new bException(tr('doc_parse_value(): Specified line ":line" is of an incorrect format', array(':line' => $line)), 'invalid');
         }
 
         $value['key']   = $matches[1][0];
@@ -1054,8 +1067,56 @@ function doc_validate_value($value){
  * @package doc
  *
  */
-function doc_generate($template, $project = null){
+function doc_generate($project = null){
     try{
+        if(!$project){
+            $project = PROJECT;
+        }
+
+        $projects_id = sql_get('SELECT `id` FROM `doc_projects` WHERE `name` = :name', true, array(':name' => $project));
+        $formats     = array('txt', 'html', 'include', 'pdf');
+        $formats     = array('txt', 'html');
+
+        if(!$projects_id){
+            throw new bException(tr('Failed to generate documentation for project ":project", it does not exist', array(':project' => $project)), 'not-exist');
+        }
+
+        log_console(tr('Generating documentation for project ":project"', array(':project' => $project)), 'white');
+        log_console(tr('Deleting old documentation'));
+
+        file_delete(ROOT.'data/doc/pdf');
+        file_delete(ROOT.'data/doc/txt');
+        file_delete(ROOT.'data/doc/html');
+        file_delete(ROOT.'data/doc/include');
+
+        log_console(tr('Generating documentation in ":format" format', array(':format' => $format)), 'cyan');
+
+        foreach($formats as $format){
+            $pages = sql_query('SELECT `id`, `name`, `seoname`, `type` FROM `doc_pages` WHERE `projects_id` = :projects_id', array(':projects_id' => $projects_id));
+
+            foreach($pages as $page){
+                try{
+                    $page['values'] = sql_list('SELECT `id`, `key`, `value` FROM `doc_values` WHERE `pages_id` = :pages_id', array(':pages_id' => $page['id']));
+                    doc_generate_page($format, $page);
+
+                }catch(Exception $e){
+                    doc_errors(tr('Failed to generate documentation page ":page" because of error ":e"', array(':page' => $page, ':e' => $e->getMessage())));
+                }
+            }
+        }
+
+        $errors  = doc_errors();
+
+        if($errors){
+            log_console(tr('Finished documentation parsing with the following issues:'));
+
+            foreach($errors as $error){
+                log_console($error, 'yellow');
+            }
+
+        }else{
+            log_console(tr('Finished documentation parsing succesfully'));
+        }
 
     }catch(Exception $e){
         throw new bException('doc_generate(): Failed', $e);
@@ -1074,8 +1135,64 @@ function doc_generate($template, $project = null){
  * @package doc
  *
  */
-function doc_generate_page($template, $page){
+function doc_generate_page($format, $page){
     try{
+        $path = ROOT.'data/doc/';
+        $keys = array('category',
+                      'package',
+                      'title',
+                      'author',
+                      'copyright',
+                      'license',
+                      'return');
+
+        $multis = array('params',
+                        'paragraphs',
+                        'examples',
+                        'exceptons',
+                        'notes',
+                        'sees',
+                        'tables',
+                        'versions');
+
+        log_console(tr('Generating page ":page"', array(':page' => $page['name'])), 'VERYVERBOSEDOT/cyan');
+        file_ensure_path($path.$format);
+
+        $data = file_get_contents($path.'templates/'.$format.'/'.$page['type'].'.'.$format);
+        $data = str_replace(':name', isset_get($page['name']), $data);
+
+        foreach($multis as $multi){
+            $replace = '';
+
+            /*
+             * Replace all "multi values", that is to say, the values that have
+             * only one key in the template, but multiple values in the database
+             */
+            foreach($page['values'] as $key => $value){
+                if($value['key'] == $multi){
+                    $replace .= $value['value']."\n";
+                    unset($page['values'][$key]);
+                }
+            }
+
+            if($replace){
+                $data = str_replace(':'.$multi."\n", $replace, $data);
+            }
+        }
+
+        foreach($keys as $key){
+            /*
+             * Replace all the single values
+             */
+            foreach($page['values'] as $value){
+                if($value['key'] == $key){
+                    $data = str_replace(':'.$key, $value['value'], $data);
+                    break;
+                }
+            }
+        }
+
+        file_put_contents($path.$format.'/'.$page['name'].'.'.$format, $data);
 
     }catch(Exception $e){
         throw new bException('doc_generate_page(): Failed', $e);
@@ -1131,7 +1248,8 @@ function doc_clear($project){
             return false;
         }
 
-        sql_query('DELETE FROM `doc_projects` WHERE `id` = :id', array(':id' => $id));
+        sql_query('DELETE FROM `doc_pages`    WHERE `projects_id` = :projects_id', array(':projects_id' => $id));
+        sql_query('DELETE FROM `doc_projects` WHERE `id`          = :id'         , array(':id'          => $id));
         return true;
 
     }catch(Exception $e){
