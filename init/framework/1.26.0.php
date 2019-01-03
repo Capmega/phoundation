@@ -46,9 +46,9 @@ sql_query('CREATE TABLE `doc_pages` (`id`          INT(11)     NOT NULL AUTO_INC
                                      `status`      VARCHAR(16)     NULL DEFAULT NULL,
                                      `projects_id` INT(11)         NULL,
                                      `parents_id`  INT(11)         NULL,
-                                     `name`        VARCHAR(32) NOT NULL,
-                                     `seoname`     VARCHAR(32) NOT NULL,
-                                     `package`     VARCHAR(32)     NULL,
+                                     `name`        VARCHAR(64) NOT NULL,
+                                     `seoname`     VARCHAR(64) NOT NULL,
+                                     `package`     VARCHAR(64)     NULL,
                                      `type`        ENUM("function", "class", "library", "chapter", "page", "webpage", "script", "configuration", "init", "api", "ajax") NOT NULL,
 
                                             KEY `createdon`  (`createdon`),
