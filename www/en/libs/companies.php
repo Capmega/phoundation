@@ -5,7 +5,7 @@
  * This library contains functions for the companies management system
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 
 
@@ -147,17 +147,17 @@ function companies_validate($company){
  * @package companies
  *
  * @param array $params The parameters required
- * @paramkey $params name
- * @paramkey $params class
- * @paramkey $params extra
- * @paramkey $params tabindex
- * @paramkey $params empty
- * @paramkey $params none
- * @paramkey $params selected
- * @paramkey $params categories_id
- * @paramkey $params status
- * @paramkey $params orderby
- * @paramkey $params resource
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params categories_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
  * @return string HTML for a companies select box within the specified parameters
  */
 function companies_select($params = null){
@@ -393,17 +393,17 @@ function companies_validate_branch($branch, $reload_only = false){
  * @package companies
  *
  * @param array $params The parameters required
- * @paramkey $params name
- * @paramkey $params class
- * @paramkey $params extra
- * @paramkey $params tabindex
- * @paramkey $params empty
- * @paramkey $params none
- * @paramkey $params selected
- * @paramkey $params categories_id
- * @paramkey $params status
- * @paramkey $params orderby
- * @paramkey $params resource
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params categories_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
  * @return string HTML for a companies select box within the specified parameters
  */
 function companies_select_branch($params = null){
@@ -694,17 +694,17 @@ function companies_validate_department($department, $reload_only = false){
  * @package companies
  *
  * @param array $params The parameters required
- * @paramkey $params name
- * @paramkey $params class
- * @paramkey $params extra
- * @paramkey $params tabindex
- * @paramkey $params empty
- * @paramkey $params none
- * @paramkey $params selected
- * @paramkey $params categories_id
- * @paramkey $params status
- * @paramkey $params orderby
- * @paramkey $params resource
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params categories_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
  * @return string HTML for a companies select box within the specified parameters
  */
 function companies_select_department($params = null){
@@ -1069,17 +1069,17 @@ function companies_validate_employee($employee, $reload_only = false){
  * @package companies
  *
  * @param array $params The parameters required
- * @paramkey $params name
- * @paramkey $params class
- * @paramkey $params extra
- * @paramkey $params tabindex
- * @paramkey $params empty
- * @paramkey $params none
- * @paramkey $params selected
- * @paramkey $params categories_id
- * @paramkey $params status
- * @paramkey $params orderby
- * @paramkey $params resource
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params categories_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
  * @return string HTML for a companies select box within the specified parameters
  */
 function companies_select_employee($params = null){

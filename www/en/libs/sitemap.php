@@ -5,9 +5,9 @@
  * This library contains functions to manage available site URL's and generate
  * sitemaps from there
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package sitemap
  */
@@ -17,7 +17,7 @@
 /*
  * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

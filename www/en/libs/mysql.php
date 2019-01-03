@@ -5,7 +5,7 @@
  * This library contains various functions to manage mysql databases and servers through the command line mysql or mysqldump commands
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  * @copyright Ismael Haro <support@capmega.com>
  *
  */

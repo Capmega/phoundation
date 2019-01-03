@@ -5,7 +5,7 @@
  * This library implements the capmega monitoring system
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package monitors monitors
  */

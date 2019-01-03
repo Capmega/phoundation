@@ -5,7 +5,7 @@
  * This library contains the ArrayTokenScanner class with a simple front-end function to manage it. It can be used to convert PHP code containing only arrays into real PHP arrays
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 
 

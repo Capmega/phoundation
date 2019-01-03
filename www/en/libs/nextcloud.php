@@ -5,7 +5,7 @@
  * This library is a front-end library to control nextcloud installations on registered servers over SSH
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package nextcloud
  */

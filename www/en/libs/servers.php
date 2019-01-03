@@ -4,7 +4,7 @@
  *
  * This library contains functions to manage registered servers
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -16,7 +16,7 @@
 /*
  * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -439,17 +439,17 @@ function servers_like($domain){
  * @see html_select()
  *
  * @param array $params The parameters required
- * @paramkey $params name
- * @paramkey $params class
- * @paramkey $params extra
- * @paramkey $params tabindex
- * @paramkey $params empty
- * @paramkey $params none
- * @paramkey $params selected
- * @paramkey $params parents_id
- * @paramkey $params status
- * @paramkey $params orderby
- * @paramkey $params resource
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params parents_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
  * @return string HTML for a servers select box within the specified parameters
  */
 function servers_select($params = null){

@@ -5,7 +5,7 @@
  * This library has functiosn to work with base environments
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package environments
  */
@@ -24,9 +24,9 @@
  * @package environments
  *
  * @param array $params The parameters required
- * @paramkey string $params name
- * @paramkey string $params empty
- * @paramkey string $params none
+ * @param string $params name
+ * @param string $params empty
+ * @param string $params none
  * @return string HTML for a environments select box within the specified parameters
  */
 function environments_select($params = null){

@@ -4,9 +4,9 @@
  *
  * This library contains functions to manage BASE HTTP
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package http
  */
@@ -16,7 +16,7 @@
 /*
  * Return $_POST[dosubmit] value, and reset it to be sure it won't be applied twice
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -45,7 +45,7 @@ function get_dosubmit(){
 /*
  * Redirect to the specified $target
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -66,7 +66,7 @@ function redirect($target = '', $http_code = null, $clear_session_redirect = tru
 /*
  * Return the specified URL with a redirect URL stored in $core->register['redirect']
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

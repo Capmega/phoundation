@@ -5,7 +5,7 @@
  * This library contains functions to manage uploads using the jQuery-File-Upload library
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  *
  * To disable chrome strict CORS checks, start chrome with --disable-web-security
  */

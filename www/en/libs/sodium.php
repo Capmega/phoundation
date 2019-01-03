@@ -5,7 +5,7 @@
  * This is the PHP Libsodium front-end library
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  * @see https://paragonie.com/book/pecl-libsodium/read/00-intro.md
  * @see https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md
  */

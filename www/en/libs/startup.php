@@ -50,7 +50,7 @@
  * This library also defines the bException class which is the default exception
  * thrown by BASE functions.
  *
- * @auhthor Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -730,6 +730,16 @@ function tr($text, $replace = null, $verify = true){
              */
             if(empty($_CONFIG['production']) and $verify){
                 if($count != count($replace)){
+                    foreach($replace as $value){
+                        if(strstr($value, ':')){
+                            /*
+                             * The one of the $replace values contains :blah
+                             * This will cause the detector to fire off
+                             * incorrectly. Ignore this.
+                             */
+                            return $text;
+                        }
+                    }
                     throw new bException('tr(): Not all specified keywords were found in text', 'not-found');
                 }
 

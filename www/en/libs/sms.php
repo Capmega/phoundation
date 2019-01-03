@@ -5,7 +5,7 @@
  * This library is the generic SMS interface library
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 load_config('sms');
 

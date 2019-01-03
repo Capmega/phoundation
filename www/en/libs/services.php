@@ -5,7 +5,7 @@
  * This library manages what services run on what servers that are registered in the servers library
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package services
  * @see package servers
@@ -256,17 +256,17 @@ function services_add($server, $service){
  * @see html_select()
  *
  * @param array $params The parameters required
- * @paramkey $params name
- * @paramkey $params class
- * @paramkey $params extra
- * @paramkey $params tabindex
- * @paramkey $params empty
- * @paramkey $params none
- * @paramkey $params selected
- * @paramkey $params parents_id
- * @paramkey $params status
- * @paramkey $params orderby
- * @paramkey $params resource
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params parents_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
  * @return string HTML for a services select box within the specified parameters
  */
 function services_select($params = null){

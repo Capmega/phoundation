@@ -236,17 +236,17 @@ function projects_validate($project, $reload_only = false){
  * @package projects
  *
  * @param array $params The parameters required
- * @paramkey $params name
- * @paramkey $params class
- * @paramkey $params extra
- * @paramkey $params tabindex
- * @paramkey $params empty
- * @paramkey $params none
- * @paramkey $params selected
- * @paramkey $params parents_id
- * @paramkey $params status
- * @paramkey $params orderby
- * @paramkey $params resource
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params parents_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
  * @return string HTML for a projects select box within the specified parameters
  */
 function projects_select($params = null){
