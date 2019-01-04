@@ -20,8 +20,15 @@ if(sql_table_exists('drivers_devices')){
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_branches_id'   , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_branches_id`');
 }
 
-sql_table_exists('drivers_devices', 'RENAME TABLE `drivers_devices` TO `devices`');
-sql_table_exists('drivers_options', 'RENAME TABLE `drivers_options` TO `devices_options`');
+/*
+ * Clean up some garbage from a specific project
+ */
+if(sql_table_exists('push_devices')){
+    sql_foreignkey_exists('push_devices', 'fk_devices_createdby'     ,  'ALTER TABLE `push_devices` DROP FOREIGN KEY `fk_devices_createdby`');
+    sql_foreignkey_exists('push_devices', 'fk_devices_meta_id'       ,  'ALTER TABLE `push_devices` DROP FOREIGN KEY `fk_devices_meta_id`');
+    sql_foreignkey_exists('push_devices', 'fk_push_devices_createdby', '!ALTER TABLE `push_devices` ADD CONSTRAINT `fk_push_devices_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT');
+    sql_foreignkey_exists('push_devices', 'fk_push_devices_meta_id'  , '!ALTER TABLE `push_devices` ADD CONSTRAINT `fk_push_devices_meta_id`   FOREIGN KEY (`meta_id`)   REFERENCES `meta`  (`id`) ON DELETE RESTRICT');
+}
 
 /*
  * Add links to tables categories, servers, companies, branches and departments
