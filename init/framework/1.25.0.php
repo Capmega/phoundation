@@ -6,22 +6,22 @@
  * Add support for fingerprint devices
  */
 if(sql_table_exists('drivers_options')){
-    sql_foreignkey_exists('drivers_options', 'fk_drivers_options_id'        , 'ALTER TABLE `devices_options` DROP FOREIGN KEY `fk_drivers_options_id`');
-    sql_foreignkey_exists('drivers_options', 'fk_drivers_options_devices_id', 'ALTER TABLE `devices_options` DROP FOREIGN KEY `fk_drivers_options_devices_id`');
+    sql_foreignkey_exists('drivers_options', 'fk_drivers_options_id'        , 'ALTER TABLE `drivers_options` DROP FOREIGN KEY `fk_drivers_options_id`');
+    sql_foreignkey_exists('drivers_options', 'fk_drivers_options_devices_id', 'ALTER TABLE `drivers_options` DROP FOREIGN KEY `fk_drivers_options_devices_id`');
 }
 
 if(sql_table_exists('drivers_devices')){
-    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_createdby'     , 'ALTER TABLE `devices` DROP FOREIGN KEY `fk_drivers_devices_createdby`');
-    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_meta_id'       , 'ALTER TABLE `devices` DROP FOREIGN KEY `fk_drivers_devices_meta_id`');
-    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_servers_id'    , 'ALTER TABLE `devices` DROP FOREIGN KEY `fk_drivers_devices_servers_id`');
-    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_categories_id' , 'ALTER TABLE `devices` DROP FOREIGN KEY `fk_drivers_devices_categories_id`');
-    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_companies_id'  , 'ALTER TABLE `devices` DROP FOREIGN KEY `fk_drivers_devices_companies_id`');
-    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_departments_id', 'ALTER TABLE `devices` DROP FOREIGN KEY `fk_drivers_devices_departments_id`');
-    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_branches_id'   , 'ALTER TABLE `devices` DROP FOREIGN KEY `fk_drivers_devices_branches_id`');
+    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_createdby'     , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_createdby`');
+    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_meta_id'       , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_meta_id`');
+    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_servers_id'    , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_servers_id`');
+    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_categories_id' , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_categories_id`');
+    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_companies_id'  , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_companies_id`');
+    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_departments_id', 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_departments_id`');
+    sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_branches_id'   , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_branches_id`');
 }
 
-sql_table_exists('drivers_devices', 'RENAME TABLE `devices` TO `devices`');
-sql_table_exists('drivers_options', 'RENAME TABLE `devices_options` TO `devices_options`');
+sql_table_exists('drivers_devices', 'RENAME TABLE `drivers_devices` TO `devices`');
+sql_table_exists('drivers_options', 'RENAME TABLE `drivers_options` TO `devices_options`');
 
 /*
  * Add links to tables categories, servers, companies, branches and departments
@@ -47,8 +47,9 @@ sql_index_exists ('devices', 'departments_id', '!ALTER TABLE `devices` ADD KEY  
 sql_foreignkey_exists('devices', 'fk_devices_departments_id', '!ALTER TABLE `devices` ADD CONSTRAINT `fk_devices_departments_id` FOREIGN KEY (`departments_id`) REFERENCES `departments` (`id`) ON DELETE RESTRICT');
 
 sql_column_exists('devices', 'vendor_string'     , '!ALTER TABLE `devices` ADD  COLUMN `vendor_string`      VARCHAR(32) NULL DEFAULT NULL AFTER `vendor`');
-sql_column_exists('devices', 'product_string'    , '!ALTER TABLE `devices` ADD  COLUMN `product_string`     VARCHAR(32) NULL DEFAULT NULL AFTER `product_string`');
-sql_column_exists('devices', 'seo_product_string', '!ALTER TABLE `devices` ADD  COLUMN `seo_product_string` VARCHAR(32) NULL DEFAULT NULL AFTER `product`');
+sql_column_exists('devices', 'product_string'    , '!ALTER TABLE `devices` ADD  COLUMN `product_string`     VARCHAR(32) NULL DEFAULT NULL AFTER `vendor_string`');
+sql_column_exists('devices', 'seo_product_string', '!ALTER TABLE `devices` ADD  COLUMN `seo_product_string` VARCHAR(32) NULL DEFAULT NULL AFTER `product_string`');
+
 sql_column_exists('devices', 'type'              ,  'ALTER TABLE `devices` DROP COLUMN `type`');
 
 /*
