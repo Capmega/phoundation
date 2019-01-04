@@ -21,7 +21,8 @@ if($arguments){
 
     $arguments[] = '-E';
     $arguments[] = ENVIRONMENT;
+    $arguments   = implode(' ', $arguments);
 }
 
-return safe_exec(escapeshellcmd($script).' '.implode(' ', $arguments), $ok_exitcodes);
+return safe_exec(escapeshellcmd($script).' '.$arguments, $ok_exitcodes);
 ?>
