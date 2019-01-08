@@ -321,9 +321,10 @@ try{
              */
             $_SESSION['init']     = time();
             $_SESSION['first']    = true;
-            $_SESSION['client']   = $core->register['session']['client'];
-            $_SESSION['location'] = $core->register['session']['location'];
-            $_SESSION['language'] = $core->register['session']['language'];
+// :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
+            $_SESSION['client']   = isset_get($core->register['session']['client']);
+            $_SESSION['location'] = isset_get($core->register['session']['location']);
+            $_SESSION['language'] = isset_get($core->register['session']['language']);
 
         }else{
             unset($_SESSION['first']);
