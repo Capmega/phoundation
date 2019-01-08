@@ -153,16 +153,16 @@ function html_bundler($type){
         /*
          * Prepare bundle information
          */
-        $ext         = ($_CONFIG['cdn']['min'] ? '.min.'.$type : '.'.$type);
+        $admin_path  = ($core->callType('admin') ? 'admin/'      : '');
+        $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$type : '.'.$type);
         $bundle      =  substr(md5(str_force($core->register[$realtype])), 1, 16);
-        $admin_path  = ($core->callType('admin') ? 'admin/' : '');
         $path        =  ROOT.'www/en/'.$admin_path.'pub/'.$type.'/';
-        $bundle_file =  $path.'bundle-'.$bundle.$ext;
+        $bundle_file =  $path.'bundle/'.$bundle.$ext;
 
         /*
          * If we don't find an existing bundle file, then procced with the concatination process
          */
-        if($_CONFIG['cache']['method'] and file_exists($bundle_file)){
+        if(file_exists($bundle_file)){
             if((filemtime($bundle_file) + $_CONFIG['cdn']['bundler']['max_age']) < time()){
                 /*
                  * This file is too old, dump and retry
@@ -178,7 +178,7 @@ function html_bundler($type){
              * Generate new bundle
              */
             load_libs('file');
-            file_ensure_path($path.'bundle-');
+            file_ensure_path($path.'bundle/');
 
             foreach($core->register[$realtype] as $key => &$file){
                 /*
@@ -198,9 +198,9 @@ function html_bundler($type){
                 switch($type){
                     case 'js':
                         /*
-                         * Prevent issues with JS files that do not end in ;
+                         * Prevent issues with JS files that do not end in ; or that end in an // comment
                          */
-                        $data .= ';';
+                        $data .= "\n;";
                         break;
 
                     case 'css':
@@ -313,7 +313,7 @@ function html_bundler($type){
             }
         }
 
-        $core->register[$type][$prefix.'bundle-'.$bundle] = true;
+        $core->register[$type][$prefix.'bundle/'.$bundle] = true;
 
     }catch(Exception $e){
         throw new bException('html_bundler(): Failed', $e);
