@@ -493,6 +493,10 @@ function http_cache($params, $http_code, $etag, $headers = array()){
              * PHP will take care of the cache headers
              */
 
+        }elseif($_CONFIG['cache']['http']['enabled'] === true){
+            /*
+             * Place headers using phoundation algorithms
+             */
             if(!$_CONFIG['cache']['http']['enabled'] or (($http_code != 200) and ($http_code != 304))){
                 /*
                  * Non HTTP 200 / 304 pages should NOT have cache enabled!
@@ -505,94 +509,92 @@ function http_cache($params, $http_code, $etag, $headers = array()){
                 $expires                = 0;
 
             }else{
+                /*
+                 * Send caching headers
+                 */
                 if(empty($core->register['etag'])){
                     if(!empty($core->register['flash'])){
                         $core->register['etag'] = md5(str_random());
-                        $params['cache']['policy']       = 'no-store';
+                        $params['cache']['policy'] = 'no-store';
 
                     }else{
                         $core->register['etag'] = md5(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).isset_get($etag));
                     }
                 }
 
-                if(!empty($core->callType('ajax')) or !empty($core->callType('api'))){
-                    $params['cache']['policy'] = 'no-store';
-                    $expires          = '0';
+                /*
+                 * Ajax, API, and admin calls do not have proxy caching
+                 */
+                switch($core->callType()){
+                    case 'api':
+                        // FALLTHROUGH
+                    case 'ajax':
+                        // FALLTHROUGH
+                    case 'admin':
+                        $params['cache']['policy'] = 'no-store, private';
+                        $expires = '0';
+                        break;
 
-                }else{
-                    if(!empty($core->callType('admin')) or !empty($_SESSION['user']['id'])){
-                        array_default($params['cache'], 'policy', 'no-store');
+                    default:
+                        /*
+                         * Session pages for specific users should not be stored
+                         * on proxy servers either
+                         */
+                        if(!empty($_SESSION['user']['id'])){
+                            array_default($params['cache'], 'policy', 'no-store, private');
 
-                    }else{
-                        array_default($params['cache'], 'policy', $_CONFIG['cache']['http']['policy']);
-                    }
+                        }else{
+                            array_default($params['cache'], 'policy', $_CONFIG['cache']['http']['policy']);
+                        }
 
-                    /*
-                     * Extract expires time from cache-control header
-                     */
-                    preg_match_all('/max-age=(\d+)/', $params['cache']['policy'], $matches);
+                        /*
+                         * Extract expires time from cache-control header
+                         */
+                        preg_match_all('/max-age=(\d+)/', $params['cache']['policy'], $matches);
 
-                    $expires = new DateTime();
-                    $expires = $expires->add(new DateInterval('PT'.isset_get($matches[1][0], 0).'S'));
-                    $expires = $expires->format('D, d M Y H:i:s \G\M\T');
+                        $expires = new DateTime();
+                        $expires = $expires->add(new DateInterval('PT'.isset_get($matches[1][0], 0).'S'));
+                        $expires = $expires->format('D, d M Y H:i:s \G\M\T');
                 }
-            }
 
-            if(empty($params['cache']['policy'])){
-                if($core->callType('admin')){
-                    /*
-                     * Admin pages, never store, always private
-                     */
-                    $params['cache']['policy'] = 'no-store';
+                /*
+                 * Apply cache policy
+                 */
+                switch($params['cache']['policy']){
+                    case 'no-store':
+                        $headers[] = 'Cache-Control: '.$params['cache']['policy'];
+                        break;
 
-                }elseif(empty($_SESSION['user'])){
-                    /*
-                     * Anonymous user, all can be stored
-                     */
-                    $params['cache']['policy'] = 'public';
+                    case 'no-cache':
+                        // FALLTHROUGH
+                    case 'public':
+                        // FALLTHROUGH
+                    case 'private':
+                        // FALLTHROUGH
+                    case 'no-cache, public':
+                        // FALLTHROUGH
+                    case 'no-store, no-cache, must-revalidate':
+                        $headers[] = 'Cache-Control: '.$params['cache']['policy'].', max-age='.$params['cache']['max_age'];
+                        $headers[] = 'Expires: '.$expires;
+//                        $headers[] = 'Cache-Control: post-check='.$params['cache']['post-check'].', pre-check='.$params['cache']['pre-check'].', false';
 
-                }else{
-                    /*
-                     * User session, must always be private!
-                     */
-                    $params['cache']['policy'] = 'no-cache, private';
+                        if(!empty($core->register['etag'])){
+                            $headers[] = 'ETag: "'.$core->register['etag'].'"';
+                        }
+
+                    case 'no-cache, private':
+                        $headers[] = 'Cache-Control: '.$params['cache']['policy'].', max-age='.$params['cache']['max_age'];
+                        $headers[] = 'Expires: '.$expires;
+
+                        if(!empty($core->register['etag'])){
+                            $headers[] = 'ETag: "'.$core->register['etag'].'"';
+                        }
+
+                        break;
+
+                    default:
+                        throw new bException(tr('http_cache(): Unknown cache policy ":policy" detected', array(':policy' => $params['cache']['policy'])), 'unknown');
                 }
-            }
-
-            switch($params['cache']['policy']){
-                case 'no-store':
-                    $headers[] = 'Cache-Control: '.$params['cache']['policy'];
-                    break;
-
-                case 'no-cache':
-                    // FALLTHROUGH
-                case 'public':
-                    // FALLTHROUGH
-                case 'private':
-                    // FALLTHROUGH
-                case 'no-cache, public':
-                    // FALLTHROUGH
-                case 'no-store, no-cache, must-revalidate':
-                    $headers[] = 'Cache-Control: '.$params['cache']['policy'].', max-age='.$params['cache']['max_age'];
-                    $headers[] = 'Expires: '.$expires;
-                    $headers[] = 'Cache-Control: post-check='.$params['cache']['post-check'].', pre-check='.$params['cache']['pre-check'].', false';
-
-                    if(!empty($core->register['etag'])){
-                        $headers[] = 'ETag: "'.$core->register['etag'].'"';
-                    }
-
-                case 'no-cache, private':
-                    $headers[] = 'Cache-Control: '.$params['cache']['policy'].', max-age='.$params['cache']['max_age'];
-                    $headers[] = 'Expires: '.$expires;
-
-                    if(!empty($core->register['etag'])){
-                        $headers[] = 'ETag: "'.$core->register['etag'].'"';
-                    }
-
-                    break;
-
-                default:
-                    throw new bException(tr('http_cache(): Unknown cache policy ":policy" detected', array(':policy' => $params['cache']['policy'])), 'unknown');
             }
         }
 
