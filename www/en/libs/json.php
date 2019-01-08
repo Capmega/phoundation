@@ -12,10 +12,6 @@
 
 
 
-load_config('json');
-
-
-
 /*
  * Send correct JSON reply
  */
