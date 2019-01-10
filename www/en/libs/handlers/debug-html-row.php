@@ -37,7 +37,7 @@ try{
 
         case 'double':
             return '<tr>
-                        <td>'.$key.'</td>
+                        <td>'.htmlentities($key).'</td>
                         <td>'.$type.'</td>
                         <td>'.strlen((string) $value).'</td>
                         <td class="value">'.htmlentities($value).'</td>
@@ -45,7 +45,7 @@ try{
 
         case 'boolean':
             return '<tr>
-                        <td>'.$key.'</td>
+                        <td>'.htmlentities($key).'</td>
                         <td>'.$type.'</td>
                         <td>1</td>
                         <td class="value">'.($value ? tr('true') : tr('false')).'</td>
@@ -53,14 +53,14 @@ try{
 
         case 'NULL':
             return '<tr>
-                        <td>'.$key.'</td>
+                        <td>'.htmlentities($key).'</td>
                         <td>'.$type.'</td>
                         <td>0</td>
                         <td class="value">'.htmlentities($value).'</td>
                     </tr>';
 
         case 'resource':
-            return '<tr><td>'.$key.'</td>
+            return '<tr><td>'.htmlentities($key).'</td>
                         <td>'.$type.'</td>
                         <td>?</td>
                         <td class="value">'.$value.'</td>
@@ -70,7 +70,7 @@ try{
             // FALLTHROUGH
 
         case 'property':
-            return '<tr><td>'.$key.'</td>
+            return '<tr><td>'.htmlentities($key).'</td>
                         <td>'.$type.'</td>
                         <td>'.strlen($value).'</td>
                         <td class="value">'.$value.'</td>
@@ -86,7 +86,7 @@ try{
             }
 
             return '<tr>
-                        <td>'.$key.'</td>
+                        <td>'.htmlentities($key).'</td>
                         <td>'.$type.'</td>
                         <td>'.count($value).'</td>
                         <td style="padding:0">
