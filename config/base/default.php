@@ -70,12 +70,7 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'css'                                => array('post'               => false),                    // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
 
-                                       'js'                                 => array('load_delayed'       => false,                     // If set to true, the JS files will NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
-
-                                                                                     'use_linked'         => false,                     // If set to true, all files in the "linked" configuration below will be placed together in one larger file, and only that larger file will be loaded. This makes loading the pages faster since fewer requests are needed
-
-                                                                                     'linked'             => array('base' => array('popup',               // Assoc array list of all files that are to be linked in one file for faster loading. See "use_linked" configuration setting
-                                                                                                                                   'validate'))),
+                                       'js'                                 => array('load_delayed'       => false),                    // If set to true, the JS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
 
                                        'network'                            => array('enabled'            => false),                    // Use CDN network or not
 

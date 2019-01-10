@@ -147,7 +147,8 @@ class core{
 
     public $sql       = array();
     public $mc        = array();
-    public $register  = array('js'            => array(),
+    public $register  = array('js_header'     => array(),
+                              'js_footer'     => array(),
                               'css'           => array(),
                               'quiet'         => true,
                               'footer'        => '',

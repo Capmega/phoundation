@@ -84,67 +84,29 @@ function html_iefilter($html, $filter){
 
 
 /*
- * Bundles CSS or JS files togueter, gives them a md5 substr to 16 chacarter name
+ * Bundles CSS or JS files together into one larger file with an md5 name
  */
 function html_bundler($type){
     global $_CONFIG, $core;
 
-    if(!$_CONFIG['cdn']['bundler']['enabled']) return false;
+    if(!$_CONFIG['cdn']['bundler']['enabled']){
+        /*
+         * Bundler has been disabled
+         */
+        return false;
+    }
 
     try{
-        $realtype                  = $type;
-        $core->register[$realtype] = array_keys($core->register[$realtype]);
-
         switch($type){
             case 'css':
-                $prefix = '';
+                $extension = 'css';
                 break;
 
             case 'js_header':
-                $prefix = '<';
-                $type   = 'js';
-                break;
-
+                // FALLTHROUGH
             case 'js_footer':
-                $prefix = '>';
-                $type   = 'js';
+                $extension = 'js';
                 break;
-
-            case 'js':
-                $default = ($_CONFIG['cdn']['js']['load_delayed'] ? 'js_footer' : 'js_header');
-
-                foreach($core->register[$type] as &$file){
-                    switch($file[0]){
-                        case '<':
-                            /*
-                             * Header
-                             */
-                            $core->register['js_header'][substr($file, 1)] = substr($file, 1);
-                            break;
-
-                        case '>':
-                            /*
-                             * Footer
-                             */
-                            $core->register['js_footer'][substr($file, 1)] = substr($file, 1);
-                            break;
-
-                        default:
-                            /*
-                             * Default
-                             */
-                            $core->register[$default][$file] = $file;
-                    }
-                }
-
-                $core->register['js'] = array();
-
-                /*
-                 * Bundle header and footer javascript files separately
-                 */
-                if(!empty($core->register['js_header'])) html_bundler('js_header');
-                if(!empty($core->register['js_footer'])) html_bundler('js_footer');
-                return null;
 
             default:
                 throw new bException(tr('html_bundler(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
@@ -153,11 +115,12 @@ function html_bundler($type){
         /*
          * Prepare bundle information
          */
-        $admin_path  = ($core->callType('admin') ? 'admin/'      : '');
-        $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$type : '.'.$type);
-        $bundle      =  substr(md5(str_force($core->register[$realtype])), 1, 16);
-        $path        =  ROOT.'www/en/'.$admin_path.'pub/'.$type.'/';
-        $bundle_file =  $path.'bundle/'.$bundle.$ext;
+        $admin_path  = ($core->callType('admin') ? 'admin/'           : '');
+        $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$extension : '.'.$extension);
+        $bundle      =  str_force(array_keys($core->register[$type]));
+        $bundle      =  substr(md5($bundle), 1, 16);
+        $path        =  ROOT.'www/en/'.$admin_path.'pub/'.$extension.'/';
+        $bundle_file =  $path.'bundle-'.$bundle.$ext;
 
         /*
          * If we don't find an existing bundle file, then procced with the concatination process
@@ -177,10 +140,7 @@ function html_bundler($type){
             /*
              * Generate new bundle
              */
-            load_libs('file');
-            file_ensure_path($path.'bundle/');
-
-            foreach($core->register[$realtype] as $key => &$file){
+            foreach($core->register[$type] as $file => $data){
                 /*
                  * Check for @imports
                  */
@@ -188,19 +148,19 @@ function html_bundler($type){
                 $file    = $path.$file.$ext;
 
                 if(!file_exists($file)){
-                    notify('bundler-file/not-exist', tr('The bundler ":type" file ":file" does not exist', array(':type' => $type, ':file' => $file)), 'developers');
+                    notify('bundler-file/not-exist', tr('The bundler ":extension" file ":file" does not exist', array(':extension' => $extension, ':file' => $file)), 'developers');
                     continue;
                 }
 
                 $data = file_get_contents($file);
-                unset($core->register[$realtype][$key]);
+                unset($core->register[$type][$orgfile]);
 
-                switch($type){
+                switch($extension){
                     case 'js':
                         /*
                          * Prevent issues with JS files that do not end in ; or that end in an // comment
                          */
-                        $data .= "\n;";
+//                        $data .= "\n;";
                         break;
 
                     case 'css':
@@ -217,7 +177,7 @@ function html_bundler($type){
                                     $import = str_cut($match, '"', '"');
 
                                     if(!file_exists($path.$import)){
-                                        notify('bundler-file/not-exist', tr('The bundler ":type" file ":import" @imported by file ":file" does not exist', array(':type' => $type, ':import' => $import, ':file' => $file)), 'developers');
+                                        notify('bundler-file/not-exist', tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file)), 'developers');
                                         $import = '';
 
                                     }else{
@@ -234,7 +194,7 @@ function html_bundler($type){
                                     $import = slash(dirname($file)).unslash($import);
 
                                     if(!file_exists($import)){
-                                        notify('bundler-file/not-exist', tr('The bundler ":type" file ":import" @imported by file ":file" does not exist', array(':type' => $type, ':import' => $import, ':file' => $file)), 'developers');
+                                        notify('bundler-file/not-exist', tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file)), 'developers');
                                         $import = '';
 
                                     }else{
@@ -301,11 +261,13 @@ function html_bundler($type){
                         }
                 }
 
-                file_append($bundle_file, $data.($_CONFIG['cdn']['min'] ? '' : "\n"));
-            }
+                if(debug()){
+                    file_append($bundle_file, "\n/* *** BUNDLER FILE \"".$orgfile."\" *** */\n".$data.($_CONFIG['cdn']['min'] ? '' : "\n"));
 
-            unset($file);
-            $core->register[$realtype] = array();
+                }else{
+                    file_append($bundle_file, $data.($_CONFIG['cdn']['min'] ? '' : "\n"));
+                }
+            }
 
             if($_CONFIG['cdn']['network']['enabled']){
                 load_libs('cdn');
@@ -313,7 +275,8 @@ function html_bundler($type){
             }
         }
 
-        $core->register[$type][$prefix.'bundle/'.$bundle] = true;
+// :TODO: Add support for individual bundles that require async loading
+        $core->register[$type]['bundle-'.$bundle] = false;
 
     }catch(Exception $e){
         throw new bException('html_bundler(): Failed', $e);
@@ -323,7 +286,28 @@ function html_bundler($type){
 
 
 /*
- * Store libs for later loading
+ * Add specified CSS files to the $core->register[css] table
+ *
+ * This function will add the specified list of CSS files to the $core register "css" section. These files will later be added as <link> tags in the <head> and <body> tags
+ *
+ * When the page is generated, html_headers() will call html_generate_css() to get the required <link> tags
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_generate_css()
+ * @see html_load_js()
+ * @see html_headers()
+ * @version 1.26.0: Added documentation
+ * @example
+ * code
+ * html_load_css('style,custom');
+ * /code
+ *
+ * @param list $files The CSS files that should be loaded by the client for this page
+ * @return void
  */
 function html_load_css($files = '', $media = null){
     global $_CONFIG, $core;
@@ -356,9 +340,27 @@ function html_load_css($files = '', $media = null){
 
 
 /*
- * Display libs in header
+ * Generate <script> elements for inclusion at the end of <head> and <body> tags
  *
- * Allows force loading of .min files (ie style.min instead of style), when 'min' is configured on, it won't duplicate the .min
+ * This function will go over the CSS files registered in the $core->register[css] table and generate <link rel="stylesheet" type="text/css" href="..."> elements for each of them. The HTML will be returned
+ *
+ * This function typically should never have to be called by developers as it is a sub function of html_headers()
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_load_css()
+ * @see html_generate_js()
+ * @see http_headers()
+ * @version 1.26.0: Added documentation
+ * @example
+ * code
+ * $result = html_generate_css();
+ * /code
+ *
+ * @return string The HTML containing <link> tags that is to be included in the <head> tag
  */
 function html_generate_css(){
     global $_CONFIG, $core;
@@ -400,57 +402,92 @@ function html_generate_css(){
 
 
 /*
- * Store list of libs that should be loaded in the header
+ * Add specified javascript files to the $core->register[js_header] or $core->register[js_footer] tables
  *
- * $option may be either "async" or "defer", see http://www.w3schools.com/tags/att_script_async.asp
+ * This function will add the specified list of javascript files to the $core register "js_header" and / or "js_footer" sections. These files will later be added as <script> tags in the <head> and <body> tags. For each file it is possible to specify independantly if it has to be loaded in the <head> tag (prefix it with "<") or "body" tag (prefix it with ">"). If the file has no prefix, the default will be used, configured in $_CONFIG[cdn][js][load_delayed]
+ *
+ * When the page is generated, html_headers() will call html_generate_js() for both the required <script> tags inside the <head> and <body> tags
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_generate_js()
+ * @see html_load_css()
+ * @see html_headers()
+ * @version 1.26.0: Added documentation
+ * @example
+ * code
+ * html_load_js();
+ * /code
+ *
+ * @param list $files The javascript files that should be loaded by the client for this page
+ * @return void
  */
-function html_load_js($files = '', $option = null, $ie = null){
+function html_load_js($files){
     global $_CONFIG, $core;
 
     try{
-        if(!$files){
-            $files = array();
-        }
+        $config = &$_CONFIG['cdn']['js'];
 
-        if(!is_array($files)){
-            if(!is_string($files)){
-                throw new bException('html_load_js(): Invalid files specification');
-            }
-
-            $files = explode(',', $files);
-        }
-
-        //if($min === null){
-        //    $min = $_CONFIG['cdn']['min'];
-        //}
-
-        foreach($files as $file){
-            if(substr($file, 0, 4) != 'http') {
+        foreach(array_force($files) as $file){
+            if(strstr($file, '://')){
                 /*
                  * Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE SPECIFIED WITHOUT .js OR .min.js!!
                  */
-// :TODO: SEND EMAIL NOTIFICATIONS IF THESE ARE FOUND!
                 if(substr($file, -3, 3) == '.js'){
                     $file = substr($file, 0, -3);
+                    notify(new bException(tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file)), 'invalid'));
 
-                }elseif((substr($file, -3, 3) == '.js') or (substr($file, -7, 7) == '.min.js')){
+                }elseif(substr($file, -7, 7) == '.min.js'){
                     $file = substr($file, 0, -7);
+                    notify(new bException(tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file)), 'invalid'));
                 }
-
             }
 
-            $data = array();
+            /*
+             * Determine if this file should be delayed loaded or not
+             */
+            switch(substr($file, 0, 1)){
+                case '<':
+                    $file    = substr($file, 1);
+                    $delayed =  false;
+                    break;
 
-            if($option){
-                $data['option'] = $option;
+                case '>':
+                    $file    = substr($file, 1);
+                    $delayed =  true;
+                    break;
+
+                default:
+                    $delayed = $config['load_delayed'];
             }
 
-            if($ie){
-                $data['ie'] = $ie;
+            /*
+             * Determine if this file should be async or not
+             */
+            switch(substr($file, -1, 1)){
+                case '&':
+                    $async = true;
+                    break;
+
+                default:
+                    $async = false;
             }
 
-            $core->register['js'][$file] = $data;
+            /*
+             * Register the file to be loaded
+             */
+            if($delayed){
+                $core->register['js_footer'][$file] = $async;
+
+            }else{
+                $core->register['js_header'][$file] = $async;
+            }
         }
+
+        unset($config);
 
     }catch(Exception $e){
         throw new bException('html_load_js(): Failed', $e);
@@ -460,9 +497,27 @@ function html_load_js($files = '', $option = null, $ie = null){
 
 
 /*
- * Display libs in header and or footer
+ * Generate <script> elements for inclusion at the end of <head> and <body> tags
  *
- * Allows force loading of .min files (ie script.min instead of script), when 'min' is configured on, it won't duplicate the .min
+ * This function will go over the javascript files registered in the $core->register[js_headers] and $core->register[js_headers] tables and generate <script> elements for each of them. The javascript files in the js_headers table will be returned while the javascript files in the js_footer table will be aded to the $core->register[footer] string
+ *
+ * This function typically should never have to be called by developers as it is a sub function of html_headers()
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_load_js()
+ * @see html_generate_css()
+ * @see html_headers()
+ * @version 1.26.0: Added documentation
+ * @example
+ * code
+ * $result = html_generate_js();
+ * /code
+ *
+ * @return string The HTML containing <script> tags that is to be included in the <head> tag
  */
 function html_generate_js(){
     global $_CONFIG, $core;
@@ -471,128 +526,63 @@ function html_generate_js(){
         /*
          * Shortcut to JS configuration
          */
-        $js     =  $_CONFIG['cdn']['js'];
+        $js     = &$_CONFIG['cdn']['js'];
         $min    = ($_CONFIG['cdn']['min'] ? '.min' : '');
         $retval = '';
         $footer = '';
 
-        html_bundler('js');
-
-        /*
-         * Set load_delayed javascript from this point on to add directly to the $core->register[footer]
-         */
-        $_CONFIG['cdn']['js']['load_delayed'] = false;
-
-        /*
-         * Set to load default JS libraries
-         */
-if(isset($js['default_libs']) and empty($_CONFIG['production'])){
-throw new bException('WARNING: $_CONFIG[js][default_libs] CONFIGURATION FOUND! THIS IS NO LONGER SUPPORTED! JS LIBRARIES SHOULD ALWAYS BE LOADED USING html_load_js() AND JS SCRIPT ADDED THROUGH html_script()', 'obsolete');
-}
-
-        if(empty($core->register['js'])){
-            /*
-             * There are no libraries to load
-             */
-            return '';
-        }
-
         /*
          * Load JS libraries
          */
-        foreach($core->register['js'] as $file => $data){
-            if(!$file) continue;
+        foreach(array('js_header', 'js_footer') as $section){
+            html_bundler($section);
 
-            $check = str_rfrom(str_starts($file, '/'), '/');
-            $file  = str_replace(array('<', '>'), '', $file);
-
-// :TODO: jquery must also be able to be loaded from the footer
-            //if($check == 'jquery')    continue; // jQuery js is always loaded in the header
-            //if($check == 'bootstrap') continue; // bootstrap js is always loaded in the header
-
-            if(substr($file, 0, 4) == 'http') {
-                /*
-                 * These are external scripts
-                 */
-                $html = '<script'.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.$file.'"></script>';
-
-            }else{
-                /*
-                 * These are local scripts
-                 *
-                 * Check if linked libraries are enabled, and if so, if its part of any of these.
-                 */
-                if($js['use_linked']){
+            foreach($core->register[$section] as $file => $async){
+                if(!$file){
                     /*
-                     * Since we may need to break out of multiple loops, keep track of break variable.
-                     * Skip is used to check if a linked library has been sent or not and we can skip current library
+                     * We should never have empty files
                      */
-                    $break = false;
-                    $skip  = false;
-
-                    foreach($js['linked'] as $linked => $libraries){
-                        foreach($libraries as $library){
-                            if($file == $library){
-                                $break = true;
-
-                                /*
-                                 * This file is inside a linked library. Send the linked library instead
-                                 */
-                                if(!empty($js['linked'][$linked]['sent'])){
-                                    /*
-                                     * The linked library has already been sent
-                                     */
-                                    $skip  = true;
-
-                                }else{
-                                    $file = $linked;
-                                }
-                            }
-
-                            if($break) break;
-                        }
-
-                        if($break) break;
-                    }
-
-                    if($skip) continue;
+                    notify(new bException(tr('html_generate_js(): Empty file specified'), 'not-specified'));
+                    continue;
                 }
 
-                $html = '<script'.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels']['enabled'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : str_until($file, '.min').$min).'.js').'"></script>';
+                if(strstr($file, '://')){
+                    /*
+                     * These are external scripts, hosted by somebody else
+                     */
+                    $html = '<script'.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.$file.'"'.($async ? ' async' : '').'></script>';
+
+                }else{
+                    /*
+                     * These are local scripts, hosted by us
+                     */
+                    $html = '<script'.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels']['enabled'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : str_until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
+                }
+
+                if($section == 'js_footer'){
+                    /*
+                     * Add this script in the footer of the body tag
+                     */
+                    $footer .= $html;
+
+                }else{
+                    /*
+                     * Add this script in the header
+                     */
+                    $retval .= $html;
+                }
             }
 
-            ///*
-            // * Add the scripts with IE only filters?
-            // */
-            //if(isset_get($data['ie'])){
-            //    $html = html_iefilter($html, $data['ie']);
-            //
-            //}else{
-            //    $html = $html."\n";
-            //}
-
-            if($check[0] == '>' or (!empty($js['load_delayed']) and ($check[0] != '<'))){
-                /*
-                 * Add this script in the footer
-                 */
-                $footer .= $html;
-
-            }else{
-                /*
-                 * Add this script in the header
-                 */
-                $retval .= $html;
-            }
+            $core->register[$section] = array();
         }
 
-        $core->register['js'] = array();
-
         /*
-         * Should all JS scripts be loaded at the end (right before the </body> tag)?
-         * This may be useful for site startup speedups
+         * If we have footer data, add it to the footer register, which will
+         * automatically be added to the end of the <body> tag
          */
         if(!empty($footer)){
             $core->register['footer'] = $footer.$core->register['footer'].$core->register('script_delayed');
+            unset($core->register['script_delayed']);
         }
 
         return $retval;
@@ -606,6 +596,42 @@ throw new bException('WARNING: $_CONFIG[js][default_libs] CONFIGURATION FOUND! T
 
 /*
  * Generate and return the HTML header
+ *
+ * This function will generate the entrire HTML header, from <!DOCTYPE> until </head><body>
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_generate_js()
+ * @see html_generate_css()
+ * @see http_headers()
+ * @version 1.26.0: Added documentation
+ * @example
+ * code
+ * $result = html_header();
+ * /code
+ *
+ * @param params $params The parameters for the HTML header
+ * @param string $params[title] The contents for the <title> tag
+ * @param string $params[doctype] The complete <!DOCTYPE> tag to be used
+ * @param string $params[http] The complete <html> tag to be used
+ * @param boolean $params[captcha]
+ * @param string $params[body] The complete <body> tag to be used
+ * @param string $params[title]
+ * @param string $params[links]
+ * @param string $params[extra]
+ * @param boolean $params[favicon]
+ * @param boolean $params[amp]
+ * @param array $params[prefecth_dns]
+ * @param array $params[prefecth_files]
+ * @param string $params[description]
+ * @param string $params[keywords]
+ * @param string $params[noindex]
+ * @param string $params[canonical]
+ * @param params $meta The list of meta values to be included in the <head> tags
+ * @return string The HTML containing <script> tags that is to be included in the <head> tag
  */
 function html_header($params = null, $meta = array()){
     global $_CONFIG, $core;
@@ -640,10 +666,6 @@ function html_header($params = null, $meta = array()){
                     html_load_js($_CONFIG['captcha']['recaptcha']['js-api']);
                     break;
             }
-        }
-
-        if(!empty($params['css'])){
-            html_load_css($params['css']);
         }
 
         if(empty($meta['description'])){
@@ -841,7 +863,27 @@ function html_title($params){
 
 
 /*
- * Show a flash message with the specified message
+ * Generate and return HTML to show HTML flash messages
+ *
+ * This function will scan the $_SESSION[flash] array for messages to be displayed as flash messages. If $class is specified, only messages that have the specified class will be displayed. If multiple flash messages are available, all will be returned. Messages that are returned will be removed from the $_SESSION[flash] array.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_flash_set()
+ * @version 1.26.0: Added documentation
+ * @note Each message will be placed in an HTML template defined in $_CONFIG[flash][html]
+ * @example
+ * code
+ * $html = '<div>.
+ *             'html_flash('users').'
+ *          </div>';
+ * /code
+ *
+ * @param string $class If specified, only display messages with this specified class
+ * @return string The HTML containing all flash messages that matched
  */
 function html_flash($class = null){
     global $_CONFIG, $core;
@@ -997,7 +1039,32 @@ function html_flash($class = null){
 
 
 /*
- * Show a flash message with the specified message
+ * Set a message in the $_SESSION[flash] array so that it can be shown later as an HTML flash message
+ *
+ * Messages set with this function will be stored in the $_SESSION[flash] array, which can later be accessed by html_flash(). Messages stored without a class will be shown on any page, messages stored with a class will only be shown on the pages where html_flash() is called with that specified class.
+ *
+ * Each message requires a type, which can be one of info, warning, error, or success. Depending on the type, the shown flash message will be one of those four types
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_flash()
+ * @version 1.26.0: Added documentation
+ * @example
+ * code
+ * html_flash_set(tr('The action was succesful!'), 'success', 'users');
+ * /code
+ *
+ * @param mixed $params The message to be shown. Can be a simple string, a parameter array or an exception object. In case if an exception object was given, the $e->getMessage() text will be used. In case a parameter object was specified, the following variables may be specified
+ * @param params $params[html] The actual message to be shown. May include HTML if needed
+ * @param params $params[type] The type of flash message to be shown, must be one of "info", "warning", "error" or "success". Defaults to $type
+ * @param params $params[title] (Only applies when sweetalert flash messages are used) The title of the sweetalert popup. Defaults to a str_capitalized() $type
+ * @param params $params[class] the class for this message. If specified, subsequent html_flash() calls will only return this message if the class matches. Defaults to $class
+ * @param string $type The type of flash message to be shown, must be one of "info", "warning", "error" or "success"
+ * @param string $class If specified, subsequent html_flash() calls will only return this specific message if they specify the same class
+ * @return string The HTML containing all flash messages that matched
  */
 function html_flash_set($params, $type = 'info', $class = null){
     global $_CONFIG;
@@ -1073,25 +1140,25 @@ function html_flash_set($params, $type = 'info', $class = null){
 
 
 
-/*
- * Returns true if there is an HTML message with the specified class
- */
-function html_flash_class($class = null){
-    try{
-        if(isset($_SESSION['flash'])){
-            foreach($_SESSION['flash'] as $message){
-                if((isset_get($message['class']) == $class) or ($message['class'] == '*')){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-
-    }catch(Exception $e){
-        throw new bException('html_flash_class(): Failed', $e);
-    }
-}
+///*
+// * Returns true if there is an HTML message with the specified class
+// */
+//function html_flash_class($class = null){
+//    try{
+//        if(isset($_SESSION['flash'])){
+//            foreach($_SESSION['flash'] as $message){
+//                if((isset_get($message['class']) == $class) or ($message['class'] == '*')){
+//                    return true;
+//                }
+//            }
+//        }
+//
+//        return false;
+//
+//    }catch(Exception $e){
+//        throw new bException('html_flash_class(): Failed', $e);
+//    }
+//}
 
 
 
@@ -1251,15 +1318,53 @@ function html_select_submit($params){
 /*
  * Return HTML for a <select> list
  *
+ * This function is the go-to function when <select> boxes must be created.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package html
  * @see html_select_body()
+ * @version 1.26.0: Added documentation
+ * @example
+ * code
+ *     $html .= '<div>
+ *                   '.html_select(array('name'       => 'users_id',
+ *                                       'class'      => 'users',
+ *                                       'autosubmit' => true,
+ *                                       'selected'   => $item['users_id'],
+ *                                       'resource'   => sql_query('SELECT `id`, `name` FROM `users` WHERE `status` IS NULL'))).'
+ *               </div>
+ * /code
+ * @example
+ * code
+ *     $html .= '<div>
+ *                   '.html_select(array('name'       => 'letter',
+ *                                       'selected'   => $item['letter'],
+ *                                       'resource'   => array('a', 'b', 'c', 'd', 'e'))).'
+ *               </div>
+ * /code
  *
- * @param array $params The parameters for this HTML select button
- * @params
- * @return string The HTML for the button selector
+ * @param params $params The parameters for this <select> box
+ * @param string $params[class] If specified, <select class="CLASS"> will be used
+ * @param string $params[option_class] If specified, <option class="CLASS"> will be used
+ * @param boolean $params[disabled] If specified, <select disabled> will be used
+ * @param string $params[name] If specified, <select id="NAME" name="NAME"> will be used
+ * @param string $params[id] If specified, <select id="ID"> will be used. This will override the "name" variable
+ * @param string $params[none] If specified, and no <option> is selected due to "selected", this text will be shown. Defaults to "None selected"
+ * @param string $params[empty] If specified, and the resource is empty, this text will be shown. Defaults to "None available"
+ * @param numeric $params[tabindex] If specified, <select tabindex="TABINDEX"> will be used
+ * @param string $params[extra] If specified, these extra HTML attributes will be added into the <select> tag
+ * @param string $params[selected] If specified, the <option> that has the specified key will be selected
+ * @param boolean $params[bodyonly] If specified, only the body contents of this select will be returned, so the <select> tags will be removed. This is useful when having a page in a client that needs to change its contents using an AJAX call
+ * @param boolean $params[autosubmit] If specified, javascript code will be added to automatically execute a form submit when the <select> has an onchange event
+ * @param string $params[onchange] If specified, this code will be execute on an onchange event for the <select> element
+ * @param boolean $params[hide_empty]
+ * @param boolean $params[autofocus] If set to true, <select autofocus> will be used, drawing the focus directly on this select item
+ * @param boolean $params[multiple] If set to true, <select multiple> will be used, allowing the selection of multiple items in the list
+ * @param mixed resource The resource for the contents of the <select>. May be a key => value array (where each value must be of scalar datatype) or a PDO statement from a query that selects 2 columns, where the first column will be the key and the second column the value.
+ * @return string The HTML for a <select> tag.
  */
 function html_select($params){
     static $count = 0;
@@ -1273,7 +1378,6 @@ function html_select($params){
         array_default($params, 'id'          , $params['name']);
         array_default($params, 'none'        , tr('None selected'));
         array_default($params, 'empty'       , tr('None available'));
-        array_default($params, 'option_class', '');
         array_default($params, 'tabindex'    , 0);
         array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'selected'    , null);
@@ -1395,39 +1499,49 @@ function html_select($params){
 
 
 /*
- * Return the body of an HTML <select> list
+ * Return the body HTML for a <select> list
+ *
+ * This function returns only the body (<option> tags) for a <select> list. Typically, html_select() would be used, but this function is useful in situations where only the <option> tags would be required, like for example a web page that dynamically wants to change the contents of a <select> box using an AJAX call
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_select()
+ * @version 1.26.0: Added documentation
+ *
+ * @param params $params The parameters for this <select> box
+ * @param string $params[class] If specified, <option class="CLASS"> will be used
+ * @param string $params[none] If specified, and no <option> is selected due to "selected", this text will be shown. Defaults to "None selected"
+ * @param string $params[empty] If specified, and the resource is empty, this text will be shown. Defaults to "None available"
+ * @param string $params[selected] If specified, the <option> that has the specified key will be selected
+ * @param boolean $params[auto_select] If specified and the resource contains only one item, this item will be autmatically selected
+ * @param mixed $params[resource] The resource for the contents of the <select>. May be a key => value array (where each value must be of scalar datatype) or a PDO statement from a query that selects 2 columns, where the first column will be the key and the second column the value.
+ * @param mixed $params[data_resource]
+ * @return string The body HTML for a <select> tag, containing all <option> tags
  */
 function html_select_body($params) {
     global $_CONFIG;
 
     try{
         array_params ($params);
-        array_default($params, 'class'         , '');
-        array_default($params, 'none'          , tr('None selected'));
-        array_default($params, 'empty'         , tr('None available'));
-        array_default($params, 'selected'      , null);
-        array_default($params, 'auto_select'   , true);
-        array_default($params, 'data_resources', null);
-
-        if(!$_CONFIG['production'] and (!empty($params['data_key']) or !empty($params['data_resource']))){
-            if(!empty($params['data_key'])){
-                throw new bException(tr('html_select_body(: data_key was specified, which is obsolete. Specify the data_key in data_resources[data_key => array(), data_key => array()]'), 'obsolete');
-            }
-
-            if(!empty($params['data_resource'])){
-                throw new bException(tr('html_select_body(: data_resource was specified, which is obsolete. Use data_resources instead'), 'obsolete');
-            }
-        }
-
-        if($params['data_resources'] and !is_array($params['data_resources'])){
-            throw new bException(tr('html_select_body(): Invalid data_resource specified, should be an array, but received a ":gettype"', array(':gettype' => gettype($params['data_resources']))), 'invalid');
-        }
+        array_default($params, 'class'        , '');
+        array_default($params, 'none'         , tr('None selected'));
+        array_default($params, 'empty'        , tr('None available'));
+        array_default($params, 'selected'     , null);
+        array_default($params, 'auto_select'  , true);
+        array_default($params, 'data_resource', null);
 
         if($params['none']){
             $retval = '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($params['selected'] === null) ? ' selected' : '').' value="">'.$params['none'].'</option>';
 
         }else{
             $retval = '';
+        }
+
+        if($params['data_resource'] and !is_array($params['data_resource'])){
+            throw new bException(tr('html_select_body(): Invalid data_resource specified, should be an array, but received a ":gettype"', array(':gettype' => gettype($params['data_resource']))), 'invalid');
         }
 
         if($params['resource']){
@@ -1447,8 +1561,8 @@ function html_select_body($params) {
                     $notempty    = true;
                     $option_data = '';
 
-                    if($params['data_resources']){
-                        foreach($params['data_resources'] as $data_key => $resource){
+                    if($params['data_resource']){
+                        foreach($params['data_resource'] as $data_key => $resource){
                             if(!empty($resource[$key])){
                                 $option_data .= ' data-'.$data_key.'="'.$resource[$key].'"';
                             }
@@ -1473,38 +1587,33 @@ function html_select_body($params) {
                 /*
                  * Process SQL resource
                  */
-                try{
-                    while($row = sql_fetch($params['resource'], false, PDO::FETCH_NUM)){
-                        $notempty    = true;
-                        $option_data = '';
+                while($row = sql_fetch($params['resource'], false, PDO::FETCH_NUM)){
+                    $notempty    = true;
+                    $option_data = '';
 
-                        /*
-                         * To avoid select problems with "none" entries, empty id column values are not allowed
-                         */
-                        if(!$row[0]){
-                            $row[0] = str_random(8);
-                        }
-
-                        /*
-                         * Add data- in this option?
-                         */
-                        if($params['data_resources']){
-                            foreach($params['data_resources'] as $data_key => $resource){
-                                if(!empty($resource[$key])){
-                                    $option_data = ' data-'.$data_key.'="'.$resource[$key].'"';
-                                }
-                            }
-                        }
-
-                        $retval  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($row[0] === $params['selected']) ? ' selected' : '').' value="'.html_safe($row[0]).'"'.$option_data.'>'.html_safe($row[1]).'</option>';
+                    /*
+                     * To avoid select problems with "none" entries, empty id column values are not allowed
+                     */
+                    if(!$row[0]){
+                        $row[0] = str_random(8);
                     }
 
-                }catch(Exception $e){
-                    throw $e;
+                    /*
+                     * Add data- in this option?
+                     */
+                    if($params['data_resource']){
+                        foreach($params['data_resource'] as $data_key => $resource){
+                            if(!empty($resource[$key])){
+                                $option_data = ' data-'.$data_key.'="'.$resource[$key].'"';
+                            }
+                        }
+                    }
+
+                    $retval  .= '<option'.($params['class'] ? ' class="'.$params['class'].'"' : '').''.(($row[0] === $params['selected']) ? ' selected' : '').' value="'.html_safe($row[0]).'"'.$option_data.'>'.html_safe($row[1]).'</option>';
                 }
 
             }else{
-                throw new bException(tr('html_select_body(): Specified resource "'.str_log($params['resource']).'" is neither an array or resource'), 'invalidresource');
+                throw new bException(tr('html_select_body(): Specified resource ":resource" is neither an array nor a PDO statement', array(':resource' => $params['resource'])), 'invalid');
             }
         }
 
@@ -1533,11 +1642,26 @@ function html_select_body($params) {
 
 
 /*
- * Generate and return the HTML footer
+ * Generate HTML <script> tags, and depending on load_delayed, return them immediately or attach them to $core->resource[footer]
  *
- * $option maybe either "async" or "defer", see http://www.w3schools.com/tags/att_script_async.asp
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_select()
+ * @note If $_CONFIG[cdn][js][load_delayed] is true, this function will not return anything, and add the generated HTML to $core->register[script_delayed] instead
+ * @note Even if $_CONFIG[cdn][js][load_delayed] is true, the return value of this function should always be received in a variable, just in case the setting gets changes for whatever reason
+ * @version 1.26.0: Added documentation
+ *
+ * @param string $script The javascript content
+ * @param boolean $jquery_ready If set to true, the $script will be changed to $(document).ready(function(e){ $script });
+ * @param string $extra If specified, these extra HTML attributes will be added into the <script> tag
+ * @param string $type The <script type="TYPE"> contents. Defaults to "text/javascript"
+ * @param boolean $ie
+ * @return string The body HTML for a <select> tag, containing all <option> tags
  */
-function html_script($script, $jquery_ready = true, $option = null, $type = null, $ie = false){
+function html_script($script, $jquery_ready = true, $extra = null, $type = null, $ie = false){
     global $_CONFIG, $core;
 
     try{
@@ -1559,17 +1683,17 @@ function html_script($script, $jquery_ready = true, $option = null, $type = null
          */
         if($jquery_ready){
             if($jquery_ready === true){
-                $jquery_ready = '$(document).ready(function(e){ %script% });';
+                $jquery_ready = '$(document).ready(function(e){ :script });';
             }
 
-            $script = str_replace('%script%', $script, $jquery_ready);
+            $script = str_replace(':script', $script, $jquery_ready);
         }
 
         if(substr($script, 0, 1) == '>'){
-            $retval = '<script type="'.$type.'" src="'.cdn_domain().'js/'.substr($script, 1).'"'.($option ? ' '.$option : '').'></script>';
+            $retval = '<script type="'.$type.'" src="'.cdn_domain().'js/'.substr($script, 1).'"'.($extra ? ' '.$extra : '').'></script>';
 
         }else{
-            $retval = '<script type="'.$type.'"'.($option ? ' '.$option : '').">\n".
+            $retval = '<script type="'.$type.'"'.($extra ? ' '.$extra : '').">\n".
                             $script.
                       '</script>';
         }
@@ -1876,7 +2000,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
 
             }else{
                 try{
-                    $url      = preg_match('/^ftp|https?/i', $src);
+                    $url      = strstr($src, '://');
                     $file_src = $src;
 
                     if(strstr($file_src, domain(''))){
@@ -1922,6 +2046,8 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                         /*
                          * Local image. Analize directly
                          */
+                        $src = cdn_domain($src);
+
                         if(file_exists(ROOT.'www/en/'.$file_src)){
                             $image = getimagesize(ROOT.'www/en/'.$file_src);
 
