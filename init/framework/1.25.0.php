@@ -18,6 +18,8 @@ if(sql_table_exists('drivers_devices')){
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_companies_id'  , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_companies_id`');
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_departments_id', 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_departments_id`');
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_branches_id'   , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_branches_id`');
+
+    sql_query('RENAME TABLE `drivers_devices` TO `devices`');
 }
 
 /*
