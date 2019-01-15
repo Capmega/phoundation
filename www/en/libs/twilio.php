@@ -98,13 +98,13 @@ function twilio_load($source, $auto_install = true){
         /*
          * Get Twilio object with account data for the specified phone number
          */
-        $account = twilio_get_account($source);
+        $account = twilio_get_account_by_phone_number($source);
 
         if(!$account){
             throw new bException(tr('twilio_load(): No Twilio account found for source ":source"', array(':source' => $source)), 'not-exist');
         }
 
-        return new Client($account['account_id'], $account['accounts_token']);
+        return new Client($account['account_id'], $account['account_token']);
 
     }catch(Exception $e){
         throw new bException('twilio_load(): Failed', $e);
@@ -408,7 +408,7 @@ function twilio_get_account($account){
         }
 
         if(!is_scalar($account)){
-            throw new bException(tr('twilio_get_account(): Specified twilio account ":account" is not scalar', array(':account' => $right)), 'invalid');
+            throw new bException(tr('twilio_get_account(): Specified twilio account ":account" is not scalar', array(':account' => $account)), 'invalid');
         }
 
         if(is_numeric($account)){
@@ -447,6 +447,49 @@ function twilio_get_account($account){
 
     }catch(Exception $e){
         throw new bException('twilio_get_account(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ */
+function twilio_get_account_by_phone_number($number){
+    try{
+        if(!$number){
+            throw new bException(tr('twilio_get_account_by_phone_number(): No twilio number specified'), 'not-specified');
+        }
+
+        if(!is_scalar($number)){
+            throw new bException(tr('twilio_get_account_by_phone_number(): Specified twilio number ":number" is not scalar', array(':numbers' => $numbers)), 'invalid');
+        }
+
+        $retval = sql_get('SELECT    `twilio_accounts`.`id`,
+                                     `twilio_accounts`.`meta_id`,
+                                     `twilio_accounts`.`status`,
+                                     `twilio_accounts`.`email`,
+                                     `twilio_accounts`.`account_id`,
+                                     `twilio_accounts`.`account_token`,
+
+                                     `createdby`.`name`  AS `createdby_name`,
+                                     `createdby`.`email` AS `createdby_email`
+
+                           FROM      `twilio_accounts`
+
+                           LEFT JOIN `users` AS `createdby`
+                           ON        `twilio_accounts`.`createdby` = `createdby`.`id`
+
+                           JOIN      `twilio_numbers`
+                           ON        `twilio_numbers`.`accounts_id` = `twilio_accounts`.`id`
+                           AND       `twilio_numbers`.`number`      = :number',
+
+                           array(':number' => $number));
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new bException('twilio_get_account_by_phone_number(): Failed', $e);
     }
 }
 
@@ -591,8 +634,8 @@ function twilio_list_accounts(){
     try{
         $accounts = sql_list('SELECT `twilio_accounts`.`id`,
                                      `twilio_accounts`.`email`,
-                                     `twilio_accounts`.`accounts_id`,
-                                     `twilio_accounts`.`accounts_token`
+                                     `twilio_accounts`.`account_id`,
+                                     `twilio_accounts`.`account_token`
 
                               FROM   `twilio_accounts`
 
