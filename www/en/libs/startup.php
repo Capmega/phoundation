@@ -3161,7 +3161,7 @@ function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force
                 $prefix = not_empty($_CONFIG['cdn']['prefix'], '/');
             }
 
-            return domain($file, null, $prefix, $_CONFIG['cdn']['domain']);
+            return domain($file, null, isset_get($prefix,''), $_CONFIG['cdn']['domain']);
         }
 
         if($section == 'pub'){
