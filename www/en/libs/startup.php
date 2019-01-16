@@ -1718,7 +1718,7 @@ function get_hash($source, $algorithm, $add_meta = true){
  *
  * @return void
  */
-function domain($current_url = false, $query = null, $root = null, $domain = null, $language = null){
+function domain($current_url = false, $query = null, $prefix = null, $domain = null, $language = null){
     global $_CONFIG;
 
     try{
@@ -1770,22 +1770,28 @@ function domain($current_url = false, $query = null, $root = null, $domain = nul
             $language .= '/';
         }
 
-        if($root === null){
-            $root = $_CONFIG['root'];
+        if($prefix === null){
+// :COMPATIBILITY:  Remove "root" support after 2019-04-01
+            if(!empty($_CONFIG['root'])){
+                $prefix = $_CONFIG['root'];
+
+            }else{
+                $prefix = $_CONFIG['url_prefix'];
+            }
         }
 
         if(!$current_url){
-            $retval = $_CONFIG['protocol'].slash($domain).$language.$root;
+            $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix;
 
         }elseif($current_url === true){
             $retval = $_CONFIG['protocol'].$domain.$_SERVER['REQUEST_URI'];
 
         }else{
-            if($root){
-                $root = str_starts_not(str_ends($root, '/'), '/');
+            if($prefix){
+                $prefix = str_starts_not(str_ends($prefix, '/'), '/');
             }
 
-            $retval = $_CONFIG['protocol'].slash($domain).$language.$root.str_starts_not($current_url, '/');
+            $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix.str_starts_not($current_url, '/');
         }
 
         if($query){
@@ -3152,15 +3158,10 @@ function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force
     try{
         if(!$_CONFIG['cdn']['enabled'] and !$force_cdn){
             if($section == 'pub'){
-                if(empty($_CONFIG['cdn']['prefix'])){
-                    $section = '/';
-
-                }else{
-                    $section = $_CONFIG['cdn']['prefix'];
-                }
+                $prefix = not_empty($_CONFIG['cdn']['prefix'], '/');
             }
 
-            return domain($file, null, $section, $_CONFIG['cdn']['domain']);
+            return domain($file, null, $prefix, $_CONFIG['cdn']['domain']);
         }
 
         if($section == 'pub'){
@@ -3252,7 +3253,7 @@ function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force
         //         */
         //        notify('no-cdn-servers', tr('CDN system is enabled, but no availabe CDN servers were found'), 'developers');
         //        $_SESSION['cdn'] = false;
-        //        return domain($current_url, $query, $root);
+        //        return domain($current_url, $query, $prefix);
         //    }
         //
         //    $_SESSION['cdn'] = slash($server).strtolower(str_replace('_', '-', PROJECT));

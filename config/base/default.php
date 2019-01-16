@@ -304,7 +304,7 @@ $_CONFIG['redirects']          = array('auto'                               => '
 
 
 // Root URL of the website
-$_CONFIG['root']               = '';                                                                                                        //
+$_CONFIG['url_prefix']         = '';                                                                                                        //
 
 // Share buttons
 $_CONFIG['share']              = array('provider'                           => false);                                                      // Share button provider
