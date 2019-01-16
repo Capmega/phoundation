@@ -571,6 +571,8 @@ function http_cache($params, $http_code, $etag, $headers = array()){
                         // FALLTHROUGH
                     case 'private':
                         // FALLTHROUGH
+                    case 'no-store, private':
+                        // FALLTHROUGH
                     case 'no-cache, public':
                         // FALLTHROUGH
                     case 'no-store, no-cache, must-revalidate':
