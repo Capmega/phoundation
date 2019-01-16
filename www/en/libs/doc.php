@@ -268,7 +268,7 @@ function doc_parse_file($project, $file, $root){
                         $contents = file_get_contents($file);
 
                         if(!preg_match('/^<\?php/', $contents)){
-                            doc_errors(tr('File ":file" is a PHP file but is missing a valid PHP open tag "<?php"', array(':file' => $file)));
+                            doc_errors(tr('File ":file" is a PHP file but is missing a valid PHP open tag', array(':file' => $file)));
                             return false;
                         }
                 }
