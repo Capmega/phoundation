@@ -260,7 +260,7 @@ switch(cli_method()){
                 return;
             }
 
-            log_console(tr('Scanning file ":file"', array(':file' => $file)), 'VERBOSE');
+            log_console(tr('Scanning file ":file"', array(':file' => $file)), 'VERYVERBOSE');
             $content = file_get_contents($file);
 
             /*

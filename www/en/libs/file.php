@@ -1926,15 +1926,7 @@ function file_tree_execute($params){
                 $params['callback']($params['path']);
                 $count++;
 
-                if(PLATFORM_CLI){
-                    if(VERBOSE){
-                        log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $params['path'])), 'green');
-
-                    }else{
-                        cli_dot();
-                    }
-                }
-
+                log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $params['path'])), 'VERYVERBOSEDOT/green');
                 break;
 
             case 'symlink':
@@ -2015,14 +2007,7 @@ function file_tree_execute($params){
                                             goto end;
                                         }
 
-                                        if(PLATFORM_CLI){
-                                            if(VERBOSE){
-                                                log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $file)), 'green');
-
-                                            }else{
-                                                cli_dot();
-                                            }
-                                        }
+                                        log_console(tr('file_tree_execute(): Executed code for file ":file"', array(':file' => $file)), 'VERYVERBOSEDOT/green');
                                     }
                                 }
 
@@ -2047,10 +2032,8 @@ function file_tree_execute($params){
                             throw $e;
                         }
 
-                        if($e->getCode() === 'file-not-exist'){
-                            if(VERBOSE and PLATFORM_CLI){
-                                log_console(tr('file_tree_execute(): Skipping file ":file", it does not exist (in case of a symlink, it may be that the target does not exist)', array(':file' => $file)), 'yellow');
-                            }
+                        if($e->getCode() === 'not-exist'){
+                            log_console(tr('file_tree_execute(): Skipping file ":file", it does not exist (in case of a symlink, it may be that the target does not exist)', array(':file' => $file)), 'VERBOSE/yellow');
 
                         }else{
                             log_console($e);
