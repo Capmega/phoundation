@@ -836,7 +836,7 @@ function notify($params){
          */
         $params = array_force($params);
         array_ensure($params, 'event,classes,message');
-        log_file(tr('Failed to notify event ":event" for classes ":classes" with message ":message"', array(':event' => $params['event'], ':classes' => $params['classes'], ':message' => $params['message'])), 'failed');
+        log_console(tr('Failed to notify event ":event" for classes ":classes" with message ":message"', array(':event' => $params['event'], ':classes' => $params['classes'], ':message' => $params['message'])), 'failed');
         return false;
     }
 }
