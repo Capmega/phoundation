@@ -768,7 +768,11 @@ function str_force($source, $separator = ','){
                     return '';
                 }
 
-                return print_r($source, true);
+                if(is_object($source)){
+                    throw new bException(tr('str_force(): Specified source is neither scalar nor array but an object of class ":class"', array(':class' => get_class($source))), 'invalid');
+                }
+
+                throw new bException(tr('str_force(): Specified source is neither scalar nor array but an ":type"', array(':type' => gettype($source))), 'invalid');
             }
 
             return implode($separator, $source);
