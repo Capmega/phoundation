@@ -211,9 +211,7 @@ function init($projectfrom = null, $frameworkfrom = null){
                         /*
                          * This init file has a higher version number than the current code, so it should not yet be executed (until a later time that is)
                          */
-                        if(VERBOSE){
-                            log_console('Skipped future init file "'.$version.'"', 'warning');
-                        }
+                        log_console(tr('Skipped future init file ":version"', array(':version' => $version)), 'VERBOSE/warning');
 
                     }else{
                         if(($dbversion === 0) or (version_compare($version, $dbversion) >= 1)){
@@ -222,7 +220,7 @@ function init($projectfrom = null, $frameworkfrom = null){
                              */
                             try{
                                 if(file_exists($hook = $initpath.'hooks/pre_'.$file)){
-                                    log_console('Executing newer init "pre" hook file with version "'.$version.'"', 'cyan');
+                                    log_console(tr('Executing newer init "pre" hook file with version ":version"', array(':version' => $version)), 'cyan');
                                     include_once($hook);
                                 }
 
@@ -230,11 +228,11 @@ function init($projectfrom = null, $frameworkfrom = null){
                                 /*
                                  * INIT FILE FAILED!
                                  */
-                                throw new bException('init('.$type.'): Init "pre" hook file "'.$file.'" failed', $e);
+                                throw new bException(tr('init(:type): Init "pre" hook file ":file" failed', array(':type' => $type, ':file' => $file)), $e);
                             }
 
                             try{
-                                log_console('Executing newer init file with version "'.$version.'"', 'green');
+                                log_console(tr('Executing newer init file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
                                 init_include($initpath.$file);
 
                             }catch(Exception $e){
@@ -246,7 +244,7 @@ function init($projectfrom = null, $frameworkfrom = null){
 
                             try{
                                 if(file_exists($hook = $initpath.'hooks/post_'.$file)){
-                                    log_console('Executing newer init "post" hook file with version "'.$version.'"', 'VERBOSE/cyan');
+                                    log_console(tr('Executing newer init "post" hook file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
                                     include_once($hook);
                                 }
 
@@ -267,9 +265,7 @@ function init($projectfrom = null, $frameworkfrom = null){
                             /*
                              * This init file has already been executed so we can skip it.
                              */
-                            if(VERBOSE){
-                                log_console('Skipped older init file "'.$version.'"', 'yellow');
-                            }
+                            log_console('Skipped older init file "'.$version.'"', 'VERBOSE/yellow');
                         }
                     }
                 }
