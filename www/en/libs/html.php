@@ -119,7 +119,7 @@ function html_bundler($type){
         $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$extension : '.'.$extension);
         $bundle      =  str_force(array_keys($core->register[$type]));
         $bundle      =  substr(md5($bundle), 1, 16);
-        $path        =  ROOT.'www/en/'.$admin_path.'pub/'.$extension.'/';
+        $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
 
         /*
