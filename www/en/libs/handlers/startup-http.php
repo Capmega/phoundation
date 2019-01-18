@@ -82,9 +82,6 @@ register_shutdown_function('http_done');
 switch($_SERVER['REQUEST_METHOD'] ){
     case 'OPTIONS':
 under_construction();
-    case 'HEAD':
-        http_headers(200, 0);
-        die();
 }
 
 
