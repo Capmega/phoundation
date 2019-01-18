@@ -740,6 +740,7 @@ function tr($text, $replace = null, $verify = true){
                             return $text;
                         }
                     }
+
                     throw new bException('tr(): Not all specified keywords were found in text', 'not-found');
                 }
 
