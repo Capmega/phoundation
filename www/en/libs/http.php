@@ -440,7 +440,7 @@ function http_cache_etag(){
         /*
          * Create local ETAG
          */
-        $core->register['etag'] = md5(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$core->register['etag']);
+        $core->register['etag'] = md5(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$core->register('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
         if(trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']){
@@ -475,7 +475,6 @@ function http_cache($params, $http_code, $headers = array()){
 
     try{
         array_params($params);
-        array_default($params['cache'], 'max_age', $_CONFIG['cache']['http']['max_age']);
 
         if($_CONFIG['cache']['http']['enabled'] === 'auto'){
             /*
@@ -491,11 +490,8 @@ function http_cache($params, $http_code, $headers = array()){
                  * Non HTTP 200 / 304 pages should NOT have cache enabled!
                  * For example 404, 503 etc...
                  */
-                $params['cache']['policy']  = 'no-store';
-                $params['cache']['expires'] = '0';
-
+                $headers[] = 'Cache-Control: no-store, max-age=0';
                 unset($core->register['etag']);
-                $expires = 0;
 
             }else{
                 /*
@@ -516,20 +512,8 @@ function http_cache($params, $http_code, $headers = array()){
                          * on proxy servers either
                          */
                         if(!empty($_SESSION['user']['id'])){
-                            array_default($params['cache'], 'policy', 'no-store, private');
-
-                        }else{
-                            array_default($params['cache'], 'policy', $_CONFIG['cache']['http']['policy']);
+                            $_CONFIG['cache']['cacheability'] = 'private';
                         }
-
-                        /*
-                         * Extract expires time from cache-control header
-                         */
-                        preg_match_all('/max-age=(\d+)/', $params['cache']['policy'], $matches);
-
-                        $expires = new DateTime();
-                        $expires = $expires->add(new DateInterval('PT'.isset_get($matches[1][0], 0).'S'));
-                        $expires = $expires->format('D, d M Y H:i:s \G\M\T');
 
                         $headers[] = 'Cache-Control: '.$_CONFIG['cache']['cacheability'].', '.$_CONFIG['cache']['expiration'].', '.$_CONFIG['cache']['revalidation'].($_CONFIG['cache']['other'] ? ', '.$_CONFIG['cache']['other'] : '');
 
