@@ -512,10 +512,10 @@ function http_cache($params, $http_code, $headers = array()){
                          * on proxy servers either
                          */
                         if(!empty($_SESSION['user']['id'])){
-                            $_CONFIG['cache']['cacheability'] = 'private';
+                            $_CONFIG['cache']['http']['cacheability'] = 'private';
                         }
 
-                        $headers[] = 'Cache-Control: '.$_CONFIG['cache']['cacheability'].', '.$_CONFIG['cache']['expiration'].', '.$_CONFIG['cache']['revalidation'].($_CONFIG['cache']['other'] ? ', '.$_CONFIG['cache']['other'] : '');
+                        $headers[] = 'Cache-Control: '.$_CONFIG['cache']['http']['cacheability'].', '.$_CONFIG['cache']['http']['expiration'].', '.$_CONFIG['cache']['http']['revalidation'].($_CONFIG['cache']['http']['other'] ? ', '.$_CONFIG['cache']['http']['other'] : '');
 
                         if(!empty($core->register['etag'])){
                             $headers[] = 'ETag: "'.$core->register['etag'].'"';
