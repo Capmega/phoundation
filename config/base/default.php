@@ -48,11 +48,11 @@ $_CONFIG['cache']              = array('method'                             => '
                                        'max_age'                            => 86400,                                                   // Max local cache age is one day
                                        'key_hash'                           => 'sha256',
                                        'key_interlace'                      => 3,
-                                       'http'                               => array('enabled'            => true,                      // Enable HTTP cache or not. If set to "auto", use PHP caching. Set to "auto" to have PHP manage the caching headers
-                                                                                     'php_cache_limiter'  => 'public',                  // public | private | private_no_expire | nocache If $_CONFIG[cache][http][enabled] is set to auto, it will set PHP cache_limiter to this value. See https://secure.php.net/manual/en/function.session-cache-limiter.php
-                                                                                     'php_cache_expire'   => '604800',                  // Use null for system default, which is no-store for admin, public for no user, and private, no-store for user session pages. If not, either "no-store", or "no-cache" with "public" or "private", optionally with max-age=N" where N is a natural number
-                                                                                     'policy'             => 'public',                  // Use null for system default, which is no-store for admin, public for no user, and private, no-store for user session pages. If not, either "no-store", or "no-cache" with "public" or "private", optionally with max-age=N" where N is a natural number
-                                                                                     'max_age'            => '604800'));                // Either "no-store", or "no-cache" with "public" or "private", optionally with max-age=N" where N is a natural number
+                                       'http'                               => array('enabled'            => true,                      // Enable HTTP cache or not. If set to "auto", use PHP caching. Set to "auto" to have PHP manage the caching headers. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+                                                                                     'cacheability'       => 'private',                 //
+                                                                                     'expiration'         => 'max-age=604800',          //
+                                                                                     'revalidation'       => 'must-revalidate',         //
+                                                                                     'other'              => 'no-transform'));          //
 
 // CDN configuration
 $_CONFIG['cdn']                = array('min'                                => true,                                                    // If set to "true" all CSS and JS files loaded with html_load_js() and html_load_css() will be loaded as file.min.js instead of file.js. Use "true" in production environment, "false" in all other environments

@@ -173,7 +173,6 @@ class core{
                     define('PLATFORM_HTTP', true);
                     define('PLATFORM_CLI' , false);
 
-                    $this->register['etag']      = isset_get($_SERVER['HTTP_ETAG']);
                     $this->register['accepts']   = accepts();
                     $this->register['http_code'] = 200;
 
@@ -741,6 +740,7 @@ function tr($text, $replace = null, $verify = true){
                             return $text;
                         }
                     }
+
                     throw new bException('tr(): Not all specified keywords were found in text', 'not-found');
                 }
 
@@ -836,7 +836,7 @@ function notify($params){
          */
         $params = array_force($params);
         array_ensure($params, 'event,classes,message');
-        log_file(tr('Failed to notify event ":event" for classes ":classes" with message ":message"', array(':event' => $params['event'], ':classes' => $params['classes'], ':message' => $params['message'])), 'failed');
+        log_console(tr('Failed to notify event ":event" for classes ":classes" with message ":message"', array(':event' => $params['event'], ':classes' => $params['classes'], ':message' => $params['message'])), 'failed');
         return false;
     }
 }

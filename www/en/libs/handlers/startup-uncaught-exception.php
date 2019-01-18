@@ -16,6 +16,7 @@ try{
         /*
          * We seem to be stuck in an uncaught exception loop, cut it out now!
          */
+// :TODO: ADD NOTIFICATIONS OF STUFF GOING FUBAR HERE!
         die('exception loop detected');
     }
 
