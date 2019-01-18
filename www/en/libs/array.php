@@ -4,8 +4,11 @@
  *
  * This library file contains extra array functions
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package array
  */
 
 
@@ -91,21 +94,49 @@ function array_next_value(&$array, $currentvalue, $delete = false, $restart = fa
 
 
 /*
- * Set the default value for the specified key of the specified array if it does not exist
+ * Ensure that the specified $key exists in the specified $source. If the specified $key does not exist, it will be initialized with the specified $default value.
+ *
+ * This function is mostly used with ensuring default values for params arrays. With using this function, you can be sure individual values are each initialized with specific values, if they do not exist yet
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package array
+ * @see array_ensure()
+ * @note: $source is passed by reference and will be modified directly
+ * @version 1.22.0: Added documentation
+ * code
+ * $b = array();
+ * array_default($b, 'foo', 'bar');
+ * showdie($b)
+ * /code
+ *
+ * This would display the following results
+ * code
+ * array('foo' => 'bar')
+ * /code
+ *
+ * @param params $source The array that is being worked on
+ * @param string $key The key that must exist in the $source array
+ * @param mixed $default The default value in case $source[$key] does not exist
+ * @return mixed The new value of $source[$key]. This will be either the original value of $source[$key], or the $default value if $source[$key] did not exist
  */
 function array_default(&$source, $key, $default){
     try{
-        if(isset($source[$key])){
-            return false;
+        if(!isset($source[$key])){
+            $source[$key] = $default;
         }
 
-        $source[$key] = $default;
-
-        return $default;
+        return $source[$key];
 
     }catch(Exception $e){
         if(!is_array($source)){
             throw new bException(tr('array_default(): Specified source is not an array'), 'invalid');
+        }
+
+        if(!is_scalar($key)){
+            throw new bException(tr('array_default(): Specified key ":key" is not a scalar', array(':key' => $key)), 'invalid');
         }
 
         throw new bException('array_default(): Failed', $e);
