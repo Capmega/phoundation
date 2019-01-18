@@ -229,9 +229,13 @@ function http_headers($params, $content_length){
     $sent = true;
 
     try{
+        /*
+         * Create ETAG, possibly send out HTTP304 if client sent matching ETAG
+         */
+        http_cache_etag();
+
         array_params($params, 'http_code');
         array_default($params, 'http_code', $core->register['http_code']);
-        array_default($params, 'etag'     , null);
         array_default($params, 'cors'     , false);
         array_default($params, 'mimetype' , $core->register['accepts']);
         array_default($params, 'headers'  , array());
@@ -319,7 +323,7 @@ function http_headers($params, $content_length){
             }
         }
 
-        $headers = http_cache($params, $params['http_code'], $params['etag'], $headers);
+        $headers = http_cache($params, $params['http_code'], $headers);
 
         /*
          * Remove incorrect headers
@@ -413,20 +417,6 @@ throw new bException('http_remove_variable() is under construction!');
 
 
 /*
- * Here be depreciated wrappers
- */
-function http_build_url($url, $query){
-    try{
-        return http_add_variable($url, str_until($query, '='), str_from($query, '='));
-
-    }catch(Exception $e){
-        throw new bException('http_build_url(DEPRECIATED): Failed', $e);
-    }
-}
-
-
-
-/*
  * Test HTTP caching headers
  *
  * Sends out 304 - Not modified header if ETag matches
@@ -434,31 +424,30 @@ function http_build_url($url, $query){
  * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
  * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
  */
-function http_cache_test($etag = null){
+function http_cache_etag(){
     global $_CONFIG, $core;
 
     try{
-        $core->register['etag'] = md5(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$etag);
-
-        if(!$_CONFIG['cache']['http']['enabled']){
+        /*
+         * ETAG requires HTTP caching enabled
+         * Ajax and API calls do not use ETAG
+         */
+        if(!$_CONFIG['cache']['http']['enabled'] or $core->callType('ajax') or $core->callType('api')){
+            unset($core->register['etag']);
             return false;
         }
 
-        if($core->callType('ajax') or $core->callType('api')){
-            return false;
-        }
+        /*
+         * Create local ETAG
+         */
+        $core->register['etag'] = md5(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$core->register['etag']);
 
-        if((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']){
+// :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
+        if(trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']){
             if(empty($core->register['flash'])){
                 /*
                  * The client sent an etag which is still valid, no body (or anything else) necesary
                  */
-// :TODO: Check if http_response_code(304) is good enough, or if header("HTTP/1.1 304 Not Modified") is required
-//                header("HTTP/1.1 304 Not Modified");
-
-// :TODO: Should the next lines be deleted or not? Investigate if 304 should again return the etag or not
-//                header('Cache-Control: '.$params['cache']['policy']);
-//                header('ETag: "'.$core->register['etag'].'"');
                 http_response_code(304);
                 die();
             }
@@ -467,7 +456,7 @@ function http_cache_test($etag = null){
         return true;
 
     }catch(Exception $e){
-        throw new bException('http_cache_test(): Failed', $e);
+        throw new bException('http_cache_etag(): Failed', $e);
     }
 }
 
@@ -481,7 +470,7 @@ function http_cache_test($etag = null){
  * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
  * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
  */
-function http_cache($params, $http_code, $etag, $headers = array()){
+function http_cache($params, $http_code, $headers = array()){
     global $_CONFIG, $core;
 
     try{
@@ -497,32 +486,20 @@ function http_cache($params, $http_code, $etag, $headers = array()){
             /*
              * Place headers using phoundation algorithms
              */
-            if(!$_CONFIG['cache']['http']['enabled'] or (($http_code != 200) and ($http_code != 304))){
+            if(!$_CONFIG['cache']['http']['enabled'] or ($http_code != 200)){
                 /*
                  * Non HTTP 200 / 304 pages should NOT have cache enabled!
-                 * For example 404, 505 max-age etc...
+                 * For example 404, 503 etc...
                  */
-                $params['cache']['policy']       = 'no-store';
-                $params['cache']['expires']      = '0';
+                $params['cache']['policy']  = 'no-store';
+                $params['cache']['expires'] = '0';
 
-                $core->register['etag'] = null;
-                $expires                = 0;
+                unset($core->register['etag']);
+                $expires = 0;
 
             }else{
                 /*
                  * Send caching headers
-                 */
-                if(empty($core->register['etag'])){
-                    if(!empty($core->register['flash'])){
-                        $core->register['etag'] = md5(str_random());
-                        $params['cache']['policy'] = 'no-store';
-
-                    }else{
-                        $core->register['etag'] = md5(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).isset_get($etag));
-                    }
-                }
-
-                /*
                  * Ajax, API, and admin calls do not have proxy caching
                  */
                 switch($core->callType()){
@@ -531,8 +508,6 @@ function http_cache($params, $http_code, $etag, $headers = array()){
                     case 'ajax':
                         // FALLTHROUGH
                     case 'admin':
-                        $params['cache']['policy'] = 'no-store, private';
-                        $expires = '0';
                         break;
 
                     default:
@@ -555,45 +530,12 @@ function http_cache($params, $http_code, $etag, $headers = array()){
                         $expires = new DateTime();
                         $expires = $expires->add(new DateInterval('PT'.isset_get($matches[1][0], 0).'S'));
                         $expires = $expires->format('D, d M Y H:i:s \G\M\T');
-                }
 
-                /*
-                 * Apply cache policy
-                 */
-                switch($params['cache']['policy']){
-                    case 'no-store':
-                        $headers[] = 'Cache-Control: '.$params['cache']['policy'];
-                        break;
-
-                    case 'no-cache':
-                        // FALLTHROUGH
-                    case 'public':
-                        // FALLTHROUGH
-                    case 'private':
-                        // FALLTHROUGH
-                    case 'no-cache, public':
-                        // FALLTHROUGH
-                    case 'no-store, no-cache, must-revalidate':
-                        $headers[] = 'Cache-Control: '.$params['cache']['policy'].', max-age='.$params['cache']['max_age'];
-                        $headers[] = 'Expires: '.$expires;
-//                        $headers[] = 'Cache-Control: post-check='.$params['cache']['post-check'].', pre-check='.$params['cache']['pre-check'].', false';
+                        $headers[] = 'Cache-Control: '.$_CONFIG['cache']['cacheability'].', '.$_CONFIG['cache']['expiration'].', '.$_CONFIG['cache']['revalidation'].($_CONFIG['cache']['other'] ? ', '.$_CONFIG['cache']['other'] : '');
 
                         if(!empty($core->register['etag'])){
                             $headers[] = 'ETag: "'.$core->register['etag'].'"';
                         }
-
-                    case 'no-cache, private':
-                        $headers[] = 'Cache-Control: '.$params['cache']['policy'].', max-age='.$params['cache']['max_age'];
-                        $headers[] = 'Expires: '.$expires;
-
-                        if(!empty($core->register['etag'])){
-                            $headers[] = 'ETag: "'.$core->register['etag'].'"';
-                        }
-
-                        break;
-
-                    default:
-                        throw new bException(tr('http_cache(): Unknown cache policy ":policy" detected', array(':policy' => $params['cache']['policy'])), 'unknown');
                 }
             }
         }
@@ -724,6 +666,20 @@ function http_done(){
 
     }catch(Exception $e){
         throw new bException('http_done(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Here be depreciated wrappers
+ */
+function http_build_url($url, $query){
+    try{
+        return http_add_variable($url, str_until($query, '='), str_from($query, '='));
+
+    }catch(Exception $e){
+        throw new bException('http_build_url(DEPRECIATED): Failed', $e);
     }
 }
 ?>
