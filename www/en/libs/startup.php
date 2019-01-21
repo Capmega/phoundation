@@ -1626,6 +1626,10 @@ function log_file($messages, $class = 'syslog', $color = null){
             file_ensure_path(ROOT.'data/log');
 
             $h[$file] = fopen(slash(ROOT.'data/log').$file, 'a+');
+
+            if(!$h[$file]){
+                throw new bException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), 'failed');
+            }
         }
 
         $messages = array_force($messages, "\n");
@@ -1656,6 +1660,9 @@ function log_file($messages, $class = 'syslog', $color = null){
         return $messages;
 
     }catch(Exception $e){
+// :TODO: When log_file() fails, we need to notify! BUT BE CAREFULL, CURRENTLY NOTIFY() WILL ALWAYS log_file() which would cause an endless loop!
+//        notify($e);
+
         $message = $e->getMessage();
 
         if(strstr($message, 'data/log') and strstr($message, 'failed to open stream: Permission denied')){
