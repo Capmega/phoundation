@@ -71,7 +71,7 @@ function user_avatar($avatar, $type = null) {
         }
 
         if(empty($avatar)) {
-            return 'pub/img/default-user.png';
+            return 'img/default-user.png';
         }
 
         return $avatar.'-'.$type.'.jpg';
@@ -2329,13 +2329,67 @@ function user_update_apikey($users_id = null){
 
 /*
  * Lock the specified user account
+ *
+ * This function will unlock the user with the specified $users_id by setting the users' status to "locked"
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package user
+ * @see user_lock()
+ * @note The users status will be set to "locked", no matter what it was before. If the user, for example, was deleted and as such had status "deleted", this information will be gone
+ * @version 1.26.1: Added documentation, updated to return update result
+ * @example
+ * code
+ * user_lock(1);
+ * showdie($result);
+ * /code
+ *
+ * @param natural $users_id The id for the user to  be locked
+ * @return boolean True if the user was locked, false if not. If the user was not locked, the user already had status "locked"
  */
 function user_lock($users_id){
     try{
-        sql_query('UPDATE `users` SET `status` = "locked" WHERE `id` = :id', array(':id' => cfi($users_id)));
+        $r = sql_query('UPDATE `users` SET `status` = "locked" WHERE `id` = :id', array(':id' => cfi($users_id)));
+        return $r->rowCount();
 
     }catch(Exception $e){
         throw new bException(tr('user_lock(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Unlock the specified user account
+ *
+ * This function will unlock the user with the specified $users_id by setting the users' status to NULL
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package user
+ * @see user_lock()
+ * @note The specified user account will have status NULL and with that be completely accessible again
+ * @version 1.26.1: Added function and documentation
+ * @example
+ * code
+ * user_unlock(1);
+ * showdie($result);
+ * /code
+ *
+ * @param natural $users_id The id for the user to  be unlocked
+ * @return boolean True if the user was unlocked, false if not. If the user was not unlocked, the user already had status NULL
+ */
+function user_unlock($users_id){
+    try{
+        $r = sql_query('UPDATE `users` SET `status` = NULL WHERE `id` = :id', array(':id' => cfi($users_id)));
+        return (boolean) $r->rowCount();
+
+    }catch(Exception $e){
+        throw new bException(tr('user_unlock(): Failed'), $e);
     }
 }
 
