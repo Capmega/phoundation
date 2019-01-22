@@ -62,12 +62,16 @@ function user_data($id) {
 /*
  * Make sure some avatar is being displayed
  */
-function user_avatar($avatar, $type) {
+function user_avatar($avatar, $type = null) {
     global $_CONFIG;
 
     try{
+        if(!$type){
+            $type = '';
+        }
+
         if(empty($avatar)) {
-            return $_CONFIG['avatars']['default'].'-'.$type.'.jpg';
+            return 'pub/img/default-user.png';
         }
 
         return $avatar.'-'.$type.'.jpg';
@@ -2265,7 +2269,7 @@ function user_key_or_redirect($user, $key = null, $timestamp = null, $redirect =
          * Send JSON redirect. json_reply() will end script, so no break needed
          */
         load_libs('json');
-        json_reply(isset_get($redirect, $_CONFIG['root']), 'signin');
+        json_reply(isset_get($redirect, $_CONFIG['url_prefix']), 'signin');
 
     }catch(Exception $e){
         throw new bException(tr('user_get_from_key(): Failed'), $e);
