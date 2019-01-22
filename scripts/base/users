@@ -179,7 +179,14 @@ password USER                   - Update the password for the specified user.
 
 unlock USERS[_ID]               - Unlock the specified users. USERS is a space
                                   separated list, and can be specified by id,
-                                  username, or email.
+                                  username, or email. This will set status to
+                                  NULL and reset the "locked_until" field
+
+
+
+lock USERS[_ID]                 - Permanently lck the specified users. USERS is
+                                  a space separated list, and can be specified
+                                  by id, username, or email.
 
 
 
@@ -419,11 +426,7 @@ switch(cli_method()){
         break;
 
     case 'rights':
-        $deleted     = cli_argument('-d,--deleted');
-        $all         = cli_argument('-a,--all');
-
         $type        = cli_argument('-t,--type'    , true);
-        $status      = cli_argument('-s,--status'  , true);
         $email       = cli_argument('-e,--email'   , true);
         $name        = cli_argument('-n,--name'    , true);
         $username    = cli_argument('-u,--username', true);
@@ -442,30 +445,30 @@ switch(cli_method()){
             throw new bException(tr('--limit must be followed by a natural number lower than 99999'), 'warning/invalid');
         }
 
-        if($status and $deleted and $all){
+        if(STATUS and DELETED and ALL){
             throw new bException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
         }
 
-        if($status and $deleted){
+        if(STATUS and DELETED){
             throw new bException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if($status and $all){
+        if(STATUS and ALL){
             throw new bException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if($deleted and $all){
+        if(DELETED and ALL){
             throw new bException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if($deleted){
+        if(DELETED){
             $where[] = ' `users`.`status` = "deleted" ';
 
-        }elseif($status){
+        }elseif(STATUS){
             $where[] = ' `users`.`status` = :status ';
-            $execute[':status'] = $status;
+            $execute[':status'] = STATUS;
 
-        }elseif(!$all){
+        }elseif(!ALL){
             $where[] = ' `users`.`status` IS NULL ';
         }
 
@@ -576,11 +579,7 @@ switch(cli_method()){
         break;
 
     case 'list':
-        $deleted     = cli_argument('-d') or cli_argument('--deleted');
-        $all         = cli_argument('-a') or cli_argument('--all');
-
         $type        = not_empty(cli_argument('-t', true), cli_argument('--type'    , true));
-        $status      = not_empty(cli_argument('-s', true), cli_argument('--status'  , true), null);
         $limit       = not_empty(cli_argument('-l', true), cli_argument('--limit'   , true), 100);
         $email       = not_empty(cli_argument('-e', true), cli_argument('--email'   , true));
         $name        = not_empty(cli_argument('-n', true), cli_argument('--name'    , true));
@@ -597,30 +596,30 @@ switch(cli_method()){
             throw new bException(tr('--limit must be followed by a natural number lower than 99999'), 'warning/invalid');
         }
 
-        if($status and $deleted and $all){
+        if(STATUS and DELETED and ALL){
             throw new bException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
         }
 
-        if($status and $deleted){
+        if(STATUS and DELETED){
             throw new bException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if($status and $all){
+        if(STATUS and ALL){
             throw new bException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if($deleted and $all){
+        if(DELETED and ALL){
             throw new bException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if($deleted){
+        if(DELETED){
             $where[] = ' `users`.`status` = "deleted" ';
 
-        }elseif($status){
+        }elseif(STATUS){
             $where[] = ' `users`.`status` = :status ';
-            $execute[':status'] = $status;
+            $execute[':status'] = STATUS;
 
-        }elseif(!$all){
+        }elseif(!ALL){
             $where[] = ' `users`.`status` IS NULL ';
         }
 
@@ -722,7 +721,7 @@ switch(cli_method()){
             log_console(str_size(tr('#id'), 7).str_size(tr('Status'), 11).str_size(tr('Username'), 13).str_size(tr('Nickname'), 13).str_size(tr('Type'), 11).str_size(tr('Role'), 11).str_size(tr('Admin'), 6).str_size(tr('God'), 4).str_size(tr('Signin count'), 13).str_size(tr('Locked until'), 21).str_size(tr('Auth failures'), 14).str_size(tr('Real name'), 33).str_size(tr('Email'), 33), 'QUIET/cyan');
 
             while($user = sql_fetch($r)){
-                log_console(str_size($user['id'], 6, ' ', true).' '.cli_status_color(str_size($user['status'], 10)).' '.str_size($user['username'], 12).' '.str_size($user['nickname'], 12).' '.str_size($user['type'], 10).' '.str_size($user['role'], 10).' '.str_size(($user['admin'] ? 'Yes' : ''), 5).' '.str_size(($user['god'] ? 'Yes' : ''), 3).' '.str_size($user['signin_count'], 12, ' ', true).' '.str_size($user['locked_until'] ? $user['locked_until'] : '-', 20).' '.str_size($user['auth_fails'] ? $user['auth_fails'] : '-', 13, ' ', true).' '.str_size($user['name'], 32).' '.str_size($user['email'], 32));
+                log_console(str_size($user['id'], 6, ' ', true).' '.cli_status_color(str_size(status($user['status']), 10)).' '.str_size($user['username'], 12).' '.str_size($user['nickname'], 12).' '.str_size($user['type'], 10).' '.str_size($user['role'], 10).' '.str_size(($user['admin'] ? 'Yes' : ''), 5).' '.str_size(($user['god'] ? 'Yes' : ''), 3).' '.str_size($user['signin_count'], 12, ' ', true).' '.str_size($user['locked_until'] ? $user['locked_until'] : '-', 20).' '.str_size($user['auth_fails'] ? $user['auth_fails'] : '-', 13, ' ', true).' '.str_size($user['name'], 32).' '.str_size($user['email'], 32));
             }
         }
 
@@ -811,7 +810,8 @@ switch(cli_method()){
 
         $r  = sql_query('UPDATE `users`
 
-                         SET    `locked_until` = NULL,
+                         SET    `status`       = NULL,
+                                `locked_until` = NULL,
                                 `auth_fails`   = 0
 
                          WHERE  '.implode(' AND ', $where),
@@ -832,6 +832,8 @@ switch(cli_method()){
 
         break;
 
+    case 'lock':
+        // FALLTRGOUGH
     case 'delete':
         // FALLTRGOUGH
     case 'undelete':
@@ -916,6 +918,14 @@ switch(cli_method()){
                           SET    `status` = NULL
 
                           WHERE  '.implode(' AND ', $where).' AND `status` = "disabled"';
+                break;
+
+            case 'lock':
+                $query = ' UPDATE `users`
+
+                          SET    `status` = NULL
+
+                          WHERE  '.implode(' AND ', $where).' AND `status` = "locked"';
                 break;
         }
 
