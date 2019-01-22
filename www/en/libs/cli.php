@@ -1598,7 +1598,7 @@ function cli_status_color($status){
     try{
         $status = status($status);
 
-        switch(strtolower($status)){
+        switch(trim(strtolower($status))){
             case 'ok':
                 // FALLTHROUGH
             case 'completed':
