@@ -548,54 +548,6 @@ function requested_url(){
 
 
 /*
- * Sets and returns $_GET[count] data
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package http
- *
- * @return integer The
- */
-function set_count(){
-    try{
-        $_GET['limit'] = force_natural(isset_get($_GET['count'], 1));
-        return $_GET['limit'];
-
-    }catch(Exception $e){
-        throw new bException(tr('set_count(): Failed'), $e);
-    }
-}
-
-
-
-/*
- * Sets and returns $_GET[limit] data
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package http
- *
- * @return integer The
- */
-function set_limit(){
-    global $_CONFIG;
-
-    try{
-        $_GET['count'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
-        return $_GET['count'];
-
-    }catch(Exception $e){
-        throw new bException(tr('set_limit(): Failed'), $e);
-    }
-}
-
-
-
-/*
  *
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -650,6 +602,40 @@ function http_done(){
 
     }catch(Exception $e){
         throw new bException('http_done(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Validates the $_GET array and ensures that all values are scalar
+ *
+ * This function will walk over the $_GET array and test each value. If a value is found that is not scalar, a 400 code exception will be thrown, which would lead to an HTTP 400 BAD REQUEST
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package http
+ * @note This function is called by all HTTP type startup sequences, there should be no need to run this anywhere else
+ * @version 1.26.1: Added function and documentation
+ *
+ * @return void
+ */
+function http_validate_get(){
+    global $_CONFIG;
+
+    try{
+        foreach($_GET as $key => $value){
+            if(!is_scalar($value)){
+                throw new bException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
+            }
+        }
+
+        $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
+
+    }catch(Exception $e){
+        throw new bException('http_validate_get(): Failed', $e);
     }
 }
 

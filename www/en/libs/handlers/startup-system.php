@@ -233,6 +233,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
  * Load custom library, if available
  */
 load_libs('custom');
+http_validate_get();
 
 
 

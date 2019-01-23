@@ -217,4 +217,5 @@ if(isset($_GET['redirect'])){
  * Load custom library, if available
  */
 load_libs('custom');
+http_validate_get();
 ?>
