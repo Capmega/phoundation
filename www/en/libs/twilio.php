@@ -206,7 +206,7 @@ function twilio_send_message($message, $to, $from = null){
         /*
          * Send a normal SMS message
          */
-        return $account->messages->create($to, array('body' => $message['message'],
+        return $account->messages->create($to, array('body' => $message,
                                                      'from' => $source));
 
     }catch(Exception $e){
