@@ -2,6 +2,7 @@
 global $_CONFIG, $core;
 static $executed = false;
 
+
 /*
  * If you are faced with an uncaught exception that does not give any
  * information (for example, "exception before platform detection", or
@@ -40,6 +41,34 @@ try{
 
     switch(PLATFORM){
         case 'cli':
+            /*
+             * Ensure that required defines are available
+             */
+            load_libs('cli');
+
+            if(!defined('VERYVERBOSE')){
+                define('VERYVERBOSE', (cli_argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
+            }
+
+            $defines = array('ADMIN'    => '',
+                             'PWD'      => slash(isset_get($_SERVER['PWD'])),
+                             'VERBOSE'  => ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE' : null),
+                             'QUIET'    => cli_argument('-Q,--quiet'),
+                             'FORCE'    => cli_argument('-F,--force'),
+                             'NOCOLOR'  => cli_argument('-C,--no-color'),
+                             'TEST'     => cli_argument('-T,--test'),
+                             'LIMIT'    => not_empty(cli_argument('--limit', true), $_CONFIG['paging']['limit']),
+                             'ALL'      => cli_argument('-A,--all'),
+                             'DELETED'  => cli_argument('--deleted'),
+                             'STATUS'   => cli_argument('-S,--status' , true),
+                             'STARTDIR' => slash(getcwd()));
+
+            foreach($defines as $key => $value){
+                if(!defined($key)){
+                    define($key, $value);
+                }
+            }
+
             if($e->getCode() === 'parameters'){
                 log_console(trim(str_from($e->getMessage(), '():')), 'warning');
                 $GLOBALS['core'] = false;
@@ -53,7 +82,7 @@ try{
                  *
                  * Log to the webserver error log at the very least
                  */
-                foreach($e->getMessages as $message){
+                foreach($e->getMessages() as $message){
                     error_log($message);
                 }
 
@@ -190,6 +219,34 @@ try{
             die(8);
 
         case 'http':
+            /*
+             * Ensure that required defines are available
+             */
+            if(!defined('VERYVERBOSE')){
+                define('VERYVERBOSE', (cli_argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
+            }
+
+            $defines = array('ADMIN'    => '',
+                             'SCRIPT'   => str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php'),
+                             'PWD'      => slash(isset_get($_SERVER['PWD'])),
+                             'STARTDIR' => slash(getcwd()),
+                             'FORCE'    => (getenv('FORCE')                    ? 'FORCE'   : null),
+                             'NOCOLOR'  => (getenv('NOCOLOR')                  ? 'NOCOLOR' : null),
+                             'TEST'     => (getenv('TEST')                     ? 'TEST'    : null),
+                             'VERBOSE'  => ((VERYVERBOSE or getenv('VERBOSE')) ? 'VERBOSE' : null),
+                             'QUIET'    => (getenv('QUIET')                    ? 'QUIET'   : null),
+                             'LIMIT'    => (getenv('LIMIT')                    ? 'LIMIT'   : $_CONFIG['paging']['limit']),
+                             'ORDERBY'  => (getenv('ORDERBY')                  ? 'ORDERBY' : null),
+                             'ALL'      => (getenv('ALL')                      ? 'ALL'     : null),
+                             'DELETED'  => (getenv('DELETED')                  ? 'DELETED' : null),
+                             'STATUS'   => (getenv('STATUS')                   ? 'STATUS'  : null));
+
+            foreach($defines as $key => $value){
+                if(!defined($key)){
+                    define($key, $value);
+                }
+            }
+
             if(empty($core) or empty($core->register['ready'])){
                 /*
                  * Configuration hasn't been loaded yet, we cannot even know if we are
