@@ -164,6 +164,10 @@ function servers_validate($server, $structure_only = false, $password_strength =
             $server['domains']   = array_unique($server['domains']);
         }
 
+        $v->isScalar($server['seoprovider'], tr('Please specify a valid provider'));
+        $v->isScalar($server['seocustomer'], tr('Please specify a valid customer'));
+        $v->isScalar($server['ssh_account'], tr('Please specify a valid SSH account'));
+
         $v->isValid();
 
         /*
@@ -439,17 +443,17 @@ function servers_like($domain){
  * @see html_select()
  *
  * @param array $params The parameters required
- * @param $params name
- * @param $params class
- * @param $params extra
- * @param $params tabindex
- * @param $params empty
- * @param $params none
- * @param $params selected
- * @param $params parents_id
- * @param $params status
- * @param $params orderby
- * @param $params resource
+ * @param string $params[name]
+ * @param class
+ * @param extra
+ * @param tabindex
+ * @param empty
+ * @param none
+ * @param selected
+ * @param parents_id
+ * @param status
+ * @param orderby
+ * @param resource
  * @return string HTML for a servers select box within the specified parameters
  */
 function servers_select($params = null){
