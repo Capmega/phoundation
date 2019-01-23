@@ -27,7 +27,7 @@
  */
 function shortlink_library_init(){
     try{
-        load_libs('json');
+        load_libs('json,curl');
         load_config('shortlink');
 
     }catch(Exception $e){
