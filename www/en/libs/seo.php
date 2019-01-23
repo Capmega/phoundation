@@ -12,9 +12,38 @@
 
 /*
  * Generate an unique seo name
+ *
+ * This function will use seo_string() to convert the specified $source variable to a seo optimized string, and then it will check the specified $table to ensure that it does not yet exist. If the current seo string already exists, it will be expanded with a natural number and the table will be checked again. If the seo string is still found, this number will be incremented each loop, until the string is no longer found
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package seo
+ * @see seo_string()
+ * @version 1.27.0: Added documentation
+ * @example
+ * code
+ * $name   = 'Capmega';
+ * $result = seo_unique($name, 'customers', 15);
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * capmega
+ * /code
+ *
+ * @param scalar $source
+ * @param string $table
+ * @param null natural $ownid
+ * @param string $column
+ * @param string $replace
+ * @param null $first_suffix
+ * @return string The specified $source string seo optimized, which does not yet exist in the specified $table
  */
 // :TODO: Update to use bound variable queries
-function seo_unique($source, $table, $ownid = null, $field = 'seoname', $replace = '-', $first_suffix = null) {
+function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replace = '-', $first_suffix = null) {
     try{
         /*
          * Prepare string
@@ -121,7 +150,7 @@ function seo_unique($source, $table, $ownid = null, $field = 'seoname', $replace
                     }
                 }
 
-                $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.$field.'` = "'.$str.'"'.$ownid.';', true);
+                $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.$column.'` = "'.$str.'"'.$ownid.';', true);
 
                 if(!$exists){
                     return $str;
