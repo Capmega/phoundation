@@ -241,4 +241,5 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
  * Load custom library, if available
  */
 load_libs('custom_admin');
+http_validate_get();
 ?>
