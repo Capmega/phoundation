@@ -6,7 +6,7 @@
  * web-push library
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Sven Oostenbrink <support@capmega.com>
  */
 
 
@@ -27,8 +27,8 @@ function webpush_library_init(){
         //                       'checks'    => array(ROOT.'pub/js/sweetalert/sweetalert.js',
         //                                            ROOT.'pub/css/sweetalert/sweetalert.css')));
 
-        require_once(__DIR__.'/external/webpush/vendor/autoload.php');
-        require_once(__DIR__.'/external/webpush/vendor/minishlink/web-push/src/WebPush.php');
+        require_once(__DIR__.'/ext/webpush/vendor/autoload.php');
+        require_once(__DIR__.'/ext/webpush/vendor/minishlink/web-push/src/WebPush.php');
 
 
 

@@ -2000,12 +2000,13 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
 
             }else{
                 try{
-                    $url      = strstr($src, '://');
+                    $url      = str_exists($src, '://');
                     $file_src = $src;
 
-                    if(strstr($file_src, domain(''))){
+                    if(str_exists($file_src, domain(''))){
                         $url      = false;
                         $file_src = str_from($file_src, domain(''));
+                        $src      = $file_src;
                     }
 
                     if($url){

@@ -1779,8 +1779,8 @@ function domain($current_url = false, $query = null, $prefix = null, $domain = n
 
         if($prefix === null){
 // :COMPATIBILITY:  Remove "root" support after 2019-04-01
-            if(!empty($_CONFIG['root'])){
-                $prefix = $_CONFIG['root'];
+            if(!empty($_CONFIG['url_prefix'])){
+                $prefix = $_CONFIG['url_prefix'];
 
             }else{
                 $prefix = $_CONFIG['url_prefix'];
