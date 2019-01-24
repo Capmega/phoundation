@@ -2414,7 +2414,11 @@ function html_form($action = null, $method = 'post', $name = 'form', $class = 'f
 
         foreach(array('name', 'method', 'action', 'class', 'extra') as $key){
             if(!$$key) continue;
-            $keys[] = $key.'="'.$$key.'"';
+            if($key != 'extra'){
+                $keys[] = $key.'="'.$$key.'"';
+            }else{
+                $keys[] = $$key;
+            }
         }
 
         if(!empty($name)){
