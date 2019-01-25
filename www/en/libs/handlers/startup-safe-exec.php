@@ -2,7 +2,7 @@
 global $core;
 
 try{
-    if(empty($core->register['ready'])){
+    if(!$core->register['ready']){
         throw new bException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'invalid');
     }
 
