@@ -27,9 +27,6 @@ function cli_library_init(){
     global $core;
 
     try{
-        /*
-         * Ensure that the posix extension is available.
-         */
         $core->register['posix'] = true;
 
         if(!function_exists('posix_getuid')){
@@ -1308,7 +1305,7 @@ function cli_done(){
             die(1);
         }
 
-        if($core and empty($core->register['ready'])){
+        if(!$core->register['ready']){
             echo "\033[1;31mCommand line terminated before \$core ready\033[0m\n";
             die(1);
         }
