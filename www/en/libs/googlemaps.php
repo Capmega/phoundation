@@ -97,9 +97,28 @@ function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_k
                             });
 
                             google.maps.event.addListener(map, "click", function(event) {
+
                                 marker.setPosition(new google.maps.LatLng(event.latLng.lat(), event.latLng.lng()));
                                 $("#key_values\\\\[latitude\\\\]").val(event.latLng.lat());
                                 $("#key_values\\\\[longitude\\\\]").val(event.latLng.lng());
+
+                                fetch("'.domain('/ajax/geo/get-nearest-city.php', null, '').'")
+                                    .then(
+                                        function(response) {
+                                          response.json().then(function(data) {
+                                            $("#key_values\\\\[state\\\\]").val(data.data.state_value);
+                                            $("#key_values\\\\[city\\\\]").val(data.data.city_value);
+                                            console.log(data);
+                                            console.log(data);
+                                            console.log(data);
+                                          });
+                                        }
+                                     )
+                                     .catch(function(err) {
+                                        console.log("Fetch Error :-S", err);
+                                     });
+
+
                             });
 
                         }
