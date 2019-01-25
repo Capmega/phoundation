@@ -147,15 +147,27 @@ class core{
 
     public $sql       = array();
     public $mc        = array();
-    public $register  = array('js_header'     => array(),
+    public $register  = array('ready'         => false,
+                              'js_header'     => array(),
                               'js_footer'     => array(),
                               'css'           => array(),
                               'quiet'         => true,
                               'footer'        => '',
                               'debug_queries' => array());
 
-    function __construct(){
-        global $_CONFIG;
+    /*
+     * The core::startup() method starts the correct call type handler
+     *
+     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package startup
+     *
+     * @return void
+     */
+    public function startup(){
+        global $_CONFIG, $core;
 
         try{
             /*
@@ -173,8 +185,9 @@ class core{
                     define('PLATFORM_HTTP', true);
                     define('PLATFORM_CLI' , false);
 
-                    $this->register['accepts']   = accepts();
-                    $this->register['http_code'] = 200;
+                    $this->register['accepts']           = accepts();
+                    $this->register['accepts_languages'] = accepts_languages();
+                    $this->register['http_code']         = 200;
 
                     /*
                      * Detect what http platform we're on
@@ -209,28 +222,6 @@ class core{
                     break;
             }
 
-        }catch(Exception $e){
-            throw new bException(tr('core::__construct(): Failed'), $e);
-        }
-    }
-
-
-
-    /*
-     * The core::startup() method starts the correct call type handler
-     *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package startup
-     *
-     * @return void
-     */
-    public function startup(){
-        global $_CONFIG, $core;
-
-        try{
             /*
              * Load basic libraries
              */
@@ -780,7 +771,7 @@ function debug($enabled = null){
     global $_CONFIG, $core;
 
     try{
-        if(empty($core->register['ready'])){
+        if(!$core->register['ready']){
             throw new bException(tr('debug(): Startup has not yet finished and base is not ready to start working properly. debug() may not be called until configuration is fully loaded and available'), 'invalid');
         }
 
@@ -1247,6 +1238,35 @@ function accepts(){
 
     }catch(Exception $e){
         throw new bException(tr('accepts(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return a list of the languages that the client accepts
+ */
+function accepts_languages(){
+    try{
+return false;
+        $retval  = array();
+        $headers = isset_get($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $headers = array_force($headers, ',');
+        $default = array_shift($headers);
+
+        foreach($headers as $header){
+            $retval[str_from(str_from($header, ';'), 'q=')] = str_until($header, ';');
+        }
+
+echo '<pre>';
+print_r($default);
+print_r($retval);
+print_r($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+die('bbbbbbbbbbbbbbbbbbbbbb');
+        return $header;
+
+    }catch(Exception $e){
+        throw new bException(tr('accepts_languages(): Failed'), $e);
     }
 }
 
