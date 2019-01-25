@@ -48,8 +48,7 @@ try{
             log_console(tr('Reconnecting to database server with database ":db"', array(':db' => $db)), 'yellow');
 
             $connector['db'] = $db;
-            $pdo = sql_connect($connector);
-            break;
+            return sql_connect($connector);
 
         case 2002:
             /*
@@ -121,8 +120,7 @@ try{
                 ssh_close_tunnel($connector['ssh_tunnel']['pid']);
             }
 
-            $pdo = sql_connect($connector);
-            break;
+            return sql_connect($connector);
 
         default:
             throw new bException('sql_connect(): Failed to create PDO SQL object', $e);
