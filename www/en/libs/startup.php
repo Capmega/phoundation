@@ -185,9 +185,8 @@ class core{
                     define('PLATFORM_HTTP', true);
                     define('PLATFORM_CLI' , false);
 
-                    $this->register['accepts']           = accepts();
-                    $this->register['accepts_languages'] = accepts_languages();
-                    $this->register['http_code']         = 200;
+                    $this->register['accepts']   = accepts();
+                    $this->register['http_code'] = 200;
 
                     /*
                      * Detect what http platform we're on
@@ -236,7 +235,7 @@ class core{
              * Verify project data integrity
              */
             if(!defined('SEED') or !SEED or (PROJECTCODEVERSION == '0.0.0')){
-                if(SCRIPT !== 'setup'){
+                if($core->register['script'] !== 'setup'){
                     if(!FORCE){
                         throw new bException(tr('startup: Project data in "ROOT/config/project.php" has not been fully configured. Please ensure that PROJECT is not empty, SEED is not empty, and PROJECTCODEVERSION is valid and not "0.0.0"'), 'project-not-setup');
                     }
@@ -311,7 +310,7 @@ class core{
 
 
     /*
-     * This method returns SCRIPT, or if $script is specified, it will return true if $script is equal to SCRIPT, or false if not.
+     * This method returns $core->register[script], or if $script is specified, it will return true if $script is equal to $core->register[script], or false if not.
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
      * @copyright Copyright (c) 2018 Capmega
@@ -320,14 +319,16 @@ class core{
      * @package startup
      *
      * @param string $script The key for the value that needs to be stored
-     * @return mixed If $script is specified, this function will return true if $script matches SCRIPT, or false if it does not. If $script is not specified, it will return SCRIPT
+     * @return mixed If $script is specified, this function will return true if $script matches $core->register[script], or false if it does not. If $script is not specified, it will return $core->register[script]
      */
     public function script($script = null){
+        global $core;
+
         if($script === null){
-            return SCRIPT;
+            return $core->register['script'];
         }
 
-        return SCRIPT === $script;
+        return $core->register['script'] === $script;
     }
 
 
@@ -1244,26 +1245,45 @@ function accepts(){
 
 
 /*
- * Return a list of the languages that the client accepts
+ * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list of languages / locales accepted by the HTTP client
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ * @see accepts()
+ * @note: This function is called by the startup system and its output stored in $core->register['accept_language']. There is typically no need to execute this function on any other places
+ * @version 1.27.0: Added function and documentation
+ *
+ * @return array The list of accepted languages and locales as specified by the HTTP client
  */
 function accepts_languages(){
+    global $_CONFIG;
+
     try{
-return false;
         $retval  = array();
         $headers = isset_get($_SERVER['HTTP_ACCEPT_LANGUAGE']);
         $headers = array_force($headers, ',');
         $default = array_shift($headers);
+        $retval  = array('1.0' => array('language' => str_until($default, '-'),
+                                        'locale'   => (str_exists($default, '-') ? str_from($default, '-') : null)));
 
         foreach($headers as $header){
-            $retval[str_from(str_from($header, ';'), 'q=')] = str_until($header, ';');
+            $requested =  str_until($header, ';');
+            $requested =  array('language' => str_until($requested, '-'),
+                                'locale'   => (str_exists($requested, '-') ? str_from($requested, '-') : null));
+
+            if(empty($_CONFIG['language']['supported'][$requested['language']])){
+                continue;
+            }
+
+            $retval[str_from(str_from($header, ';'), 'q=')] = $requested;
         }
 
-echo '<pre>';
-print_r($default);
-print_r($retval);
-print_r($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-die('bbbbbbbbbbbbbbbbbbbbbb');
-        return $header;
+        krsort($retval);
+
+        return $retval;
 
     }catch(Exception $e){
         throw new bException(tr('accepts_languages(): Failed'), $e);
@@ -1273,17 +1293,10 @@ die('bbbbbbbbbbbbbbbbbbbbbb');
 
 
 /*
- * Log specified message to console, but only if we are in console mode!
+ * Parse flags from the specified log text color
  */
-function log_console($messages = '', $color = null, $newline = true, $filter_double = false, $log_file = true){
-    static $c, $last;
-
+function log_flags($color){
     try{
-        if($color and !is_scalar($color)){
-            log_console(tr('[ WARNING ] log_console(): Invalid color ":color" specified for the following message, color has been stripped', array(':color' => $color)), 'warning');
-            $color = null;
-        }
-
         switch(str_until($color, '/')){
             case 'VERBOSE':
                 if(!VERBOSE){
@@ -1305,7 +1318,8 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
                      * Only log this if we're in verbose mode
                      */
                     $color = str_from(str_from($color, 'VERYVERBOSE'), '/');
-                    return cli_dot(10, $color);
+                    cli_dot(10, $color);
+                    return false;
                 }
 
                 /*
@@ -1334,7 +1348,8 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
                      * Only log this if we're in verbose mode
                      */
                     $color = str_from(str_from($color, 'VERYVERBOSE'), '/');
-                    return cli_dot(10, $color);
+                    cli_dot(10, $color);
+                    return false;
                 }
 
                 /*
@@ -1363,7 +1378,8 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
                         /*
                          * Only show a dot instead of the text
                          */
-                        return cli_dot('.', str_replace('DOT', '', $color));
+                        cli_dot('.', str_replace('DOT', '', $color));
+                        return false;
                     }
                 }
 
@@ -1387,11 +1403,45 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
                 $color = str_from(str_from($color, 'DEBUG'), '/');
         }
 
+        return $color;
+
+    }catch(Exception $e){
+        throw new bException(tr('log_flags(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Log specified message to console, but only if we are in console mode!
+ */
+function log_console($messages = '', $color = null, $newline = true, $filter_double = false, $log_file = true){
+    global $core;
+    static $c, $last;
+
+    try{
+        if($color and !is_scalar($color)){
+            log_console(tr('[ WARNING ] log_console(): Invalid color ":color" specified for the following message, color has been stripped', array(':color' => $color)), 'warning');
+            $color = null;
+        }
+
+        /*
+         * Process logging flags embedded in the log text color
+         */
+        $color = log_flags($color);
+
+        if($color === false){
+            /*
+             * log_flags() returned false, do not log anything at all
+             */
+            return false;
+        }
+
         /*
          * Always log to file log as well
          */
         if($log_file){
-            log_file($messages, SCRIPT, $color);
+            log_file($messages, $core->register['script'], $color);
         }
 
         if(!PLATFORM_CLI){
@@ -1505,47 +1555,16 @@ function log_file($messages, $class = 'syslog', $color = null){
     try{
         load_libs('cli,json');
 
-        switch(str_until($class, '/')){
-            case 'VERBOSE':
-                if(!VERBOSE){
-                    /*
-                     * Only log this if we're in verbose mode
-                     */
-                    return false;
-                }
+        /*
+         * Process logging flags embedded in the log text color
+         */
+        $color = log_flags($color);
 
-                /*
-                 * Remove the VERBOSE
-                 */
-                $class = str_replace('/', '', str_replace('VERBOSE', '', $class));
-                break;
-
-            case 'QUIET':
-                if(QUIET){
-                    /*
-                     * Only log this if we're in verbose mode
-                     */
-                    return false;
-                }
-
-                /*
-                 * Remove the QUIET
-                 */
-                $class = str_replace('/', '', str_replace('QUIET', '', $class));
-                break;
-
-            case 'DEBUG':
-                if(!debug()){
-                    /*
-                     * Only log this if we're in debug mode
-                     */
-                    return false;
-                }
-
-                /*
-                 * Remove the QUIET
-                 */
-                $class = str_replace('/', '', str_replace('DEBUG', '', $class));
+        if($color === false){
+            /*
+             * log_flags() returned false, do not log anything at all
+             */
+            return false;
         }
 
         if(is_scalar($messages)){
@@ -1666,14 +1685,14 @@ function log_file($messages, $class = 'syslog', $color = null){
                     $message = cli_color($message, $color, null, true);
                 }
 
-                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.SCRIPT.' '.$class.$key.' => '.$message."\n");
+                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['script'].' '.$class.$key.' => '.$message."\n");
 
             }else{
                 if(!empty($color)){
                     $message = cli_color($message, $color, null, true);
                 }
 
-                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.SCRIPT.' '.$class.$message."\n");
+                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['script'].' '.$class.$message."\n");
             }
         }
 
@@ -2699,9 +2718,93 @@ function name($user = null, $key_prefix = '', $default = null){
 
 /*
  * Show the specified page
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package startup
  */
 function page_show($pagename, $params = null, $get = null){
-    return include(__DIR__.'/handlers/startup-page-show.php');
+    global $_CONFIG, $core;
+
+    try{
+        array_params($params, 'message');
+        array_default($params, 'exists', false);
+
+        if($get){
+            if(!is_array($get)){
+                throw new bException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
+            }
+
+            $_GET = $get;
+        }
+
+        if(defined('LANGUAGE')){
+            $language = LANGUAGE;
+
+        }else{
+            $language = 'en';
+        }
+
+        $params['page'] = $pagename;
+
+        if(is_numeric($pagename)){
+            /*
+             * This is a system page, HTTP code. Use the page code as http code as well
+             */
+            $core->register['http_code'] = $pagename;
+        }
+
+        switch($core->callType()){
+            case 'ajax':
+                if($params['exists']){
+                    return file_exists(ROOT.'www/'.$language.'/ajax/'.$pagename.'.php');
+                }
+
+                /*
+                 * Execute ajax page
+                 */
+                return include(ROOT.'www/'.$language.'/ajax/'.$pagename.'.php');
+
+            case 'api':
+                if($params['exists']){
+                    return file_exists(ROOT.'www/api/'.$pagename.'.php');
+                }
+
+                /*
+                 * Execute ajax page
+                 */
+                return include(ROOT.'www/api/'.$pagename.'.php');
+
+            default:
+                if(!empty($core->callType('admin'))){
+                    $prefix = 'admin/';
+
+                }else{
+                    $prefix = '';
+                }
+
+                if($params['exists']){
+                    return file_exists(ROOT.'www/'.$language.'/'.$prefix.$pagename.'.php');
+                }
+
+                if(!file_exists(ROOT.'www/'.$language.'/'.$prefix.$pagename.'.php')){
+                    throw new bException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 404);
+                }
+
+                $result = include(ROOT.'www/'.$language.'/'.$prefix.$pagename.'.php');
+
+                if(isset_get($params['return'])){
+                    return $result;
+                }
+        }
+
+        die();
+
+    }catch(Exception $e){
+        throw new bException(tr('page_show(): Failed to show page ":page"', array(':page' => $pagename)), $e);
+    }
 }
 
 
@@ -3055,7 +3158,7 @@ function language_lock($language, $script = null){
         if(!is_array($script)){
             /*
              * Show the specified script, it will create the content for
-             * this SCRIPT
+             * this $core->register['script']
              */
             page_show($script);
         }
@@ -4644,6 +4747,69 @@ function shutdown(){
 
     }catch(Exception $e){
         throw new bException(tr('shutdown(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Register the specified shutdown function
+ *
+ * This function will ensure that the specified function will be executed on shutdown with the specified value.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package startup
+ * @see shutdown()
+ * @see unregister_shutdown()
+ * @version 1.27.0: Added function and documentation
+ *
+ * @param string $name The function name to be executed
+ * @param mixed $value The value to be sent to the shutdown function. If $value is an array, and the function was already regsitered, the previous and current array will be mixed. See shutdown() for more on this subject
+ * @return mixed The value as it is registered with the specified shutdown function. If the function name was already registered before, and the specified value was an array, then the return value will now contain the specified array merged with the already existing array
+ */
+function register_shutdown($name, $value){
+    global $core;
+
+    try{
+        return $core->register('shutdown_'.$name, $value);
+
+    }catch(Exception $e){
+        throw new bException('register_shutdown(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Unregister the specified shutdown function
+ *
+ * This function will ensure that the specified function will not be executed on shutdown
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package startup
+ * @see shutdown()
+ * @see register_shutdown()
+ * @version 1.27.0: Added function and documentation
+ *
+ * @param string $name The function name to be executed
+ * @return mixed The value of the shutdown function in case it existed
+ */
+function unregister_shutdown($name){
+    global $core;
+
+    try{
+        $value = $core->register('shutdown_'.$name);
+        unset($core->register['shutdown_'.$name]);
+        return $value;
+
+    }catch(Exception $e){
+        throw new bException('unregister_shutdown(): Failed', $e);
     }
 }
 
