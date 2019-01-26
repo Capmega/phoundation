@@ -626,11 +626,20 @@ function http_validate_get(){
     global $_CONFIG;
 
     try{
-        foreach($_GET as $key => $value){
+        foreach($_GET as $key => &$value){
             if(!is_scalar($value)){
-                throw new bException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
+                if($value){
+                    throw new bException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
+                }
+
+                /*
+                 * The value is NULL
+                 */
+                 $value = '';
             }
         }
+
+        unset($value);
 
         $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
 
