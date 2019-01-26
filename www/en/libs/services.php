@@ -110,28 +110,6 @@ function services_validate($service){
 
 
 /*
- * Get and return all database information for the specified service
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package services
- *
- * @param params $service
- * @return params The specified service array
- */
-function services_get($service){
-    try{
-
-    }catch(Exception $e){
-        throw new bException('services_get(): Failed', $e);
-    }
-}
-
-
-
-/*
  * Insert a new service in the database
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -139,12 +117,28 @@ function services_get($service){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package services
+ * @see services_update()
+ * @version 1.27.0: Implemented function and added documentation
  *
  * @param params $service
  * @return params The specified service array
  */
 function services_insert($service){
     try{
+        $service = services_validate($service);
+
+        sql_query('INSERT INTO `services` (`createdby`, `meta_id`, `name`, `seoname`, `description`)
+                   VALUES                 (:createdby , :meta_id , :name , :seoname , :description )',
+
+                   array('createdby'   => isset_get($_SESSION['user']['id']),
+                         'meta_id'     => meta_action(),
+                         'name'        => $service['name'],
+                         'seoname'     => $service['seoname'],
+                         'description' => $service['description']));
+
+        $servi['id'] = sql_insert_id();
+
+        return $service;
 
     }catch(Exception $e){
         throw new bException('services_insert(): Failed', $e);
@@ -161,12 +155,31 @@ function services_insert($service){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package services
+ * @see services_insert()
+ * @version 1.27.0: Implemented function and added documentation
  *
  * @param params $service
  * @return params The specified service array
  */
 function services_update($service){
     try{
+        $service = services_validate($service);
+        meta_action($service['meta_id'], 'update');
+
+        sql_query('UPDATE `services`
+
+                   SET    `name`        = :name,
+                          `seoname`     = :seoname,
+                          `description` = :description,
+
+                   WHERE  `id`          = :id',
+
+                   array(':id'          =>  $service['id'],
+                         ':domain'      =>  $service['domain'],
+                         ':seodomain'   =>  $service['seodomain'],
+                         ':description' =>  $service['description']));
+
+        return $service;
 
     }catch(Exception $e){
         throw new bException('services_update(): Failed', $e);
@@ -188,11 +201,72 @@ function services_update($service){
  * @param array $services
  * @return natural The amount of services set for the specified server
  */
-function services_update_server($server, $services){
+function services_update_server($service){
     try{
 
     }catch(Exception $e){
         throw new bException('services_update_server(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get and return all database information for the specified service
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package services
+ * @see services_insert()
+ * @version 1.27.0: Implemented function and added documentation
+ *
+ * @param params $service
+ * @return params The specified service array
+ */
+function services_get($service, $column = null, $status = null){
+    try{
+        if(is_numeric($service)){
+            $where[] = ' `services`.`id` = :id ';
+            $execute[':id'] = $service;
+
+        }else{
+            $where[] = ' `services`.`seoname` = :seoname ';
+            $execute[':seoname'] = $service;
+        }
+
+        if($status !== false){
+            $execute[':status'] = $status;
+            $where[] = ' `services`.`status` '.sql_is($status).' :status';
+        }
+
+        $where   = ' WHERE '.implode(' AND ', $where).' ';
+
+        if($column){
+            $retval = sql_get('SELECT `'.$column.'` FROM `services` '.$where, true, $execute, 'core');
+
+        }else{
+            $retval = sql_get('SELECT    `services`.`id`,
+                                         `services`.`createdon`,
+                                         `services`.`createdby`,
+                                         `services`.`meta_id`,
+                                         `services`.`status`,
+                                         `services`.`name`,
+                                         `services`.`seoname`,
+                                         `services`.`description`,
+
+                               FROM      `services` '.
+
+                               $where,
+
+                               $execute, null, 'core');
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new bException('services_get(): Failed', $e);
     }
 }
 
@@ -206,12 +280,21 @@ function services_update_server($server, $services){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package services
+ * @see services_get()
+ * @version 1.27.0: Implemented function and added documentation
  *
- * @param params $server
+ * @param mixed $server The server for which all services must be cleared. May be specified by id, domain, or server array
  * @return natural The amount of services that were cleared for the specified server
  */
 function services_clear($server){
     try{
+        $server = servers_get($server);
+        $r      = sql_query('DELETE FROM `services_servers`
+                             WHERE       `servers_id` = :servers_id',
+
+                             array(':servers_id' => $server['id']));
+
+        return $r->rowCount();
 
     }catch(Exception $e){
         throw new bException('services_clear(): Failed', $e);
