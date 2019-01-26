@@ -2732,6 +2732,8 @@ function page_show($pagename, $params = null, $get = null){
         array_params($params, 'message');
         array_default($params, 'exists', false);
 
+        log_file(tr('Showing page ":page"', array(':page' => $pagename)), 'page_show', 'VERBOSE/cyan');
+
         if($get){
             if(!is_array($get)){
                 throw new bException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
@@ -2790,6 +2792,13 @@ function page_show($pagename, $params = null, $get = null){
                 }
 
                 if(!file_exists(ROOT.'www/'.$language.'/'.$prefix.$pagename.'.php')){
+                    if($pagename == '404'){
+                        /*
+                         * Yeah, now what do we do?
+                         */
+                        throw new bException(tr('page_show(): The 404 does not exist', array(':page' => $pagename)), 'failed');
+                    }
+
                     throw new bException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 404);
                 }
 
@@ -3433,7 +3442,7 @@ function str_clean($source, $utf8 = true){
 /*
  * Return the given string from the specified needle
  */
-function str_from($source, $needle, $more = 0){
+function str_from($source, $needle, $more = 0, $require = false){
     try{
         if(!$needle){
             throw new bException('str_from(): No needle specified', 'not-specified');
@@ -3441,7 +3450,13 @@ function str_from($source, $needle, $more = 0){
 
         $pos = mb_strpos($source, $needle);
 
-        if($pos === false) return $source;
+        if($pos === false){
+            if($require){
+                return '';
+            }
+
+            return $source;
+        }
 
         return mb_substr($source, $pos + mb_strlen($needle) - $more);
 
