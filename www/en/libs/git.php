@@ -501,6 +501,10 @@ function git_status($path = ROOT, $filters = null){
                     $status = 'added to index but deleted';
                     break;
 
+                case 'A ':
+                    $status = 'new file added to index';
+                    break;
+
                 case 'AM':
                     $status = 'new file';
                     break;
