@@ -27,7 +27,7 @@ try{
         define('SCRIPT', tr('unknown'));
     }
 
-    if(!empty($core) and !empty($core->register['ready'])){
+    if($core->register['ready']){
         log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => SCRIPT)), 'exceptions', 'error');
         log_file($e, 'exceptions');
     }
@@ -75,7 +75,7 @@ try{
                 die(1);
             }
 
-            if(empty($core) or empty($core->register['ready'])){
+            if(!$core->register['ready']){
                 /*
                  * Configuration hasn't been loaded yet, we cannot even know if
                  * we are in debug mode or not!
@@ -223,7 +223,7 @@ try{
              * Ensure that required defines are available
              */
             if(!defined('VERYVERBOSE')){
-                define('VERYVERBOSE', (cli_argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
+                define('VERYVERBOSE', (getenv('VERYVERBOSE') ? 'VERYVERBOSE' : null));
             }
 
             $defines = array('ADMIN'    => '',
@@ -247,7 +247,7 @@ try{
                 }
             }
 
-            if(empty($core) or empty($core->register['ready'])){
+            if(!$core->register['ready']){
                 /*
                  * Configuration hasn't been loaded yet, we cannot even know if we are
                  * in debug mode or not!
@@ -256,11 +256,11 @@ try{
                     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
                 }
 
-                foreach($e->getMessages as $message){
+                foreach($e->getMessages() as $message){
                     error_log($message);
                 }
 
-                die('pre ready exception');
+                die('Pre ready exception');
             }
 
             if($e->getCode() === 'validation'){
@@ -383,15 +383,15 @@ try{
     }
 
 }catch(Exception $f){
+    if(!defined('PLATFORM') or !$core->register['ready']){
+        error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => SCRIPT)));
+        error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+        error_log($f->getMessage());
+        die('Pre ready exception with handling failure');
+    }
+
     log_file('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 'exception-handler', 'red');
     log_file($f, 'exception-handler');
-
-    if(!defined('PLATFORM')){
-        /*
-         * Wow, system crashed before platform detection. See $core->__constructor()
-         */
-        die('exception handler');
-    }
 
     switch(PLATFORM){
         case 'cli':

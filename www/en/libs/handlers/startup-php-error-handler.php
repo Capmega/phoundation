@@ -1,7 +1,7 @@
 <?php
 global $core;
 
-if(empty($core->register['ready'])){
+if(!$core->register['ready']){
     throw new bException('Pre core-ready PHP ERROR ['.$errno.'] "'.$errstr.'" in "'.$errfile.'@'.$errline.'"', $errno);
 }
 
