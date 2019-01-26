@@ -116,13 +116,29 @@ function route($regex, $target, $flags = null){
         }
 
         /*
-         * Apply regex replacements
+         * Apply regex variables replacements
          */
-        if(preg_match_all('/\$(\d+)/', $target, $replacements)){
+        if(preg_match_all('/\$(\d+)/', $route, $replacements)){
             unset($replacements[0]);
+
+            if($route[0] == '$'){
+                /*
+                 * The target page itself is a regex replacement! We can only
+                 * match if the file exist
+                 */
+                $replace_page = true;
+            }
 
             foreach($replacements as $replacement){
                 $route = str_replace('$'.$replacement[0], $matches[$replacement[0] + 1][0], $route);
+            }
+
+            if(str_exists($route, '$')){
+                /*
+                 * There are regex variables left that were not replaced.
+                 * Replace them with nothing
+                 */
+                $route = preg_replace('/\$\d/', '', $route);
             }
         }
 
@@ -163,7 +179,27 @@ function route($regex, $target, $flags = null){
          * Split the route into the page name and GET requests
          */
         $page = str_until($route, '?');
-        $get  = str_from($route , '?');
+        $get  = str_from($route , '?', 0, true);
+
+        if(isset($replace_page)){
+            /*
+             * Ensure the target page exists, else we did not match
+             */
+            if(!page_show($page, array('exists' => true))){
+                return false;
+            }
+        }
+
+        /*
+         * If we have GET parameters, add them to the $_GET array
+         */
+        if($get){
+            $get = explode('&', $get);
+
+            foreach($get as $entry){
+                $_GET[str_until($entry, '=')] = str_from($entry, '=', 0, true);
+            }
+        }
 
         /*
          * Create $_GET variables
