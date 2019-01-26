@@ -1210,4 +1210,56 @@ function array_hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDE
         throw new bException('array_merge_null(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Returns the value of the first element of the specified array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package array
+ * @see array_last()
+ * @version 1.27.0: Added function and documentation
+ *
+ * @param array $source The source array from which the first value must be returned
+ * @return mixed The first value of the specified source array
+ */
+function array_first($source){
+    try{
+        reset($source);
+        return current($source);
+
+    }catch(Exception $e){
+        throw new bException('array_first(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns the value of the last element of the specified array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package array
+ * @see array_first()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @version 1.27.0: Added function and documentation
+ *
+ * @param array $source The source array from which the last value must be returned
+ * @return mixed The last value of the specified source array
+ */
+function array_last($source){
+    try{
+        return end($source);
+
+    }catch(Exception $e){
+        throw new bException('array_last(): Failed', $e);
+    }
+}
 ?>
