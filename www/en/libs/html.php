@@ -669,11 +669,11 @@ function html_header($params = null, $meta = array()){
         }
 
         if(empty($meta['description'])){
-            throw new bException(tr('html_header(): No header meta description specified for script "%script%" (SEO!)', array('%script%' => SCRIPT)), '');
+            throw new bException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
         }
 
         if(empty($meta['keywords'])){
-            throw new bException(tr('html_header(): No header meta keywords specified for script "%script%" (SEO!)', array('%script%' => SCRIPT)), '');
+            throw new bException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
         }
 
         if(!empty($meta['noindex'])){
@@ -1707,7 +1707,7 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
         }
 
         /*
-         * SCRIPT tags are added all at the end of the page for faster loading
+         * $core->register[script] tags are added all at the end of the page for faster loading
          * (and to avoid problems with jQuery not yet being available)
          */
         if(empty($core->register('script_delayed'))){

@@ -221,7 +221,7 @@ return false;
     }catch(Exception $e){
         log_console(tr('notifications_send(): Notification system failed with ":exception"', array(':exception' => $e->getMessage())), 'error');
 
-        if(SCRIPT != 'init'){
+        if($core->register['script'] != 'init'){
             if(empty($_CONFIG['mail']['developer'])){
                 log_console('[notifications_send() FAILED : '.strtoupper($_SESSION['domain']).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']');
                 log_console(tr("notifications_send() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification $params was: \":params\"", array(':params' => $params)));

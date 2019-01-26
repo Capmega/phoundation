@@ -23,12 +23,12 @@ try{
 
     $executed = true;
 
-    if(!defined('SCRIPT')){
-        define('SCRIPT', tr('unknown'));
+    if(empty($core->register['script'])){
+        $core->register('script', 'unknown');
     }
 
     if($core->register['ready']){
-        log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => SCRIPT)), 'exceptions', 'error');
+        log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => $core->register['script'])), 'exceptions', 'error');
         log_file($e, 'exceptions');
     }
 
@@ -157,7 +157,7 @@ try{
                 }
             }
 
-            log_console(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => SCRIPT)), 'red');
+            log_console(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'])), 'red');
             debug(true);
 
             if($e instanceof bException){
@@ -184,7 +184,7 @@ try{
                         log_console('    '.$message, 'exception');
                     }
 
-                    log_console('    '.SCRIPT.': Failed', 'exception');
+                    log_console('    '.$core->register['script'].': Failed', 'exception');
                     log_console(tr('Exception function trace:'), 'exception');
 
                     if($trace){
@@ -227,7 +227,6 @@ try{
             }
 
             $defines = array('ADMIN'    => '',
-                             'SCRIPT'   => str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php'),
                              'PWD'      => slash(isset_get($_SERVER['PWD'])),
                              'STARTDIR' => slash(getcwd()),
                              'FORCE'    => (getenv('FORCE')                    ? 'FORCE'   : null),
@@ -328,13 +327,13 @@ try{
                             <table class="exception">
                                 <thead>
                                     <td colspan="2" class="center">
-                                        '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => SCRIPT, 'type' => $core->callType())).'
+                                        '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'], 'type' => $core->callType())).'
                                     </td>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td colspan="2" class="center">
-                                            '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => SCRIPT)).'
+                                            '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => $core->register['script'])).'
                                         </td>
                                     </tr>
                                     <tr>
@@ -384,7 +383,7 @@ try{
 
 }catch(Exception $f){
     if(!defined('PLATFORM') or !$core->register['ready']){
-        error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => SCRIPT)));
+        error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
         error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
         error_log($f->getMessage());
         die('Pre ready exception with handling failure');
@@ -395,7 +394,7 @@ try{
 
     switch(PLATFORM){
         case 'cli':
-            log_console(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => SCRIPT)), 'red');
+            log_console(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])), 'red');
             log_console(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'), 'red');
 
             debug(true);
@@ -409,7 +408,7 @@ try{
                 page_show(500);
             }
 
-            show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => SCRIPT)));
+            show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
             show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
 
             show($f);

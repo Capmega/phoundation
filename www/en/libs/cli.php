@@ -391,7 +391,7 @@ function cli_readline($prompt = '', $hidden = false, $question_fore_color = null
 
 /*
  * Returns the current script that is running. script_exec() allows other
- * scripts to be run from the first, original, SCRIPT, this function returns the
+ * scripts to be run from the first, original, $core->register['script'], this function returns the
  * script currently running from script_exec()
  */
 function cli_current_script(){
@@ -399,7 +399,7 @@ function cli_current_script(){
 
     try{
         if(empty($core->register['scripts'])){
-            return SCRIPT;
+            return $core->register['script'];
         }
 
         return str_rfrom(end($core->register['scripts']), '/');
@@ -597,6 +597,8 @@ under_construction();
  * Returns true if the startup script is already running
  */
 function cli_run_once($action = 'exception', $force = false){
+    global $core;
+
     try{
         if(!PLATFORM_CLI){
             throw new bException('cli_run_once(): This function does not work for platform "'.PLATFORM.'", it is only for "shell" usage');
@@ -619,7 +621,7 @@ function cli_run_once($action = 'exception', $force = false){
 
             $process = str_until(str_rfrom($matches[1], '/'), ' ');
 
-            if($process == SCRIPT){
+            if($process == $core->register['script']){
                 if(++$count >= 2){
                     switch($action){
                         case 'exception':
@@ -1335,14 +1337,14 @@ function cli_done(){
                 /*
                  * Script ended with warning
                  */
-                log_console(tr('Script ":script" ended with warning in :time with ":usage" peak memory usage', array(':script' => SCRIPT, ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'yellow');
+                log_console(tr('Script ":script" ended with warning in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'yellow');
 
             }else{
-                log_console(tr('Script ":script" failed in :time with ":usage" peak memory usage', array(':script' => SCRIPT, ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'red');
+                log_console(tr('Script ":script" failed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'red');
             }
 
         }else{
-            log_console(tr('Finished ":script" script in :time with ":usage" peak memory usage', array(':script' => SCRIPT, ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'green');
+            log_console(tr('Finished ":script" script in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'green');
         }
 
     }catch(Exception $e){

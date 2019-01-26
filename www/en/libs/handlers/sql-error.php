@@ -111,7 +111,7 @@ try{
                      */
                     static $retry;
 
-                    if((SCRIPT == 'init')){
+                    if(($core->register['script'] == 'init')){
                         if($retry){
                             $e = new bException(tr('sql_error(): Cannot use database ":db", it does not exist and cannot be created automatically with the current user ":user"', array(':db' => isset_get($query['db']), ':user' => isset_get($query['user']))), $e);
                             $e->addMessages(tr('sql_error(): Possible reason can be that the configured user does not have the required GRANT to create database'));

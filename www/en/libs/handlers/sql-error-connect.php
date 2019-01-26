@@ -1,6 +1,6 @@
 <?php
 try{
-    global $_CONFIG;
+    global $_CONFIG. $core;
 
     if($e->getMessage() == 'could not find driver'){
         throw new bException(tr('sql_connect(): Failed to connect with ":driver" driver, it looks like its not available', array(':driver' => $connector['driver'])), 'driverfail');
@@ -28,7 +28,7 @@ try{
              */
             $core->register['no-db'] = true;
 
-            if(!((PLATFORM_CLI) and (SCRIPT == 'init'))){
+            if(!((PLATFORM_CLI) and ($core->register['script'] == 'init'))){
                 throw $e;
             }
 

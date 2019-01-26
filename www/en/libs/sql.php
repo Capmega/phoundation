@@ -391,7 +391,7 @@ function sql_init($connector = null){
         /*
          * This is only required for the system connection
          */
-        if((PLATFORM_CLI) and (SCRIPT == 'init') and FORCE and !empty($_CONFIG['db'][$connector]['init'])){
+        if((PLATFORM_CLI) and ($core->register['script'] == 'init') and FORCE and !empty($_CONFIG['db'][$connector]['init'])){
             include(__DIR__.'/handlers/sql-init-force.php');
         }
 

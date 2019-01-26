@@ -9,9 +9,9 @@
 
 
 /*
- * Make sure we have the script command available
+ * Make sure we have the original script command available
  */
-define('SCRIPT', str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php'));
+$core->register['script']         = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
 $core->register['script_command'] = implode(' ', $GLOBALS['argv']);
 
 
