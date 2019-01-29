@@ -83,7 +83,7 @@ try{
 
     if($clear_session_redirect){
         if(!empty($_SESSION)){
-            unset($_SESSION['redirect']);
+            unset($_GET['redirect']);
             unset($_SESSION['sso_referrer']);
         }
     }

@@ -1830,7 +1830,7 @@ function domain($current_url = false, $query = null, $prefix = null, $domain = n
             $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix;
 
         }elseif($current_url === true){
-            $retval = $_CONFIG['protocol'].$domain.$_SERVER['REQUEST_URI'];
+            $retval = $_CONFIG['protocol'].$domain.str_starts($_SERVER['REQUEST_URI'], '/');
 
         }else{
             if($prefix){
@@ -2732,8 +2732,6 @@ function page_show($pagename, $params = null, $get = null){
         array_params($params, 'message');
         array_default($params, 'exists', false);
 
-        log_file(tr('Showing page ":page"', array(':page' => $pagename)), 'page_show', 'VERBOSE/cyan');
-
         if($get){
             if(!is_array($get)){
                 throw new bException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
@@ -2790,6 +2788,8 @@ function page_show($pagename, $params = null, $get = null){
                 if($params['exists']){
                     return file_exists(ROOT.'www/'.$language.'/'.$prefix.$pagename.'.php');
                 }
+
+                log_file(tr('Showing page ":page"', array(':page' => $pagename)), 'page-show', 'VERBOSE/cyan');
 
                 if(!file_exists(ROOT.'www/'.$language.'/'.$prefix.$pagename.'.php')){
                     if($pagename == '404'){

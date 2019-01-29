@@ -88,11 +88,11 @@ function redirect_url($url = null){
             $url = domain(true);
         }
 
-        if(empty($core->register['redirect'])){
+        if(empty($_GET['redirect'])){
             return $url;
         }
 
-        return url_add_query($url, 'redirect='.urlencode($core->register['redirect']));
+        return url_add_query($url, 'redirect='.urlencode($_GET['redirect']));
 
     }catch(Exception $e){
         throw new bException('redirect_url(): Failed', $e);
@@ -119,13 +119,13 @@ function session_redirect($method = 'http', $force = false){
             $redirect = $_GET['redirect'];
             unset($_GET['redirect']);
 
-        }elseif(!empty($_SESSION['redirect'])){
+        }elseif(!empty($_GET['redirect'])){
             /*
              * Redirect by _SESSION redirect
              */
-            $redirect = $_SESSION['redirect'];
+            $redirect = $_GET['redirect'];
 
-            unset($_SESSION['redirect']);
+            unset($_GET['redirect']);
             unset($_SESSION['sso_referrer']);
         }
 

@@ -914,7 +914,7 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
                 $redirect = $_GET['redirect'];
 
             }elseif(isset_get($_GET['redirect'])){
-                $redirect = $_SESSION['redirect'];
+                $redirect = $_GET['redirect'];
             }
         }
 
