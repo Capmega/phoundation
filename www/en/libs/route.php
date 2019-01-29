@@ -54,19 +54,26 @@ function route($regex, $target, $flags = null){
             $regex = '/^$/';
         }
 
-        $_SERVER['REQUEST_URI'] = str_starts_not($_SERVER['REQUEST_URI'], '/');
+        /*
+         * Cleanup the request URI by removing all GET requests and the leading
+         * slash
+         */
+        $uri = str_starts_not($_SERVER['REQUEST_URI'], '/');
+        $uri = str_until($uri                        , '?');
 
         /*
          * Match the specified regex. If there is no match, there is nothing
          * else to do for us here
          */
-        log_file(tr('Testing rule ":count" ":regex" on ":url"', array(':count' => $count++, ':regex' => $regex, ':url' => $_SERVER['REQUEST_URI'])), 'route', 'VERYVERBOSE/cyan');
+        log_file(tr('Testing rule ":count" ":regex" on ":url"', array(':count' => $count++, ':regex' => $regex, ':url' => $uri)), 'route', 'VERYVERBOSE/cyan');
 
-        $match  = preg_match_all($regex, $_SERVER['REQUEST_URI'], $matches);
+        $match = preg_match_all($regex, $uri, $matches);
 
         if(!$match){
             return false;
         }
+
+        log_file(tr('Regex ":regex" matched', array(':regex' => $regex)), 'route', 'VERYVERBOSE/green');
 
         $route = $target;
 
@@ -119,8 +126,6 @@ function route($regex, $target, $flags = null){
          * Apply regex variables replacements
          */
         if(preg_match_all('/\$(\d+)/', $route, $replacements)){
-            unset($replacements[0]);
-
             if($route[0] == '$'){
                 /*
                  * The target page itself is a regex replacement! We can only
@@ -129,15 +134,24 @@ function route($regex, $target, $flags = null){
                 $replace_page = true;
             }
 
-            foreach($replacements as $replacement){
-                $route = str_replace('$'.$replacement[0], $matches[$replacement[0] + 1][0], $route);
+            foreach($replacements[1] as $replacement){
+                try{
+                    if(!$replacement[0] or empty($matches[$replacement[0]])){
+                        throw new bException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
+                    }
+
+                    $route = str_replace('$'.$replacement[0], $matches[$replacement[0]][0], $route);
+
+                }catch(Exception $e){
+                    log_file(tr('Ignoring regex ":regex" because route ":route" has error ":e"', array(':regex' => $regex, ':route' => $route, ':e' => $e->getMessage())), 'route', 'yellow');
+                }
             }
 
             if(str_exists($route, '$')){
                 /*
                  * There are regex variables left that were not replaced.
                  * Replace them with nothing
-                 */
+                  */
                 $route = preg_replace('/\$\d/', '', $route);
             }
         }
@@ -148,6 +162,13 @@ function route($regex, $target, $flags = null){
          */
         foreach(array_force($flags) as $flag){
             switch($flag[0]){
+                case 'Q':
+                    /*
+                     * Let GET request queries pass through
+                     */
+                    $get = true;
+                    break;
+
                 case 'R':
                     /*
                      * Validate the HTTP code to use, then redirect to the
@@ -176,6 +197,14 @@ function route($regex, $target, $flags = null){
         }
 
         /*
+         * Do we allow any $_GET queries from the REQUEST_URI?
+         */
+        if(empty($get)){
+            $_GET          = array();
+            $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
+        }
+
+        /*
          * Split the route into the page name and GET requests
          */
         $page = str_until($route, '?');
@@ -186,6 +215,7 @@ function route($regex, $target, $flags = null){
              * Ensure the target page exists, else we did not match
              */
             if(!page_show($page, array('exists' => true))){
+                log_file(tr('Matched page ":page" does not exist, cancelling match', array(':page' => $page)), 'route', 'VERYVERBOSE');
                 return false;
             }
         }
@@ -210,6 +240,9 @@ function route($regex, $target, $flags = null){
 
     }catch(Exception $e){
         if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){
+            /*
+             * A "user" regex failed, give pretty error
+             */
             throw new bException(tr('route(): Failed to process regex ":regex" with error ":e"', array(':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '"')))), 'syntax');
         }
 
