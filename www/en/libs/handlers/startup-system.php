@@ -189,28 +189,13 @@ try{
 
 
 /*
- * Check if some session redirect was requested
- */
-if(isset($_GET['redirect'])){
-    $_SESSION['redirect'] = $_GET['redirect'];
-}
-
-
-
-
-/*
- * If POST request, automatically untranslate translated POST entries
+ * System pages cannot do $_POST requests
  */
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    html_untranslate();
-
-    if($_CONFIG['security']['csrf']['enabled'] === 'force'){
-        /*
-         * Force CSRF checks on every submit!
-         */
-        check_csrf();
-    }
+    $_POST = array();
+    throw new bException(tr('core::startup(): system pages cannot do POST requests'), '400');
 }
+
 
 
 // :TODO: What to do with this?

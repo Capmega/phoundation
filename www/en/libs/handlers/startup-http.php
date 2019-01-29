@@ -191,15 +191,6 @@ try{
 
 
 /*
- * Check if some session redirect was requested
- */
-if(isset($_GET['redirect'])){
-    $_SESSION['redirect'] = $_GET['redirect'];
-}
-
-
-
-/*
  * If POST request, automatically untranslate translated POST entries
  */
 if($_SERVER['REQUEST_METHOD'] == 'POST'){

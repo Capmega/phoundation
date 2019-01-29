@@ -188,15 +188,6 @@ try{
 
 
 
-/*
- * Check if some session redirect was requested
- */
-if(isset($_GET['redirect'])){
-    $_SESSION['redirect'] = $_GET['redirect'];
-}
-
-
-
 // :TODO: What to do with this?
 //$_CONFIG['cdn']['prefix'] = slash($_CONFIG['cdn']['prefix']);
 //
