@@ -85,6 +85,27 @@ function html_iefilter($html, $filter){
 
 /*
  * Bundles CSS or JS files together into one larger file with an md5 name
+ *
+ * This function will bundle the CSS and JS files required for the current page into one large file and have that one sent to the browser instead of all the individual files. This will improve transfer speeds to the client.
+ *
+ * The bundler file name will be a sha1() of the list of required files plus the current framework and project versions. This way, if two pages have two different lists of files, they will have two different bundle files. Also, as each deply causes at least a new project version, each deploy will also cause new bundle file names which simplifies caching for the client; we can simply set caching to a month or longer and never worry about it anymore.
+ *
+ * The bundler files themselves will also be cached (by default one day, see $_CONFIG[cdn][bundler][max_age]) in pub/css/bundler-* for CSS files and pub/js/bundler-* for javascript files. The cache script can clean these files when executed with the "clean" method
+ *
+ * This function is called automatically by the html_generate_css() and html_generate_js() calls and should not be used by the developer.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ * @see html_generate_css()
+ * @see html_generate_js()
+ * @see html_minify()
+ * @version 1.27.0: Added documentation
+ *
+ * @param string $type One of "css", "js_header", or "js_footer".  Specified what file list to bundle.  "css" bundles all CSS files, "js_header" bundles all files for the <script> tag in the <head> section, and "js_footer" bundles all files that go in the <script> tag of the footer of the HTML file
+ * @return boolean False if no bundling has been applied, true if bundling was applied
  */
 function html_bundler($type){
     global $_CONFIG, $core;
@@ -113,12 +134,19 @@ function html_bundler($type){
         }
 
         /*
-         * Prepare bundle information
+         * Prepare bundle information. The bundle file name will be a hash of
+         * the bundle file names and the framework and project code versions.
+         * This way, if the framework version or code version get bumped up,
+         * the bundle filename will be different, avoiding caching issues. Since
+         * the deploy script will automatically bump the project version on
+         * deploy, each deploy will cause different bundle filenames. With this
+         * we can easily set caching to a year if needed, any updates to CSS or
+         * JS will cause the client browser to load the new bundle files.
          */
         $admin_path  = ($core->callType('admin') ? 'admin/'           : '');
         $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$extension : '.'.$extension);
         $bundle      =  str_force(array_keys($core->register[$type]));
-        $bundle      =  substr(md5($bundle), 1, 16);
+        $bundle      =  substr(sha1($bundle.FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
         $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
 
@@ -277,6 +305,7 @@ function html_bundler($type){
 
 // :TODO: Add support for individual bundles that require async loading
         $core->register[$type]['bundle-'.$bundle] = false;
+        return true;
 
     }catch(Exception $e){
         throw new bException('html_bundler(): Failed', $e);
