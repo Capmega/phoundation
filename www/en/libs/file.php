@@ -394,7 +394,7 @@ function file_ensure_path($path, $mode = null){
                          * Some normal file is in the way. Delete the file, and
                          * retry
                          */
-                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path) use ($mode){
+                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
                             file_delete($path);
                         });
 
@@ -407,7 +407,7 @@ function file_ensure_path($path, $mode = null){
                     /*
                      * This is a dead symlink, delete it
                      */
-                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path) use ($mode){
+                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
                         file_delete($path);
                     });
                 }
@@ -417,7 +417,7 @@ function file_ensure_path($path, $mode = null){
                      * Make sure that the parent path is writable when creating
                      * the directory
                      */
-                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path) use ($mode){
+                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
                         mkdir($path, $mode);
                     });
 
