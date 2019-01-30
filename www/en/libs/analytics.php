@@ -16,6 +16,30 @@
 
 
 /*
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ *
+ * @return void
+ */
+function analytics_library_init(){
+    try{
+        load_config('analytics');
+
+    }catch(Exception $e){
+        throw new bException('analytics_library_init(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Return analytics tracking code with the specified $sites_id using the configured provider
  *
  * The output of this function must be added before the </head> tag, preferably using $params[extra] in c_html_header()
@@ -96,13 +120,12 @@ function analytics_matomo($sites_id){
              */
             $file = file_get_local('https://'.$_CONFIG['analytics']['matomo_domain'].'/piwik.js');
 
-            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function(){
-                $path = ROOT.'www/'.LANGUAGE.'/pub/js/';
-                mkdir($path.'matomo', 0550);
+            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+                file_ensure_path($path.'matomo', 0550);
 
-                file_execute_mode($path.'matomo', 0770, function(){
-                    rename($file, $path.'matomo/piwik.js');
-                    chmod($path.'matomo/piwik.js', 0440);
+                file_execute_mode($path.'matomo/', 0770, function($path) use ($file) {
+                    rename($file, $path.'piwik.js');
+                    chmod($path.'piwik.js', 0440);
                 });
             });
         }
@@ -164,13 +187,12 @@ function analytics_google($code){
              */
             $file = file_get_local('https://www.google-analytics.com/analytics.js');
 
-            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function(){
-                $path = ROOT.'www/'.LANGUAGE.'/pub/js/';
-                mkdir($path.'google', 0550);
+            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+                file_ensure_path($path.'google', 0550);
 
-                file_execute_mode($path.'google', 0770, function(){
-                    rename($file, $path.'google/analytics.js');
-                    chmod($path.'google/analytics.js', 0440);
+                file_execute_mode($path.'google/', 0770, function($path) use ($file) {
+                    rename($file, $path.'analytics.js');
+                    chmod($path.'analytics.js', 0440);
                 });
             });
         }
