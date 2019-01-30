@@ -125,7 +125,7 @@ switch(cli_method()){
             $server     = cli_argument(2);
 
             cli_no_arguments_left();
-            $devices = devices_lscan_usb($filters, $server);
+            $devices = devices_scan_usb($filters, $server);
 
             foreach($devices as $device){
                 devices_insert($device, $server);

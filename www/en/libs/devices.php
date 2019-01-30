@@ -755,7 +755,7 @@ function devices_clear($product){
  * @param
  * @return
  */
-function devices_lscan_usb($filters, $server){
+function devices_scan_usb($filters, $server){
     try{
         load_libs('servers');
 
@@ -805,7 +805,31 @@ function devices_lscan_usb($filters, $server){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('devices_lscan_usb(): Failed', $e);
+        throw new bException('devices_scan_usb(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Scan all servers for devices within the specified filters
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package devices
+ * @version 1.27.1: Added function and documentation
+ *
+ * @param
+ * @return
+ */
+function devices_scan_servers($filters){
+    try{
+        load_libs('servers');
+
+    }catch(Exception $e){
+        throw new bException('devices_scan_servers(): Failed', $e);
     }
 }
 ?>
