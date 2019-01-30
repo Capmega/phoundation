@@ -412,11 +412,35 @@ function cli_current_script(){
 
 
 /*
- * Returns true if the startup script is already running
+ * Ensure that the current script file cannot be run twice
+ *
+ * This function will ensure that the current script file cannot be run twice. In order to do this, it will create a run file in data/run/SCRIPTNAME with the current process id. If, upon starting, the script file already exists, it will check if the specified process id is available, and if its process name matches the current script name. If so, then the system can be sure that this script is already running, and the function will throw an exception
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 1.27.1: Added documentation
+ * @example Have a script run itself recursively, which will be stopped by cli_run_once_local()
+ * code
+ * log_console('Started test');
+ * cli_run_once_local();
+ * safe_exec($core->register('script'));
+ * cli_run_once_local(true);
+ * /code
+ *
+ * This would return
+ * Started test
+ * cli_run_once_local(): The script ":script" for this project is already running
+ * /code
+ *
+ * @param boolean $close If set true, the function will stop ensuring that the script won't be run again
+ * @return void
  */
 function cli_run_once_local($close = false){
     global $core;
-    static $executed = array();
+    static $executed = false;
 
     try{
         $run_dir = ROOT.'data/run/';
@@ -426,27 +450,26 @@ function cli_run_once_local($close = false){
         file_ensure_path($run_dir);
 
         if($close){
-            if(empty($executed[$script])){
+            if(!$executed){
                 /*
                  * Hey, this script is being closed but was never opened?
                  */
-                throw new bException(tr('cli_run_once_local(): cli_run_once_local() has been called with close option, but it was never opened'), 'invalid');
+                throw new bException(tr('cli_run_once_local(): The function has been called with close option, but it was never opened'), 'invalid');
             }
 
             file_delete($run_dir.$script);
-            unset($executed[$script]);
-            return true;
+            $executed = false;
         }
 
-        if(isset($executed[$script])){
+        if($executed){
             /*
              * Hey, script has already been run before, and its run again
              * without the close option, this should never happen!
              */
-            throw new bException(tr('cli_run_once_local(): cli_run_once_local() has been called twice by script ":script" without $close set to true! This function should be called twice, once without argument, and once with boolean "true"', array(':script' => $script)), 'invalid');
+            throw new bException(tr('cli_run_once_local(): The function has been called twice by script ":script" without $close set to true! This function should be called twice, once without argument, and once with boolean "true"', array(':script' => $script)), 'invalid');
         }
 
-        $executed[$script] = true;
+        $executed = true;
 
         if(file_exists($run_dir.$script)){
             /*
@@ -487,7 +510,6 @@ function cli_run_once_local($close = false){
          */
         file_put_contents($run_dir.$script, getmypid());
         $core->register('shutdown_cli_run_once_local', array(true));
-        return true;
 
     }catch(Exception $e){
         if($e->getCode() == 'already-running'){
@@ -507,7 +529,7 @@ function cli_run_once_local($close = false){
  * Returns true if the startup script is already running
  */
 function cli_run_max_local($processes){
-    static $executed = array();
+    static $executed = false;
 under_construction();
     try{
         $run_dir = ROOT.'data/run/';
@@ -517,7 +539,7 @@ under_construction();
         file_ensure_path($run_dir);
 
         if($processes === false){
-            if(empty($executed[$script])){
+            if(!$executed){
                 /*
                  * Hey, this script is being closed but was never opened?
                  */
@@ -525,11 +547,11 @@ under_construction();
             }
 
             file_delete($run_dir.$script);
-            unset($executed[$script]);
+            $executed = false;
             return true;
         }
 
-        if(!empty($executed[$script])){
+        if($executed){
             /*
              * Hey, script has already been run before, and its run again
              * without the close option, this should never happen!
@@ -537,7 +559,7 @@ under_construction();
             throw new bException(tr('cli_run_max_local(): The cli_run_max_local() has been called twice by script ":script" without $processes set to false! This function should be called twice, once without argument, and once with boolean "true"', array(':script' => $script)), 'invalid');
         }
 
-        $executed[$script] = true;
+        $executed = true;
 
         if(file_exists($run_dir.$script)){
             /*
