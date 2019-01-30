@@ -1051,25 +1051,45 @@ function ssh_add_known_host($domain, $port){
  * @param natural $port
  * @return natural The amount of fingerprints removed
  */
-function ssh_remove_known_host($domain, $port){
+function ssh_remove_known_host($domain, $port = null){
     try{
         if(empty($domain)){
             throw new bException(tr('ssh_remove_known_host(): No domain specified'), 'not-specified');
         }
 
         $count = 0;
-        $port  = ssh_get_port($port);
 
-        sql_query('DELETE FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', array(':domain' => $domain, ':port' => $port));
+        if($port){
+            /*
+             * Delete only the specified domain and port combination
+             */
+            $port = ssh_get_port($port);
+            sql_query('DELETE FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', array(':domain' => $domain, ':port' => $port));
+
+        }else{
+            /*
+             * Delete everything for the specified domain
+             */
+            sql_query('DELETE FROM `ssh_fingerprints` WHERE `domain` = :domain', array(':domain' => $domain));
+        }
+
 
         file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
         file_delete(ROOT.'data/ssh/known_hosts~update');
 
+        /*
+         * Copy the lines that should not be deleted to the new file
+         */
         $f1 = fopen(ROOT.'data/ssh/known_hosts'       , 'r');
         $f2 = fopen(ROOT.'data/ssh/known_hosts~update', 'w+');
 
         while($line = fgets($f1)){
-            $found = preg_match('/^\['.$domain.'\]\:'.$port.'\s+/', $line);
+            if($port){
+                $found = preg_match('/^\['.$domain.'\]\:'.$port.'\s+/', $line);
+
+            }else{
+                $found = preg_match('/^\['.$domain.'\]/', $line);
+            }
 
             if(!$found){
                 fputs($f2, $line);
@@ -1082,6 +1102,9 @@ function ssh_remove_known_host($domain, $port){
         fclose($f1);
         fclose($f2);
 
+        /*
+         * Move the new file in place of the old one
+         */
         file_delete(ROOT.'data/ssh/known_hosts');
         rename(ROOT.'data/ssh/known_hosts~update', ROOT.'data/ssh/known_hosts');
 
