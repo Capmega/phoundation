@@ -162,6 +162,12 @@ function servers_validate($server, $structure_only = false, $password_strength =
 
             $server['domains'][] = domains_ensure($server['domain'], 'domain');
             $server['domains']   = array_unique($server['domains']);
+
+        }else{
+            /*
+             * The current domain is all the domains registered for this server
+             */
+            $server['domains'] = array($server['domain']);
         }
 
         $v->isScalar($server['seoprovider'], tr('Please specify a valid provider')   , VALIDATE_ALLOW_EMPTY_NULL);
@@ -268,11 +274,13 @@ function servers_insert($server){
 
         $server['id'] = sql_insert_id();
 
+        log_console(tr('Inserted server ":domain" with id ":id"', array(':domain' => $server['domain'], ':id' => $server['id'])), 'VERBOSE/green');
+
         if($server['register']){
             ssh_add_known_host($server['domain'], $server['port']);
         }
 
-        servers_update_domains($server['id'], $server['domains']);
+        servers_update_domains($server, $server['domains']);
         return $server;
 
     }catch(Exception $e){
@@ -298,6 +306,8 @@ function servers_erase($server){
     try{
         $server = servers_get($server);
 
+        ssh_remove_known_host($server['domain']);
+        servers_update_domains($server);
         servers_remove_domain($server);
         servers_unregister_host($server);
 
@@ -364,7 +374,8 @@ function servers_update($server){
                          ':description'             =>  $server['description'],
                          ':ipv4'                    =>  $server['ipv4']));
 
-        servers_update_domains($server['id'], $server['domains']);
+        log_console(tr('Updated server ":domain" with id ":id"', array(':domain' => $server['domain'], ':id' => $server['id'])), 'VERBOSE/green');
+        servers_update_domains($server, $server['domains']);
         return $server;
 
     }catch(Exception $e){
@@ -507,11 +518,11 @@ function servers_select($params = null){
  * @param array $domains The domains which will be linked to the specified server. May be specified by id, domain, seodomain, or domains array
  * @return The amount of domains added for the server
  */
-function servers_update_domains($server, $domains){
+function servers_update_domains($server, $domains = null){
     try{
-        $server = servers_get_id($server);
+        $servers_id = servers_get_id($server);
 
-        sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $server));
+        sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id));
 
         if(empty($domains)){
             return false;
@@ -521,10 +532,22 @@ function servers_update_domains($server, $domains){
                                VALUES                        (:createdby , :meta_id , :domains_id , :servers_id )');
 
         foreach($domains as $domain){
+            /*
+             * Get the $domains_id. If the domain doesn't exist, auto add it.
+             */
+            $domains_id = domains_get_id($domain);
+
+            if(!$domains_id){
+                $domain = domains_insert(array('domain'       => $server['domain'],
+                                               'seodomain'    => $server['seodomain'],
+                                               'customers_id' => $server['customers_id'],
+                                               'providers_id' => $server['providers_id']));
+            }
+
             $insert->execute(array(':meta_id'    => meta_action(),
                                    ':createdby'  => isset_get($_SESSION['user']['id']),
-                                   ':servers_id' => $server,
-                                   ':domains_id' => domains_get_id($domain)));
+                                   ':servers_id' => $servers_id,
+                                   ':domains_id' => $domain['id']));
         }
 
         return count($domains);
