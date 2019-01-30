@@ -8,5 +8,6 @@
  * @category Configuration
  * @package analytics
  */
-$_CONFIG['analytics']                                                           = array('backend' => '');               // One of "google" or "matomo"
+$_CONFIG['analytics']                                                           = array('provider'      => '',          // One of "google" or "matomo"
+                                                                                        'matomo_domain' => '');         // In case of matomo provider, pleas specify your matomo domain here
 ?>

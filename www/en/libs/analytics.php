@@ -2,10 +2,15 @@
 /*
  * Analytics library
  *
- * This is an empty template library file
+ * This library provides client analytics plugins.
  *
+ * Currently supported providers are google analytics, matomo analytics
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package analytics
  */
 
 
@@ -30,6 +35,8 @@
  * @return string The HTML required to have the client register with your matomo tracking site
  */
 function analytics($sites_id){
+    global $_CONFIG;
+
     try{
         switch($_CONFIG['analytics']['provider']){
             case 'google':
@@ -67,6 +74,8 @@ function analytics($sites_id){
  * @return string The HTML required to have the client register with your matomo tracking site
  */
 function analytics_matomo($sites_id){
+    global $_CONFIG;
+
     try{
         if(!$sites_id){
             throw new bException(tr('analytics_matomo(): No sites_id specified'), 'not-specified');
@@ -74,6 +83,28 @@ function analytics_matomo($sites_id){
 
         if(!is_natural($sites_id)){
             throw new bException(tr('analytics_matomo(): Invalid sites_id ":sites_id" specified', array(':sites_id' => $sites_id)), 'not-specified');
+        }
+
+        /*
+         * Ensure we have the analytics file available on our CDN system
+         */
+// :TODO: Right now we're only testing this locally, we should test this on the CDN network system! This lookup may be heavy though, so maybe we should do that once every 100 page views or something
+        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/matomo/piwik.js')){
+            /*
+             * Download the file from google analytics and install it in our
+             * local CDN
+             */
+            $file = file_get_local('https://'.$_CONFIG['analytics']['matomo_domain'].'/piwik.js');
+
+            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function(){
+                $path = ROOT.'www/'.LANGUAGE.'/pub/js/';
+                mkdir($path.'matomo', 0550);
+
+                file_execute_mode($path.'matomo', 0770, function(){
+                    rename($file, $path.'matomo/piwik.js');
+                    chmod($path.'matomo/piwik.js', 0440);
+                });
+            });
         }
 
         return '    <script type="text/javascript">
@@ -88,7 +119,7 @@ function analytics_matomo($sites_id){
                         g.type="text/javascript"; g.async=true; g.defer=true; g.src="'.cdn_domain('/js/matomo/piwik.js').'"; s.parentNode.insertBefore(g,s);
                       })();
                     </script>
-                    <noscript><p><img src="//analytics.capmega.com/piwik.php?idsite='.$sites_id.'&amp;rec=1" style="border:0;" alt="" /></p></noscript>';
+                    <noscript><p><img src="//'.$_CONFIG['analytics']['matomo_domain'].'/piwik.php?idsite='.$sites_id.'&amp;rec=1" style="border:0;" alt="" /></p></noscript>';
 
     }catch(Exception $e){
         throw new bException('analytics_matomo(): Failed', $e);
@@ -117,15 +148,38 @@ function analytics_matomo($sites_id){
  * @return string The HTML required to have the client register with google analytics
  */
 function analytics_google($code){
-    global $_CONFIG;
-
     try{
+        if(!$sites_id){
+            throw new bException(tr('analytics_google(): No sites_id specified'), 'not-specified');
+        }
+
+        /*
+         * Ensure we have the analytics file available on our CDN system
+         */
+// :TODO: Right now we're only testing this locally, we should test this on the CDN network system! This lookup may be heavy though, so maybe we should do that once every 100 page views or something
+        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')){
+            /*
+             * Download the file from google analytics and install it in our
+             * local CDN
+             */
+            $file = file_get_local('https://www.google-analytics.com/analytics.js');
+
+            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function(){
+                $path = ROOT.'www/'.LANGUAGE.'/pub/js/';
+                mkdir($path.'google', 0550);
+
+                file_execute_mode($path.'google', 0770, function(){
+                    rename($file, $path.'google/analytics.js');
+                    chmod($path.'google/analytics.js', 0440);
+                });
+            });
+        }
+
         $retval = ' <script>
                         (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
                         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
                         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                         })(window,document,"script","'.cdn_domain('/js/google/analytics.js').'","ga");
-
                         ga("create", "'.$code.'", "auto");
                         ga("send", "pageview");
                     </script>';
