@@ -8,6 +8,10 @@
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package sane
+ * @see http://download.ebz.epson.net/dsc/du/02/DriverDownloadInfo.do?LG2=EN&CN2=&DSCMI=89050&DSCCHK=a6987299eeb16ea098c06b7b66f332a53c7c34de For Epson DS-1630 scanner driver for Linux
+ * @see http://download.ebz.epson.net/man/linux/imagescanv3_e.html For Epson Image Scan v3 manualfor Linux
+ * @see https://support.brother.com/g/b/downloadlist.aspx?c=us&lang=en&prod=mfcl8900cdw_all&os=128 for various Brother MFC L8900 CDW driver files for Linux
+ * @see https://support.brother.com/g/b/downloadend.aspx?c=us&lang=en&prod=mfcl8900cdw_all&os=128&dlid=dlf006645_000&flang=4&type3=566 for Brother MFC L8900 CDW scanner driver for Linux
  */
 
 
