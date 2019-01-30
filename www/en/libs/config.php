@@ -199,8 +199,8 @@ function config_write($data, $environment, $section = false){
 
         load_libs('file');
 
-        file_execute_mode(dirname($file), 0770, function($params, $path) use($lines, $file) {
-            file_execute_mode($file, 0660, function($params, $path) use($lines, $file) {
+        file_execute_mode(dirname($file), 0770, function($path, $params) use($lines, $file) {
+            file_execute_mode($file, 0660, function($path, $params) use($lines, $file) {
                 file_put_contents($file, $lines);
             });
         });

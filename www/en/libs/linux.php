@@ -263,7 +263,7 @@ function linux_file_clear_path($server, $path){
              * Remove this entry and continue;
              */
             try{
-                linux_file_execute_mode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function() use ($path){
+                linux_file_execute_mode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function($path){
                     linux_file_delete($server, $path);
                 });
 

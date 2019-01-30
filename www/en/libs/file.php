@@ -394,7 +394,7 @@ function file_ensure_path($path, $mode = null){
                          * Some normal file is in the way. Delete the file, and
                          * retry
                          */
-                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
+                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path) use ($mode){
                             file_delete($path);
                         });
 
@@ -407,7 +407,7 @@ function file_ensure_path($path, $mode = null){
                     /*
                      * This is a dead symlink, delete it
                      */
-                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
+                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path) use ($mode){
                         file_delete($path);
                     });
                 }
@@ -417,7 +417,7 @@ function file_ensure_path($path, $mode = null){
                      * Make sure that the parent path is writable when creating
                      * the directory
                      */
-                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
+                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path) use ($mode){
                         mkdir($path, $mode);
                     });
 
@@ -497,7 +497,7 @@ function file_clear_path($path){
              * Remove this entry and continue;
              */
             try{
-                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path){
+                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path){
                     file_delete($path);
                 });
 
@@ -2111,28 +2111,13 @@ function file_root($path){
  * specified path. Once the callback has finished, return to the original file
  * mode.
  *
- * NOTE: When params are specified, they are specified BEFORE the anonymous
- * function!!!
- *
- * This means that if NO params are specified, the function signature is this
- * file_execute_mode($path, $mode, $callback)
- *
- * When params ARE specified, the function signature is like this:
- * file_execute_mode($path, $mode, $params, $callback)
+ * The callback function signature is like this:
+ * $callback($path, $params, $mode)
  */
 function file_execute_mode($path, $mode, $callback, $params = null){
     try{
         if(!file_exists($path)){
             throw new bException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
-        }
-
-        if($params){
-            /*
-             * Switch parameters
-             */
-            $tmp      = $params;
-            $params   = $callback;
-            $callback = $tmp;
         }
 
         if($mode){
@@ -2144,7 +2129,7 @@ function file_execute_mode($path, $mode, $callback, $params = null){
             $path = slash($path);
         }
 
-        $retval = $callback($params, $path, $mode);
+        $retval = $callback($path, $params, $mode);
 
         if($mode){
             chmod($path, $original_mode);
