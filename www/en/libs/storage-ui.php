@@ -374,7 +374,7 @@ function storage_ui_file($file, $tabindex = 0){
         $html = '   <tr class="form-group photo" id="file'.$file['id'].'">
                         <td class="file">
                             <div>
-                                <a target="_blank" class="fancy" href="'.storage_file_url($icon, 'icon').'">
+                                <a target="_blank" class="fancy" href="'.storage_file_url($icon['filename'], 'icon').'">
                                     <img rel="document-file" class="col-md-1 control-label" src="'.storage_file_url($icon, 'small').'" alt="'.html_safe('('.$icon['x'].' X '.$icon['y'].')').'" />
                                 </a>
                             </div>
