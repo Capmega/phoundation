@@ -16,7 +16,9 @@
 function meta_action($meta_id = null, $action = null, $data = null){
     try{
         if(!$meta_id){
-            $action = 'create';
+            if(!$action){
+                $action = 'create';
+            }
 
             sql_query('INSERT INTO `meta` (`id`)
                        VALUES             (null)');
@@ -48,7 +50,7 @@ function meta_add_history($meta_id, $action, $data = null){
 
                    array(':createdby' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => $meta_id,
-                         ':action'    => $action,
+                         ':action'    => not_empty($action, tr('Unknown')),
                          ':data'      => json_encode($data)));
 
         return $meta_id;
@@ -133,6 +135,57 @@ function meta_clear($meta_id, $views_only = false){
 
     }catch(Exception $e){
         throw new bException('meta_erase(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Add meta link for the specified row id in the specified table
+ *
+ * If a table record is missing its meta_id, then with this function one can be added directly
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package meta
+ * @see meta_action()
+ * @version 1.27.1: Added function and documentation
+ * @example [Title]
+ * code
+ * // This will add a meta_id link for user with id 15
+ * meta_link(15, 'users');
+ * /code
+ *
+ * @param natural $table_id The id of the row that needs a meta_id link
+ * @param string $table The table in which the meta_id link must be added
+ * @return natural The meta id assigned to the specified $table_id entry
+ */
+function meta_link($table_id, $table){
+    try{
+        $exists = sql_get('SELECT `meta_id` FROM `'.$table.'` WHERE `id` = :id', true, array(':id' => $table_id));
+
+        if($exists){
+            /*
+             * This entry already has a meta_id assigned
+             */
+            return false;
+        }
+
+        $meta_id = meta_action(null, 'linked');
+
+        sql_query('UPDATE `'.$table.'`
+                  SET     `meta_id` = :meta_id
+                  WHERE   `id`      = :id',
+
+                  array(':id'      => $table_id,
+                        ':meta_id' => $meta_id));
+
+        return $meta_id;
+
+    }catch(Exception $e){
+        throw new bException('meta_link(): Failed', $e);
     }
 }
 ?>
