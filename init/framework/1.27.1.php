@@ -37,4 +37,16 @@ while($servers_id = sql_fetch($servers, true)){
 }
 
 cli_dot(false);
+
+/*
+ * Fix foreign key names for forwardings table
+ */
+sql_foreignkey_exists('forwardings', 'fk_forwards_createdby' , 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwards_createdby`');
+sql_foreignkey_exists('forwardings', 'fk_forwards_source_id' , 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwards_source_id`');
+sql_foreignkey_exists('forwardings', 'fk_forwards_servers_id', 'ALTER TABLE `forwardings` DROP FOREIGN KEY `fk_forwards_servers_id`');
+
+sql_foreignkey_exists('forwardings', 'fk_forwardings_createdby' , '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`   (`id`) ON DELETE RESTRICT');
+sql_foreignkey_exists('forwardings', 'fk_forwardings_source_id' , '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_source_id`  FOREIGN KEY (`source_id`)  REFERENCES `servers` (`id`) ON DELETE RESTRICT');
+sql_foreignkey_exists('forwardings', 'fk_forwardings_servers_id', '!ALTER TABLE `forwardings` ADD CONSTRAINT `fk_forwardings_servers_id` FOREIGN KEY (`servers_id`) REFERENCES `servers` (`id`) ON DELETE RESTRICT');
+
 ?>

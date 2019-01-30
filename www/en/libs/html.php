@@ -2435,7 +2435,7 @@ function html_fix_checkbox_values(){
  * @param boolean $csrf_check
  * @return string the HTML <form> tag
  */
-function html_form($action = null, $method = 'post', $name = 'form', $class = 'form-horizontal', $extra = '', $csrf_check = true){
+function html_form($method = 'post', $action = null, $name = 'form', $class = 'form-horizontal', $extra = '', $csrf_check = true){
     try{
         if(!$action){
             $action = domain(true);
