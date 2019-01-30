@@ -326,7 +326,7 @@ function scanimage_list(){
         /*
          * Get device data from cache
          */
-        load_libs('drivers');
+        load_libs('devices');
         $devices = devices_list('scanner');
 
         if($devices){
@@ -344,7 +344,7 @@ function scanimage_list(){
 
 
 /*
- * Search devices from the scanner drivers. This might take a while, easily up to 30 seconds or more
+ * Search devices from the scanner devices. This might take a while, easily up to 30 seconds or more
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -428,7 +428,7 @@ function scanimage_detect_devices(){
  */
 function scanimage_update_devices(){
     try{
-        load_libs('drivers');
+        load_libs('devices');
         devices_clear('scanner');
 
         $scanners = scanimage_detect_devices();
@@ -511,7 +511,7 @@ function scanimage_update_devices(){
 
 
 /*
- * Get driver options for the specified scanner device from the drivers
+ * Get driver options for the specified scanner device from the devices
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -742,7 +742,7 @@ function scanimage_get_default(){
 
         foreach($scanners as $devices_id => $scanner){
             if($scanner['default']){
-                load_libs('drivers');
+                load_libs('devices');
 
                 $scanner['options'] = devices_list_options($devices_id);
                 return $scanner;
@@ -772,7 +772,7 @@ function scanimage_get_default(){
  */
 function scanimage_get($device_string){
     try{
-        load_libs('drivers');
+        load_libs('devices');
         $scanner = devices_get($device_string);
 
         if(!$scanner){
