@@ -164,9 +164,9 @@ function servers_validate($server, $structure_only = false, $password_strength =
             $server['domains']   = array_unique($server['domains']);
         }
 
-        $v->isScalar($server['seoprovider'], tr('Please specify a valid provider'));
-        $v->isScalar($server['seocustomer'], tr('Please specify a valid customer'));
-        $v->isScalar($server['ssh_account'], tr('Please specify a valid SSH account'));
+        $v->isScalar($server['seoprovider'], tr('Please specify a valid provider')   , VALIDATE_ALLOW_EMPTY_NULL);
+        $v->isScalar($server['seocustomer'], tr('Please specify a valid customer')   , VALIDATE_ALLOW_EMPTY_NULL);
+        $v->isScalar($server['ssh_account'], tr('Please specify a valid SSH account'), VALIDATE_ALLOW_EMPTY_NULL);
 
         $v->isValid();
 
