@@ -113,6 +113,15 @@ function roles_validate($role){
             $v->setError(tr('The role "god" cannot be modified'));
         }
 
+        /*
+         * This role does not exist yet?
+         */
+        $exists = sql_get('SELECT `name` FROM `roles` WHERE `name` = :name AND `id` != :id', 'name', array(':name' => $role['name'], ':id' => isset_get($role['id'], 0)));
+
+        if($exists){
+            $v->setError(tr('The role ":role" already exists', array(':role' => $role['name'])));
+        }
+
         $v->isValid();
 
         return $role;
