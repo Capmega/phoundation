@@ -136,7 +136,7 @@ function analytics_matomo($sites_id){
                       _paq.push(["trackPageView"]);
                       _paq.push(["enableLinkTracking"]);
                       (function() {
-                        _paq.push(["setTrackerUrl", u+"piwik.php"]);
+                        _paq.push(["setTrackerUrl", "//'.$_CONFIG['analytics']['matomo_domain'].'/piwik.php"]);
                         _paq.push(["setSiteId", "'.$sites_id.'"]);
                         var d=document, g=d.createElement("script"), s=d.getElementsByTagName("script")[0];
                         g.type="text/javascript"; g.async=true; g.defer=true; g.src="'.cdn_domain('/js/matomo/piwik.js').'"; s.parentNode.insertBefore(g,s);
