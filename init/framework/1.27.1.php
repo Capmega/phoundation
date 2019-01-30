@@ -1,6 +1,7 @@
 <?php
 /*
  * Implement meta data support for rights and roles tables
+ * Fix missing meta links for servers table
  */
 sql_column_exists('rights', 'meta_id', '!ALTER TABLE `rights` ADD COLUMN `meta_id` INT(11) AFTER `createdby`');
 sql_column_exists('roles' , 'meta_id', '!ALTER TABLE `roles`  ADD COLUMN `meta_id` INT(11) AFTER `createdby`');
@@ -26,4 +27,14 @@ sql_column_exists('rights', 'modifiedon', 'ALTER TABLE `rights` DROP COLUMN `mod
 sql_column_exists('roles' , 'modifiedon', 'ALTER TABLE `roles`  DROP COLUMN `modifiedon`');
 sql_column_exists('rights', 'modifiedby', 'ALTER TABLE `rights` DROP COLUMN `modifiedby`');
 sql_column_exists('roles' , 'modifiedby', 'ALTER TABLE `roles`  DROP COLUMN `modifiedby`');
+
+$servers = sql_query('SELECT `id` FROM `servers`');
+log_console(tr('Assigning missing meta_id to all servers...'), 'cyan', false);
+
+while($servers_id = sql_fetch($servers, true)){
+    meta_link($servers_id, 'servers');
+    cli_dot();
+}
+
+cli_dot(false);
 ?>
