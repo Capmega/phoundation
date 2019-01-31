@@ -2127,9 +2127,10 @@ function blogs_post_url($post){
 
         if(empty($post['url_template'])){
             /*
-             * This blog has no URL template configured, so use the default one
+             * This blog has no URL template configured, so don't generate URLs
+             * and don't add them to the sitemap
              */
-            throw new bException(tr('blogs_post_url(): Blog ":blog" has no template defined', array(':blog' => $post['blogs_id'])), 'not-specified');
+            return false;
         }
 
         $url      = $post['url_template'];
@@ -2372,12 +2373,14 @@ function blogs_update_urls($blogs = null, $category = null){
                             sitemap_delete_entry($url);
                         }
 
-                        if($post['status'] == $params['status']){
-                            sitemap_insert_entry(array('url'              => $post['url'],
-                                                       'language'         => $post['language'],
-                                                       'priority'         => $params['sitemap_priority'],
-                                                       'page_modifiedon'  => date_convert($post['createdon'], 'mysql'),
-                                                       'change_frequency' => $params['sitemap_change_frequency']));
+                        if($post['url']){
+                            if($post['status'] == $params['status']){
+                                sitemap_insert_entry(array('url'              => $post['url'],
+                                                           'language'         => $post['language'],
+                                                           'priority'         => $params['sitemap_priority'],
+                                                           'page_modifiedon'  => date_convert($post['createdon'], 'mysql'),
+                                                           'change_frequency' => $params['sitemap_change_frequency']));
+                            }
                         }
 
                         cli_dot(1);
