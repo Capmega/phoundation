@@ -2746,15 +2746,18 @@ function blogs_post_get_img($photo, $params, $tabindex){
             load_libs('file');
             unset($is_video);
 
-            if (file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.jpg')) {
+            if(file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.jpg')){
                 $image = getimagesize(ROOT.'www/en/photos/'.$photo['file'].'-large.jpg');
-            } elseif (file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.mp4')) {
-                $mime_type = file_mimetype(ROOT.'www/en/photos/'.$photo['file'].'-original.mp4');
-                $image = ROOT.'www/en/photos/'.$photo['file'].'-original.mp4';
-                $is_video = true;
-            } else {
-                throw new Exception('Image/Video does not exists');
+
+            }elseif(file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.mp4')){
+                $image     = ROOT.'www/en/photos/'.$photo['file'].'-original.mp4';
+                $mime_type = file_mimetype($image);
+                $is_video  = true;
+
+            }else{
+                throw new bException(tr('blogs_post_get_img(): Media file ":file" does not exists', array(':file' => $photo['file'])), 'not-exist');
             }
+
         }catch(Exception $e){
             $image = false;
         }
