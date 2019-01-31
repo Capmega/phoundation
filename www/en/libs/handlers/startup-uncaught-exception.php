@@ -373,9 +373,14 @@ try{
                 case 'api':
                     // FALLTHROUGH
                 case 'ajax':
-                    load_libs('json');
-                    json_error(tr('Something went wrong, please try again later'), 500);
+                    $code = 500;
 
+                    if(is_numeric($e->getCode()) and ($e->getCode() > 100)){
+                        $code = $e->getCode();
+                    }
+
+                    load_libs('json');
+                    json_error(tr('Something went wrong, please try again later'), '', '', $code);
             }
 
             page_show(500);
