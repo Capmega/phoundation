@@ -399,6 +399,10 @@ function servers_update($server){
  */
 function servers_like($domain){
     try{
+        if(is_array($domain)){
+            return $domain;
+        }
+
         $server = sql_get('SELECT `domain`
 
                            FROM   `servers`
@@ -542,12 +546,14 @@ function servers_update_domains($server, $domains = null){
                                                'seodomain'    => $server['seodomain'],
                                                'customers_id' => $server['customers_id'],
                                                'providers_id' => $server['providers_id']));
+
+                $domains_id = $domain['id'];
             }
 
             $insert->execute(array(':meta_id'    => meta_action(),
                                    ':createdby'  => isset_get($_SESSION['user']['id']),
                                    ':servers_id' => $servers_id,
-                                   ':domains_id' => $domain['id']));
+                                   ':domains_id' => $domains_id));
         }
 
         return count($domains);
