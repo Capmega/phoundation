@@ -248,28 +248,28 @@ function sql_get($query, $single_column = null, $execute = null, $connector = nu
     try{
         $connector = sql_connector_name($connector);
 
-        if(is_object($query)){
-            return sql_fetch($query, $single_column);
-
-        }else{
-            if(is_array($single_column)){
-                /*
-                 * Argument shift, no columns were specified.
-                 */
-                $tmp            = $execute;
-                $execute        = $single_column;
-                $single_column  = $tmp;
-                unset($tmp);
-            }
-
-            $result = sql_query($query, $execute, $connector);
-
-            if($result->rowCount() > 1){
-                throw new bException(tr('sql_get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => debug_sql($result->queryString, $execute, true))), 'multiple');
-            }
-
-            return sql_fetch($result, $single_column);
+        if(is_array($single_column)){
+            /*
+             * Argument shift, no columns were specified.
+             */
+            $tmp            = $execute;
+            $execute        = $single_column;
+            $single_column  = $tmp;
+            unset($tmp);
         }
+
+        if(is_object($query)){
+            $query->execute($execute);
+            return sql_fetch($query, $single_column);
+        }
+
+        $result = sql_query($query, $execute, $connector);
+
+        if($result->rowCount() > 1){
+            throw new bException(tr('sql_get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => debug_sql($result->queryString, $execute, true))), 'multiple');
+        }
+
+        return sql_fetch($result, $single_column);
 
     }catch(Exception $e){
         if(is_object($query)){
