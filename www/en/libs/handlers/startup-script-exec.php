@@ -25,7 +25,7 @@ try{
         $arguments   = implode(' ', $arguments);
     }
 
-    return safe_exec(escapeshellcmd($script_file).' '.$arguments, $ok_exitcodes);
+    return safe_exec(escapeshellcmd($script_file).' '.$arguments, $ok_exitcodes, true, 'passthru');
 
 }catch(Exception $e){
     throw new bException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $script)), $e);
