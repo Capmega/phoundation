@@ -1,6 +1,6 @@
 <?php
 try{
-    global $_CONFIG. $core;
+    global $_CONFIG, $core;
 
     if($e->getMessage() == 'could not find driver'){
         throw new bException(tr('sql_connect(): Failed to connect with ":driver" driver, it looks like its not available', array(':driver' => $connector['driver'])), 'driverfail');
