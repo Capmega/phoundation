@@ -3,7 +3,6 @@
  * Define what the current script
  * Detect requested language
  */
-$core->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
 $core->register['accepts_languages'] = accepts_languages();
 
 /*

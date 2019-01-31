@@ -12,6 +12,13 @@
  */
 
 
+/*
+ * Load the system library so that system functions are available
+ * Create core object for minimal functionality
+ */
+require_once(__DIR__.'/system.php');
+
+
 
 /*
  * Route the request uri from the client to the correct php file
@@ -37,7 +44,7 @@
  * @params null string $flags
  * @return void
  */
-function route($regex, $target, $flags = null){
+function route($regex, $call_type, $target, $flags = null){
     global $_CONFIG, $core;
     static $count = 1;
 
@@ -73,16 +80,13 @@ function route($regex, $target, $flags = null){
             return false;
         }
 
-        log_file(tr('Regex ":regex" matched', array(':regex' => $regex)), 'route', 'VERYVERBOSE/green');
+        log_file(tr('Regex ":regex" for call type ":type" matched', array(':regex' => $regex, ':type' => $call_type)), 'route', 'VERYVERBOSE/green');
 
         $route = $target;
 
         /*
-         * Regex matched. Do variable substitution on the target. We no longer
-         * need to default to 404
+         * Regex matched. Do variable substitution on the target.
          */
-        unregister_shutdown('page_show');
-
         if(preg_match_all('/:([A-Z_]+)/', $target, $variables)){
             array_shift($variables);
 
@@ -191,6 +195,12 @@ function route($regex, $target, $flags = null){
                             throw new bException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':'.$http_code, ':target' => ':'.$target)), 'invalid');
                     }
 
+                    /*
+                     * We are going to redirect so we no longer need to default
+                     * to 404
+                     */
+                    unregister_shutdown('page_show');
+
                     log_file(tr('Redirecting to ":route" with HTTP code ":code"', array(':route' => $route, ':code' => $http_code)), 'route', 'VERYVERBOSE/cyan');
                     redirect($route, $http_code);
             }
@@ -200,8 +210,7 @@ function route($regex, $target, $flags = null){
          * Do we allow any $_GET queries from the REQUEST_URI?
          */
         if(empty($get)){
-            $_GET          = array();
-            $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
+            $_GET = array();
         }
 
         /*
@@ -214,8 +223,8 @@ function route($regex, $target, $flags = null){
             /*
              * Ensure the target page exists, else we did not match
              */
-            if(!page_show($page, array('exists' => true))){
-                log_file(tr('Matched page ":page" does not exist, cancelling match', array(':page' => $page)), 'route', 'VERYVERBOSE');
+            if(!page_show($page, array('exists' => true, 'call_type' => $call_type))){
+                log_file(tr('Matched ":type" call type page ":page" does not exist, cancelling match', array(':page' => $page, ':type' => $call_type)), 'route', 'VERYVERBOSE');
                 return false;
             }
         }
@@ -232,11 +241,19 @@ function route($regex, $target, $flags = null){
         }
 
         /*
+         * We are going to show the matched page so we no longer need to default
+         * to 404
+         */
+        unregister_shutdown('page_show');
+
+        /*
          * Create $_GET variables
          * Execute the page specified in $target (from here, $route)
          */
-        $core->register('script', $page);
-        return page_show($page);
+        $core->register['script']    = $page;
+        $core->register['call_type'] = $call_type;
+
+        return page_show($page, array('call_type' => $call_type));
 
     }catch(Exception $e){
         if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){

@@ -41,28 +41,24 @@ load_config(' ');
 /*
  * Define basic platform constants
  */
-define('ADMIN'      , '');
-define('PWD'        , slash(isset_get($_SERVER['PWD'])));
-define('STARTDIR'   , slash(getcwd()));
-
-define('FORCE'      , (getenv('FORCE')                                                   ? 'FORCE'       : null));
-define('NOCOLOR'    , (getenv('NOCOLOR')                                                 ? 'NOCOLOR'     : null));
-define('TEST'       , (getenv('TEST')                                                    ? 'TEST'        : null));
-define('VERYVERBOSE', ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose']))        ? 'VERYVERBOSE' : null));
-define('VERBOSE'    , ((VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
-define('QUIET'      , (getenv('QUIET')                                                   ? 'QUIET'       : null));
-define('LIMIT'      , (getenv('LIMIT')                                                   ? 'LIMIT'       : $_CONFIG['paging']['limit']));
-define('ORDERBY'    , (getenv('ORDERBY')                                                 ? 'ORDERBY'     : null));
-define('ALL'        , (getenv('ALL')                                                     ? 'ALL'         : null));
-define('DELETED'    , (getenv('DELETED')                                                 ? 'DELETED'     : null));
-define('STATUS'     , (getenv('STATUS')                                                  ? 'STATUS'      : null));
+define('ADMIN'   , '');
+define('PWD'     , slash(isset_get($_SERVER['PWD'])));
+define('STARTDIR', slash(getcwd()));
+define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : null));
+define('TEST'    , (getenv('TEST')    ? 'TEST'    : null));
+define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : null));
+define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : $_CONFIG['paging']['limit']));
+define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : null));
+define('ALL'     , (getenv('ALL')     ? 'ALL'     : null));
+define('DELETED' , (getenv('DELETED') ? 'DELETED' : null));
+define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : null));
 
 
 
 /*
  * Load basic libraries
  */
-load_libs('route,http,html,inet,cache'.(empty($_CONFIG['memcached']) ? '' : ',memcached').(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
+load_libs('http,html,inet,cache'.(empty($_CONFIG['memcached']) ? '' : ',memcached').(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
 
 
 
