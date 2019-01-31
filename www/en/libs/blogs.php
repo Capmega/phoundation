@@ -475,7 +475,7 @@ function blogs_post_update($post, $params = null){
 
 
 /*
- * Update the status for the specified blogs
+ * Update the status for the specified blog posts
  */
 function blogs_update_post_status($blog, $params, $list, $status){
     try{
@@ -497,7 +497,7 @@ function blogs_update_post_status($blog, $params, $list, $status){
                                 AND     `blogs_id` = :blogs_id');
 
         foreach($list as $id){
-            $post = sql_get('SELECT `id`, `url`, `seoname`, `status` FROM `blogs_posts` WHERE `id` = :id', array(':id' => $id));
+            $post = sql_get('SELECT `id`, `url`, `seoname`, `language`, `status` FROM `blogs_posts` WHERE `id` = :id', array(':id' => $id));
 
             if(!$post){
                 /*
@@ -528,11 +528,13 @@ function blogs_update_post_status($blog, $params, $list, $status){
                     break;
 
                 case 'published':
-                    sitemap_insert_entry(array('url'              => $post['url'],
-                                               'language'         => $post['language'],
-                                               'priority'         => $params['sitemap_priority'],
-                                               'page_modifiedon'  => date_convert(null, 'mysql'),
-                                               'change_frequency' => $params['sitemap_change_frequency']));
+                    if($post['url']){
+                        sitemap_insert_entry(array('url'              => $post['url'],
+                                                   'language'         => $post['language'],
+                                                   'priority'         => $params['sitemap_priority'],
+                                                   'page_modifiedon'  => date_convert(null, 'mysql'),
+                                                   'change_frequency' => $params['sitemap_change_frequency']));
+                    }
             }
 
             $execute[':id'] = $id;
@@ -2802,7 +2804,7 @@ function blogs_post_get_img($photo, $params, $tabindex){
                                         <td class="file">
                                             <div>
                                                 <a target="_blank" class="fancy" href="'.domain('pub/photos/'.($photo['file']. '-large.jpg')).'">
-                                                    '.html_img(domain('pub/photos/'.($photo['file'] . '-small.jpg')), html_safe('('.$image[0].' X '.$image[1].')'), $image[0], $image[1], 'rel="blog-page" class="col-md-1 control-label"').'
+                                                    '.html_img(cdn_domain('photos/'.($photo['file'] . '-small.jpg'), ''), html_safe('('.$image[0].' X '.$image[1].')'), $image[0], $image[1], 'rel="blog-page" class="col-md-1 control-label"').'
                                                 </a>
                                             </div>
                                         </td>';
