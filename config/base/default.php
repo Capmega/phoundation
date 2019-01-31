@@ -291,7 +291,7 @@ $_CONFIG['prefetch']           = array('dns'                                => a
 $_CONFIG['production']         = true;
 
 //domain
-$_CONFIG['protocol']           = 'http://';                                                                                                 // The base protocol of this website. Basically either "http://",  or "https://".
+$_CONFIG['protocol']           = 'https://';                                                                                                // The base protocol of this website. Basically either "http://",  or "https://".
 
 // Redirects configuration (This ususally would not require changes unless you want to have other file names for certain actions like signin, etc)
 $_CONFIG['redirects']          = array('auto'                               => 'get',                                                       // Auto redirects (usually because of user or right required) done by "session" or "get"
