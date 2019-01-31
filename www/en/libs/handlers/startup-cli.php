@@ -16,14 +16,6 @@ $core->register['script_command'] = implode(' ', $GLOBALS['argv']);
 
 
 /*
- * All scripts will execute cli_done() automatically once done
- */
-load_libs('cli');
-register_shutdown_function('cli_done');
-
-
-
-/*
  * Define basic platform constants
  */
 try{

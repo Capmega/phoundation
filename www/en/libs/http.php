@@ -578,22 +578,7 @@ function http_done(){
             die();
         }
 
-        if($core and empty($core->register['ready'])){
-            /*
-             * We died before the $core was ready. For more information, see
-             * the ROOT/data/log/syslog file, or your webserver log file
-             */
-            die('Exception: See log files');
-        }
-
         $exit_code = isset_get($core->register['exit_code'], 0);
-
-        if(!defined('ENVIRONMENT')){
-            /*
-             * Oh crap.. Environment hasn't been defined, so we died VERY soon.
-             */
-            return false;
-        }
 
         /*
          * Do we need to run other shutdown functions?

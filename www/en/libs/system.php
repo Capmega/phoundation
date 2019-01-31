@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.0.1');
+define('FRAMEWORKCODEVERSION', '2.0.2');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -64,9 +64,25 @@ set_exception_handler('uncaught_exception');
 
 
 /*
- * Create the core object
+ * Create the core object and load the basic libraries
  */
 $core = new core();
+
+switch(PLATFORM){
+    case 'cli':
+        load_libs('cli,strings,array,sql,mb,meta,file');
+        register_shutdown_function('cli_done');
+        break;
+
+    case 'http':
+        /*
+         * Load basic libraries
+         * All scripts will execute http_done() automatically once done
+         */
+        load_libs('http,strings,array,sql,mb,meta,file');
+        register_shutdown_function('http_done');
+        break;
+}
 
 
 
@@ -165,13 +181,7 @@ class core{
                     $this->register['accepts']   = accepts();
                     $this->register['http_code'] = 200;
 
-                    if($this->register['call_type']){
-                        /*
-                         * Calltype was defined by the route library
-                         */
-                        $this->callType = $this->register['call_type'];
-
-                    }else{
+                    if(empty($this->register['call_type'])){
                         /*
                          * Auto detect what http platform we're on
                          */
@@ -194,6 +204,12 @@ class core{
                         }else{
                             $this->callType = 'http';
                         }
+
+                    }else{
+                        /*
+                         * Calltype was defined by the route library
+                         */
+                        $this->callType = $this->register['call_type'];
                     }
 
                     break;
@@ -202,11 +218,6 @@ class core{
                     $this->callType = 'cli';
                     break;
             }
-
-            /*
-             * Load basic libraries
-             */
-            load_libs('strings,array,sql,mb,meta,file');
 
             /*
              * Start the call type dependant startup script
@@ -808,9 +819,7 @@ function notify($params){
          *
          * Do NOT cause exception, because it its not caught, it might cause another notification, that will fail, cause exception and an endless loop!
          */
-        $params = array_force($params);
-        array_ensure($params, 'event,classes,message');
-        log_console(tr('Failed to notify event ":event" for classes ":classes" with message ":message"', array(':event' => $params['event'], ':classes' => $params['classes'], ':message' => $params['message'])), 'error');
+        log_console(tr('Failed to notify event ":event"', array(':event' => $params)), 'error');
         return false;
     }
 }

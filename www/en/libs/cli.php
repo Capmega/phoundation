@@ -1329,45 +1329,33 @@ function cli_done(){
             die(1);
         }
 
-        if(!$core->register['ready']){
-            echo "\033[1;31mCommand line terminated before \$core ready\033[0m\n";
-            die(1);
-        }
-
         $exit_code = isset_get($core->register['exit_code'], 0);
-
-        if(!defined('ENVIRONMENT')){
-            /*
-             * Oh crap.. Environment hasn't been defined, so we died VERY soon.
-             */
-            return false;
-        }
 
         /*
          * Execute all shutdown functions
          */
         shutdown();
 
-        if(QUIET){
-            return false;
-        }
+        if(!QUIET){
+            load_libs('time,numbers');
 
-        load_libs('time,numbers');
+            if($exit_code and is_numeric($exit_code)){
+                if($exit_code > 200){
+                    /*
+                     * Script ended with warning
+                     */
+                    log_console(tr('Script ":script" ended with warning in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'yellow');
 
-        if($exit_code and is_numeric($exit_code)){
-            if($exit_code > 200){
-                /*
-                 * Script ended with warning
-                 */
-                log_console(tr('Script ":script" ended with warning in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'yellow');
+                }else{
+                    log_console(tr('Script ":script" failed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'red');
+                }
 
             }else{
-                log_console(tr('Script ":script" failed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'red');
+                log_console(tr('Finished ":script" script in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'green');
             }
-
-        }else{
-            log_console(tr('Finished ":script" script in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'green');
         }
+
+        die($exit_code);
 
     }catch(Exception $e){
         throw new bException('cli_done(): Failed', $e);
