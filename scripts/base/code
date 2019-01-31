@@ -188,7 +188,9 @@ switch(cli_method()){
 
         /*
          * Move phoundation project to the master branch
+         * Move toolkit project to the master branch
          */
+        git_checkout($paths['toolkit']    , 'master');
         git_checkout($paths['phoundation'], 'master');
 
         /*
