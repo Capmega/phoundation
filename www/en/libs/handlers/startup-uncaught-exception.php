@@ -10,7 +10,7 @@ static $executed = false;
  * security, Base will not display the entire exception as it doesn't know if it
  * is on a production environment or not
  */
-//echo "<pre>\n"; print_r($e->getCode()); echo"\n"; print_r($e); die();
+// echo "<pre>\n"; print_r($e->getCode()); echo"\n"; print_r($e); die();
 
 try{
     if($executed){
@@ -82,8 +82,13 @@ try{
                  *
                  * Log to the webserver error log at the very least
                  */
-                foreach($e->getMessages() as $message){
-                    error_log($message);
+                if(method_exists($e, 'getMessages')){
+                    foreach($e->getMessages() as $message){
+                        error_log($message);
+                    }
+
+                }else{
+                    error_log($e->getMessage());
                 }
 
                 echo "\033[1;31mPre ready exception\033[0m\n";
@@ -139,7 +144,12 @@ try{
                         die($core->register['exit_code']);
 
                     case 'validation':
-                        $messages = $e->getMessages();
+                        if(method_exists($e, 'getMessages')){
+                            $messages = $e->getMessages();
+
+                        }else{
+                            $messages = $e->getMessage();
+                        }
 
                         if(count($messages) > 2){
                             array_pop($messages);
@@ -255,8 +265,13 @@ try{
                     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
                 }
 
-                foreach($e->getMessages() as $message){
-                    error_log($message);
+                if(method_exists($e, 'getMessages')){
+                    foreach($e->getMessages() as $message){
+                        error_log($message);
+                    }
+
+                }else{
+                    error_log($e->getMessage());
                 }
 
                 die('Pre ready exception');
