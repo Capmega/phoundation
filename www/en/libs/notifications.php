@@ -46,7 +46,7 @@ function notifications_send($params){
             }
 
         }else{
-            array_params($params, 'title');
+            array_ensure($params, 'title');
             log_file(isset_get($params['description'], tr('No description specified')), 'notification-'.isset_get($params['title'], tr('without-title')), 'yellow');
         }
 
