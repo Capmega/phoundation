@@ -793,6 +793,14 @@ function html_header($params = null, $meta = array()){
                    html_generate_js();
 
         /*
+         * Set load_delayed to false from here on. If anything after this still
+         * generates javascript (footer function!) it should be directly sent to
+         * client
+         */
+        $_CONFIG['cdn']['js']['load_delayed'] = false;
+
+
+        /*
          * Add required fonts
          */
         if(!empty($params['fonts'])){
@@ -1739,11 +1747,11 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
          * $core->register[script] tags are added all at the end of the page for faster loading
          * (and to avoid problems with jQuery not yet being available)
          */
-        if(empty($core->register('script_delayed'))){
-            $core->register['script_delayed']  = $retval;
+        if(isset($core->register['script_delayed'])){
+            $core->register['script_delayed'] .= $retval;
 
         }else{
-            $core->register['script_delayed'] .= $retval;
+            $core->register['script_delayed']  = $retval;
         }
 
         return '';
