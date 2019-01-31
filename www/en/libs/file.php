@@ -374,6 +374,14 @@ function file_ensure_path($path, $mode = null){
     try{
         if($mode === null){
             $mode = $_CONFIG['fs']['dir_mode'];
+
+            if(!$mode){
+                /*
+                 * Mode configuration is not available (yet?)
+                 * Fall back to a default mode, 0770 for directories
+                 */
+                $mode = 0770;
+            }
         }
 
         if(!file_exists(unslash($path))){
@@ -382,7 +390,7 @@ function file_ensure_path($path, $mode = null){
              * directory by directory so that we can correct issues as we run in
              * to them
              */
-            $dirs = explode('/', $path);
+            $dirs = explode('/', str_starts_not($path, '/'));
             $path = '';
 
             foreach($dirs as $dir){
