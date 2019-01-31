@@ -200,6 +200,7 @@ function route($regex, $call_type, $target, $flags = null){
                      * to 404
                      */
                     unregister_shutdown('page_show');
+                    load_libs('http');
 
                     log_file(tr('Redirecting to ":route" with HTTP code ":code"', array(':route' => $route, ':code' => $http_code)), 'route', 'VERYVERBOSE/cyan');
                     redirect($route, $http_code);
