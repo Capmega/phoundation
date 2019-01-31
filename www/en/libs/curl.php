@@ -475,6 +475,10 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
             if($params['simulation'] === false){
                 $retval['data'] = curl_exec($ch);
 
+                if(curl_errno($ch)){
+                    throw new bException(tr('curl_get(): CURL failed with ":e"', array(':e' => curl_strerror(curl_errno($ch)))), 'CURL'.curl_errno($ch));
+                }
+
             }elseif(($params['simulation'] === 'full') or ($params['simulation'] === 'partial')){
                 $retval['data'] = $params['simulation'];
 
@@ -567,7 +571,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
         return $retval;
 
     }catch(Exception $e){
-        if(($e->getCode() == 'HTTP0') and (++$retry <= $params['retries'])){
+        if((($e->getCode() == 'HTTP0') or ($e->getCode() == 'CURL28')) and (++$retry <= $params['retries'])){
             /*
              * For whatever reason, connection gave HTTP code 0 which probably
              * means that the server died off completely. This again may mean
