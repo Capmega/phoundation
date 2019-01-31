@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.0.0');
+define('FRAMEWORKCODEVERSION', '2.0.1');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -130,7 +130,12 @@ class core{
                 define('VERYVERBOSE'  , ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose']))        ? 'VERYVERBOSE' : null));
                 define('VERBOSE'      , ((VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
 
-                $this->register['script'] = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+                /*
+                 * Define what the current script
+                 * Detect requested language
+                 */
+                $this->register['accepts_languages'] = accepts_languages();
+                $this->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
                 break;
         }
     }
@@ -1239,7 +1244,6 @@ function accepts_languages(){
     global $_CONFIG;
 
     try{
-        $retval  = array();
         $headers = isset_get($_SERVER['HTTP_ACCEPT_LANGUAGE']);
         $headers = array_force($headers, ',');
         $default = array_shift($headers);
@@ -3405,6 +3409,44 @@ function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force
 
 
 /*
+ * Cut and return a piece out of the source string, starting from the start string, stopping at the stop string.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package str
+ * @see str_from()
+ * @see str_until()
+ * @version 2.0.0: Moved to system library, added documentation
+ * @example
+ * code
+ * $result = str_cut('support@capmega.com', '@', '.');
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * capmega
+ * /code
+ *
+ * @param string $source The string to be cut
+ * @params string $start The character(s) to start the cut
+ * @params string $stop The character(s) to stop the cut
+ * @return string The $source string between the first occurrences of start and $stop
+ */
+function str_cut($source, $start, $stop){
+    try{
+        return str_until(str_from($source, $start), $stop);
+
+    }catch(Exception $e){
+        throw new bException(tr('str_cut(): Failed'), $e);
+    }
+}
+
+
+
+/*
  * Returns true if the specified $needle exists in the specified $haystack
  *
  * This is a simple wrapper function to strpos() which does not require testing for false, as the output is boolean. If the $needle exists in the $haystack, true will be returned, else false will be returned.
@@ -3887,6 +3929,58 @@ function str_log($source, $truncate = 8187, $separator = ', '){
 
     }catch(Exception $e){
         throw new bException('str_log(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns the value of the first element of the specified array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package array
+ * @see array_last()
+ * @version 1.27.0: Added function and documentation
+ *
+ * @param array $source The source array from which the first value must be returned
+ * @return mixed The first value of the specified source array
+ */
+function array_first($source){
+    try{
+        reset($source);
+        return current($source);
+
+    }catch(Exception $e){
+        throw new bException('array_first(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns the value of the last element of the specified array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package array
+ * @see array_first()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @version 1.27.0: Added function and documentation
+ *
+ * @param array $source The source array from which the last value must be returned
+ * @return mixed The last value of the specified source array
+ */
+function array_last($source){
+    try{
+        return end($source);
+
+    }catch(Exception $e){
+        throw new bException('array_last(): Failed', $e);
     }
 }
 

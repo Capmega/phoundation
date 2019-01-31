@@ -242,20 +242,6 @@ function str_safe_base64_decode($source){
 
 
 /*
- * Cut and return a piece out of the source string, starting from the start string, stopping at the stop string.
- */
-function str_cut($source, $start, $stop){
-    try{
-        return str_until(str_from($source, $start), $stop);
-
-    }catch(Exception $e){
-        throw new bException(tr('str_cut(): Failed'), $e);
-    }
-}
-
-
-
-/*
  * Return a safe size string for displaying
  */
 // :DELETE: Isn't this str_log()?

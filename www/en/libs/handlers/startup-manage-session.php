@@ -1,11 +1,5 @@
 <?php
 /*
- * Define what the current script
- * Detect requested language
- */
-$core->register['accepts_languages'] = accepts_languages();
-
-/*
  * Force session cookie configuration
  */
 ini_set('session.gc_maxlifetime' , $_CONFIG['sessions']['timeout']);
