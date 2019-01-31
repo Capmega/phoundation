@@ -65,6 +65,22 @@ function sql_query($query, $execute = false, $connector = null){
         $query_start = microtime(true);
 
         if(!is_string($query)){
+            if(is_object($query)){
+                if(!($query instanceof PDOStatement)){
+                    throw new bException(tr('sql_query(): Object of unknown class ":class" specified where either a string or a PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                }
+
+                /*
+                 * PDO statement was specified instead of a query
+                 */
+                if($query->queryString[0] == ' '){
+                    debug_sql($query, $execute);
+                }
+
+                $query->execute($execute);
+                return $query;
+            }
+
             throw new bException(tr('sql_query(): Specified query ":query" is not a string', array(':query' => $query)), 'invalid');
         }
 
@@ -256,11 +272,6 @@ function sql_get($query, $single_column = null, $execute = null, $connector = nu
             $execute        = $single_column;
             $single_column  = $tmp;
             unset($tmp);
-        }
-
-        if(is_object($query)){
-            $query->execute($execute);
-            return sql_fetch($query, $single_column);
         }
 
         $result = sql_query($query, $execute, $connector);

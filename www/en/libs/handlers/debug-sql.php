@@ -13,6 +13,17 @@ try{
          */
         krsort($execute);
 
+        if(is_object($query)){
+            /*
+             * Query to be debugged is a PDO statement, extract the query
+             */
+            if(!($query instanceof PDOStatement)){
+                throw new bException(tr('debug_sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+            }
+
+            $query = $query->queryString;
+        }
+
         foreach($execute as $key => $value){
             if(is_string($value)){
                 $value = addslashes($value);
