@@ -295,12 +295,12 @@ $_CONFIG['protocol']           = 'http://';                                     
 
 // Redirects configuration (This ususally would not require changes unless you want to have other file names for certain actions like signin, etc)
 $_CONFIG['redirects']          = array('auto'                               => 'get',                                                       // Auto redirects (usually because of user or right required) done by "session" or "get"
-                                                                               'index'            => 'index.php',                           // What is the default index page for this site
+                                                                               'index'            => 'index.html',                          // What is the default index page for this site
                                                                                'accessdenied'     => '403',                                 // Usually won't redirect, but just show
-                                                                               'signin'           => 'signin.php',                          // What is the default signin page for this site
-                                                                               'lock'             => 'lock.php',                            // What is the default lock page for this site
-                                                                               'aftersignin'      => 'index.php',                           // Where will the site redirect to by default after a signin?
-                                                                               'aftersignout'     => 'index.php');
+                                                                               'signin'           => 'signin.html',                         // What is the default signin page for this site
+                                                                               'lock'             => 'lock.html',                           // What is the default lock page for this site
+                                                                               'aftersignin'      => 'index.html',                          // Where will the site redirect to by default after a signin?
+                                                                               'aftersignout'     => 'index.html');
 
 
 // Root URL of the website
