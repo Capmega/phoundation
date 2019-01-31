@@ -26,6 +26,7 @@
 function scanimage_library_init(){
     try{
         load_config('scanimage');
+        load_libs('servers');
 
     }catch(Exception $e){
         throw new bException('scanimage_library_init(): Failed', $e);
@@ -66,12 +67,12 @@ function scanimage($params){
                 switch($params['format']){
                     case 'tiff':
                         $command .= ' > '.$params['file'];
-                        $result   = safe_exec($command);
+                        $result   = servers_exec($params['server'], $command);
                         break;
 
                     case 'jpeg':
                         $command .= ' | convert tiff:- '.$params['file'];
-                        $result   = safe_exec($command);
+                        $result   = servers_exec($params['server'], $command);
                         break;
                 }
 
@@ -80,11 +81,11 @@ function scanimage($params){
             }else{
                 switch($params['format']){
                     case 'tiff':
-                        $result   = safe_exec($command);
+                        $result   = servers_exec($params['server'], $command);
                         break;
 
                     case 'jpeg':
-                        $result   = safe_exec($command);
+                        $result   = servers_exec($params['server'], $command);
                         break;
                 }
             }
@@ -149,7 +150,7 @@ function scanimage_validate($params){
 
     try{
         load_libs('validate');
-        $v       = new validate_form($params, 'device,jpeg_quality,format,file,buffer_size,options');
+        $v       = new validate_form($params, 'device,jpeg_quality,format,file,buffer_size,options,server');
         $options = array();
 
         /*
@@ -357,9 +358,9 @@ function scanimage_list(){
  *
  * @return array All found scanner devices
  */
-function scanimage_detect_devices(){
+function scanimage_detect_devices($server = null){
     try{
-        $scanners = safe_exec(scanimage_command().' -L -q');
+        $scanners = servers_exec($server, scanimage_command().' -L -q');
         $devices  = array();
 
         foreach($scanners as $scanner){
@@ -526,10 +527,10 @@ function scanimage_update_devices(){
  * @param string $device
  * @return
  */
-function scanimage_get_options($device){
+function scanimage_get_options($device, $server = null){
     try{
         $skip    = true;
-        $results = safe_exec(scanimage_command().' -h -d "'.$device.'"');
+        $results = servers_exec($server, scanimage_command().' -h -d "'.$device.'"');
         $retval  = array();
 
         foreach($results as $result){
