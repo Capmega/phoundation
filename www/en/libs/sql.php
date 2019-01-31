@@ -990,6 +990,8 @@ function sql_in($source, $column = ':value'){
             throw new bException('sql_in(): Specified source is empty', 'empty');
         }
 
+        $column = str_starts($column, ':');
+
         load_libs('array');
         return array_sequential_keys(array_force($source), $column);
 
@@ -1867,6 +1869,10 @@ function sql_test_tunnel($server){
         $connector_name = 'test';
         $port           = 6000;
         $server         = servers_get($server, true);
+
+        if(!$server['database_accounts_id']){
+            throw new bException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exist');
+        }
 
         sql_make_connector($connector_name, array('port'       => $port,
                                                   'user'       => $server['db_username'],
