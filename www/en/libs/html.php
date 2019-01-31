@@ -2085,7 +2085,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                             /*
                              * Image doesn't exist.
                              */
-                            log_console(tr('html_img(): image ":src" does not exist', array(':src' => $file_src, ':width' => $width, ':height' => $height)), 'yellow');
+                            log_console(tr('html_img(): image ":src" does not exist', array(':src' => $file_src)), 'yellow');
                             $image[0] = -1;
                             $image[1] = -1;
                         }
@@ -2096,7 +2096,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                     $status = null;
 
                 }catch(Exception $e){
-                    notify('imgnotexist', tr('html_img(): The image with src ":src" does not exist or is not an image', array(':src' => $src)), 'developers');
+                    notify($e);
 
                     $width  = 0;
                     $height = 0;
