@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.0.2');
+define('FRAMEWORKCODEVERSION', '2.0.3');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -181,35 +181,27 @@ class core{
                     $this->register['accepts']   = accepts();
                     $this->register['http_code'] = 200;
 
-                    if(empty($this->register['call_type'])){
-                        /*
-                         * Auto detect what http platform we're on
-                         */
-                        if((substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') or (substr($_SERVER['REQUEST_URI'], 3, 7) == '/admin/')){
-                            $this->callType = 'admin';
+                    /*
+                     * Auto detect what http platform we're on
+                     */
+                    if((substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') or (substr($_SERVER['REQUEST_URI'], 3, 7) == '/admin/')){
+                        $this->callType = 'admin';
 
-                        }elseif(strstr($_SERVER['PHP_SELF'], '/ajax/')){
-                            $this->callType = 'ajax';
+                    }elseif(strstr($_SERVER['PHP_SELF'], '/ajax/')){
+                        $this->callType = 'ajax';
 
-                        }elseif(strstr($_SERVER['PHP_SELF'], '/api/')){
-                            $this->callType = 'api';
+                    }elseif(strstr($_SERVER['PHP_SELF'], '/api/')){
+                        $this->callType = 'api';
 
-                        }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
-                            $this->callType = 'amp';
+                    }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
+                        $this->callType = 'amp';
 
-                        }elseif(is_numeric(substr($_SERVER['PHP_SELF'], -7, 3))){
-                            $this->register['http_code'] = substr($_SERVER['PHP_SELF'], -7, 3);
-                            $this->callType = 'system';
-
-                        }else{
-                            $this->callType = 'http';
-                        }
+                    }elseif(is_numeric(substr($_SERVER['PHP_SELF'], -7, 3))){
+                        $this->register['http_code'] = substr($_SERVER['PHP_SELF'], -7, 3);
+                        $this->callType = 'system';
 
                     }else{
-                        /*
-                         * Calltype was defined by the route library
-                         */
-                        $this->callType = $this->register['call_type'];
+                        $this->callType = 'http';
                     }
 
                     break;
@@ -2745,20 +2737,7 @@ function page_show($pagename, $params = null, $get = null){
             $core->register['http_code'] = $pagename;
         }
 
-        if(empty($params['call_type'])){
-            /*
-             * Call type was specified, should be specified only by route()
-             */
-            $params['call_type'] = $core->callType();
-
-        }elseif($core->callType()){
-            /*
-             * Calltype was already set by $core, cannot be set again
-             */
-            throw new bException(tr('page_show(): Calltype cannot be set, it was already set by core to ":type"', array(':type' => $core->callType())), 'invalid');
-        }
-
-        switch($params['call_type']){
+        switch($core->callType()){
             case 'ajax':
                 $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
 
@@ -2769,7 +2748,7 @@ function page_show($pagename, $params = null, $get = null){
                 /*
                  * Execute ajax page
                  */
-                log_file(tr('Showing ajax type page ":page"', array(':page' => $pagename)), 'page-show', 'VERBOSE/cyan');
+                log_file(tr('Showing ":language" language ajax page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
                 return include($include);
 
             case 'api':
@@ -2782,11 +2761,11 @@ function page_show($pagename, $params = null, $get = null){
                 /*
                  * Execute ajax page
                  */
-                log_file(tr('Showing api type page ":page"', array(':page' => $pagename)), 'page-show', 'VERBOSE/cyan');
+                log_file(tr('Showing ":language" language api page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
                 return include($include);
 
             default:
-                if($params['call_type'] == 'admin'){
+                if($core->callType() == 'admin'){
                     $prefix = 'admin/';
 
                 }else{
@@ -2799,7 +2778,7 @@ function page_show($pagename, $params = null, $get = null){
                     return file_exists($include);
                 }
 
-                log_file(tr('Showing http type page ":page"', array(':page' => $pagename)), 'page-show', 'VERBOSE/cyan');
+                log_file(tr('Showing ":language" language http page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
 
                 $result = include($include);
 

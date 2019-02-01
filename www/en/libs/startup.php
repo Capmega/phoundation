@@ -60,8 +60,12 @@
 
 
 /*
- * Load the system core and boot the correct startup script
+ * Load the system library only if the system library hasn't been loaded yet by
+ * the route library
  */
-require_once(__DIR__.'/system.php');
+if(!class_exists('core')){
+    require_once(__DIR__.'/system.php');
+}
+
 $core->startup();
 ?>

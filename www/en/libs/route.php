@@ -44,7 +44,7 @@ require_once(__DIR__.'/system.php');
  * @params null string $flags
  * @return void
  */
-function route($regex, $call_type, $target, $flags = null){
+function route($regex, $target, $flags = null){
     global $_CONFIG, $core;
     static $count = 1;
 
@@ -80,7 +80,7 @@ function route($regex, $call_type, $target, $flags = null){
             return false;
         }
 
-        log_file(tr('Regex ":regex" for call type ":type" matched', array(':regex' => $regex, ':type' => $call_type)), 'route', 'VERYVERBOSE/green');
+        log_file(tr('Regex ":regex" matched', array(':regex' => $regex)), 'route', 'VERYVERBOSE/green');
 
         $route = $target;
 
@@ -130,12 +130,8 @@ function route($regex, $call_type, $target, $flags = null){
          * Apply regex variables replacements
          */
         if(preg_match_all('/\$(\d+)/', $route, $replacements)){
-            if($route[0] == '$'){
-                /*
-                 * The target page itself is a regex replacement! We can only
-                 * match if the file exist
-                 */
-                $replace_page = true;
+            if(preg_match('/\$\d+\.php/', $route)){
+                $dynamic_pagematch = true;
             }
 
             foreach($replacements[1] as $replacement){
@@ -199,10 +195,8 @@ function route($regex, $call_type, $target, $flags = null){
                      * We are going to redirect so we no longer need to default
                      * to 404
                      */
-                    unregister_shutdown('page_show');
-                    load_libs('http');
-
                     log_file(tr('Redirecting to ":route" with HTTP code ":code"', array(':route' => $route, ':code' => $http_code)), 'route', 'VERYVERBOSE/cyan');
+                    unregister_shutdown('page_show');
                     redirect($route, $http_code);
             }
         }
@@ -211,7 +205,14 @@ function route($regex, $call_type, $target, $flags = null){
          * Do we allow any $_GET queries from the REQUEST_URI?
          */
         if(empty($get)){
-            $_GET = array();
+            if(!empty($_GET)){
+                /*
+                 * Client specified variables on a URL that does not allow
+                 * queries, cancel the match
+                 */
+                log_file(tr('Matched page ":page" does not allow query variables while client specified them, cancelling match', array(':page' => $page)), 'route', 'VERYVERBOSE');
+                return false;
+            }
         }
 
         /*
@@ -220,14 +221,22 @@ function route($regex, $call_type, $target, $flags = null){
         $page = str_until($route, '?');
         $get  = str_from($route , '?', 0, true);
 
-        if(isset($replace_page)){
-            /*
-             * Ensure the target page exists, else we did not match
-             */
-            if(!page_show($page, array('exists' => true, 'call_type' => $call_type))){
-                log_file(tr('Matched ":type" call type page ":page" does not exist, cancelling match', array(':page' => $page, ':type' => $call_type)), 'route', 'VERYVERBOSE');
+        if(!file_exists($page)){
+            if(isset($dynamic_pagematch)){
+                /*
+                 * The page name was dynamically matched from the URL, but the
+                 * target file does not exist, cancel the match
+                 */
+                log_file(tr('Dynamically matched page ":page" does not exist, cancelling match', array(':page' => $page)), 'route', 'VERYVERBOSE');
                 return false;
             }
+
+            /*
+             * The hardcoded file for the regex does not exist, oops!
+             */
+            log_file(tr('Matched hard coded page ":page" does not exist', array(':page' => $page)), 'route', 'yellow');
+            unregister_shutdown('page_show');
+            page_show(404);
         }
 
         /*
@@ -251,10 +260,10 @@ function route($regex, $call_type, $target, $flags = null){
          * Create $_GET variables
          * Execute the page specified in $target (from here, $route)
          */
-        $core->register['script']    = $page;
-        $core->register['call_type'] = $call_type;
-
-        return page_show($page, array('call_type' => $call_type));
+        $core->register['script'] = str_rfrom($page, '/');
+        log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
+        include($page);
+        die();
 
     }catch(Exception $e){
         if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){
