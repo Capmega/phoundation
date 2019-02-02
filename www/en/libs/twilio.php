@@ -344,7 +344,7 @@ function twilio_add_image($messages_id, $url, $mimetype){
  */
 function twilio_download_image($messages_id, $url){
     try{
-        $file = file_move_to_target($url, ROOT.'data/sms/images');
+        $file = file_move_to_target($url, ROOT.'data/sms/images', 'jpg');
 
         sql_query('UPDATE `sms_images`
 
