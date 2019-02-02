@@ -46,7 +46,7 @@ function notifications_send($params){
             }
 
         }else{
-            array_params($params, 'title');
+            array_ensure($params, 'title');
             log_file(isset_get($params['description'], tr('No description specified')), 'notification-'.isset_get($params['title'], tr('without-title')), 'yellow');
         }
 
@@ -221,7 +221,7 @@ return false;
     }catch(Exception $e){
         log_console(tr('notifications_send(): Notification system failed with ":exception"', array(':exception' => $e->getMessage())), 'error');
 
-        if(SCRIPT != 'init'){
+        if($core->register['script'] != 'init'){
             if(empty($_CONFIG['mail']['developer'])){
                 log_console('[notifications_send() FAILED : '.strtoupper($_SESSION['domain']).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']');
                 log_console(tr("notifications_send() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification $params was: \":params\"", array(':params' => $params)));

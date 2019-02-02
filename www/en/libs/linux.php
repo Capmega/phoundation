@@ -263,7 +263,7 @@ function linux_file_clear_path($server, $path){
              * Remove this entry and continue;
              */
             try{
-                linux_file_execute_mode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function() use ($path){
+                linux_file_execute_mode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function($path){
                     linux_file_delete($server, $path);
                 });
 
@@ -503,6 +503,31 @@ function linux_pid($server, $pid){
 
     }catch(Exception $e){
         throw new bException('linux_pid(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Execute the netstat command on the specified server and return parsed output
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server The server on which the pid should be tested
+ * @param natural $pid The PID to be tested
+ * @return boolean True if the specified PID is available on the specified server, false otherwise
+ */
+function linux_netstat($server, $options){
+    try{
+
+        return linux_file_exists($server, 'netstat '.$parameters);
+
+    }catch(Exception $e){
+        throw new bException('linux_netstat(): Failed', $e);
     }
 }
 ?>

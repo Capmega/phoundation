@@ -475,7 +475,7 @@ function blogs_post_update($post, $params = null){
 
 
 /*
- * Update the status for the specified blogs
+ * Update the status for the specified blog posts
  */
 function blogs_update_post_status($blog, $params, $list, $status){
     try{
@@ -497,7 +497,7 @@ function blogs_update_post_status($blog, $params, $list, $status){
                                 AND     `blogs_id` = :blogs_id');
 
         foreach($list as $id){
-            $post = sql_get('SELECT `id`, `url`, `seoname`, `status` FROM `blogs_posts` WHERE `id` = :id', array(':id' => $id));
+            $post = sql_get('SELECT `id`, `url`, `seoname`, `language`, `status` FROM `blogs_posts` WHERE `id` = :id', array(':id' => $id));
 
             if(!$post){
                 /*
@@ -528,11 +528,13 @@ function blogs_update_post_status($blog, $params, $list, $status){
                     break;
 
                 case 'published':
-                    sitemap_insert_entry(array('url'              => $post['url'],
-                                               'language'         => $post['language'],
-                                               'priority'         => $params['sitemap_priority'],
-                                               'page_modifiedon'  => date_convert(null, 'mysql'),
-                                               'change_frequency' => $params['sitemap_change_frequency']));
+                    if($post['url']){
+                        sitemap_insert_entry(array('url'              => $post['url'],
+                                                   'language'         => $post['language'],
+                                                   'priority'         => $params['sitemap_priority'],
+                                                   'page_modifiedon'  => date_convert(null, 'mysql'),
+                                                   'change_frequency' => $params['sitemap_change_frequency']));
+                    }
             }
 
             $execute[':id'] = $id;
@@ -2127,9 +2129,10 @@ function blogs_post_url($post){
 
         if(empty($post['url_template'])){
             /*
-             * This blog has no URL template configured, so use the default one
+             * This blog has no URL template configured, so don't generate URLs
+             * and don't add them to the sitemap
              */
-            throw new bException(tr('blogs_post_url(): Blog ":blog" has no template defined', array(':blog' => $post['blogs_id'])), 'not-specified');
+            return false;
         }
 
         $url      = $post['url_template'];
@@ -2372,12 +2375,14 @@ function blogs_update_urls($blogs = null, $category = null){
                             sitemap_delete_entry($url);
                         }
 
-                        if($post['status'] == $params['status']){
-                            sitemap_insert_entry(array('url'              => $post['url'],
-                                                       'language'         => $post['language'],
-                                                       'priority'         => $params['sitemap_priority'],
-                                                       'page_modifiedon'  => date_convert($post['createdon'], 'mysql'),
-                                                       'change_frequency' => $params['sitemap_change_frequency']));
+                        if($post['url']){
+                            if($post['status'] == $params['status']){
+                                sitemap_insert_entry(array('url'              => $post['url'],
+                                                           'language'         => $post['language'],
+                                                           'priority'         => $params['sitemap_priority'],
+                                                           'page_modifiedon'  => date_convert($post['createdon'], 'mysql'),
+                                                           'change_frequency' => $params['sitemap_change_frequency']));
+                            }
                         }
 
                         cli_dot(1);
@@ -2746,15 +2751,18 @@ function blogs_post_get_img($photo, $params, $tabindex){
             load_libs('file');
             unset($is_video);
 
-            if (file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.jpg')) {
+            if(file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.jpg')){
                 $image = getimagesize(ROOT.'www/en/photos/'.$photo['file'].'-large.jpg');
-            } elseif (file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.mp4')) {
-                $mime_type = file_mimetype(ROOT.'www/en/photos/'.$photo['file'].'-original.mp4');
-                $image = ROOT.'www/en/photos/'.$photo['file'].'-original.mp4';
-                $is_video = true;
-            } else {
-                throw new Exception('Image/Video does not exists');
+
+            }elseif(file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.mp4')){
+                $image     = ROOT.'www/en/photos/'.$photo['file'].'-original.mp4';
+                $mime_type = file_mimetype($image);
+                $is_video  = true;
+
+            }else{
+                throw new bException(tr('blogs_post_get_img(): Media file ":file" does not exists', array(':file' => $photo['file'])), 'not-exist');
             }
+
         }catch(Exception $e){
             $image = false;
         }
@@ -2796,7 +2804,7 @@ function blogs_post_get_img($photo, $params, $tabindex){
                                         <td class="file">
                                             <div>
                                                 <a target="_blank" class="fancy" href="'.domain('pub/photos/'.($photo['file']. '-large.jpg')).'">
-                                                    '.html_img(domain('pub/photos/'.($photo['file'] . '-small.jpg')), html_safe('('.$image[0].' X '.$image[1].')'), $image[0], $image[1], 'rel="blog-page" class="col-md-1 control-label"').'
+                                                    '.html_img(cdn_domain('photos/'.($photo['file'] . '-small.jpg'), ''), html_safe('('.$image[0].' X '.$image[1].')'), $image[0], $image[1], 'rel="blog-page" class="col-md-1 control-label"').'
                                                 </a>
                                             </div>
                                         </td>';

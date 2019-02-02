@@ -39,36 +39,24 @@ load_config(' ');
 /*
  * Define basic platform constants
  */
-define('ADMIN'      , '');
-define('SCRIPT'     , str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php'));
-define('PWD'        , slash(isset_get($_SERVER['PWD'])));
-define('STARTDIR'   , slash(getcwd()));
-
-define('FORCE'      , (getenv('FORCE')                    ? 'FORCE'       : null));
-define('NOCOLOR'    , (getenv('NOCOLOR')                  ? 'NOCOLOR'     : null));
-define('TEST'       , (getenv('TEST')                     ? 'TEST'        : null));
-define('VERYVERBOSE', (getenv('VERYVERBOSE')              ? 'VERYVERBOSE' : null));
-define('VERBOSE'    , ((VERYVERBOSE or getenv('VERBOSE')) ? 'VERBOSE'     : null));
-define('QUIET'      , (getenv('QUIET')                    ? 'QUIET'       : null));
-define('LIMIT'      , (getenv('LIMIT')                    ? 'LIMIT'       : $_CONFIG['paging']['limit']));
-define('ORDERBY'    , (getenv('ORDERBY')                  ? 'ORDERBY'     : null));
-define('ALL'        , (getenv('ALL')                      ? 'ALL'         : null));
-define('DELETED'    , (getenv('DELETED')                  ? 'DELETED'     : null));
-define('STATUS'     , (getenv('STATUS')                   ? 'STATUS'      : null));
+define('ADMIN'   , '');
+define('PWD'     , slash(isset_get($_SERVER['PWD'])));
+define('STARTDIR', slash(getcwd()));
+define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : null));
+define('TEST'    , (getenv('TEST')    ? 'TEST'    : null));
+define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : null));
+define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : $_CONFIG['paging']['limit']));
+define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : null));
+define('ALL'     , (getenv('ALL')     ? 'ALL'     : null));
+define('DELETED' , (getenv('DELETED') ? 'DELETED' : null));
+define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : null));
 
 
 
 /*
  * Load basic libraries
  */
-load_libs('http,html,inet,cache'.(empty($_CONFIG['memcached']) ? '' : ',memcached').(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
-
-
-
-/*
- * All scripts will execute http_done() automatically once done
- */
-register_shutdown_function('http_done');
+load_libs('route,http,html,inet,cache'.(empty($_CONFIG['memcached']) ? '' : ',memcached').(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
 
 
 
@@ -190,28 +178,13 @@ try{
 
 
 /*
- * Check if some session redirect was requested
- */
-if(isset($_GET['redirect'])){
-    $_SESSION['redirect'] = $_GET['redirect'];
-}
-
-
-
-
-/*
- * If POST request, automatically untranslate translated POST entries
+ * System pages cannot do $_POST requests
  */
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    html_untranslate();
-
-    if($_CONFIG['security']['csrf']['enabled'] === 'force'){
-        /*
-         * Force CSRF checks on every submit!
-         */
-        check_csrf();
-    }
+    $_POST = array();
+    throw new bException(tr('core::startup(): system pages cannot do POST requests'), '400');
 }
+
 
 
 // :TODO: What to do with this?

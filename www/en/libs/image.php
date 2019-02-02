@@ -604,13 +604,13 @@ function image_info($file, $no_exif = false){
 
         $size = getimagesize($file);
 
-        $retval['file'] = basename($file);
-        $retval['size'] = filesize($file);
-        $retval['path'] = slash(dirname($file));
-        $retval['mime'] = $mime;
-        $retval['bits'] = $size['bits'];
-        $retval['x']    = $size[0];
-        $retval['y']    = $size[1];
+        $retval['filename'] = basename($file);
+        $retval['size']     = filesize($file);
+        $retval['path']     = slash(dirname($file));
+        $retval['mime']     = $mime;
+        $retval['bits']     = $size['bits'];
+        $retval['x']        = $size[0];
+        $retval['y']        = $size[1];
 
         /*
          * Get EXIF information from JPG or TIFF image files

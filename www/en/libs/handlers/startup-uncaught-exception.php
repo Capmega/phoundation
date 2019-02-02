@@ -10,7 +10,7 @@ static $executed = false;
  * security, Base will not display the entire exception as it doesn't know if it
  * is on a production environment or not
  */
-//echo "<pre>\n"; print_r($e->getCode()); echo"\n"; print_r($e); die();
+// echo "<pre>\n"; print_r($e->getCode()); echo"\n"; print_r($e); die();
 
 try{
     if($executed){
@@ -23,12 +23,12 @@ try{
 
     $executed = true;
 
-    if(!defined('SCRIPT')){
-        define('SCRIPT', tr('unknown'));
+    if(empty($core->register['script'])){
+        $core->register('script', 'unknown');
     }
 
-    if(!empty($core) and !empty($core->register['ready'])){
-        log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => SCRIPT)), 'exceptions', 'error');
+    if($core->register['ready']){
+        log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => $core->register['script'])), 'exceptions', 'error');
         log_file($e, 'exceptions');
     }
 
@@ -75,15 +75,20 @@ try{
                 die(1);
             }
 
-            if(empty($core) or empty($core->register['ready'])){
+            if(!$core->register['ready']){
                 /*
                  * Configuration hasn't been loaded yet, we cannot even know if
                  * we are in debug mode or not!
                  *
                  * Log to the webserver error log at the very least
                  */
-                foreach($e->getMessages() as $message){
-                    error_log($message);
+                if(method_exists($e, 'getMessages')){
+                    foreach($e->getMessages() as $message){
+                        error_log($message);
+                    }
+
+                }else{
+                    error_log($e->getMessage());
                 }
 
                 echo "\033[1;31mPre ready exception\033[0m\n";
@@ -139,7 +144,12 @@ try{
                         die($core->register['exit_code']);
 
                     case 'validation':
-                        $messages = $e->getMessages();
+                        if(method_exists($e, 'getMessages')){
+                            $messages = $e->getMessages();
+
+                        }else{
+                            $messages = $e->getMessage();
+                        }
 
                         if(count($messages) > 2){
                             array_pop($messages);
@@ -157,7 +167,7 @@ try{
                 }
             }
 
-            log_console(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => SCRIPT)), 'red');
+            log_console(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'])), 'red');
             debug(true);
 
             if($e instanceof bException){
@@ -184,7 +194,7 @@ try{
                         log_console('    '.$message, 'exception');
                     }
 
-                    log_console('    '.SCRIPT.': Failed', 'exception');
+                    log_console('    '.$core->register['script'].': Failed', 'exception');
                     log_console(tr('Exception function trace:'), 'exception');
 
                     if($trace){
@@ -223,11 +233,10 @@ try{
              * Ensure that required defines are available
              */
             if(!defined('VERYVERBOSE')){
-                define('VERYVERBOSE', (cli_argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
+                define('VERYVERBOSE', (getenv('VERYVERBOSE') ? 'VERYVERBOSE' : null));
             }
 
             $defines = array('ADMIN'    => '',
-                             'SCRIPT'   => str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php'),
                              'PWD'      => slash(isset_get($_SERVER['PWD'])),
                              'STARTDIR' => slash(getcwd()),
                              'FORCE'    => (getenv('FORCE')                    ? 'FORCE'   : null),
@@ -247,7 +256,7 @@ try{
                 }
             }
 
-            if(empty($core) or empty($core->register['ready'])){
+            if(!$core->register['ready']){
                 /*
                  * Configuration hasn't been loaded yet, we cannot even know if we are
                  * in debug mode or not!
@@ -256,11 +265,16 @@ try{
                     header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
                 }
 
-                foreach($e->getMessages as $message){
-                    error_log($message);
+                if(method_exists($e, 'getMessages')){
+                    foreach($e->getMessages() as $message){
+                        error_log($message);
+                    }
+
+                }else{
+                    error_log($e->getMessage());
                 }
 
-                die('pre ready exception');
+                die('Pre ready exception');
             }
 
             if($e->getCode() === 'validation'){
@@ -328,13 +342,13 @@ try{
                             <table class="exception">
                                 <thead>
                                     <td colspan="2" class="center">
-                                        '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => SCRIPT, 'type' => $core->callType())).'
+                                        '.tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'], 'type' => $core->callType())).'
                                     </td>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td colspan="2" class="center">
-                                            '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => SCRIPT)).'
+                                            '.tr('An uncaught exception with code ":code" occured in script ":script". See the exception core dump below for more information on how to fix this issue', array(':code' => $e->getCode(), ':script' => $core->register['script'])).'
                                         </td>
                                     </tr>
                                     <tr>
@@ -374,28 +388,33 @@ try{
                 case 'api':
                     // FALLTHROUGH
                 case 'ajax':
-                    load_libs('json');
-                    json_error(tr('Something went wrong, please try again later'), 500);
+                    $code = 500;
 
+                    if(is_numeric($e->getCode()) and ($e->getCode() > 100)){
+                        $code = $e->getCode();
+                    }
+
+                    load_libs('json');
+                    json_error(tr('Something went wrong, please try again later'), '', '', $code);
             }
 
             page_show(500);
     }
 
 }catch(Exception $f){
+    if(!defined('PLATFORM') or !$core->register['ready']){
+        error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
+        error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+        error_log($f->getMessage());
+        die('Pre ready exception with handling failure');
+    }
+
     log_file('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 'exception-handler', 'red');
     log_file($f, 'exception-handler');
 
-    if(!defined('PLATFORM')){
-        /*
-         * Wow, system crashed before platform detection. See $core->__constructor()
-         */
-        die('exception handler');
-    }
-
     switch(PLATFORM){
         case 'cli':
-            log_console(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => SCRIPT)), 'red');
+            log_console(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])), 'red');
             log_console(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'), 'red');
 
             debug(true);
@@ -409,7 +428,7 @@ try{
                 page_show(500);
             }
 
-            show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => SCRIPT)));
+            show(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
             show('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***');
 
             show($f);

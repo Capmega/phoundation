@@ -26,6 +26,7 @@
 function scanimage_library_init(){
     try{
         load_config('scanimage');
+        load_libs('servers');
 
     }catch(Exception $e){
         throw new bException('scanimage_library_init(): Failed', $e);
@@ -66,12 +67,12 @@ function scanimage($params){
                 switch($params['format']){
                     case 'tiff':
                         $command .= ' > '.$params['file'];
-                        $result   = safe_exec($command);
+                        $result   = servers_exec($params['server'], $command);
                         break;
 
                     case 'jpeg':
                         $command .= ' | convert tiff:- '.$params['file'];
-                        $result   = safe_exec($command);
+                        $result   = servers_exec($params['server'], $command);
                         break;
                 }
 
@@ -80,11 +81,11 @@ function scanimage($params){
             }else{
                 switch($params['format']){
                     case 'tiff':
-                        $result   = safe_exec($command);
+                        $result   = servers_exec($params['server'], $command);
                         break;
 
                     case 'jpeg':
-                        $result   = safe_exec($command);
+                        $result   = servers_exec($params['server'], $command);
                         break;
                 }
             }
@@ -149,7 +150,7 @@ function scanimage_validate($params){
 
     try{
         load_libs('validate');
-        $v       = new validate_form($params, 'device,jpeg_quality,format,file,buffer_size,options');
+        $v       = new validate_form($params, 'device,jpeg_quality,format,file,buffer_size,options,server');
         $options = array();
 
         /*
@@ -326,7 +327,7 @@ function scanimage_list(){
         /*
          * Get device data from cache
          */
-        load_libs('drivers');
+        load_libs('devices');
         $devices = devices_list('scanner');
 
         if($devices){
@@ -344,7 +345,7 @@ function scanimage_list(){
 
 
 /*
- * Search devices from the scanner drivers. This might take a while, easily up to 30 seconds or more
+ * Search devices from the scanner devices. This might take a while, easily up to 30 seconds or more
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -357,9 +358,9 @@ function scanimage_list(){
  *
  * @return array All found scanner devices
  */
-function scanimage_detect_devices(){
+function scanimage_detect_devices($server = null){
     try{
-        $scanners = safe_exec(scanimage_command().' -L -q');
+        $scanners = servers_exec($server, scanimage_command().' -L -q');
         $devices  = array();
 
         foreach($scanners as $scanner){
@@ -428,7 +429,7 @@ function scanimage_detect_devices(){
  */
 function scanimage_update_devices(){
     try{
-        load_libs('drivers');
+        load_libs('devices');
         devices_clear('scanner');
 
         $scanners = scanimage_detect_devices();
@@ -511,7 +512,7 @@ function scanimage_update_devices(){
 
 
 /*
- * Get driver options for the specified scanner device from the drivers
+ * Get driver options for the specified scanner device from the devices
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -526,10 +527,10 @@ function scanimage_update_devices(){
  * @param string $device
  * @return
  */
-function scanimage_get_options($device){
+function scanimage_get_options($device, $server = null){
     try{
         $skip    = true;
-        $results = safe_exec(scanimage_command().' -h -d "'.$device.'"');
+        $results = servers_exec($server, scanimage_command().' -h -d "'.$device.'"');
         $retval  = array();
 
         foreach($results as $result){
@@ -742,7 +743,7 @@ function scanimage_get_default(){
 
         foreach($scanners as $devices_id => $scanner){
             if($scanner['default']){
-                load_libs('drivers');
+                load_libs('devices');
 
                 $scanner['options'] = devices_list_options($devices_id);
                 return $scanner;
@@ -772,7 +773,7 @@ function scanimage_get_default(){
  */
 function scanimage_get($device_string){
     try{
-        load_libs('drivers');
+        load_libs('devices');
         $scanner = devices_get($device_string);
 
         if(!$scanner){

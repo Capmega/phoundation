@@ -88,11 +88,11 @@ function redirect_url($url = null){
             $url = domain(true);
         }
 
-        if(empty($core->register['redirect'])){
+        if(empty($_GET['redirect'])){
             return $url;
         }
 
-        return url_add_query($url, 'redirect='.urlencode($core->register['redirect']));
+        return url_add_query($url, 'redirect='.urlencode($_GET['redirect']));
 
     }catch(Exception $e){
         throw new bException('redirect_url(): Failed', $e);
@@ -119,13 +119,13 @@ function session_redirect($method = 'http', $force = false){
             $redirect = $_GET['redirect'];
             unset($_GET['redirect']);
 
-        }elseif(!empty($_SESSION['redirect'])){
+        }elseif(!empty($_GET['redirect'])){
             /*
              * Redirect by _SESSION redirect
              */
-            $redirect = $_SESSION['redirect'];
+            $redirect = $_GET['redirect'];
 
-            unset($_SESSION['redirect']);
+            unset($_GET['redirect']);
             unset($_SESSION['sso_referrer']);
         }
 
@@ -578,22 +578,7 @@ function http_done(){
             die();
         }
 
-        if($core and empty($core->register['ready'])){
-            /*
-             * We died before the $core was ready. For more information, see
-             * the ROOT/data/log/syslog file, or your webserver log file
-             */
-            die('Exception: See log files');
-        }
-
         $exit_code = isset_get($core->register['exit_code'], 0);
-
-        if(!defined('ENVIRONMENT')){
-            /*
-             * Oh crap.. Environment hasn't been defined, so we died VERY soon.
-             */
-            return false;
-        }
 
         /*
          * Do we need to run other shutdown functions?
@@ -626,11 +611,20 @@ function http_validate_get(){
     global $_CONFIG;
 
     try{
-        foreach($_GET as $key => $value){
+        foreach($_GET as $key => &$value){
             if(!is_scalar($value)){
-                throw new bException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
+                if($value){
+                    throw new bException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
+                }
+
+                /*
+                 * The value is NULL
+                 */
+                 $value = '';
             }
         }
+
+        unset($value);
 
         $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
 

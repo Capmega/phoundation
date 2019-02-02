@@ -225,7 +225,7 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null){
              * Default values
              */
             if(!$key){
-                $key = SCRIPT;
+                $key = $core->register['script'];
             }
 
             if(!$etag){

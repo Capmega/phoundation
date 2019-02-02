@@ -314,7 +314,7 @@ function install($params, $force = false){
                                 $target_path = dirname($target);
                                 file_ensure_path($target_path);
 
-                                file_execute_mode($target_path, (is_writable($target_path) ? false : 0770), function($params, $path, $mode) use ($temp_path, $source, $target){
+                                file_execute_mode($target_path, (is_writable($target_path) ? false : 0770), function($path, $params, $mode) use ($temp_path, $source, $target){
                                     global $_CONFIG;
 
                                     if(file_exists($target)){

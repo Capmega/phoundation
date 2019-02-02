@@ -249,7 +249,7 @@ function storage_files_get($file, $documents_id, $pages_id = null){
  */
 function storage_file_url($file, $type){
     try{
-        return domain('/files/'.$file['filename']);
+        return domain('/files/'.$file);
 
     }catch(Exception $e){
         throw new bException('storage_file_url(): Failed', $e);

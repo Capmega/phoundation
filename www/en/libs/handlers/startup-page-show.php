@@ -14,6 +14,8 @@ try{
     array_params($params, 'message');
     array_default($params, 'exists', false);
 
+    log_file(tr('Showing page ":page"', array(':page' => $pagename)), 'route', 'VERBOSE/cyan');
+
     if(!is_scalar($pagename)){
         throw new bException(tr('page_show(): Invalid pagename ":pagename" specified', array(':pagename' => $pagename)), 'invalid');
     }

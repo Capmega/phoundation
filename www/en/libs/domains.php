@@ -299,7 +299,7 @@ function domains_list_servers($domain){
  * @param array $servers
  * @return The amount of servers added for the domain
  */
-function domains_update_servers($domain, $servers){
+function domains_update_servers($domain, $servers = null){
     global $_CONFIG;
 
     try{
@@ -523,6 +523,7 @@ function domains_insert($domain){
 
         $domain['id'] = sql_insert_id();
 
+        log_console(tr('Inserted domain ":domain" with id ":id"', array(':domain' => $domain['domain'], ':id' => $domain['id'])), 'VERBOSE/green');
         domains_update_servers($domain, $domain['servers']);
 
         return $domain;
@@ -576,6 +577,7 @@ function domains_update($domain, $new = false){
                          ':seodomain'     => $domain['seodomain'],
                          ':description'   => $domain['description']));
 
+        log_console(tr('Updated domain ":domain" with id ":id"', array(':domain' => $domain['domain'], ':id' => $domain['id'])), 'VERBOSE/green');
         domains_update_servers($domain, $domain['servers']);
 
         return $domain;

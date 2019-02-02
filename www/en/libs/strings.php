@@ -242,20 +242,6 @@ function str_safe_base64_decode($source){
 
 
 /*
- * Cut and return a piece out of the source string, starting from the start string, stopping at the stop string.
- */
-function str_cut($source, $start, $stop){
-    try{
-        return str_until(str_from($source, $start), $stop);
-
-    }catch(Exception $e){
-        throw new bException(tr('str_cut(): Failed'), $e);
-    }
-}
-
-
-
-/*
  * Return a safe size string for displaying
  */
 // :DELETE: Isn't this str_log()?
@@ -1013,45 +999,6 @@ function str_boolean($value){
         throw new bException(tr('str_boolean(): Failed'), $e);
     }
 }
-
-
-/*
- * Returns true if the specified $needle exists in the specified $haystack
- *
- * This is a simple wrapper function to strpos() which does not require testing for false, as the output is boolean. If the $needle exists in the $haystack, true will be returned, else false will be returned.
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package str
- * @see strpos()
- * @see strstr()
- * @version 1.26.1: Added function and documentation
- * @example
- * code
- * $result = str_exists('This function is completely foobar', 'foobar');
- * showdie($result);
- * /code
- *
- * This would return
- * code
- * true
- * /code
- *
- * @param string $haystack The source string in which this function needs to find $needle
- * @params string $needle The string that will be searched for in $haystack
- * @return boolean True if the $needle exists in $haystack, false otherwise
- */
-function str_exists($haystack, $needle){
-    try{
-        return (strpos($haystack, $needle) !== false);
-
-    }catch(Exception $e){
-        throw new bException(tr('str_exists(): Failed'), $e);
-    }
-}
-
 
 
 /* From http://stackoverflow.com/questions/11151250/how-to-compare-two-very-large-strings, implement?

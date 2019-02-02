@@ -84,7 +84,7 @@ function empty_install($params){
  * @table: `empty`
  * @note: This is a note
  * @version 1.22.0: Added documentation
- * @example
+ * @example [Title]
  * code
  * $result = empty(array('foo' => 'bar'));
  * showdie($result);

@@ -65,6 +65,22 @@ function sql_query($query, $execute = false, $connector = null){
         $query_start = microtime(true);
 
         if(!is_string($query)){
+            if(is_object($query)){
+                if(!($query instanceof PDOStatement)){
+                    throw new bException(tr('sql_query(): Object of unknown class ":class" specified where either a string or a PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                }
+
+                /*
+                 * PDO statement was specified instead of a query
+                 */
+                if($query->queryString[0] == ' '){
+                    debug_sql($query, $execute);
+                }
+
+                $query->execute($execute);
+                return $query;
+            }
+
             throw new bException(tr('sql_query(): Specified query ":query" is not a string', array(':query' => $query)), 'invalid');
         }
 
@@ -248,28 +264,23 @@ function sql_get($query, $single_column = null, $execute = null, $connector = nu
     try{
         $connector = sql_connector_name($connector);
 
-        if(is_object($query)){
-            return sql_fetch($query, $single_column);
-
-        }else{
-            if(is_array($single_column)){
-                /*
-                 * Argument shift, no columns were specified.
-                 */
-                $tmp            = $execute;
-                $execute        = $single_column;
-                $single_column  = $tmp;
-                unset($tmp);
-            }
-
-            $result = sql_query($query, $execute, $connector);
-
-            if($result->rowCount() > 1){
-                throw new bException(tr('sql_get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => debug_sql($result->queryString, $execute, true))), 'multiple');
-            }
-
-            return sql_fetch($result, $single_column);
+        if(is_array($single_column)){
+            /*
+             * Argument shift, no columns were specified.
+             */
+            $tmp            = $execute;
+            $execute        = $single_column;
+            $single_column  = $tmp;
+            unset($tmp);
         }
+
+        $result = sql_query($query, $execute, $connector);
+
+        if($result->rowCount() > 1){
+            throw new bException(tr('sql_get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => debug_sql($result->queryString, $execute, true))), 'multiple');
+        }
+
+        return sql_fetch($result, $single_column);
 
     }catch(Exception $e){
         if(is_object($query)){
@@ -391,7 +402,7 @@ function sql_init($connector = null){
         /*
          * This is only required for the system connection
          */
-        if((PLATFORM_CLI) and (SCRIPT == 'init') and FORCE and !empty($_CONFIG['db'][$connector]['init'])){
+        if((PLATFORM_CLI) and ($core->register['script'] == 'init') and FORCE and !empty($_CONFIG['db'][$connector]['init'])){
             include(__DIR__.'/handlers/sql-init-force.php');
         }
 
@@ -989,6 +1000,8 @@ function sql_in($source, $column = ':value'){
         if(empty($source)){
             throw new bException('sql_in(): Specified source is empty', 'empty');
         }
+
+        $column = str_starts($column, ':');
 
         load_libs('array');
         return array_sequential_keys(array_force($source), $column);
@@ -1867,6 +1880,10 @@ function sql_test_tunnel($server){
         $connector_name = 'test';
         $port           = 6000;
         $server         = servers_get($server, true);
+
+        if(!$server['database_accounts_id']){
+            throw new bException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exist');
+        }
 
         sql_make_connector($connector_name, array('port'       => $port,
                                                   'user'       => $server['db_username'],

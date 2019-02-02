@@ -1,6 +1,6 @@
 <?php
 try{
-    global $_CONFIG;
+    global $_CONFIG, $core;
 
     if($e->getMessage() == 'could not find driver'){
         throw new bException(tr('sql_connect(): Failed to connect with ":driver" driver, it looks like its not available', array(':driver' => $connector['driver'])), 'driverfail');
@@ -28,7 +28,7 @@ try{
              */
             $core->register['no-db'] = true;
 
-            if(!((PLATFORM_CLI) and (SCRIPT == 'init'))){
+            if(!((PLATFORM_CLI) and ($core->register['script'] == 'init'))){
                 throw $e;
             }
 
@@ -48,8 +48,7 @@ try{
             log_console(tr('Reconnecting to database server with database ":db"', array(':db' => $db)), 'yellow');
 
             $connector['db'] = $db;
-            $pdo = sql_connect($connector);
-            break;
+            return sql_connect($connector);
 
         case 2002:
             /*
@@ -121,8 +120,7 @@ try{
                 ssh_close_tunnel($connector['ssh_tunnel']['pid']);
             }
 
-            $pdo = sql_connect($connector);
-            break;
+            return sql_connect($connector);
 
         default:
             throw new bException('sql_connect(): Failed to create PDO SQL object', $e);

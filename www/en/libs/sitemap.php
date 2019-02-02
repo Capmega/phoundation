@@ -67,7 +67,7 @@ function sitemap_install_files($files){
              * Install the sub sitemap files
              */
             foreach($files as $file){
-                file_execute_mode(ROOT.'www/'.$file['language'], 0770, $file, function($params) use ($insert){
+                file_execute_mode(ROOT.'www/'.$file['language'], 0770, $file, function($path, $params) use ($insert){
                     /*
                      * Move sub sitemap files in place
                      */

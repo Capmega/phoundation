@@ -374,6 +374,14 @@ function file_ensure_path($path, $mode = null, $clear = false){
     try{
         if($mode === null){
             $mode = $_CONFIG['fs']['dir_mode'];
+
+            if(!$mode){
+                /*
+                 * Mode configuration is not available (yet?)
+                 * Fall back to a default mode, 0770 for directories
+                 */
+                $mode = 0770;
+            }
         }
 
         if($clear){
@@ -390,7 +398,7 @@ function file_ensure_path($path, $mode = null, $clear = false){
              * directory by directory so that we can correct issues as we run in
              * to them
              */
-            $dirs = explode('/', $path);
+            $dirs = explode('/', str_starts_not($path, '/'));
             $path = '';
 
             foreach($dirs as $dir){
@@ -505,7 +513,7 @@ function file_clear_path($path){
              * Remove this entry and continue;
              */
             try{
-                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path){
+                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path){
                     file_delete($path);
                 });
 
@@ -2119,28 +2127,13 @@ function file_root($path){
  * specified path. Once the callback has finished, return to the original file
  * mode.
  *
- * NOTE: When params are specified, they are specified BEFORE the anonymous
- * function!!!
- *
- * This means that if NO params are specified, the function signature is this
- * file_execute_mode($path, $mode, $callback)
- *
- * When params ARE specified, the function signature is like this:
- * file_execute_mode($path, $mode, $params, $callback)
+ * The callback function signature is like this:
+ * $callback($path, $params, $mode)
  */
 function file_execute_mode($path, $mode, $callback, $params = null){
     try{
         if(!file_exists($path)){
             throw new bException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
-        }
-
-        if($params){
-            /*
-             * Switch parameters
-             */
-            $tmp      = $params;
-            $params   = $callback;
-            $callback = $tmp;
         }
 
         if($mode){
@@ -2152,7 +2145,7 @@ function file_execute_mode($path, $mode, $callback, $params = null){
             $path = slash($path);
         }
 
-        $retval = $callback($params, $path, $mode);
+        $retval = $callback($path, $params, $mode);
 
         if($mode){
             chmod($path, $original_mode);

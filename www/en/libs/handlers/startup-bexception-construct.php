@@ -52,25 +52,6 @@ if(!is_array($messages)){
     $messages = array($messages);
 }
 
-// :DELETE: Exceptions should only logged if uncaught, since only those matter. Caught exceptions have been handled by the system already
-//        try{
-//            /*
-//             * Only log to file if core is available and config_ok (configuration is loaded correclty)
-//             */
-//            if(!empty($core) and !empty($core->register['ready'])){
-//                foreach($messages as $message){
-//                    log_file($message, 'exceptions');
-//                }
-//            }
-//
-//        }catch(Exception $f){
-//            /*
-//             * Exception database logging failed. Ignore, since from here on there is little to do
-//             */
-//
-//// :TODO: Add notifications!
-//        }
-
 parent::__construct($orgmessage, null);
 $this->code = (string) $code;
 

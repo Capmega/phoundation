@@ -575,11 +575,11 @@ switch(cli_method()){
 function s_display_info($info){
     try{
         log_console(str_size(tr('File'), 20), 'cyan', false);
-        log_console($info['path'].$info['file'], 'white');
+        log_console($info['path'].$info['filename'], 'white');
         log_console(str_size(tr('Path'), 20), 'cyan', false);
         log_console($info['path'], 'white');
         log_console(str_size(tr('Filename'), 20), 'cyan', false);
-        log_console($info['file'], 'white');
+        log_console($info['filename'], 'white');
         log_console(str_size(tr('File size'), 20), 'cyan', false);
         log_console(bytes($info['size']) , 'white');
         log_console(str_size(tr('Mimetype'), 20), 'cyan', false);

@@ -119,7 +119,7 @@ try{
                     servers_insert(array('domain'      => $domain,
                                          'port'        => $port,
                                          'register'    => $register,
-                                         'ssh_account' => $accounts_data['seoname']));
+                                         'ssh_account' => isset_get($accounts_data['seoname'])));
 
                     log_console(tr('Added server with domain ":domain"', array(':domain' => $domain)), 'green');
                     $count++;
@@ -182,10 +182,10 @@ try{
             $count  = ssh_add_known_host($server['domain'], $server['port']);
 
             if($count){
-                log_console(tr('Added ":count" domains', array(':count' => $count)), 'green');
+                log_console(tr('Added ":count" registrations for server ":server"', array(':count' => $count, ':server' => $server['domain'])), 'green');
 
             }else{
-                log_console(tr('Added no domains, domain was probably already registered'), 'yellow');
+                log_console(tr('Added no registrations for server ":server", the server probably was already registered', array(':server' => $server['domain'])), 'green');
             }
 
             break;
@@ -199,10 +199,10 @@ try{
             $count  = ssh_remove_known_host($server['domain'], $server['port']);
 
             if($count){
-                log_console(tr('Removed ":count" domains', array(':count' => $count)), 'green');
+                log_console(tr('Removed ":count" registrations for server ":server"', array(':count' => $count, ':server' => $server['domain'])), 'green');
 
             }else{
-                log_console(tr('Removed no domains, domain was probably not registered'), 'yellow');
+                log_console(tr('Removed no registrations for server ":server", the server probably was not registered yet', array(':server' => $server['domain'])), 'green');
             }
 
             break;

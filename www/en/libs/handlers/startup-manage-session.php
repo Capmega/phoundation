@@ -216,10 +216,10 @@ try{
                      * Woah, something really went wrong..
                      *
                      * This may be
-                     * headers already sent (the SCRIPT file has a space or BOM at the beginning maybe?)
+                     * headers already sent (the $core->register['script'] file has a space or BOM at the beginning maybe?)
                      * permissions of PHP session directory?
                      */
-        // :TODO: Add check on SCRIPT file if it contains BOM!
+        // :TODO: Add check on $core->register['script'] file if it contains BOM!
                     throw new bException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
                 }
             }

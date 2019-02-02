@@ -85,6 +85,27 @@ function html_iefilter($html, $filter){
 
 /*
  * Bundles CSS or JS files together into one larger file with an md5 name
+ *
+ * This function will bundle the CSS and JS files required for the current page into one large file and have that one sent to the browser instead of all the individual files. This will improve transfer speeds to the client.
+ *
+ * The bundler file name will be a sha1() of the list of required files plus the current framework and project versions. This way, if two pages have two different lists of files, they will have two different bundle files. Also, as each deply causes at least a new project version, each deploy will also cause new bundle file names which simplifies caching for the client; we can simply set caching to a month or longer and never worry about it anymore.
+ *
+ * The bundler files themselves will also be cached (by default one day, see $_CONFIG[cdn][bundler][max_age]) in pub/css/bundler-* for CSS files and pub/js/bundler-* for javascript files. The cache script can clean these files when executed with the "clean" method
+ *
+ * This function is called automatically by the html_generate_css() and html_generate_js() calls and should not be used by the developer.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ * @see html_generate_css()
+ * @see html_generate_js()
+ * @see html_minify()
+ * @version 1.27.0: Added documentation
+ *
+ * @param string $type One of "css", "js_header", or "js_footer".  Specified what file list to bundle.  "css" bundles all CSS files, "js_header" bundles all files for the <script> tag in the <head> section, and "js_footer" bundles all files that go in the <script> tag of the footer of the HTML file
+ * @return boolean False if no bundling has been applied, true if bundling was applied
  */
 function html_bundler($type){
     global $_CONFIG, $core;
@@ -113,14 +134,22 @@ function html_bundler($type){
         }
 
         /*
-         * Prepare bundle information
+         * Prepare bundle information. The bundle file name will be a hash of
+         * the bundle file names and the framework and project code versions.
+         * This way, if the framework version or code version get bumped up,
+         * the bundle filename will be different, avoiding caching issues. Since
+         * the deploy script will automatically bump the project version on
+         * deploy, each deploy will cause different bundle filenames. With this
+         * we can easily set caching to a year if needed, any updates to CSS or
+         * JS will cause the client browser to load the new bundle files.
          */
         $admin_path  = ($core->callType('admin') ? 'admin/'           : '');
         $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$extension : '.'.$extension);
         $bundle      =  str_force(array_keys($core->register[$type]));
-        $bundle      =  substr(md5($bundle), 1, 16);
+        $bundle      =  substr(sha1($bundle.FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
         $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
+        $count       = 0;
 
         /*
          * If we don't find an existing bundle file, then procced with the concatination process
@@ -134,7 +163,7 @@ function html_bundler($type){
                 return html_bundler($type);
             }
 
-            $core->register[$type] = array();
+            $core->register[$type] = array('bundle-'.$bundle => false);
 
         }else{
             /*
@@ -144,6 +173,7 @@ function html_bundler($type){
                 /*
                  * Check for @imports
                  */
+                $count++;
                 $orgfile = $file;
                 $file    = $path.$file.$ext;
 
@@ -269,14 +299,22 @@ function html_bundler($type){
                 }
             }
 
-            if($_CONFIG['cdn']['network']['enabled']){
-                load_libs('cdn');
-                cdn_add_object($bundle_file);
+            /*
+             * Only continue here if we actually added anything to the bundle
+             * (some bundles may not have anything, like js_header)
+             */
+            if($count){
+// :TODO: Add support for individual bundles that require async loading
+                $core->register[$type]['bundle-'.$bundle] = false;
+
+                if($_CONFIG['cdn']['network']['enabled']){
+                    load_libs('cdn');
+                    cdn_add_object($bundle_file);
+                }
             }
         }
 
-// :TODO: Add support for individual bundles that require async loading
-        $core->register[$type]['bundle-'.$bundle] = false;
+        return true;
 
     }catch(Exception $e){
         throw new bException('html_bundler(): Failed', $e);
@@ -669,11 +707,11 @@ function html_header($params = null, $meta = array()){
         }
 
         if(empty($meta['description'])){
-            throw new bException(tr('html_header(): No header meta description specified for script "%script%" (SEO!)', array('%script%' => SCRIPT)), '');
+            throw new bException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
         }
 
         if(empty($meta['keywords'])){
-            throw new bException(tr('html_header(): No header meta keywords specified for script "%script%" (SEO!)', array('%script%' => SCRIPT)), '');
+            throw new bException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
         }
 
         if(!empty($meta['noindex'])){
@@ -762,6 +800,14 @@ function html_header($params = null, $meta = array()){
 
         $retval .= html_generate_css().
                    html_generate_js();
+
+        /*
+         * Set load_delayed to false from here on. If anything after this still
+         * generates javascript (footer function!) it should be directly sent to
+         * client
+         */
+        $_CONFIG['cdn']['js']['load_delayed'] = false;
+
 
         /*
          * Add required fonts
@@ -1707,14 +1753,14 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
         }
 
         /*
-         * SCRIPT tags are added all at the end of the page for faster loading
+         * $core->register[script] tags are added all at the end of the page for faster loading
          * (and to avoid problems with jQuery not yet being available)
          */
-        if(empty($core->register('script_delayed'))){
-            $core->register['script_delayed']  = $retval;
+        if(isset($core->register['script_delayed'])){
+            $core->register['script_delayed'] .= $retval;
 
         }else{
-            $core->register['script_delayed'] .= $retval;
+            $core->register['script_delayed']  = $retval;
         }
 
         return '';
@@ -2056,7 +2102,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                             /*
                              * Image doesn't exist.
                              */
-                            log_console(tr('html_img(): image ":src" does not exist', array(':src' => $file_src, ':width' => $width, ':height' => $height)), 'yellow');
+                            log_console(tr('html_img(): image ":src" does not exist', array(':src' => $file_src)), 'yellow');
                             $image[0] = -1;
                             $image[1] = -1;
                         }
@@ -2067,7 +2113,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                     $status = null;
 
                 }catch(Exception $e){
-                    notify('imgnotexist', tr('html_img(): The image with src ":src" does not exist or is not an image', array(':src' => $src)), 'developers');
+                    notify($e);
 
                     $width  = 0;
                     $height = 0;
@@ -2406,7 +2452,7 @@ function html_fix_checkbox_values(){
  * @param boolean $csrf_check
  * @return string the HTML <form> tag
  */
-function html_form($action = null, $method = 'post', $name = 'form', $class = 'form-horizontal', $extra = '', $csrf_check = true){
+function html_form($method = 'post', $action = null, $name = 'form', $class = 'form-horizontal', $extra = '', $csrf_check = true){
     try{
         if(!$action){
             $action = domain(true);
@@ -2414,7 +2460,13 @@ function html_form($action = null, $method = 'post', $name = 'form', $class = 'f
 
         foreach(array('name', 'method', 'action', 'class', 'extra') as $key){
             if(!$$key) continue;
-            $keys[] = $key.'="'.$$key.'"';
+
+            if($key == 'extra'){
+                $keys[] = $$key;
+
+            }else{
+                $keys[] = $key.'="'.$$key.'"';
+            }
         }
 
         if(!empty($name)){
