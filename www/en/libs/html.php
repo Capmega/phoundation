@@ -149,6 +149,7 @@ function html_bundler($type){
         $bundle      =  substr(sha1($bundle.FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
         $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
+        $count       = 0;
 
         /*
          * If we don't find an existing bundle file, then procced with the concatination process
@@ -162,7 +163,7 @@ function html_bundler($type){
                 return html_bundler($type);
             }
 
-            $core->register[$type] = array();
+            $core->register[$type] = array('bundle-'.$bundle => false);
 
         }else{
             /*
@@ -172,6 +173,7 @@ function html_bundler($type){
                 /*
                  * Check for @imports
                  */
+                $count++;
                 $orgfile = $file;
                 $file    = $path.$file.$ext;
 
@@ -297,14 +299,21 @@ function html_bundler($type){
                 }
             }
 
-            if($_CONFIG['cdn']['network']['enabled']){
-                load_libs('cdn');
-                cdn_add_object($bundle_file);
+            /*
+             * Only continue here if we actually added anything to the bundle
+             * (some bundles may not have anything, like js_header)
+             */
+            if($count){
+// :TODO: Add support for individual bundles that require async loading
+                $core->register[$type]['bundle-'.$bundle] = false;
+
+                if($_CONFIG['cdn']['network']['enabled']){
+                    load_libs('cdn');
+                    cdn_add_object($bundle_file);
+                }
             }
         }
 
-// :TODO: Add support for individual bundles that require async loading
-        $core->register[$type]['bundle-'.$bundle] = false;
         return true;
 
     }catch(Exception $e){
