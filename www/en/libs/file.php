@@ -368,12 +368,20 @@ function file_ensure_file($file, $mode = null, $path_mode = null){
 /*
  * Ensures existence of specified path
  */
-function file_ensure_path($path, $mode = null){
+function file_ensure_path($path, $mode = null, $clear = false){
     global $_CONFIG;
 
     try{
         if($mode === null){
             $mode = $_CONFIG['fs']['dir_mode'];
+        }
+
+        if($clear){
+            /*
+             * Delete the currently existing file so we can  be sure we have an
+             * empty directory
+             */
+            file_delete($path);
         }
 
         if(!file_exists(unslash($path))){
