@@ -1038,6 +1038,12 @@ function fontawesome_array(){
  */
 function fontawesome_update(){
     try{
+        load_libs('cli');
+
+        $file = download('https://github.com/FortAwesome/Font-Awesome/archive/master.zip', 'fontawesome');
+        cli_unzip($file);
+
+        file_delete(TMP.'fontawesome');
 
     }catch(Exception $e){
         throw new bException('fontawesome_update(): Failed', $e);

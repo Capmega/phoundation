@@ -4,9 +4,128 @@
  *
  * This is an empty template library file
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package fonts
+ * @see https://alternativeto.net/software/font-awesome/
+ * @see https://sleeklogos.design/web-app/new-icons/all Sleep logos
+ * @see https://fonts.google.com/
  */
+
+
+
+/*
+ * Verify that the specified provider exist. If no provider was specified, return a list of all available providers
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package fonts
+ * @version 2.0.5: Added function and documentation
+ *
+ * @param null string $provider
+ * @return mixed If a provider was specified and exist, that provider will be returned. If no provider was specified, an array containing all supported providers will be returned
+ */
+function fonts_providers($provider = null){
+    static $providers = array('fontawesome'       => true,
+                              'themify'           => true,
+                              'fontello'          => false,
+                              'typicons'          => false,
+                              'foundation'        => false,
+                              'pictonic'          => false,
+                              'modern'            => false,
+                              'iconfarm'          => false,
+                              'icons8'            => false,
+                              'lineawesome'       => false,
+                              'picons'            => false,
+                              'noun'              => false,
+                              'iconarchive'       => false,
+                              'fontsforweb'       => false,
+                              'adobeedge'         => false,
+                              'googlefonts'       => false,
+                              'fontsquirrel'      => false,
+                              'openfont'          => false,
+                              'nucleo'            => false,
+                              'illustrio'         => false,
+                              'iconcrafts'        => false,
+                              'vicons'            => false,
+                              'swifticons'        => false,
+                              'futuramo'          => false,
+                              'iconpacks'         => false,
+                              'font2web'          => false,
+                              'glyphicons'        => false,
+                              'shifticons'        => false,
+                              'sleeklogos'        => false,
+                              'toicon'            => false,
+                              'twfonts'           => false,
+                              'vectoriconbox'     => false,
+                              'smashicons'        => false,
+                              'kwippe'            => false,
+                              'iconmonstr'        => false,
+                              'iconspedia'        => false,
+                              'graphicriver'      => false,
+                              'icomoon'           => false,
+                              'motosha'           => false,
+                              'gameicons'         => false,
+                              'fontastic'         => false,
+                              'iconscout'         => false,
+                              'findicons'         => false,
+                              'pngify'            => false,
+                              'iconsdb'           => false,
+                              'iconsfind'         => false,
+                              'icongallery'       => false,
+                              'easyiconfinder'    => false,
+                              'seanau'            => false,
+                              'iconseeker'        => false,
+                              'fontspace'         => false,
+                              'iconssearch'       => false,
+                              'typecatcher'       => false,
+                              'fontscom'          => false,
+                              'brick'             => false,
+                              'fontfacegenerator' => false,
+                              'veryicon'          => false,
+                              'fontdaddy'         => false,
+                              'fontsadda'         => false,
+                              'kernest'           => false,
+                              'webink'            => false,
+                              'fontfont'          => false,
+                              'fontdeck'          => false,
+                              'typefonts'         => false,
+                              'typotheque'        => false,
+                              'dafont'            => false,
+                              'befonts'           => false,
+                              'adobefonts'        => false,
+                              'webtype'           => false,
+                              'fontsrepo'         => false,
+                              'getfonts'          => false,
+                              'ffonts'            => false,
+                              'weeklyfonts'       => false,
+                              'fontstore'         => false,
+                              'redfonts'          => false,
+                              'fontmeme'          => false,
+                              'fonts4free'        => false,
+                              'betterfontfinder'  => false,
+                              'fontviewer'        => false);
+
+    try{
+        if($provider){
+            if(empty($providers[$provider])){
+                throw new bException(tr('fonts_providers(): Unknown provider ":provider" specified'), 'unknown');
+            }
+
+            return $provider;
+        }
+
+        return $providers;
+
+    }catch(Exception $e){
+        throw new bException('fonts_providers(): Failed', $e);
+    }
+}
+
 
 
 /*
