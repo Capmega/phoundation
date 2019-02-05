@@ -61,8 +61,8 @@ function rating_library_init(){
  */
 function rating_install($params){
     try{
-        $css = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.css');
-        $js  = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js');
+        $css = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.css', 'ratings');
+        $js  = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js' , 'ratings');
 
         file_execute_mode(ROOT.'pub/js/', 0770, function(){
             file_ensure_path(ROOT.'pub/js/rating/', 0550);
@@ -72,6 +72,8 @@ function rating_install($params){
                 rename($css, ROOT.'pub/css/rating/rating.css');
             });
         });
+
+        file_delete(TMP.'ratings');
 
     }catch(Exception $e){
         throw new bException('rating_install(): Failed', $e);

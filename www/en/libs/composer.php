@@ -69,9 +69,9 @@ function composer_install($params){
     try{
         file_ensure_path(TMP.'composer');
 
-        $file          = download('https://getcomposer.org/installer');
+        $file          = download('https://getcomposer.org/installer', 'composer');
         $file_hash     = hash_file('SHA384', $file);
-        $required_hash = download('https://composer.github.io/installer.sig', true);
+        $required_hash = download('https://composer.github.io/installer.sig');
 
         if($file_hash != $required_hash){
             throw new bException(tr('composer_install(): File hash check failed for composer-setup.php'), 'hash-fail');
@@ -80,6 +80,8 @@ function composer_install($params){
         file_execute_mode(ROOT.'www/en/libs/external/', 0770, function(){
             safe_exec('php '.$file.' --install-dir '.ROOT.'www/en/libs/external/'.(VERBOSE ? '' : ' --quiet'));
         });
+
+        file_delete(TMP.'composer');
 
     }catch(Exception $e){
         throw new bException('composer_install(): Failed', $e);

@@ -67,7 +67,7 @@ function captcha_html($class = null){
          * Ensure we have a locally hosted copy of this file
          */
         if(!file_exists(ROOT.'pub/js/recaptcha/api.js')){
-            $file = download('https://www.google.com/recaptcha/api.js');
+            $file = download('https://www.google.com/recaptcha/api.js', 'captcha');
 
             file_execute_mode(ROOT.'pub/js/', 0770, function(){
                 file_ensure_path(ROOT.'pub/js/recaptcha/', 0550);
@@ -78,6 +78,7 @@ function captcha_html($class = null){
             });
         }
 
+        file_delete(TMP.'captcha');
         html_load_js('recaptcha/api');
         return '<div class="g-recaptcha'.($class ? ' '.$class : '').'" data-sitekey="'.$_CONFIG['captcha']['public'].'"></div>';
 

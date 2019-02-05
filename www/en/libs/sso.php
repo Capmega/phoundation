@@ -70,17 +70,18 @@ function sso_install($params){
         /*
          * Download the hybridauth v2 library, and install it in the external libraries path
          */
-        $file = download('https://github.com/hybridauth/hybridauth/archive/v2.zip');
-        file_ensure_path(TMP.'hybridauth', 0770, true);
-        rename($file, TMP.'hybridauth/');
-        safe_exec('cd '.TMP.'hybridauth/; unzip '.$file);
+        load_libs('cli');
+
+        $file = download('https://github.com/hybridauth/hybridauth/archive/v2.zip', 'hybridauth');
+        $path = cli_unzip($file);
 
         /*
          * Install facebook adapter
          */
-        $facebook = download('wget -O '.TMP.'hybridauth/facebook-graph.zip https://github.com/facebook/php-graph-sdk/archive/5.5.zip');
-        rename($facebook, TMP.'hybridauth/facebook-graph.zip');
-        safe_exec('cd '.TMP.'hybridauth/; unzip '.TMP.'hybridauth/facebook-graph.zip');
+        $facebook = download('https://github.com/facebook/php-graph-sdk/archive/5.5.zip', 'facebook');
+        cli_unzip($facebook);
+
+        rename($facebook, $path);
 
         file_delete(TMP.'hybridauth/hybridauth-2/hybridauth/Hybrid/thirdparty/Facebook/');
         rename(TMP.'hybridauth/php-graph-sdk-5.5/src/Facebook/', TMP.'hybridauth/hybridauth-2/hybridauth/Hybrid/thirdparty/Facebook/');
@@ -90,7 +91,7 @@ function sso_install($params){
          */
         file_execute_mode(ROOT.'www/en/libs/external', 0770, function(){
             file_delete(ROOT.'www/en/libs/external/hybridauth');
-            rename(TMP.'hybridauth/hybridauth-2/hybridauth', ROOT.'www/en/libs/external/hybridauth');
+            rename($path, ROOT.'www/en/libs/external/hybridauth');
         });
 
         file_delete(TMP.'hybridauth');
