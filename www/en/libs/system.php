@@ -1861,30 +1861,58 @@ function domain($current_url = false, $query = null, $prefix = null, $domain = n
  * /code
  *
  * @param string $url The URL of the file to be downloaded
- * @param boolean $return_contents If set to true, will return the contents of the downloaded file instead of the target filename. As the caller function will not know the exact filename used, the target file will be deleted automatically!
+ * @param mixed $section If set to false, will return the contents of the downloaded file instead of the target filename. As the caller function will not know the exact filename used, the target file will be deleted automatically! If set to a string
+ * @param null function $callback If specified, download will execute this callback with either the filename or file contents (depending on $section)
  * @return string The downloaded file
  */
-function download($url, $return_contents = false){
+function download($url, $section = false, $callback = null){
     try{
-        $filename = str_from($url, '://');
-        $filename = str_rfrom($url, '/');
-        $filename = str_until($filename, '?');
+        $file = str_from($url, '://');
+        $file = str_rfrom($url, '/');
+        $file = str_until($file, '?');
 
-        file_delete(TMP.$filename);
-        safe_exec('wget -q -O '.TMP.$filename.' - "'.$url.'"');
+        if($section){
+            if(!is_string($section)){
+                throw new bException(tr('download(): Specified section should either be false or a string. However, it is not false, and is of type ":type"', array(':type' => gettype($section))), 'invalid');
+            }
 
-        if($return_contents){
-            /*
-             * Do not return the filename but the file contents instead
-             * When doing this, automatically delete the file in question, since
-             * the caller will not know the exact file name used
-             */
-            $retval = file_get_contents(TMP.$filename);
-            file_delete(TMP.$filename);
-            return $retval;
+            $file = TMP.$section.'/'.$file;
+
+        }else{
+            $file = TMP.$file;
         }
 
-        return TMP.$filename;
+        file_ensure_path(TMP.$section, 0770, true);
+        safe_exec('wget -q -O '.$file.' - "'.$url.'"');
+
+        if(!$section){
+            /*
+             * No section was specified, return contents of file instead.
+             */
+            if($callback){
+                /*
+                 * Execute the callbacks before returning the data
+                 */
+                $callback($file);
+                file_delete($file);
+            }
+
+            return $file;
+        }
+
+        /*
+         * Do not return the filename but the file contents instead
+         * When doing this, automatically delete the file in question, since
+         * the caller will not know the exact file name used
+         */
+        $retval = file_get_contents($file);
+        file_delete($file);
+
+        if($callback){
+            $callback($retval);
+        }
+
+        return $retval;
 
     }catch(Exception $e){
         throw new bException('download(): Failed', $e);
