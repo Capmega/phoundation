@@ -1072,7 +1072,6 @@ function ssh_remove_known_host($domain, $port = null){
             sql_query('DELETE FROM `ssh_fingerprints` WHERE `domain` = :domain', array(':domain' => $domain));
         }
 
-
         file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
         file_delete(ROOT.'data/ssh/known_hosts~update');
 
