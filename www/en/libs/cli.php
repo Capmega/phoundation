@@ -1588,6 +1588,39 @@ function cli_list_processes($filters){
 
 
 /*
+ * Unzip the specified file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.0.5: Added function and documentation
+ *
+ * @param string $file The file to be unzipped
+ * @return string The path of the specified file
+ */
+function cli_unzip($file){
+    try{
+        $path = dirname($file);
+        safe_exec('cd '.$path.'; unzip "'.$file.'"');
+
+// :TODO: ENSURE THAT $PATH HAS A TERMINATING SLASH!
+showdie($path);
+        return $path;
+
+    }catch(Exception $e){
+        if(!file_exists($file)){
+            throw new bException(tr('cli_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+        }
+
+        throw new bException('cli_unzip(): Failed', $e);
+    }
+}
+
+
+
+/*
  * WARNING! BELOW HERE BE OBSOLETE FUNCTIONS AND OBSOLETE-BUT-WE-WANT-TO-BE-BACKWARD-COMPATIBLE WRAPPERS
  */
 function this_script_already_runs($action = 'exception', $force = false){
