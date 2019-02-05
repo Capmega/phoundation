@@ -3,10 +3,13 @@
  * Remove old handler files
  */
 load_libs('git');
-log_console(tr('Cleaning up garbage (Old library handler files)'), 'cyan', false);
 
-if(git_status()){
-    throw new bException(tr('This init file needs to make code changes which will be automatically committed. Please commit all code before continuing running this init'), 'failed');
+if(git_is_available() and git_is_repository()){
+    log_console(tr('Cleaning up garbage (Old library handler files)'), 'cyan', false);
+
+    if(git_status()){
+        throw new bException(tr('This init file needs to make code changes which will be automatically committed. Please commit all code before continuing running this init'), 'failed');
+    }
 }
 
 foreach(scandir(ROOT.'libs/handlers') as $file){
@@ -26,8 +29,10 @@ foreach(scandir(ROOT.'libs/handlers') as $file){
 
 cli_dot(false);
 
-if(git_status()){
-    git_add();
-    git_commit('Removed garbage (Old library handler files)');
+if(git_is_available() and git_is_repository()){
+    if(git_status()){
+        git_add();
+        git_commit('Removed garbage (Old library handler files)');
+    }
 }
 ?>
