@@ -213,7 +213,7 @@ class core{
             /*
              * Start the call type dependant startup script
              */
-            require('handlers/startup-'.$this->callType.'.php');
+            require('handlers/system-'.$this->callType.'.php');
 
             /*
              * Verify project data integrity
