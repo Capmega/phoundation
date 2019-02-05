@@ -2990,7 +2990,7 @@ function ensure_installed($params){
          */
         if(isset($params['which']) and !isset($fail)){
             foreach(array_force($params['which']) as $program){
-                if(!which($program)){
+                if(!cli_which($program)){
                     $fail = 'which '.$program;
                     break;
                 }
