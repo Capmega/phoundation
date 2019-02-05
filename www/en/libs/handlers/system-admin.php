@@ -128,7 +128,7 @@ if($_CONFIG['maintenance']){
 /*
  * Set cookie, start session where needed, etc.
  */
-include(ROOT.'libs/handlers/startup-manage-session.php');
+include(ROOT.'libs/handlers/system-manage-session.php');
 
 
 
@@ -154,7 +154,7 @@ define('TIMEZONE', isset_get($_SESSION['user']['timezone'], $_CONFIG['timezone']
  * Set language data
  *
  * This is normally done by checking the current dirname of the startup file,
- * this will be LANGUAGECODE/libs/handlers/startup-webpage.php
+ * this will be LANGUAGECODE/libs/handlers/system-webpage.php
  */
 try{
     /*
