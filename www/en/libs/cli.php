@@ -29,10 +29,9 @@ function cli_library_init(){
     try{
         $core->register['posix'] = true;
 
-        if(!function_exists('posix_getuid')){
-            log_console('WARNING: The POSIX extension seems to be unavailable, this may cause some functionalities to fail or give unexpected results', 'yellow');
-            $core->register['posix'] = false;
-        }
+        ensure_installed(array('name'      => 'cli',
+                               'callback'  => 'cli_install',
+                               'functions' => 'posix_getuid'));
 
     }catch(Exception $e){
         throw new bException('cli_library_init(): Failed', $e);
@@ -42,173 +41,26 @@ function cli_library_init(){
 
 
 /*
- * CLI color code management class
- * Taken from http://www.if-not-true-then-false.com/2010/php-class-for-coloring-php-command-line-cli-scripts-output-php-output-colorizing-using-bash-shell-colors/
+ * Automatically install dependencies for the base58 library
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package cli
+ * @see cli_init_library()
+ * @version 2.0.3: Added function and documentation
+ * @note This function typically gets executed automatically by the cli_library_init() through the ensure_installed() call, and does not need to be run manually
+ *
+ * @param params $params
+ * @return void
  */
-class Colors {
-    private $foreground_colors = array();
-    private $background_colors = array();
-
-    public function __construct() {
-        /*
-         * Set up shell colors
-         */
-        $this->foreground_colors['black']        = '0;30';
-        $this->foreground_colors['dark_gray']    = '1;30';
-        $this->foreground_colors['blue']         = '0;34';
-        $this->foreground_colors['light_blue']   = '1;34';
-        $this->foreground_colors['info']         = '1;34';
-        $this->foreground_colors['green']        = '0;32';
-        $this->foreground_colors['light_green']  = '1;32';
-        $this->foreground_colors['success']      = '1;32';
-        $this->foreground_colors['cyan']         = '0;36';
-        $this->foreground_colors['light_cyan']   = '1;36';
-        $this->foreground_colors['red']          = '0;31';
-        $this->foreground_colors['light_red']    = '1;31';
-        $this->foreground_colors['error']        = '1;31';
-        $this->foreground_colors['exception']    = '1;31';
-        $this->foreground_colors['purple']       = '0;35';
-        $this->foreground_colors['light_purple'] = '1;35';
-        $this->foreground_colors['brown']        = '0;33';
-        $this->foreground_colors['yellow']       = '1;33';
-        $this->foreground_colors['warning']      = '1;33';
-        $this->foreground_colors['light_gray']   = '0;37';
-        $this->foreground_colors['white']        = '1;37';
-
-        $this->background_colors['black']        = '40';
-        $this->background_colors['red']          = '41';
-        $this->background_colors['green']        = '42';
-        $this->background_colors['yellow']       = '43';
-        $this->background_colors['blue']         = '44';
-        $this->background_colors['magenta']      = '45';
-        $this->background_colors['cyan']         = '46';
-        $this->background_colors['light_gray']   = '47';
-    }
-
-    /*
-     * Returns colored string
-     */
-    public function getColoredString($string, $foreground_color = null, $background_color = null, $force = false, $reset = true) {
-        $colored_string = '';
-
-        if(!is_scalar($string)){
-            throw new bException(tr('getColoredString(): Specified text ":text" is not a string or scalar', array(':text' => $string)), 'invalid');
-        }
-
-        if(NOCOLOR and !$force){
-            /*
-             * Do NOT apply color
-             */
-            return $string;
-        }
-
-        if($foreground_color){
-            if(!is_string($foreground_color) or !isset($this->foreground_colors[$foreground_color])){
-                /*
-                 * If requested colors do not exist, return no
-                 */
-                log_console(tr('[ WARNING ] getColoredString(): specified foreground color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $foreground_color)), 'warning');
-                return $string;
-            }
-
-            // Check if given foreground color found
-            if(isset($this->foreground_colors[$foreground_color])) {
-                $colored_string .= "\033[".$this->foreground_colors[$foreground_color].'m';
-            }
-        }
-
-        if($background_color){
-            if(!is_string($background_color) or !isset($this->background_colors[$background_color])){
-                /*
-                 * If requested colors do not exist, return no
-                 */
-                log_console(tr('[ WARNING ] getColoredString(): specified background color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $background_color)), 'warning');
-                return $string;
-            }
-
-            /*
-             * Check if given background color found
-             */
-            if(isset($this->background_colors[$background_color])) {
-                $colored_string .= "\033[".$this->background_colors[$background_color].'m';
-            }
-        }
-
-        /*
-         * Add string and end coloring
-         */
-        $colored_string .=  $string;
-
-        if($reset){
-            $colored_string .= cli_reset_color();
-        }
-
-        return $colored_string;
-    }
-
-    /*
-     * Returns all foreground color names
-     */
-    public function getForegroundColors() {
-        return array_keys($this->foreground_colors);
-    }
-
-    /*
-     * Returns all background color names
-     */
-    public function getBackgroundColors() {
-        return array_keys($this->background_colors);
-    }
-
-    /*
-     * Returns all background color names
-     */
-    public function resetColors() {
-
-    }
-}
-
-
-
-/*
- * Return the specified string in the specified color
- */
-function cli_color($string, $fore_color = null, $back_color = null, $force = false, $reset = true){
+function cli_install($params){
     try{
-        static $color;
-
-        if(!$color){
-            $color = new Colors();
-        }
-
-        return $color->getColoredString($string, $fore_color, $back_color, $force, $reset);
+        safe_exec('sudo phpenmod posix');
 
     }catch(Exception $e){
-        throw new bException('cli_color(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Return or echo CLI code to reset all colors
- */
-function cli_reset_color($echo = false){
-    try{
-        if(!$echo){
-            return "\033[0m";
-        }
-
-        echo "\033[0m";
-
-    }catch(Exception $e){
-        throw new bException('cli_reset_color(): Failed', $e);
+        throw new bException('cli_install(): Failed', $e);
     }
 }
 
@@ -446,7 +298,6 @@ function cli_run_once_local($close = false){
         $run_dir = ROOT.'data/run/';
         $script  = cli_current_script();
 
-        load_libs('file');
         file_ensure_path($run_dir);
 
         if($close){
@@ -535,7 +386,6 @@ under_construction();
         $run_dir = ROOT.'data/run/';
         $script  = cli_current_script();
 
-        load_libs('file');
         file_ensure_path($run_dir);
 
         if($processes === false){

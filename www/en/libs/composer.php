@@ -4,16 +4,27 @@
  *
  * This library contains all required functions to work with PHP composer
  *
- * @url https://getcomposer.org/
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package composer
  */
 
 
 
 /*
- * Initialize the library
- * Automatically executed by libs_load()
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ *
+ * @return void
  */
 function composer_library_init(){
     try{
@@ -24,10 +35,9 @@ function composer_library_init(){
             throw new bException('composer_library_init(): PHP composer requires PHP 5.3.2+', 'notsupported');
         }
 
-        ensure_installed(array('name'      => 'composer',
-                               'project'   => 'composer',
-                               'callback'  => 'composer_install',
-                               'checks'    => array(ROOT.'www/en/libs/external/composer.phar')));
+        ensure_installed(array('name'     => 'composer',
+                               'callback' => 'composer_install',
+                               'checks'   => array(ROOT.'www/en/libs/external/composer.phar')));
 
         if(!file_exists(ROOT.'/composer.json')){
             composer_init_file();
@@ -41,16 +51,52 @@ function composer_library_init(){
 
 
 /*
+ * Automatically install dependencies for the composer library
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package composer
+ * @see composer_library_init()
+ * @version 2.0.3: Added function and documentation
+ * @note This function typically gets executed automatically by the composer_library_init() through the ensure_installed() call, and does not need to be run manually
+ *
+ * @param params $params
+ * @return void
+ */
+function composer_install($params){
+    try{
+        file_ensure_path(TMP.'composer');
+
+        $file          = download('https://getcomposer.org/installer');
+        $file_hash     = hash_file('SHA384', $file);
+        $required_hash = download('https://composer.github.io/installer.sig', true);
+
+        if($file_hash != $required_hash){
+            throw new bException(tr('composer_install(): File hash check failed for composer-setup.php'), 'hash-fail');
+        }
+
+        file_execute_mode(ROOT.'www/en/libs/external/', 0770, function(){
+            safe_exec('php '.$file.' --install-dir '.ROOT.'www/en/libs/external/'.(VERBOSE ? '' : ' --quiet'));
+        });
+
+    }catch(Exception $e){
+        throw new bException('composer_install(): Failed', $e);
+    }
+}
+
+
+
+/*
  *
  */
 function composer_init_file(){
     try{
-        load_libs('file');
-        
         file_execute_mode(ROOT, 0770, function(){
             file_put_contents(ROOT.'composer.json', "{\n}");
         });
-        
+
     }catch(Exception $e){
         throw new bException('composer_init_file(): Failed', $e);
     }
@@ -59,30 +105,57 @@ function composer_init_file(){
 
 
 /*
- * Install the composer library
+ * Add the specified package to this project using composer
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package composer
+ * @version 2.0.3: Added function and documentation
+ * @see composer_install()
+ * @example This will install the mrclay/minify package
+ * code
+ * $result = composer_require('mrclay/minify');
+ * showdie($result);
+ * /code
+ *
+ * @param string $package The package to be installed
+ * @return void
  */
-function composer_install($params){
+function composer_require($package){
     try{
-        $params['methods'] = array('download' => array('commands'  => function($hash){
-                                                                        load_libs('file');
-                                                                        file_ensure_path(TMP.'composer');
-                                                                        safe_exec('wget -O '.TMP.'composer-setup.php https://getcomposer.org/installer');
+        safe_exec(ROOT.'libs/external/composer.phar require "'.$package.'"');
 
-                                                                        $file_hash     = hash_file('SHA384', TMP.'composer-setup.php');
-                                                                        $required_hash = safe_exec('wget -q -O - https://composer.github.io/installer.sig');
-                                                                        $required_hash = $required_hash[0];
+    }catch(Exception $e){
+        throw new bException('composer_require(): Failed', $e);
+    }
+}
 
-                                                                        if($file_hash != $required_hash){
-                                                                            throw new bException(tr('composer_install(): File hash check failed for composer-setup.php'), 'hash-fail');
-                                                                        }
 
-                                                                        chmod(ROOT.'www/en/libs/external', 0770);
-                                                                        safe_exec('php '.TMP.'composer-setup.php --install-dir '.ROOT.'www/en/libs/external/'.(VERBOSE ? '' : ' --quiet'));
-                                                                        chmod(ROOT.'www/en/libs/external', 0550);
-                                                                        file_delete(TMP.'composer-setup.php');
-                                                                      }));
 
-        return install($params);
+/*
+ * Install the specified package to this project using composer
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package composer
+ * @version 2.0.3: Added function and documentation
+ * @see composer_require()
+ * @example This will install the mrclay/minify package
+ * code
+ * $result = composer_require('mrclay/minify');
+ * showdie($result);
+ * /code
+ *
+ * @param string $package The package to be installed
+ * @return void
+ */
+function composer_install($package){
+    try{
+        safe_exec(ROOT.'libs/external/composer.phar install "'.$package.'"');
 
     }catch(Exception $e){
         throw new bException('composer_install(): Failed', $e);

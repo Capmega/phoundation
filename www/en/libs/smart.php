@@ -7,7 +7,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
- * @package empty
+ * @package smart
  */
 
 
@@ -21,11 +21,11 @@
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package empty
+ * @package smart
  *
  * @return void
  */
-function empty_library_init(){
+function smart_library_init(){
     try{
         ensure_installed(array('name'      => 'empty',
                                'project'   => 'emptyear',
@@ -33,7 +33,7 @@ function empty_library_init(){
                                'checks'    => array(ROOT.'libs/external/empty/')));
 
     }catch(Exception $e){
-        throw new bException('empty_library_init(): Failed', $e);
+        throw new bException('smart_library_init(): Failed', $e);
     }
 }
 
@@ -46,19 +46,18 @@ function empty_library_init(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package empty
+ * @package smart
  *
  * @param
  * @return
  */
-function empty_install($params){
+function smart_install($params){
     try{
-        $params['methods'] = array('apt-get' => array('commands'  => 'sudo apt-get install empty'));
-
-        return install($params);
+        load_libs('apt');
+        apt_install('smartmontools');
 
     }catch(Exception $e){
-        throw new bException('empty_install(): Failed', $e);
+        throw new bException('smart_install(): Failed', $e);
     }
 }
 
@@ -77,7 +76,7 @@ function empty_install($params){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package empty
+ * @package smart
  * @see empty_install()
  * @see date_convert() Used to convert the sitemap entry dates
  * @table: `empty`

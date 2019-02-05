@@ -53,7 +53,6 @@ function twilio_library_init(){
  */
 function twilio_install(){
     try{
-        load_libs('file');
         log_console('twilio_install(): Installing Twilio library', 'install');
 
         /*

@@ -5,15 +5,27 @@
  * This library contains front end functions for the external minishlink
  * web-push library
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package webpush
  */
 
 
 
 /*
- * Initialize the library
- * Automatically executed by libs_load()
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package
+ *
+ * @return void
  */
 function webpush_library_init(){
     try{
@@ -29,8 +41,6 @@ function webpush_library_init(){
 
         require_once(__DIR__.'/ext/webpush/vendor/autoload.php');
         require_once(__DIR__.'/ext/webpush/vendor/minishlink/web-push/src/WebPush.php');
-
-
 
     }catch(Exception $e){
         throw new bException('webpush_library_init(): Failed', $e);

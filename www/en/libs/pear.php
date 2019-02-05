@@ -4,8 +4,11 @@
  *
  * This library is a front-end for the PHP PEAR system
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package pear
  */
 
 
@@ -26,10 +29,9 @@
  */
 function pear_library_init(){
     try{
-        ensure_installed(array('name'      => 'pear',
-                               'project'   => 'pear',
-                               'callback'  => 'pear_install',
-                               'checks'    => array(ROOT.'libs/external/pear/')));
+        ensure_installed(array('name'     => 'pear',
+                               'callback' => 'pear_install',
+                               'checks'   => array(ROOT.'libs/external/pear/')));
 
     }catch(Exception $e){
         throw new bException('pear_library_init(): Failed', $e);
@@ -54,9 +56,7 @@ function pear_library_init(){
  */
 function pear_install($params){
     try{
-        $params['methods'] = array('apt-get' => array('commands'  => 'sudo apt-get install pear'));
-
-        return install($params);
+        safe_exec('sudo apt -y install pear');
 
     }catch(Exception $e){
         throw new bException('pear_install(): Failed', $e);

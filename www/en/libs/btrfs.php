@@ -9,6 +9,7 @@
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package btrfs
+ * @dependency btrfs-tools package
  */
 
 
@@ -28,10 +29,9 @@
  */
 function btrfs_library_init(){
     try{
-        ensure_installed(array('name'      => 'btrfs',
-                               'project'   => 'btrfs',
-                               'callback'  => 'btrfs_install',
-                               'checks'    => array('/bin/btrfs')));
+        ensure_installed(array('name'     => 'btrfs',
+                               'callback' => 'btrfs_install',
+                               'which'    => '/bin/btrfs'));
 
     }catch(Exception $e){
         throw new bException('btrfs_library_init(): Failed', $e);
@@ -41,23 +41,23 @@ function btrfs_library_init(){
 
 
 /*
- * Install the external btrfs  tools
+ * Automatically install dependencies for the btrfs library
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package btrfs
- * @note This function typically gets executed automatically bu btrfs_library_init() through the ensure_installed() call, and does not need to be run manually
+ * @see btrfs_init_library()
+ * @version 2.0.3: Added function and documentation
+ * @note This function typically gets executed automatically by the btrfs_library_init() through the ensure_installed() call, and does not need to be run manually
  *
  * @param params $params
- * @return
+ * @return void
  */
 function btrfs_install($params){
     try{
-        $params['methods'] = array('apt-get' => array('commands'  => 'sudo apt -y install btrfs-tools'));
-
-        return install($params);
+        safe_exec('sudo apt -y install btrfs-tools');
 
     }catch(Exception $e){
         throw new bException('btrfs_install(): Failed', $e);

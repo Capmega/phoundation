@@ -5,15 +5,27 @@
  * This library is a front end functions library for the javascript sweetalert
  * library
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sweetalert
  */
 
 
 
 /*
- * Initialize the library
- * Automatically executed by libs_load()
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package
+ *
+ * @return void
  */
 function sweetalert_library_init(){
     try{
@@ -35,29 +47,33 @@ function sweetalert_library_init(){
 
 
 /*
- * Install the sweetalert library
+ * Automatically install dependencies for the sweetalert library
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sweetalert
+ * @see sweetalert_init_library()
+ * @version 2.0.3: Added function and documentation
+ * @note This function typically gets executed automatically by the sweetalert_init_library() through the ensure_installed() call, and does not need to be run manually
+ *
+ * @param params $params A parameters array
+ * @return void
  */
 function sweetalert_install($params){
     try{
-        $params['methods'] = array('bower'    => array('commands'  => 'npm install sweetalert2',
-                                                       'locations' => array('sweetalert-master/lib/sweetalert.js' => ROOT.'pub/js/sweetalert/sweetalert.js',
-                                                                            'sweetalert-master/lib/modules'       => ROOT.'pub/js/sweetalert/modules',
-                                                                            'sweetalert-master/themes'            => ROOT.'pub/css/sweetalert/themes',
-                                                                            '@themes/google/google.css'           => ROOT.'pub/css/sweetalert/sweetalert.css')),
+        $css = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.css');
+        $js  = download('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.js');
 
-                                   'bower'    => array('commands'  => 'bower install sweetalert2',
-                                                       'locations' => array('sweetalert-master/lib/sweetalert.js' => ROOT.'pub/js/sweetalert/sweetalert.js',
-                                                                            'sweetalert-master/lib/modules'       => ROOT.'pub/js/sweetalert/modules',
-                                                                            'sweetalert-master/themes'            => ROOT.'pub/css/sweetalert/themes',
-                                                                            '@themes/google/google.css'           => ROOT.'pub/css/sweetalert/sweetalert.css')),
+        file_execute_mode(ROOT.'pub/js/', 0770, function(){
+            file_ensure_path(ROOT.'pub/js/sweetalert/', 0550);
 
-                                   'download' => array('urls'      => array('https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.css',
-                                                                            'https://cdn.jsdelivr.net/sweetalert2/6.6.0/sweetalert2.js'),
-
-                                                       'locations' => array('sweetalert2.js'  => ROOT.'pub/js/sweetalert/sweetalert.js',
-                                                                            'sweetalert2.css' => ROOT.'pub/css/sweetalert/sweetalert.css')));
-
-        return install($params);
+            file_execute_mode(ROOT.'pub/js/sweetalert/', 0770, function(){
+                rename($js , ROOT.'pub/js/sweetalert/sweetalert.js');
+                rename($css, ROOT.'pub/css/sweetalert/sweetalert.css');
+            });
+        });
 
     }catch(Exception $e){
         throw new bException('sweetalert_install(): Failed', $e);
@@ -100,8 +116,6 @@ function sweetalert($params, $html = '', $type = '', $options = array()){
         array_default($params['options'], 'cancelButtonColor' , null);
         array_default($params['options'], 'cancelButtonText'  , null);
         array_default($params['options'], 'cancelButtonClass' , null);
-
-        load_libs('json');
 
         $options['title'] = $params['title'];
         $options['html']  = $params['html'];
@@ -148,8 +162,6 @@ function sweetalert_queue($params){
         array_default($params, 'confirm_button_text', 'Ok &rarr;');
         array_default($params, 'animation'          , false);
         array_default($params, 'progress_steps'     , true);
-
-        load_libs('json');
 
         if(empty($params['modals'])){
             throw new bException('sweetalert_queue(): No modals specified', 'not-specified');

@@ -15,14 +15,10 @@
  */
 function qr_check(){
     try{
-        if(!is_callable('gd_info')){
-            throw new bException(tr('qr_check(): The GD library is not available. On Debian based machines, please use apt-get install php-gd, or phpenmod gd to have this module installed and enabled'), 'not-available');
-        }
-
-        ensure_installed(array('name'      => 'php-qrcode-detector-decoder',
-                               'project'   => 'php-qrcode-detector-decoder',
+        ensure_installed(array('name'      => 'qr',
                                'callback'  => 'qr_install',
-                               'checks'    => array(ROOT.'www/en/libs/external/php-qrcode-decoder/QrReader.php')));
+                               'checks'    => ROOT.'www/en/libs/external/php-qrcode-decoder/QrReader.php',
+                               'functions' => 'gd_info'));
 
     }catch(Exception $e){
         throw new bException('qr_check(): Failed', $e);
@@ -32,14 +28,35 @@ function qr_check(){
 
 
 /*
+ * Automatically install dependencies for the qr library
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package qr
+ * @see qr_init_library()
+ * @version 2.0.3: Added function and documentation
+ * @note This function typically gets executed automatically by the qr_init_library() through the ensure_installed() call, and does not need to be run manually
+ *
+ * @param params $params A parameters array
+ * @return void
  */
 function qr_install(){
     try{
-        $params['methods'] = array('download' => array('urls'      => array('https://github.com/khanamiryan/php-qrcode-detector-decoder.git'),
-                                                       'locations' => array('lib' => ROOT.'www/'.LANGUAGE.'/libs/external/php-qrcode-decoder')));
+        load_libs('git');
 
-        return install($params);
+        $path = git_clone('https://github.com/khanamiryan/php-qrcode-detector-decoder.git', TMP, true);
+
+        file_execute_mode(ROOT.'libs/external/', 0770, function(){
+            rename($path.'lib', ROOT.'www/'.LANGUAGE.'/libs/external/php-qrcode-decoder');
+        });
+
+        file_delete($path);
+
+        if(!is_callable('gd_info')){
+            safe_exec('sudo phpenmod gd');
+        }
 
     }catch(Exception $e){
         throw new bException('qr_install(): Failed', $e);

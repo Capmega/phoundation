@@ -8,22 +8,33 @@
  * Since Base does its own HTML minification online (And JS and CSS
  * minification @deploy time), it will only use the minification
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package minify
  */
 
 
 
 /*
- * Initialize the library
- * Automatically executed by libs_load()
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ *
+ * @return void
  */
 function minify_library_init(){
     try{
-        ensure_installed(array('name'      => 'minify',
-                               'project'   => 'minify',
-                               'callback'  => 'minify_install',
-                               'checks'    => array(ROOT.'libs/external/vendor/mrclay/minify')));
+        ensure_installed(array('name'     => 'minify',
+                               'callback' => 'minify_install',
+                               'checks'   => array(ROOT.'libs/external/vendor/mrclay/minify')));
 
     }catch(Exception $e){
         throw new bException('minify_library_init(): Failed', $e);
@@ -33,14 +44,29 @@ function minify_library_init(){
 
 
 /*
- * Install the minify library
+ * Automatically install dependencies for the minifylibrary
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package minify
+ * @see minify_init_library()
+ * @version 2.0.3: Added function and documentation
+ * @note This function typically gets executed automatically by the minify_init_library() through the ensure_installed() call, and does not need to be run manually
+ *
+ * @param params $params
+ * @return void
  */
 function minify_install($params){
     try{
-        $params['methods'] = array('composer' => array('commands'  => array(ROOT.'libs/external/composer.phar require mrclay/minify',
-                                                                            'mv '.TMP.'/minify/vendor/ '.ROOT.'libs/external/',
-                                                                            'rm '.TMP.'/minify/ -rf')));
-        return install($params);
+        load_libs('composer');
+        composer_require('mrclay/minify');
+
+        file_execute_mode(ROOT.'libs/external/', 0770, function(){
+            rename(TMP.'/minify/vendor/', ROOT.'libs/external/');
+            file_delete(TMP.'/minify/vendor/');
+        });
 
     }catch(Exception $e){
         throw new bException('minify_install(): Failed', $e);

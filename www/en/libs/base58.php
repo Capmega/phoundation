@@ -1,22 +1,44 @@
 <?php
 /*
- * Empty library
+ * base58 library
  *
- * This is an empty template library file
+ * This library contains base58 functions
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package base58
+ * @dependency extension php-bcmath
+ * @dependency stephen-hill base58php.git project
  */
 
 
 
 /*
- * Initialize the library
- * Automatically executed by libs_load()
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package base58
+ *
+ * @return void
  */
 function base58_library_init(){
     try{
-        base58_load();
+        ensure_installed(array('name'      => 'base58',
+                               'callback'  => 'base58_install',
+                               'checks'    => array(ROOT.'www/en/libs/external/base58php/Base58.php'),
+                               'functions' => 'bcadd'));
+
+        load_external(array('base58php/ServiceInterface.php',
+                            'base58php/BCMathService.php',
+                            'base58php/GMPService.php',
+                            'base58php/Base58.php'));
 
     }catch(Exception $e){
         throw new bException('base58_library_init(): Failed', $e);
@@ -26,36 +48,37 @@ function base58_library_init(){
 
 
 /*
+ * Automatically install dependencies for the base58 library
  *
- */
-function base58_load(){
-    try{
-        ensure_installed(array('name'      => 'base58php',
-                               'project'   => 'base58php',
-                               'callback'  => 'base58_install',
-                               'checks'    => array(ROOT.'www/en/libs/external/base58php/Base58.php')));
-
-        load_external('base58php/ServiceInterface.php');
-        load_external('base58php/BCMathService.php');
-        load_external('base58php/GMPService.php');
-        load_external('base58php/Base58.php');
-
-    }catch(Exception $e){
-        throw new bException('base58_check(): Failed', $e);
-    }
-}
-
-
-
-/*
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package base58
+ * @see base58_init_library()
+ * @version 2.0.3: Added function and documentation
+ * @note This function typically gets executed automatically by the base58_library_init() through the ensure_installed() call, and does not need to be run manually
  *
+ * @param params $params A parameters array
+ * @return void
  */
 function base58_install($params){
     try{
-        $params['methods'] = array('download' => array('urls'      => array('https://github.com/stephen-hill/base58php.git'),
-                                                       'locations' => array('src' => ROOT.'www/'.LANGUAGE.'/libs/external/base58php')));
+        /*
+         * PHP bcmath extension is missing
+         */
+        load_libs('git,apt');
 
-        return install($params);
+        $path = git_clone('https://github.com/stephen-hill/base58php.git', TMP, true);
+        rename($path, ROOT.'www/'.LANGUAGE.'/libs/external/base58php');
+
+        if(!function_exists('bcadd')){
+            /*
+             * PHP bcmath extension is missing
+             */
+            log_file(tr('PHP bcmath extension missing, installing automatically'), 'base58', 'yellow');
+            apt_install('php-bcmath');
+        }
 
     }catch(Exception $e){
         throw new bException('base58_install(): Failed', $e);
