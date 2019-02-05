@@ -23,6 +23,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package empty
+ * @version 2.0.5: Added function and documentation
  *
  * @return void
  */
@@ -46,7 +47,7 @@ function empty_library_init(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @version 2.0.3: Added documentation
+ * @version 2.0.5: Added function and documentation
  * @package empty
  *
  * @param
@@ -83,7 +84,7 @@ function empty_install($params){
  * @see date_convert() Used to convert the sitemap entry dates
  * @table: `empty`
  * @note: This is a note
- * @version 2.0.3: Added documentation
+ * @version 2.0.5: Added function and documentation
  * @example [Title]
  * code
  * $result = empty(array('foo' => 'bar'));
@@ -96,8 +97,8 @@ function empty_install($params){
  * /code
  *
  * @param params $params A parameters array
- * @params string $params[foo]
- * @params string $params[bar]
+ * @param string $params[foo]
+ * @param string $params[bar]
  * @return string The result
  */
 function empty_function($params){
