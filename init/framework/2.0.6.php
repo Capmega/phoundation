@@ -5,7 +5,7 @@
 load_libs('git');
 log_console(tr('Cleaning up garbage (Old library handler files)'), 'cyan', false);
 
-if(git_status(ROOT)){
+if(git_status()){
     throw new bException(tr('This init file needs to make code changes which will be automatically committed. Please commit all code before continuing running this init'), 'failed');
 }
 
@@ -26,7 +26,8 @@ foreach(scandir(ROOT.'libs/handlers') as $file){
 
 cli_dot(false);
 
-if(git_status(ROOT)){
-    git_commit('Removed garbage (Old library handler files)', ROOT);
+if(git_status()){
+    git_add();
+    git_commit('Removed garbage (Old library handler files)');
 }
 ?>
