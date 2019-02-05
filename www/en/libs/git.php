@@ -14,6 +14,31 @@
 
 
 /*
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ * @version 2.0.5: Added function and documentation
+ *
+ * @return void
+ */
+function git_library_init(){
+    try{
+        load_libs('cli');
+
+    }catch(Exception $e){
+        throw new bException('git_library_init(): Failed', $e);
+    }
+}
+
+
+
+/*
  *
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -658,6 +683,65 @@ function git_commit($message, $path = ROOT){
 
     }catch(Exception $e){
         throw new bException('git_commit(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns true if the specified path is part of a git repository, false if not
+ *
+ * A path is part of a git repository if one if its parent directories contains a .git directory
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ * @version 2.0.6: Added function and documentation
+ *
+ * @param string $path The path to be checked
+ * @return boolean True if the specified path is part of a git repository, false if not
+ */
+function git_is_repository($path = ROOT){
+    try{
+        git_check_path($path);
+
+        while($path){
+            if(file_exists(slash($path).'.git')){
+                return true;
+            }
+
+            $path = str_runtil($path, '/');
+        }
+
+        return false;
+
+    }catch(Exception $e){
+        throw new bException('git_commit(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns true if the git command is available, false if not
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ * @version 2.0.6: Added function and documentation
+ *
+ * @return boolean True if the git command is available, false if not
+ */
+function git_is_available(){
+    try{
+        return (boolean) cli_which('git');
+
+    }catch(Exception $e){
+        throw new bException('git_is_available(): Failed', $e);
     }
 }
 ?>
