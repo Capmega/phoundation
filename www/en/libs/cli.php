@@ -1621,6 +1621,33 @@ showdie($path);
 
 
 /*
+ * Locates the specifed command and returns it path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.0.5: Added function and documentation
+ *
+ * @param string $file The file to be unzipped
+ * @return string The path of the specified file
+ */
+function cli_which($file){
+    try{
+        $result = safe_exec('which "'.$file.'"', '0,1');
+        $result = array_shift($result);
+
+        return get_null($result);
+
+    }catch(Exception $e){
+        throw new bException('cli_which(): Failed', $e);
+    }
+}
+
+
+
+/*
  * WARNING! BELOW HERE BE OBSOLETE FUNCTIONS AND OBSOLETE-BUT-WE-WANT-TO-BE-BACKWARD-COMPATIBLE WRAPPERS
  */
 function this_script_already_runs($action = 'exception', $force = false){
