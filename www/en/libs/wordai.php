@@ -78,10 +78,6 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
         /*
          * Other options
          */
-        if(isset_get($params['json'])){
-            load_libs('json');
-        }
-
         if(isset_get($params['nonested'])){
             $post['nonested'] = 'on';
         }

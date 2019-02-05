@@ -152,8 +152,6 @@ function crypto_write_transaction($transaction, $provider){
     global $_CONFIG;
 
     try{
-        load_libs('json');
-
         if(empty($transaction['id'])){
             /*
              *

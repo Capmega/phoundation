@@ -152,7 +152,7 @@ function meta_clear($meta_id, $views_only = false){
  * @package meta
  * @see meta_action()
  * @version 1.27.1: Added function and documentation
- * @example [Title]
+ * @example
  * code
  * // This will add a meta_id link for user with id 15
  * meta_link(15, 'users');

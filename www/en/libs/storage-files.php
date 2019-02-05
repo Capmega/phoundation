@@ -36,12 +36,11 @@ function storage_files_add($params){
         }
 
         if($params['update_owner']){
-            load_libs('file');
             file_chown($file['filename']);
         }
 
         if($params['convert']){
-            load_libs('file,image');
+            load_libs('image');
 
             switch($params['convert']){
                 case 'jpg':

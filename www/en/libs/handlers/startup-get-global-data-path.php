@@ -71,7 +71,6 @@ try{
      * Now check if the specified section exists
      */
     if($section and !file_exists($path.$section)){
-        load_libs('file');
         file_ensure_path($path.$section);
     }
 

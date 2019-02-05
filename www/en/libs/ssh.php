@@ -720,7 +720,6 @@ function ssh_build_options($options = null){
 //    global $_CONFIG;
 //
 //    try{
-//        load_libs('file');
 //        file_ensure_path(TMP);
 //
 //        if(!$socket){

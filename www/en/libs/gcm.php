@@ -18,8 +18,6 @@ function gcm_send_notification($registatoin_ids, $message) {
     global $_CONFIG;
 
     try{
-        load_libs('json');
-
         if(!function_exists('curl_init')){
             throw new bException('gcm_send_notification(): PHP CURL is not installed, this function cannot work without this library');
         }

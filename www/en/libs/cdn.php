@@ -4,9 +4,36 @@
  *
  * This library contains functions to manage the CDN servers
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package cdn
  */
+
+
+
+/*
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cdn
+ *
+ * @return void
+ */
+function cdn_library_init(){
+    try{
+        load_config('cdn');
+
+    }catch(Exception $e){
+        throw new bException('cdn_library_init(): Failed', $e);
+    }
+}
 
 
 

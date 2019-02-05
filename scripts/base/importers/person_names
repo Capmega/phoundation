@@ -32,8 +32,6 @@ try{
         sql_query('TRUNCATE `synonyms`;');
     }
 
-    load_libs('file');
-
     /*
      * Find the persons names data project location
      */

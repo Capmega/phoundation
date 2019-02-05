@@ -131,10 +131,6 @@ function session_redirect($method = 'http', $force = false){
 
         switch($method){
             case 'json':
-                if(!function_exists('json_reply')){
-                    load_libs('json');
-                }
-
                 /*
                  * Send JSON redirect. json_reply() will end script, so no break needed
                  */

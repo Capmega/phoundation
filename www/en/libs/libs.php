@@ -43,7 +43,6 @@ function libs_count(){
  */
 function libs_exec($callback){
     try{
-        load_libs('file');
         return file_tree_execute(array('path' => ROOT.'libs'));
 
     }catch(Exception $e){

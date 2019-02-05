@@ -2,12 +2,12 @@
 /*
  * Graph library
  *
- * This is an empty template library file
+ * This is the graph front-end library. It will pass the graph functiosn to the various backends, depending on configuration
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
- * @package empty
+ * @package graph
  */
 
 
@@ -19,7 +19,7 @@
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package atlant-dashboard
+ * @package graph
  *
  * @$params params $params config for the selected type of grapth
  * @$params string  $params[provider] the graph provider library to use

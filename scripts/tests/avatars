@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../libs/startup.php');
 
 try{
     cli_only();
-    load_libs('facebook,google,microsoft,file');
+    load_libs('facebook,google,microsoft');
 
     foreach($argv as $arg){
         switch($arg){

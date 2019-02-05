@@ -60,6 +60,12 @@
 
 
 /*
+ * Set LIBS here because the system library MAY be loaded  by the router
+ * library, in which case they will both be loaded from /en/.
+ */
+define('LIBS', __DIR__.'/');
+
+/*
  * Load the system library only if the system library hasn't been loaded yet by
  * the route library
  */
@@ -67,5 +73,8 @@ if(!class_exists('core')){
     require_once(__DIR__.'/system.php');
 }
 
+/*
+ * Run the startup sequence
+ */
 $core->startup();
 ?>

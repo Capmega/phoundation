@@ -135,7 +135,6 @@ if($setdate){
     /*
      * Set the cache file
      */
-    load_libs('file');
     file_ensure_path(dirname($cachefile));
     touch($cachefile, $setdate);
 }

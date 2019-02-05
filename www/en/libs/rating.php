@@ -4,23 +4,34 @@
  *
  * Library to manage HTML star ratings, google ratings, etc
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package rating
  */
 
 
 
 /*
- * Initialize the library
- * Automatically executed by libs_load()
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package
+ *
+ * @return void
  */
 function rating_library_init(){
     try{
-        ensure_installed(array('name'      => 'rating',
-                               'project'   => 'rating',
-                               'callback'  => 'rating_install',
-                               'checks'    => array(ROOT.'pub/js/rating/rating.js',
-                                                    ROOT.'pub/css/rating/rating.css')));
+        ensure_installed(array('name'     => 'rating',
+                               'callback' => 'rating_install',
+                               'checks'   => array(ROOT.'pub/js/rating/rating.js',
+                                                   ROOT.'pub/css/rating/rating.css')));
 
 //        load_config('rating');
         html_load_js('rating/rating');
@@ -34,29 +45,33 @@ function rating_library_init(){
 
 
 /*
- * Install the rating library
+ * Automatically install dependencies for the rating library
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package rating
+ * @see rating_init_library()
+ * @version 2.0.3: Added function and documentation
+ * @note This function typically gets executed automatically by the rating_init_library() through the ensure_installed() call, and does not need to be run manually
+ *
+ * @param params $params A parameters array
+ * @return void
  */
 function rating_install($params){
     try{
-        $params['methods'] = array('bower'    => array('commands'  => 'npm install rating2',
-                                                       'locations' => array('rating-master/lib/rating.js' => ROOT.'pub/js/rating/rating.js',
-                                                                            'rating-master/lib/modules'   => ROOT.'pub/js/rating/modules',
-                                                                            'rating-master/themes'        => ROOT.'pub/css/rating/themes',
-                                                                            '@themes/google/google.css'   => ROOT.'pub/css/rating/rating.css')),
+        $css = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.css');
+        $js  = download('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js');
 
-                                   'bower'    => array('commands'  => 'bower install rating2',
-                                                       'locations' => array('rating-master/lib/rating.js' => ROOT.'pub/js/rating/rating.js',
-                                                                            'rating-master/lib/modules'   => ROOT.'pub/js/rating/modules',
-                                                                            'rating-master/themes'        => ROOT.'pub/css/rating/themes',
-                                                                            '@themes/google/google.css'   => ROOT.'pub/css/rating/rating.css')),
+        file_execute_mode(ROOT.'pub/js/', 0770, function(){
+            file_ensure_path(ROOT.'pub/js/rating/', 0550);
 
-                                   'download' => array('urls'      => array('https://cdn.jsdelivr.net/rating2/6.6.0/rating2.css',
-                                                                            'https://cdn.jsdelivr.net/rating2/6.6.0/rating2.js'),
-
-                                                       'locations' => array('rating2.js'  => ROOT.'pub/js/rating/rating.js',
-                                                                            'rating2.css' => ROOT.'pub/css/rating/rating.css')));
-
-        return install($params);
+            file_execute_mode(ROOT.'pub/js/rating/', 0770, function(){
+                rename($js , ROOT.'pub/js/rating/rating.js');
+                rename($css, ROOT.'pub/css/rating/rating.css');
+            });
+        });
 
     }catch(Exception $e){
         throw new bException('rating_install(): Failed', $e);

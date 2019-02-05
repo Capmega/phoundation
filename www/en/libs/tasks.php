@@ -57,8 +57,6 @@ function tasks_add($task){
 
         $task = tasks_validate($task);
 
-        load_libs('json');
-
         sql_query('INSERT INTO `tasks` (`createdby`, `meta_id`, `after`, `status`, `command`, `method`, `time_limit`, `verbose`, `parents_id`, `parrallel`, `data`, `description`)
                    VALUES              (:createdby , :meta_id , :after , :status , :command , :method , :time_limit , :verbose , :parents_id , :parrallel , :data , :description )',
 
@@ -111,7 +109,6 @@ function tasks_update($task, $executed = false){
     try{
         $task = tasks_validate($task);
 
-        load_libs('json');
         meta_action($task['meta_id'], 'update');
 
         $execute = array(':id'         => $task['id'],

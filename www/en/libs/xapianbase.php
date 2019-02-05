@@ -65,8 +65,6 @@ class xapianbase {
 
         $this->target   = slash($_CONFIG['xapian']['dir']).$params['name'].'/';
         $this->name     = $params['name'];
-
-        load_libs('json');
     }
 
 
@@ -81,8 +79,6 @@ class xapianbase {
             /*
              * Create database in temp dir
              */
-            load_libs('file');
-
             $this->tempdir  = file_temp_dir('xapian/'.$params['name'].'/', null, 0770);
             $this->database = new XapianWritableDatabase($this->tempdir, Xapian::DB_CREATE_OR_OPEN);
             $this->indexer  = new XapianTermGenerator();
@@ -145,7 +141,6 @@ class xapianbase {
              * If target already exists, delete it first
              */
             if(file_exists($this->target)){
-                load_libs('file');
                 file_delete_tree($this->target);
             }
 
@@ -168,8 +163,6 @@ class xapianbase {
         global $_CONFIG;
 
         try {
-            load_libs('json');
-
             $database   = new XapianDatabase($this->target);
 
             // Start an enquire session.

@@ -8,7 +8,7 @@ require_once(dirname(__FILE__).'/../../libs/startup.php');
 
 try{
     cli_only();
-    load_libs('test,file');
+    load_libs('test');
 
     foreach($argv as $arg){
         switch($arg){

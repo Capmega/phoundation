@@ -669,7 +669,6 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        load_libs('file');
         file_ensure_path(ROOT.'data/ssh/keys');
         chmod(ROOT.'data/ssh', 0770);
 
@@ -678,6 +677,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
          */
         $keyname = str_random(8);
         $keyfile = ROOT.'data/ssh/keys/'.$keyname;
+
         touch($keyfile);
         chmod($keyfile, 0600);
         file_put_contents($keyfile, $server['ssh_key'], FILE_APPEND);
@@ -907,7 +907,6 @@ function mysqlr_scp_database($server, $source, $destnation, $from_server = false
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        load_libs('file');
         file_ensure_path(ROOT.'data/ssh/keys');
         chmod(ROOT.'data/ssh', 0770);
 

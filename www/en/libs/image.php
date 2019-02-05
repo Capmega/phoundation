@@ -29,7 +29,6 @@ function image_library_init(){
             throw new bException(tr('image: php module "imagick" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-imagick; sudo phpenmod imagick" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-imagick" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
         }
 
-        load_libs('file');
         load_config('images');
         file_ensure_path(ROOT.'data/log');
 
@@ -47,8 +46,6 @@ function image_get_text($image) {
     global $_CONFIG;
 
     try{
-        load_libs('file');
-
         $tmpfile = file_tmp();
 
          safe_exec('tesseract '.$image.' '.$tmpfile);
@@ -96,8 +93,6 @@ function image_convert($source, $destination, $params = null){
     global $_CONFIG;
 
     try{
-        load_libs('file');
-
         /*
          * Validations
          */
@@ -385,10 +380,9 @@ function image_convert($source, $destination, $params = null){
                 break;
 
             case 'thumb-circle':
-                load_libs('file');
-
                 $tmpfname         = tempnam("/tmp", "CVRT_");
                 $complete_command = $command.' -thumbnail '.$params['x'].'x'.$params['y'].'^ -gravity center -extent '.$params['x'].'x'.$params['y'].' -background white -flatten "'.$source.'" "'.$tmpfname.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
+
                 safe_exec($complete_command, 0);
                 file_put_contents($params['log'], $complete_command, FILE_APPEND);
 
@@ -400,12 +394,14 @@ function image_convert($source, $destination, $params = null){
 
             case 'crop-resize':
                 $complete_command = $command.' "'.$source.'" -crop '.cfi($params['w'], false).'x'.cfi($params['h'], false).'+'.cfi($params['x'], false).'+'.cfi($params['y'], false).' -resize '.cfi($params['to_w'], false).'x'.cfi($params['to_h'], false).' "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
+
                 safe_exec($complete_command, 0);
                 file_put_contents($params['log'], $complete_command, FILE_APPEND);
                 break;
 
             case 'custom':
                 $complete_command = $command.' "'.$source.'" '.isset_get($params['custom']).' "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
+
                 safe_exec($complete_command, 0);
                 file_put_contents($params['log'], $complete_command, FILE_APPEND);
                 break;
@@ -594,8 +590,6 @@ function image_info($file, $no_exif = false){
     global $_CONFIG;
 
     try{
-        load_libs('file');
-
         $mime = file_mimetype($file);
 
         if(str_until($mime, '/') !== 'image'){
@@ -706,8 +700,6 @@ function image_send($file, $cache_maxage = 86400){
             /*
              * Image not cached or cache outdated, we respond '200 OK' and output the image.
              */
-            load_libs('file');
-
             header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT', true, 200);
 
             if($cache_maxage){
@@ -795,8 +787,6 @@ function image_fix_extension($file){
  */
 function image_fancybox($params = null){
     try{
-        load_libs('json');
-
         array_params($params, 'selector');
         array_default($params, 'selector', '.fancy');
         array_default($params, 'options' , array());

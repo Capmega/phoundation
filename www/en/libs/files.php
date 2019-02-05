@@ -16,7 +16,6 @@
  */
 function files_library_init(){
     try{
-        load_libs('file');
         load_config('files');
 
     }catch(Exception $e){
@@ -168,8 +167,6 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
         }
 
         sql_query('DELETE FROM `files` WHERE `id` = :id', array(':id' => $dbfile['id']));
-
-        load_libs('file');
         file_delete(slash($base_path).$dbfile['filename']);
 
         return $dbfile;

@@ -19,6 +19,11 @@ try{
             if(empty($first)){
                 $first   = true;
                 $command = mb_trim($command);
+
+                if($timeout){
+                    $command = 'timeout '.$timeout.' '.$command;
+                }
+
                 continue;
             }
 
@@ -113,7 +118,6 @@ under_construction();
      */
     if($exitcode){
         if(!in_array($exitcode, array_force($ok_exitcodes))){
-            load_libs('json');
             log_file(tr('Command ":command" failed with exit code ":exitcode", see output below for more information', array(':command' => $command, ':exitcode' => $exitcode)), 'safe_exec', 'error');
 
 // :DELETE: Since the exception will already log all the information, there is no need to log it separately

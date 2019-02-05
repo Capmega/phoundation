@@ -299,7 +299,6 @@ try{
                     case 'api':
                         // FALLTHROUGH
                     case 'ajax':
-                        load_libs('json');
                         echo "UNCAUGHT EXCEPTION\n\n";
                         showdie($e);
                 }
@@ -394,7 +393,6 @@ try{
                         $code = $e->getCode();
                     }
 
-                    load_libs('json');
                     json_error(tr('Something went wrong, please try again later'), '', '', $code);
             }
 

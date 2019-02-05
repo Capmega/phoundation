@@ -119,7 +119,6 @@ function mbox_test_access($path){
         }
 
         $path = slash($path);
-        load_libs('file');
 
         if(!file_exists($path)){
             throw new bException(tr('mbox_test_access(): The configured (or specified) mail directory ":path" does not exist. Please check the configuration option $_CONFIG[mbox][path]', array(':path' => $path)), 'not-exists');

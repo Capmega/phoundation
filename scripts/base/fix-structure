@@ -22,8 +22,6 @@ include(ROOT.'config/deploy.php');
 $target = cli_argument('target', true, ENVIRONMENT);
 
 cli_no_arguments_left();
-
-load_libs('file');
 log_console('Ensuring site structure', 'white');
 
 if(empty($_CONFIG['deploy'][$target])){

@@ -6,9 +6,36 @@
  * this projects, other projects, or just random directory paths
  * and send these backups to a remote server using rsync
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package backup
  */
+
+
+
+/*
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package backup
+ *
+ * @return void
+ */
+function backup_library_init(){
+    try{
+        load_config('backup');
+
+    }catch(Exception $e){
+        throw new bException('backup_library_init(): Failed', $e);
+    }
+}
 
 
 
@@ -31,8 +58,6 @@ function backup_mysql($params){
     global $_CONFIG;
 
     try{
-        load_libs('file');
-        load_config('backup');
 
         /*
          * See config file for more documentation on the various $_CONFIG['backups']['mysql'] options

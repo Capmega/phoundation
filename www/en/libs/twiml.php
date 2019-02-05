@@ -50,8 +50,6 @@ function twiml_library_init(){
  */
 function twiml_write($name, $data, $root = null){
     try{
-        load_libs('file');
-
         if(empty($root)){
             $root = ROOT.'twiml/';
         }

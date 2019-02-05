@@ -33,7 +33,6 @@ function upload_library_init(){
 function upload_dropzone($selector = null, $url = '/ajax/upload.php', $params = array()){
     try{
         if(!file_exists(ROOT.'pub/js/dropzone.js')){
-            load_libs('file');
             file_copy_to_target('https://raw.github.com/enyo/dropzone/master/dist/dropzone.js', ROOT.'pub/js/', '.js', true, false);
         }
 
@@ -69,8 +68,6 @@ function upload_ocupload($selector = 'input[name=upload]', $url = '/ajax/upload.
         html_load_js('ocupload/jquery.ocupload');
 
         if(!empty($params['params'])){
-            load_libs('json');
-
             if(!is_array($params['params'])){
                 throw new bException(tr('upload_ocupload(): Specified $params[params] is not an array'), 'invalid');
             }
@@ -522,7 +519,6 @@ function upload_check_files($max_uploads = null, $min_uploads = null){
                          * Ensure this file is removed!
                          */
                         if(file_exists($value['tmp_name'])){
-                            load_libs('file');
                             file_delete($value['tmp_name']);
                         }
                 }

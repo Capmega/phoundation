@@ -79,8 +79,6 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
             throw new bException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => str_log($data), ':proxy' => str_cut(str_log($serverurl), '://', '/'))), 'not-specified');
         }
 
-        load_libs('json');
-
         $data         = substr($data['data'], 12);
         $data         = json_decode_custom($data);
         $data['data'] = base64_decode($data['data']);
@@ -325,9 +323,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
                     $params['log'] = ROOT.'data/log/curl';
                 }
 
-                load_libs('file');
                 file_ensure_path(dirname($params['log']));
-
                 curl_setopt($ch, CURLOPT_STDERR, fopen($params['log'], 'a'));
 
                 if($params['post']){
@@ -370,7 +366,6 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
              * Use cookies?
              */
             if(isset_get($params['cookies'])){
-                load_libs('file');
                 if(!isset_get($params['cookie_file'])){
                     $params['cookie_file'] = file_temp();
                 }
@@ -465,8 +460,6 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
         if($params['cache']){
             if($retval = sql_get('SELECT `data` FROM `curl_cache` WHERE `url` = :url', true, array(':url' => $params['url']))){
                 $retry = 0;
-
-                load_libs('json');
                 return json_decode_custom($retval);
             }
         }
@@ -528,8 +521,6 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
         }
 
         if($params['cache']){
-            load_libs('json');
-
             unset($retval['ch']);
 
             sql_query('INSERT INTO `curl_cache` (`users_id`, `url`, `data`)

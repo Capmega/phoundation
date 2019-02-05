@@ -161,8 +161,6 @@ switch(cli_method()){
             }
 // :TEST: Haven't tested this yet, no idea if and how it works
 
-            load_libs('file');
-
             $r = sql_query('DELETE FROM `email_files`');
 
             while($file = sql_fetch($r)){

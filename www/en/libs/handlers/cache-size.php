@@ -7,7 +7,7 @@ global $_CONFIG;
 try{
     switch($_CONFIG['cache']['method']){
         case 'file':
-            load_libs('file,numbers');
+            load_libs('numbers');
             file_ensure_path(ROOT.'data/cache');
             return file_tree(ROOT.'data/cache', 'size');
 

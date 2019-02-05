@@ -73,8 +73,6 @@ function encrypt($data, $key, $method = null){
     global $core;
 
     try{
-        load_libs('json');
-
         switch($core->register('crypt_backend')){
             case 'sodium':
                 $key  = crypt_pad_key($key);
@@ -113,8 +111,6 @@ function decrypt($data, $key, $method = null){
     global $core;
 
     try{
-        load_libs('json');
-
         if($data === false){
             throw new bException(tr('decrypt(): base64_decode() asppears to have failed to decode data, probably invalid base64 string'), 'invalid');
         }

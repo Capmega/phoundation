@@ -17,8 +17,6 @@ try{
         throw new bException('No database password specified', 'not-specified');
     }
 
-    load_libs('file');
-
     log_console('Executing mysqlcheck on all database tables, this may take a minute');
 
     $results = safe_exec('mysqlcheck -A -p'.$password.' 2>&1');

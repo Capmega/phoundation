@@ -45,7 +45,6 @@ if(substr($path, 0, 1) != '/'){
 $path = slash($path);
 
 log_console(tr('Trying to use location ":path" for global data directory', array(':path' => $path)), 'white');
-load_libs('file');
 
 try{
     if(file_exists($path)){

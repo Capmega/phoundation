@@ -147,8 +147,6 @@ function paypal_ipn_log() {
     global $_CONFIG;
 
     try{
-        load_libs('json');
-
         //they can submit with post and get
         if(empty($_POST)){
             $_POST=$_GET;

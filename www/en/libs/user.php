@@ -2268,7 +2268,6 @@ function user_key_or_redirect($user, $key = null, $timestamp = null, $redirect =
         /*
          * Send JSON redirect. json_reply() will end script, so no break needed
          */
-        load_libs('json');
         json_reply(isset_get($redirect, $_CONFIG['url_prefix']), 'signin');
 
     }catch(Exception $e){

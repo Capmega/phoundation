@@ -8,7 +8,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
- * @package empty
+ * @package ads
  */
 
 
@@ -300,8 +300,7 @@ function ads_image_upload($files, $ad){
         /*
          * Check for upload errors
          */
-        load_libs('file,upload');
-
+        load_libs('upload');
         upload_check_files(1);
 
         if(!empty($_FILES['files'][0]['error'])){
@@ -328,8 +327,6 @@ function ads_image_process($ad, $file, $original = null){
     global $_CONFIG;
 
     try{
-        load_libs('file');
-
         if(empty($ad['campaign'])) {
             throw new bException('ads_image_process(): No ad image specified', 'not-specified');
         }

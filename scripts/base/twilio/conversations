@@ -21,7 +21,7 @@ OPTIONS
 
 require_once(__DIR__.'/../../../libs/startup.php');
 
-load_libs('json,twilio,sms');
+load_libs('twilio,sms');
 
 switch(cli_method()){
     case 'rebuild':

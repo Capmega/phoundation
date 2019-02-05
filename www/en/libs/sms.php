@@ -142,8 +142,6 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
     global $_CONFIG;
 
     try{
-        load_libs('json');
-
         if(empty($conversation['id'])){
             throw new bException('sms_update_conversation(): No conversation id specified', 'not-specified');
         }

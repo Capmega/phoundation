@@ -28,8 +28,6 @@ $target = cli_argument('target', true, ENVIRONMENT);
 
 cli_only(true);
 cli_no_arguments_left();
-
-load_libs('file');
 log_console(tr('Updating project file permissions'), 'white');
 
 if(empty($_CONFIG['deploy'][$target])){

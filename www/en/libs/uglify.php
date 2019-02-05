@@ -136,7 +136,6 @@ function uglify_css($paths = null, $force = false){
                     log_console('uglify_css(): Compressing all CSS files in directory "'.str_log($path).'"');
                 }
 
-                load_libs('file');
                 file_check_dir($path);
 
             }elseif(is_file($path)){
@@ -522,7 +521,6 @@ function uglify_js($paths = null, $force = false){
                     log_console('uglify_js(): Compressing all javascript files in directory "'.str_log($path).'"');
                 }
 
-                load_libs('file');
                 file_check_dir($path);
 
             }elseif(is_file($path)){

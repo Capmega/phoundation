@@ -98,7 +98,7 @@ function html_iefilter($html, $filter){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package empty
+ * @package html
  * @see html_generate_css()
  * @see html_generate_js()
  * @see html_minify()
@@ -2059,8 +2059,6 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                         /*
                          * Image comes from a domain, fetch to temp directory to analize
                          */
-                        load_libs('file');
-
                         try{
                             $file  = file_move_to_target($file_src, TMP, false, true);
                             $image = getimagesize(TMP.$file);

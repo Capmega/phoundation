@@ -56,7 +56,7 @@ define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : null));
 /*
  * Load basic libraries
  */
-load_libs('http,html,inet,cache'.(empty($_CONFIG['memcached']) ? '' : ',memcached').(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
+load_libs('http,html,inet,cache'.(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
 
 
 

@@ -81,7 +81,6 @@ function postman_get_config($environment){
  */
 function postman_parse_config($string){
     try{
-        load_libs('json');
         return json_decode_custom($string);
 
     }catch(Exception $e){

@@ -28,10 +28,9 @@
  */
 function empty_library_init(){
     try{
-        ensure_installed(array('name'      => 'empty',
-                               'project'   => 'emptyear',
-                               'callback'  => 'empty_install',
-                               'checks'    => array(ROOT.'libs/external/empty/')));
+        ensure_installed(array('name'     => 'empty',
+                               'callback' => 'empty_install',
+                               'checks'   => array(ROOT.'libs/external/empty/')));
 
     }catch(Exception $e){
         throw new bException('empty_library_init(): Failed', $e);

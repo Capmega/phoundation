@@ -1251,7 +1251,6 @@ function servers_create_identity_file($ssh_key){
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
-        load_libs('file');
         file_ensure_path(ROOT.'data/ssh/keys', 0700);
         chmod(ROOT.'data/ssh', 0700);
 

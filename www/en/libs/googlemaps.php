@@ -181,8 +181,6 @@ function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
  */
 function googlemaps_cache_streetmaps($lat, $long, $x = 640, $y = 480) {
     try{
-        load_libs('file');
-
         $cache_md5  = md5($lat.$long);
         $cache_dir  = ROOT.'www/streetview_cache/';
         $cache_file = str_interleave($cache_md5, '/', 4).'.jpg';
@@ -372,7 +370,7 @@ function googlemaps_geocoding($street, $city, $state, $country) {
     global $_CONFIG;
 
     try{
-        load_libs('curl,json');
+        load_libs('curl');
 
         $raw  = curl_get('http://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($street).','.urlencode($city).','.urlencode($state).','.urlencode($country).'&sensor=false','http://'.$_SESSION['domain']);
         $data = json_decode_custom($raw['data'], true);
@@ -408,7 +406,7 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
             $sensor = !empty($_SESSION['device']['mobile']);
         }
 
-        load_libs('curl,json');
+        load_libs('curl');
 
         $raw  = curl_get(array('url'        => 'http://maps.googleapis.com/maps/api/geocode/json?latlng='.$latitude.','.$longitude.'&sensor='.($sensor ? 'true' : 'false'),
                                'getheaders' => false));

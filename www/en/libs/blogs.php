@@ -4,13 +4,36 @@
  *
  * This library contains functions to manage and display blogs and blog entries
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package blogs
  */
 
 
 
-load_config('blogs');
+/*
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package blogs
+ *
+ * @return void
+ */
+function blogs_library_init(){
+    try{
+        load_config('blogs');
+
+    }catch(Exception $e){
+        throw new bException('blogs_library_init(): Failed', $e);
+    }
+}
 
 
 
@@ -1660,7 +1683,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
     global $_CONFIG;
 
     try{
-        load_libs('file,image,upload,cdn');
+        load_libs('image,upload,cdn');
 
         if(empty($post['id'])) {
             throw new bException('blogs_media_process(): No blog post specified', 'not-specified');
@@ -1719,7 +1742,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
             load_libs('video');
 
             $original_video = $file;
-            $video_thumb    = get_video_thumbnail($file, 'hd720');
+            $video_thumb    = video_get_thumbnail($file, 'hd720');
             $file           = $post['blog_name'].'/'.file_move_to_target($video_thumb, $prefix.$post['blog_name'].'/', '-original.jpg', false, 4);
 
         }else{
@@ -1814,8 +1837,6 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
  */
 function blogs_media_delete($blogs_posts_id){
     try{
-        load_libs('file');
-
         $media = sql_query('SELECT `id`, `file` FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $blogs_posts_id));
 
         if(!$media->rowCount()){
@@ -2432,9 +2453,6 @@ function blogs_post_erase($post){
             return $count;
         }
 
-        load_libs('file');
-        load_config('blogs');
-
         if(is_numeric($post)){
             $post = sql_get('SELECT `id` FROM `blogs_posts` WHERE `id` = :id', 'id', array(':id' => $post));
 
@@ -2748,7 +2766,6 @@ function blogs_post_get_img($photo, $params, $tabindex){
          * Get photo dimensions
          */
         try{
-            load_libs('file');
             unset($is_video);
 
             if(file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.jpg')){

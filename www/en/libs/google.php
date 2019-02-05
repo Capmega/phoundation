@@ -17,7 +17,7 @@ function google_get_avatar($user){
     global $_CONFIG;
 
     try{
-        load_libs('file,image,user');
+        load_libs('image,user');
 
         if(is_array($user)){
             if(empty($user['gp_id'])){

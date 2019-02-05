@@ -6,7 +6,7 @@ try{
     $path = slash($path);
     $cmd  = basename($cmd);
 
-    load_libs('process,file');
+    load_libs('process');
 
     if($path == './'){
         $path = ROOT.'scripts/';
@@ -36,7 +36,6 @@ try{
         $log = str_replace('/', '-', $cmd);
     }
 
-    load_libs('file');
     file_ensure_path(ROOT.'data/run-background');
 
     if(!strstr($args, '--env') and !strstr($args, '-E')){

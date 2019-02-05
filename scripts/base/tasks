@@ -80,7 +80,7 @@ show ID                         - Show detailed information about the specified
 require_once(__DIR__.'/../../libs/startup.php');
 
 cli_only();
-load_libs('tasks,json');
+load_libs('tasks');
 
 switch(cli_method()){
     case 'add':

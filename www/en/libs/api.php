@@ -8,8 +8,27 @@
 
 
 
-load_config('api');
-load_libs('json');
+/*
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package api
+ *
+ * @return void
+ */
+function api_library_init(){
+    try{
+        load_config('api');
+
+    }catch(Exception $e){
+        throw new bException('api_library_init(): Failed', $e);
+    }
+}
 
 
 
@@ -383,8 +402,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
     global $_CONFIG;
 
     try{
-        load_libs('curl,json');
-        load_config('api');
+        load_libs('curl');
 
         if(empty($account)){
             throw new bException(tr('api_call_base(): No API specified'), 'not-specified');

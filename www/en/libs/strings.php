@@ -247,7 +247,6 @@ function str_safe_base64_decode($source){
 // :DELETE: Isn't this str_log()?
 function str_safe($source, $maxsize = 50){
     try{
-        load_libs('json');
         return str_truncate(json_encode_custom($source), $maxsize);
 
     }catch(Exception $e){

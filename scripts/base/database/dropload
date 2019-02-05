@@ -26,7 +26,6 @@ try{
         throw new bException('No database specified', 'not-specified');
     }
 
-    load_libs('file');
     file_ensure_path(TMP.'dropload');
     file_ensure_path(ROOT.'data/backups/databases');
 

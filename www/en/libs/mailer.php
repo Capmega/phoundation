@@ -25,6 +25,7 @@ function mailer_insert($params){
         array_default($params, 'from'   , null);
         array_default($params, 'to'     , null);
 
+        load_libs('seo');
 
         foreach(array('name', 'subject', 'users') as $key){
             if(empty($params[$key])){
@@ -47,8 +48,6 @@ function mailer_insert($params){
         if(empty($params['from_email'])){
             throw new bException('mailer_insert(): No from_email specified', 'not-specified');
         }
-
-        load_libs('json,seo');
 
         $params['seoname'] = seo_generate_unique_name($params['name'], 'mailer_mailings', null, 'seoname');
 
@@ -334,6 +333,8 @@ function mailer_send($count = null, $wait = null, $test = false){
     global $_CONFIG;
 
     try{
+        load_libs('mail,user');
+
         $sent = 0;
 
         if(!$count){
@@ -343,8 +344,6 @@ function mailer_send($count = null, $wait = null, $test = false){
         if(!$wait){
             $wait = $_CONFIG['mailer']['sender']['wait'];
         }
-
-        load_libs('mail,json,user');
 
         /*
          * Get list of currently running mailings

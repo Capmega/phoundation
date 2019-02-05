@@ -360,7 +360,7 @@ function email_get_attachments($imap, $email, $data, $flags){
         /*
          * Extract the images of the emails if there are
          */
-        load_libs('file,image');
+        load_libs('image');
 
         $decode = imap_fetchbody($imap, $email , '', $flags);
         $count  = substr_count($decode, "Content-Transfer-Encoding: base64");
@@ -510,8 +510,6 @@ function email_update_conversation($email, $direction){
     global $_CONFIG;
 
     try{
-        load_libs('json');
-
         $email = email_update_message($email, $direction);
 
         if(empty($direction)){

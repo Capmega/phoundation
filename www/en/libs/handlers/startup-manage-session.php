@@ -124,7 +124,7 @@ try{
                  * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
                  * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
                  */
-                if(substr($_CONFIG['cookie']['domain'], 0, 1) == '.'){
+                if($_CONFIG['cookie']['domain'][0] == '.'){
                     $test = substr($_CONFIG['cookie']['domain'], 1);
 
                 }else{
@@ -135,7 +135,7 @@ try{
 
                 if(substr($_SERVER['HTTP_HOST'], -$length, $length) != $test){
                     notify(new bException(tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['cookie']['domain'], '.'), ':cookie_domain' => $_CONFIG['cookie']['domain'], ':current_domain' => $_SERVER['HTTP_HOST'])), 'cookiedomain'));
-                    redirect('http://'.str_starts_not($_CONFIG['cookie']['domain'], '.'));
+                    redirect($_CONFIG['protocol'].str_starts_not($_CONFIG['cookie']['domain'], '.'));
                 }
 
                 unset($test);

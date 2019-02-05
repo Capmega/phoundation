@@ -37,7 +37,7 @@ function init($projectfrom = null, $frameworkfrom = null){
             throw new bException(tr('init(): This version of base requires at minimum PHP version ":required", anything below is not supported. The current version of PHP installed is ":installed" If you wish to force to run this version of base on this version of PHP, lower the required version defined with the constant PHP_MINIMUM_VERSION in the top of ROOT/libs/startup.php', array(':required' => PHP_MINIMUM_VERSION, ':installed' => PHP_VERSION)), 'denied');
         }
 
-        load_libs('file,sql-exists');
+        load_libs('sql-exists');
 
         /*
          * Check tmp dir configuration
@@ -522,7 +522,7 @@ function init_section($section, $version){
     global $_CONFIG, $core;
 
     try{
-        load_libs('file,sql_exists');
+        load_libs('sql_exists');
 
         $path = ROOT.'init/'.$section.'/';
 

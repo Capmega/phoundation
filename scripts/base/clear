@@ -63,9 +63,7 @@ if($tmp){
     rename(TMP, $delete = unslash(TMP).'~delete');
     mkdir(TMP, $_CONFIG['fs']['dir_mode'], true);
 
-    load_libs('file');
     file_delete_tree($delete);
-
     log_console(tr('Done!'), 'green');
 }
 

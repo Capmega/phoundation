@@ -4,6 +4,7 @@
  *
  * This library contains functions to manage GIT
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
@@ -140,8 +141,6 @@ function git_check_path(&$path){
             return $paths[$path];
         }
 
-        load_libs('file');
-
         if(!$path){
             $path = ROOT;
         }
@@ -237,16 +236,26 @@ function git_clean($path, $directories = false, $force = false){
  * @category Function reference
  * @package git
  *
- * @param string $repository
- * @param string $path
- * @return
+ * @param string $repository The git repository URL to be cloned
+ * @param string $path The path where the git repository must be cloned
+ * @param boolean $clean If set to true, this function will remove the .git repository directory from the cloned project, leaving only the working tree
+ * @return string The path of the cloned repository
  */
-function git_clone($repository, $path){
+function git_clone($repository, $path, $clean = false){
     try{
         /*
          * Clone the repository
          */
-        $retval = safe_exec('cd '.$path.'; git clone '.$repository);
+        safe_exec('cd '.$path.'; git clone '.$repository);
+
+        if($clean){
+            /*
+             * Delete the .git repository file, leaving on the working tree
+             */
+            file_delete(slash($path).$repository.'/.git');
+        }
+
+        return slash($path).$repository;
 
     }catch(Exception $e){
         throw new bException('git_clone(): Failed', $e);

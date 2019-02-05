@@ -4,32 +4,57 @@
  *
  * This library contains caching functions
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package cache
  */
 
 
 
 /*
- * Auto load the memcached or file library
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ *
+ * @return void
  */
-switch($_CONFIG['cache']['method']){
-    case 'file':
-        load_libs('file');
-        break;
+function cache_library_init(){
+    global $_CONFIG;
 
-    case 'memcached':
-        load_libs('memcached');
-        break;
-
-    case false:
+    try{
         /*
-         * Cache has been disabled
+         * Auto load the memcached or file library
          */
-        return false;
+        switch($_CONFIG['cache']['method']){
+            case 'memcached':
+                load_libs('memcached');
+                break;
 
-    default:
-        throw new bException(tr('Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
+            case 'file':
+                break;
+
+            case false:
+                /*
+                 * Cache has been disabled
+                 */
+                return false;
+
+            default:
+                throw new bException(tr('Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
+        }
+
+
+    }catch(Exception $e){
+        throw new bException('cache_library_init(): Failed', $e);
+    }
 }
 
 

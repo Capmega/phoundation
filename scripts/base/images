@@ -143,7 +143,7 @@ OPTIONS
 require_once(__DIR__.'/../../libs/startup.php');
 
 cli_only();
-load_libs('file,image');
+load_libs('image');
 
 $params = $_CONFIG['images']['imagemagick'];
 

@@ -8,8 +8,6 @@ try{
     /*
      * Clear normal cache
      */
-    load_libs('file');
-
     switch($_CONFIG['cache']['method']){
         case 'file':
             if($key){

@@ -4,21 +4,42 @@
  *
  * This library contains various test functions
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package test
  */
 
 
 
-load_libs('file');
+/*
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package test
+ *
+ * @return void
+ */
+function test_library_init(){
+    try{
+        $core->register['timers']['tests']['errors'] = array('all'     => array(),
+                                                             'test'    => array(),
+                                                             'library' => array());
 
-$core->register['timers']['tests']['errors'] = array('all'     => array(),
-                                                     'test'    => array(),
-                                                     'library' => array());
+        file_ensure_path(ROOT.'data/tests/contents');
 
-file_ensure_path(ROOT.'data/tests/contents');
+        define('TESTPATH', ROOT.'data/tests/content/');
 
-define('TESTPATH', ROOT.'data/tests/content/');
+    }catch(Exception $e){
+        throw new bException('test_library_init(): Failed', $e);
+    }
+}
 
 
 

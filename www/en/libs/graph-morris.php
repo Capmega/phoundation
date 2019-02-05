@@ -30,7 +30,7 @@ function graph_morris_library_init(){
         html_load_js('plugins/icheck/icheck.min.js,js/plugins/mcustomscrollbar/jquery.mCustomScrollbar.min,plugins/morris/raphael-min,plugins/morris/morris.min');
 
     }catch(Exception $e){
-        throw new bException('empty_library_init(): Failed', $e);
+        throw new bException('graph_morris_library_init(): Failed', $e);
     }
 }
 

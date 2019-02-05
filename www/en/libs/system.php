@@ -40,7 +40,6 @@ define('REQUEST'  , substr(uniqid(), 7));
 define('ROOT'  , realpath(__DIR__.'/../../..').'/');
 define('TMP'   , ROOT.'data/tmp/');
 define('PUBTMP', ROOT.'data/content/tmp/');
-define('LIBS'  , __DIR__.'/');
 define('CRLF'  , "\r\n");
 
 
@@ -70,7 +69,7 @@ $core = new core();
 
 switch(PLATFORM){
     case 'cli':
-        load_libs('cli,strings,array,sql,mb,meta,file');
+        load_libs('cli,strings,array,sql,mb,meta,file,json');
         register_shutdown_function('cli_done');
         break;
 
@@ -79,7 +78,7 @@ switch(PLATFORM){
          * Load basic libraries
          * All scripts will execute http_done() automatically once done
          */
-        load_libs('http,strings,array,sql,mb,meta,file');
+        load_libs('http,strings,array,sql,mb,meta,file,json');
         register_shutdown_function('http_done');
         break;
 }
@@ -830,10 +829,11 @@ function notify($params){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
- * @see notifications_send()
+ * @see load_libs()
+ * @see load_config()
  *
  * @param mixed $files Either array or CSV string with the files to be loaded
- * @return voic
+ * @return void
  */
 function load_external($files){
     try{
@@ -861,12 +861,13 @@ function load_external($files){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
- * @see notifications_send()
+ * @see load_config()
+ * @see load_external()
  *
  * @param mixed $files Either array or CSV string with the libraries to be loaded
  * @return void
  */
-function load_libs($libraries, $exception = true){
+function load_libs($libraries){
     global $_CONFIG, $core;
 
     try{
@@ -885,9 +886,7 @@ function load_libs($libraries, $exception = true){
 
         foreach(array_force($libraries) as $library){
             if(!$library){
-                if($exception){
-                    throw new bException('load_libs(): Empty library specified', 'emptyspecified');
-                }
+                throw new bException('load_libs(): Empty library specified', 'emptyspecified');
 
             }else{
                 include_once($libs.$library.'.php');
@@ -905,6 +904,10 @@ function load_libs($libraries, $exception = true){
     }catch(Exception $e){
         if(empty($library)){
             throw new bException(tr('load_libs(): Failed to load one or more of libraries ":libraries"', array(':libraries' => $libraries)), $e);
+        }
+
+        if(!file_exist($libs.$library.'.php')){
+            throw new bException(tr('load_libs(): Failed to load library ":library", the library does not exist', array(':library' => $library)), $e);
         }
 
         throw new bException(tr('load_libs(): Failed to load one or more of libraries ":libraries", probably ":library"', array(':libraries' => $libraries, ':library' => $library)), $e);
@@ -1021,7 +1024,7 @@ function load_config($files = ''){
  * @param (optional, default 'exec') string $function One of 'exec', 'passthru', or 'system'. The function to be used internally by safe_exec(). Each function will have different execution and different output. 'passthru' will send all command output directly to the client (browser or command line), 'exec' will return the complete output of the command, but cannot be used for background commands as it will check the process exit code, 'system' can run background processes.
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
-function safe_exec($commands, $ok_exitcodes = null, $route_errors = true, $function = 'exec'){
+function safe_exec($commands, $ok_exitcodes = null, $route_errors = true, $function = 'exec', $timeout = 10){
     return include(__DIR__.'/handlers/startup-safe-exec.php');
 }
 
@@ -1102,8 +1105,6 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
     global $_CONFIG, $core;
 
     try{
-        load_libs('file');
-
         /*
          * Set default values
          */
@@ -1234,7 +1235,7 @@ function accepts(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package empty
+ * @package system
  * @see accepts()
  * @note: This function is called by the startup system and its output stored in $core->register['accept_language']. There is typically no need to execute this function on any other places
  * @version 1.27.0: Added function and documentation
@@ -1535,8 +1536,6 @@ function log_file($messages, $class = 'syslog', $color = null){
     static $h = array(), $last;
 
     try{
-        load_libs('cli,json');
-
         /*
          * Process logging flags embedded in the log text color
          */
@@ -1643,7 +1642,6 @@ function log_file($messages, $class = 'syslog', $color = null){
          * Write log entries
          */
         if(empty($h[$file])){
-            load_libs('file');
             file_ensure_path(ROOT.'data/log');
 
             $h[$file] = fopen(slash(ROOT.'data/log').$file, 'a+');
@@ -1834,6 +1832,62 @@ function domain($current_url = false, $query = null, $prefix = null, $domain = n
 
     }catch(Exception $e){
         throw new bException('domain(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Download the specified single file to the specified path
+ *
+ * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see file_get_local()
+ * @version 2.0.3: Added function and documentation
+ * @example This shows how to download a single file
+ * code
+ * $result = download('https://capmega.com', TMP);
+ * showdie($result);
+ * /code
+ *
+ * This would display
+ * code
+ * ROOT/data/tmp/capmega.com
+ * /code
+ *
+ * @param string $url The URL of the file to be downloaded
+ * @param boolean $return_contents If set to true, will return the contents of the downloaded file instead of the target filename. As the caller function will not know the exact filename used, the target file will be deleted automatically!
+ * @return string The downloaded file
+ */
+function download($url, $return_contents = false){
+    try{
+        $filename = str_from($url, '://');
+        $filename = str_rfrom($url, '/');
+        $filename = str_until($filename, '?');
+
+        file_delete(TMP.$filename);
+        safe_exec('wget -q -O '.TMP.$filename.' - "'.$url.'"');
+
+        if($return_contents){
+            /*
+             * Do not return the filename but the file contents instead
+             * When doing this, automatically delete the file in question, since
+             * the caller will not know the exact file name used
+             */
+            $retval = file_get_contents(TMP.$filename);
+            file_delete(TMP.$filename);
+            return $retval;
+        }
+
+        return TMP.$filename;
+
+    }catch(Exception $e){
+        throw new bException('download(): Failed', $e);
     }
 }
 
@@ -2887,6 +2941,8 @@ function quote($value){
     }
 }
 
+
+
 /*
  * Ensure that the specifed library is installed. If not, install it before
  * continuing
@@ -2894,33 +2950,55 @@ function quote($value){
 function ensure_installed($params){
     try{
         array_ensure($params);
-        array_default($params, 'checks', null);
-        array_default($params, 'name'  , null);
 
         /*
          * Check if specified library is installed
          */
-        if(!$params['name']){
+        if(!isset($params['name'])){
             throw new bException(tr('ensure_installed(): No name specified for library'), 'not-specified');
         }
 
-        if(!$params['checks']){
-            throw new bException(tr('ensure_installed(): No checks specified for library with checks":checks"', array(':checks' => $params['checks'])), 'not-specified');
-        }
-
-        foreach(array_force($params['checks']) as $path){
-            if(!file_exists($path)){
-                $fail = true;
+        /*
+         * Test available files
+         */
+        if(isset($params['checks'])){
+            foreach(array_force($params['checks']) as $path){
+                if(!file_exists($path)){
+                    $fail = 'path '.$path;
+                    break;
+                }
             }
         }
 
+        /*
+         * Test available functions
+         */
+        if(isset($params['functions']) and !isset($fail)){
+            foreach(array_force($params['functions']) as $function){
+                if(!function_exists($function)){
+                    $fail = 'function '.$function;
+                    break;
+                }
+            }
+        }
+
+        /*
+         * Test available functions
+         */
+        if(isset($params['which']) and !isset($fail)){
+            foreach(array_force($params['which']) as $program){
+                if(!which($program)){
+                    $fail = 'which '.$program;
+                    break;
+                }
+            }
+        }
+
+        /*
+         * If a test failed, run the installer for this function
+         */
         if(!empty($fail)){
-            load_libs('install');
-
-            if(empty($params['callback'])){
-                return install($params);
-            }
-
+            log_file(tr('Installation test ":test" failed, running installer ":installer"', array(':test' => $fail, ':installer' => $params['callback'])), 'ensure-installed', 'yellow');
             return $params['callback']($params);
         }
 
@@ -3869,7 +3947,6 @@ function str_truncate($source, $length, $fill = ' ... ', $method = 'right', $on_
 function str_log($source, $truncate = 8187, $separator = ', '){
     try{
         try{
-            load_libs('json');
             $json_encode = 'json_encode_custom';
 
         }catch(Exception $e){
@@ -4158,6 +4235,179 @@ function cli_dot($each = 10, $color = 'green', $dot = '.', $quiet = false){
 
     }catch(Exception $e){
         throw new bException('cli_dot(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * CLI color code management class
+ * Taken from http://www.if-not-true-then-false.com/2010/php-class-for-coloring-php-command-line-cli-scripts-output-php-output-colorizing-using-bash-shell-colors/
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ */
+class Colors {
+    private $foreground_colors = array();
+    private $background_colors = array();
+
+    public function __construct() {
+        /*
+         * Set up shell colors
+         */
+        $this->foreground_colors['black']        = '0;30';
+        $this->foreground_colors['dark_gray']    = '1;30';
+        $this->foreground_colors['blue']         = '0;34';
+        $this->foreground_colors['light_blue']   = '1;34';
+        $this->foreground_colors['info']         = '1;34';
+        $this->foreground_colors['green']        = '0;32';
+        $this->foreground_colors['light_green']  = '1;32';
+        $this->foreground_colors['success']      = '1;32';
+        $this->foreground_colors['cyan']         = '0;36';
+        $this->foreground_colors['light_cyan']   = '1;36';
+        $this->foreground_colors['red']          = '0;31';
+        $this->foreground_colors['light_red']    = '1;31';
+        $this->foreground_colors['error']        = '1;31';
+        $this->foreground_colors['exception']    = '1;31';
+        $this->foreground_colors['purple']       = '0;35';
+        $this->foreground_colors['light_purple'] = '1;35';
+        $this->foreground_colors['brown']        = '0;33';
+        $this->foreground_colors['yellow']       = '1;33';
+        $this->foreground_colors['warning']      = '1;33';
+        $this->foreground_colors['light_gray']   = '0;37';
+        $this->foreground_colors['white']        = '1;37';
+
+        $this->background_colors['black']        = '40';
+        $this->background_colors['red']          = '41';
+        $this->background_colors['green']        = '42';
+        $this->background_colors['yellow']       = '43';
+        $this->background_colors['blue']         = '44';
+        $this->background_colors['magenta']      = '45';
+        $this->background_colors['cyan']         = '46';
+        $this->background_colors['light_gray']   = '47';
+    }
+
+    /*
+     * Returns colored string
+     */
+    public function getColoredString($string, $foreground_color = null, $background_color = null, $force = false, $reset = true) {
+        $colored_string = '';
+
+        if(!is_scalar($string)){
+            throw new bException(tr('getColoredString(): Specified text ":text" is not a string or scalar', array(':text' => $string)), 'invalid');
+        }
+
+        if(NOCOLOR and !$force){
+            /*
+             * Do NOT apply color
+             */
+            return $string;
+        }
+
+        if($foreground_color){
+            if(!is_string($foreground_color) or !isset($this->foreground_colors[$foreground_color])){
+                /*
+                 * If requested colors do not exist, return no
+                 */
+                log_console(tr('[ WARNING ] getColoredString(): specified foreground color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $foreground_color)), 'warning');
+                return $string;
+            }
+
+            // Check if given foreground color found
+            if(isset($this->foreground_colors[$foreground_color])) {
+                $colored_string .= "\033[".$this->foreground_colors[$foreground_color].'m';
+            }
+        }
+
+        if($background_color){
+            if(!is_string($background_color) or !isset($this->background_colors[$background_color])){
+                /*
+                 * If requested colors do not exist, return no
+                 */
+                log_console(tr('[ WARNING ] getColoredString(): specified background color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $background_color)), 'warning');
+                return $string;
+            }
+
+            /*
+             * Check if given background color found
+             */
+            if(isset($this->background_colors[$background_color])) {
+                $colored_string .= "\033[".$this->background_colors[$background_color].'m';
+            }
+        }
+
+        /*
+         * Add string and end coloring
+         */
+        $colored_string .=  $string;
+
+        if($reset){
+            $colored_string .= cli_reset_color();
+        }
+
+        return $colored_string;
+    }
+
+    /*
+     * Returns all foreground color names
+     */
+    public function getForegroundColors() {
+        return array_keys($this->foreground_colors);
+    }
+
+    /*
+     * Returns all background color names
+     */
+    public function getBackgroundColors() {
+        return array_keys($this->background_colors);
+    }
+
+    /*
+     * Returns all background color names
+     */
+    public function resetColors() {
+
+    }
+}
+
+
+
+/*
+ * Return the specified string in the specified color
+ */
+function cli_color($string, $fore_color = null, $back_color = null, $force = false, $reset = true){
+    try{
+        static $color;
+
+        if(!$color){
+            $color = new Colors();
+        }
+
+        return $color->getColoredString($string, $fore_color, $back_color, $force, $reset);
+
+    }catch(Exception $e){
+        throw new bException('cli_color(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return or echo CLI code to reset all colors
+ */
+function cli_reset_color($echo = false){
+    try{
+        if(!$echo){
+            return "\033[0m";
+        }
+
+        echo "\033[0m";
+
+    }catch(Exception $e){
+        throw new bException('cli_reset_color(): Failed', $e);
     }
 }
 
@@ -4993,7 +5243,7 @@ function unregister_shutdown($name){
         return $value;
 
     }catch(Exception $e){
-        throw new bException('unregister_shutdown(): Failed', $e);
+        throw new bException(tr('unregister_shutdown(): Failed'), $e);
     }
 }
 

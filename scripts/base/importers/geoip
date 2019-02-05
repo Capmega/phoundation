@@ -48,7 +48,6 @@ require_once(__DIR__.'/../../../libs/startup.php');
 
 log_console(tr('Updating GEOIP data'), 'white');
 
-load_libs('file');
 $tmpdir = file_temp_dir();
 
 if(cli_argument('--no-download')){

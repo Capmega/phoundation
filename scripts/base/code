@@ -59,7 +59,7 @@ patch                           - Will apply the diff patches to both
 require_once(__DIR__.'/../../libs/startup.php');
 
 cli_only();
-load_libs('git,patch,file');
+load_libs('git,patch');
 
 $path            = cli_argument('--path'  , true, ROOT);
 $filter          = cli_argument('--filter', true, '/.+\.(php|html)/');
@@ -96,7 +96,6 @@ switch(cli_method()){
     case 'tabs-to-spaces':
         $spaces = cli_argument('--spaces', true, 4);
         cli_no_arguments_left();
-        load_libs('file');
 
         $function = function($file) use ($spaces){
             /*
@@ -161,10 +160,7 @@ switch(cli_method()){
          * Prepare patch paths, must exist and be empty
          */
         $paths['phoundation'] = patch_get_phoundation_location();
-
-        if(!$phoundation_only){
-            $paths['toolkit'] = patch_get_toolkit_location();
-        }
+        $paths['toolkit']     = patch_get_toolkit_location();
 
         /*
          * reset this project branch to HEAD

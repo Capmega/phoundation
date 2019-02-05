@@ -75,8 +75,6 @@ function twitter_get_bearer_token(){
             }
         }
 
-        load_libs('json');
-
         $bearer_token = json_decode_custom($bearer_token);
         return $bearer_token->{'access_token'};
 
