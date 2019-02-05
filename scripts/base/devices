@@ -125,7 +125,11 @@ switch(cli_method()){
             $server     = cli_argument(2);
 
             cli_no_arguments_left();
-            $devices = devices_scan_usb($filters, $server);
+
+            if($server){
+
+            }
+            $devices = devices_scan($filters, $server);
 
             foreach($devices as $device){
                 devices_insert($device, $server);
@@ -144,9 +148,31 @@ switch(cli_method()){
 
         break;
 
+    case 'clear':
+        cli_no_arguments_left();
+
+        $r = sql_query('DELETE FROM `devices`');
+
+        switch(!$r->rowCount()){
+            case 0:
+                log_console(tr('Not deleted any devices'), 'error');
+                break;
+
+            case count($devices):
+                log_console(tr('Deleted only ":count" devices from the specified ":specified" devices', array(':count' => $r->rowCount(), ':specified' => count($devices))), 'yellow');
+                break;
+
+            default:
+                log_console(tr('Deleted ":count" devices', array(':count' => $r->rowCount())), 'green');
+        }
+
+        break;
+
     case 'delete':
         $devices = cli_arguments();
-        $in      = sql_in($devices, 'id');
+        $in      = sql_in($devices, ':id');
+
+        cli_no_arguments_left();
 
         if(empty($devices)){
             throw new bException(tr('No devices specified'), 'warning/not-specified');
@@ -184,7 +210,9 @@ switch(cli_method()){
 
     case 'undelete':
         $devices = cli_arguments();
-        $in      = sql_in($devices, 'id');
+        $in      = sql_in($devices, ':id');
+
+        cli_no_arguments_left();
 
         if(empty($devices)){
             throw new bException(tr('No devices specified'), 'warning/not-specified');
@@ -222,6 +250,9 @@ switch(cli_method()){
 
     case 'erase':
         $devices = cli_arguments();
+        $in      = sql_in($devices, ':id');
+
+        cli_no_arguments_left();
 
         if(FORCE){
             $status = '';
