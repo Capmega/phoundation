@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.0.5');
+define('FRAMEWORKCODEVERSION', '2.0.6');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -389,7 +389,7 @@ class bException extends Exception{
      * @param mixed $data
      */
     function __construct($messages, $code, $data = null){
-        return include(__DIR__.'/handlers/startup-bexception-construct.php');
+        return include(__DIR__.'/handlers/system-bexception-construct.php');
     }
 
 
@@ -578,7 +578,7 @@ class bException extends Exception{
  * @return object $this, so that you can string multiple calls together
  */
 function php_error_handler($errno, $errstr, $errfile, $errline, $errcontext){
-    return include(__DIR__.'/handlers/startup-php-error-handler.php');
+    return include(__DIR__.'/handlers/system-php-error-handler.php');
 }
 
 
@@ -598,7 +598,7 @@ function php_error_handler($errno, $errstr, $errfile, $errline, $errcontext){
  * @return object $this, so that you can string multiple calls together
  */
 function uncaught_exception($e, $die = 1){
-    return include(__DIR__.'/handlers/startup-uncaught-exception.php');
+    return include(__DIR__.'/handlers/system-uncaught-exception.php');
 }
 
 
@@ -1025,7 +1025,7 @@ function load_config($files = ''){
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
 function safe_exec($commands, $ok_exitcodes = null, $route_errors = true, $function = 'exec', $timeout = 10){
-    return include(__DIR__.'/handlers/startup-safe-exec.php');
+    return include(__DIR__.'/handlers/system-safe-exec.php');
 }
 
 
@@ -1050,32 +1050,7 @@ function safe_exec($commands, $ok_exitcodes = null, $route_errors = true, $funct
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
 function script_exec($script, $arguments = null, $ok_exitcodes = null){
-    return include(__DIR__.'/handlers/startup-script-exec.php');
-}
-
-
-
-/*
- * Cleans up the temporary script file from script_exec()
- *
- * Examples:
- * script_exec('base/users list', '-C -Q')
- * script_exec('test')
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- * @see notifications_send()
- *
- * @param string $script The commands to be executed
- * @param (optional, default true) string $arguments
- * @param (optional, default null) mixed $ok_exitcodes If specified, will not cause exception for the specified command exit codes.
- * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
- */
-function script_clean($script_file){
-    return include(__DIR__.'/handlers/startup-script-clean.php');
+    return include(__DIR__.'/handlers/system-script-exec.php');
 }
 
 
@@ -4640,7 +4615,7 @@ function force_datatype($source){
  * Show the correct HTML flash error message
  */
 function error_message($e, $messages = array(), $default = null){
-    return include(__DIR__.'/handlers/startup-error-message.php');
+    return include(__DIR__.'/handlers/system-error-message.php');
 }
 
 
@@ -4649,7 +4624,7 @@ function error_message($e, $messages = array(), $default = null){
  * Switch to specified site type, and redirect back
  */
 function switch_type($type, $redirect = ''){
-    return include(__DIR__.'/handlers/startup-switch-type.php');
+    return include(__DIR__.'/handlers/system-switch-type.php');
 }
 
 
@@ -4658,7 +4633,7 @@ function switch_type($type, $redirect = ''){
  *
  */
 function get_global_data_path($section = '', $writable = true){
-    return include(__DIR__.'/handlers/startup-get-global-data-path.php');
+    return include(__DIR__.'/handlers/system-get-global-data-path.php');
 }
 
 
@@ -4692,7 +4667,7 @@ function get_global_data_path($section = '', $writable = true){
  * @return natural The PID of the background process executing the requested command
  */
 function run_background($cmd, $log = true, $single = true, $term = 'xterm'){
-    return include(__DIR__.'/handlers/startup-run-background.php');
+    return include(__DIR__.'/handlers/system-run-background.php');
 }
 
 
