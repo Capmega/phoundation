@@ -101,13 +101,6 @@ $_CONFIG['composer']           = array('global'                             => f
 // Content configuration
 $_CONFIG['content']            = array('autocreate'                         => false);                                                  // When using load_content(), if content is missing should it be created automatically? Normally, use "true" on development and test machines, "false" on production
 
-// Cookie configuration
-$_CONFIG['cookie']             = array('lifetime'                           => 0,
-                                       'path'                               => '/',
-                                       'domain'                             => 'auto',                                                  // Domain limitation for cookies. Can be emtpy (no limitation), auto for SERVER_NAME, .auto for .SERVER_NAME which will limit to SERVER_NAME and sub domains, or a specific domain. NOTE: IF A SPECIFIC DOMAIN IS SPECIFIED, THEN IT MUST MATCH THE PRODUCTION DOMAIN (or .DOMAIN for domain and subdomains) OR BASE WILL CRASH AT STARTUP TO AVOID NON WORKING COOKIES!
-                                       'secure'                             => false,
-                                       'httponly'                           => false);
-
 //
 $_CONFIG['copyright']          = array('name'                               => 'Ingiga',                                                // Name to be displayed for the copyright
                                        'url'                                => 'https://capmega.com/copyright.html');                    // URL used for the copyright
@@ -342,12 +335,15 @@ $_CONFIG['sessions']           = array('lifetime'                           => 8
                                        'timeout'                            => 86400,                                                       // Time between pageloads that, when passed, will cause the session to be closed
                                        'http_only'                          => true,                                                        // Sets if cookies can be sent over other protocols than HTTP. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_httponly
                                        'secure_only'                        => true,                                                        // Sets if cookies can only be sent over secure connections. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_secure
-                                       'same_site'                          => 'Lax',                                                       // false | Lax | Strict : Sets if cookiets can be sent cross domain by browser. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_samesite
+                                       'same_site'                          => 'Strict',                                                    // false | Lax | Strict : Sets if cookiets can be sent cross domain by browser. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_samesite
                                        'strict'                             => true,                                                        // Forces session.use_strict_mode to the specified value. Recommended TRUE for session security! See https://secure.php.net/manual/en/session.configuration.php#ini.session.use_strict_mode
                                        'regenerate_id'                      => 600,                                                         // Time required to regenerate the session id, used to mitigate session fixation attacks. MUST BE LOWER THAN $_CONFIG[session][lifetime]!
                                        'check_referrer'                     => true,                                                        // If set to true, the referrer must contain the domain name
                                        'handler'                            => false,                                                       // false | mm | mc | sql Use the default PHP session manager, shared memory manager (mm), memcached (mc) or sql_sessions library to manage sessions
                                        'euro_cookies'                       => false,                                                       // If set to true, all european countries will see a "This site uses cookies" warning before cookies are being sent
+                                       'domain'                             => 'auto',                                                      // If set to "auto", will apply to current domain. If set to ".auto", will apply to current domain plus sub domains. If set to specific-domain, or .specific-domain then it will do the same but for the specific-domain
+                                       'path'                               => '/',                                                         // The path on the server in which the cookie will be available on. If set to '/', the cookie will be available within the entire domain.
+                                       'cookie_name'                        => 'phoundation',                                               // The name for the cookie
 
                                        'extended'                           => array('age'           => 2592000,                            //
                                                                                      'clear'         => true),                              //

@@ -1,11 +1,18 @@
 <?php
 /*
+ * Backward compatibility
+ */
+if(isset($_CONFIG['cookie']['domain'])){
+    $_CONFIG['sessions']['domain'] = $_CONFIG['cookie']['domain'];
+}
+
+/*
  * Force session cookie configuration
  */
 ini_set('session.gc_maxlifetime' , $_CONFIG['sessions']['timeout']);
 ini_set('session.cookie_lifetime', $_CONFIG['sessions']['lifetime']);
 ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
-ini_set('session.name'           , 'base');
+ini_set('session.name'           , $_CONFIG['sessions']['cookie_name']);
 ini_set('session.cookie_httponly', $_CONFIG['sessions']['http_only']);
 ini_set('session.cookie_secure'  , $_CONFIG['sessions']['secure_only']);
 ini_set('session.cookie_samesite', $_CONFIG['sessions']['same_site']);
@@ -55,6 +62,7 @@ try{
      */
     if(isset_get($core->register['session']['client']['type']) === 'crawler'){
         log_file(tr('Crawler ":crawler" on URL ":url"', array(':crawler' => $core->register['session']['client'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])));
+
     }else{
         /*
          * Setup session handlers
@@ -93,16 +101,83 @@ try{
 
 
         /*
-         * Detect if we're on an allowed domain
+         * Check if the requested domain is allowed
          */
-        $domain = session_detect_domain();
+        $domain = cfm($_SERVER['HTTP_HOST']);
+
+        if(!$domain){
+            /*
+             * No domain was requested at all, so probably instead of a domain
+             * name, an IP was requested. Redirect to the domain name
+             */
+            redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+        }
+
+        /*
+         * Check the detected domain against the configured domain.
+         * If it doesnt match then check if its a registered whitelabel domain
+         */
+        if($domain === $_CONFIG['domain']){
+            /*
+             * This is the registered domain
+             */
+
+        }else{
+            /*
+             * This is not the registered domain!
+             */
+            if($_CONFIG['whitelabels']['enabled'] === false){
+                /*
+                 * white label domains are disabled, so the requested domain
+                 * MUST match the configured domain
+                 */
+                redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+
+            }elseif($_CONFIG['whitelabels']['enabled'] === 'all'){
+                /*
+                 * All domains are allowed
+                 */
+
+            }elseif($_CONFIG['whitelabels']['enabled'] === 'sub'){
+                /*
+                 * White label domains are disabled, but sub domains from the
+                 * $_CONFIG[domain] are allowed
+                 */
+                if(str_from($domain, '.') !== $_CONFIG['domain']){
+                    redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+                }
+
+            }elseif($_CONFIG['whitelabels']['enabled'] === 'list'){
+                /*
+                 * This domain must be registered in the whitelabels list
+                 */
+                $domain = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain AND `status` IS NULL', true, array(':domain' => $_SERVER['HTTP_HOST']));
+
+                if(empty($domain)){
+                    redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+                }
+
+            }else{
+                /*
+                 * The domain must match either $_CONFIG[domain] or the domain
+                 * specified in $_CONFIG[whitelabels][enabled]
+                 */
+                if($domain !== $_CONFIG['whitelabels']['enabled']){
+                    redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+                }
+
+            }
+        }
 
 
 
         /*
          * Check the cookie domain configuration to see if its valid.
+         *
+         * NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain]
+         * must be one of "auto" or ".auto"
          */
-        switch($_CONFIG['cookie']['domain']){
+        switch($_CONFIG['sessions']['domain']){
             case '':
                 /*
                  * This domain has no cookies
@@ -110,11 +185,12 @@ try{
                 break;
 
             case 'auto':
-                $_CONFIG['domain'] = $_SERVER['HTTP_HOST'];
+                $_CONFIG['sessions']['domain'] = $domain;
                 break;
 
             case '.auto':
-                $_CONFIG['domain'] = '.'.$_SERVER['HTTP_HOST'];
+                $_CONFIG['sessions']['domain'] = '.'.$domain;
+                ini_set('session.cookie_domain', '.'.$domain);
                 break;
 
             default:
@@ -124,18 +200,16 @@ try{
                  * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
                  * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
                  */
-                if($_CONFIG['cookie']['domain'][0] == '.'){
-                    $test = substr($_CONFIG['cookie']['domain'], 1);
+                if($_CONFIG['sessions']['domain'][0] == '.'){
+                    $test = substr($_CONFIG['sessions']['domain'], 1);
 
                 }else{
-                    $test = $_CONFIG['cookie']['domain'];
+                    $test = $_CONFIG['sessions']['domain'];
                 }
 
-                $length = strlen($test);
-
-                if(substr($_SERVER['HTTP_HOST'], -$length, $length) != $test){
-                    notify(new bException(tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['cookie']['domain'], '.'), ':cookie_domain' => $_CONFIG['cookie']['domain'], ':current_domain' => $_SERVER['HTTP_HOST'])), 'cookiedomain'));
-                    redirect($_CONFIG['protocol'].str_starts_not($_CONFIG['cookie']['domain'], '.'));
+                if(!strstr($domain, $test)){
+                    notify(new bException(tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['sessions']['domain'], '.'), ':cookie_domain' => $_CONFIG['sessions']['domain'], ':current_domain' => $domain)), 'cookiedomain'));
+                    redirect($_CONFIG['protocol'].str_starts_not($_CONFIG['sessions']['domain'], '.'));
                 }
 
                 unset($test);
@@ -160,27 +234,31 @@ try{
             }
         }
 
-        if(!empty($_CONFIG['cookie']['domain']) and !$core->callType('api')){
+        if(!empty($_CONFIG['sessions']['domain']) and !$core->callType('api')){
             /*
              *
              */
             try{
                 if(isset($_COOKIE['base'])){
-                    if(!is_string($_COOKIE['base']) or !preg_match('/[a-z0-9]{1,128}/i', $_COOKIE['base'])){
+                    if(!is_string($_COOKIE['base']) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE['base'])){
                         log_file(tr('Received invalid cookie ":cookie", dropping', array(':cookie' => $_COOKIE['base'])), 'warning');
                         unset($_COOKIE['base']);
                         $_POST = array();
 
                         /*
+                         * Received cookie but it didn't pass
                          * Start a new session without a cookie
                          */
                         session_start();
 
                     }elseif(!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE['base'])){
                         /*
-                         * Start a session with a non-existing cookie. Rename our
-                         * session after the cookie, as deleting the cookie from the
-                         * browser turned out to be problematic to say the least
+                         * Cookie code is valid, but it doesn't exist.
+                         *
+                         * Start a session with this non-existing cookie. Rename
+                         * our session after the cookie, as deleting the cookie
+                         * from the browser turned out to be problematic to say
+                         * the least
                          */
                         log_file(tr('Received non existing cookie ":cookie", recreating', array(':cookie' => $_COOKIE['base'])), 'warning');
 
@@ -192,7 +270,8 @@ try{
 
                     }else{
                         /*
-                         * Start a normal session with cookie
+                         * Cookie valid and found.
+                         * Start a normal session with whit cookie
                          */
                         session_start();
                     }
@@ -224,12 +303,6 @@ try{
                 }
             }
 
-            if(empty($_SESSION['init'])){
-                load_libs('detect');
-                detect();
-            }
-
-
             if($_CONFIG['sessions']['regenerate_id']){
                 if(isset($_SESSION['created']) and (time() - $_SESSION['created'] > $_CONFIG['sessions']['regenerate_id'])){
                     /*
@@ -253,25 +326,6 @@ try{
                     session_regenerate_id(true);
                 }
             }
-
-
-
-        //        /*
-        //         * Ensure we have domain information
-        //         *
-        //         * NOTE: This SHOULD be done before the session_start because
-        //         * there we set a cookie to a possibly invalid domain BUT
-        //         * if we do this before session_start(), then $_SESSION['domain']
-        //         * does not yet exist, and we would perfom this check every page
-        //         * load instead of just once every session.
-        //         */
-        //// :TODO: in this section, session_detect_domain() could be called like 5 times? Fix this!
-        //        if(isset_get($_SESSION['domain']) !== $_SERVER['HTTP_HOST']){
-        //            /*
-        //             * Check requested domain
-        //             */
-        //            session_detect_domain();
-        //        }
 
 
 

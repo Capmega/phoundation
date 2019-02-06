@@ -238,7 +238,6 @@ function api_authenticate($apikey){
         }
 
         session_regenerate_id();
-        session_detect_domain();
 
         sql_query('INSERT INTO `api_sessions` (`createdby`, `ip`, `apikey`)
                    VALUES                     (:createdby , :ip , :apikey )',
@@ -286,7 +285,6 @@ function api_start_session($sessionkey){
              * Not a valid session!
              */
             session_destroy();
-            session_detect_domain();
 
             json_reply(tr('api_start_session(): Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
         }
@@ -319,7 +317,6 @@ function api_stop_session(){
                    array('id' => isset_get($_SESSION['api']['sessions_id'])));
 
         session_destroy();
-        session_detect_domain();
         return true;
 
     }catch(Exception $e){

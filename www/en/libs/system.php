@@ -3055,112 +3055,26 @@ function disconnect(){
 
 
 /*
- *
+ * Execute the specified callback function with the specified $params only if the callback has been set with an executable function
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
+ * @version 2.0.6: Added documentation
  *
- * @return string The detected domain name
+ * @param $callback
+ * @param null params $params
+  * @return string The results from the callback function, or null if no callback function was specified
  */
-function session_detect_domain(){
-    global $_CONFIG;
-
+function execute_callback($callback, $params = null){
     try{
-        $domain = cfm($_SERVER['HTTP_HOST']);
-
-        if(!$domain){
-            /*
-             * No domain was requested at all
-             */
-            redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+        if(is_callable($callback)){
+            return $callback($params);
         }
 
-        /*
-         * Check the detected domain against the configured domain.
-         * If it doesnt match then check if its a registered whitelabel domain
-         */
-        if($domain === $_CONFIG['domain']){
-            /*
-             * This is the registered domain
-             */
-            session_set_cookie_params($_CONFIG['cookie']['lifetime'], $_CONFIG['cookie']['path'], $domain, $_CONFIG['cookie']['secure'], $_CONFIG['cookie']['httponly']);
-
-        }else{
-            /*
-             * This is not the registered domain!
-             */
-            if($_CONFIG['whitelabels']['enabled'] === false){
-                /*
-                 * white label domains are disabled, so the detected domain MUST match the configured domain
-                 */
-                redirect($_CONFIG['protocol'].$_CONFIG['domain']);
-
-            }elseif($_CONFIG['whitelabels']['enabled'] === 'all'){
-                /*
-                 * All domains are allowed
-                 */
-                session_set_cookie_params($_CONFIG['cookie']['lifetime'], $_CONFIG['cookie']['path'], $domain, $_CONFIG['cookie']['secure'], $_CONFIG['cookie']['httponly']);
-
-            }elseif($_CONFIG['whitelabels']['enabled'] === 'sub'){
-                $len = strlen($_CONFIG['domain']);
-
-                if(substr($domain, -$len, $len) !== $_CONFIG['domain']){
-                    redirect($_CONFIG['protocol'].$_CONFIG['domain']);
-                }
-
-                /*
-                 * white label domains are disabled, but sub domains from the $_CONFIG[domain] are allowed
-                 */
-                session_set_cookie_params($_CONFIG['cookie']['lifetime'], $_CONFIG['cookie']['path'], $domain, $_CONFIG['cookie']['secure'], $_CONFIG['cookie']['httponly']);
-
-            }elseif($_CONFIG['whitelabels']['enabled'] === 'list'){
-                /*
-                 * This domain must be registered in the whitelabels list
-                 */
-                $domain = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain AND `status` IS NULL', 'domain', array(':domain' => $_SERVER['HTTP_HOST']));
-
-                if(empty($domain)){
-                    redirect($_CONFIG['protocol'].$_CONFIG['domain']);
-                }
-
-                session_set_cookie_params($_CONFIG['cookie']['lifetime'], $_CONFIG['cookie']['path'], $domain, $_CONFIG['cookie']['secure'], $_CONFIG['cookie']['httponly']);
-
-            }else{
-                /*
-                 * The domain must match either $_CONFIG[domain] or the domain
-                 * specified in $_CONFIG[whitelabels][enabled]
-                 */
-                if($domain !== $_CONFIG['whitelabels']['enabled']){
-                    redirect($_CONFIG['protocol'].$_CONFIG['domain']);
-                }
-
-                session_set_cookie_params($_CONFIG['cookie']['lifetime'], $_CONFIG['cookie']['path'], $domain, $_CONFIG['cookie']['secure'], $_CONFIG['cookie']['httponly']);
-            }
-        }
-
-        return $domain;
-
-    }catch(Exception $e){
-        throw new bException(tr('session_detect_domain(): Failed'), $e);
-    }
-}
-
-
-
-// :DELETE: WTF does this do, where would it possibly be useful?
-/*
- * Callback funtion
- */
-function execute_callback($callback_name, $params = null){
-    try{
-        if(is_callable($callback_name)){
-            return $callback_name($params);
-        }
-
-        return $params;
+        return null;
 
     }catch(Exception $e){
         throw new bException(tr('execute_callback(): Failed'), $e);
