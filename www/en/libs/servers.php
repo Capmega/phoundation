@@ -14,7 +14,7 @@
 
 
 /*
- * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
+ * Initialize the library. Automatically executed by libs_load(). Will automatically load the servers library configuration
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -1180,7 +1180,7 @@ function servers_test($domain){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package servers
  *
  * @param string $username The SSH username for which an SSH key must be returned
  * @return string The SSH key for the specified username
@@ -1203,7 +1203,7 @@ function servers_get_key($username){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package servers
  *
  * @param array $server Server array containing the private key that will be deleted securely
  * return boolean true if key was cleared, false if the specified $server array did not contain "ss_key"
@@ -1239,7 +1239,7 @@ function servers_clear_key(&$server){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package servers
  *
  * @param string $ssh_key The SSH key that must be placed in a keyfile
  * return string $identity_file The created keyfile
@@ -1282,7 +1282,7 @@ function servers_create_identity_file($ssh_key){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package servers
  *
  * @param string $identity_file The SSH key file that must be deleted
  * return boolean True if the specified keyfile was deleted, false if no keyfile was specified

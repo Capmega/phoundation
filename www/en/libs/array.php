@@ -1077,7 +1077,7 @@ function array_params(&$params, $keys = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package array
  *
  * @param array
  * @return array
@@ -1111,7 +1111,7 @@ function array_merge_null(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package array
  *
  * @param array $source
  * @param mixed $keys

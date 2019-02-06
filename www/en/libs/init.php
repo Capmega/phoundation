@@ -512,7 +512,7 @@ function init_include($file, $section = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package init
  *
  * @param string $section
  * @param string $version

@@ -1538,7 +1538,7 @@ function cli_command_exists($command){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package cli
  *
  * @param numeric $source_port
  * @param numeric $hostname

@@ -176,7 +176,7 @@ function forwards_insert($forward, $createdby = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package forwards
  *
  * @param array $forward
  * @retur void
@@ -206,7 +206,7 @@ function forwards_delete($forward){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package ssh
+ * @package forwards
  *
  * @param array $forward
  * @return void
