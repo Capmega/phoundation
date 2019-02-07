@@ -155,13 +155,26 @@ function html_bundler($type){
         $count       = 0;
 
         /*
-         * If we don't find an existing bundle file, then procced with the concatination process
+         * If we don't find an existing bundle file, then procced with the
+         * concatination process
          */
         if(file_exists($bundle_file)){
+            /*
+             * Ensure file is not 0 bytes. This might be caused due to a number
+             * of issues, but mainly due to disk full events. When this happens,
+             * the 0 bytes bundle files remain, leaving the site without CSS or
+             * JS
+             */
+            if(filesize($bundle_file)){
+                file_delete($bundle_file);
+                return html_bundler($type);
+            }
+
+            /*
+             * Bundle files are essentially cached files. Ensure the cache is
+             * not too old
+             */
             if((filemtime($bundle_file) + $_CONFIG['cdn']['bundler']['max_age']) < time()){
-                /*
-                 * This file is too old, dump and retry
-                 */
                 file_delete($bundle_file);
                 return html_bundler($type);
             }
@@ -191,7 +204,8 @@ function html_bundler($type){
                 switch($extension){
                     case 'js':
                         /*
-                         * Prevent issues with JS files that do not end in ; or that end in an // comment
+                         * Prevent issues with JS files that do not end in ; or
+                         * that end in an // comment
                          */
 //                        $data .= "\n;";
                         break;
@@ -475,7 +489,8 @@ function html_load_js($files){
         foreach(array_force($files) as $file){
             if(strstr($file, '://')){
                 /*
-                 * Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE SPECIFIED WITHOUT .js OR .min.js!!
+                 * Compatibility code: ALL LOCAL JS FILES SHOULD ALWAYS BE
+                 * SPECIFIED WITHOUT .js OR .min.js!!
                  */
                 if(substr($file, -3, 3) == '.js'){
                     $file = substr($file, 0, -3);
