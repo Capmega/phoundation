@@ -5197,9 +5197,9 @@ function unregister_shutdown($name){
  * @param function $params[callback] The callback function to execute if disk full limits have been crossed. Defaults to a default function that clears cache, tmp, and log directories
  * @return null mixed If disk usage did not cross the specified limits null, else the output of the callback function
  */
-function check_disk($params){
+function check_disk($params = null){
     global $_CONFIG;
-showdie();
+
     try{
         array_ensure($params, 'percentage,bytes');
         array_default($params, 'bytes'     , $_CONFIG['check_disk']['bytes']);
@@ -5218,7 +5218,7 @@ showdie();
             };
         }
 
-        if(!$params['path']){
+        if(empty($params['path'])){
             $params['path'] = ROOT;
         }
 
@@ -5226,10 +5226,10 @@ showdie();
             throw new bException(tr('check_disk(): The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
         }
 
-        $total      = disk_total_space($path);
-        $available  = disk_free_space($path);
+        $total      = disk_total_space($params['path']);
+        $available  = disk_free_space($params['path']);
         $bytes      = $total - $available;
-        $percentage = (($difference / $total) * 100);
+        $percentage = (($available / $total) * 100);
 
         if($percentage < $params['percentage']){
             $execute = true;
@@ -5240,7 +5240,7 @@ showdie();
         }
 
         if(isset($execute)){
-            notify(new bException(tr('check_disk(): Low diskspace event encountered, ":available/:total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage'])), 'low-diskspace'));
+            notify(new bException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage'])), 'low-diskspace'));
             return $params['callback']($total, $available, $params['percentage'], $bytes);
         }
 
