@@ -33,13 +33,27 @@ try{
     $core->register['footer'] .= html_script('$("#debug-bar").click(function(e){ $("#debug-bar").find(".list").toggleClass("hidden"); });');
 
     /*
+     * Setup required variables
+     */
+    usort($core->register['debug_queries'], 'debug_bar_sort');
+    $usage = getrusage();
+    $files = get_included_files();
+
+
+    /*
      * Build HTML
      */
     $html = '<div class="debug" id="debug-bar">
                 '.($_CONFIG['cache']['method'] ? '(CACHE='.$_CONFIG['cache']['method'].') ' : '').count($core->register('debug_queries')).' / '.number_format(microtime(true) - STARTTIME, 6).'
                 <div class="hidden list">
+                    <div style="width:100%; background: #2d3945; text-align: center; font-weight: bold; padding: 3px 0 3px;">
+                        '.tr('Debug report').'
+                    </div>
                     <table style="width:100%">
                         <thead>
+                            <tr>
+                                <th colspan="3">'.tr('Query information (Ordered by slowest first, fastest last)').'</th>
+                            </tr>
                             <tr>
                                 <th>'.tr('Time').'</th>
                                 <th>'.tr('Function').'</th>
@@ -51,8 +65,6 @@ try{
     /*
      * Add query statistical data ordered by slowest queries first
      */
-    usort($core->register['debug_queries'], 'debug_bar_sort');
-
     foreach($core->register['debug_queries'] as $query){
         $html .= '      <tr>
                             <td>'.number_format($query['time'], 6).'</td>
@@ -62,22 +74,65 @@ try{
     }
 
     $html .= '          </tbody>
-                    </table>
-                    <table style="width:100%">
+                    </table>';
+
+    /*
+     * Show some basic statistics
+     */
+    $html .= '      <table style="width:100%">
                         <thead>
                             <tr>
-                                <th>'.tr('Peak memory usage').'</th>
-                                <th>'.tr('Execution time').'</th>
+                                <th colspan="2">'.tr('General information').'</th>
                             </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>'.human_readable(memory_get_peak_usage()).'</td>
-                            <td>'.tr(':time milliseconds', array(':time' => number_format((microtime(true) - STARTTIME) * 1000, 2))).'</td>
-                        </tr>
+                            <tr>
+                                <td>'.tr('Peak memory usage').'</td>
+                                <td>'.human_readable(memory_get_peak_usage()).'</td>
+                            </tr>
+                            <tr>
+                                <td>'.tr('Execution time').'</td>
+                                <td>'.tr(':time milliseconds', array(':time' => number_format((microtime(true) - STARTTIME) * 1000, 2))).'</td>
+                            </tr>
+                            <tr>
+                                <td>'.tr('CPU usage system').'</td>
+                                <td>'.tr(':time microseconds', array(':time' => number_format($usage['ru_stime.tv_usec'], 0, '.', ','))).'</td>
+                            </tr>
+                            <tr>
+                                <td>'.tr('Included file count').'</td>
+                                <td>'.count($files).'</td>
+                            </tr>
                         </tbody>
-                    </table>
-                </div>
+                    </table>';
+
+    /*
+     * Show all included files
+     */
+    $html .= '      <table style="width:100%">
+                        <thead>
+                            <tr>
+                                <th colspan="2">'.tr('Included files (In loaded order)').'</th>
+                            </tr>
+                        </thead>
+                        <thead>
+                            <tr>
+                                <th>'.tr('Number').'</th>
+                                <th>'.tr('File').'</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
+
+    foreach($files as $id => $file){
+        $html .= '      <tr>
+                            <td>'.($id + 1).'</td>
+                            <td>'.$file.'</td>
+                        </tr>';
+    }
+
+    $html .= '          </tbody>
+                    </table>';
+
+    $html .= '  </div>
              </div>';
 
     $html  = str_replace(':query_count'   , count($core->register('debug_queries'))      , $html);
