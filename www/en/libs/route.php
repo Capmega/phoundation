@@ -28,11 +28,11 @@ require_once(__DIR__.'/system.php');
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package route
- * @see route_install()
- * @see date_convert() Used to convert the sitemap entry dates
+ * @see route_404()
  * @table: `route`
  * @note: This is a note
  * @version 1.27.0: Added function and documentation
+ * @version 2.0.7: Now uses route_404() to display 404 pages
  * @example
  * code
  * route('/\//', 'index')
@@ -52,7 +52,7 @@ function route($regex, $target, $flags = null){
         /*
          * Ensure the 404 shutdown function is registered
          */
-        register_shutdown('page_show', 404);
+        register_shutdown('route_404', null);
 
         if(!$regex){
             /*
@@ -196,7 +196,7 @@ function route($regex, $target, $flags = null){
                      * to 404
                      */
                     log_file(tr('Redirecting to ":route" with HTTP code ":code"', array(':route' => $route, ':code' => $http_code)), 'route', 'VERYVERBOSE/cyan');
-                    unregister_shutdown('page_show');
+                    unregister_shutdown('route_404');
                     redirect($route, $http_code);
             }
         }
@@ -235,8 +235,8 @@ function route($regex, $target, $flags = null){
              * The hardcoded file for the regex does not exist, oops!
              */
             log_file(tr('Matched hard coded page ":page" does not exist', array(':page' => $page)), 'route', 'yellow');
-            unregister_shutdown('page_show');
-            page_show(404);
+            unregister_shutdown('route_404');
+            route_404();
         }
 
         /*
@@ -254,7 +254,7 @@ function route($regex, $target, $flags = null){
          * We are going to show the matched page so we no longer need to default
          * to 404
          */
-        unregister_shutdown('page_show');
+        unregister_shutdown('route_404');
 
         /*
          * Create $_GET variables
@@ -274,6 +274,42 @@ function route($regex, $target, $flags = null){
         }
 
         throw new bException('route(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Show the 404 page
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package route
+ * @see route()
+ * @note: This function typically would only need to be called by the route() function.
+ * @note: This function dies
+ * @version 2.0.5: Added function and documentation
+ *
+ * @return void
+ */
+function route_404(){
+    try{
+        page_show(404);
+
+    }catch(Exception $e){
+        if($e->getCode() === 'not-exists'){
+            log_file(tr('The 404 page does not exist, showing basic 404 message instead'), 'route_404', 'yellow');
+
+            echo tr('404 - The requested page does not exist');
+            die();
+        }
+
+        log_file(tr('The 404 page failed to show with ":e", showing basic 404 message instead', array(':e' => $e->getMessages())), 'route_404', 'yellow');
+
+        echo tr('404 - The requested page does not exist');
+        die();
     }
 }
 ?>
