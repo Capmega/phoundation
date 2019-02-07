@@ -2333,7 +2333,7 @@ function html_autosuggest($params){
  * This function will minify the given HTML by removing double spaces, and strip white spaces before and after tags (except space)
  * Found on http://stackoverflow.com/questions/6225351/how-to-minify-php-page-html-output, rewritten for use in base project
  */
-function html_minify($html, $full = false){
+function html_minify($html){
     global $_CONFIG;
 
     try{
