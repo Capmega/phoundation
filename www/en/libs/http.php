@@ -555,7 +555,7 @@ function requested_url(){
  *
  */
 function http_done(){
-    global $core;
+    global $core, $_CONFIG;
 
     try{
         if(!isset($core)){
@@ -575,6 +575,13 @@ function http_done(){
         }
 
         $exit_code = isset_get($core->register['exit_code'], 0);
+
+        /*
+         * Do a filesystem check?
+         */
+        if(mt_rand(0, 100) <= $_CONFIG['check_disk']['http_interval']){
+            register_shutdown('check_disk');
+        }
 
         /*
          * Do we need to run other shutdown functions?

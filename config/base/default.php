@@ -93,6 +93,11 @@ $_CONFIG['cdn']                = array('min'                                => t
 $_CONFIG['charset']            = 'UTF-8';                                                                                               // The default character set for this website (Will be used in meta charset tag)
 
 // Client configuration
+$_CONFIG['check_disk']         = array('http_interval'                      => 10,                                                      // The % chance that the check_disk will automatically execute on HTTP shutdown
+                                       'percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %
+                                       'bytes'                              => 0);                                                      // The default minimum required available disk space for the filesystem for ROOT in bytes
+
+// Client configuration
 $_CONFIG['client']             = array('detect'                             => false);                                                  // If client detection should be performed. false if not, one of "full", "normal" or "lite" if detection should happen, and what type of detection
 
 // PHP composer configuration
