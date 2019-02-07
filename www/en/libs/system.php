@@ -917,7 +917,7 @@ function load_libs($libraries){
             throw new bException(tr('load_libs(): Failed to load one or more of libraries ":libraries"', array(':libraries' => $libraries)), $e);
         }
 
-        if(!file_exist($libs.$library.'.php')){
+        if(!file_exists($libs.$library.'.php')){
             throw new bException(tr('load_libs(): Failed to load library ":library", the library does not exist', array(':library' => $library)), $e);
         }
 
@@ -2854,21 +2854,40 @@ function page_show($pagename, $params = null, $get = null){
                 log_file(tr('Showing ":language" language api page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
                 return include($include);
 
-            default:
-                if($core->callType() == 'admin'){
-                    $prefix = 'admin/';
-
-                }else{
-                    $prefix = '';
-                }
-
-                $include = ROOT.'www/'.$language.'/'.$prefix.$pagename.'.php';
+            case 'admin':
+                $include = ROOT.'www/'.$language.'/admin/'.$pagename.'.php';
 
                 if(isset_get($params['exists'])){
                     return file_exists($include);
                 }
 
-                log_file(tr('Showing ":language" language http page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                log_file(tr('Showing ":language" language admin page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+
+                $result = include($include);
+
+                if(isset_get($params['return'])){
+                    return $result;
+                }
+
+            default:
+                if(is_numeric($pagename)){
+                    $include = ROOT.'www/'.$language.'/system/'.$pagename.'.php';
+
+                    if(isset_get($params['exists'])){
+                        return file_exists($include);
+                    }
+
+                    log_file(tr('Showing ":language" language system page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+
+                }else{
+                    $include = ROOT.'www/'.$language.'/'.$pagename.'.php';
+
+                    if(isset_get($params['exists'])){
+                        return file_exists($include);
+                    }
+
+                    log_file(tr('Showing ":language" language http page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                }
 
                 $result = include($include);
 
@@ -2881,14 +2900,7 @@ function page_show($pagename, $params = null, $get = null){
 
     }catch(Exception $e){
         if(isset($include) and !file_exists($include)){
-            if($pagename == '404'){
-                /*
-                 * Yeah, now what do we do?
-                 */
-                throw new bException(tr('page_show(): The 404 does not exist', array(':page' => $pagename)), 'failed');
-            }
-
-            throw new bException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 404);
+            throw new bException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 'not-exists');
         }
 
         throw new bException(tr('page_show(): Failed to show page ":page"', array(':page' => $pagename)), $e);
