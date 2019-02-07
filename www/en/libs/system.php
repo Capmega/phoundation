@@ -1720,6 +1720,33 @@ function get_hash($source, $algorithm, $add_meta = true){
 
 
 /*
+ * Return the correct current domain
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @version 2.0.7: Added function and documentation
+ *
+ * @return void
+ */
+function get_domain(){
+    try{
+        if(empty($_SESSION['domain'])){
+            return $_CONFIG['domain'];
+        }
+
+        return $_SESSION['domain'];
+
+    }catch(Exception $e){
+        throw new bException('get_domain(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Return complete domain with HTTP and all
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1743,12 +1770,7 @@ function domain($current_url = false, $query = null, $prefix = null, $domain = n
              * example). In that case, fall back on the configured domain
              * $_CONFIG[domain]
              */
-            if(empty($_SESSION['domain'])){
-                $domain = $_CONFIG['domain'];
-
-            }else{
-                $domain = $_SESSION['domain'];
-            }
+            $domain = get_domain();
 
         }elseif($domain === true){
             /*
@@ -5221,11 +5243,12 @@ function check_disk($params = null){
              * Perform default recovery actions
              */
             $params['callback'] = function($total, $available, $limits){
-                notify(new bException(tr('check_disk(): Low diskspace default callback function executing, deleting projects\' tmp, cache, and log directories'), 'low-diskspace'));
-
                 file_delete(ROOT.'data/tmp');
                 file_delete(ROOT.'data/cache');
                 file_delete(ROOT.'data/log');
+
+                notify(new bException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage'])), 'low-diskspace'));
+                notify(new bException(tr('check_disk(): Low diskspace default callback function executing, deleting projects\' tmp, cache, and log directories'), 'low-diskspace'));
             };
         }
 
