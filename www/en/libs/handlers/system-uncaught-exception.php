@@ -10,7 +10,7 @@ static $executed = false;
  * security, Base will not display the entire exception as it doesn't know if it
  * is on a production environment or not
  */
-// echo "<pre>\n"; print_r($e->getCode()); echo"\n"; print_r($e); die();
+//echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
 
 try{
     if($executed){
