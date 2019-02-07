@@ -1732,6 +1732,8 @@ function get_hash($source, $algorithm, $add_meta = true){
  * @return void
  */
 function get_domain(){
+    global $_CONFIG;
+
     try{
         if(empty($_SESSION['domain'])){
             return $_CONFIG['domain'];
