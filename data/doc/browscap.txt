@@ -1,3 +1,0 @@
-[browscap]
-; http://www.php.net/manual/en/misc.configuration.php#ini.browscap
-browscap = /var/www/html/data/lite_php_browscap.ini

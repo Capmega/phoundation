@@ -1,1 +1,0 @@
-The blog library uses the tinymce editor through the editors.php library. See documentation for more info
