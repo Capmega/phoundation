@@ -260,10 +260,36 @@ function route($regex, $target, $flags = null){
          * Create $_GET variables
          * Execute the page specified in $target (from here, $route)
          */
-        $core->register['script'] = str_rfrom($page, '/');
-        log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
-        include($page);
-        die();
+        try{
+            $core->register['script'] = str_rfrom($page, '/');
+            log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
+            include($page);
+            die();
+
+        }catch(Exception $e){
+            /*
+             * Page execution failed. If the system has already started up and
+             * is ready, the uncaught exception handler will take care of it. If
+             * not, we first need to startup the system ourselves
+             */
+            if(!$core->register['ready']){
+                require_once(__DIR__.'/startup.php');
+            }
+
+            throw $e;
+
+        }catch(Error $e){
+            /*
+             * Page execution failed. If the system has already started up and
+             * is ready, the uncaught exception handler will take care of it. If
+             * not, we first need to startup the system ourselves
+             */
+            if(!$core->register['ready']){
+                require_once(__DIR__.'/startup.php');
+            }
+
+            throw $e;
+        }
 
     }catch(Exception $e){
         if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){
