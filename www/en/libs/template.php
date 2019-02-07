@@ -1,14 +1,14 @@
 <?php
 /*
- * Empty library
+ * Template library
  *
- * This is an empty template library file
+ * This is a library template file
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
- * @package empty
+ * @package template
  */
 
 
@@ -22,45 +22,49 @@
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package empty
+ * @package template
  * @version 2.0.5: Added function and documentation
  *
  * @return void
  */
-function empty_library_init(){
+function template_library_init(){
     try{
-        ensure_installed(array('name'     => 'empty',
-                               'callback' => 'empty_install',
-                               'checks'   => array(ROOT.'libs/external/empty/')));
+        ensure_installed(array('name'      => 'template',
+                               'callback'  => 'template_install',
+                               'checks'    => ROOT.'libs/external/template/template,'.ROOT.'libs/external/template/foobar',
+                               'functions' => 'template,foobar',
+                               'which'     => 'template,foobar'));
 
     }catch(Exception $e){
-        throw new bException('empty_library_init(): Failed', $e);
+        throw new bException('template_library_init(): Failed', $e);
     }
 }
 
 
 
 /*
- * Install the external empty library
+ * Install the external template library
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @version 2.0.5: Added function and documentation
- * @package empty
+ * @package template
  *
  * @param
  * @return
  */
-function empty_install($params){
+function template_install($params){
     try{
-        $params['methods'] = array('apt-get' => array('commands'  => 'sudo apt-get install empty'));
+        load_libs('apt');
+        apt_install('template');
 
-        return install($params);
+        load_libs('apt');
+        apt_install('template');
 
     }catch(Exception $e){
-        throw new bException('empty_install(): Failed', $e);
+        throw new bException('template_install(): Failed', $e);
     }
 }
 
@@ -79,15 +83,15 @@ function empty_install($params){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package empty
- * @see empty_install()
+ * @package template
+ * @see template_install()
  * @see date_convert() Used to convert the sitemap entry dates
- * @table: `empty`
+ * @table: `template`
  * @note: This is a note
  * @version 2.0.5: Added function and documentation
  * @example [Title]
  * code
- * $result = empty(array('foo' => 'bar'));
+ * $result = template_function(array('foo' => 'bar'));
  * showdie($result);
  * /code
  *
@@ -101,11 +105,11 @@ function empty_install($params){
  * @param string $params[bar]
  * @return string The result
  */
-function empty_function($params){
+function template_function($params){
     try{
 
     }catch(Exception $e){
-        throw new bException('empty(): Failed', $e);
+        throw new bException('template_function(): Failed', $e);
     }
 }
 ?>
