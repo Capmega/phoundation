@@ -1,6 +1,6 @@
 <?php
 /*
- * geo_columns library
+ * geo-columns library
  *
  * This library file contains functions that return the column definitions of the geo_ tables
  *
