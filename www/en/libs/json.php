@@ -55,7 +55,6 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
         $params = array('http_code' => $http_code,
                         'mimetype'  => 'application/json');
 
-        load_libs('http');
         http_headers($params, strlen($data));
 
         echo $data;

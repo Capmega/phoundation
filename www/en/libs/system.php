@@ -69,7 +69,11 @@ $core = new core();
 
 switch(PLATFORM){
     case 'cli':
-        load_libs('cli,strings,array,sql,mb,meta,file,json');
+        /*
+         * Load basic libraries for command line interface
+         * All scripts will execute cli_done() automatically once done
+         */
+        load_libs('cli,http,strings,array,sql,mb,meta,file,json');
         register_shutdown_function('cli_done');
         break;
 
@@ -887,17 +891,24 @@ function load_libs($libraries){
         foreach(array_force($libraries) as $library){
             if(!$library){
                 throw new bException('load_libs(): Empty library specified', 'emptyspecified');
+            }
 
-            }else{
-                include_once($libs.$library.'.php');
-                $function = str_replace('-', '_', $library).'_library_init';
+            if($core->register['ready'] and str_exists('http,strings,array,sql,mb,meta,file,json', $library)){
+                /*
+                 * These are system libraries that are always loaded. Do not
+                 * load them again
+                 */
+                continue;
+            }
 
-                if(is_callable($function)){
-                    /*
-                     * Auto initialize the library
-                     */
-                    $function();
-                }
+            include_once($libs.$library.'.php');
+            $function = str_replace('-', '_', $library).'_library_init';
+
+            if(is_callable($function)){
+                /*
+                 * Auto initialize the library
+                 */
+                $function();
             }
         }
 

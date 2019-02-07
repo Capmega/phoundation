@@ -546,11 +546,9 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
                     $data = array('message' => tr('Failed to decode URL data ":data"', array(':data' => $retval['data'])));
                 }
 
-                load_libs('http');
                 throw new bException(tr('curl_get(): URL ":url" gave HTTP "403" ACCESS DENIED because ":data"', array(':url' => $params['url'], ':data' => $data)), 'HTTP'.$retval['status']['http_code'], $retval);
 
             default:
-                load_libs('http');
                 throw new bException(tr('curl_get(): URL ":url" gave HTTP ":httpcode"', array(':url' => $params['url'], ':httpcode' => $retval['status']['http_code'])), 'HTTP'.$retval['status']['http_code'], $retval);
         }
 
