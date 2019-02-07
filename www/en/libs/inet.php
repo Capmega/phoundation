@@ -665,14 +665,4 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
         throw new bException('inet_get_available_port(): Failed', $e);
     }
 }
-
-
-
-/*
- * OBSOLETE
- * Here be wrapper monsters for obsolete functions
- */
-function get_domain($strip = array('www', 'dev', 'm')){
-    return inet_get_domain($strip);
-}
 ?>
