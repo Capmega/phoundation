@@ -434,7 +434,7 @@ function html_generate_css(){
         foreach($core->register['css'] as $file => $meta){
             if(!$file) continue;
 
-            $html = '<link rel="stylesheet" type="text/css" href="'.cdn_domain((($_CONFIG['whitelabels']['enabled'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? str_until($file, '.min').'.min.css' : $file.'.css')).'">';
+            $html = '<link rel="stylesheet" type="text/css" href="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? str_until($file, '.min').'.min.css' : $file.'.css')).'">';
 
             if(substr($file, 0, 2) == 'ie'){
                 $retval .= html_iefilter($html, str_until(str_from($file, 'ie'), '.'));
@@ -612,7 +612,7 @@ function html_generate_js(){
                     /*
                      * These are local scripts, hosted by us
                      */
-                    $html = '<script'.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels']['enabled'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : str_until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
+                    $html = '<script'.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : str_until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
                 }
 
                 if($section == 'js_footer'){

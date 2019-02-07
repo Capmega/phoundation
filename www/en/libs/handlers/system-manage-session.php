@@ -126,19 +126,19 @@ try{
             /*
              * This is not the registered domain!
              */
-            if($_CONFIG['whitelabels']['enabled'] === false){
+            if($_CONFIG['whitelabels'] === false){
                 /*
                  * white label domains are disabled, so the requested domain
                  * MUST match the configured domain
                  */
                 redirect($_CONFIG['protocol'].$_CONFIG['domain']);
 
-            }elseif($_CONFIG['whitelabels']['enabled'] === 'all'){
+            }elseif($_CONFIG['whitelabels'] === 'all'){
                 /*
                  * All domains are allowed
                  */
 
-            }elseif($_CONFIG['whitelabels']['enabled'] === 'sub'){
+            }elseif($_CONFIG['whitelabels'] === 'sub'){
                 /*
                  * White label domains are disabled, but sub domains from the
                  * $_CONFIG[domain] are allowed
@@ -147,7 +147,7 @@ try{
                     redirect($_CONFIG['protocol'].$_CONFIG['domain']);
                 }
 
-            }elseif($_CONFIG['whitelabels']['enabled'] === 'list'){
+            }elseif($_CONFIG['whitelabels'] === 'list'){
                 /*
                  * This domain must be registered in the whitelabels list
                  */
@@ -157,12 +157,20 @@ try{
                     redirect($_CONFIG['protocol'].$_CONFIG['domain']);
                 }
 
+            }elseif(is_array($_CONFIG['whitelabels'])){
+                /*
+                 * Domain must be specified in one of the array entries
+                 */
+                if(!in_array($domain, $_CONFIG['whitelabels'])){
+                    redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+                }
+
             }else{
                 /*
                  * The domain must match either $_CONFIG[domain] or the domain
                  * specified in $_CONFIG[whitelabels][enabled]
                  */
-                if($domain !== $_CONFIG['whitelabels']['enabled']){
+                if($domain !== $_CONFIG['whitelabels']){
                     redirect($_CONFIG['protocol'].$_CONFIG['domain']);
                 }
 

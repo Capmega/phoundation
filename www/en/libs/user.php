@@ -685,7 +685,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * Check if authentication for this user is limited to a specific domain
          */
-        if(($_CONFIG['whitelabels']['enabled']) and $user['domain']){
+        if(($_CONFIG['whitelabels']) and $user['domain']){
             if($user['domain'] !== $_SERVER['HTTP_HOST']){
                 throw new bException(tr('user_autohenticate(): User account ":name" is limited to authenticate only in domain ":domain"', array(':name' => name($user), ':domain' => $user['domain'])), 'domain-limit');
             }
