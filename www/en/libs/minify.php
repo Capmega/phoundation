@@ -86,8 +86,8 @@ function minify_html($html){
         include_once(ROOT.'libs/external/vendor/mrclay/minify/lib/Minify/CSS/Compressor.php');
         include_once(ROOT.'libs/external/vendor/mrclay/minify/lib/Minify/CommentPreserver.php');
 
-        $html = Minify_HTML::minify($html, array('cssMinifier'     => array('Minify_CSS'  , 'minify'),
-                                                 'jsMinifier'      => array('\JSMin\JSMin', 'minify')));
+        $html = Minify_HTML::minify($html, array('cssMinifier' => array('Minify_CSS'  , 'minify'),
+                                                 'jsMinifier'  => array('\JSMin\JSMin', 'minify')));
 
 // :FIX: This is a temp fix because the minifier appears to use \n as a space?
         $html = str_replace("\n", ' ', $html);

@@ -76,9 +76,10 @@ function captcha_html($class = null){
                     rename($file, ROOT.'pub/js/recaptcha/api.js');
                 });
             });
+
+            file_delete(TMP.'captcha');
         }
 
-        file_delete(TMP.'captcha');
         html_load_js('recaptcha/api');
         return '<div class="g-recaptcha'.($class ? ' '.$class : '').'" data-sitekey="'.$_CONFIG['captcha']['public'].'"></div>';
 
