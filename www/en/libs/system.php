@@ -1759,7 +1759,7 @@ function get_domain(){
  *
  * @return void
  */
-function domain($current_url = false, $query = null, $prefix = null, $domain = null, $language = null){
+function domain($current_url = null, $query = null, $prefix = null, $domain = null, $language = null){
     global $_CONFIG;
 
     try{
