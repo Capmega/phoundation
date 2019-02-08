@@ -109,6 +109,10 @@ function analytics_matomo($sites_id){
             throw new bException(tr('analytics_matomo(): Invalid sites_id ":sites_id" specified', array(':sites_id' => $sites_id)), 'not-specified');
         }
 
+        if(empty($_CONFIG['analytics']['matomo_domain'])){
+            throw new bException(tr('analytics_matomo(): No matomo domain configured'), 'not-specified');
+        }
+
         /*
          * Ensure we have the analytics file available on our CDN system
          */
