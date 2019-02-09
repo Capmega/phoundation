@@ -2213,7 +2213,8 @@ function blogs_post_url($post){
             return $url;
         }
 
-        return domain($url, null, '');
+        $config = read_config('');
+        return domain($url, null, $config['url_prefix'], null, $post['language']);
 
     }catch(Exception $e){
         throw new bException('blogs_post_url(): Failed', $e);
