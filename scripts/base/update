@@ -85,7 +85,7 @@ if(trim(shell_exec('grep "/git/phoundation.git" '.ROOT.'.git/config'))) {
 /*
  * Check if we dont have any commits
  */
-if(!git_status()){
+if(git_status()){
     if(!$ignore){
         throw new BException(tr('Git commit(s) pending'), 'warning/validation');
     }
