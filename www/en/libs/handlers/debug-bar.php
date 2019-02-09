@@ -99,7 +99,7 @@ try{
                                 <td>'.tr(':time microseconds', array(':time' => number_format($usage['ru_stime.tv_usec'], 0, '.', ','))).'</td>
                             </tr>
                             <tr>
-                                <td>'.tr('Included file count').'</td>
+                                <td>'.tr('Included files count').'</td>
                                 <td>'.count($files).'</td>
                             </tr>
                         </tbody>
