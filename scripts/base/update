@@ -1,45 +1,59 @@
 #!/usr/bin/php
 <?php
 /*
- * This is the update script that will update your BASE installation with the latest software
+ * This is the update script that will update your Phoundation installation with the latest software
  */
-$usage = "./scripts/base/update [-l]\n".
-         "./scripts/base/update --branch BRANCH_NAME\n";
-         "./scripts/base/update\n";
+$usage = './scripts/base/update [-l]
+./scripts/base/update --upgrade
+./scripts/base/update --reupdate
+./scripts/base/update --branch BRANCH_NAME
+./scripts/base/update --version-line VERSION_LINE
+./scripts/base/update';
 
-$help  = "The deploy script can pull all the latest PHOUNDATION updates from either a local PHOUNDATION repository, or the central main PHOUNDATION repository
+$help  = 'The deploy script can pull all the latest PHOUNDATION updates from either a local PHOUNDATION repository, or the central main PHOUNDATION repository
 
 Possible arguments:
 
---local                       - Update from a local version of the PHOUNDATION
-                                project update script will search in
+-l                            - Update from a local version of the PHOUNDATION
+--local                         project update script will search in
                                 /var/www/html/phoundation
 
 --no-init                     - Do not do execute a system init after the update
                                 process has finished
 
+-r                            - Do not do execute a system init after the update
+--re-update                     process has finished
+
 --no-commit                   - Do not automatically git commit after the update
                                 process has finished
 
---branch BRANCH               - Get the PHOUNDATION updates from branch BRANCH
-                                instead of the standard production branch";
+-i                            - Update even though this project has git changes
+--ignore-changes
+
+-b BRANCH                     - Get the PHOUNDATION updates from branch BRANCH
+--branch BRANCH                 instead of the standard production branch';
 
 require_once(__DIR__.'/../../libs/startup.php');
-
-$branch   = cli_argument('-b,--branch', true, 'production');
-$noinit   = cli_argument('--no-init');
-$nocommit = cli_argument('--no-commit');
-$ignore   = cli_argument('-i,--ignore-changes');
-$local    = cli_argument('-l,--local');
-$no_times = cli_argument('-n,--no-times');
-
-if($ignore and FORCE){
-    throw new BException(tr('Both --ignore-changes and --force (or -i and -F) have been used. These options are mutually exclusive'), 'warning/invalid');
-}
-
 cli_only(true);
+
+$noinit       = cli_argument('--no-init');
+$nocommit     = cli_argument('--no-commit');
+$ignore       = cli_argument('-i,--ignore-changes');
+$local        = cli_argument('-l,--local');
+$no_times     = cli_argument('-n,--no-times');
+$reupdate     = cli_argument('-r,--re-update');
+$upgrade      = cli_argument('-u,--upgrade');
+$branch       = cli_argument('-b,--branch'      , true, 'production');
+$version_line = cli_argument('-c,--version_line', true, 'production');
+
+
+
+/*
+ *
+ */
 cli_no_arguments_left();
 
+load_libs('git,code');
 load_config('update');
 
 if($local){
@@ -53,24 +67,9 @@ if($local){
     $phoundation = $_CONFIG['update']['local'];
 }
 
-if(!$branch){
-    throw new BException(tr('No branch specified'), 'warning/validation');
-}
-
 if(TEST){
-    log_console(tr('scripts/update: Running update script in test mode, NOT REALLY UPDATING!'), 'yellow');
+    log_console(tr('Running update script in test mode, NOT REALLY UPDATING!'), 'yellow');
 }
-
-if(FORCE){
-    log_console(tr('scripts/update: Running update script in forced mode, WILL UPDATE EVEN IF GIT CHANGES AND / OR MINOR PROBLEMS ARE FOUND!'), 'yellow');
-}
-
-
-
-/*
- * Ensure we are at the root of the project within this context, or git will fail!
- */
-chdir(ROOT);
 
 
 
@@ -78,22 +77,22 @@ chdir(ROOT);
  * Check if we are not on main phoundation repository
  */
 if(trim(shell_exec('grep "/git/phoundation.git" '.ROOT.'.git/config'))) {
-    throw new BException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
+    throw new bException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
 }
+
+
 
 /*
  * Check if we dont have any commits
  */
-if(!trim(shell_exec('git status | grep "nothing to commit" | wc -l'))){
-    if(!FORCE and !$ignore){
-        throw new BException(tr('Git commit pending'), 'warning/validation');
+if(!git_status()){
+    if(!$ignore){
+        throw new BException(tr('Git commit(s) pending'), 'warning/validation');
     }
 
-    if(FORCE){
-        shell_exec('git add .; git stash');
-        log_console(tr('scripts/update: Stashed git changes because of -F or --force option specified'), 'yellow');
-        $stashed = true;
-    }
+    log_console(tr('Stashing git changes because of --ignore-changes option specified'), 'cyan');
+    git_stash();
+    $stashed = true;
 }
 
 
@@ -102,30 +101,77 @@ if(!trim(shell_exec('git status | grep "nothing to commit" | wc -l'))){
  * Verify data
  */
 if(!$phoundation['host']){
-    throw new BException(tr('No update host configured'), 'warning/not-specified');
+    throw new BException(tr('No update host configured, see $_CONFIG[update][host]'), 'warning/configuration');
 }
 
 if(!$phoundation['port']){
-    throw new BException(tr('No update host port configured'), 'warning/not-specified');
+    throw new BException(tr('No update host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
+}
+
+if(!is_natural($phoundation['port']) or ($phoundation['port'] > 65535)){
+    throw new BException(tr('Invalid host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
 }
 
 
 
 /*
- * Update libraries from phoundation
+ * Ensure phoundation can do updates, and get the latest tags and branches
  */
-if($local){
-    if(!trim(shell_exec('cd '.$phoundation['path'].'; git status | grep "nothing to commit" | wc -l')) AND !FORCE) {
-        throw new BException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
-    }
-
-    log_console(tr('Updating phoundation project, branch ":branch"', array(':branch' => $branch)), 'white');
-    passthru('cd '.$phoundation['path'].'; git checkout '.$branch.'; git pull origin '.$branch.'');
-
-}else{
-    log_console(tr('Updating phoundation project, branch ":branch"', array(':branch' => $branch)), 'white');
-    passthru('ssh -t '.$phoundation['host'].' -p '.$phoundation['port'].' "cd '.$phoundation['path'].'; git reset --hard; git checkout '.$branch.'; git pull origin '.$branch.'"');
+if(code_phoundation_status() AND !FORCE) {
+    throw new BException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
 }
+
+log_console(tr('Fetching latest phoundation branches and tags'), 'VERBOSE/cyan');
+code_phoundation_fetch(array('all' => true));
+
+
+
+/*
+ * Get our current framework version line, then get available version lines from
+ * the local phoundation project
+ */
+$current_branch          = code_phoundation_branch();
+$current_version_line    = code_get_version_line(FRAMEWORKCODEVERSION);
+$available_version_lines = code_get_phoundation_lines();
+
+if(!in_array($current_version_line, $available_version_lines)){
+    throw new BException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
+}
+
+
+
+/*
+ * Filter out the highest version
+ */
+$available_versions = code_get_phoundation_versions($current_version_line);
+$highest            = '0.0.0';
+
+foreach($available_versions as $id => $version){
+    if(version_compare($version, FRAMEWORKCODEVERSION) == 1){
+        if(version_compare($version, $highest) >= 0){
+            $highest = $version;
+        }
+    }
+}
+
+switch($highest){
+    case '0.0.0':
+        throw new BException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => FRAMEWORKCODEVERSION)), 'warning/not-exists');
+
+    case FRAMEWORKCODEVERSION:
+        if($reupdate){
+            $highest = FRAMEWORKCODEVERSION;
+        }
+}
+
+log_console(tr('Found update version ":version"', array(':version' => $highest)), 'green');
+
+
+
+/*
+ * Checkout the highest version branch for our version line and start updating!
+ */
+code_phoundation_branch('v'.$highest);
 
 
 
@@ -143,52 +189,74 @@ if($no_times or !empty($_CONFIG['deploy'][ENVIRONMENT]['no_times'])){
 /*
  * Copy from phoundation
  */
-log_console(tr('Copying from phoundation'), 'white');
+log_console(tr('Updateing from phoundation version ":version"', array(':version' => $highest)), 'white');
+
+/*
+ * Libraries
+ */
+log_console(tr('Copying libraries'), 'purple');
 
 if(empty($test)){
-    /*
-     * Libraries
-     */
-    log_console(tr('Copying libraries'), 'purple');
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/libs '.ROOT.'www/en/', $exitcodes['www/en/libs']);
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/tests '.ROOT.'www/en/', $exitcodes['www/en']);
+}
 
-    // Phoundation AJAX files
-    log_console(tr('Copying ajax files'), 'purple');
+// Phoundation AJAX files
+log_console(tr('Copying ajax files'), 'purple');
+
+if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/ajax/', $exitcodes['www/en/ajax']);
 
     // Phoundation AJAX files for admin section
     if(file_exists(ROOT.'www/en/admin/ajax/')){
         passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/admin/ajax/', $exitcodes['www/en/admin/ajax']);
     }
+}
 
-    // Phoundation scripts
-    log_console(tr('Copying phoundation scripts'), 'purple');
+// Phoundation scripts
+log_console(tr('Copying phoundation scripts'), 'purple');
+
+if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/base/* '.ROOT.'scripts/base/', $exitcodes['scripts/base']);
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/tests/* '.ROOT.'scripts/tests/', $exitcodes['libs']);
+}
 
-    // Framework init files
-    log_console(tr('Copying framework init files'), 'purple');
+// Framework init files
+log_console(tr('Copying framework init files'), 'purple');
+
+if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/init/framework/* '.ROOT.'init/framework/', $exitcodes['init/framework']);
+}
 
-    // phoundation configuration
-    log_console(tr('Config phoundation configuration'), 'purple');
+// phoundation configuration
+log_console(tr('Config phoundation configuration'), 'purple');
+
+if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/config/base/* '.ROOT.'config/base/', $exitcodes['config/base']);
+}
 
-    // Javascript
-    log_console(tr('Copying javascript files'), 'purple');
+// Javascript
+log_console(tr('Copying javascript files'), 'purple');
+
+if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/pub/js/base/', $exitcodes['www/en/pub/js/base']);
 
     if(file_exists(ROOT.'www/en/admin/pub/js/')){
         passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/admin/pub/js/base/', $exitcodes['www/en/admin/pub/js/base']);
     }
+}
 
-    // Documentation
-    log_console(tr('Copying documentation'), 'purple');
+// Documentation
+log_console(tr('Copying documentation'), 'purple');
+
+if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/doc/* '.ROOT.'data/doc/', $exitcodes['data/doc']);
+}
 
-    // Audio files
-    log_console(tr('Copying audio files'), 'purple');
+// Audio files
+log_console(tr('Copying audio files'), 'purple');
+
+if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.ROOT.'data/audio/', $exitcodes['data/audio']);
 }
 
@@ -200,7 +268,7 @@ foreach($exitcodes as $path => $exitcode){
 }
 
 if(isset($e) and !FORCE){
-    throw new BException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
+    throw new bException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
 }
 
 unset($exitcode);
@@ -214,13 +282,10 @@ if($nocommit){
     log_console(tr('Skipping git commit due to "--no-commit" option'), 'yellow');
 
 }else{
-    if(!trim(shell_exec('git status | grep "nothing to commit" | wc -l'))){
-        log_console(tr('Git commit updates'), 'white');
-        passthru('cd '.ROOT.';git add .;git commit -am "Update from phoundation"', $exitcode);
-
-        if($exitcode){
-            throw new BException(tr('Git commit of updates failed with exit code ":code"', array(':code' => $exitcode)), 'warning/git');
-        }
+    if(git_status()){
+        log_console(tr('Update changed files, committing updates in git'), 'white');
+        git_add();
+        git_commit('Update from phoundation');
     }
 }
 
@@ -234,11 +299,7 @@ if($noinit){
 
 }else{
     log_console(tr('Excuting system init'), 'white');
-    passthru('cd '.ROOT.'scripts/base/; export '.PROJECT.'_ENVIRONMENT='.ENVIRONMENT.'; php init', $exitcode);
-
-    if($exitcode){
-        throw new BException(tr('System init failed with exit code ":code"', array(':code' => $exitcode)), 'warning/init');
-    }
+    script_exec('base/init');
 }
 
 
@@ -247,13 +308,9 @@ if($noinit){
  * Did we stash anything? get it back now..
  */
 if(!empty($stashed)){
-    passthru('git stash pop; git reset HEAD', $exitcode);
-
-    if($exitcode){
-        throw new BException(tr('Git commit of updates failed with exit code ":code"', array(':code' => $exitcode)), 'warning/git');
-    }
-
-    log_console(tr('scripts/update: Found stashed git changes, popping them back'), 'yellow');
+    log_console(tr('Found stashed git changes, popping them back'), 'cyan');
+    git_stash_pop();
+    git_reset();
 }
 
 cli_run_once_local(true);
