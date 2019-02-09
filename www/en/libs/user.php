@@ -732,9 +732,13 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         }
 
         $user['authenticated'] = true;
+        log_file(tr('Authenticated user ":user"', array(':user' => $user['id'].' / '.$user['email'])), 'user-authenticate', 'green');
+
         return $user;
 
     }catch(Exception $e){
+        log_file(tr('Failed to authenticate user ":user" from ":username" because ":e"', array(':username' => $username, ':user' => isset_get($user['id']).' / '.isset_get($user['email']), ':e' => $e)), 'user-authenticate', 'red');
+
         /*
          * If a certain account is being attacked, then lock it temporarily
          */
