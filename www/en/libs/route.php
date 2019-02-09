@@ -12,6 +12,7 @@
  */
 
 
+
 /*
  * Load the system library so that system functions are available
  * Create core object for minimal functionality
@@ -39,6 +40,17 @@ require_once(__DIR__.'/system.php');
  * route('/\//', 'index')
  * /code
  *
+ * The following example code will set a language route map where the matched word "from" would be translated to "to" and "foor" to "bar" for the language "es"
+ *
+ * code
+ * route('map', array('language' => 2,
+ *                    'es'       => array('servicios'    => 'services',
+ *                                        'portafolio'   => 'portfolio'),
+ *                    'nl'       => array('diensten'     => 'services',
+ *                                        'portefeuille' => 'portfolio')));
+ * route('/\//', 'index')
+ * /code
+ *
  * @param string $regex
  * @params string $target
  * @params null string $flags
@@ -49,6 +61,14 @@ function route($regex, $target, $flags = null){
     static $count = 1;
 
     try{
+        if($regex === 'map'){
+            log_file(tr('Setting URL map'), 'route', 'VERYVERBOSE/cyan');
+            $core->register['routemap'] = $target;
+            return true;
+        }
+
+        $type = ($_POST ?  'POST' : 'GET');
+
         /*
          * Ensure the 404 shutdown function is registered
          */
@@ -72,15 +92,16 @@ function route($regex, $target, $flags = null){
          * Match the specified regex. If there is no match, there is nothing
          * else to do for us here
          */
-        log_file(tr('Testing rule ":count" ":regex" on ":url"', array(':count' => $count++, ':regex' => $regex, ':url' => $uri)), 'route', 'VERYVERBOSE/cyan');
+        log_file(tr('Testing rule ":count" ":regex" on ":type" ":url"', array(':count' => $count, ':regex' => $regex, ':type' => $type, ':url' => $uri)), 'route', 'VERYVERBOSE/cyan');
 
         $match = preg_match_all($regex, $uri, $matches);
 
         if(!$match){
+            $count++;
             return false;
         }
 
-        log_file(tr('Regex ":regex" matched', array(':regex' => $regex)), 'route', 'VERYVERBOSE/green');
+        log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERYVERBOSE/green');
 
         $route = $target;
 
@@ -221,22 +242,67 @@ function route($regex, $target, $flags = null){
         $page = str_until($route, '?');
         $get  = str_from($route , '?', 0, true);
 
+        /*
+         * Check if configured page exists
+         */
         if(!file_exists($page)){
             if(isset($dynamic_pagematch)){
-                /*
-                 * The page name was dynamically matched from the URL, but the
-                 * target file does not exist, cancel the match
-                 */
-                log_file(tr('Dynamically matched page ":page" does not exist, cancelling match', array(':page' => $page)), 'route', 'VERYVERBOSE');
-                return false;
-            }
+                log_file(tr('Dynamically matched page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
+                $cancel = true;
 
-            /*
-             * The hardcoded file for the regex does not exist, oops!
-             */
-            log_file(tr('Matched hard coded page ":page" does not exist', array(':page' => $page)), 'route', 'yellow');
-            unregister_shutdown('route_404');
-            route_404();
+                /*
+                 * Page doesn't exist. Maybe a URL section is mapped?
+                 */
+                if($core->register['routemap']){
+                    /*
+                     * Found mapping configuration. Find language match. Assume
+                     * that $matches[1] contains the language, unless specified
+                     * otherwise
+                     */
+                    if(isset($core->register['routemap']['language'])){
+                        $match = isset_get($matches[$core->register['routemap']['language']][0]);
+
+                    }else{
+                        $match = isset_get($matches[1][0]);
+                    }
+
+                    if(isset($core->register['routemap'][$match])){
+                        /*
+                         * Found a map for the requested language
+                         */
+                        log_file(tr('Attempting to remap for language ":language"', array(':language' => $match)), 'route', 'VERBOSE/cyan');
+
+                        foreach($core->register['routemap'][$match] as $unknown => $remap){
+                            $page = str_replace($unknown, $remap, $page);
+                        }
+
+                        if(file_exists($page)){
+                            log_file(tr('Found remapped page ":page"', array(':page' => $page)), 'route', 'VERBOSE/green');
+                            $cancel = false;
+
+                        }else{
+                            log_file(tr('Remapped page ":page" does not exist either', array(':page' => $page)), 'route', 'VERBOSE/yellow');
+                        }
+                    }
+                }
+
+                if($cancel){
+                    /*
+                     * Could not find any file, even with potential remapping.
+                     * Cancel match
+                     */
+                    log_file(tr('Cancelling match'), 'route', 'VERYVERBOSE');
+                    return false;
+                }
+
+            }else{
+                /*
+                 * The hardcoded file for the regex does not exist, oops!
+                 */
+                log_file(tr('Matched hard coded page ":page" does not exist', array(':page' => $page)), 'route', 'yellow');
+                unregister_shutdown('route_404');
+                route_404();
+            }
         }
 
         /*
@@ -261,8 +327,22 @@ function route($regex, $target, $flags = null){
          * Execute the page specified in $target (from here, $route)
          */
         try{
+            /*
+             * Update the current running script name
+             *
+             * Flip the routemap keys <=> values foreach language so that its
+             * now english keys. This way, the routemap can be easily used to
+             * generate foreign language URLs
+             */
             $core->register['script'] = str_rfrom($page, '/');
+
+            foreach($core->register['routemap'] as $code => &$map){
+                $map = array_flip($map);
+            }
+
             log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
+
+            unset($map);
             include($page);
             die();
 
