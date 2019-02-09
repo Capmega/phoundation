@@ -77,7 +77,7 @@ function devices_insert($device, $server = null){
         return $device;
 
     }catch(Exception $e){
-        throw new bException('devices_insert(): Failed', $e);
+        throw new BException('devices_insert(): Failed', $e);
     }
 }
 
@@ -122,7 +122,7 @@ function devices_update($device, $server = null){
         return $device;
 
     }catch(Exception $e){
-        throw new bException('devices_insert(): Failed', $e);
+        throw new BException('devices_insert(): Failed', $e);
     }
 }
 
@@ -145,7 +145,7 @@ function devices_update($device, $server = null){
 function devices_validate($device, $server){
     try{
         load_libs('validate,seo,categories,companies,servers');
-        $v = new validate_form($device, 'manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,server,description');
+        $v = new ValidateForm($device, 'manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,server,description');
 
         $v->isAlphaNumeric($device['manufacturer'], tr('Please specify a valid device manufacturer'), VALIDATE_ALLOW_EMPTY_NULL|VALIDATE_IGNORE_DASH);
         $v->hasMinChars($device['manufacturer'],  2, tr('Please specify a device manufacturer of 2 characters or more'), VALIDATE_ALLOW_EMPTY_NULL);
@@ -298,7 +298,7 @@ function devices_validate($device, $server){
         return $device;
 
     }catch(Exception $e){
-        throw new bException('devices_validate(): Failed', $e);
+        throw new BException('devices_validate(): Failed', $e);
     }
 }
 
@@ -330,7 +330,7 @@ function devices_set_status($device, $status){
         return $delete->rowCount();
 
     }catch(Exception $e){
-        throw new bException('devices_set_status(): Failed', $e);
+        throw new BException('devices_set_status(): Failed', $e);
     }
 }
 
@@ -385,7 +385,7 @@ function devices_insert_options($devices_id, $options){
         return $count;
 
     }catch(Exception $e){
-        throw new bException('devices_insert_options(): Failed', $e);
+        throw new BException('devices_insert_options(): Failed', $e);
     }
 }
 
@@ -409,12 +409,12 @@ function devices_insert_options($devices_id, $options){
 function devices_validate_options($option){
     try{
         load_libs('validate');
-        $v = new validate_form($device, 'key,value,default');
+        $v = new ValidateForm($device, 'key,value,default');
 
         return $option;
 
     }catch(Exception $e){
-        throw new bException('devices_validate_options(): Failed', $e);
+        throw new BException('devices_validate_options(): Failed', $e);
     }
 }
 
@@ -446,7 +446,7 @@ function devices_list_options($devices_id, $inactive = false){
         }
 
         if(!$options){
-            throw new bException(tr('devices_list_options(): Speficied drivers id ":id" does not exist', array(':id' => $devices_id)), 'not-exist');
+            throw new BException(tr('devices_list_options(): Speficied drivers id ":id" does not exist', array(':id' => $devices_id)), 'not-exist');
         }
 
         foreach($options as $option){
@@ -464,7 +464,7 @@ function devices_list_options($devices_id, $inactive = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('devices_list_options(): Failed', $e);
+        throw new BException('devices_list_options(): Failed', $e);
     }
 }
 
@@ -525,7 +525,7 @@ function devices_list($seo_product_string, $all = false, $default_only = false){
         return $devices;
 
     }catch(Exception $e){
-        throw new bException('devices_list(): Failed', $e);
+        throw new BException('devices_list(): Failed', $e);
     }
 }
 
@@ -561,7 +561,7 @@ function devices_get($device, $server = null){
             $execute[':servers_id'] = $server['id'];
 
         }else{
-            throw new bException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
+            throw new BException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
         }
 
         $device = sql_get('SELECT    `devices`.`id`,
@@ -615,7 +615,7 @@ function devices_get($device, $server = null){
         return $device;
 
     }catch(Exception $e){
-        throw new bException('devices_get(): Failed', $e);
+        throw new BException('devices_get(): Failed', $e);
     }
 }
 
@@ -710,7 +710,7 @@ function devices_select($product, $category = null){
         return $device;
 
     }catch(Exception $e){
-        throw new bException('devices_select(): Failed', $e);
+        throw new BException('devices_select(): Failed', $e);
     }
 }
 
@@ -735,7 +735,7 @@ function devices_clear($product){
         return $delete->rowCount();
 
     }catch(Exception $e){
-        throw new bException('devices_clear(): Failed', $e);
+        throw new BException('devices_clear(): Failed', $e);
     }
 }
 
@@ -805,7 +805,7 @@ function devices_scan_usb($filters, $server){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('devices_scan_usb(): Failed', $e);
+        throw new BException('devices_scan_usb(): Failed', $e);
     }
 }
 
@@ -829,7 +829,7 @@ function devices_scan_servers($filters){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new bException('devices_scan_servers(): Failed', $e);
+        throw new BException('devices_scan_servers(): Failed', $e);
     }
 }
 ?>

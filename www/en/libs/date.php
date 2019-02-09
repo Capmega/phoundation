@@ -33,7 +33,7 @@ function date_relative($timestamp, $now = null, $periods = null){
         }
 
     }catch(Exception $e){
-        throw new bException(tr('date_relative(): Failed'), $e);
+        throw new BException(tr('date_relative(): Failed'), $e);
     }
 }
 
@@ -64,7 +64,7 @@ function date_random($min = null, $max = null){
         return date("Y-m-d", $timestamp);
 
     }catch(Exception $e){
-        throw new bException(tr('date_random(): Failed'), $e);
+        throw new BException(tr('date_random(): Failed'), $e);
     }
 }
 
@@ -94,7 +94,7 @@ function date_timezones_select($params = null){
         return html_select($params);
 
     }catch(Exception $e){
-        throw new bException(tr('date_timezones_select(): Failed'), $e);
+        throw new BException(tr('date_timezones_select(): Failed'), $e);
     }
 }
 
@@ -108,7 +108,7 @@ function date_timezones_exists($timezone){
         return isset_get(date_timezones_list()[strtolower($timezone)]);
 
     }catch(Exception $e){
-        throw new bException(tr('date_timezones_exists(): Failed'), $e);
+        throw new BException(tr('date_timezones_exists(): Failed'), $e);
     }
 }
 
@@ -132,7 +132,7 @@ function date_timezones_list(){
         return $list;
 
     }catch(Exception $e){
-        throw new bException(tr('date_timezones_list(): Failed'), $e);
+        throw new BException(tr('date_timezones_list(): Failed'), $e);
     }
 }
 
@@ -160,7 +160,7 @@ function date_interval($date, $interval, $format = null){
         return date_convert($date, $format);
 
     }catch(Exception $e){
-        throw new bException('date_interval(): Failed', $e);
+        throw new BException('date_interval(): Failed', $e);
     }
 }
 ?>

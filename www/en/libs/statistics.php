@@ -40,7 +40,7 @@ function statistics_add($params){
         return sql_insert_id();
 
     }catch(Exception $e){
-        throw new bException('statistics_add(): Failed', $e);
+        throw new BException('statistics_add(): Failed', $e);
     }
 }
 
@@ -61,7 +61,7 @@ function statistics_add($params){
 function statistics_validate($params){
     try{
         load_libs('validate');
-        $v = new validate_form($params, 'event,subevent,details,resource1,resource2');
+        $v = new ValidateForm($params, 'event,subevent,details,resource1,resource2');
 
         $v->isNotEmpty($params['event'], tr('Please specify an event'));
         $v->isNotEmpty($params['details'], tr('Please specify event details'));
@@ -90,7 +90,7 @@ function statistics_validate($params){
         return $params;
 
     }catch(Exception $e){
-        throw new bException('statistics_validate(): Failed', $e);
+        throw new BException('statistics_validate(): Failed', $e);
     }
 }
 ?>

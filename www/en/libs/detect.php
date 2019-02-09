@@ -46,7 +46,7 @@ function detect(){
                                          'language' => $language));
 
     }catch(Exception $e){
-        throw new bException('detect(): Failed', $e);
+        throw new BException('detect(): Failed', $e);
     }
 }
 
@@ -72,7 +72,7 @@ function detect_client(){
             /*
              * This is a shell, there is no client
              */
-            throw new bException(tr('detect_client(): This function cannot be run from a cli shell'), 'invalid');
+            throw new BException(tr('detect_client(): This function cannot be run from a cli shell'), 'invalid');
         }
 
         /*
@@ -106,11 +106,11 @@ function detect_client(){
                     $browscap_file = ini_get('browscap');
 
                     if(!$browscap_file){
-                        throw new bException(tr('detect_client(): No browscap file configured'), 'not-specified');
+                        throw new BException(tr('detect_client(): No browscap file configured'), 'not-specified');
                     }
 
                     if(!file_exists($browscap_file)){
-                        throw new bException(tr('detect_client(): Configured browscap file ":file" does not exist', array(':file' => $browscap_file)), 'not-exist');
+                        throw new BException(tr('detect_client(): Configured browscap file ":file" does not exist', array(':file' => $browscap_file)), 'not-exist');
                     }
 
                     $ua = get_browser(null, true);
@@ -184,7 +184,7 @@ function detect_client(){
         return $client;
 
     }catch(Exception $e){
-        throw new bException('detect_client(): Failed', $e);
+        throw new BException('detect_client(): Failed', $e);
     }
 }
 
@@ -209,7 +209,7 @@ function detect_location(){
             /*
              * This is a shell, there is no client
              */
-            throw new bException(tr('detect_location(): This function cannot be run from a cli shell'), 'invalid');
+            throw new BException(tr('detect_location(): This function cannot be run from a cli shell'), 'invalid');
         }
 
         if(!$_CONFIG['location']['detect']){
@@ -220,7 +220,7 @@ function detect_location(){
         return geo_location_from_ip();
 
     }catch(Exception $e){
-        throw new bException('detect_location(): Failed', $e);
+        throw new BException('detect_location(): Failed', $e);
     }
 }
 
@@ -238,7 +238,7 @@ function detect_language(){
          */
         if($_CONFIG['language']['supported']){
             if(empty($_CONFIG['language']['supported'][$_CONFIG['language']['default']])){
-                throw new bException(tr('detect_language(): Invalid language ":language" specified as default language, see $_CONFIG[language][default]', array(':language' => $_CONFIG['language']['default'])), 'invalid');
+                throw new BException(tr('detect_language(): Invalid language ":language" specified as default language, see $_CONFIG[language][default]', array(':language' => $_CONFIG['language']['default'])), 'invalid');
             }
         }
 
@@ -246,7 +246,7 @@ function detect_language(){
             /*
              * This is a shell, there is no client
              */
-            throw new bException(tr('detect_language(): This function cannot be run from a cli shell'), 'invalid');
+            throw new BException(tr('detect_language(): This function cannot be run from a cli shell'), 'invalid');
         }
 
         if(!$_CONFIG['language']['detect']){
@@ -307,7 +307,7 @@ function detect_language(){
         return $language;
 
     }catch(Exception $e){
-        throw new bException('detect_language(): Failed', $e);
+        throw new BException('detect_language(): Failed', $e);
     }
 }
 
@@ -395,7 +395,7 @@ function detect_mobile(){
         return $mobile;
 
     }catch(Exception $e){
-        throw new bException('detect_language(): Failed', $e);
+        throw new BException('detect_language(): Failed', $e);
     }
 }
 ?>

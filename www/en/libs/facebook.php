@@ -57,7 +57,7 @@ function facebook_post_message($msg, $token) {
         return $response;
 
     }catch(Exception $e){
-        throw new bException('facebook_post_message(): Failed', $e);
+        throw new BException('facebook_post_message(): Failed', $e);
     }
 }
 
@@ -85,7 +85,7 @@ function facebook_redirect_to_authorize($return = false) {
         redirect($helper->getLoginUrl($scope));
 
     }catch(Exception $e){
-        throw new bException('facebook_redirect_to_authorize(): Failed', $e);
+        throw new BException('facebook_redirect_to_authorize(): Failed', $e);
     }
 }
 
@@ -112,10 +112,10 @@ function facebook_get_user_token() {
         }
 
     }catch(FacebookRequestException $e) {
-        throw new bException('facebook_get_user_token(): Failed with FacebookRequestException', $e);
+        throw new BException('facebook_get_user_token(): Failed with FacebookRequestException', $e);
 
     }catch(\Exception $e) {
-        throw new bException('facebook_get_user_token(): Failed', $e);
+        throw new BException('facebook_get_user_token(): Failed', $e);
     }
 }
 
@@ -140,7 +140,7 @@ function facebook_user_info($token) {
         return $response;
 
     }catch(Exception $e){
-        throw new bException('facebook_user_info(): Failed', $e);
+        throw new BException('facebook_user_info(): Failed', $e);
     }
 }
 
@@ -310,7 +310,7 @@ function facebook_signin(){
         }
 
     }catch(Exception $e){
-        throw new bException('facebook_connect(): Failed', $e);
+        throw new BException('facebook_connect(): Failed', $e);
     }
 }
 
@@ -328,7 +328,7 @@ function facebook_get_avatar($user){
         if(is_array($user)){
             if(empty($user['fb_id'])){
                 if(empty($user['id'])){
-                    throw new bException('facebook_get_avatar: Specified user array contains no "id" or "fb_id"');
+                    throw new BException('facebook_get_avatar: Specified user array contains no "id" or "fb_id"');
                 }
 
                 $user = sql_get('SELECT `fb_id` FROM `users` WHERE `id` = '.cfi($user['id']));
@@ -341,7 +341,7 @@ function facebook_get_avatar($user){
         }
 
         if(!$user){
-            throw new bException('facebook_get_avatar(): No facebook ID specified');
+            throw new BException('facebook_get_avatar(): No facebook ID specified');
         }
 
         // Avatars are on http://graph.facebook.com/USERID/picture
@@ -357,7 +357,7 @@ function facebook_get_avatar($user){
         return user_update_avatar($user, $retval);
 
     }catch(Exception $e){
-        throw new bException('facebook_get_avatar(): Failed', $e);
+        throw new BException('facebook_get_avatar(): Failed', $e);
     }
 }
 
@@ -397,7 +397,7 @@ function facebook_get_avatar($user){
 //        }
 //
 //    } catch(Exception $e) {
-//        throw new bException('facebook_get_and_store_friends(): Failed', $e);
+//        throw new BException('facebook_get_and_store_friends(): Failed', $e);
 //    }
 //}
 //
@@ -425,7 +425,7 @@ function facebook_get_avatar($user){
 //        sql_query("INSERT INTO fb_posts_queue (uid,type,data_array,date_added) VALUES (".cfi($uid).",'PRODUCT','".addslashes(serialize($message))."',".time().");");
 //
 //    } catch(Exception $e) {
-//        throw new bException('facebook_queue_product_post(): Failed', $e);
+//        throw new BException('facebook_queue_product_post(): Failed', $e);
 //    }
 //}
 //
@@ -444,7 +444,7 @@ function facebook_get_avatar($user){
 //        sql_query("INSERT INTO fb_posts_queue (uid,type,data_array,date_added) VALUES (".cfi($uid).",'NEWUSER','".addslashes(serialize($message))."',".time().");");
 //
 //    } catch(Exception $e) {
-//        throw new bException('facebook_queue_newuser_post(): Failed', $e);
+//        throw new BException('facebook_queue_newuser_post(): Failed', $e);
 //    }
 //}
 //
@@ -458,7 +458,7 @@ function facebook_get_avatar($user){
 //        sql_query("INSERT INTO fb_posts_queue (uid,type,data_array,date_added) VALUES (".cfi($uid).",'FOLLOW_USER','".$url."',".time().");");
 //
 //    } catch(Exception $e) {
-//        throw new bException('facebook_queue_follow_user_post(): Failed', $e);
+//        throw new BException('facebook_queue_follow_user_post(): Failed', $e);
 //    }
 //}
 //
@@ -472,7 +472,7 @@ function facebook_get_avatar($user){
 //        sql_query("INSERT INTO fb_posts_queue (uid,type,data_array,date_added) VALUES (".cfi($uid).",'FOLLOW_COLLECTION','".$url."',".time().");");
 //
 //    } catch(Exception $e) {
-//        throw new bException('facebook_queue_follow_collection_post(): Failed', $e);
+//        throw new BException('facebook_queue_follow_collection_post(): Failed', $e);
 //    }
 //}
 
@@ -518,14 +518,14 @@ function facebook_button($params){
                     break;
 
                 default:
-                    throw new bException(tr('facebook_button(): Unknown type "%type%" specified', array('%type%' => $type)), 'unknown');
+                    throw new BException(tr('facebook_button(): Unknown type "%type%" specified', array('%type%' => $type)), 'unknown');
             }
         }
 
         return $html;
 
     }catch(Exception $e){
-        throw new bException('facebook_button(): Failed', $e);
+        throw new BException('facebook_button(): Failed', $e);
     }
 }
 
@@ -559,7 +559,7 @@ function facebook_load_sdk(){
         return $html;
 
     }catch(Exception $e){
-        throw new bException('facebook_load_sdk(): Failed', $e);
+        throw new BException('facebook_load_sdk(): Failed', $e);
     }
 }
 ?>

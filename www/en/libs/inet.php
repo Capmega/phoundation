@@ -33,7 +33,7 @@ function ip_v6_v4($ipv6){
             /*
              * IP Unparsable? How did they connect?
              */
-            throw new bException(tr('IP address ":ip" is invalid', array(':ip' => $ipv6)), 'invalid');
+            throw new BException(tr('IP address ":ip" is invalid', array(':ip' => $ipv6)), 'invalid');
         }
 
         /*
@@ -53,7 +53,7 @@ function ip_v6_v4($ipv6){
         return $ipv4;
 
     }catch(Exception $e){
-        throw new bException(tr('ip_v6_v4(): Failed'), $e);
+        throw new BException(tr('ip_v6_v4(): Failed'), $e);
     }
 }
 
@@ -72,7 +72,7 @@ function detect_ip_version($version = null){
         return strpos($version, ':') ? 6 : 4;
 
     }catch(Exception $e){
-        throw new bException(tr('detect_ip_version(): Failed'), $e);
+        throw new BException(tr('detect_ip_version(): Failed'), $e);
     }
 }
 
@@ -86,7 +86,7 @@ function is_ipv6($version = null){
         return detect_ip_version($version) === 6;
 
     }catch(Exception $e){
-        throw new bException(tr('is_ipv6(): Failed'), $e);
+        throw new BException(tr('is_ipv6(): Failed'), $e);
     }
 }
 
@@ -108,7 +108,7 @@ function is_ipv6($version = null){
 function inet_test_host_port($host, $port, $server = null, $timeout = 5, $exception = false){
     try{
         if(!is_natural($port) or ($port > 65535)){
-            throw new bException(tr('inet_test_host_port(): Specified port ":port" is invalid, please specify a natural number 1 - 65535', array(':port' => $port)), 'invalid');
+            throw new BException(tr('inet_test_host_port(): Specified port ":port" is invalid, please specify a natural number 1 - 65535', array(':port' => $port)), 'invalid');
         }
 
         if(!filter_var($host, FILTER_VALIDATE_IP)){
@@ -116,12 +116,12 @@ function inet_test_host_port($host, $port, $server = null, $timeout = 5, $except
              * This is not an IP address, so assume its a hostname. Do a lookup
              */
             if(gethostbyname($host) === $host){
-                throw new bException(tr('inet_test_host_port(): Failed to lookup specified host ":host". Either there was a DNS lookup failure, or the specified host does not exist', array(':host' => $host)), 'dns-lookup-failure');
+                throw new BException(tr('inet_test_host_port(): Failed to lookup specified host ":host". Either there was a DNS lookup failure, or the specified host does not exist', array(':host' => $host)), 'dns-lookup-failure');
             }
         }
 
         if(!is_natural($timeout) or ($timeout > 600)){
-            throw new bException(tr('inet_test_host_port(): Specified timeout ":timeout"is invalid. It must be a natural number smaller than or equal to 600', array(':timeout' => $timeout)), 'invalid');
+            throw new BException(tr('inet_test_host_port(): Specified timeout ":timeout"is invalid. It must be a natural number smaller than or equal to 600', array(':timeout' => $timeout)), 'invalid');
         }
 
         try{
@@ -137,7 +137,7 @@ function inet_test_host_port($host, $port, $server = null, $timeout = 5, $except
             if(strstr($data, 'connection refused')){
                 if($exception){
                     $e->setCode('connect-failure');
-                    throw new bException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $host, '%port' => $port)), $e);
+                    throw new BException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $host, '%port' => $port)), $e);
                 }
 
                 return false;
@@ -147,7 +147,7 @@ function inet_test_host_port($host, $port, $server = null, $timeout = 5, $except
         }
 
     }catch(Exception $e){
-        throw new bException(tr('inet_test_host_port(): Failed'), $e);
+        throw new BException(tr('inet_test_host_port(): Failed'), $e);
     }
 }
 
@@ -165,7 +165,7 @@ function inet_get_domain($strip = array('www', 'dev', 'm')){
         return $_SERVER['HTTP_HOST'];
 
     }catch(Exception $e){
-        throw new bException(tr('inet_get_domain(): Failed'), $e);
+        throw new BException(tr('inet_get_domain(): Failed'), $e);
     }
 }
 
@@ -191,7 +191,7 @@ function inet_get_subdomain($domain = null, $strip = array('www', 'dev', 'm')){
         return $subdomain;
 
     }catch(Exception $e){
-        throw new bException(tr('inet_get_subdomain(): Failed'), $e);
+        throw new BException(tr('inet_get_subdomain(): Failed'), $e);
     }
 }
 
@@ -237,7 +237,7 @@ function url_add_query($url){
         unset($queries[0]);
 
         if(!$queries){
-            throw new bException('url_add_query(): No queries specified');
+            throw new BException('url_add_query(): No queries specified');
         }
 
         foreach($queries as $query){
@@ -262,7 +262,7 @@ function url_add_query($url){
             $url = str_ends_not($url, '?');
 
             if(!preg_match('/.+?=.*?/', $query)){
-                throw new bException(tr('url_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
+                throw new BException(tr('url_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
             }
 
             $key = str_until($query, '=');
@@ -291,7 +291,7 @@ function url_add_query($url){
         return $url;
 
     }catch(Exception $e){
-        throw new bException('url_add_query(): Failed', $e);
+        throw new BException('url_add_query(): Failed', $e);
     }
 }
 
@@ -325,7 +325,7 @@ function url_remove_keys($url, $keys){
         return $url;
 
     }catch(Exception $e){
-        throw new bException('url_remove_keys(): Failed', $e);
+        throw new BException('url_remove_keys(): Failed', $e);
     }
 }
 
@@ -342,7 +342,7 @@ function inet_dig($domain, $section = false){
         $data   = str_from(shell_exec('dig '.cfm($domain).' ANY'), 'ANSWER: ');
 
         if(str_until($data, ',') == '0'){
-            throw new bException('inet_dig(): Specified domain "'.str_log($domain).'" was not found', 'not-found');
+            throw new BException('inet_dig(): Specified domain "'.str_log($domain).'" was not found', 'not-found');
         }
 
         $data   = str_cut($data, "ANSWER SECTION:\n", "\n;;");
@@ -419,7 +419,7 @@ function inet_dig($domain, $section = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('inet_dig(): Failed', $e);
+        throw new BException('inet_dig(): Failed', $e);
     }
 }
 
@@ -514,7 +514,7 @@ function inet_get_client_data(){
         return $client;
 
     }catch(Exception $e){
-        throw new bException('inet_get_client_data(): Failed', $e);
+        throw new BException('inet_get_client_data(): Failed', $e);
     }
 }
 
@@ -528,7 +528,7 @@ function inet_get_client_data(){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
- * @exception bException If the specified port is not valid
+ * @exception BException If the specified port is not valid
  *
  * @param natural $port
  * @return The specified port, if valid
@@ -536,13 +536,13 @@ function inet_get_client_data(){
 function inet_validate_port($port, $lowest = 1025){
     try{
         if(!is_natural($port, $lowest) or ($port > 65535)){
-            throw new bException(tr('inet_validate_port(): Specified port ":port" is invalid', array(':port' => $port)), 'validation');
+            throw new BException(tr('inet_validate_port(): Specified port ":port" is invalid', array(':port' => $port)), 'validation');
         }
 
         return $port;
 
     }catch(Exception $e){
-        throw new bException('inet_validate_port(): Failed', $e);
+        throw new BException('inet_validate_port(): Failed', $e);
     }
 }
 
@@ -556,7 +556,7 @@ function inet_validate_port($port, $lowest = 1025){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
- * @exception bException If the specified ip is not valid
+ * @exception BException If the specified ip is not valid
  *
  * @param natural $ip
  * @param boolean $allow_empty
@@ -565,21 +565,21 @@ function inet_validate_port($port, $lowest = 1025){
 function inet_validate_ip($ip, $allow_all = true){
     try{
         if(!$ip){
-            throw new bException(tr('inet_validate_ip(): No ip specified'), 'validation');
+            throw new BException(tr('inet_validate_ip(): No ip specified'), 'validation');
         }
 
         if(($ip === '0.0.0.0') and !$allow_all){
-            throw new bException(tr('inet_validate_ip(): IP "0.0.0.0" is not allowed'), 'validation');
+            throw new BException(tr('inet_validate_ip(): IP "0.0.0.0" is not allowed'), 'validation');
         }
 
         if(!filter_var($ip, FILTER_VALIDATE_IP)){
-            throw new bException(tr('inet_validate_ip(): Specified ip ":ip" is invalid', array(':ip' => $ip)), 'validation');
+            throw new BException(tr('inet_validate_ip(): Specified ip ":ip" is invalid', array(':ip' => $ip)), 'validation');
         }
 
         return $ip;
 
     }catch(Exception $e){
-        throw new bException('inet_validate_ip(): Failed', $e);
+        throw new BException('inet_validate_ip(): Failed', $e);
     }
 }
 
@@ -623,7 +623,7 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null){
         return true;
 
     }catch(Exception $e){
-        throw new bException('inet_port_available(): Failed', $e);
+        throw new BException('inet_port_available(): Failed', $e);
     }
 }
 
@@ -639,7 +639,7 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
- * @exception bException if no available port could be found in $retries amount of retries
+ * @exception BException if no available port could be found in $retries amount of retries
  * @see inet_port_available()
  *
  * @param string $ip
@@ -651,7 +651,7 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
 
         while($port = rand($lowest, 65535)){
             if(++$count > $retries){
-                throw new bException(tr('inet_get_available_port(): Failed to find an available port in ":retries" retries', array(':retries' => $retries)), 'failed');
+                throw new BException(tr('inet_get_available_port(): Failed to find an available port in ":retries" retries', array(':retries' => $retries)), 'failed');
             }
 
             if(inet_port_available($port, $ip, $server)){
@@ -662,7 +662,7 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
         return $port;
 
     }catch(Exception $e){
-        throw new bException('inet_get_available_port(): Failed', $e);
+        throw new BException('inet_get_available_port(): Failed', $e);
     }
 }
 ?>

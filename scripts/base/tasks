@@ -98,17 +98,17 @@ under_construction('add');
         cli_no_arguments_left();
 
         if(empty($id)){
-            throw new bException(tr('No task specified'), 'warning/not-specified');
+            throw new BException(tr('No task specified'), 'warning/not-specified');
         }
 
         if(!is_natural($id)){
-            throw new bException(tr('The specified task ":id" is invalid', array(':id' => $id)), 'warning/invalid');
+            throw new BException(tr('The specified task ":id" is invalid', array(':id' => $id)), 'warning/invalid');
         }
 
         $task = sql_get('SELECT `id`, `status` FROM `tasks` WHERE `id` = :id', array(':id' => $id));
 
         if(!$task){
-            throw new bException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+            throw new BException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
         if($task['status'] === 'processing'){
@@ -116,7 +116,7 @@ under_construction('add');
              * This task is running!
              */
             if(!FORCE){
-                throw new bException(tr('Task ":id" is currently in process! Use FORCE to delete it', array(':id' => $id)), 'warning/not-authorized');
+                throw new BException(tr('Task ":id" is currently in process! Use FORCE to delete it', array(':id' => $id)), 'warning/not-authorized');
             }
         }
 
@@ -145,11 +145,11 @@ under_construction('add');
 
         if($all){
             if($status){
-                throw new bException(tr('--status cannot be used with --all'), 'warning/invalid');
+                throw new BException(tr('--status cannot be used with --all'), 'warning/invalid');
             }
 
             if(!FORCE){
-                throw new bException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
+                throw new BException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
             }
 
             log_console(tr('Clearing all tasks'), 'white');
@@ -160,7 +160,7 @@ under_construction('add');
 
             }else{
                 if(!FORCE){
-                    throw new bException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
+                    throw new BException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
                 }
             }
 
@@ -214,7 +214,7 @@ under_construction('add');
 
         if($all){
             if($status){
-                throw new bException(tr('--status cannot be used with --all'), 'warning/invalid');
+                throw new BException(tr('--status cannot be used with --all'), 'warning/invalid');
             }
 
             if(!QUIET){
@@ -262,13 +262,13 @@ under_construction('add');
         cli_no_arguments_left();
 
         if(!is_natural($id)){
-            throw new bException(tr('The specified task ":id" is not valid', array(':id' => $id)), 'warning/invalid');
+            throw new BException(tr('The specified task ":id" is not valid', array(':id' => $id)), 'warning/invalid');
         }
 
         $task = tasks_get($id);
 
         if(!$task){
-            throw new bException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+            throw new BException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
         try{
@@ -337,17 +337,17 @@ under_construction('add');
         cli_no_arguments_left();
 
         if(!is_natural($id)){
-            throw new bException(tr('The specified task ":id" is not valid', array(':id' => $id)), 'warning/invalid');
+            throw new BException(tr('The specified task ":id" is not valid', array(':id' => $id)), 'warning/invalid');
         }
 
         $task = tasks_get($id);
 
         if(!$task){
-            throw new bException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+            throw new BException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
         if(($task['status'] !== 'failed') and !FORCE){
-            throw new bException(tr('Cannot reset task ":id", it has status ":status" instead of "failed". Use FORCE to reset the task anyway', array(':id' => $task['id'], ':status' => $task['status'])), 'warning/invalid');
+            throw new BException(tr('Cannot reset task ":id", it has status ":status" instead of "failed". Use FORCE to reset the task anyway', array(':id' => $task['id'], ':status' => $task['status'])), 'warning/invalid');
         }
 
         meta_action($task['meta_id'], 'reset');
@@ -411,7 +411,7 @@ under_construction('add');
                     $parent = sql_get('SELECT `id`, `status` FROM `tasks` WHERE `id` = :id', array(':id' => $task['parents_id']));
 
                     if(!$parent){
-                        throw new bException(tr('Task ":task" has parents_id ":parent" but this parent does not exist', array(':task' => $task['id'], ':parent' => $task['parents_id'])), 'warning/not-exists');
+                        throw new BException(tr('Task ":task" has parents_id ":parent" but this parent does not exist', array(':task' => $task['id'], ':parent' => $task['parents_id'])), 'warning/not-exists');
                     }
 
                     if($task['parrallel']){
@@ -511,7 +511,7 @@ under_construction('add');
                         break;
 
                     default:
-                        throw new bException(tr('Unknown task execution method ":method" specified for task ":id" in ":time"', array(':method' => $task['method'], ':id' => $task['id'], ':time' => time_difference($start, $end, 'auto', 5))), 'warning/unknown');
+                        throw new BException(tr('Unknown task execution method ":method" specified for task ":id" in ":time"', array(':method' => $task['method'], ':id' => $task['id'], ':time' => time_difference($start, $end, 'auto', 5))), 'warning/unknown');
                 }
 
                 /*
@@ -567,9 +567,9 @@ under_construction('add');
         break;
 
     case '':
-        throw new bException(tr('No method specified'), 'no-method');
+        throw new BException(tr('No method specified'), 'no-method');
 
     default:
-        throw new bException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

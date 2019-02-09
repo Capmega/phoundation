@@ -28,11 +28,11 @@
 function email_clients_library_init(){
     try{
         if(!extension_loaded('imap')){
-            throw new bException(tr('email_clients_library_init(): The PHP "imap" module is not available, please install it first. On ubuntu install the module with "apt -y install php-imap"; a restart of the webserver or php fpm server may be required'), 'missing-module');
+            throw new BException(tr('email_clients_library_init(): The PHP "imap" module is not available, please install it first. On ubuntu install the module with "apt -y install php-imap"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
 
     }catch(Exception $e){
-        throw new bException('email_clients_library_init(): Failed', $e);
+        throw new BException('email_clients_library_init(): Failed', $e);
     }
 }
 
@@ -63,7 +63,7 @@ function email_servers_validate($email_server){
     try{
         load_libs('validate,seo,domains,servers');
 
-        $v = new validate_form($email_server, 'id,server_seodomain,domain,smtp_port,imap,poll_interval,header,footer,description');
+        $v = new ValidateForm($email_server, 'id,server_seodomain,domain,smtp_port,imap,poll_interval,header,footer,description');
         $v->isNotEmpty($email_server['server_seodomain'], tr('Please specify a server'));
         $v->isNotEmpty($email_server['domain'], tr('Please specify a domain'));
 
@@ -127,7 +127,7 @@ function email_servers_validate($email_server){
         return $email_server;
 
     }catch(Exception $e){
-        throw new bException(tr('email_servers_validate(): Failed'), $e);
+        throw new BException(tr('email_servers_validate(): Failed'), $e);
     }
 }
 
@@ -164,7 +164,7 @@ function email_servers_validate_domain($domain){
     try{
         load_libs('validate,seo,customers');
 
-        $v = new validate_form($domain, 'id,name,seocustomer,description');
+        $v = new ValidateForm($domain, 'id,name,seocustomer,description');
         $v->isNotEmpty($domain['name'], tr('Please specify a domain name'));
         $v->hasMaxChars($domain['name'], 64, tr('Please specify a domain of less than 64 characters'));
         $v->isFilter($domain['name'], FILTER_VALIDATE_DOMAIN, tr('Please specify a valid domain'));
@@ -198,10 +198,10 @@ function email_servers_validate_domain($domain){
             $server   = servers_get($domain['server']);
             $domain = not_empty($servers[$domain['server']], $domain['server']);
 
-            throw new bException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exist');
+            throw new BException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exist');
         }
 
-        throw new bException(tr('email_servers_validate_domain(): Failed'), $e);
+        throw new BException(tr('email_servers_validate_domain(): Failed'), $e);
     }
 }
 
@@ -264,7 +264,7 @@ function email_servers_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('email_servers_select(): Failed', $e);
+        throw new BException('email_servers_select(): Failed', $e);
     }
 }
 
@@ -335,7 +335,7 @@ function email_servers_get($email_server, $column = null, $status = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('email_servers_get(): Failed', $e);
+        throw new BException('email_servers_get(): Failed', $e);
     }
 }
 
@@ -365,7 +365,7 @@ function email_servers_update_password($email, $password){
                          ':password' => $password));
 
     }catch(Exception $e){
-        throw new bException('email_servers_update_password(): Failed', $e);
+        throw new BException('email_servers_update_password(): Failed', $e);
     }
 }
 ?>

@@ -28,18 +28,18 @@ function sql_library_init(){
             /*
              * Wulp, PDO class not available, PDO driver is not loaded somehow
              */
-            throw new bException('sql_library_init(): Could not find the "PDO" class, does this PHP have PDO available?', 'not-available');
+            throw new BException('sql_library_init(): Could not find the "PDO" class, does this PHP have PDO available?', 'not-available');
         }
 
         if(!defined('PDO::MYSQL_ATTR_USE_BUFFERED_QUERY')){
             /*
              * Wulp, MySQL library is not available
              */
-            throw new bException('sql_library_init(): Could not find the "MySQL" library. To install this on Ubuntu derrivates, please type "sudo apt install php-mysql', 'not-available');
+            throw new BException('sql_library_init(): Could not find the "MySQL" library. To install this on Ubuntu derrivates, please type "sudo apt install php-mysql', 'not-available');
         }
 
     }catch(Exception $e){
-        throw new bException('sql_library_init(): Failed', $e);
+        throw new BException('sql_library_init(): Failed', $e);
     }
 }
 
@@ -67,7 +67,7 @@ function sql_query($query, $execute = false, $connector = null){
         if(!is_string($query)){
             if(is_object($query)){
                 if(!($query instanceof PDOStatement)){
-                    throw new bException(tr('sql_query(): Object of unknown class ":class" specified where either a string or a PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                    throw new BException(tr('sql_query(): Object of unknown class ":class" specified where either a string or a PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
                 }
 
                 /*
@@ -81,7 +81,7 @@ function sql_query($query, $execute = false, $connector = null){
                 return $query;
             }
 
-            throw new bException(tr('sql_query(): Specified query ":query" is not a string', array(':query' => $query)), 'invalid');
+            throw new BException(tr('sql_query(): Specified query ":query" is not a string', array(':query' => $query)), 'invalid');
         }
 
         if(!empty($core->register['sql_debug_queries'])){
@@ -114,7 +114,7 @@ function sql_query($query, $execute = false, $connector = null){
                  */
 // :TODO: Move all of this to sql_error()
                 if(!is_array($execute)){
-                    throw new bException('sql_query(): Specified $execute is not an array!', 'invalid');
+                    throw new BException('sql_query(): Specified $execute is not an array!', 'invalid');
                 }
 
                 /*
@@ -122,7 +122,7 @@ function sql_query($query, $execute = false, $connector = null){
                  */
                 foreach($execute as $key => &$value){
                     if(!is_scalar($value) and !is_null($value)){
-                        throw new bException(tr('sql_query(): Specified key ":value" in the execute array for query ":query" is NOT scalar! Value is ":value"', array(':key' => str_replace(':', '.', $key), ':query' => str_replace(':', '.', $query), ':value' => str_replace(':', '.', $value))), 'invalid');
+                        throw new BException(tr('sql_query(): Specified key ":value" in the execute array for query ":query" is NOT scalar! Value is ":value"', array(':key' => str_replace(':', '.', $key), ':query' => str_replace(':', '.', $query), ':value' => str_replace(':', '.', $value))), 'invalid');
                     }
                 }
 
@@ -158,7 +158,7 @@ function sql_query($query, $execute = false, $connector = null){
             sql_error($e, $query, $execute, isset_get($core->sql[$connector]));
 
         }catch(Exception $e){
-            throw new bException(tr('sql_query(:connector): Query ":query" failed', array(':connector' => $connector, ':query' => $query)), $e);
+            throw new BException(tr('sql_query(:connector): Query ":query" failed', array(':connector' => $connector, ':query' => $query)), $e);
         }
     }
 }
@@ -186,7 +186,7 @@ function sql_prepare($query, $connector = null){
         return $core->sql[$connector]->prepare($query);
 
     }catch(Exception $e){
-        throw new bException('sql_prepare(): Failed', $e);
+        throw new BException('sql_prepare(): Failed', $e);
     }
 }
 
@@ -206,7 +206,7 @@ function sql_prepare($query, $connector = null){
 function sql_fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC){
     try{
         if(!is_object($r)){
-            throw new bException('sql_fetch(): Specified resource is not a PDO object', 'invalid');
+            throw new BException('sql_fetch(): Specified resource is not a PDO object', 'invalid');
         }
 
         $result = $r->fetch($fetch_style);
@@ -223,7 +223,7 @@ function sql_fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC){
              * Return only the first column
              */
             if(count($result) !== 1){
-                throw new bException(tr('sql_fetch(): Failed for query ":query" to fetch single column, specified query result contains not 1 but ":count" columns', array(':count' => count($result), ':query' => $r->queryString)), 'multiple');
+                throw new BException(tr('sql_fetch(): Failed for query ":query" to fetch single column, specified query result contains not 1 but ":count" columns', array(':count' => count($result), ':query' => $r->queryString)), 'multiple');
             }
 
             return array_shift($result);
@@ -231,7 +231,7 @@ function sql_fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC){
 
         if($single_column){
             if(!array_key_exists($single_column, $result)){
-                throw new bException(tr('sql_fetch(): Failed for query ":query" to fetch single column ":column", specified query result does not contain the requested column', array(':column' => $single_column, ':query' => $r->queryString)), 'multiple');
+                throw new BException(tr('sql_fetch(): Failed for query ":query" to fetch single column ":column", specified query result does not contain the requested column', array(':column' => $single_column, ':query' => $r->queryString)), 'multiple');
             }
 
             return $result[$single_column];
@@ -243,7 +243,7 @@ function sql_fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('sql_fetch(): Failed', $e);
+        throw new BException('sql_fetch(): Failed', $e);
     }
 }
 
@@ -277,7 +277,7 @@ function sql_get($query, $single_column = null, $execute = null, $connector = nu
         $result = sql_query($query, $execute, $connector);
 
         if($result->rowCount() > 1){
-            throw new bException(tr('sql_get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => debug_sql($result->queryString, $execute, true))), 'multiple');
+            throw new BException(tr('sql_get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => debug_sql($result->queryString, $execute, true))), 'multiple');
         }
 
         return sql_fetch($result, $single_column);
@@ -288,10 +288,10 @@ function sql_get($query, $single_column = null, $execute = null, $connector = nu
         }
 
         if(strtolower(substr(trim($query), 0, 6)) != 'select'){
-            throw new bException('sql_get(): Query "'.str_log(debug_sql($query, $execute, true), 4096).'" is not a select query and as such cannot return results', $e);
+            throw new BException('sql_get(): Query "'.str_log(debug_sql($query, $execute, true), 4096).'" is not a select query and as such cannot return results', $e);
         }
 
-        throw new bException('sql_get(): Failed', $e);
+        throw new BException('sql_get(): Failed', $e);
     }
 }
 
@@ -352,7 +352,7 @@ function sql_list($query, $execute = null, $numerical_array = false, $connector 
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('sql_list(): Failed', $e);
+        throw new BException('sql_list(): Failed', $e);
     }
 }
 
@@ -383,7 +383,7 @@ function sql_init($connector = null){
         }
 
         if(empty($_CONFIG['db'][$connector])){
-            throw new bException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exist');
+            throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exist');
         }
 
         $db = $_CONFIG['db'][$connector];
@@ -516,7 +516,7 @@ function sql_close($connector = null){
         unset($core->sql[$connector]);
 
     }catch(Exception $e){
-        throw new bException(tr('sql_close(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
+        throw new BException(tr('sql_close(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
     }
 }
 
@@ -656,7 +656,7 @@ function sql_import($file, $connector = null){
         $connector = sql_connector_name($connector);
 
         if(!file_exists($file)){
-            throw new bException(tr('sql_import(): Specified file ":file" does not exist', array(':file' =>$file)), 'not-exist');
+            throw new BException(tr('sql_import(): Specified file ":file" does not exist', array(':file' =>$file)), 'not-exist');
         }
 
         $tel    = 0;
@@ -689,7 +689,7 @@ function sql_import($file, $connector = null){
         fclose($handle);
 
     }catch(Exception $e){
-        throw new bException(tr('sql_import(): Failed to import file ":file"', array(':file' => $file)), $e);
+        throw new BException(tr('sql_import(): Failed to import file ":file"', array(':file' => $file)), $e);
     }
 }
 
@@ -709,7 +709,7 @@ function sql_import($file, $connector = null){
 function sql_columns($source, $columns){
     try{
         if(!is_array($source)){
-            throw new bException('sql_columns(): Specified source is not an array');
+            throw new BException('sql_columns(): Specified source is not an array');
         }
 
         $columns = array_force($columns);
@@ -722,13 +722,13 @@ function sql_columns($source, $columns){
         }
 
         if(!count($retval)){
-            throw new bException('sql_columns(): Specified source contains non of the specified columns "'.str_log(implode(',', $columns)).'"');
+            throw new BException('sql_columns(): Specified source contains non of the specified columns "'.str_log(implode(',', $columns)).'"');
         }
 
         return implode(', ', $retval);
 
     }catch(Exception $e){
-        throw new bException('sql_columns(): Failed', $e);
+        throw new BException('sql_columns(): Failed', $e);
     }
 }
 
@@ -741,7 +741,7 @@ function sql_columns($source, $columns){
 //function sql_set($source, $columns, $filter = 'id'){
 //    try{
 //        if(!is_array($source)){
-//            throw new bException('sql_set(): Specified source is not an array', 'invalid');
+//            throw new BException('sql_set(): Specified source is not an array', 'invalid');
 //        }
 //
 //        $columns = array_force($columns);
@@ -759,18 +759,18 @@ function sql_columns($source, $columns){
 //
 //        foreach($filter as $item){
 //            if(!isset($source[$item])){
-//                throw new bException('sql_set(): Specified filter item "'.str_log($item).'" was not found in source', 'not-found');
+//                throw new BException('sql_set(): Specified filter item "'.str_log($item).'" was not found in source', 'not-found');
 //            }
 //        }
 //
 //        if(!count($retval)){
-//            throw new bException('sql_set(): Specified source contains non of the specified columns "'.str_log(implode(',', $columns)).'"', 'empty');
+//            throw new BException('sql_set(): Specified source contains non of the specified columns "'.str_log(implode(',', $columns)).'"', 'empty');
 //        }
 //
 //        return implode(', ', $retval);
 //
 //    }catch(Exception $e){
-//        throw new bException('sql_set(): Failed', $e);
+//        throw new BException('sql_set(): Failed', $e);
 //    }
 //}
 
@@ -790,7 +790,7 @@ function sql_columns($source, $columns){
 function sql_values($source, $columns, $prefix = ':'){
     try{
         if(!is_array($source)){
-            throw new bException('sql_values(): Specified source is not an array');
+            throw new BException('sql_values(): Specified source is not an array');
         }
 
         $columns = array_force($columns);
@@ -805,7 +805,7 @@ function sql_values($source, $columns, $prefix = ':'){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('sql_values(): Failed', $e);
+        throw new BException('sql_values(): Failed', $e);
     }
 }
 
@@ -830,7 +830,7 @@ function sql_insert_id($connector = null){
         return $core->sql[sql_connector_name($connector)]->lastInsertId();
 
     }catch(Exception $e){
-        throw new bException(tr('sql_insert_id(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
+        throw new BException(tr('sql_insert_id(): Failed for connector ":connector"', array(':connector' => $connector)), $e);
     }
 }
 
@@ -863,7 +863,7 @@ function sql_get_id_or_name($entry, $seo = true, $code = false){
                 $entry = $entry['code'];
 
             }else{
-                throw new bException('sql_get_id_or_name(): Invalid entry array specified', 'invalid');
+                throw new BException('sql_get_id_or_name(): Invalid entry array specified', 'invalid');
             }
         }
 
@@ -898,13 +898,13 @@ function sql_get_id_or_name($entry, $seo = true, $code = false){
             }
 
         }else{
-            throw new bException('sql_get_id_or_name(): Invalid entry with type "'.gettype($entry).'" specified', 'invalid');
+            throw new BException('sql_get_id_or_name(): Invalid entry with type "'.gettype($entry).'" specified', 'invalid');
         }
 
         return $retval;
 
-    }catch(bException $e){
-        throw new bException('sql_get_id_or_name(): Failed (use either numeric id, name sting, or entry array with id or name)', $e);
+    }catch(BException $e){
+        throw new BException('sql_get_id_or_name(): Failed (use either numeric id, name sting, or entry array with id or name)', $e);
     }
 }
 
@@ -936,10 +936,10 @@ function sql_unique_id($table, $column = 'id', $max = 10000000, $connector = nul
             }
         }
 
-        throw new bException('sql_unique_id(): Could not find a unique id in "'.$maxretries.'" retries', 'not-found');
+        throw new BException('sql_unique_id(): Could not find a unique id in "'.$maxretries.'" retries', 'not-found');
 
-    }catch(bException $e){
-        throw new bException('sql_unique_id(): Failed', $e);
+    }catch(BException $e){
+        throw new BException('sql_unique_id(): Failed', $e);
     }
 }
 
@@ -977,8 +977,8 @@ function sql_filters($params, $columns, $table = ''){
 
         return $retval;
 
-    }catch(bException $e){
-        throw new bException('sql_filters(): Failed', $e);
+    }catch(BException $e){
+        throw new BException('sql_filters(): Failed', $e);
     }
 }
 
@@ -998,7 +998,7 @@ function sql_filters($params, $columns, $table = ''){
 function sql_in($source, $column = ':value'){
     try{
         if(empty($source)){
-            throw new bException('sql_in(): Specified source is empty', 'empty');
+            throw new BException('sql_in(): Specified source is empty', 'empty');
         }
 
         $column = str_starts($column, ':');
@@ -1006,8 +1006,8 @@ function sql_in($source, $column = ':value'){
         load_libs('array');
         return array_sequential_keys(array_force($source), $column);
 
-    }catch(bException $e){
-        throw new bException('sql_in(): Failed', $e);
+    }catch(BException $e){
+        throw new BException('sql_in(): Failed', $e);
     }
 }
 
@@ -1041,7 +1041,7 @@ function sql_in_columns($in, $column_starts_with = null){
         return implode(',', array_keys($in));
 
     }catch(Exception $e){
-        throw new bException('sql_in_columns(): Failed', $e);
+        throw new BException('sql_in_columns(): Failed', $e);
     }
 }
 
@@ -1061,7 +1061,7 @@ function sql_where($query, $required = true){
     try{
         if(!$query){
             if($required){
-                throw new bException('sql_where(): No filter query specified, but it is required', 'required');
+                throw new BException('sql_where(): No filter query specified, but it is required', 'required');
             }
 
             return ' ';
@@ -1069,8 +1069,8 @@ function sql_where($query, $required = true){
 
         return ' WHERE '.$query;
 
-    }catch(bException $e){
-        throw new bException('sql_filters(): Failed', $e);
+    }catch(BException $e){
+        throw new BException('sql_filters(): Failed', $e);
     }
 }
 
@@ -1103,8 +1103,8 @@ function sql_where_null($value, $not = false){
 
         return ' = '.quote($value);
 
-    }catch(bException $e){
-        throw new bException('sql_where_null(): Failed', $e);
+    }catch(BException $e){
+        throw new BException('sql_where_null(): Failed', $e);
     }
 }
 
@@ -1158,8 +1158,8 @@ function sql_get_cached($key, $query, $column = false, $execute = false, $expira
 
         return $value;
 
-    }catch(bException $e){
-        throw new bException('sql_get_cached(): Failed', $e);
+    }catch(BException $e){
+        throw new BException('sql_get_cached(): Failed', $e);
     }
 }
 
@@ -1193,8 +1193,8 @@ function sql_list_cached($key, $query, $execute = false, $numerical_array = fals
 
         return $list;
 
-    }catch(bException $e){
-        throw new bException('sql_list_cached(): Failed', $e);
+    }catch(BException $e){
+        throw new BException('sql_list_cached(): Failed', $e);
     }
 }
 
@@ -1225,7 +1225,7 @@ function sql_valid_limit($limit, $connector = null){
         return $limit;
 
     }catch(Exception $e){
-        throw new bException('sql_valid_limit(): Failed', $e);
+        throw new BException('sql_valid_limit(): Failed', $e);
     }
 }
 
@@ -1247,13 +1247,13 @@ function sql_fetch_column($r, $column){
         $row = sql_fetch($r);
 
         if(!isset($row[$column])){
-            throw new bException('sql_fetch_column(): Specified column "'.str_log($column).'" does not exist', $e);
+            throw new BException('sql_fetch_column(): Specified column "'.str_log($column).'" does not exist', $e);
         }
 
         return $row[$column];
 
     }catch(Exception $e){
-        throw new bException('sql_fetch_column(): Failed', $e);
+        throw new BException('sql_fetch_column(): Failed', $e);
     }
 }
 
@@ -1288,7 +1288,7 @@ function sql_merge($database_entry, $post, $skip = null){
 
         if(!is_array($database_entry)){
             if($database_entry !== null){
-                throw new bException(tr('sql_merge(): Specified database source data type should be an array but is a ":type"', array(':type' => gettype($db))), 'invalid');
+                throw new BException(tr('sql_merge(): Specified database source data type should be an array but is a ":type"', array(':type' => gettype($db))), 'invalid');
             }
 
             /*
@@ -1299,7 +1299,7 @@ function sql_merge($database_entry, $post, $skip = null){
 
         if(!is_array($post)){
             if($post !== null){
-                throw new bException(tr('sql_merge(): Specified post source data type should be an array but is a ":type"', array(':type' => gettype($post))), 'invalid');
+                throw new BException(tr('sql_merge(): Specified post source data type should be an array but is a ":type"', array(':type' => gettype($post))), 'invalid');
             }
 
             /*
@@ -1325,7 +1325,7 @@ function sql_merge($database_entry, $post, $skip = null){
         return $database_entry;
 
     }catch(Exception $e){
-        throw new bException('sql_merge(): Failed', $e);
+        throw new BException('sql_merge(): Failed', $e);
     }
 }
 
@@ -1357,13 +1357,13 @@ function sql_connector_name($connector){
         }
 
         if(!is_scalar($connector)){
-            throw new bException(tr('sql_connector_name(): Invalid connector ":connector" specified, it must be scalar', array(':connector' => $connector)), 'invalid');
+            throw new BException(tr('sql_connector_name(): Invalid connector ":connector" specified, it must be scalar', array(':connector' => $connector)), 'invalid');
         }
 
         return $connector;
 
     }catch(Exception $e){
-        throw new bException('sql_connector_name(): Failed', $e);
+        throw new BException('sql_connector_name(): Failed', $e);
     }
 }
 
@@ -1397,7 +1397,7 @@ function sql_is($value, $not = false){
         return ' = ';
 
     }catch(Exception $e){
-        throw new bException('sql_is(): Failed', $e);
+        throw new BException('sql_is(): Failed', $e);
     }
 }
 
@@ -1426,7 +1426,7 @@ function sql_log($enable){
         }
 
     }catch(Exception $e){
-        throw new bException('sql_log(): Failed', $e);
+        throw new BException('sql_log(): Failed', $e);
     }
 }
 
@@ -1452,7 +1452,7 @@ function sql_exists($table, $column, $value, $id = null){
         return sql_get('SELECT `id` FROM `'.$table.'` WHERE `'.$column.'` = :'.$column.'', true, array($column => $value));
 
     }catch(Exception $e){
-        throw new bException(tr('sql_exists(): Failed'), $e);
+        throw new BException(tr('sql_exists(): Failed'), $e);
     }
 }
 
@@ -1510,7 +1510,7 @@ function sql_count($table, $where = '', $execute = null, $column = '`id`'){
         return $count;
 
     }catch(Exception $e){
-        throw new bException('sql_count(): Failed', $e);
+        throw new BException('sql_count(): Failed', $e);
     }
 }
 
@@ -1532,7 +1532,7 @@ function sql_current_database(){
         return sql_get('SELECT DATABASE() AS `database` FROM DUAL;');
 
     }catch(Exception $e){
-        throw new bException('sql_current_database(): Failed', $e);
+        throw new BException('sql_current_database(): Failed', $e);
     }
 }
 
@@ -1563,7 +1563,7 @@ function sql_random_id($table, $min = 1, $max = 2147483648, $connector = null){
         return $id;
 
     }catch(Exception $e){
-        throw new bException(tr('sql_random_id(): Failed for table ":table"', array(':table' => $table)), $e);
+        throw new BException(tr('sql_random_id(): Failed for table ":table"', array(':table' => $table)), $e);
     }
 }
 
@@ -1623,7 +1623,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false){
 
         }
 
-        throw new bException(tr('sql_exec(): Failed'), $e);
+        throw new BException(tr('sql_exec(): Failed'), $e);
     }
 }
 
@@ -1643,7 +1643,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false){
 //    try{
 //
 //    }catch(Exception $e){
-//        throw new bException(tr('sql_exec_get(): Failed'), $e);
+//        throw new BException(tr('sql_exec_get(): Failed'), $e);
 //    }
 //}
 
@@ -1692,13 +1692,13 @@ function sql_get_database($db_name){
                              array(':name' => $db_name));
 
         if(!$database){
-            throw new bException(log_database(tr('Specified database ":database" does not exist', array(':database' => $_GET['database'])), 'not-exist'));
+            throw new BException(log_database(tr('Specified database ":database" does not exist', array(':database' => $_GET['database'])), 'not-exist'));
         }
 
         return $database;
 
     }catch(Exception $e){
-        throw new bException(tr('sql_get_database(): Failed'), $e);
+        throw new BException(tr('sql_get_database(): Failed'), $e);
     }
 }
 
@@ -1787,7 +1787,7 @@ function sql_get_connector($requested){
         return $connector;
 
     }catch(Exception $e){
-        throw new bException(tr('sql_get_connector(): Failed'), $e);
+        throw new BException(tr('sql_get_connector(): Failed'), $e);
     }
 }
 
@@ -1814,11 +1814,11 @@ function sql_make_connector($name, $data){
         }
 
         if(!is_array($data['ssh_tunnel'])){
-            throw new bException(tr('sql_make_connector(): Specified ssh_tunnel should be an array but is a ":type"', array(':type' => gettype($data['ssh_tunnel']))), 'invalid');
+            throw new BException(tr('sql_make_connector(): Specified ssh_tunnel should be an array but is a ":type"', array(':type' => gettype($data['ssh_tunnel']))), 'invalid');
         }
 
         if(sql_get_connector($name)){
-            throw new bException(tr('sql_make_connector(): The specified connector name ":name" already exists', array(':name' => $name)), 'exists');
+            throw new BException(tr('sql_make_connector(): The specified connector name ":name" already exists', array(':name' => $name)), 'exists');
         }
 
         $template = array('driver'           => 'mysql',
@@ -1853,7 +1853,7 @@ function sql_make_connector($name, $data){
         return $data;
 
     }catch(Exception $e){
-        throw new bException(tr('sql_make_connector(): Failed'), $e);
+        throw new BException(tr('sql_make_connector(): Failed'), $e);
     }
 }
 
@@ -1866,7 +1866,7 @@ function sql_make_connector($name, $data){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
- * @exception bException when the test failse
+ * @exception BException when the test failse
  *
  * @param mixed $server The server that is to be tested
  * @return void
@@ -1882,7 +1882,7 @@ function sql_test_tunnel($server){
         $server         = servers_get($server, true);
 
         if(!$server['database_accounts_id']){
-            throw new bException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exist');
+            throw new BException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exist');
         }
 
         sql_make_connector($connector_name, array('port'       => $port,
@@ -1894,7 +1894,7 @@ function sql_test_tunnel($server){
         sql_get('SELECT TRUE', true, null, $connector_name);
 
     }catch(Exception $e){
-        throw new bException(tr('sql_test_tunnel(): Failed'), $e);
+        throw new BException(tr('sql_test_tunnel(): Failed'), $e);
     }
 }
 
@@ -1907,12 +1907,12 @@ function sql_test_tunnel($server){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
- * @exception bException when the test failse
+ * @exception BException when the test failse
  *
- * @param bException $e The query exception
+ * @param BException $e The query exception
  * @param string $query The executed query
  * @param array $execute The bound query variables
- * @param bException $sql The PDO SQL object
+ * @param BException $sql The PDO SQL object
  * @return void
  */
 function sql_error($e, $query, $execute, $sql){

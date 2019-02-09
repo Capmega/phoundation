@@ -142,7 +142,7 @@ function route($regex, $target, $flags = null){
                         break;
 
                     default:
-                        throw new bException(tr('route(): Unknown variable ":variable" found in target ":target"', array(':variable' => ':'.$variable, ':target' => ':'.$target)), 'unknown');
+                        throw new BException(tr('route(): Unknown variable ":variable" found in target ":target"', array(':variable' => ':'.$variable, ':target' => ':'.$target)), 'unknown');
                 }
             }
         }
@@ -158,7 +158,7 @@ function route($regex, $target, $flags = null){
             foreach($replacements[1] as $replacement){
                 try{
                     if(!$replacement[0] or empty($matches[$replacement[0]])){
-                        throw new bException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
+                        throw new BException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
                     }
 
                     $route = str_replace('$'.$replacement[0], $matches[$replacement[0]][0], $route);
@@ -209,7 +209,7 @@ function route($regex, $target, $flags = null){
                             break;
 
                         default:
-                            throw new bException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':'.$http_code, ':target' => ':'.$target)), 'invalid');
+                            throw new BException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':'.$http_code, ':target' => ':'.$target)), 'invalid');
                     }
 
                     /*
@@ -376,10 +376,10 @@ function route($regex, $target, $flags = null){
             /*
              * A "user" regex failed, give pretty error
              */
-            throw new bException(tr('route(): Failed to process regex ":regex" with error ":e"', array(':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '"')))), 'syntax');
+            throw new BException(tr('route(): Failed to process regex ":regex" with error ":e"', array(':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '"')))), 'syntax');
         }
 
-        throw new bException('route(): Failed', $e);
+        throw new BException('route(): Failed', $e);
     }
 }
 

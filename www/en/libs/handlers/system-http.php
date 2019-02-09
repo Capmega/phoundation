@@ -174,7 +174,7 @@ try{
         define('LANGUAGE', 'en');
     }
 
-    $e = new bException('core::startup(): Language selection failed', $e);
+    $e = new BException('core::startup(): Language selection failed', $e);
 }
 
 

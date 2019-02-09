@@ -52,7 +52,7 @@ function storage_url($url, $section = null, $page = null, $language = null){
         return $url;
 
     }catch(Exception $e){
-        throw new bException('storage_url(): Failed', $e);
+        throw new BException('storage_url(): Failed', $e);
     }
 }
 
@@ -74,7 +74,7 @@ function storage_ensure_section($section){
         return $section;
 
     }catch(Exception $e){
-        throw new bException('storage_url(): Failed', $e);
+        throw new BException('storage_url(): Failed', $e);
     }
 }
 ?>

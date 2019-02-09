@@ -29,7 +29,7 @@ function nextcloud_users_add($server, $user){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_add(): Failed', $e);
+        throw new BException('nextcloud_users_add(): Failed', $e);
     }
 }
 
@@ -52,7 +52,7 @@ function nextcloud_users_delete($server, $user){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_delete(): Failed', $e);
+        throw new BException('nextcloud_delete(): Failed', $e);
     }
 }
 
@@ -75,7 +75,7 @@ function nextcloud_users_disable($server, $user){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_disable(): Failed', $e);
+        throw new BException('nextcloud_users_disable(): Failed', $e);
     }
 }
 
@@ -98,7 +98,7 @@ function nextcloud_users_enable($server, $user){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_enable(): Failed', $e);
+        throw new BException('nextcloud_users_enable(): Failed', $e);
     }
 }
 
@@ -121,7 +121,7 @@ function nextcloud_users_info($server, $user){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_info(): Failed', $e);
+        throw new BException('nextcloud_users_info(): Failed', $e);
     }
 }
 
@@ -144,7 +144,7 @@ function nextcloud_users_last_seen($server, $user){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_last_seen(): Failed', $e);
+        throw new BException('nextcloud_users_last_seen(): Failed', $e);
     }
 }
 
@@ -166,7 +166,7 @@ function nextcloud_users_list($server){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_list(): Failed', $e);
+        throw new BException('nextcloud_users_list(): Failed', $e);
     }
 }
 
@@ -188,7 +188,7 @@ function nextcloud_users_report($server){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_report(): Failed', $e);
+        throw new BException('nextcloud_users_report(): Failed', $e);
     }
 }
 
@@ -212,7 +212,7 @@ function nextcloud_users_reset_password($server, $user, $password){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_reset_password(): Failed', $e);
+        throw new BException('nextcloud_users_reset_password(): Failed', $e);
     }
 }
 
@@ -236,7 +236,7 @@ function nextcloud_users_setting($server, $user, $settings = null){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_users_setting(): Failed', $e);
+        throw new BException('nextcloud_users_setting(): Failed', $e);
     }
 }
 
@@ -259,7 +259,7 @@ function nextcloud_check_user_ldap($server, $user){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_check_user_ldap(): Failed', $e);
+        throw new BException('nextcloud_check_user_ldap(): Failed', $e);
     }
 }
 
@@ -284,7 +284,7 @@ function nextcloud_add_user_to_group($server, $user, $group){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_add_user_to_group(): Failed', $e);
+        throw new BException('nextcloud_add_user_to_group(): Failed', $e);
     }
 }
 
@@ -309,7 +309,7 @@ function nextcloud_remove_user_from_group($server, $user, $group){
     try{
 
     }catch(Exception $e){
-        throw new bException('nextcloud_remove_user_from_group(): Failed', $e);
+        throw new BException('nextcloud_remove_user_from_group(): Failed', $e);
     }
 }
 ?>

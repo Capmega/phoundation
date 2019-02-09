@@ -32,12 +32,12 @@ function share_buttons($buttons) {
                 return '';
 
             default:
-                throw new bException(tr('share_buttons(): Unknown provider "%provider%" specified', array('%provider%' => $_CONFIG['share']['provider'])), 'unknown');
+                throw new BException(tr('share_buttons(): Unknown provider "%provider%" specified', array('%provider%' => $_CONFIG['share']['provider'])), 'unknown');
         }
 
 
     } catch(Exception $e) {
-        throw new bException('share_buttons(): Failed', $e);
+        throw new BException('share_buttons(): Failed', $e);
     }
 }
 
@@ -52,7 +52,7 @@ function share_addthis_buttons() {
         return '<div class="addthis_sharing_toolbox"></div>';
 
     } catch(Exception $e) {
-        throw new bException('share_addthis_buttons(): Failed', $e);
+        throw new BException('share_addthis_buttons(): Failed', $e);
     }
 }
 
@@ -66,7 +66,7 @@ function share_sharethis_buttons($buttons) {
         $html = '';
 
         if(empty($buttons)) {
-            throw new bException('share_sharethis_buttons(): No buttons specified');
+            throw new BException('share_sharethis_buttons(): No buttons specified');
         }
 
         foreach (array_force($buttons) as $button) {
@@ -142,14 +142,14 @@ function share_sharethis_buttons($buttons) {
                     break;
 
                 default:
-                    throw new bException(tr('share_sharethis_buttons(): Unknown button "%button%" specified', array('%button%' => $button)), 'unknown');
+                    throw new BException(tr('share_sharethis_buttons(): Unknown button "%button%" specified', array('%button%' => $button)), 'unknown');
             }
         }
 
         return $html;
 
     } catch(Exception $e) {
-        throw new bException('share_sharethis_buttons(): Failed', $e);
+        throw new BException('share_sharethis_buttons(): Failed', $e);
     }
 }
 
@@ -176,7 +176,7 @@ function share_addtoany_buttons($buttons) {
         $html = '<div class="a2a_kit a2a_kit_size_32 a2a_default_style">';
 
         if(empty($buttons)) {
-            throw new bException('share_addtoany_buttons(): No buttons specified');
+            throw new BException('share_addtoany_buttons(): No buttons specified');
         }
 
         foreach(array_force($buttons) as $button) {
@@ -209,7 +209,7 @@ function share_addtoany_buttons($buttons) {
                     return share_addtoany_buttons('facebook,twitter,googleplus,reddit,linkedin,email');
 
                 default:
-                    throw new bException(tr('share_addtoany_buttons(): Unknown button "%button%" specified', array('%button%' => $button)), 'unknown');
+                    throw new BException(tr('share_addtoany_buttons(): Unknown button "%button%" specified', array('%button%' => $button)), 'unknown');
             }
         }
 
@@ -218,7 +218,7 @@ function share_addtoany_buttons($buttons) {
         return $html;
 
     } catch(Exception $e) {
-        throw new bException('share_addtoany_buttons(): Failed', $e);
+        throw new BException('share_addtoany_buttons(): Failed', $e);
     }
 }
 ?>

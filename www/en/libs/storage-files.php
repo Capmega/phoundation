@@ -56,7 +56,7 @@ function storage_files_add($params){
                     break;
 
                 default:
-                    throw new bException(tr('storage_files_add(): Unknown convert value ":convert" specified', array(':convert' => $params['convert'])), 'unknown');
+                    throw new BException(tr('storage_files_add(): Unknown convert value ":convert" specified', array(':convert' => $params['convert'])), 'unknown');
             }
         }
 
@@ -77,7 +77,7 @@ function storage_files_add($params){
         return $file;
 
     }catch(Exception $e){
-        throw new bException('storage_files_add(): Failed', $e);
+        throw new BException('storage_files_add(): Failed', $e);
     }
 }
 
@@ -89,12 +89,12 @@ function storage_files_add($params){
 function storage_files_validate($params){
     try{
         load_libs('validate');
-        $v = new validate_form($params, '');
+        $v = new ValidateForm($params, '');
 // :TODO: Implement!
         return $params;
 
     }catch(Exception $e){
-        throw new bException('storage_files_validate(): Failed', $e);
+        throw new BException('storage_files_validate(): Failed', $e);
     }
 }
 
@@ -117,7 +117,7 @@ function storage_files_delete($params){
         $file = storage_files_get($params['file'], $params['documents_id'], $params['pages_id']);
 
         if(!$file){
-            throw new bException(tr('storage_files_delete(): Specified file ":file" does not exist for S/D/P ":section/:document/:page"', array(':file' => $params['file'], ':section' => $params['sections_id'], ':document' => $params['documents_id'], ':page' => $params['pages_id'])), 'not-exist');
+            throw new BException(tr('storage_files_delete(): Specified file ":file" does not exist for S/D/P ":section/:document/:page"', array(':file' => $params['file'], ':section' => $params['sections_id'], ':document' => $params['documents_id'], ':page' => $params['pages_id'])), 'not-exist');
         }
 
         sql_query('DELETE FROM `storage_files` WHERE `id` = :id', array(':id' => $file['id']));
@@ -128,7 +128,7 @@ function storage_files_delete($params){
         return $file;
 
     }catch(Exception $e){
-        throw new bException('storage_files_delete(): Failed', $e);
+        throw new BException('storage_files_delete(): Failed', $e);
     }
 }
 
@@ -180,7 +180,7 @@ function storage_files_query($documents_id, $pages_id = null){
         return $files;
 
     }catch(Exception $e){
-        throw new bException('storage_files_query(): Failed', $e);
+        throw new BException('storage_files_query(): Failed', $e);
     }
 }
 
@@ -237,7 +237,7 @@ function storage_files_get($file, $documents_id, $pages_id = null){
         return $file;
 
     }catch(Exception $e){
-        throw new bException('storage_files_get(): Failed', $e);
+        throw new BException('storage_files_get(): Failed', $e);
     }
 }
 
@@ -251,7 +251,7 @@ function storage_file_url($file, $type){
         return domain('/files/'.$file);
 
     }catch(Exception $e){
-        throw new bException('storage_file_url(): Failed', $e);
+        throw new BException('storage_file_url(): Failed', $e);
     }
 }
 ?>

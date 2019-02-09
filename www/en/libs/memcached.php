@@ -19,11 +19,11 @@
 function mc_library_init(){
     try{
         if(!class_exists('Memcached')){
-            throw new bException(tr('mc_library_init(): php module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
+            throw new BException(tr('mc_library_init(): php module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
         }
 
     }catch(Exception $e){
-        throw new bException('mc_library_init(): failed', $e);
+        throw new BException('mc_library_init(): failed', $e);
     }
 }
 
@@ -88,7 +88,7 @@ function mc_connect(){
                      * Send error notification
                      */
                     notify('nomemcachedserver', 'Failed to connect to all ('.count($_CONFIG['memcached']['servers']).') configured memcached servers');
-                    throw new bException(tr('Failed to connect to all ":count" configured memcached servers', array(':count' => count($_CONFIG['memcached']['servers']))), 'memcachedconnectfail');
+                    throw new BException(tr('Failed to connect to all ":count" configured memcached servers', array(':count' => count($_CONFIG['memcached']['servers']))), 'memcachedconnectfail');
                 }
             }
         }
@@ -96,7 +96,7 @@ function mc_connect(){
         return $core->register['memcached'];
 
     }catch(Exception $e){
-        throw new bException('mc_connect(): failed', $e);
+        throw new BException('mc_connect(): failed', $e);
     }
 }
 
@@ -127,7 +127,7 @@ function mc_put($value, $key, $namespace = null, $expiration_time = null){
         return $value;
 
     }catch(Exception $e){
-        throw new bException('mc_put(): failed', $e);
+        throw new BException('mc_put(): failed', $e);
     }
 }
 
@@ -160,7 +160,7 @@ function mc_add($value, $key, $namespace = null, $expiration_time = null){
         return $value;
 
     }catch(Exception $e){
-        throw new bException('mc_add(): failed', $e);
+        throw new BException('mc_add(): failed', $e);
     }
 }
 
@@ -193,7 +193,7 @@ function mc_replace($value, $key, $namespace = null, $expiration_time = null){
         return $value;
 
     }catch(Exception $e){
-        throw new bException('mc_replace(): failed', $e);
+        throw new BException('mc_replace(): failed', $e);
     }
 }
 
@@ -210,7 +210,7 @@ function mc_get($key, $namespace = null){
         return $core->register['memcached']->get($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new bException('mc_get(): Failed', $e);
+        throw new BException('mc_get(): Failed', $e);
     }
 }
 
@@ -239,7 +239,7 @@ function mc_delete($key, $namespace = null){
         return $core->register['memcached']->delete($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new bException('mc_delete(): Failed', $e);
+        throw new BException('mc_delete(): Failed', $e);
     }
 }
 
@@ -256,7 +256,7 @@ function mc_clear($delay = 0){
         $core->register['memcached']->flush($delay);
 
     }catch(Exception $e){
-        throw new bException('mc_clear(): Failed', $e);
+        throw new BException('mc_clear(): Failed', $e);
     }
 }
 
@@ -273,7 +273,7 @@ function mc_increment($key, $namespace = null){
         $core->register['memcached']->increment($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new bException('mc_increment(): Failed', $e);
+        throw new BException('mc_increment(): Failed', $e);
     }
 }
 
@@ -326,7 +326,7 @@ function mc_namespace($namespace, $delete = false){
         return $key;
 
     }catch(Exception $e){
-        throw new bException('mc_namespace(): Failed', $e);
+        throw new BException('mc_namespace(): Failed', $e);
     }
 }
 
@@ -352,7 +352,7 @@ function mc_stats(){
         return $stats;
 
     }catch(Exception $e){
-        throw new bException('mc_stats(): Failed', $e);
+        throw new BException('mc_stats(): Failed', $e);
     }
 }
 ?>

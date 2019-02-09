@@ -31,7 +31,7 @@ function apt_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new bException('apt_library_init(): Failed', $e);
+        throw new BException('apt_library_init(): Failed', $e);
     }
 }
 
@@ -61,7 +61,7 @@ function apt_install($packages, $server = null){
         return servers_exec($server, 'sudo apt-get -y install "'.str_force($packages, ' ').'"');
 
     }catch(Exception $e){
-        throw new bException('apt_install(): Failed', $e);
+        throw new BException('apt_install(): Failed', $e);
     }
 }
 ?>

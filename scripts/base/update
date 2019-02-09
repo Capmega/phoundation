@@ -34,7 +34,7 @@ $local    = cli_argument('-l,--local');
 $no_times = cli_argument('-n,--no-times');
 
 if($ignore and FORCE){
-    throw new bException(tr('Both --ignore-changes and --force (or -i and -F) have been used. These options are mutually exclusive'), 'warning/invalid');
+    throw new BException(tr('Both --ignore-changes and --force (or -i and -F) have been used. These options are mutually exclusive'), 'warning/invalid');
 }
 
 cli_only(true);
@@ -54,7 +54,7 @@ if($local){
 }
 
 if(!$branch){
-    throw new bException(tr('No branch specified'), 'warning/validation');
+    throw new BException(tr('No branch specified'), 'warning/validation');
 }
 
 if(TEST){
@@ -78,7 +78,7 @@ chdir(ROOT);
  * Check if we are not on main phoundation repository
  */
 if(trim(shell_exec('grep "/git/phoundation.git" '.ROOT.'.git/config'))) {
-    throw new bException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
+    throw new BException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
 }
 
 /*
@@ -86,7 +86,7 @@ if(trim(shell_exec('grep "/git/phoundation.git" '.ROOT.'.git/config'))) {
  */
 if(!trim(shell_exec('git status | grep "nothing to commit" | wc -l'))){
     if(!FORCE and !$ignore){
-        throw new bException(tr('Git commit pending'), 'warning/validation');
+        throw new BException(tr('Git commit pending'), 'warning/validation');
     }
 
     if(FORCE){
@@ -102,11 +102,11 @@ if(!trim(shell_exec('git status | grep "nothing to commit" | wc -l'))){
  * Verify data
  */
 if(!$phoundation['host']){
-    throw new bException(tr('No update host configured'), 'warning/not-specified');
+    throw new BException(tr('No update host configured'), 'warning/not-specified');
 }
 
 if(!$phoundation['port']){
-    throw new bException(tr('No update host port configured'), 'warning/not-specified');
+    throw new BException(tr('No update host port configured'), 'warning/not-specified');
 }
 
 
@@ -116,7 +116,7 @@ if(!$phoundation['port']){
  */
 if($local){
     if(!trim(shell_exec('cd '.$phoundation['path'].'; git status | grep "nothing to commit" | wc -l')) AND !FORCE) {
-        throw new bException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
+        throw new BException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
     }
 
     log_console(tr('Updating phoundation project, branch ":branch"', array(':branch' => $branch)), 'white');
@@ -200,7 +200,7 @@ foreach($exitcodes as $path => $exitcode){
 }
 
 if(isset($e) and !FORCE){
-    throw new bException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
+    throw new BException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
 }
 
 unset($exitcode);
@@ -219,7 +219,7 @@ if($nocommit){
         passthru('cd '.ROOT.';git add .;git commit -am "Update from phoundation"', $exitcode);
 
         if($exitcode){
-            throw new bException(tr('Git commit of updates failed with exit code ":code"', array(':code' => $exitcode)), 'warning/git');
+            throw new BException(tr('Git commit of updates failed with exit code ":code"', array(':code' => $exitcode)), 'warning/git');
         }
     }
 }
@@ -237,7 +237,7 @@ if($noinit){
     passthru('cd '.ROOT.'scripts/base/; export '.PROJECT.'_ENVIRONMENT='.ENVIRONMENT.'; php init', $exitcode);
 
     if($exitcode){
-        throw new bException(tr('System init failed with exit code ":code"', array(':code' => $exitcode)), 'warning/init');
+        throw new BException(tr('System init failed with exit code ":code"', array(':code' => $exitcode)), 'warning/init');
     }
 }
 
@@ -250,7 +250,7 @@ if(!empty($stashed)){
     passthru('git stash pop; git reset HEAD', $exitcode);
 
     if($exitcode){
-        throw new bException(tr('Git commit of updates failed with exit code ":code"', array(':code' => $exitcode)), 'warning/git');
+        throw new BException(tr('Git commit of updates failed with exit code ":code"', array(':code' => $exitcode)), 'warning/git');
     }
 
     log_console(tr('scripts/update: Found stashed git changes, popping them back'), 'yellow');

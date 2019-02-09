@@ -15,7 +15,7 @@ function empty_function(){
     try{
 
     }catch(Exception $e){
-        throw new bException('empty(): Failed', $e);
+        throw new BException('empty(): Failed', $e);
     }
 }
 ?>

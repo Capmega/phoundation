@@ -21,7 +21,7 @@ function pack_bzip2($source, $target = null){
         safe_exec('bzip2 '.$source['source'].' '.$source['target']);
 
     }catch(Exception $e){
-        throw new bException('pack_bzip2(): Failed', $e);
+        throw new BException('pack_bzip2(): Failed', $e);
     }
 }
 
@@ -38,7 +38,7 @@ function unpack_bzip2($source, $target = null){
         safe_exec('unbzip2 '.$source['source'].' '.$source['target']);
 
     }catch(Exception $e){
-        throw new bException('unpack_bzip2(): Failed', $e);
+        throw new BException('unpack_bzip2(): Failed', $e);
     }
 }
 
@@ -55,7 +55,7 @@ function pack_rar($source, $target = null){
         safe_exec('rar a '.$source['source'].' '.$source['target']);
 
     }catch(Exception $e){
-        throw new bException('pack_rar(): Failed', $e);
+        throw new BException('pack_rar(): Failed', $e);
     }
 }
 
@@ -72,7 +72,7 @@ function unpack_rar($source, $target = null){
         safe_exec('unrar x '.$source['source'].' '.$source['target']);
 
     }catch(Exception $e){
-        throw new bException('unpack_rar(): Failed', $e);
+        throw new BException('unpack_rar(): Failed', $e);
     }
 }
 
@@ -91,7 +91,7 @@ function pack_gzip($source){
         return $source['source'].'.gz';
 
     }catch(Exception $e){
-        throw new bException('pack_gzip(): Failed', $e);
+        throw new BException('pack_gzip(): Failed', $e);
     }
 }
 
@@ -110,7 +110,7 @@ function unpack_gzip($source){
         return substr($source['source'], 0, -3);
 
     }catch(Exception $e){
-        throw new bException('unpack_gzip(): Failed', $e);
+        throw new BException('unpack_gzip(): Failed', $e);
     }
 }
 ?>

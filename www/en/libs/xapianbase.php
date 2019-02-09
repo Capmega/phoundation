@@ -54,7 +54,7 @@ class xapianbase {
 
         if($_CONFIG['language']['supported']){
             if(empty($_CONFIG['language']['supported'][$params['language']])){
-                throw new bException('xapianbase->__construct(): Specified language "'.str_log($params['language']).'" is not supported');
+                throw new BException('xapianbase->__construct(): Specified language "'.str_log($params['language']).'" is not supported');
             }
 
             $this->language = strtolower($_CONFIG['language']['supported'][$params['language']]);
@@ -90,7 +90,7 @@ class xapianbase {
             file_chmod_tree($this->tempdir, 0660, 0770);
 
         }catch(Exception $e){
-            throw new bException('xapianbase->create(): Failed to create temporary index : ', $e);
+            throw new BException('xapianbase->create(): Failed to create temporary index : ', $e);
         }
     }
 
@@ -118,7 +118,7 @@ class xapianbase {
             $this->database->replace_document($key, $doc);
 
         }catch(Exception $e){
-            throw new bException('xapianbase->add(): failed to add document to index : '.$e);
+            throw new BException('xapianbase->add(): failed to add document to index : '.$e);
         }
     }
 
@@ -150,7 +150,7 @@ class xapianbase {
             safe_exec('mv '.$this->tempdir.' '.$this->target);
 
         }catch(Exception $e){
-            throw new bException('xapianbase->install(): Failed to install xapian index to '.str_log($this->tempdir).' : ', $e);
+            throw new BException('xapianbase->install(): Failed to install xapian index to '.str_log($this->tempdir).' : ', $e);
         }
     }
 
@@ -198,7 +198,7 @@ class xapianbase {
                          'count'   => $total_results);
 
         }catch(Exception $e){
-            throw new bException('xapianbase->query: Failed to query "'.str_log($this->target).'" with query "'.str_log($query).'": ', $e);
+            throw new BException('xapianbase->query: Failed to query "'.str_log($this->target).'" with query "'.str_log($query).'": ', $e);
         }
     }
 }

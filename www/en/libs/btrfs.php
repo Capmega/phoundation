@@ -34,7 +34,7 @@ function btrfs_library_init(){
                                'which'    => '/bin/btrfs'));
 
     }catch(Exception $e){
-        throw new bException('btrfs_library_init(): Failed', $e);
+        throw new BException('btrfs_library_init(): Failed', $e);
     }
 }
 
@@ -60,7 +60,7 @@ function btrfs_install($params){
         safe_exec('sudo apt -y install btrfs-tools');
 
     }catch(Exception $e){
-        throw new bException('btrfs_install(): Failed', $e);
+        throw new BException('btrfs_install(): Failed', $e);
     }
 }
 
@@ -100,7 +100,7 @@ function btrfs_defragment($params){
         return $results;
 
     }catch(Exception $e){
-        throw new bException('btrfs_defragment(): Failed', $e);
+        throw new BException('btrfs_defragment(): Failed', $e);
     }
 }
 
@@ -128,7 +128,7 @@ function btrfs_create_subvolume($params){
     try{
 
     }catch(Exception $e){
-        throw new bException('btrfs_create_subvolume(): Failed', $e);
+        throw new BException('btrfs_create_subvolume(): Failed', $e);
     }
 }
 
@@ -156,7 +156,7 @@ function btrfs_snapshot_subvolume($params){
     try{
 
     }catch(Exception $e){
-        throw new bException('btrfs_snapshot_subvolume(): Failed', $e);
+        throw new BException('btrfs_snapshot_subvolume(): Failed', $e);
     }
 }
 ?>

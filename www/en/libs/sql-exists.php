@@ -38,7 +38,7 @@ function sql_index_exists($table, $index, $query = '', $connector = null){
         return array_shift($retval);
 
     }catch(Exception $e){
-        throw new bException('sql_index_exists(): Failed', $e);
+        throw new BException('sql_index_exists(): Failed', $e);
     }
 }
 
@@ -75,7 +75,7 @@ function sql_table_exists($table, $query = '', $connector = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('sql_table_exists(): Failed', $e);
+        throw new BException('sql_table_exists(): Failed', $e);
     }
 }
 
@@ -112,7 +112,7 @@ function sql_column_exists($table, $column, $query = '', $connector = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('sql_column_exists(): Failed', $e);
+        throw new BException('sql_column_exists(): Failed', $e);
     }
 }
 
@@ -159,7 +159,7 @@ function sql_foreignkey_exists($table, $foreign_key, $query = '', $connector = n
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('sql_foreignkey_exists(): Failed', $e);
+        throw new BException('sql_foreignkey_exists(): Failed', $e);
     }
 }
 
@@ -208,7 +208,7 @@ function sql_function_exists($name, $query = '', $database = '', $connector = nu
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('sql_function_exists(): Failed', $e);
+        throw new BException('sql_function_exists(): Failed', $e);
     }
 }
 
@@ -233,7 +233,7 @@ function sql_list_fk($table, $column = null){
         return $list;
 
     }catch(Exception $e){
-        throw new bException('sql_list_fk(): Failed', $e);
+        throw new BException('sql_list_fk(): Failed', $e);
     }
 }
 ?>

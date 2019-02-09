@@ -46,7 +46,7 @@ function environments_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('environments_select(): Failed', $e);
+        throw new BException('environments_select(): Failed', $e);
     }
 }
 ?>

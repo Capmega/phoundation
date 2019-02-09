@@ -29,7 +29,7 @@ function coupons_library_init(){
     try{
 
     }catch(Exception $e){
-        throw new bException('coupons_library_init(): Failed', $e);
+        throw new BException('coupons_library_init(): Failed', $e);
     }
 }
 
@@ -73,7 +73,7 @@ function coupons_validate($coupon){
     try{
         load_libs('validate,seo,categories');
 
-        $v = new validate_form($coupon, 'id,category,code,reward,description');
+        $v = new ValidateForm($coupon, 'id,category,code,reward,description');
 
         /*
          * Validate the code
@@ -121,7 +121,7 @@ function coupons_validate($coupon){
         return $coupon;
 
     }catch(Exception $e){
-        throw new bException('coupons_validate(): Failed', $e);
+        throw new BException('coupons_validate(): Failed', $e);
     }
 }
 
@@ -181,7 +181,7 @@ function coupons_insert($coupon){
         return $coupon;
 
     }catch(Exception $e){
-        throw new bException('coupons_insert(): Failed', $e);
+        throw new BException('coupons_insert(): Failed', $e);
     }
 }
 
@@ -246,7 +246,7 @@ function coupons_update($coupon){
         return $coupon;
 
     }catch(Exception $e){
-        throw new bException('coupons_update(): Failed', $e);
+        throw new BException('coupons_update(): Failed', $e);
     }
 }
 
@@ -340,7 +340,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('coupons_get(): Failed', $e);
+        throw new BException('coupons_get(): Failed', $e);
     }
 }
 
@@ -366,7 +366,7 @@ function coupons_use(string $code){
         $coupon = coupons_get($code);
 
         if(!$coupon){
-            throw new bException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exist');
+            throw new BException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exist');
         }
 
         sql_query('INSERT INTO `coupons_used` (`createdby`, `coupons_id`, `meta_id`)
@@ -379,7 +379,7 @@ function coupons_use(string $code){
         return $coupon;
 
     }catch(Exception $e){
-        throw new bException('coupons_use(): Failed', $e);
+        throw new BException('coupons_use(): Failed', $e);
     }
 }
 ?>

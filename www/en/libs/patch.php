@@ -39,13 +39,13 @@ function patch_get_phoundation_location(){
             }
 
             if($path == '/'){
-                throw new bException(tr('patch_get_phoundation_location(): Failed to find "phoundation" project from ":path" up', array(':path' => ROOT)), 'not-exist');
+                throw new BException(tr('patch_get_phoundation_location(): Failed to find "phoundation" project from ":path" up', array(':path' => ROOT)), 'not-exist');
             }
         }
 
     }catch(Exception $e){
         $path = null;
-        throw new bException('patch_get_phoundation_location(): Failed', $e);
+        throw new BException('patch_get_phoundation_location(): Failed', $e);
     }
 }
 
@@ -72,14 +72,14 @@ function patch_get_toolkit_location(){
                     /*
                      * Found the capmega dir, but not the toolkit project
                      */
-                    throw new bException(tr('patch_get_toolkit_location(): Found the capmega company path in ":path", but toolkit.capmega.com project isn\'t available', array(':path' => $path)), 'not-exist');
+                    throw new BException(tr('patch_get_toolkit_location(): Found the capmega company path in ":path", but toolkit.capmega.com project isn\'t available', array(':path' => $path)), 'not-exist');
                 }
 
                 if(!file_exists($path.'capmega/toolkit.capmega.com/config/base/default.php')){
                     /*
                      * Found the phoundation default configuration file, we're good
                      */
-                    throw new bException(tr('patch_get_toolkit_location(): Found the toolkit.capmega.com path in ":path", but its default phoundation configuration file does not exist', array(':path' => $path)), 'not-exist');
+                    throw new BException(tr('patch_get_toolkit_location(): Found the toolkit.capmega.com path in ":path", but its default phoundation configuration file does not exist', array(':path' => $path)), 'not-exist');
                 }
 
                 $path .= 'capmega/toolkit.capmega.com/';
@@ -89,13 +89,13 @@ function patch_get_toolkit_location(){
             }
 
             if($path == '/'){
-                throw new bException(tr('patch_get_toolkit_location(): Failed to find "phoundation" project from ":path" up', array(':path' => ROOT)), 'not-exist');
+                throw new BException(tr('patch_get_toolkit_location(): Failed to find "phoundation" project from ":path" up', array(':path' => ROOT)), 'not-exist');
             }
         }
 
     }catch(Exception $e){
         $path = null;
-        throw new bException('patch_get_toolkit_location(): Failed', $e);
+        throw new BException('patch_get_toolkit_location(): Failed', $e);
     }
 }
 
@@ -111,7 +111,7 @@ function patch_file_exists_in_phoundation($file){
         return file_exists($path.$file);
 
     }catch(Exception $e){
-        throw new bException('patch_file_exists_in_phoundation(): Failed', $e);
+        throw new BException('patch_file_exists_in_phoundation(): Failed', $e);
     }
 }
 
@@ -128,7 +128,7 @@ function patch_file_exists_in_toolkit($file){
 
 
     }catch(Exception $e){
-        throw new bException('patch_file_exists_in_toolkit(): Failed', $e);
+        throw new BException('patch_file_exists_in_toolkit(): Failed', $e);
     }
 }
 
@@ -144,7 +144,7 @@ function patch_file_diff_with_base($file){
         return safe_exec('diff '.$file.' '.$path.$file);
 
     }catch(Exception $e){
-        throw new bException('patch_file_diff_with_base(): Failed', $e);
+        throw new BException('patch_file_diff_with_base(): Failed', $e);
     }
 }
 
@@ -161,7 +161,7 @@ function patch_file_diff_with_toolkit($file){
 
 
     }catch(Exception $e){
-        throw new bException('patch_file_diff_with_toolkit(): Failed', $e);
+        throw new BException('patch_file_diff_with_toolkit(): Failed', $e);
     }
 }
 
@@ -187,7 +187,7 @@ function patch($file, $path, $method = 'apply', $replaces = null){
                 $patch_file = $path.sha1($file).'.patch';
 
                 if(empty($patch)){
-                    throw new bException(tr('patch(): git_diff() returned empty patch data for file ":file"', array(':file' => $file)), 'empty');
+                    throw new BException(tr('patch(): git_diff() returned empty patch data for file ":file"', array(':file' => $file)), 'empty');
                 }
 
                 if($replaces){
@@ -214,11 +214,11 @@ function patch($file, $path, $method = 'apply', $replaces = null){
                 break;
 
             default:
-                throw new bException(tr('patch(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
+                throw new BException(tr('patch(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new bException(tr('patch(): Failed for file ":file"', array(':file' => $file)), $e);
+        throw new BException(tr('patch(): Failed for file ":file"', array(':file' => $file)), $e);
     }
 }
 ?>

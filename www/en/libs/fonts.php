@@ -113,7 +113,7 @@ function fonts_providers($provider = null){
     try{
         if($provider){
             if(empty($providers[$provider])){
-                throw new bException(tr('fonts_providers(): Unknown provider ":provider" specified'), 'unknown');
+                throw new BException(tr('fonts_providers(): Unknown provider ":provider" specified'), 'unknown');
             }
 
             return $provider;
@@ -122,7 +122,7 @@ function fonts_providers($provider = null){
         return $providers;
 
     }catch(Exception $e){
-        throw new bException('fonts_providers(): Failed', $e);
+        throw new BException('fonts_providers(): Failed', $e);
     }
 }
 
@@ -154,7 +154,7 @@ under_construction();
          * If no font was specified we can't continue.
          */
         if(!$params['font']){
-            throw(bException(zxc('fonts_convert_ufpdf(): No font specified'), 'fonts'));
+            throw(BException(zxc('fonts_convert_ufpdf(): No font specified'), 'fonts'));
         }
 
         /*
@@ -193,7 +193,7 @@ under_construction();
         sh_mv($params['font'].($params['unicode'] ? '_uni' : '').'*', $kernel->config('paths', 'var').'fonts/', false);
 
     }catch(Exception $e){
-        throw new bException('fonts_convert_ufpdf(): Failed', $e);
+        throw new BException('fonts_convert_ufpdf(): Failed', $e);
     }
 }
 ?>

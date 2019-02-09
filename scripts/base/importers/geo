@@ -115,10 +115,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new bException('No "clear" sub method specified. Please specify one of "geonames", or "geotables"', 'not-specified');
+                throw new BException('No "clear" sub method specified. Please specify one of "geonames", or "geotables"', 'not-specified');
 
             default:
-                throw new bException(tr('Unknown "clear" sub method ":method" specified. Please specify one of "geonames", or "geotables"', array(':method' => cli_method())), 'unknown');
+                throw new BException(tr('Unknown "clear" sub method ":method" specified. Please specify one of "geonames", or "geotables"', array(':method' => cli_method())), 'unknown');
         }
 
         break;
@@ -151,7 +151,7 @@ switch(cli_method()){
 
         if($no_check_certificate){
             if($no_ssl){
-                throw new bException(tr('The --no-check-certificate and --no-ssl options are mutually exclusive. Please choose one or the other'), 'invalid');
+                throw new BException(tr('The --no-check-certificate and --no-ssl options are mutually exclusive. Please choose one or the other'), 'invalid');
             }
 
             /*
@@ -186,7 +186,7 @@ switch(cli_method()){
         $result = passthru('cd '.$geoimport_path.'; '.$geoimport_path.'geonames_importer.sh -a download-data', $exitcode);
 
         if($exitcode){
-            throw new bException(tr('Data download failed'), 'failed');
+            throw new BException(tr('Data download failed'), 'failed');
         }
 
         break;
@@ -200,7 +200,7 @@ switch(cli_method()){
         $geoimport_path = get_global_data_path('geonames');
 
         if(!$username or !$password){
-            throw new bException('No user name and / or password specified', 'not-specified');
+            throw new BException('No user name and / or password specified', 'not-specified');
         }
 
         /*
@@ -270,17 +270,17 @@ switch(cli_method()){
             passthru('cd '.$geoimport_path.' ; ./geonames_importer.sh -a create-db -u '.$username.' -p "'.$password.'" -n "'.$database.'"', $exitcode);
 
             if($exitcode){
-                throw new bException(tr('Creating geonames database failed'), 'failed');
+                throw new BException(tr('Creating geonames database failed'), 'failed');
             }
 
             passthru('cd '.$geoimport_path.' ; ./geonames_importer.sh -a import-dumps -u '.$username.' -p "'.$password.'" -n "'.$database.'"', $exitcode);
 
             if($exitcode){
-                throw new bException(tr('Importing data dumps to geonames database failed'), 'failed');
+                throw new BException(tr('Importing data dumps to geonames database failed'), 'failed');
             }
 
         }catch(Exception $e){
-            throw new bException('Import failed. In case of "The used command is not allowed with this MySQL version" error, please try the "notlocal" command line option, see geo.txt documentation for more information', $e);
+            throw new BException('Import failed. In case of "The used command is not allowed with this MySQL version" error, please try the "notlocal" command line option, see geo.txt documentation for more information', $e);
         }
 
         if(cli_argument('notlocal')){
@@ -347,7 +347,7 @@ switch(cli_method()){
 
     case 'import':
         if(!$country_list = cli_argument('country', true)){
-            throw new bException('No country list specified to import data from. Please specify "country COUNTRY,COUNTRY,COUNTRY"', 'not-specified');
+            throw new BException('No country list specified to import data from. Please specify "country COUNTRY,COUNTRY,COUNTRY"', 'not-specified');
         }
 
         $country_list = explode(',', $country_list);
@@ -497,7 +497,7 @@ switch(cli_method()){
 
                 }else{
                     if(!$result = sql_get('SELECT `id`, `name` FROM `geo_countries` WHERE `name` = :name OR `seoname` = :seoname or `code` = :code', array('name' => $country, 'seoname' => $country, 'code' => $country))){
-                        throw new bException('Specified country "'.str_log($country).'" not found');
+                        throw new BException('Specified country "'.str_log($country).'" not found');
                     }
 
                     log_console($result['name'], 'yellow');
@@ -984,10 +984,10 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new bException('No method specified. Please specify one of "clear", "download", "load-data", "fix-data", "fix-errors", "import"', 'no-method');
+        throw new BException('No method specified. Please specify one of "clear", "download", "load-data", "fix-data", "fix-errors", "import"', 'no-method');
 
     default:
-        throw new bException(tr('Unknown  method ":method" specified. Please specify one of "clear", "download", "load-data", "fix-data", "fix-errors", "import"', array(':method' => cli_method())), 'unknown-method');
+        throw new BException(tr('Unknown  method ":method" specified. Please specify one of "clear", "download", "load-data", "fix-data", "fix-errors", "import"', array(':method' => cli_method())), 'unknown-method');
 }
 
 sql_query('SET autocommit         = 1;');

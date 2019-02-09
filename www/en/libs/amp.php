@@ -25,7 +25,7 @@ function amp_component_carousel($params){
         array_default($params, 'images', array());
 
         if(!is_array($params['images'])){
-            throw new bException(tr('amp_component_carousel(): Expected array as parameters'), 'invalid');
+            throw new BException(tr('amp_component_carousel(): Expected array as parameters'), 'invalid');
         }
 
         $carousel = '<amp-carousel height="'.$params['height'].'" layout="'.$params['layout'].'" type="'.$params['type'].'">';
@@ -38,7 +38,7 @@ function amp_component_carousel($params){
         return $carousel;
 
     }catch(Exception $e){
-        throw new bException(tr('amp_component_carousel(): Component failed'), $e);
+        throw new BException(tr('amp_component_carousel(): Component failed'), $e);
     }
 }
 
@@ -61,7 +61,7 @@ function amp_page_cache(){
         return false;
 
     }catch(Exception $e){
-        throw new bException('amp_page_cache(): Failed', $e);
+        throw new BException('amp_page_cache(): Failed', $e);
     }
 }
 
@@ -81,27 +81,27 @@ function amp_page($params){
         load_libs('cache');
 
         if(!$params['template']){
-            throw new bException(tr('amp_page(): No template page specified'), 'not-specified');
+            throw new BException(tr('amp_page(): No template page specified'), 'not-specified');
         }
 
         if(!$params['canonical']){
-            throw new bException(tr('amp_page(): No canonical url specified'), 'not-specified');
+            throw new BException(tr('amp_page(): No canonical url specified'), 'not-specified');
         }
 
         if(!$params['resource']){
-            throw new bException(tr('amp_page(): No resource specified'), 'not-specified');
+            throw new BException(tr('amp_page(): No resource specified'), 'not-specified');
         }
 
         $file = ROOT.'data/content/amp/'.$params['template'].'.amp';
 
         if(!file_exists($file)){
-            throw new bException(tr('amp_page(): Specified template ":template" does not exist', array(':template' => $params['template'])), 'not-exist');
+            throw new BException(tr('amp_page(): Specified template ":template" does not exist', array(':template' => $params['template'])), 'not-exist');
         }
 
         $data = file_get_contents($file);
 
         if(!$data){
-            throw new bException(tr('amp_page(): Specified template ":template" is empty', array(':template' => $params['template'])), 'not-exist');
+            throw new BException(tr('amp_page(): Specified template ":template" is empty', array(':template' => $params['template'])), 'not-exist');
         }
 
         $data = str_replace(':canonical', $params['canonical'], $data);
@@ -127,7 +127,7 @@ function amp_page($params){
                     $data           = str_replace(':'.$key, $component_data, $data);
 
                 }catch(Exception $e){
-                    throw new bException(tr('amp_page(): Specified component failed or does not exist ":component"', array(':component' => $component)), $e);
+                    throw new BException(tr('amp_page(): Specified component failed or does not exist ":component"', array(':component' => $component)), $e);
                 }
             }
         }
@@ -138,7 +138,7 @@ function amp_page($params){
         die();
 
     }catch(Exception $e){
-        throw new bException('amp_page(): Failed', $e);
+        throw new BException('amp_page(): Failed', $e);
     }
 }
 
@@ -156,7 +156,7 @@ function amp_img($src, $alt, $width = null, $height = null, $more = 'layout="res
         return $img;
 
     }catch(Exception $e){
-        throw new bException('amp_img(): Failed', $e);
+        throw new BException('amp_img(): Failed', $e);
     }
 }
 
@@ -185,7 +185,7 @@ function amp_youtube(array $attributes){
         return $amp_youtube;
 
     }catch(Exception $e){
-        throw new bException('amp_youtube(): Failed', $e);
+        throw new BException('amp_youtube(): Failed', $e);
     }
 }
 
@@ -212,7 +212,7 @@ function amp_video(array $attributes){
         return $format_amp_video;
 
     }catch(Exception $e){
-        throw new bException('amp_video(): Failed', $e);
+        throw new BException('amp_video(): Failed', $e);
     }
 }
 
@@ -234,7 +234,7 @@ function amp_url($url){
         return domain('/amp'.$path);
 
     }catch(Exception $e){
-        throw new bException('amp_url(): Failed', $e);
+        throw new BException('amp_url(): Failed', $e);
     }
 }
 
@@ -365,7 +365,7 @@ continue;
         return str_replace($search, $replace, $html);
 
     }catch(Exception $e){
-        throw new bException('amp_content(): Failed', $e);
+        throw new BException('amp_content(): Failed', $e);
     }
 }
 
@@ -420,7 +420,7 @@ function amp_html_cleanup($html){
         return preg_replace($search, $replace, $html);
 
     }catch(Exception $e){
-        throw new bException('amp_html_cleanup(): Failed', $e);
+        throw new BException('amp_html_cleanup(): Failed', $e);
     }
 }
 ?>

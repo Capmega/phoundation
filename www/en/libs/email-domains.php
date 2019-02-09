@@ -24,7 +24,7 @@ function email_domains_library_init(){
     try{
 
     }catch(Exception $e){
-        throw new bException('email_domains_library_init(): Failed', $e);
+        throw new BException('email_domains_library_init(): Failed', $e);
     }
 }
 
@@ -42,7 +42,7 @@ function email_domains_library_init(){
  */
 function email_domains_validate($domain){
     try{
-        $v = new validate_form($domain, 'createdby,createdon,meta_id,status,servers_id,domain,smtp_host,smtp_port,imap,poll_interval,header,footer,description');
+        $v = new ValidateForm($domain, 'createdby,createdon,meta_id,status,servers_id,domain,smtp_host,smtp_port,imap,poll_interval,header,footer,description');
 
 // :TODO: Implement
 
@@ -51,7 +51,7 @@ function email_domains_validate($domain){
         return $domain;
 
     }catch(Exception $e){
-        throw new bException('email_domains_validate(): Failed', $e);
+        throw new BException('email_domains_validate(): Failed', $e);
     }
 }
 ?>

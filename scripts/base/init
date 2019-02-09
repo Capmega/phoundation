@@ -146,13 +146,13 @@ if($section){
 
         if($pfrom = $fromprojectversion){
             if(!str_is_version($pfrom)){
-                throw new bException(tr('The specified fromprojectversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', array(':version' => $pfrom)), 'warning/invalid');
+                throw new BException(tr('The specified fromprojectversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', array(':version' => $pfrom)), 'warning/invalid');
             }
         }
 
         if($ffrom = $fromframeworkversion){
             if(!str_is_version($ffrom)){
-                throw new bException(tr('The specified fromframeworkversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', array(':version' => $ffrom)), 'warning/invalid');
+                throw new BException(tr('The specified fromframeworkversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', array(':version' => $ffrom)), 'warning/invalid');
             }
         }
 
@@ -174,7 +174,7 @@ if($section){
 
     }catch(Exception $e){
         if($e->getCode() != 'noinit'){
-            throw new bException('scripts/base/init: Failed', $e);
+            throw new BException('scripts/base/init: Failed', $e);
         }
 
         log_console(tr('Core database init system has been disabled in db configuration'), 'yellow');

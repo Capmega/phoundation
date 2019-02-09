@@ -29,7 +29,7 @@ function scanimage_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new bException('scanimage_library_init(): Failed', $e);
+        throw new BException('scanimage_library_init(): Failed', $e);
     }
 }
 
@@ -105,23 +105,23 @@ function scanimage($params){
                     /*
                      *
                      */
-                    throw new bException(tr('scanimage(): Scan failed'), 'failed');
+                    throw new BException(tr('scanimage(): Scan failed'), 'failed');
 
                 case 'scanimage: no SANE devices found':
                     /*
                      * No scanner found
                      */
-                    throw new bException(tr('scanimage(): No scanner found'), 'not-found');
+                    throw new BException(tr('scanimage(): No scanner found'), 'not-found');
 
                 default:
-                    throw new bException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
+                    throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
             }
         }
 
         return $params['file'];
 
     }catch(Exception $e){
-        throw new bException('scanimage(): Failed', $e);
+        throw new BException('scanimage(): Failed', $e);
     }
 }
 
@@ -150,7 +150,7 @@ function scanimage_validate($params){
 
     try{
         load_libs('validate');
-        $v       = new validate_form($params, 'device,jpeg_quality,format,file,buffer_size,options,server');
+        $v       = new ValidateForm($params, 'device,jpeg_quality,format,file,buffer_size,options,server');
         $options = array();
 
         /*
@@ -305,7 +305,7 @@ function scanimage_validate($params){
         return $params;
 
     }catch(Exception $e){
-        throw new bException('scanimage_validate(): Failed', $e);
+        throw new BException('scanimage_validate(): Failed', $e);
     }
 }
 
@@ -338,7 +338,7 @@ function scanimage_list(){
         return null;
 
     }catch(Exception $e){
-        throw new bException('scanimage_list(): Failed', $e);
+        throw new BException('scanimage_list(): Failed', $e);
     }
 }
 
@@ -407,7 +407,7 @@ function scanimage_detect_devices($server = null){
         return $devices;
 
     }catch(Exception $e){
-        throw new bException('scanimage_detect_devices(): Failed', $e);
+        throw new BException('scanimage_detect_devices(): Failed', $e);
     }
 }
 
@@ -502,10 +502,10 @@ function scanimage_update_devices(){
             return $scanners;
         }
 
-        throw new bException(tr('scanimage_update_devices(): Failed to add ":count" scanners or driver options, see file log for more information', array(':count' => $failed)), 'warning/failed');
+        throw new BException(tr('scanimage_update_devices(): Failed to add ":count" scanners or driver options, see file log for more information', array(':count' => $failed)), 'warning/failed');
 
     }catch(Exception $e){
-        throw new bException('scanimage_update_devices(): Failed', $e);
+        throw new BException('scanimage_update_devices(): Failed', $e);
     }
 }
 
@@ -536,10 +536,10 @@ function scanimage_get_options($device, $server = null){
         foreach($results as $result){
             if(strstr($result, 'failed:')){
                 if(strtolower(trim(str_from($result, 'failed:'))) == 'invalid argument'){
-                    throw new bException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required daccess to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
+                    throw new BException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required daccess to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
                 }
 
-                throw new bException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e"', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
+                throw new BException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e"', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
             }
 
             if($skip){
@@ -569,7 +569,7 @@ function scanimage_get_options($device, $server = null){
                  * These are double dash options
                  */
                 if(!preg_match_all('/--([a-zA-Z-]+)(.+)/', $result, $matches)){
-                    throw new bException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
+                    throw new BException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
                 }
 // :DEBUG: Do not remove the folowing commented line(s), its for debugging purposes
 //show($matches);
@@ -635,7 +635,7 @@ function scanimage_get_options($device, $server = null){
                         default:
                             if(!strstr($data, '|')){
                                 if(!strstr($data, '..')){
-                                    throw new bException(tr('scanimage_get_options(): Unknown driver line ":result" found', array(':result' => $result)), 'unknown');
+                                    throw new BException(tr('scanimage_get_options(): Unknown driver line ":result" found', array(':result' => $result)), 'unknown');
                                 }
 
                                 /*
@@ -661,7 +661,7 @@ function scanimage_get_options($device, $server = null){
                  * These are single dash options
                  */
                 if(!preg_match_all('/-([a-zA-Z-]+)(.+)/', $result, $matches)){
-                    throw new bException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
+                    throw new BException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
                 }
 // :DEBUG: Do not remove the folowing commented line(s), its for debugging purposes
 //show($matches);
@@ -708,7 +708,7 @@ function scanimage_get_options($device, $server = null){
                         break;
 
                     default:
-                        throw new bException(tr('scanimage_get_options(): Unknown driver key ":key" found', array(':key' => $key)), 'unknown');
+                        throw new BException(tr('scanimage_get_options(): Unknown driver key ":key" found', array(':key' => $key)), 'unknown');
                 }
             }
 
@@ -720,7 +720,7 @@ function scanimage_get_options($device, $server = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException(tr('scanimage_get_options(): Failed for device ":device"', array(':device' => $device)), $e);
+        throw new BException(tr('scanimage_get_options(): Failed for device ":device"', array(':device' => $device)), $e);
     }
 }
 
@@ -753,7 +753,7 @@ function scanimage_get_default(){
         return null;
 
     }catch(Exception $e){
-        throw new bException('scanner_get_default(): Failed', $e);
+        throw new BException('scanner_get_default(): Failed', $e);
     }
 }
 
@@ -777,14 +777,14 @@ function scanimage_get($device_string){
         $scanner = devices_get($device_string);
 
         if(!$scanner){
-            throw new bException(tr('scanner_get(): Specified scanner with device string ":string" does not exist', array(':string' => $device_string)), 'not-exist');
+            throw new BException(tr('scanner_get(): Specified scanner with device string ":string" does not exist', array(':string' => $device_string)), 'not-exist');
         }
 
         $scanner['options'] = devices_list_options($scanner['id']);
         return $scanner;
 
     }catch(Exception $e){
-        throw new bException('scanner_get(): Failed', $e);
+        throw new BException('scanner_get(): Failed', $e);
     }
 }
 
@@ -821,7 +821,7 @@ function scanimage_select($params){
         return $html;
 
     }catch(Exception $e){
-        throw new bException('scanimage_select(): Failed', $e);
+        throw new BException('scanimage_select(): Failed', $e);
     }
 }
 
@@ -866,7 +866,7 @@ function scanimage_select_resolution($params){
         return $html;
 
     }catch(Exception $e){
-        throw new bException('scanimage_select_resolution(): Failed', $e);
+        throw new BException('scanimage_select_resolution(): Failed', $e);
     }
 }
 
@@ -894,7 +894,7 @@ function scanimage_command(){
         return 'sudo scanimage';
 
     }catch(Exception $e){
-        throw new bException('scanimage_command(): Failed', $e);
+        throw new BException('scanimage_command(): Failed', $e);
     }
 }
 ?>

@@ -65,7 +65,7 @@ function storage_sections_get($get_section = null, $auto_create = false){
         return $section;
 
     }catch(Exception $e){
-        throw new bException('storage_sections_get(): Failed', $e);
+        throw new BException('storage_sections_get(): Failed', $e);
     }
 }
 
@@ -95,7 +95,7 @@ function storage_sections_add($section, $new = false){
         return $section;
 
     }catch(Exception $e){
-        throw new bException('storage_sections_add(): Failed', $e);
+        throw new BException('storage_sections_add(): Failed', $e);
     }
 }
 
@@ -134,7 +134,7 @@ function storage_sections_update($section, $new = false){
         return $section;
 
     }catch(Exception $e){
-        throw new bException('storage_sections_update(): Failed', $e);
+        throw new BException('storage_sections_update(): Failed', $e);
     }
 }
 
@@ -159,7 +159,7 @@ function storage_sections_validate($section, $new = false){
 
 
         }else{
-            $v = new validate_form($section, 'id,name,seoname,random_ids,restrict_file_types,slogan,description');
+            $v = new ValidateForm($section, 'id,name,seoname,random_ids,restrict_file_types,slogan,description');
             if(!$v->isNotEmpty($section['name'], tr('Please specify a section name'))){
                 $v->isAlphaNumeric($section['name'], tr('Please specify a valid alpha numeric section name (spaces, dashes and parentheses are allowed)'), VALIDATE_IGNORE_PARENTHESES|VALIDATE_IGNORE_SPACE|VALIDATE_IGNORE_DASH);
             }
@@ -179,7 +179,7 @@ function storage_sections_validate($section, $new = false){
         return $section;
 
     }catch(Exception $e){
-        throw new bException('storage_sections_validate(): Failed', $e);
+        throw new BException('storage_sections_validate(): Failed', $e);
     }
 }
 
@@ -192,7 +192,7 @@ function storage_section_has_access($sections_id, $users_id = null){
     try{
 
     }catch(Exception $e){
-        throw new bException('storage_section_has_access(): Failed', $e);
+        throw new BException('storage_section_has_access(): Failed', $e);
     }
 }
 ?>

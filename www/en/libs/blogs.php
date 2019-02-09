@@ -31,7 +31,7 @@ function blogs_library_init(){
         load_config('blogs');
 
     }catch(Exception $e){
-        throw new bException('blogs_library_init(): Failed', $e);
+        throw new BException('blogs_library_init(): Failed', $e);
     }
 }
 
@@ -71,7 +71,7 @@ function blogs_get($blog = null){
 
         if($blog){
             if(!is_string($blog)){
-                throw new bException(tr('blogs_get(): Specified blog name ":name" is not a string', array(':name' => $blog)), 'invalid');
+                throw new BException(tr('blogs_get(): Specified blog name ":name" is not a string', array(':name' => $blog)), 'invalid');
             }
 
             $retval = sql_get($query.'
@@ -108,7 +108,7 @@ function blogs_get($blog = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('blogs_get(): Failed', $e);
+        throw new BException('blogs_get(): Failed', $e);
     }
 }
 
@@ -133,13 +133,13 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
             }
 
             if(!$blogs_id){
-                throw new bException(tr('blogs_post_get(): Specified blog ":blog" does not exist, or is not available because of its status', array(':blog' => $blog)), 'not-exist');
+                throw new BException(tr('blogs_post_get(): Specified blog ":blog" does not exist, or is not available because of its status', array(':blog' => $blog)), 'not-exist');
             }
         }
 
         if(!$post){
             if(empty($blogs_id) and empty($language)){
-                throw new bException(tr('blogs_post_get(): No post and no blog and no language specified. For a new post, specify at least a blog and a language'), 'not-specified');
+                throw new BException(tr('blogs_post_get(): No post and no blog and no language specified. For a new post, specify at least a blog and a language'), 'not-specified');
             }
 
             /*
@@ -189,7 +189,7 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
                  */
                 if(!$language){
                     if($_CONFIG['language']['supported']){
-                        throw new bException(tr('blogs_post_get(): This is a multi-lingual system, but no language was specified for the blog post name ":post"', array(':post' => $post)), 'not-specified');
+                        throw new BException(tr('blogs_post_get(): This is a multi-lingual system, but no language was specified for the blog post name ":post"', array(':post' => $post)), 'not-specified');
                     }
 
                     $where   = ' WHERE `blogs_posts`.`seoname`  = :seoname ';
@@ -290,7 +290,7 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
         return blogs_post_get($blog, $posts_id, null);
 
     }catch(Exception $e){
-        throw new bException('blogs_post_get(): Failed', $e);
+        throw new BException('blogs_post_get(): Failed', $e);
     }
 }
 
@@ -311,7 +311,7 @@ function blogs_post_get_key_values($blogs_posts_id, $seovalues = false){
                          array(':blogs_posts_id' => $blogs_posts_id));
 
     }catch(Exception $e){
-        throw new bException('blogs_post_get_key_values(): Failed', $e);
+        throw new BException('blogs_post_get_key_values(): Failed', $e);
     }
 }
 
@@ -491,7 +491,7 @@ function blogs_post_update($post, $params = null){
         return $post;
 
     }catch(Exception $e){
-        throw new bException(tr('blogs_post_update(): Failed'), $e);
+        throw new BException(tr('blogs_post_update(): Failed'), $e);
     }
 }
 
@@ -566,7 +566,7 @@ function blogs_update_post_status($blog, $params, $list, $status){
         }
 
         if(!$count){
-            throw new bException(tr('Found no :object to :status', array(':object' => $params['object_name'], ':status' => $status)), 'not-found');
+            throw new BException(tr('Found no :object to :status', array(':object' => $params['object_name'], ':status' => $status)), 'not-found');
         }
 
         /*
@@ -582,7 +582,7 @@ function blogs_update_post_status($blog, $params, $list, $status){
         return $count;
 
     }catch(Exception $e){
-        throw new bException('blogs_update_post_status(): Failed', $e);
+        throw new BException('blogs_update_post_status(): Failed', $e);
     }
 }
 
@@ -629,7 +629,7 @@ function blogs_list($user, $from = null, $until = null, $limit = null){
         return sql_list($query, $execute);
 
     }catch(Exception $e){
-        throw new bException('blogs_list(): Failed', $e);
+        throw new BException('blogs_list(): Failed', $e);
     }
 }
 
@@ -650,7 +650,7 @@ function blogs_post($blog){
         }
 
         if(!$blog){
-            throw new bException('blogs_post(): No blog specified', 'not-specified');
+            throw new BException('blogs_post(): No blog specified', 'not-specified');
         }
 
         $execute = array(':id' => $blog);
@@ -672,7 +672,7 @@ function blogs_post($blog){
         return sql_query($query, $execute);
 
     }catch(Exception $e){
-        throw new bException('blogs_post(): Failed', $e);
+        throw new BException('blogs_post(): Failed', $e);
     }
 }
 
@@ -703,7 +703,7 @@ function blogs_select($params, $selected = 0, $name = 'blog', $none = '', $class
         return html_select($params);
 
     }catch(Exception $e){
-        throw new bException('blogs_select(): Failed', $e);
+        throw new BException('blogs_select(): Failed', $e);
     }
 }
 
@@ -795,7 +795,7 @@ function blogs_categories_select($params) {
         return html_select($params);
 
     }catch(Exception $e){
-        throw new bException('blogs_categories_select(): Failed', $e);
+        throw new BException('blogs_categories_select(): Failed', $e);
     }
 }
 
@@ -818,7 +818,7 @@ function blogs_parents_select($params) {
         array_default($params, 'filter'      , array());
 
         if(empty($params['blogs_id'])){
-            throw new bException('blogs_parents_select(): No blog specified', 'not-specified');
+            throw new BException('blogs_parents_select(): No blog specified', 'not-specified');
         }
 
         $execute = array(':blogs_id' => $params['blogs_id']);
@@ -858,7 +858,7 @@ function blogs_parents_select($params) {
         return html_select($params);
 
     }catch(Exception $e){
-        throw new bException('blogs_parents_select(): Failed', $e);
+        throw new BException('blogs_parents_select(): Failed', $e);
     }
 }
 
@@ -879,7 +879,7 @@ function blogs_parents_select($params) {
 //        array_default($params, 'filter'      , array());
 //
 //        if(empty($params['blogs_id'])){
-//            throw new bException('blogs_priorities_select(): No blog specified', 'not-specified');
+//            throw new BException('blogs_priorities_select(): No blog specified', 'not-specified');
 //        }
 //
 //        $params['resource'] = array(4 => tr('Low'),
@@ -891,7 +891,7 @@ function blogs_parents_select($params) {
 //        return html_select($params);
 //
 //    }catch(Exception $e){
-//        throw new bException('blogs_priorities_select(): Failed', $e);
+//        throw new BException('blogs_priorities_select(): Failed', $e);
 //    }
 //}
 
@@ -923,7 +923,7 @@ function blogs_update_key_value_store($post, $limit_key_values){
             //                 */
             //                if(empty($data['resource'][$seovalue])){
             //                    if($seovalue){
-            //                        throw new bException(tr('blogs_update_key_value_store(): Key ":key" has unknown value ":value"', array(':key' => $seokey, ':value' => $seovalue)),  'unknown');
+            //                        throw new BException(tr('blogs_update_key_value_store(): Key ":key" has unknown value ":value"', array(':key' => $seokey, ':value' => $seovalue)),  'unknown');
             //                    }
             //
             //                    $seovalue = null;
@@ -989,7 +989,7 @@ function blogs_update_key_value_store($post, $limit_key_values){
         }
 
     }catch(Exception $e){
-        throw new bException('blogs_update_key_value_store(): Failed', $e);
+        throw new BException('blogs_update_key_value_store(): Failed', $e);
     }
 }
 
@@ -1037,7 +1037,7 @@ function blogs_update_key_value_sort($a, $b){
         return 1;
 
     }catch(Exception $e){
-        throw new bException('blogs_update_key_value_sort(): Failed', $e);
+        throw new BException('blogs_update_key_value_sort(): Failed', $e);
     }
 }
 
@@ -1070,7 +1070,7 @@ function blogs_update_keywords($post){
         }
 
     }catch(Exception $e){
-        throw new bException('blogs_update_keywords(): Failed', $e);
+        throw new BException('blogs_update_keywords(): Failed', $e);
     }
 }
 
@@ -1094,7 +1094,7 @@ function blogs_clean_keywords($keywords, $allow_empty = false){
         $retval = array_unique($retval);
 
         if(count($retval) > 15){
-            throw new bException('blogs_clean_keywords(): Too many keywords. Do not use more than 15 keywords', 'invalid');
+            throw new BException('blogs_clean_keywords(): Too many keywords. Do not use more than 15 keywords', 'invalid');
         }
 
         $retval = implode(',', $retval);
@@ -1102,7 +1102,7 @@ function blogs_clean_keywords($keywords, $allow_empty = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('blogs_clean_keywords(): Failed', $e);
+        throw new BException('blogs_clean_keywords(): Failed', $e);
     }
 }
 
@@ -1122,7 +1122,7 @@ function blogs_seo_keywords($keywords){
         return implode(',', $retval);
 
     }catch(Exception $e){
-        throw new bException('blogs_generate_seokeywords(): Failed', $e);
+        throw new BException('blogs_generate_seokeywords(): Failed', $e);
     }
 }
 
@@ -1138,11 +1138,11 @@ function blogs_validate($blog){
         /*
          * Validate input
          */
-        $v = new validate_form($blog, 'id,name,url_template,keywords,slogan,description');
+        $v = new ValidateForm($blog, 'id,name,url_template,keywords,slogan,description');
         $v->isNatural($blog['id'], tr('Please ensure that the specified post id is a natural number; numeric, integer, and > 0'));
 
         if(is_numeric($blog['name'])){
-            throw new bException(tr('Blog post name can not be numeric'), 'invalid');
+            throw new BException(tr('Blog post name can not be numeric'), 'invalid');
         }
 
         $v->isNotEmpty($blog['name'], tr('Please provide a name for your blog'));
@@ -1168,7 +1168,7 @@ function blogs_validate($blog){
         return $blog;
 
     }catch(Exception $e){
-        throw new bException('blogs_validate(): Failed', $e);
+        throw new BException('blogs_validate(): Failed', $e);
     }
 }
 
@@ -1180,7 +1180,7 @@ function blogs_validate($blog){
 function blogs_validate_category($category, $blog){
     try{
         load_libs('seo');
-        $v = new validate_form($category, 'name,seoname,keywords,description,parent,assigned_to');
+        $v = new ValidateForm($category, 'name,seoname,keywords,description,parent,assigned_to');
 
         $v->isNotEmpty ($category['name']            , tr('Please provide the name of your category'));
         $v->hasMinChars($category['name']       ,   3, tr('Please ensure that the name has a minimum of 3 characters'));
@@ -1198,7 +1198,7 @@ function blogs_validate_category($category, $blog){
                 /*
                  * Specified parent does not exist at all
                  */
-                throw new bException(tr('The specified parent category ":parent" does not exist', array(':parent' => $category['parent'])), 'not-exist');
+                throw new BException(tr('The specified parent category ":parent" does not exist', array(':parent' => $category['parent'])), 'not-exist');
             }
 
 // :DELETE: parents_id can be blog post from any blog
@@ -1206,7 +1206,7 @@ function blogs_validate_category($category, $blog){
             //    /*
             //     * Specified parent does not exist inside this blog
             //     */
-            //    throw new bException('The specified parent category does not exist in this blog', 'not-exist');
+            //    throw new BException('The specified parent category does not exist in this blog', 'not-exist');
             //}
 
             $category['parents_id'] = $parent['id'];
@@ -1246,7 +1246,7 @@ function blogs_validate_category($category, $blog){
         return $category;
 
     }catch(Exception $e){
-        throw new bException('blogs_validate_category(): Failed', $e);
+        throw new BException('blogs_validate_category(): Failed', $e);
     }
 }
 
@@ -1284,7 +1284,7 @@ function blogs_validate_post($post, $params = null){
         /*
          * Validate input
          */
-        $v = new validate_form($post, 'id,name,featured_until,assigned_to,seocategory1,seocategory2,seocategory3,category1,category2,category3,body,keywords,description,language,level,urlref,status');
+        $v = new ValidateForm($post, 'id,name,featured_until,assigned_to,seocategory1,seocategory2,seocategory3,category1,category2,category3,body,keywords,description,language,level,urlref,status');
 
         for($i = 1; $i <= 3; $i++){
             /*
@@ -1329,13 +1329,13 @@ function blogs_validate_post($post, $params = null){
          * Just ensure that the specified id is a valid number
          */
         if(!$post['id']){
-            throw new bException(tr('Blog post has no id specified'), 'not-specified');
+            throw new BException(tr('Blog post has no id specified'), 'not-specified');
         }
 
         $v->isNatural($post['id'], tr('Please ensure that the specified post id is a natural number; numeric, integer, and > 0'));
 
         if(is_numeric($post['name'])){
-            throw new bException(tr('Blog post name can not be numeric'), 'invalid');
+            throw new BException(tr('Blog post name can not be numeric'), 'invalid');
         }
 
         $v->isNotEmpty($post['name']    , tr('Please provide a name for your :objectname'      , array(':objectname' => $params['object_name'])));
@@ -1348,7 +1348,7 @@ function blogs_validate_post($post, $params = null){
             /*
              * This blog post does not exist
              */
-            throw new bException(tr('Can not update blog ":blog" post ":name", it does not exist', array(':blog' => $post['blogs_id'], ':name' => $post['name'])), 'not-exist');
+            throw new BException(tr('Can not update blog ":blog" post ":name", it does not exist', array(':blog' => $post['blogs_id'], ':name' => $post['name'])), 'not-exist');
         }
 
         if(empty($params['allow_duplicate_name'])){
@@ -1585,7 +1585,7 @@ function blogs_validate_post($post, $params = null){
              * If no body was given, and no changes were made, then we don't update
              */
             if(!$post['body'] and !$changes){
-                throw new bException('blogs_validate_post(): No changes were made', 'nochanges');
+                throw new BException('blogs_validate_post(): No changes were made', 'nochanges');
             }
 
             $post['body'] = '<h3>'.name($_SESSION['user']).' <small>['.date_convert().']</small></h3><p><small>'.implode('<br>', $changes).'</small></p><p>'.$post['body'].'</p><hr>'.isset_get($oldpost['body'], '');
@@ -1618,7 +1618,7 @@ function blogs_validate_post($post, $params = null){
             throw $e;
         }
 
-        throw new bException('blogs_validate_post(): Failed', $e);
+        throw new BException('blogs_validate_post(): Failed', $e);
     }
 }
 
@@ -1637,7 +1637,7 @@ function blogs_media_upload($files, $post, $level = null){
         upload_check_files(1);
 
         if(!empty($_FILES['files'][0]['error'])){
-            throw new bException(isset_get($_FILES['files'][0]['error_message'], tr('PHP upload error code ":error"', array(':error' => $_FILES['files'][0]['error']))), $_FILES['files'][0]['error']);
+            throw new BException(isset_get($_FILES['files'][0]['error_message'], tr('PHP upload error code ":error"', array(':error' => $_FILES['files'][0]['error']))), $_FILES['files'][0]['error']);
         }
 
         $file     = $files;
@@ -1647,7 +1647,7 @@ function blogs_media_upload($files, $post, $level = null){
         return blogs_media_process($file, $post, $level, $original);
 
     }catch(Exception $e){
-        throw new bException('blogs_media_upload(): Failed', $e);
+        throw new BException('blogs_media_upload(): Failed', $e);
     }
 }
 
@@ -1664,13 +1664,13 @@ function blogs_media_add($file, $post, $level = null){
          * Check for upload errors
          */
         if(!file_exists($file)){
-            throw new bException(tr('blogs_media_add(): Specified file ":file" does not exist', array(':file' => $file)), 'uploaderror');
+            throw new BException(tr('blogs_media_add(): Specified file ":file" does not exist', array(':file' => $file)), 'uploaderror');
         }
 
         return blogs_media_process($file, $post, $level);
 
     }catch(Exception $e){
-        throw new bException('blogs_media_add(): Failed', $e);
+        throw new BException('blogs_media_add(): Failed', $e);
     }
 }
 
@@ -1686,7 +1686,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
         load_libs('image,upload,cdn');
 
         if(empty($post['id'])) {
-            throw new bException('blogs_media_process(): No blog post specified', 'not-specified');
+            throw new BException('blogs_media_process(): No blog post specified', 'not-specified');
         }
 
         $post = sql_get('SELECT `blogs_posts`.`id`,
@@ -1719,7 +1719,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
                          WHERE  `blogs_posts`.`id`       = '.cfi($post['id']));
 
         if(empty($post['id'])) {
-            throw new bException('blogs_media_process(): Unknown blog post specified', 'unknown');
+            throw new BException('blogs_media_process(): Unknown blog post specified', 'unknown');
         }
 
         if((PLATFORM_HTTP) and ($post['createdby'] != $_SESSION['user']['id']) and ($post['assigned_to_id'] != $_SESSION['user']['id']) and !has_rights('god')){
@@ -1727,7 +1727,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
              * User is not post creator, is not assigned. Check if the user has group access (ie, has a group with the posts seoname)
              */
             if(!has_groups($post['seoname'])){
-                throw new bException(tr('blogs_media_process(): Cannot upload media, post ":post" is not yours', array(':post' => $post['name'])), 'access-denied');
+                throw new BException(tr('blogs_media_process(): Cannot upload media, post ":post" is not yours', array(':post' => $post['name'])), 'access-denied');
             }
         }
 
@@ -1826,7 +1826,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
                      'description' => '');
 
     }catch(Exception $e){
-        throw new bException('blogs_media_process(): Failed', $e);
+        throw new BException('blogs_media_process(): Failed', $e);
     }
 }
 
@@ -1854,7 +1854,7 @@ function blogs_media_delete($blogs_posts_id){
         sql_query('DELETE FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $blogs_posts_id));
 
     }catch(Exception $e){
-        throw new bException('blogs_media_delete(): Failed', $e);
+        throw new BException('blogs_media_delete(): Failed', $e);
     }
 }
 
@@ -1878,7 +1878,7 @@ function blogs_url_upload($files, $post, $priority = null){
          * Check for errors
          */
         if(!empty($_FILES['files'][0]['error'])) {
-            throw new bException($_FILES['files'][0]['error_message'], 'uploaderror');
+            throw new BException($_FILES['files'][0]['error_message'], 'uploaderror');
         }
 
         /*
@@ -1890,7 +1890,7 @@ function blogs_url_upload($files, $post, $priority = null){
         return blogs_media_process($file, $post, $priority);
 
     }catch(Exception $e){
-        throw new bException('blogs_url_upload(): Failed', $e);
+        throw new BException('blogs_url_upload(): Failed', $e);
     }
 }
 
@@ -1925,7 +1925,7 @@ function blogs_media_get_free_priority($blogs_posts_id, $insert = false){
         return (integer) sql_get('SELECT MAX(`priority`) FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $blogs_posts_id)) + 1;
 
     }catch(Exception $e){
-        throw new bException('blogs_media_get_free_level(): Failed', $e);
+        throw new BException('blogs_media_get_free_level(): Failed', $e);
     }
 }
 
@@ -1951,11 +1951,11 @@ function blogs_photo_description($user, $media_id, $description){
                              AND    `blogs_media`.`id`             = '.cfi($media_id));
 
         if(empty($media['id'])) {
-            throw new bException('blogs_photo_description(): Unknown blog post photo specified', 'unknown');
+            throw new BException('blogs_photo_description(): Unknown blog post photo specified', 'unknown');
         }
 
         if(($media['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
-            throw new bException('blogs_photo_description(): Cannot upload media, this post is not yours', 'access-denied');
+            throw new BException('blogs_photo_description(): Cannot upload media, this post is not yours', 'access-denied');
         }
 
         sql_query('UPDATE `blogs_media`
@@ -1968,7 +1968,7 @@ function blogs_photo_description($user, $media_id, $description){
                          ':id'          => cfi($media_id)));
 
     }catch(Exception $e){
-        throw new bException('blogs_photo_description(): Failed', $e);
+        throw new BException('blogs_photo_description(): Failed', $e);
     }
 }
 
@@ -1999,11 +1999,11 @@ function blogs_photo_url($media, $size, $section = 'blogs/media'){
                 return cdn_domain('/blog/'.$media.'-'.$size.'.jpg', $section);
 
             default:
-                throw new bException(tr('blogs_photo_url(): Unknown size ":size" specified', array(':size' => $size)), 'unknown');
+                throw new BException(tr('blogs_photo_url(): Unknown size ":size" specified', array(':size' => $size)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new bException('blogs_photo_url(): Failed', $e);
+        throw new BException('blogs_photo_url(): Failed', $e);
     }
 }
 
@@ -2052,7 +2052,7 @@ function blogs_level($level){
         return 3;
 
     }catch(Exception $e){
-        throw new bException('blogs_level(): Failed', $e);
+        throw new BException('blogs_level(): Failed', $e);
     }
 }
 
@@ -2064,7 +2064,7 @@ function blogs_level($level){
 function blogblogs_validate_category($category, $blogs_id){
     try{
         if(!$category){
-            throw new bException(tr('blogblogs_validate_category(): No category specified'), 'not-exist');
+            throw new BException(tr('blogblogs_validate_category(): No category specified'), 'not-exist');
         }
 
         if(!$retval = sql_get('SELECT `id`, `blogs_id`, `name`, `seoname` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `seoname` = :seoname', array(':blogs_id' => $blogs_id, ':seoname' => $category))){
@@ -2074,7 +2074,7 @@ function blogblogs_validate_category($category, $blogs_id){
             /*
              * The specified category does not exist
              */
-            throw new bException(tr('blogblogs_validate_category(): The specified category ":category" does not exists in blog ":blogs_id"', array(':blogs_id' => $blogs_id, ':category' => $category)), 'not-exist');
+            throw new BException(tr('blogblogs_validate_category(): The specified category ":category" does not exists in blog ":blogs_id"', array(':blogs_id' => $blogs_id, ':category' => $category)), 'not-exist');
         }
 
 // :DELETE: This check is no longer needed since the query now filters on blogs_id
@@ -2082,13 +2082,13 @@ function blogblogs_validate_category($category, $blogs_id){
         //    /*
         //     * The specified category is not of this blog
         //     */
-        //    throw new bException(tr('blogblogs_validate_category(): The specified category ":category" is not of this blog', array(':category' => $category)), 'invalid');
+        //    throw new BException(tr('blogblogs_validate_category(): The specified category ":category" is not of this blog', array(':category' => $category)), 'invalid');
         //}
 
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('blogblogs_validate_category(): Failed', $e);
+        throw new BException('blogblogs_validate_category(): Failed', $e);
     }
 }
 
@@ -2100,11 +2100,11 @@ function blogblogs_validate_category($category, $blogs_id){
 function blogs_validate_parent($blog_post_id, $blogs_id){
     try{
         if(!$blog_post_id){
-            throw new bException(tr('blogs_validate_parent(): No blogs_posts_id specified'), 'not-specified');
+            throw new BException(tr('blogs_validate_parent(): No blogs_posts_id specified'), 'not-specified');
         }
 
         if(!$blogs_id){
-            throw new bException(tr('blogs_validate_parent(): No blogs_id specified'), 'not-specified');
+            throw new BException(tr('blogs_validate_parent(): No blogs_id specified'), 'not-specified');
         }
 
         if(is_numeric($blog_post_id)){
@@ -2117,13 +2117,13 @@ function blogs_validate_parent($blog_post_id, $blogs_id){
         }
 
         if(!$id){
-            throw new bException(tr('blogs_validate_parent(): Blog ":blog" does not contain a blog post named ":post"', array(':blog' => $blogs_id, ':post' => $blog_post_id)), 'not-member');
+            throw new BException(tr('blogs_validate_parent(): Blog ":blog" does not contain a blog post named ":post"', array(':blog' => $blogs_id, ':post' => $blog_post_id)), 'not-member');
         }
 
         return $id;
 
     }catch(Exception $e){
-        throw new bException('blogs_validate_parent(): Failed', $e);
+        throw new BException('blogs_validate_parent(): Failed', $e);
     }
 }
 
@@ -2142,7 +2142,7 @@ function blogs_post_url($post){
          */
         if(empty($post['url_template'])){
             if(empty($post['blogs_id'])){
-                throw new bException(tr('blogs_post_url(): No URL template or blogs_id specified for post ":post"', array(':post' => $post)), 'not-specified');
+                throw new BException(tr('blogs_post_url(): No URL template or blogs_id specified for post ":post"', array(':post' => $post)), 'not-specified');
             }
 
             $post['url_template'] = sql_get('SELECT `url_template` FROM `blogs` WHERE `id` = :id', array(':id' => $post['blogs_id']), 'url_template');
@@ -2199,7 +2199,7 @@ function blogs_post_url($post){
                      * This post does not have all required sections available. Disable post and notify
                      */
                     sql_query('UPDATE `blogs_posts` SET `status` = "incomplete" WHERE `id` = :id', array(':id' => $post['id']));
-                    throw new bException(tr('blogs_post_url(): URL template ":template" for blog post ":post" requires the section ":section", but the blog post does not have this section available. A URL cannot be generated', array(':template' => $post['url_template'], ':post' => $post['id'], ':section' => $section)), 'incomplete');
+                    throw new BException(tr('blogs_post_url(): URL template ":template" for blog post ":post" requires the section ":section", but the blog post does not have this section available. A URL cannot be generated', array(':template' => $post['url_template'], ':post' => $post['id'], ':section' => $section)), 'incomplete');
                 }
             }
         }
@@ -2217,7 +2217,7 @@ function blogs_post_url($post){
         return domain($url, null, $config['url_prefix'], null, $post['language']);
 
     }catch(Exception $e){
-        throw new bException('blogs_post_url(): Failed', $e);
+        throw new BException('blogs_post_url(): Failed', $e);
     }
 }
 
@@ -2246,7 +2246,7 @@ function blogs_update_url($post){
         return $url;
 
     }catch(Exception $e){
-        throw new bException('blogs_update_url(): Failed', $e);
+        throw new BException('blogs_update_url(): Failed', $e);
     }
 }
 
@@ -2281,7 +2281,7 @@ function blogs_update_urls($blogs = null, $category = null){
                 $category = sql_get('SELECT `id`, `blogs_id`, `seoname`, `name` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname'=> $category));
 
             }elseif(!is_array($category)){
-                throw bException('blogs_update_urls(): Invalid category datatype specified. Either specify id, seoname, or full array', 'invalid');
+                throw BException('blogs_update_urls(): Invalid category datatype specified. Either specify id, seoname, or full array', 'invalid');
             }
 
             if(!$blogs){
@@ -2432,7 +2432,7 @@ function blogs_update_urls($blogs = null, $category = null){
         return $count;
 
     }catch(Exception $e){
-        throw new bException('blogs_update_urls(): Failed', $e);
+        throw new BException('blogs_update_urls(): Failed', $e);
     }
 }
 
@@ -2482,7 +2482,7 @@ function blogs_post_erase($post){
         return 1;
 
     }catch(Exception $e){
-        throw new bException('blogs_post_erase(): Failed', $e);
+        throw new BException('blogs_post_erase(): Failed', $e);
     }
 }
 
@@ -2542,7 +2542,7 @@ function blogs_regenerate_sitemap_data($blogs_id, $level, $change_frequency, $gr
         return $count;
 
     }catch(Exception $e){
-        throw new bException('blogs_regenerate_sitemap_data(): Failed', $e);
+        throw new BException('blogs_regenerate_sitemap_data(): Failed', $e);
     }
 }
 
@@ -2559,7 +2559,7 @@ function blogs_post_get_new_priority($blogs_id){
         return $priority + 1;
 
     }catch(Exception $e){
-        throw new bException('blogs_post_get_new_priority(): Failed', $e);
+        throw new BException('blogs_post_get_new_priority(): Failed', $e);
     }
 }
 
@@ -2594,7 +2594,7 @@ function blogs_post_up($id, $object, $view){
                 break;
 
             default:
-                throw new bException(tr('blogs_post_up(): Unknown view ":view" specified', array(':view' => $view)), 'unknown');
+                throw new BException(tr('blogs_post_up(): Unknown view ":view" specified', array(':view' => $view)), 'unknown');
         }
 
         sql_query('START TRANSACTION');
@@ -2622,11 +2622,11 @@ function blogs_post_up($id, $object, $view){
 //show($post);
 
         if(empty($post['id'])){
-            throw new bException(tr('blogs_post_up(): Unknown :object ":id" specified', array(':object' => $object, ':id' => $id)), 'unknown');
+            throw new BException(tr('blogs_post_up(): Unknown :object ":id" specified', array(':object' => $object, ':id' => $id)), 'unknown');
         }
 
         if(($post['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
-            throw new bException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
+            throw new BException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
         }
 
         if($post['higher_priority'] !== null){
@@ -2659,7 +2659,7 @@ function blogs_post_up($id, $object, $view){
         sql_query('COMMIT');
 
     }catch(Exception $e){
-        throw new bException('blogs_post_up(): Failed', $e);
+        throw new BException('blogs_post_up(): Failed', $e);
     }
 
 }
@@ -2695,7 +2695,7 @@ function blogs_post_down($id, $object, $view){
                 break;
 
             default:
-                throw new bException(tr('blogs_post_up(): Unknown view ":view" specified', array(':view' => $view)), 'unknown');
+                throw new BException(tr('blogs_post_up(): Unknown view ":view" specified', array(':view' => $view)), 'unknown');
         }
 
         sql_query('START TRANSACTION');
@@ -2722,11 +2722,11 @@ function blogs_post_down($id, $object, $view){
                          array(':id' => cfi($id)));
 
         if(empty($post['id'])){
-            throw new bException(tr('blogs_post_up(): Unknown :object id ":id" specified', array(':object' => $object, ':id' => $id)), 'unknown');
+            throw new BException(tr('blogs_post_up(): Unknown :object id ":id" specified', array(':object' => $object, ':id' => $id)), 'unknown');
         }
 
         if(($post['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
-            throw new bException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
+            throw new BException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
         }
 
         if($post['lower_priority'] !== null){
@@ -2752,7 +2752,7 @@ function blogs_post_down($id, $object, $view){
         sql_query('COMMIT');
 
     }catch(Exception $e){
-        throw new bException('blogs_post_down(): Failed', $e);
+        throw new BException('blogs_post_down(): Failed', $e);
     }
 }
 
@@ -2778,7 +2778,7 @@ function blogs_post_get_img($photo, $params, $tabindex){
                 $is_video  = true;
 
             }else{
-                throw new bException(tr('blogs_post_get_img(): Media file ":file" does not exists', array(':file' => $photo['file'])), 'not-exist');
+                throw new BException(tr('blogs_post_get_img(): Media file ":file" does not exists', array(':file' => $photo['file'])), 'not-exist');
             }
 
         }catch(Exception $e){
@@ -2843,7 +2843,7 @@ function blogs_post_get_img($photo, $params, $tabindex){
                                         </td>';
 
             }catch(Exception $e){
-                throw new bException(tr('blog-post: file type section failed'), $e);
+                throw new BException(tr('blog-post: file type section failed'), $e);
             }
         }
 
@@ -2897,7 +2897,7 @@ function blogs_sync_location($posts_id, $to_user = false){
         }
 
     }catch(Exception $e){
-        throw new bException(tr('blogs_sync_location(): failed'), $e);
+        throw new BException(tr('blogs_sync_location(): failed'), $e);
     }
 }
 
@@ -2951,7 +2951,7 @@ function blogs_get_location($posts_id){
         return $values;
 
     }catch(Exception $e){
-        throw new bException(tr('blogs_get_location(): failed'), $e);
+        throw new BException(tr('blogs_get_location(): failed'), $e);
     }
 }
 
@@ -3026,7 +3026,7 @@ function blogs_update_location($posts_id, $geo){
         return $count;
 
     }catch(Exception $e){
-        throw new bException(tr('blogs_update_location(): failed'), $e);
+        throw new BException(tr('blogs_update_location(): failed'), $e);
     }
 }
 ?>

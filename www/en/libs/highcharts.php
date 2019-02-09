@@ -22,7 +22,7 @@ function highchart_line($params){
         return graph_highcharts($params);
 
     }catch(Exception $e){
-        throw new bException('highchart_line(): Failed', $e);
+        throw new BException('highchart_line(): Failed', $e);
     }
 }
 ?>

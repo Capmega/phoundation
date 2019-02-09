@@ -32,7 +32,7 @@ function crypt_library_init(){
         switch(str_until(PHP_VERSION, '.')){
             case 5:
                 if(!function_exists('mcrypt_module_open')){
-                    throw new bException(tr('crypt: PHP module "mcrypt" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-mcrypt" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
+                    throw new BException(tr('crypt: PHP module "mcrypt" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-mcrypt" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
                 }
 
                 $core->register('crypt_backend', 'mcrypt');
@@ -44,11 +44,11 @@ function crypt_library_init(){
                 break;
 
             default:
-                throw new bException(tr('crypt_library_init(): Unsupported PHP version ":version"', array(':version' => PHP_VERSION)), 'unsupported');
+                throw new BException(tr('crypt_library_init(): Unsupported PHP version ":version"', array(':version' => PHP_VERSION)), 'unsupported');
         }
 
     }catch(Exception $e){
-        throw new bException('crypt_library_init(): Failed', $e);
+        throw new BException('crypt_library_init(): Failed', $e);
     }
 }
 
@@ -98,7 +98,7 @@ function encrypt($data, $key, $method = null){
         return $data;
 
     }catch(Exception $e){
-        throw new bException('encrypt(): Failed', $e);
+        throw new BException('encrypt(): Failed', $e);
     }
 }
 
@@ -112,7 +112,7 @@ function decrypt($data, $key, $method = null){
 
     try{
         if($data === false){
-            throw new bException(tr('decrypt(): base64_decode() asppears to have failed to decode data, probably invalid base64 string'), 'invalid');
+            throw new BException(tr('decrypt(): base64_decode() asppears to have failed to decode data, probably invalid base64 string'), 'invalid');
         }
 
         $key     = crypt_pad_key($key);
@@ -120,11 +120,11 @@ function decrypt($data, $key, $method = null){
         $data    = str_from ($data, '^');
 
         if(!$backend){
-            throw new bException(tr('decrypt(): Data has no backend specified'), 'invalid');
+            throw new BException(tr('decrypt(): Data has no backend specified'), 'invalid');
         }
 
         if($backend !== $core->register('crypt_backend')){
-            throw new bException(tr('decrypt(): Data requires crypto backend ":data" but only ":system" is available', array(':system' => $core->register('crypt_backend'), ':data' => $backend)), 'not-available');
+            throw new BException(tr('decrypt(): Data requires crypto backend ":data" but only ":system" is available', array(':system' => $core->register('crypt_backend'), ':data' => $backend)), 'not-available');
         }
 
         switch($core->register('crypt_backend')){
@@ -152,7 +152,7 @@ function decrypt($data, $key, $method = null){
         return $data;
 
     }catch(Exception $e){
-        throw new bException('decrypt(): Failed', $e);
+        throw new BException('decrypt(): Failed', $e);
     }
 }
 
@@ -184,7 +184,7 @@ function crypt_pad_key($key, $character = '*'){
         return $key;
 
     }catch(Exception $e){
-        throw new bException('crypt_pad_key(): Failed', $e);
+        throw new BException('crypt_pad_key(): Failed', $e);
     }
 }
 ?>

@@ -15,15 +15,15 @@ try{
     $time     = $time->format('YmdHis');
 
     if(!$user = cli_argument('username', true)){
-        throw new bException('No database username specified', 'not-specified');
+        throw new BException('No database username specified', 'not-specified');
     }
 
     if(!$password = cli_argument('password', true)){
-        throw new bException('No database password specified', 'not-specified');
+        throw new BException('No database password specified', 'not-specified');
     }
 
     if(!$database){
-        throw new bException('No database specified', 'not-specified');
+        throw new BException('No database specified', 'not-specified');
     }
 
     file_ensure_path(TMP.'dropload');
@@ -89,6 +89,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new bException('scripts/database/dropload: Failed', $e);
+    throw new BException('scripts/database/dropload: Failed', $e);
 }
 ?>

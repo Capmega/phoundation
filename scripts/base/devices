@@ -69,7 +69,7 @@ switch(cli_method()){
         $device = devices_get($id);
 
         if(!$device){
-            throw new bException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+            throw new BException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
 
         }else{
             ksort($device);
@@ -93,7 +93,7 @@ switch(cli_method()){
         $device = devices_get($id);
 
         if(!$device){
-            throw new bException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+            throw new BException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
         if($category){
@@ -143,7 +143,7 @@ switch(cli_method()){
             }
 
         }catch(Exception $e){
-            throw new bException(tr('Failed to scan for devices'), $e);
+            throw new BException(tr('Failed to scan for devices'), $e);
         }
 
         break;
@@ -175,7 +175,7 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(empty($devices)){
-            throw new bException(tr('No devices specified'), 'warning/not-specified');
+            throw new BException(tr('No devices specified'), 'warning/not-specified');
         }
 
         if(FORCE){
@@ -215,7 +215,7 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(empty($devices)){
-            throw new bException(tr('No devices specified'), 'warning/not-specified');
+            throw new BException(tr('No devices specified'), 'warning/not-specified');
         }
 
         if(FORCE){
@@ -263,7 +263,7 @@ switch(cli_method()){
 
         switch(count($devices)){
             case 0:
-                throw new bException(tr('No devices specified'), 'warning/not-specified');
+                throw new BException(tr('No devices specified'), 'warning/not-specified');
 
             case 1:
                 if(isset_get($devices[1]) === 'all'){
@@ -304,9 +304,9 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new bException(tr('No method specified'), 'no-method');
+        throw new BException(tr('No method specified'), 'no-method');
 
     default:
-        throw new bException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

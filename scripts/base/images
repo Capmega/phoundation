@@ -221,7 +221,7 @@ switch(cli_method()){
              * This must be a single file specification
              */
             if(!file_exists($file)){
-                throw new bException(tr('Specified file ":file" does not exist', array(':file' => cli_argument(1))), 'warning/not-exist');
+                throw new BException(tr('Specified file ":file" does not exist', array(':file' => cli_argument(1))), 'warning/not-exist');
             }
 
             $link = str_replace('.'.$extension, '@2x.'.$extension, $file);
@@ -304,7 +304,7 @@ switch(cli_method()){
          */
         if($all){
             if($recursive){
-                throw new bException(tr('Both --all and --recursive have been specified. These options are mutually exclusive, please specify one or the other'), 'warning/invalid');
+                throw new BException(tr('Both --all and --recursive have been specified. These options are mutually exclusive, please specify one or the other'), 'warning/invalid');
             }
 
             $source = ROOT;
@@ -317,7 +317,7 @@ switch(cli_method()){
         }
 
         if(!$source){
-            throw new bException(tr('No path specified'), 'warning/not-specified');
+            throw new BException(tr('No path specified'), 'warning/not-specified');
         }
 
         /*
@@ -377,7 +377,7 @@ switch(cli_method()){
 
         if($show_images){
             if($recursive){
-                throw new bException(tr('Both --show-images and --recursive have been specified. These options are mutually exclusive, please specify one or the other'), 'warning/invalid');
+                throw new BException(tr('Both --show-images and --recursive have been specified. These options are mutually exclusive, please specify one or the other'), 'warning/invalid');
             }
 
             if(TEST){
@@ -408,7 +408,7 @@ switch(cli_method()){
          */
         if($all){
             if($recursive){
-                throw new bException(tr('Both --all and --recursive have been specified. These options are mutually exclusive (--all implies --recursive), please specify one or the other'), 'warning/invalid');
+                throw new BException(tr('Both --all and --recursive have been specified. These options are mutually exclusive (--all implies --recursive), please specify one or the other'), 'warning/invalid');
             }
 
             $source    = ROOT;
@@ -422,7 +422,7 @@ switch(cli_method()){
         }
 
         if(!$source){
-            throw new bException(tr('No path specified'), 'warning/not-specified');
+            throw new BException(tr('No path specified'), 'warning/not-specified');
         }
 
         /*
@@ -561,10 +561,10 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new bException(tr('No method specified'), 'no-method');
+        throw new BException(tr('No method specified'), 'no-method');
 
     default:
-        throw new bException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 
 
@@ -626,7 +626,7 @@ function s_display_info($info){
         log_console();
 
     }catch(Exception $e){
-        throw new bException('s_display_info(): Failed', $e);
+        throw new BException('s_display_info(): Failed', $e);
     }
 }
 ?>

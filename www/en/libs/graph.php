@@ -37,12 +37,12 @@ function graph_generate(array $params = array()){
                 return graph_hightcharts_generate($params);
 
             default:
-                throw new bException(tr('graph_generate(): Unknown graph provider ":provider" specified', array(':provider' => $type)), 'unknown');
+                throw new BException(tr('graph_generate(): Unknown graph provider ":provider" specified', array(':provider' => $type)), 'unknown');
                 break;
         }
 
      }catch(Exception $e){
-        throw new bException('graph_generate(): Failed', $e);
+        throw new BException('graph_generate(): Failed', $e);
     }
 }
 ?>

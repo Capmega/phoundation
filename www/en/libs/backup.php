@@ -33,7 +33,7 @@ function backup_library_init(){
         load_config('backup');
 
     }catch(Exception $e){
-        throw new bException('backup_library_init(): Failed', $e);
+        throw new BException('backup_library_init(): Failed', $e);
     }
 }
 
@@ -253,7 +253,7 @@ showdie($e);
                 break;
 
             default:
-                throw new bException('backup_mysql(): Unknown compression type "'.str_log($params['compression']).'" specified', 'unknown');
+                throw new BException('backup_mysql(): Unknown compression type "'.str_log($params['compression']).'" specified', 'unknown');
         }
 
         $command .= ' > "'.$target.'"';
@@ -263,7 +263,7 @@ showdie($e);
         return $params['target'];
 
     }catch(Exception $e){
-        throw new bException('backup_mysql(): Failed', $e);
+        throw new BException('backup_mysql(): Failed', $e);
     }
 }
 ?>

@@ -26,7 +26,7 @@ function uglify_check(){
         $npm  = node_check_npm();
 
     }catch(Exception $e){
-        throw new bException('uglify_check(): Failed', $e);
+        throw new BException('uglify_check(): Failed', $e);
     }
 }
 
@@ -50,7 +50,7 @@ function uglify_css_install(){
         }
 
     }catch(Exception $e){
-        throw new bException('uglify_css_install(): Failed', $e);
+        throw new BException('uglify_css_install(): Failed', $e);
     }
 }
 
@@ -72,7 +72,7 @@ function uglify_css_check(){
         $result = safe_exec($npm.' list uglifycss', 1);
 
         if(empty($result[1])){
-            throw new bException('uglify_js_check(): npm list uglifycss returned invalid results', 'invalid_result');
+            throw new BException('uglify_js_check(): npm list uglifycss returned invalid results', 'invalid_result');
         }
 
         if(substr($result[1], -7, 7) == '(empty)'){
@@ -94,7 +94,7 @@ function uglify_css_check(){
         }
 
     }catch(Exception $e){
-        throw new bException('uglify_css_check(): Failed', $e);
+        throw new BException('uglify_css_check(): Failed', $e);
     }
 }
 
@@ -147,7 +147,7 @@ function uglify_css($paths = null, $force = false){
                 }
 
             }else{
-                throw new bException('uglify_css(): Specified file "'.str_log($path).'" is neither a file or a directory', 'unknow_file_type');
+                throw new BException('uglify_css(): Specified file "'.str_log($path).'" is neither a file or a directory', 'unknow_file_type');
             }
 
              /*
@@ -414,7 +414,7 @@ function uglify_css($paths = null, $force = false){
         }
 
     }catch(Exception $e){
-        throw new bException('uglify_css(): Failed', $e);
+        throw new BException('uglify_css(): Failed', $e);
     }
 }
 
@@ -436,7 +436,7 @@ function uglify_js_install(){
         }
 
     }catch(Exception $e){
-        throw new bException('uglify_js_install(): Failed', $e);
+        throw new BException('uglify_js_install(): Failed', $e);
     }
 }
 
@@ -458,7 +458,7 @@ function uglify_js_check(){
         $result = safe_exec($npm.' list uglify-js', 1);
 
         if(empty($result[1])){
-            throw new bException('uglify_js_check(): npm list uglify-js returned invalid results', 'invalid_result');
+            throw new BException('uglify_js_check(): npm list uglify-js returned invalid results', 'invalid_result');
         }
 
         if(substr($result[1], -7, 7) == '(empty)'){
@@ -480,7 +480,7 @@ function uglify_js_check(){
         }
 
     }catch(Exception $e){
-        throw new bException('uglify_js_check(): Failed', $e);
+        throw new BException('uglify_js_check(): Failed', $e);
     }
 }
 
@@ -532,7 +532,7 @@ function uglify_js($paths = null, $force = false){
                 }
 
             }else{
-                throw new bException('uglify_js(): Specified file "'.str_log($path).'" is neither a file or a directory', 'unknow_file_type');
+                throw new BException('uglify_js(): Specified file "'.str_log($path).'" is neither a file or a directory', 'unknow_file_type');
             }
 
             /*
@@ -793,7 +793,7 @@ function uglify_js($paths = null, $force = false){
         }
 
     }catch(Exception $e){
-        throw new bException('uglify_js(): Failed', $e);
+        throw new BException('uglify_js(): Failed', $e);
     }
 }
 ?>

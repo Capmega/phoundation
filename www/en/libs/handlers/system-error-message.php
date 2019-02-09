@@ -11,7 +11,7 @@ try{
     array_default($messages, 'captcha'   , $e->getMessages());
 
     if(debug()){
-        if($e instanceof bException){
+        if($e instanceof BException){
             return $e->getMessages();
         }
 
@@ -19,7 +19,7 @@ try{
             return $e->getMessage();
         }
 
-        throw new bException(tr('error_message(): Specified $e is not an exception object'), 'invalid');
+        throw new BException(tr('error_message(): Specified $e is not an exception object'), 'invalid');
 
     }elseif(empty($messages[$e->getCode()])){
         if(!$default){
@@ -32,6 +32,6 @@ try{
     return $messages[$e->getCode()];
 
 }catch(Exception $e){
-    throw new bException('error_message(): Failed', $e);
+    throw new BException('error_message(): Failed', $e);
 }
 ?>

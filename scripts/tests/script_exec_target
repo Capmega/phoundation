@@ -11,6 +11,6 @@ try{
     cli_run_once_local(true);
 
 }catch(Exception $e){
-    throw new bException('scripts/tests/script_exec_target: Failed', $e);
+    throw new BException('scripts/tests/script_exec_target: Failed', $e);
 }
 ?>

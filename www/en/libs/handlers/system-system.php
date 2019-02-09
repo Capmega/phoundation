@@ -172,7 +172,7 @@ try{
         define('LANGUAGE', 'en');
     }
 
-    $e = new bException('core::startup(): Language selection failed', $e);
+    $e = new BException('core::startup(): Language selection failed', $e);
 }
 
 
@@ -182,7 +182,7 @@ try{
  */
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
     $_POST = array();
-    throw new bException(tr('core::startup(): system pages cannot do POST requests'), '400');
+    throw new BException(tr('core::startup(): system pages cannot do POST requests'), '400');
 }
 
 

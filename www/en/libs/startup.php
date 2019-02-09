@@ -47,7 +47,7 @@
  *
  * All call type handlers are located in ROOT/libs/handlers/system-CALLTYPE.php
  *
- * This library also defines the bException class which is the default exception
+ * This library also defines the BException class which is the default exception
  * thrown by BASE functions.
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>

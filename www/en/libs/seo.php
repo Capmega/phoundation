@@ -94,7 +94,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
 
                 if(!is_numeric($ownid[$key])){
                     if(!is_scalar($ownid[$key])){
-                        throw new bException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
+                        throw new BException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
                     }
 
                     $ownid[$key] = '"'.$ownid[$key].'"';
@@ -103,7 +103,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
                 $ownid = ' AND `'.$key.'` != '.$ownid[$key];
 
             }else{
-                throw new bException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
+                throw new BException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
             }
 
         }else{
@@ -161,7 +161,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
         }
 
     }catch(Exception $e){
-        throw new bException('seo_unique(): Failed', $e);
+        throw new BException('seo_unique(): Failed', $e);
     }
 }
 
@@ -221,7 +221,7 @@ function seo_string($source, $replace = '-') {
         }
 
     }catch(Exception $e){
-        throw new bException('seo_string(): Failed', $e);
+        throw new BException('seo_string(): Failed', $e);
     }
 }
 
@@ -236,7 +236,7 @@ function seo_create_string($source, $replace = '-') {
         return seo_string($source, $replace = '-');
 
     }catch(Exception $e){
-        throw new bException('seo_string(): Failed', $e);
+        throw new BException('seo_string(): Failed', $e);
     }
 }
 
@@ -245,7 +245,7 @@ function seo_generate_unique_name($source, $table, $ownid = null, $field = 'seon
         return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
 
     }catch(Exception $e){
-        throw new bException('seo_generate_unique_name(): Failed', $e);
+        throw new BException('seo_generate_unique_name(): Failed', $e);
     }
 }
 
@@ -254,7 +254,7 @@ function seo_unique_string($source, $table, $ownid = null, $field = 'seoname', $
         return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
 
     }catch(Exception $e){
-        throw new bException('seo_unique_string(): Failed', $e);
+        throw new BException('seo_unique_string(): Failed', $e);
     }
 }
 ?>

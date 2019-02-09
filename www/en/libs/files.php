@@ -19,7 +19,7 @@ function files_library_init(){
         load_config('files');
 
     }catch(Exception $e){
-        throw new bException('files_library_init(): Failed', $e);
+        throw new BException('files_library_init(): Failed', $e);
     }
 }
 
@@ -84,7 +84,7 @@ function files_add($file, $base_path = ROOT.'data/files/', $require_unique = fal
             $exists = sql_get('SELECT `id` FROM `files` WHERE `hash` = :hash', array($file['hash']));
 
             if($exists){
-                throw new bException(tr('files_add(): Specified file ":filename" already exists with id ":id"', array(':filename' => $base_path.$target, ':id' => $exists)), 'exists');
+                throw new BException(tr('files_add(): Specified file ":filename" already exists with id ":id"', array(':filename' => $base_path.$target, ':id' => $exists)), 'exists');
             }
         }
 
@@ -110,7 +110,7 @@ function files_add($file, $base_path = ROOT.'data/files/', $require_unique = fal
         return $file;
 
     }catch(Exception $e){
-        throw new bException('files_add(): Failed', $e);
+        throw new BException('files_add(): Failed', $e);
     }
 }
 
@@ -149,7 +149,7 @@ function files_get($file){
         return $files;
 
     }catch(Exception $e){
-        throw new bException('files_get(): Failed', $e);
+        throw new BException('files_get(): Failed', $e);
     }
 }
 
@@ -163,7 +163,7 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
         $dbfile = files_get($file);
 
         if(!$dbfile){
-            throw new bException(tr('files_delete(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            throw new BException(tr('files_delete(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
         }
 
         sql_query('DELETE FROM `files` WHERE `id` = :id', array(':id' => $dbfile['id']));
@@ -172,7 +172,7 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
         return $dbfile;
 
     }catch(Exception $e){
-        throw new bException('files_delete(): Failed', $e);
+        throw new BException('files_delete(): Failed', $e);
     }
 }
 
@@ -186,13 +186,13 @@ function files_get_history($file){
         $meta_id = sql_get('SELECT `meta_id` FROM `files` WHERE `name` = :name, `hash` = :hash', true, array(':name' => $file, ':hash' => $file));
 
         if(!$meta_id){
-            throw new bException(rt('files_get_history(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            throw new BException(rt('files_get_history(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
         }
 
         return meta_history($meta_id);
 
     }catch(Exception $e){
-        throw new bException('files_get(): Failed', $e);
+        throw new BException('files_get(): Failed', $e);
     }
 }
 ?>

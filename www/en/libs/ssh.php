@@ -29,7 +29,7 @@ function ssh_library_init(){
         file_ensure_path(ROOT.'data/run/ssh');
 
     }catch(Exception $e){
-        throw new bException('ssh_library_init(): Failed', $e);
+        throw new BException('ssh_library_init(): Failed', $e);
     }
 }
 
@@ -64,7 +64,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
 
     try{
         if($retry > 1){
-            throw new bException(tr('ssh_exec(): Found command ":command" retried ":retry" times, command failed', array(':command' => $commands, ':retry' => $retry)), 'failed');
+            throw new BException(tr('ssh_exec(): Found command ":command" retried ":retry" times, command failed', array(':command' => $commands, ':retry' => $retry)), 'failed');
         }
 
         if($function === null){
@@ -94,7 +94,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
          */
         if(!is_array($ssh) or (empty($ssh['identity_file']))){
             if(!is_array($ssh) and !is_scalar($ssh)){
-                throw new bException(tr('ssh_exec(): Invalid $ssh specified. $ssh must be either a domain, or server array'), 'invalid');
+                throw new BException(tr('ssh_exec(): Invalid $ssh specified. $ssh must be either a domain, or server array'), 'invalid');
             }
 
             $retry = 0;
@@ -179,7 +179,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
                              * `ssh_fingerprints` table or known_hosts file
                              */
                             $e->setCode('host-verification-failed');
-                            throw new bException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $ssh['domain'])), $e);
+                            throw new BException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $ssh['domain'])), $e);
 
                         }elseif(is_numeric($known)){
                             /*
@@ -202,13 +202,13 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
                             inet_test_host_port($ssh['domain'], $ssh['port']);
 
                         }catch(Exception $f){
-                            throw new bException(tr('ssh_exec(): inet_test_host_port() failed with ":e"', array(':e' => $f->getMessage())), $e);
+                            throw new BException(tr('ssh_exec(): inet_test_host_port() failed with ":e"', array(':e' => $f->getMessage())), $e);
                         }
                     }
             }
 
-        }catch(bException $f){
-            $f = new bException(tr('ssh_exec(): Failed to auto resolve ssh_exec() exception ":e"', array(':e' => $e)), $f);
+        }catch(BException $f){
+            $f = new BException(tr('ssh_exec(): Failed to auto resolve ssh_exec() exception ":e"', array(':e' => $e)), $f);
             notify($f);
             throw  $f;
         }
@@ -217,7 +217,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
          * Remove "Permanently added host blah" error, even in this exception
          */
         notify($e);
-        throw new bException('ssh_exec(): Failed', $e);
+        throw new BException('ssh_exec(): Failed', $e);
     }
 }
 
@@ -251,15 +251,15 @@ function ssh_build_command(&$server = null, $ssh_command = 'ssh'){
          * Validate minimum requirements
          */
         if(empty($server['domain'])){
-            throw new bException(tr('ssh_build_command(): No domain specified'), 'not-specified');
+            throw new BException(tr('ssh_build_command(): No domain specified'), 'not-specified');
         }
 
         if(empty($server['username'])){
-            throw new bException(tr('ssh_build_command(): No username specified'), 'not-specified');
+            throw new BException(tr('ssh_build_command(): No username specified'), 'not-specified');
         }
 
         if(empty($server['identity_file'])){
-            throw new bException(tr('ssh_build_command(): No identity_file specified'), 'not-specified');
+            throw new BException(tr('ssh_build_command(): No identity_file specified'), 'not-specified');
         }
 
         /*
@@ -316,7 +316,7 @@ showdie($command);
                     if($value){
                         if(!is_numeric($value) or ($value < 1) or ($value > 65535)){
                             if($value !== ':proxy_port'){
-                                throw new bException(tr('ssh_build_command(): Specified port natural numeric value between 1 - 65535, but ":value" was specified', array(':value' => $value)), 'invalid');
+                                throw new BException(tr('ssh_build_command(): Specified port natural numeric value between 1 - 65535, but ":value" was specified', array(':value' => $value)), 'invalid');
                             }
                         }
 
@@ -334,7 +334,7 @@ showdie($command);
                                 break;
 
                             default:
-                                throw new bException(tr('ssh_build_command(): Unknown ssh command ":command" specified', array(':command' => $ssh_command)), 'command');
+                                throw new BException(tr('ssh_build_command(): Unknown ssh command ":command" specified', array(':command' => $ssh_command)), 'command');
                         }
                     }
 
@@ -343,11 +343,11 @@ showdie($command);
                 case 'log':
                     if($value){
                         if(!is_string($value)){
-                            throw new bException(tr('ssh_build_command(): Specified option "log" requires string value containing the path to the identity file, but contains ":value"', array(':value' => $value)), 'invalid');
+                            throw new BException(tr('ssh_build_command(): Specified option "log" requires string value containing the path to the identity file, but contains ":value"', array(':value' => $value)), 'invalid');
                         }
 
                         if(!file_exists($value)){
-                            throw new bException(tr('ssh_build_command(): Specified log file directory ":path" does not exist', array(':file' => dirname($value))), 'not-exist');
+                            throw new BException(tr('ssh_build_command(): Specified log file directory ":path" does not exist', array(':file' => dirname($value))), 'not-exist');
                         }
 
                         $command .= ' -E "'.$value.'"';
@@ -416,31 +416,31 @@ showdie($command);
                      * Validate variables
                      */
                     if(!$value['persist'] and !empty($server['proxies'])){
-                        throw new bException(tr('ssh_build_command(): A non persistent SSH tunnel with proxies was requested, but since SSH proxies will cause another SSH process with unknown PID, we will not be able to close them automatically. Use "persisten" for this tunnel or tunnel without proxies'), 'warning/invalid');
+                        throw new BException(tr('ssh_build_command(): A non persistent SSH tunnel with proxies was requested, but since SSH proxies will cause another SSH process with unknown PID, we will not be able to close them automatically. Use "persisten" for this tunnel or tunnel without proxies'), 'warning/invalid');
                     }
 
                     if(!is_natural($value['source_port']) or ($value['source_port'] > 65535)){
                         if(!$value['source_port']){
-                            throw new bException(tr('ssh_build_command(): No source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
+                            throw new BException(tr('ssh_build_command(): No source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
                         }
 
-                        throw new bException(tr('ssh_build_command(): Invalid source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
+                        throw new BException(tr('ssh_build_command(): Invalid source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
                     }
 
                     if(!is_natural($value['target_port']) or ($value['target_port'] > 65535)){
                         if(!$value['target_port']){
-                            throw new bException(tr('ssh_build_command(): No source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
+                            throw new BException(tr('ssh_build_command(): No source_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
                         }
 
-                        throw new bException(tr('ssh_build_command(): Invalid target_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
+                        throw new BException(tr('ssh_build_command(): Invalid target_port specified for parameter "tunnel". Value should be 1-65535'), 'invalid');
                     }
 
                     if(!is_scalar($value['target_domain']) or (strlen($value['target_domain']) < 1) or (strlen($value['target_domain']) > 253)){
                         if(!$value['target_domain']){
-                            throw new bException(tr('ssh_build_command(): No target_domain specified for parameter "tunnel". Value should be the target hosts FQDN, IP, localhost, or host defined in the /etc/hosts of the target machine'), 'invalid');
+                            throw new BException(tr('ssh_build_command(): No target_domain specified for parameter "tunnel". Value should be the target hosts FQDN, IP, localhost, or host defined in the /etc/hosts of the target machine'), 'invalid');
                         }
 
-                        throw new bException(tr('ssh_build_command(): Invalid target_domain specified for parameter "tunnel". Value should be scalar, and between 1 and 253 characters'), 'invalid');
+                        throw new BException(tr('ssh_build_command(): Invalid target_domain specified for parameter "tunnel". Value should be scalar, and between 1 and 253 characters'), 'invalid');
                     }
 
                     /*
@@ -455,11 +455,11 @@ showdie($command);
                      */
                     if($value){
                         if(!is_string($value)){
-                            throw new bException(tr('ssh_build_command(): Specified option "identity_file" requires string value containing the path to the identity file, but contains ":value"', array(':value' => $value)), 'invalid');
+                            throw new BException(tr('ssh_build_command(): Specified option "identity_file" requires string value containing the path to the identity file, but contains ":value"', array(':value' => $value)), 'invalid');
                         }
 
                         if(!file_exists($value)){
-                            throw new bException(tr('ssh_build_command(): Specified identity file ":file" does not exist', array(':file' => $value)), 'not-exist');
+                            throw new BException(tr('ssh_build_command(): Specified identity file ":file" does not exist', array(':file' => $value)), 'not-exist');
                         }
 
                         $command .= ' -i "'.$value.'"';
@@ -553,7 +553,7 @@ showdie($command);
                 case 'disable_terminal':
                     if($value){
                         if(!empty($server['force_terminal'])){
-                            throw new bException(tr('ssh_build_command(): Both "force_terminal" and "disable_terminal" were specified. These options are mutually exclusive, please use only one or the other'), 'invalid');
+                            throw new BException(tr('ssh_build_command(): Both "force_terminal" and "disable_terminal" were specified. These options are mutually exclusive, please use only one or the other'), 'invalid');
                         }
 
                         $command .= ' -T';
@@ -595,7 +595,7 @@ showdie($command);
         return $command;
 
     }catch(Exception $e){
-        throw new bException('ssh_build_command(): Failed', $e);
+        throw new BException('ssh_build_command(): Failed', $e);
     }
 }
 
@@ -650,7 +650,7 @@ function ssh_build_options($options = null){
         }else{
             if($value){
                 if(!is_string($value)){
-                    throw new bException(tr('ssh_get_conect_string(): Specified option "user_known_hosts_file" requires a string value, but ":value" was specified', array(':value' => $value)), 'invalid');
+                    throw new BException(tr('ssh_get_conect_string(): Specified option "user_known_hosts_file" requires a string value, but ":value" was specified', array(':value' => $value)), 'invalid');
                 }
 
                 $string .= ' -o UserKnownHostsFile="'.$value.'"';
@@ -667,7 +667,7 @@ function ssh_build_options($options = null){
                 case 'connect_timeout':
                     if($value){
                         if(!is_numeric($value)){
-                            throw new bException(tr('ssh_get_conect_string(): Specified option "connect_timeout" requires a numeric value, but ":value" was specified', array(':value' => $value)), 'invalid');
+                            throw new BException(tr('ssh_get_conect_string(): Specified option "connect_timeout" requires a numeric value, but ":value" was specified', array(':value' => $value)), 'invalid');
                         }
 
                         $string .= ' -o ConnectTimeout="'.$value.'"';
@@ -677,7 +677,7 @@ function ssh_build_options($options = null){
 
                 case 'check_host_ip':
                     if(!is_bool($value)){
-                        throw new bException(tr('ssh_get_conect_string(): Specified option "check_host_ip" requires a boolean value, but ":value" was specified', array(':value' => $value)), 'invalid');
+                        throw new BException(tr('ssh_get_conect_string(): Specified option "check_host_ip" requires a boolean value, but ":value" was specified', array(':value' => $value)), 'invalid');
                     }
 
                     $string .= ' -o CheckHostIP="'.get_yes_no($value).'"';
@@ -685,21 +685,21 @@ function ssh_build_options($options = null){
 
                 case 'strict_host_key_checking':
                     if(!is_bool($value)){
-                        throw new bException(tr('ssh_get_conect_string(): Specified option "strict_host_key_checking" requires a boolean value, but ":value" was specified', array(':value' => $value)), 'invalid');
+                        throw new BException(tr('ssh_get_conect_string(): Specified option "strict_host_key_checking" requires a boolean value, but ":value" was specified', array(':value' => $value)), 'invalid');
                     }
 
                     $string .= ' -o StrictHostKeyChecking="'.get_yes_no($value).'"';
                     break;
 
                 default:
-                    throw new bException(tr('ssh_build_options(): Unknown option ":option" specified', array(':option' => $option)), 'unknown');
+                    throw new BException(tr('ssh_build_options(): Unknown option ":option" specified', array(':option' => $option)), 'unknown');
             }
         }
 
         return $string;
 
     }catch(Exception $e){
-        throw new bException('ssh_build_options(): Failed', $e);
+        throw new BException('ssh_build_options(): Failed', $e);
     }
 }
 
@@ -739,7 +739,7 @@ function ssh_build_options($options = null){
 //        return $socket;
 //
 //    }catch(Exception $e){
-//        throw new bException('ssh_start_control_master(): Failed', $e);
+//        throw new BException('ssh_start_control_master(): Failed', $e);
 //    }
 //}
 //
@@ -771,7 +771,7 @@ function ssh_build_options($options = null){
 //        return $pid;
 //
 //    }catch(Exception $e){
-//        throw new bException('ssh_get_control_master(): Failed', $e);
+//        throw new BException('ssh_get_control_master(): Failed', $e);
 //    }
 //}
 //
@@ -801,7 +801,7 @@ function ssh_build_options($options = null){
 //        return true;
 //
 //    }catch(Exception $e){
-//        throw new bException('ssh_stop_control_master(): Failed', $e);
+//        throw new BException('ssh_stop_control_master(): Failed', $e);
 //    }
 //}
 
@@ -823,7 +823,7 @@ function ssh_validate_account($ssh){
     try{
         load_libs('validate,seo');
 
-        $v = new validate_form($ssh, 'name,username,ssh_key,description');
+        $v = new ValidateForm($ssh, 'name,username,ssh_key,description');
         $v->isNotEmpty ($ssh['name'], tr('No account name specified'));
         $v->hasMinChars($ssh['name'], 2, tr('Please ensure the account name has at least 2 characters'));
         $v->hasMaxChars($ssh['name'], 32, tr('Please ensure the account name has less than 32 characters'));
@@ -856,7 +856,7 @@ function ssh_validate_account($ssh){
         return $ssh;
 
     }catch(Exception $e){
-        throw new bException(tr('ssh_validate_account(): Failed'), $e);
+        throw new BException(tr('ssh_validate_account(): Failed'), $e);
     }
 }
 
@@ -877,12 +877,12 @@ function ssh_validate_account($ssh){
 function ssh_get_account($account){
     try{
         if(!$account){
-            throw new bException(tr('ssh_get_account(): No accounts id specified'), 'not-specified');
+            throw new BException(tr('ssh_get_account(): No accounts id specified'), 'not-specified');
         }
 
         if(!is_numeric($account)){
             if(!is_string($account)){
-                throw new bException(tr('ssh_get_account(): Specified account ":account" should be either a numeric accounts id or an accounts name string', array(':account' => $account)), 'invalid');
+                throw new BException(tr('ssh_get_account(): Specified account ":account" should be either a numeric accounts id or an accounts name string', array(':account' => $account)), 'invalid');
             }
 
             $where   = ' WHERE `ssh_accounts`.`seoname`  = :seoname
@@ -925,7 +925,7 @@ function ssh_get_account($account){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('ssh_get_account(): Failed', $e);
+        throw new BException('ssh_get_account(): Failed', $e);
     }
 }
 
@@ -952,7 +952,7 @@ function ssh_add_known_host($domain, $port){
         $count        = 0;
 
         if(empty($fingerprints)){
-            throw new bException(tr('ssh_add_known_host(): ssh-keyscan found no public keys for domain ":domain"', array(':domain' => $domain)), 'not-found');
+            throw new BException(tr('ssh_add_known_host(): ssh-keyscan found no public keys for domain ":domain"', array(':domain' => $domain)), 'not-found');
         }
 
         /*
@@ -979,11 +979,11 @@ function ssh_add_known_host($domain, $port){
                 $exists = array_key_exists($fingerprint['fingerprint'], $dbfingerprints);
 
                 if(!$exists){
-                    throw new bException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does not match any of the already registered fingerprints', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'])), 'not-exist');
+                    throw new BException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does not match any of the already registered fingerprints', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'])), 'not-exist');
                 }
 
                 if($dbfingerprints[$fingerprint['fingerprint']] != $fingerprint['algorithm']){
-                    throw new bException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does match an already registered fingerprints, but for the wrong algorithm ":algorithm"', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'], ':algorithm' => $fingerprint['algorithm'])), 'not-match');
+                    throw new BException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does match an already registered fingerprints, but for the wrong algorithm ":algorithm"', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'], ':algorithm' => $fingerprint['algorithm'])), 'not-match');
                 }
             }
 
@@ -1029,7 +1029,7 @@ function ssh_add_known_host($domain, $port){
         return $count;
 
     }catch(Exception $e){
-        throw new bException('ssh_add_known_host(): Failed', $e);
+        throw new BException('ssh_add_known_host(): Failed', $e);
     }
 }
 
@@ -1053,7 +1053,7 @@ function ssh_add_known_host($domain, $port){
 function ssh_remove_known_host($domain, $port = null){
     try{
         if(empty($domain)){
-            throw new bException(tr('ssh_remove_known_host(): No domain specified'), 'not-specified');
+            throw new BException(tr('ssh_remove_known_host(): No domain specified'), 'not-specified');
         }
 
         $count = 0;
@@ -1120,7 +1120,7 @@ function ssh_remove_known_host($domain, $port = null){
             fclose($f2);
         }
 
-        throw new bException('ssh_remove_known_host(): Failed', $e);
+        throw new BException('ssh_remove_known_host(): Failed', $e);
     }
 }
 
@@ -1160,7 +1160,7 @@ function ssh_append_fingerprint($fingerprint){
         return true;
 
     }catch(Exception $e){
-        throw new bException('ssh_append_fingerprint(): Failed', $e);
+        throw new BException('ssh_append_fingerprint(): Failed', $e);
     }
 }
 
@@ -1176,7 +1176,7 @@ function ssh_append_fingerprint($fingerprint){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
- * @exception bException not-match Thrown if any of the found fingerprint does not match any of the fingerprints and algorithms registered in the ssh_fingerprints table
+ * @exception BException not-match Thrown if any of the found fingerprint does not match any of the fingerprints and algorithms registered in the ssh_fingerprints table
  * @see ssh_rebuild_known_hosts()
  *
  * @param string $domain
@@ -1186,7 +1186,7 @@ function ssh_append_fingerprint($fingerprint){
 function ssh_get_fingerprints($domain, $port){
     try{
         if(empty($domain)){
-            throw new bException(tr('ssh_get_fingerprints(): No domain specified'), 'not-specified');
+            throw new BException(tr('ssh_get_fingerprints(): No domain specified'), 'not-specified');
         }
 
         load_libs('servers,seo');
@@ -1210,7 +1210,7 @@ function ssh_get_fingerprints($domain, $port){
              */
             if(!filter_var($entry['domain'], FILTER_VALIDATE_DOMAIN)){
                 if(!filter_var($entry['domain'], FILTER_VALIDATE_IP)){
-                    throw new bException(tr('ssh_get_fingerprints(): ssh-keyscan returned invalid domain name ":domain"', array(':domain' => $entry['domain'])), '');
+                    throw new BException(tr('ssh_get_fingerprints(): ssh-keyscan returned invalid domain name ":domain"', array(':domain' => $entry['domain'])), '');
                 }
             }
 
@@ -1220,7 +1220,7 @@ function ssh_get_fingerprints($domain, $port){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('ssh_get_fingerprints(): Failed', $e);
+        throw new BException('ssh_get_fingerprints(): Failed', $e);
     }
 }
 
@@ -1264,7 +1264,7 @@ function ssh_rebuild_known_hosts($clear = false){
         return $count;
 
     }catch(Exception $e){
-        throw new bException('ssh_rebuild_known_hosts(): Failed', $e);
+        throw new BException('ssh_rebuild_known_hosts(): Failed', $e);
     }
 }
 
@@ -1317,7 +1317,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
         return ssh_add_known_host($domain, $port);
 
     }catch(Exception $e){
-        throw new bException('ssh_host_is_known(): Failed', $e);
+        throw new BException('ssh_host_is_known(): Failed', $e);
     }
 }
 
@@ -1349,7 +1349,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
 //        return $retval;
 //
 //    }catch(Exception $e){
-//        throw new bException('ssh_read_server_config(): Failed', $e);
+//        throw new BException('ssh_read_server_config(): Failed', $e);
 //    }
 //}
 //
@@ -1375,7 +1375,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
 //        ssh_exec($server, 'sudo cat > /etc/ssh/sshd_config << EOF '.$data);
 //
 //    }catch(Exception $e){
-//        throw new bException('ssh_write_server_config(): Failed', $e);
+//        throw new BException('ssh_write_server_config(): Failed', $e);
 //    }
 //}
 //
@@ -1400,7 +1400,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
 //        return $entries;
 //
 //    }catch(Exception $e){
-//        throw new bException('ssh_validate_server_config(): Failed', $e);
+//        throw new BException('ssh_validate_server_config(): Failed', $e);
 //    }
 //}
 //
@@ -1440,7 +1440,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
 //        return $server_config;
 //
 //    }catch(Exception $e){
-//        throw new bException('ssh_update_config(): Failed', $e);
+//        throw new BException('ssh_update_config(): Failed', $e);
 //    }
 //}
 
@@ -1490,7 +1490,7 @@ under_construction();
                                    array(':domain' => $source));
 
                 if(!$server){
-                    throw new bException(tr('ssh_cp(): Specified server ":server" does not exist', array(':server' => $source)), 'not-exist');
+                    throw new BException(tr('ssh_cp(): Specified server ":server" does not exist', array(':server' => $source)), 'not-exist');
                 }
 
                 $source         = $server;
@@ -1508,7 +1508,7 @@ under_construction();
 // :TODO: This may fail with files containing :
             if(strstr(':', $target)){
                 if(is_array($source)){
-                    throw new bException(tr('ssh_cp(): Specified source ":source" and target ":target" are both servers. This function can only copy from local to server or server to local', array(':source' => $source, ':target' => $target, )), 'invalid');
+                    throw new BException(tr('ssh_cp(): Specified source ":source" and target ":target" are both servers. This function can only copy from local to server or server to local', array(':source' => $source, ':target' => $target, )), 'invalid');
                 }
 
                 $path   = str_from ($target, ':');
@@ -1529,7 +1529,7 @@ under_construction();
                                      array(':domain' => $target));
 
                 if(!$server){
-                    throw new bException(tr('ssh_cp(): Specified target server ":server" does not exist', array(':server' => $target)), 'not-exist');
+                    throw new BException(tr('ssh_cp(): Specified target server ":server" does not exist', array(':server' => $target)), 'not-exist');
                 }
 
                 $target         = $server;
@@ -1583,7 +1583,7 @@ under_construction();
             notify($e);
         }
 
-        throw new bException(tr('ssh_cp(): Failed'), $e);
+        throw new BException(tr('ssh_cp(): Failed'), $e);
     }
 }
 
@@ -1616,7 +1616,7 @@ function ssh_tunnel($params, $reuse = true){
         load_libs('inet,linux');
 
         if(!$params['domain']){
-            throw new bException(tr('ssh_tunnel(): No domain specified'), 'not-specified');
+            throw new BException(tr('ssh_tunnel(): No domain specified'), 'not-specified');
         }
 
         if($params['server']){
@@ -1651,7 +1651,7 @@ function ssh_tunnel($params, $reuse = true){
              * Ensure port is available.
              */
             if(!inet_port_available($params['source_port'], '127.0.0.1', $params['server'])){
-                throw new bException(tr('ssh_tunnel(): Source port ":port" is already in use', array(':port' => $params['source_port'])), 'not-available');
+                throw new BException(tr('ssh_tunnel(): Source port ":port" is already in use', array(':port' => $params['source_port'])), 'not-available');
             }
 
         }else{
@@ -1706,7 +1706,7 @@ function ssh_tunnel($params, $reuse = true){
                  * reason to be testing
                  */
                 if(!linux_pid($params['server'], $retval)){
-                    throw new bException(tr('ssh_tunnel(): Failed to confirm SSH tunnel available, the SSH tunnel process ":pid" is gone', array(':pid' => $retval)), 'failed');
+                    throw new BException(tr('ssh_tunnel(): Failed to confirm SSH tunnel available, the SSH tunnel process ":pid" is gone', array(':pid' => $retval)), 'failed');
                 }
             }
 
@@ -1714,7 +1714,7 @@ function ssh_tunnel($params, $reuse = true){
                 /*
                  * Tunnel either failed to build, or no target was listening
                  */
-                throw new bException(tr('ssh_tunnel(): Failed to confirm SSH tunnel available after ":tries" tries', array(':tries' => $params['test_tries'])), 'failed');
+                throw new BException(tr('ssh_tunnel(): Failed to confirm SSH tunnel available after ":tries" tries', array(':tries' => $params['test_tries'])), 'failed');
             }
         }
 
@@ -1722,7 +1722,7 @@ function ssh_tunnel($params, $reuse = true){
                      'source_port' => $params['tunnel']['source_port']);
 
     }catch(Exception $e){
-        throw new bException('ssh_tunnel(): Failed', $e);
+        throw new BException('ssh_tunnel(): Failed', $e);
     }
 }
 
@@ -1837,7 +1837,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
         }
 
     }catch(Exception $e){
-        throw new bException('ssh_tunnel_exists(): Failed', $e);
+        throw new BException('ssh_tunnel_exists(): Failed', $e);
     }
 }
 
@@ -1876,7 +1876,7 @@ function ssh_close_tunnel($pid){
         cli_kill($pid);
 
     }catch(Exception $e){
-        throw new bException('ssh_close_tunnel(): Failed', $e);
+        throw new BException('ssh_close_tunnel(): Failed', $e);
     }
 }
 
@@ -1900,7 +1900,7 @@ function ssh_get_port($port = null){
     try{
         if($port){
             if(!is_natural($port) or ($port > 65535)){
-              throw new bException(tr('ssh_get_port(): No port specified'), 'not-specified');
+              throw new BException(tr('ssh_get_port(): No port specified'), 'not-specified');
           }
 
           return $port;
@@ -1913,7 +1913,7 @@ function ssh_get_port($port = null){
         return 22;
 
     }catch(Exception $e){
-        throw new bException('ssh_get_port(): Failed', $e);
+        throw new BException('ssh_get_port(): Failed', $e);
     }
 }
 
@@ -1940,7 +1940,7 @@ function ssh_persistent_pid($socket){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('ssh_persistent_pid(): Failed', $e);
+        throw new BException('ssh_persistent_pid(): Failed', $e);
     }
 }
 
@@ -1976,7 +1976,7 @@ function ssh_list_persistent($close = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('ssh_list_persistent(): Failed', $e);
+        throw new BException('ssh_list_persistent(): Failed', $e);
     }
 }
 ?>

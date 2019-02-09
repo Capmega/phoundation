@@ -59,11 +59,11 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
                 return implode($separator, $retval);
 
             default:
-                throw new bException('social_links(): Unknown returnas "'.str_log($returnas).'" specified', 'unknown');
+                throw new BException('social_links(): Unknown returnas "'.str_log($returnas).'" specified', 'unknown');
         }
 
     }catch(Exception $e){
-        throw new bException('social_links(): Failed', $e);
+        throw new BException('social_links(): Failed', $e);
     }
 }
 ?>

@@ -134,7 +134,7 @@ $params['tabs']['resources']     = '';
                 break;
 
             default:
-                throw new bException(tr('storage_ui_panel_header(): Unknown header_type ":type" specified', array(':type' => $params['header_type'])), 'unknown');
+                throw new BException(tr('storage_ui_panel_header(): Unknown header_type ":type" specified', array(':type' => $params['header_type'])), 'unknown');
         }
 
         $html  = '  <div class="row">
@@ -155,7 +155,7 @@ $params['tabs']['resources']     = '';
         return $html;
 
     }catch(Exception $e){
-        throw new bException('storage_ui_panel_header(): Failed', $e);
+        throw new BException('storage_ui_panel_header(): Failed', $e);
     }
 }
 
@@ -204,7 +204,7 @@ function storage_ui_process_dosubmit($params, $section, $page){
                 /*
                  * Unknown action specified
                  */
-                throw new bException(tr('storage_ui_process_dosubmit(): Unknown action ":action" specified', array(':action' => $_POST['dosubmit'])), 'warning/unknown');
+                throw new BException(tr('storage_ui_process_dosubmit(): Unknown action ":action" specified', array(':action' => $_POST['dosubmit'])), 'warning/unknown');
         }
 
     }catch(Exception $e){
@@ -243,7 +243,7 @@ function storage_ui_get_section($params){
         return $section;
 
     }catch(Exception $e){
-        throw new bException(tr('storage_ui_get_section(): Failed'), $e);
+        throw new BException(tr('storage_ui_get_section(): Failed'), $e);
     }
 }
 
@@ -277,7 +277,7 @@ function storage_ui_get_page($params, $section, $object){
         return $page;
 
     }catch(Exception $e){
-        throw new bException(tr('storage_ui_get_page(): Failed'), $e);
+        throw new BException(tr('storage_ui_get_page(): Failed'), $e);
     }
 }
 
@@ -313,7 +313,7 @@ function storage_ui_pages_merge($db_page, $post_page, $params){
         return sql_merge($db_page, $post_page);
 
     }catch(Exception $e){
-        throw new bException('storage_ui_pages_merge(): Failed', $e);
+        throw new BException('storage_ui_pages_merge(): Failed', $e);
     }
 }
 
@@ -356,7 +356,7 @@ function storage_ui_icon($file){
                 return $icon;
         }
 
-        throw new bException('storage_ui_icon(): Failed', $e);
+        throw new BException('storage_ui_icon(): Failed', $e);
     }
 }
 
@@ -406,7 +406,7 @@ function storage_ui_file($file, $tabindex = 0){
         return $html;
 
     }catch(Exception $e){
-        throw new bException('storage_ui_file(): Failed', $e);
+        throw new BException('storage_ui_file(): Failed', $e);
     }
 }
 
@@ -504,7 +504,7 @@ function storage_ui_categories_select($params) {
         return html_select($params);
 
     }catch(Exception $e){
-        throw new bException('storage_ui_categories_select(): Failed', $e);
+        throw new BException('storage_ui_categories_select(): Failed', $e);
     }
 }
 ?>

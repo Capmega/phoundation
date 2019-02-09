@@ -69,7 +69,7 @@ try{
             break;
 
         default:
-            throw new bException(tr('cache_clear(): Unknown cache method "%method%" specified', array('%method%' => str_log($_CONFIG['cache']['method']))), 'unknown');
+            throw new BException(tr('cache_clear(): Unknown cache method "%method%" specified', array('%method%' => str_log($_CONFIG['cache']['method']))), 'unknown');
     }
 
 }catch(Exception $e){

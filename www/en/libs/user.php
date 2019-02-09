@@ -26,7 +26,7 @@ function user_library_init(){
         load_config('user');
 
     }catch(Exception $e){
-        throw new bException('user_library_init(): Failed', $e);
+        throw new BException('user_library_init(): Failed', $e);
     }
 }
 
@@ -53,7 +53,7 @@ function user_data($id) {
         }
 
     }catch(Exception $e){
-        throw new bException('user_data(): Failed', $e);
+        throw new BException('user_data(): Failed', $e);
     }
 }
 
@@ -77,7 +77,7 @@ function user_avatar($avatar, $type = null) {
         return $avatar.'-'.$type.'.jpg';
 
     }catch(Exception $e){
-        throw new bException('user_avatar(): Failed', $e);
+        throw new BException('user_avatar(): Failed', $e);
     }
 }
 
@@ -92,7 +92,7 @@ function user_update_avatar($user, $avatar) {
     try{
         if(!is_numeric($user)){
             if(!is_array($user) or empty($user['id'])){
-                throw new bException('user_update_avatar(): Invalid user specified');
+                throw new BException('user_update_avatar(): Invalid user specified');
             }
 
             $user = $user['id'];
@@ -103,7 +103,7 @@ function user_update_avatar($user, $avatar) {
         return $avatar;
 
     }catch(Exception $e){
-        throw new bException('user_update_avatar(): Failed', $e);
+        throw new BException('user_update_avatar(): Failed', $e);
     }
 }
 
@@ -118,7 +118,7 @@ function user_find_avatar($user) {
     try{
         if(!is_array($user)){
             if(!is_numeric($user)){
-                throw new bException('user_find_avatar(): Invalid user specified');
+                throw new BException('user_find_avatar(): Invalid user specified');
             }
 
             $user = sql_get('SELECT * FROM `users` WHERE id = :id', array(':id' => cfi($user)));
@@ -150,7 +150,7 @@ function user_find_avatar($user) {
 
 
     }catch(Exception $e){
-        throw new bException('user_find_avatar(): Failed', $e);
+        throw new BException('user_find_avatar(): Failed', $e);
     }
 }
 
@@ -169,7 +169,7 @@ function user_update_groups($user, $groups, $validate = false){
              * Validate user
              */
             if(!$user){
-                throw new bException(tr('user_add_to_group(): No user specified'), 'not-specified');
+                throw new BException(tr('user_add_to_group(): No user specified'), 'not-specified');
             }
 
             if(is_numeric($user)){
@@ -179,7 +179,7 @@ function user_update_groups($user, $groups, $validate = false){
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
                 if(!$users_id){
-                    throw new bException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+                    throw new BException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
                 }
             }
         }
@@ -193,7 +193,7 @@ function user_update_groups($user, $groups, $validate = false){
         return 0;
 
     }catch(Exception $e){
-        throw new bException('user_update_groups(): Failed', $e);
+        throw new BException('user_update_groups(): Failed', $e);
     }
 }
 
@@ -230,7 +230,7 @@ function user_load_groups($user = null){
 
         if(is_array($user)){
             if(empty($user['id'])){
-                throw new bException(tr('user_load_groups(): Specified user array does not contain required "id" field'), 'invalid');
+                throw new BException(tr('user_load_groups(): Specified user array does not contain required "id" field'), 'invalid');
             }
 
             $user = $user['id'];
@@ -251,7 +251,7 @@ function user_load_groups($user = null){
         return $groups;
 
     }catch(Exception $e){
-        throw new bException('user_load_groups(): Failed', $e);
+        throw new BException('user_load_groups(): Failed', $e);
     }
 }
 
@@ -278,7 +278,7 @@ function user_is_group_member($group_list, $user = null){
         return true;
 
     }catch(Exception $e){
-        throw new bException('user_is_group_member(): Failed', $e);
+        throw new BException('user_is_group_member(): Failed', $e);
     }
 }
 
@@ -297,7 +297,7 @@ function user_add_to_group($user, $groups, $validate = true){
              * Validate user
              */
             if(!$user){
-                throw new bException(tr('user_add_to_group(): No user specified'), 'not-specified');
+                throw new BException(tr('user_add_to_group(): No user specified'), 'not-specified');
             }
 
             if(is_numeric($user)){
@@ -307,7 +307,7 @@ function user_add_to_group($user, $groups, $validate = true){
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
                 if(!$users_id){
-                    throw new bException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+                    throw new BException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
                 }
             }
         }
@@ -316,7 +316,7 @@ function user_add_to_group($user, $groups, $validate = true){
          * Validate group
          */
         if(!$groups){
-            throw new bException(tr('user_add_to_group(): No groups specified'), 'not-specified');
+            throw new BException(tr('user_add_to_group(): No groups specified'), 'not-specified');
         }
 
         if(is_numeric($groups)){
@@ -350,7 +350,7 @@ function user_add_to_group($user, $groups, $validate = true){
             $groups_id = sql_get('SELECT `id` FROM `groups` WHERE `seoname` = :seoname', 'id', array(':seoname' => $groups));
 
             if(!$groups_id){
-                throw new bException(tr('user_add_to_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exist');
+                throw new BException(tr('user_add_to_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exist');
             }
         }
 
@@ -375,7 +375,7 @@ function user_add_to_group($user, $groups, $validate = true){
         return 1;
 
     }catch(Exception $e){
-        throw new bException('user_add_to_group(): Failed', $e);
+        throw new BException('user_add_to_group(): Failed', $e);
     }
 }
 
@@ -394,7 +394,7 @@ function user_remove_from_group($user, $groups, $validate = true){
              * Validate user
              */
             if(!$user){
-                throw new bException(tr('user_remove_from_group(): No user specified'), 'not-specified');
+                throw new BException(tr('user_remove_from_group(): No user specified'), 'not-specified');
             }
 
             if(is_numeric($user)){
@@ -404,7 +404,7 @@ function user_remove_from_group($user, $groups, $validate = true){
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
                 if(!$users_id){
-                    throw new bException(tr('user_remove_from_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+                    throw new BException(tr('user_remove_from_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
                 }
             }
         }
@@ -413,7 +413,7 @@ function user_remove_from_group($user, $groups, $validate = true){
          * Validate group
          */
         if(!$groups){
-            throw new bException(tr('user_remove_from_group(): No groups specified'), 'not-specified');
+            throw new BException(tr('user_remove_from_group(): No groups specified'), 'not-specified');
         }
 
         if(is_numeric($groups)){
@@ -445,7 +445,7 @@ function user_remove_from_group($user, $groups, $validate = true){
             $groups_id = sql_get('SELECT `id` FROM `groups` WHERE `seoname` = :seoname', 'id', array(':seoname' => $groups));
 
             if(!$groups_id){
-                throw new bException(tr('user_remove_from_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exist');
+                throw new BException(tr('user_remove_from_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exist');
             }
         }
 
@@ -457,7 +457,7 @@ function user_remove_from_group($user, $groups, $validate = true){
         return $r->rowCount();
 
     }catch(Exception $e){
-        throw new bException('user_remove_from_group(): Failed', $e);
+        throw new BException('user_remove_from_group(): Failed', $e);
     }
 }
 
@@ -486,7 +486,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
          * Data validation and get user data
          */
         if(!is_scalar($username)){
-            throw new bException('user_authenticate(): Specified username is not valid', 'invalid');
+            throw new BException('user_authenticate(): Specified username is not valid', 'invalid');
         }
 
         if($status){
@@ -531,7 +531,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
                              ':username' => $username);
 
         }else{
-            throw new bException(tr('user_authenticate(): Unknown status ":status" specified', array(':status' => $status)), 'unknown');
+            throw new BException(tr('user_authenticate(): Unknown status ":status" specified', array(':status' => $status)), 'unknown');
         }
 
         $execute = array_merge($execute, isset_get($in, array()));
@@ -541,7 +541,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
                          FROM   `users` '.$where, $execute);
 
         if(!$user){
-            throw new bException(tr('user_authenticate(): Specified user account ":username" with status ":status" not found', array(':username' => $username, ':status' => $status)), 'not-found');
+            throw new BException(tr('user_authenticate(): Specified user account ":username" with status ":status" not found', array(':username' => $username, ':status' => $status)), 'not-found');
         }
 
 
@@ -554,7 +554,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
              * Only lock if configured to do so
              */
             if($_CONFIG['security']['authentication']['auto_lock_fails'] and $_CONFIG['security']['authentication']['auto_lock_time']){
-                throw new bException(tr('user_authenticate(): Specified user account is locked'), 'warning/locked', array('locked' => $user['locked_left']));
+                throw new BException(tr('user_authenticate(): Specified user account is locked'), 'warning/locked', array('locked' => $user['locked_left']));
             }
         }
 
@@ -576,7 +576,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
 
                            array(':id' => $user['id']));
 
-                throw new bException(tr('user_authenticate(): Specified user account is locked'), 'warning/locked', array('locked' => $user['locked_left']));
+                throw new BException(tr('user_authenticate(): Specified user account is locked'), 'warning/locked', array('locked' => $user['locked_left']));
             }
         }
 
@@ -606,7 +606,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
              * This check will only do anything if the users table contains the "type" column. If it doesn't, nothing will ever happen here, really
              */
             log_database(tr('user_authenticate(): Specified user account ":username" has status ":type" and cannot be authenticated', array(':username' => str_log($username), ':type' => str_log($user['type']))), 'authentication/not-found');
-            throw new bException(tr('user_authenticate(): Specified user account has status ":type" and cannot be authenticated', array(':type' => $user['type'])), 'type');
+            throw new BException(tr('user_authenticate(): Specified user account has status ":type" and cannot be authenticated', array(':type' => $user['type'])), 'type');
         }
 
 
@@ -630,7 +630,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
                 captcha_verify_response($captcha);
 
             }catch(Exception $e){
-                throw new bException(tr('user_authenticate(): CAPTCHA test failed for ":user"', array(':user' => $user['id'])), 'warning/captcha');
+                throw new BException(tr('user_authenticate(): CAPTCHA test failed for ":user"', array(':user' => $user['id'])), 'warning/captcha');
             }
         }
 
@@ -650,7 +650,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         }
 
         if(strlen($password) > 256){
-            throw new bException(tr('user_authenticate(): Specified password too long, should be less than 256 characters'), 'invalid');
+            throw new BException(tr('user_authenticate(): Specified password too long, should be less than 256 characters'), 'invalid');
         }
 
         try{
@@ -659,16 +659,16 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         }catch(Exception $e){
             switch($e->getCode()){
                 case 'unknown-algorithm':
-                    throw new bException(tr('user_authenticate(): User account ":name" has an unknown algorithm ":algorithm" specified', array(':user' => name($user), ':algorithm' => $algorithm)), $e);
+                    throw new BException(tr('user_authenticate(): User account ":name" has an unknown algorithm ":algorithm" specified', array(':user' => name($user), ':algorithm' => $algorithm)), $e);
 
                 default:
-                    throw new bException(tr('user_authenticate(): Password hashing failed for user account ":name"', array(':user' => name($user))), $e);
+                    throw new BException(tr('user_authenticate(): Password hashing failed for user account ":name"', array(':user' => name($user))), $e);
             }
         }
 
         if($password != str_rfrom($user['password'], '*')){
             log_database(tr('user_authenticate(): Specified password does not match stored password for user ":username"', array(':username' => $username)), 'authentication/failed');
-            throw new bException(tr('user_authenticate(): Specified password does not match stored password'), 'warning/password');
+            throw new BException(tr('user_authenticate(): Specified password does not match stored password'), 'warning/password');
         }
 
 
@@ -687,7 +687,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
          */
         if(($_CONFIG['whitelabels']) and $user['domain']){
             if($user['domain'] !== $_SERVER['HTTP_HOST']){
-                throw new bException(tr('user_autohenticate(): User account ":name" is limited to authenticate only in domain ":domain"', array(':name' => name($user), ':domain' => $user['domain'])), 'domain-limit');
+                throw new BException(tr('user_autohenticate(): User account ":name" is limited to authenticate only in domain ":domain"', array(':name' => name($user), ':domain' => $user['domain'])), 'domain-limit');
             }
         }
 
@@ -698,7 +698,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
          */
         if($_CONFIG['security']['signin']['two_factor']){
             if(empty($user['phone'])){
-                throw new bException('user_autohenticate(): Two factor authentication impossible for user account "'.$user['id'].' / '.$user['name'].'" because no phone is registered', 'two-factor-no-phone');
+                throw new BException('user_autohenticate(): Two factor authentication impossible for user account "'.$user['id'].' / '.$user['name'].'" because no phone is registered', 'two-factor-no-phone');
             }
 
             $user['authenticated'] = 'two_factor';
@@ -783,11 +783,11 @@ function user_authenticate($username, $password, $captcha = null, $status = null
              */
             if($date = sql_get('SELECT `createdon` FROM `passwords` WHERE `users_id` = :users_id AND `password` = :password', 'id', array(':users_id' => isset_get($user['id']), ':password' => isset_get($password)))){
                 $date = new DateTime($date);
-                throw new bException('user_authenticate(): Your password was updated on "'.str_log($date->format($_CONFIG['formats']['human_date'])).'"', 'oldpassword');
+                throw new BException('user_authenticate(): Your password was updated on "'.str_log($date->format($_CONFIG['formats']['human_date'])).'"', 'oldpassword');
             }
         }
 
-        throw new bException('user_authenticate(): Failed', $e);
+        throw new BException('user_authenticate(): Failed', $e);
     }
 }
 
@@ -818,7 +818,7 @@ function user_log_authentication($username, $users_id, $captcha_required, $e = n
                          ':ip'               => isset_get($_SERVER['REMOTE_ADDR'])));
 
     }catch(Exception $e){
-        throw new bException('user_log_authentication(): Failed', $e);
+        throw new BException('user_log_authentication(): Failed', $e);
     }
 }
 
@@ -888,7 +888,7 @@ function user_authentication_requires_captcha($failures = null){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('user_authentication_requires_captcha(): Failed', $e);
+        throw new BException('user_authentication_requires_captcha(): Failed', $e);
     }
 }
 
@@ -923,7 +923,7 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
         }
 
         if(!is_array($user)){
-            throw new bException('user_signin(): Specified user variable is not an array', 'invalid');
+            throw new BException('user_signin(): Specified user variable is not an array', 'invalid');
         }
 
         /*
@@ -931,7 +931,7 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
          * Shell signin requires neither
          */
         if((PLATFORM_HTTP) and (empty($_COOKIE) or !session_id())){
-            throw new bException('user_signin(): This user has no active session or no session id, so probably has no cookies', 'cookies-required');
+            throw new BException('user_signin(): This user has no active session or no session id, so probably has no cookies', 'cookies-required');
         }
 
         if(session_status() == PHP_SESSION_ACTIVE){
@@ -996,7 +996,7 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
 
     }catch(Exception $e){
         log_database(tr('user_signin(): User sign in failed for user ":user" because ":message"', array(':user' => name($user), ':message' => $e->getMessage())), 'signin/failed');
-        throw new bException('user_signin(): Failed', $e);
+        throw new BException('user_signin(): Failed', $e);
     }
 }
 
@@ -1035,7 +1035,7 @@ function user_signout() {
         }
 
     }catch(Exception $e){
-        throw new bException('user_signout(): Failed', $e);
+        throw new BException('user_signout(): Failed', $e);
     }
 }
 
@@ -1076,7 +1076,7 @@ function user_create_extended_session($users_id) {
         return $code;
 
     }catch(Exception $e){
-        throw new bException('user_create_extended_session(): Failed', $e);
+        throw new BException('user_create_extended_session(): Failed', $e);
     }
 }
 
@@ -1092,7 +1092,7 @@ function user_set_verify_code($user, $email_type = false){
         load_libs('email');
 
         if(!is_array($user)){
-            throw new bException('user_set_verify_code(): Invalid user specified', 'invalid');
+            throw new BException('user_set_verify_code(): Invalid user specified', 'invalid');
         }
 
         $code = sql_get('SELECT `verify_code` FROM `users` WHERE `id` = :id', true, array(':id' => cfi($user['id'])));
@@ -1117,7 +1117,7 @@ function user_set_verify_code($user, $email_type = false){
                                   ':verify_code' => cfm($code)));
 
             if(!sql_affected_rows($r)){
-                throw new bException(tr('user_set_verify_code(): Specified user ":user" does not exist', array(':user' => $user['id'])), 'not-exist');
+                throw new BException(tr('user_set_verify_code(): Specified user ":user" does not exist', array(':user' => $user['id'])), 'not-exist');
             }
         }
 
@@ -1148,13 +1148,13 @@ function user_set_verify_code($user, $email_type = false){
                 break;
 
             default:
-                throw new bException(tr('user_set_verify_code(): Specified email type ":type" does not exist', array(':type' => $email_type)), 'not-exist');
+                throw new BException(tr('user_set_verify_code(): Specified email type ":type" does not exist', array(':type' => $email_type)), 'not-exist');
         }
 
         return $code;
 
     }catch(Exception $e){
-        throw new bException('user_set_verify_code(): Failed', $e);
+        throw new BException('user_set_verify_code(): Failed', $e);
     }
 }
 
@@ -1168,7 +1168,7 @@ function user_verify($code){
         $user = sql_get('SELECT * FROM `users` WHERE `verify_code` = :verify_code', array(':verify_code' => cfm($code)));
 
         if(!$user){
-            throw new bException(tr('user_verify(): The specified verify code ":code" does not exist', array(':code' => $code)), 'not-exist');
+            throw new BException(tr('user_verify(): The specified verify code ":code" does not exist', array(':code' => $code)), 'not-exist');
         }
 
         /*
@@ -1192,7 +1192,7 @@ function user_verify($code){
         return $user;
 
     }catch(Exception $e){
-        throw new bException('user_verify(): Failed', $e);
+        throw new BException('user_verify(): Failed', $e);
     }
 }
 
@@ -1206,7 +1206,7 @@ function user_check_blacklisted($name){
 //:TODO: Implement. THROW EXCEPTION IF BLACKLISTED!
 
     }catch(Exception $e){
-        throw new bException('user_blacklisted(): Failed', $e);
+        throw new BException('user_blacklisted(): Failed', $e);
     }
 }
 
@@ -1220,7 +1220,7 @@ function user_create($params){
         return user_signup($params);
 
     }catch(Exception $e){
-        throw new bException('user_create(): Failed', $e);
+        throw new BException('user_create(): Failed', $e);
     }
 }
 
@@ -1234,7 +1234,7 @@ function user_signup($user, $no_password = false){
 
     try{
         if(empty($user['password']) and (isset_get($user['status']) !== '_new') and !$no_password){
-            throw new bException(tr('user_signup(): Please specify a password'), 'not-specified');
+            throw new BException(tr('user_signup(): Please specify a password'), 'not-specified');
         }
 
         $user['id'] = sql_random_id('users');
@@ -1265,7 +1265,7 @@ function user_signup($user, $no_password = false){
         return array_merge(user_get(sql_insert_id(), isset_get($user['status'])), $user);
 
     }catch(Exception $e){
-        throw new bException('user_signup(): Failed', $e);
+        throw new BException('user_signup(): Failed', $e);
     }
 }
 
@@ -1286,38 +1286,38 @@ function user_update_password($params, $current = true){
         array_default($params, 'check_banned_passwords', true);
 
         if(!is_array($params)){
-            throw new bException(tr('user_update_password(): Invalid params specified'), 'invalid');
+            throw new BException(tr('user_update_password(): Invalid params specified'), 'invalid');
         }
 
         if(empty($params['id'])){
-            throw new bException(tr('user_update_password(): No users id specified'), 'not-specified');
+            throw new BException(tr('user_update_password(): No users id specified'), 'not-specified');
         }
 
         if(empty($params['password'])){
-            throw new bException(tr('user_update_password(): Please specify a password'), 'warning/not-specified');
+            throw new BException(tr('user_update_password(): Please specify a password'), 'warning/not-specified');
         }
 
         if(empty($params['password2'])){
-            throw new bException(tr('user_update_password(): No validation password specified'), 'not-specified');
+            throw new BException(tr('user_update_password(): No validation password specified'), 'not-specified');
         }
 
         /*
          * Check if password is equal to password2
          */
         if($params['password'] != $params['password2']){
-            throw new bException(tr('user_update_password(): Specified password does not match the validation password'), 'warning/mismatch');
+            throw new BException(tr('user_update_password(): Specified password does not match the validation password'), 'warning/mismatch');
         }
 
         /*
          * Check if password is NOT equal to cpassword
          */
         if($current and ($params['password'] == $params['cpassword'])){
-            throw new bException(tr('user_update_password(): Specified new password is the same as the current password'), 'warning/same-as-current');
+            throw new BException(tr('user_update_password(): Specified new password is the same as the current password'), 'warning/same-as-current');
         }
 
         if($current){
             if(empty($params['cpassword'])){
-                throw new bException(tr('user_update_password(): Please specify the current password'), 'warning/not-specified');
+                throw new BException(tr('user_update_password(): Please specify the current password'), 'warning/not-specified');
             }
 
             user_authenticate($_SESSION['user']['email'], $params['cpassword']);
@@ -1359,7 +1359,7 @@ function user_update_password($params, $current = true){
                     /*
                      * This password has been used before
                      */
-                    throw new bException(tr('user_update_password(): The specified password has already been used before'), 'used-before');
+                    throw new BException(tr('user_update_password(): The specified password has already been used before'), 'used-before');
                 }
             }
         }
@@ -1385,7 +1385,7 @@ function user_update_password($params, $current = true){
              * because the user does not exist. check for this!
              */
             if(!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', 'id', array(':id' => $params['id']))){
-                throw new bException(tr('user_update_password(): The specified users_id "'.str_log($params['id']).'" does not exist'), 'not-exist');
+                throw new BException(tr('user_update_password(): The specified users_id "'.str_log($params['id']).'" does not exist'), 'not-exist');
             }
 
             /*
@@ -1406,7 +1406,7 @@ function user_update_password($params, $current = true){
         return $r->rowCount();
 
     }catch(Exception $e){
-        throw new bException('user_update_password(): Failed', $e);
+        throw new BException('user_update_password(): Failed', $e);
     }
 }
 
@@ -1422,7 +1422,7 @@ function user_get($user = null, $status = null){
         if($user){
             if(!is_scalar($user)){
                 if(!is_array($user)){
-                    throw new bException(tr('user_get(): Specified user data ":data" is not scalar or array', array(':data' => $user)), 'invalid');
+                    throw new BException(tr('user_get(): Specified user data ":data" is not scalar or array', array(':data' => $user)), 'invalid');
                 }
 
                 $user = $user['id'];
@@ -1518,7 +1518,7 @@ function user_get($user = null, $status = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('user_get(): Failed', $e);
+        throw new BException('user_get(): Failed', $e);
     }
 }
 
@@ -1531,7 +1531,7 @@ function user_load_rights($user){
     try{
         if(!is_numeric($user)){
             if(!is_array($user)){
-                throw new bException('user_load_rights(): Invalid user, please specify either users_id or user array with id', 'invalid');
+                throw new BException('user_load_rights(): Invalid user, please specify either users_id or user array with id', 'invalid');
             }
 
             $user = isset_get($user['id']);
@@ -1547,7 +1547,7 @@ function user_load_rights($user){
                          array(':users_id' => $user));
 
     }catch(Exception $e){
-        throw new bException('user_load_rights(): Failed', $e);
+        throw new BException('user_load_rights(): Failed', $e);
     }
 }
 
@@ -1606,7 +1606,7 @@ function user_switch($users_id, $redirect = '/'){
 //        return $post;
 //
 //    }catch(Exception $e){
-//        throw new bException('user_process_signin_fields(): Failed', $e);
+//        throw new BException('user_process_signin_fields(): Failed', $e);
 //    }
 //}
 
@@ -1619,11 +1619,11 @@ function user_switch($users_id, $redirect = '/'){
 function user_update_rights($user){
     try{
         if(empty($user['id'])){
-            throw new bException('user_update_rights(): Cannot update rights, no user specified', 'not-specified');
+            throw new BException('user_update_rights(): Cannot update rights, no user specified', 'not-specified');
         }
 
         if(empty($user['roles_id'])){
-            throw new bException('user_update_rights(): Cannot update rights, no role specified', 'not-specified');
+            throw new BException('user_update_rights(): Cannot update rights, no role specified', 'not-specified');
         }
 
         /*
@@ -1656,7 +1656,7 @@ function user_update_rights($user){
         }
 
     }catch(Exception $e){
-        throw new bException('user_update_rights(): Failed', $e);
+        throw new BException('user_update_rights(): Failed', $e);
     }
 }
 
@@ -1681,10 +1681,10 @@ function user_password_strength($password, $check_banned = true, $exception = tr
 
         if($length < 8){
             if(!$length){
-                throw new bException(tr('user_password_strength(): No password specified'), 'not-specified');
+                throw new BException(tr('user_password_strength(): No password specified'), 'not-specified');
             }
 
-            throw new bException(tr('user_password_strength(): Specified password is too short'), 'validation');
+            throw new BException(tr('user_password_strength(): Specified password is too short'), 'validation');
         }
 
         /*
@@ -1777,7 +1777,7 @@ function user_password_strength($password, $check_banned = true, $exception = tr
 
         if($strength < $_CONFIG['users']['password_minumum_strength']){
             if($exception){
-                throw new bException(tr('user_password_strength(): The specified password is too weak, please use a better password. Use more characters, add numbers, special characters, caps characters, etc. On a scale of 1-10, current strength is ":strength"', array(':strength' => $strength)), 'validation');
+                throw new BException(tr('user_password_strength(): The specified password is too weak, please use a better password. Use more characters, add numbers, special characters, caps characters, etc. On a scale of 1-10, current strength is ":strength"', array(':strength' => $strength)), 'validation');
             }
 
             return false;
@@ -1786,7 +1786,7 @@ function user_password_strength($password, $check_banned = true, $exception = tr
         return $strength;
 
     }catch(Exception $e){
-        throw new bException('user_password_strength(): Failed', $e);
+        throw new BException('user_password_strength(): Failed', $e);
     }
 }
 
@@ -1800,13 +1800,13 @@ function user_password_banned($password){
 
     try{
         if(($password == $_CONFIG['domain']) or ($password == str_until($_CONFIG['domain'], '.'))){
-            throw new bException(tr('user_password_banned(): The default password is not allowed to be used'), 'banned');
+            throw new BException(tr('user_password_banned(): The default password is not allowed to be used'), 'banned');
         }
 
 // :TODO: Add more checks
 
     }catch(Exception $e){
-        throw new bException('user_password_banned(): Failed', $e);
+        throw new BException('user_password_banned(): Failed', $e);
     }
 }
 
@@ -1825,7 +1825,7 @@ function user_validate($user, $sections = array()){
         array_default($sections, 'role'               , true);
 
         load_libs('validate');
-        $v = new validate_form($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone');
+        $v = new ValidateForm($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone');
 
         $user['email2'] = $user['email'];
         $user['terms']  = true;
@@ -2086,7 +2086,7 @@ function user_validate($user, $sections = array()){
         return $user;
 
     }catch(Exception $e){
-        throw new bException(tr('user_validate(): Failed'), $e);
+        throw new BException(tr('user_validate(): Failed'), $e);
     }
 }
 
@@ -2109,7 +2109,7 @@ function user_get_key($user = null, $force = false){
         }
 
         if(!$dbuser){
-            throw new bException(tr('user_get_key(): Specified user ":user" does not exist', array(':user' => str_log($user))), 'not-exist');
+            throw new BException(tr('user_get_key(): Specified user ":user" does not exist', array(':user' => str_log($user))), 'not-exist');
         }
 
         if(!$dbuser['key'] or $force){
@@ -2133,7 +2133,7 @@ function user_get_key($user = null, $force = false){
                      'key'       => hash('sha256', $dbuser['key'].SEED.$timestamp));
 
     }catch(Exception $e){
-        throw new bException(tr('user_get_key(): Failed'), $e);
+        throw new BException(tr('user_get_key(): Failed'), $e);
     }
 }
 
@@ -2191,7 +2191,7 @@ function user_check_key($user, $key, $timestamp){
         return $dbkey === $key;
 
     }catch(Exception $e){
-        throw new bException(tr('user_check_key(): Failed'), $e);
+        throw new BException(tr('user_check_key(): Failed'), $e);
     }
 }
 
@@ -2215,7 +2215,7 @@ function user_key_form_fields($user = null, $prefix = ''){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException(tr('user_key_form_fields(): Failed'), $e);
+        throw new BException(tr('user_key_form_fields(): Failed'), $e);
     }
 }
 
@@ -2235,7 +2235,7 @@ function user_get_from_key($user, $key, $timestamp){
         return false;
 
     }catch(Exception $e){
-        throw new bException(tr('user_get_from_key(): Failed'), $e);
+        throw new BException(tr('user_get_from_key(): Failed'), $e);
     }
 }
 
@@ -2274,7 +2274,7 @@ function user_key_or_redirect($user, $key = null, $timestamp = null, $redirect =
         json_reply(isset_get($redirect, $_CONFIG['url_prefix']), 'signin');
 
     }catch(Exception $e){
-        throw new bException(tr('user_get_from_key(): Failed'), $e);
+        throw new BException(tr('user_get_from_key(): Failed'), $e);
     }
 }
 
@@ -2292,7 +2292,7 @@ notify('not-implemented', 'user_test_password() has not yet been implemented!!')
         return $password;
 
     }catch(Exception $e){
-        throw new bException(tr('user_test_password(): Failed'), $e);
+        throw new BException(tr('user_test_password(): Failed'), $e);
     }
 }
 
@@ -2323,7 +2323,7 @@ function user_update_apikey($users_id = null){
         return $apikey;
 
     }catch(Exception $e){
-        throw new bException(tr('user_update_apikey(): Failed'), $e);
+        throw new BException(tr('user_update_apikey(): Failed'), $e);
     }
 }
 
@@ -2357,7 +2357,7 @@ function user_lock($users_id){
         return $r->rowCount();
 
     }catch(Exception $e){
-        throw new bException(tr('user_lock(): Failed'), $e);
+        throw new BException(tr('user_lock(): Failed'), $e);
     }
 }
 
@@ -2391,7 +2391,7 @@ function user_unlock($users_id){
         return (boolean) $r->rowCount();
 
     }catch(Exception $e){
-        throw new bException(tr('user_unlock(): Failed'), $e);
+        throw new BException(tr('user_unlock(): Failed'), $e);
     }
 }
 
@@ -2448,13 +2448,13 @@ function user_update_reference_codes($user, $allow_duplicate_reference_codes = n
              * One or multiple reference codes failed to be added because they
              * were already in use.
              */
-            throw new bException($fail, 'exists', array_keys($fail));
+            throw new BException($fail, 'exists', array_keys($fail));
         }
 
         return count($codes);
 
     }catch(Exception $e){
-        throw new bException(tr('user_update_reference_codes(): Failed'), $e);
+        throw new BException(tr('user_update_reference_codes(): Failed'), $e);
     }
 }
 
@@ -2494,7 +2494,7 @@ function user_update_location($user){
         }
 
         if(!$user['id']){
-            throw new bException(tr('user_update_location(): No users id or users_id specified'), 'not-specified');
+            throw new BException(tr('user_update_location(): No users id or users_id specified'), 'not-specified');
         }
         $geo     = geo_validate($user);
         $execute = array(':id' => $user['id']);
@@ -2523,7 +2523,7 @@ function user_update_location($user){
              * Automatically generate a random offset
              */
             if(!is_natural($_CONFIG['user']['location']['max_offset'], 0)){
-                throw new bException(tr('user_update_location(): Configured max offset ":max_offset" is invalid', array(':max_offset' => $_CONFIG['user']['location']['max_offset'])), 'invalid');
+                throw new BException(tr('user_update_location(): Configured max offset ":max_offset" is invalid', array(':max_offset' => $_CONFIG['user']['location']['max_offset'])), 'invalid');
             }
 
             if($_CONFIG['user']['location']['max_offset'] > 10000){
@@ -2546,7 +2546,7 @@ function user_update_location($user){
         if($_CONFIG['user']['location']['detect']){
             if(!$user['cities_id'] or !$user['states_id'] or !$user['countries_id']){
                 if(!geo_loaded()){
-                    throw new bException(tr('user_update_location(): Failed to auto detect city, state, and country because the geo database has not yet been loaded'), 'not-available');
+                    throw new BException(tr('user_update_location(): Failed to auto detect city, state, and country because the geo database has not yet been loaded'), 'not-available');
                 }
 
                 $city = geo_get_city_from_location($geo['latitude'], $geo['longitude']);
@@ -2588,7 +2588,7 @@ function user_update_location($user){
                    $execute);
 
     }catch(Exception $e){
-        throw new bException(tr('user_update_location(): Failed'), $e);
+        throw new BException(tr('user_update_location(): Failed'), $e);
     }
 }
 

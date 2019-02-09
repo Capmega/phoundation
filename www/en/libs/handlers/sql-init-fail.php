@@ -15,7 +15,7 @@
                     return true;
 
                 }catch(Exception $e){
-                    throw new bException('sql_init(): Failed', $e);
+                    throw new BException('sql_init(): Failed', $e);
                 }
 
                 throw $e;
@@ -24,23 +24,23 @@
             break;
 
         case 'notspecified':
-            throw new bException('sql_init(): Failed', $e);
+            throw new BException('sql_init(): Failed', $e);
     }
 
-    $e = new bException('sql_init(): Failed', $e);
+    $e = new BException('sql_init(): Failed', $e);
 
     if(!is_string($connector)){
-        throw new bException(tr('sql_init(): Specified database connector ":connector" is invalid, must be a string', array(':connector' => $connector)), 'invalid');
+        throw new BException(tr('sql_init(): Specified database connector ":connector" is invalid, must be a string', array(':connector' => $connector)), 'invalid');
     }
 
     if(empty($_CONFIG['db'][$connector])){
-        throw new bException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exist');
+        throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exist');
     }
 
     try{
         return sql_error($e, $_CONFIG['db'][$connector], null, isset_get($core->sql[$connector]));
 
     }catch(Exception $e){
-        throw new bException('sql_init(): Failed', $e);
+        throw new BException('sql_init(): Failed', $e);
     }
 ?>
