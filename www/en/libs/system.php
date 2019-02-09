@@ -17,7 +17,7 @@
  * Framework version
  */
 define('FRAMEWORKCODEVERSION', '2.2.0');
-define('PHP_MINIMUM_VERSION' , '5.5.9');
+define('PHP_MINIMUM_VERSION' , '7.0.0');
 
 
 
@@ -1115,13 +1115,15 @@ function safe_exec($commands, $ok_exitcodes = null, $route_errors = true, $funct
  * @category Function reference
  * @package system
  * @see notifications_send()
+ * @see safe_exec()
  *
  * @param string $script The commands to be executed
- * @param (optional, default true) string $arguments
- * @param (optional, default null) mixed $ok_exitcodes If specified, will not cause exception for the specified command exit codes.
+ * @param null string $arguments
+ * @param null mixed $ok_exitcodes If specified, will not cause exception for the specified command exit codes.
+ * @param "passthru" mixed $function One of "passthru", "exec", "shell_exec" or "system"
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
-function script_exec($script, $arguments = null, $ok_exitcodes = null){
+function script_exec($script, $arguments = null, $ok_exitcodes = null, $function = 'passthru'){
     return include(__DIR__.'/handlers/system-script-exec.php');
 }
 

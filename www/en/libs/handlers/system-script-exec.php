@@ -6,12 +6,12 @@ try{
     $script_file = ROOT.'scripts/'.$script;
 
     if(!file_exists($script_file)){
-        throw new BException(tr('script_exec(): Specified script ":script" does not exist', array(':script' => $script)), 'not-exist');
+        throw new bException(tr('script_exec(): Specified script ":script" does not exist', array(':script' => $script)), 'not-exist');
     }
 
     if($arguments){
         if(!is_array($arguments)){
-            throw new BException(tr('script_exec(): Invalid arguments ":arguments" specified, must be an array or null', array(':arguments' => $arguments)), 'invalid');
+            throw new bException(tr('script_exec(): Invalid arguments ":arguments" specified, must be an array or null', array(':arguments' => $arguments)), 'invalid');
         }
 
         foreach($arguments as &$argument){
@@ -25,9 +25,9 @@ try{
         $arguments   = implode(' ', $arguments);
     }
 
-    return safe_exec(escapeshellcmd($script_file).' '.$arguments, $ok_exitcodes, true, 'passthru');
+    return safe_exec(escapeshellcmd($script_file).' '.$arguments, $ok_exitcodes, true, $function);
 
 }catch(Exception $e){
-    throw new BException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $script)), $e);
+    throw new bException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $script)), $e);
 }
 ?>
