@@ -1015,6 +1015,67 @@ function load_config($files = ''){
 
 
 /*
+ * Returns the configuration array from the specified file and specified environment
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @version 2.0.7: Fixed loading bugs, improved error handling
+ *
+ * @param string $file
+ * @param string $environment
+ * @return array The requested configuration array
+ */
+function read_config($file = null, $environment = null){
+    try{
+        if(!$environment){
+            $environment = ENVIRONMENT;
+        }
+
+        if($file === 'deploy'){
+            include(ROOT.'config/deploy.php');
+
+        }else{
+            if($file){
+                if(file_exists(ROOT.'config/base/'.$file.'.php')){
+                    $loaded = true;
+                    include(ROOT.'config/base/'.$file.'.php');
+                }
+
+                $file = '_'.$file;
+
+            }else{
+                $loaded = true;
+                include(ROOT.'config/base/default.php');
+            }
+
+            if(file_exists(ROOT.'config/production'.$file.'.php')){
+                $loaded = true;
+                include(ROOT.'config/production'.$file.'.php');
+            }
+
+            if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
+                $loaded = true;
+                include(ROOT.'config/'.$environment.$file.'.php');
+            }
+        }
+
+        if(empty($loaded)){
+            throw new bException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exist');
+        }
+
+        return $_CONFIG;
+
+    }catch(Exception $e){
+        throw new bException('read_config(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Safely executes shell commands.
  *
  * NOTE: This function as currently is, is actually NOT YET safe, its still a partial work in progress!
@@ -1720,6 +1781,54 @@ function get_hash($source, $algorithm, $add_meta = true){
 
 
 /*
+ * Get a valid language from the specified language
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @version 2.0.7: Added function and documentation
+ *
+ * @param string $language a language code
+ * @return null string a valid language that is supported by the systems configuration
+ */
+function get_language($language){
+    global $_CONFIG;
+
+    try{
+        if(empty($_CONFIG['language']['supported'])){
+            return '';
+        }
+
+        /*
+         * Multilingual site
+         */
+        if($language === null){
+            $language = LANGUAGE;
+        }
+
+        if($language){
+            /*
+             * This is a multilingual website. Ensure language is supported and
+             * add language selection to the URL.
+             */
+            if(empty($_CONFIG['language']['supported'][$language])){
+                $language = $_CONFIG['language']['default'];
+                notify('unsupported-language-specified', 'developers', 'domain(): The specified language ":language" is not supported', array(':language' => $language));
+            }
+        }
+
+        return $language;
+
+    }catch(Exception $e){
+        throw new bException('get_language(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Return the correct current domain
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1759,10 +1868,14 @@ function get_domain(){
  *
  * @return void
  */
-function domain($current_url = null, $query = null, $prefix = null, $domain = null, $language = null){
+function domain($url = null, $query = null, $prefix = null, $domain = null, $language = null){
     global $_CONFIG;
 
     try{
+        if(preg_match('/(?:(?:https?)|(?:ftp):)?\/\//', $url)){
+            return $url;
+        }
+
         if(!$domain){
             /*
              * Use current domain.
@@ -1781,28 +1894,9 @@ function domain($current_url = null, $query = null, $prefix = null, $domain = nu
             $domain = $_SERVER['HTTP_HOST'];
         }
 
-        if(empty($_CONFIG['language']['supported'])){
-            $language = '';
-
-        }else{
-            /*
-             * Multilingual site
-             */
-            if($language === null){
-                $language = LANGUAGE;
-            }
-        }
+        $language = get_language($language);
 
         if($language){
-            /*
-             * This is a multilingual website. Ensure language is supported and
-             * add language selection to the URL.
-             */
-            if(empty($_CONFIG['language']['supported'][$language])){
-                $language = $_CONFIG['language']['default'];
-                notify('unsupported-language-specified', 'developers', 'domain(): The specified language ":language" is not supported', array(':language' => $language));
-            }
-
             $language .= '/';
         }
 
@@ -1816,10 +1910,10 @@ function domain($current_url = null, $query = null, $prefix = null, $domain = nu
             }
         }
 
-        if(!$current_url){
+        if(!$url){
             $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix;
 
-        }elseif($current_url === true){
+        }elseif($url === true){
             $retval = $_CONFIG['protocol'].$domain.str_starts($_SERVER['REQUEST_URI'], '/');
 
         }else{
@@ -1827,7 +1921,7 @@ function domain($current_url = null, $query = null, $prefix = null, $domain = nu
                 $prefix = str_starts_not(str_ends($prefix, '/'), '/');
             }
 
-            $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix.str_starts_not($current_url, '/');
+            $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix.str_starts_not($url, '/');
         }
 
         if($query){
@@ -1842,6 +1936,55 @@ function domain($current_url = null, $query = null, $prefix = null, $domain = nu
 
     }catch(Exception $e){
         throw new bException('domain(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Front-end function to domain(), but will pull the URL to the route map table
+ *
+ * This function will take the specified URL and pull it through the $core->register[routemap] table in the requested language. If the specified word is found it will be replaced, creating foreign language URLs
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see file_get_local()
+ * @version 2.0.7: Added function and documentation
+ *
+ * @param string $url The URL to create the domain URL from
+ * @param string $query
+ * @param string $prefix
+ * @param string $domain
+ * @param string $language
+ * @return string The domain from domain() after being mapped
+ */
+function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null){
+    global $core;
+
+    try{
+        /*
+         * Only map if routemap has been set
+         */
+        if(!empty($core->register['routemap'])){
+            $language = get_language($language);
+
+            /*
+             * Only map if routemap has been set for the requested language
+             */
+            if(!empty($core->register['routemap'][$language])){
+                foreach($core->register['routemap'][$language] as $english => $foreign){
+                    $url = str_replace($english, $foreign, $url);
+                }
+            }
+        }
+
+        return domain($url, $query, $prefix, $domain, $language);
+
+    }catch(Exception $e){
+        throw new bException('mapped_domain(): Failed', $e);
     }
 }
 
@@ -2684,58 +2827,6 @@ function unique_code($hash = 'sha512'){
 
 
 /*
- * Returns the configuration array from the specified file and specified environment
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- *
- * @param string $file
- * @param string $environment
- * @return array The requested configuration array
- */
-function get_config($file = null, $environment = null){
-    try{
-        if(!$environment){
-            $environment = ENVIRONMENT;
-        }
-
-        if($file === 'deploy'){
-            include(ROOT.'config/deploy.php');
-
-        }else{
-            if($file){
-                $file = '_'.$file;
-
-                if(file_exists(ROOT.'config/'.$file.'.php')){
-                    include(ROOT.'config/'.$file.'.php');
-                }
-
-            }else{
-                include(ROOT.'config/base/default.php');
-            }
-
-            if(file_exists(ROOT.'config/production'.$file.'.php')){
-                include(ROOT.'config/production'.$file.'.php');
-            }
-
-            if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
-                include(ROOT.'config/'.$environment.$file.'.php');
-            }
-        }
-
-        return $_CONFIG;
-
-    }catch(Exception $e){
-        throw new bException('get_config(): Failed', $e);
-    }
-}
-
-
-
-/*
  *
  */
 function name($user = null, $key_prefix = '', $default = null){
@@ -3423,13 +3514,13 @@ function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force
         //         */
         //        notify('no-cdn-servers', tr('CDN system is enabled, but no availabe CDN servers were found'), 'developers');
         //        $_SESSION['cdn'] = false;
-        //        return domain($current_url, $query, $prefix);
+        //        return domain($url, $query, $prefix);
         //    }
         //
         //    $_SESSION['cdn'] = slash($server).strtolower(str_replace('_', '-', PROJECT));
         //}
         //
-        //return $_SESSION['cdn'].$current_url;
+        //return $_SESSION['cdn'].$url;
 
     }catch(Exception $e){
         throw new bException('cdn_domain(): Failed', $e);
@@ -5302,13 +5393,13 @@ function check_disk($params = null){
 
 
 /*
- * BELOW FOLLOW DEPRECATED FUNCTIONS
+ * BELOW FOLLOW OBSOLETE FUNCTIONS
  */
 
 
 
 /*
- * DEPRECATED
+ * OBSOLETE
  */
 function log_database($messages, $class = 'syslog'){
     try{
@@ -5316,6 +5407,15 @@ function log_database($messages, $class = 'syslog'){
 
     }catch(Exception $e){
         throw new bException('log_database(): Failed', $e);
+    }
+}
+
+function get_config($file = null, $environment = null){
+    try{
+        return read_config($file, $environment);
+
+    }catch(Exception $e){
+        throw new bException('get_config(): Failed', $e);
     }
 }
 ?>
