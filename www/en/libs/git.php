@@ -125,19 +125,20 @@ function git_branch($branch = null, $path = ROOT, $create = false){
              * Set the branch
              */
             safe_exec('cd '.$path.'; git branch '.($create ? ' -B ' : '').$branch);
-
-        }else{
-            /*
-             * Get and return the branch
-             */
-            foreach(safe_exec('cd '.$path.'; git branch') as $branch){
-                if(substr(trim($branch), 0, 1) == '*'){
-                    return trim(substr(trim($branch), 1));
-                }
-            }
-
-            throw new BException(tr('git_branch(): Could not find current branch for ":path"', array(':path' => $path)), 'branch-not-found');
         }
+
+        /*
+         * Get and return the branch
+         */
+        $branches = safe_exec('cd '.$path.'; git branch');
+
+        foreach($branches as $branch){
+            if(substr(trim($branch), 0, 1) == '*'){
+                return trim(substr(trim($branch), 1));
+            }
+        }
+
+        throw new BException(tr('git_branch(): Could not find current branch for ":path"', array(':path' => $path)), 'not-exists');
 
     }catch(Exception $e){
         throw new BException('git_branch(): Failed', $e);
@@ -307,7 +308,7 @@ function git_diff($file, $color = false){
         $path = dirname($file);
         git_check_path($path);
 
-        $result = shell_exec('cd '.$path.'; git diff '.($color ? '' : '--no-color ').' -- '.basename($file));
+        $result = safe_exec('cd '.$path.'; git diff '.($color ? '' : '--no-color ').' -- '.basename($file));
 
         return $result;
 
@@ -319,7 +320,40 @@ function git_diff($file, $color = false){
 
 
 /*
+ * Get the changes for the specified commit
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $commit The commit to get the changes and information for
+ * @param string $path
+ * @return
+ */
+function git_show($commit, $path = ROOT, $params = null){
+    try{
+        array_ensure($params, 'check');
+        $options = '';
+
+        if($params['check']){
+            $options .= ' --check ';
+        }
+
+        git_check_path($path);
+        $result = safe_exec('cd '.$path.'; git show '.$options.$commit.' --');
+        return $result;
+
+    }catch(Exception $e){
+        throw new BException('git_show(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Download objects and refs from another repository on the specified path
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -330,24 +364,25 @@ function git_diff($file, $color = false){
  * @param params $params
  * @return
  */
-function git_fetch($params = null){
+function git_fetch($path = ROOT, $params = null){
     try{
-        array_params($params, 'path');
-        array_default($params, 'all' , true);
-        array_default($params, 'path', ROOT);
+        array_params($params, 'tags,all');
+        git_check_path($path);
 
-        git_check_path($params['path']);
-
-        $options = array();
+        $options = '';
 
         if($params['all']){
-            $options[] = '--all';
+            $options .= ' --all ';
+        }
+
+        if($params['tags']){
+            $options .= ' --tags ';
         }
 
         /*
-         * Do git fetch
+         * Execute a git fetch
          */
-        shell_exec('cd '.$params['path'].'; git fetch '.implode(' ', $options));
+        return safe_exec('cd '.$path.'; git fetch '.$options);
 
     }catch(Exception $e){
         throw new BException('git_fetch(): Failed', $e);
@@ -458,12 +493,11 @@ function git_pull($path, $remote, $branch){
  * @param null string $commit
  * @return
  */
-function git_reset($file, $commit = null){
+function git_reset($commit = 'HEAD', $path = ROOT){
     try{
-        if(is_dir($file)){
-            $path = $file;
+        $file = $path;
 
-        }else{
+        if(!is_dir($path)){
             $path = dirname($file);
         }
 
@@ -499,8 +533,7 @@ function git_status($path = ROOT, $filters = null){
          * Check if we dont have any changes that should be committed first
          */
         $retval  = array();
-        $results = shell_exec('cd '.$path.'; git status --porcelain');
-        $results = explode("\n", $results);
+        $results = safe_exec('cd '.$path.'; git status --porcelain');
 
         foreach($results as $line){
             if(!$line) continue;
@@ -576,6 +609,35 @@ function git_status($path = ROOT, $filters = null){
 
 
 /*
+ * Return a list of available tags for the specified repository
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @return array The available tags for the specified git repository
+ */
+function git_list_tags($path = ROOT){
+    try{
+        git_check_path($path);
+
+        /*
+         * Check if we dont have any changes that should be committed first
+         */
+        $results = safe_exec('cd '.$path.'; git tag --list');
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException('git_list_tags(): Failed', $e);
+    }
+}
+
+
+
+/*
  *
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -591,7 +653,7 @@ function git_stash($path = ROOT){
     try{
         git_check_path($path);
 
-        $result = safe_exec('cd '.$path.'; git stash');
+        $result = safe_exec('cd '.$path.'; git add .; git stash');
 
         return $result;
 
