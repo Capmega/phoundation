@@ -37,11 +37,9 @@ $_CONFIG['blogs']               = array('enabled'                           => f
                                         'url'                               => '/%seocategory1%/%date%/%seoname%.html');
 
 // Use bootstrap?
-$_CONFIG['bootstrap']           = array('enabled'                           => false,
+$_CONFIG['bootstrap']           = array('enabled'                           => true,
                                         'css'                               => 'bootstrap',
                                         'js'                                => 'bootstrap');
-//:DELETE: viewport is used from $CONFIG_['mobile]['viewport']
-                                        //'viewport'        => 'width=device-width, initial-scale=1.0');
 
 //
 $_CONFIG['cache']              = array('method'                             => 'file',                                                  // "file", "memcached" or false.
@@ -70,7 +68,7 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'css'                                => array('post'               => false),                    // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
 
-                                       'js'                                 => array('load_delayed'       => false),                    // If set to true, the JS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
+                                       'js'                                 => array('load_delayed'       => true),                     // If set to true, the JS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
 
                                        'network'                            => array('enabled'            => false),                    // Use CDN network or not
 
@@ -336,10 +334,11 @@ $_CONFIG['security']           = array('signin'                             => a
 
 
 // Sessions
-$_CONFIG['sessions']           = array('lifetime'                           => 86400,                                                       // Total time that a session may exist until the user has to login again
+$_CONFIG['sessions']           = array('enabled'                            => true,                                                        // Have a system with sessions. If enabled, the system will use cookies
+                                       'lifetime'                           => 86400,                                                       // Total time that a session may exist until the user has to login again
                                        'timeout'                            => 86400,                                                       // Time between pageloads that, when passed, will cause the session to be closed
-                                       'http_only'                          => true,                                                        // Sets if cookies can be sent over other protocols than HTTP. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_httponly
-                                       'secure_only'                        => true,                                                        // Sets if cookies can only be sent over secure connections. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_secure
+                                       'http'                               => true,                                                        // Sets if cookies can be sent over other protocols than HTTP. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_httponly
+                                       'secure'                             => true,                                                        // Sets if cookies can only be sent over secure connections. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_secure
                                        'same_site'                          => 'Strict',                                                    // false | Lax | Strict : Sets if cookiets can be sent cross domain by browser. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_samesite
                                        'strict'                             => true,                                                        // Forces session.use_strict_mode to the specified value. Recommended TRUE for session security! See https://secure.php.net/manual/en/session.configuration.php#ini.session.use_strict_mode
                                        'regenerate_id'                      => 600,                                                         // Time required to regenerate the session id, used to mitigate session fixation attacks. MUST BE LOWER THAN $_CONFIG[session][lifetime]!
