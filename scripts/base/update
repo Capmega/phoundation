@@ -52,7 +52,6 @@ $version_line = cli_argument('-c,--version_line', true, 'production');
  *
  */
 cli_no_arguments_left();
-
 load_libs('git,code');
 load_config('update');
 
@@ -164,7 +163,7 @@ switch($highest){
         }
 }
 
-log_console(tr('Found update version ":version"', array(':version' => $highest)), 'green');
+log_console(tr('Found newer Phoundation version ":version"', array(':version' => $highest)), 'green');
 
 
 
@@ -189,12 +188,14 @@ if($no_times or !empty($_CONFIG['deploy'][ENVIRONMENT]['no_times'])){
 /*
  * Copy from phoundation
  */
-log_console(tr('Updateing from phoundation version ":version"', array(':version' => $highest)), 'white');
+log_console(tr('Updating from Phoundation version ":version"', array(':version' => $highest)), 'white');
+
+
 
 /*
  * Libraries
  */
-log_console(tr('Copying libraries'), 'purple');
+log_console(tr('Copying libraries'), 'cyan');
 
 if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/libs '.ROOT.'www/en/', $exitcodes['www/en/libs']);
@@ -202,7 +203,7 @@ if(empty($test)){
 }
 
 // Phoundation AJAX files
-log_console(tr('Copying ajax files'), 'purple');
+log_console(tr('Copying ajax files'), 'cyan');
 
 if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/ajax/', $exitcodes['www/en/ajax']);
@@ -214,7 +215,7 @@ if(empty($test)){
 }
 
 // Phoundation scripts
-log_console(tr('Copying phoundation scripts'), 'purple');
+log_console(tr('Copying phoundation scripts'), 'cyan');
 
 if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/base/* '.ROOT.'scripts/base/', $exitcodes['scripts/base']);
@@ -222,21 +223,21 @@ if(empty($test)){
 }
 
 // Framework init files
-log_console(tr('Copying framework init files'), 'purple');
+log_console(tr('Copying framework init files'), 'cyan');
 
 if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/init/framework/* '.ROOT.'init/framework/', $exitcodes['init/framework']);
 }
 
 // phoundation configuration
-log_console(tr('Config phoundation configuration'), 'purple');
+log_console(tr('Copying phoundation configuration'), 'cyan');
 
 if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/config/base/* '.ROOT.'config/base/', $exitcodes['config/base']);
 }
 
 // Javascript
-log_console(tr('Copying javascript files'), 'purple');
+log_console(tr('Copying javascript files'), 'cyan');
 
 if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/pub/js/base/', $exitcodes['www/en/pub/js/base']);
@@ -247,14 +248,14 @@ if(empty($test)){
 }
 
 // Documentation
-log_console(tr('Copying documentation'), 'purple');
+log_console(tr('Copying documentation'), 'cyan');
 
 if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/doc/* '.ROOT.'data/doc/', $exitcodes['data/doc']);
 }
 
 // Audio files
-log_console(tr('Copying audio files'), 'purple');
+log_console(tr('Copying audio files'), 'cyan');
 
 if(empty($test)){
     passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.ROOT.'data/audio/', $exitcodes['data/audio']);
@@ -272,6 +273,13 @@ if(isset($e) and !FORCE){
 }
 
 unset($exitcode);
+
+
+
+/*
+ * Return the phoundation project to its original branch
+ */
+code_phoundation_branch($current_version_line);
 
 
 
