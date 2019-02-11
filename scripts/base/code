@@ -66,6 +66,8 @@ $filter          = cli_argument('--filter', true, '/.+\.(php|html)/');
 $follow_symlinks = cli_argument('--follow-symlinks');
 $follow_hidden   = cli_argument('--follow-hidden');
 
+
+
 /*
  * Define a list of files that should be skipped because they will very likely
  * be changed on the project level. List should be regex strings
@@ -135,6 +137,79 @@ switch(cli_method()){
         $create_only = cli_argument('--create-only');
         $no_clean    = cli_argument('--no-clean');
         $reverse     = cli_argument('--reverse');
+
+
+
+        /*
+         * Get our current framework version line, then get available version lines from
+         * the local phoundation project
+         */
+        load_libs('code');
+
+        $current_branch       = code_phoundation_branch();
+        $branches             = code_get_phoundation_branch_lines();
+        $current_version_line = code_get_version_line(FRAMEWORKCODEVERSION);
+
+        if(!in_array($current_version_line, $branches)){
+            throw new BException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
+        }
+
+
+
+        /*
+         * Checkout the current version on phoundation
+         */
+        code_phoundation_branch($current_version_line);
+        $phoundation_version = code_get_phoundation_framework_version();
+
+        switch(version_compare(FRAMEWORKCODEVERSION, $phoundation_version)){
+            case 1:
+                throw new BException(tr('The Phoundation version line ":versionline" is at version ":version" which is behind this projects framework version ":frameworkversion"', array(':versionline' => $current_version_line, ':version' => $phoundation_version, ':frameworkversion' => FRAMEWORKCODEVERSION)), 'invalid');
+
+            case 0:
+                /*
+                 * The framework code version of this project is at the current
+                 * phoundation framework code version
+                 */
+                break;
+
+            case -1:
+                /*
+                 * The Phoundation framework code version is ahead of this
+                 * project. Update this project first to ensure both project
+                 * have the same code
+                 */
+                try{
+                    log_console(tr('Current framework version of this project is behind the found Phoundation framework version. Updating first'), 'yellow');
+                    git_stash();
+                    script_exec('base/update', array('--branch', $current_version_line));
+
+                }catch(Exception $e){
+                    /*
+                     * Update failed. Auto cleanup everything and return the stashed changes, leaving everything as it was
+                     */
+                    git_reset('', ROOT, array('hard' => true));
+                    git_clean(ROOT, true, true);
+                    git_stash_pop();
+
+                    throw new BException(tr('Auto update failed, please check output to find out what went wrong. All update changes have been reset and cleaned, all previous code changes have been reinstated'), $e);
+                }
+
+                /*
+                 * Okay, code changes were stashed, update was successful,
+                 */
+                try{
+                    git_stash_pop();
+
+                }catch(Exception $e){
+                    throw new BException(tr('Update succeeded, but "git stas pop" failed. Very likely this is due to merge conflicts. Please resolve the conflicts, and re-run this script'), $e);
+                }
+        }
+
+
+
+showdie('aaaaaaaaaaaaaaaaaaaaaaa');
+
         // FALLTROUGH
     case 'status':
         // FALLTROUGH
@@ -159,13 +234,8 @@ switch(cli_method()){
         /*
          * Prepare patch paths, must exist and be empty
          */
-        $paths['phoundation'] = patch_get_phoundation_location();
-        $paths['toolkit']     = patch_get_toolkit_location();
-
-        /*
-         * reset this project branch to HEAD
-         */
-        git_reset(ROOT, 'HEAD');
+        $paths['phoundation'] = code_locate_phoundation();
+        $paths['toolkit']     = code_locate_toolkit();
 
         /*
          * Ensure that phoundation and toolkit have no pending changes
