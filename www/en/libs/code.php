@@ -84,7 +84,7 @@ function code_locate_phoundation(){
                          */
                         try{
                             $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
-                            $found  = realpath($path);
+                            $found  = slash(realpath($path));
 
                         }catch(Exception $e){
                             if($e->getCode() == 128){
@@ -159,7 +159,7 @@ function code_locate_toolkit(){
                          */
                         try{
                             $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
-                            $found  = realpath($path);
+                            $found  = slash(realpath($path));
 
                         }catch(Exception $e){
                             if($e->getCode() == 128){
@@ -217,6 +217,35 @@ function code_phoundation_fetch($params = null){
 
     }catch(Exception $e){
         throw new BException('code_phoundation_fetch(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Checkout the specified branch or commit on the phoundation project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_locate_phoundation()
+ * @see git_branch()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $branch The branch to checkout
+ * @return array Return the current branch for the phoundation project
+ */
+function code_phoundation_checkout($branch){
+    try{
+        $path   = code_locate_phoundation();
+        $branch = git_checkout($branch, $path);
+
+        return $branch;
+
+    }catch(Exception $e){
+        throw new BException('code_phoundation_checkout(): Failed', $e);
     }
 }
 
@@ -808,8 +837,10 @@ function code_patch($file, $path, $method = 'apply', $replaces = null){
             case 'apply':
                 // FALLTHROUGH
             case 'patch':
+                log_console(tr('Trying to patch ":file"', array(':file' => $file)), 'VERBOSE/cyan');
+
                 $patch      = git_diff($file);
-                $patch_file = $path.sha1($file).'.patch';
+                $patch_file = slash($path).sha1($file).'.patch';
 
                 if(empty($patch)){
                     throw new BException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $file)), 'empty');
@@ -824,7 +855,7 @@ function code_patch($file, $path, $method = 'apply', $replaces = null){
                     }
                 }
 
-                file_put_contents($patch_file, $patch);
+                file_put_contents($patch_file, implode("\n", $patch)."\n");
 
                 if($method == 'create'){
                     /*
