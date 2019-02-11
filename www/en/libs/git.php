@@ -124,7 +124,7 @@ function git_branch($branch = null, $path = ROOT, $create = false){
             /*
              * Set the branch
              */
-            safe_exec('cd '.$path.'; git branch '.($create ? ' -B ' : '').$branch);
+            safe_exec('cd '.$path.'; git checkout '.($create ? ' -B ' : '').$branch);
         }
 
         /*
@@ -142,6 +142,46 @@ function git_branch($branch = null, $path = ROOT, $create = false){
 
     }catch(Exception $e){
         throw new BException('git_branch(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get and return the available GIT branches for the specified git repository path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @param boolean $all If set to true, list both remote-tracking branches and local branches.
+ * @return array All available branches on the specified git project path
+ */
+function git_list_branches($path = ROOT, $all = false){
+    try{
+        git_check_path($path);
+
+        /*
+         * Get and return the branch
+         */
+        $branches = safe_exec('cd '.$path.'; git branch -a -q');
+
+        foreach($branches as $branch){
+            $branch = str_until($branch, '->');
+            $branch = trim($branch);
+            $branch = str_rfrom($branch, '/');
+
+            $retval [] = $branch;
+        }
+
+        $retval = array_unique($retval);
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('git_list_branches(): Failed', $e);
     }
 }
 
@@ -242,7 +282,7 @@ function git_checkout($path, $branch = null){
  * @param boolean $force
  * @return
  */
-function git_clean($path, $directories = false, $force = false){
+function git_clean($path = ROOT, $directories = false, $force = false){
     try{
         $retval = safe_exec('cd '.$path.'; git clean'.($directories ? ' -d' : '').($force ? ' -f' : ''));
 
@@ -493,7 +533,7 @@ function git_pull($path, $remote, $branch){
  * @param null string $commit
  * @return
  */
-function git_reset($commit = 'HEAD', $path = ROOT){
+function git_reset($commit = 'HEAD', $path = ROOT, $params = null){
     try{
         $file = $path;
 
@@ -502,6 +542,13 @@ function git_reset($commit = 'HEAD', $path = ROOT){
         }
 
         git_check_path($path);
+
+        array_ensure($params, 'hard');
+        $options = '';
+
+        if($params['hard']){
+            $options .= ' --hard ';
+        }
 
         $retval = safe_exec('cd '.$path.'; git reset '.($commit ? $commit.' ' : '').$file);
 
