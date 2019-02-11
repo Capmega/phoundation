@@ -25,7 +25,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
- * @version 2.0.5: Added function and documentation
+ * @version 2.2.0: Added function and documentation
  *
  * @return void
  */
@@ -41,9 +41,9 @@ function code_library_init(){
 
 
 /*
- * Locate the local phoundation project and return its path
+ * Locate the local Phoundation project and return its path
  *
- * This function will look for the phoundation system path and return it. The script will first search in the current directory parrallel to ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
+ * This function will look for the Phoundation system path and return it. The script will first search in the current directory parrallel to ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -78,8 +78,8 @@ function code_locate_phoundation(){
                     if(git_is_repository($path)){
                         /*
                          * Its a git repository too!
-                         * Check if its really the phoundation repository by
-                         * ensuring the first phoundation commit hash is
+                         * Check if its really the Phoundation repository by
+                         * ensuring the first Phoundation commit hash is
                          * available
                          */
                         try{
@@ -89,8 +89,8 @@ function code_locate_phoundation(){
                         }catch(Exception $e){
                             if($e->getCode() == 128){
                                 /*
-                                 * The phoundation initial commit does not
-                                 * exist, this is not the phoundation project!
+                                 * The Phoundation initial commit does not
+                                 * exist, this is not the Phoundation project!
                                  *
                                  * Continue looking
                                  */
@@ -106,13 +106,88 @@ function code_locate_phoundation(){
         }
 
         if(!$found){
-            throw new BException(tr('code_locate_phoundation(): Failed to find the phoundation project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
+            throw new BException(tr('code_locate_phoundation(): Failed to find the Phoundation project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
         }
 
         return $found;
 
     }catch(Exception $e){
         throw new BException('code_locate_phoundation(): Failed', $e);
+    }
+}
+
+
+/*
+ * Locate the local Toolkit project and return its path
+ *
+ * This function will look for the Toolkit system path and return it. The script will first search in the current directory parrallel to ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @version 2.2.0: Added function and documentation
+ *
+ * @return string the path of the Toolkit project
+ */
+function code_locate_toolkit(){
+    static $found;
+
+    try{
+        if(!$found){
+            $paths = array(ROOT.'../toolkit.capmega.com/',
+                           ROOT.'../../toolkit.capmega.com/',
+                           '/var/www/html/toolkit.capmega.com/');
+
+            $home = getenv('HOME');
+
+            if($home){
+                $paths[] = slash($home).'projects/toolkit.capmega.com/';
+            }
+
+            foreach($paths as $path){
+                if(file_exists($path)){
+                    /*
+                     * Found something with the correct name!
+                     */
+                    if(git_is_repository($path)){
+                        /*
+                         * Its a git repository too!
+                         * Check if its really the Toolkit repository by
+                         * ensuring the first Toolkit commit hash is available
+                         */
+                        try{
+                            $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
+                            $found  = realpath($path);
+
+                        }catch(Exception $e){
+                            if($e->getCode() == 128){
+                                /*
+                                 * The Toolkit initial commit does not
+                                 * exist, this is not the Toolkit project!
+                                 *
+                                 * Continue looking
+                                 */
+                                continue;
+                            }
+
+                            throw $e;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        if(!$found){
+            throw new BException(tr('code_locate_toolkit(): Failed to find the Toolkit project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
+        }
+
+        return $found;
+
+    }catch(Exception $e){
+        throw new BException('code_locate_toolkit(): Failed', $e);
     }
 }
 
@@ -229,6 +304,34 @@ function code_get_version_line($version){
 
 
 /*
+ * Return the available branches from the phoundation project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_locate_phoundation()
+ * @see code_get_available_branches()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @return array Return the available branches for the phoundation project
+ */
+function code_get_phoundation_branch_lines(){
+    try{
+        $path     = code_locate_phoundation();
+        $branches = code_get_branch_lines($path);
+
+        return $branches;
+
+    }catch(Exception $e){
+        throw new BException('code_get_phoundation_branch_lines(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Return the available code lines from the phoundation project
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -241,8 +344,7 @@ function code_get_version_line($version){
  * @version 2.2.0: Added function and documentation
  * @note Version lines are all tagged versions that share the same MAJOR.MINOR version numbers. E.g. 2.2.0, 2.2.1, 2.2.2, 2.2.3 are all part of the 2.2 code line
  *
- * @param string $path The root directory of the project where to find the version lines from
- * @return array Return the available version lines for the git project
+ * @return array Return the available version lines for the phoundation project
  */
 function code_get_phoundation_lines(){
     try{
@@ -272,7 +374,7 @@ function code_get_phoundation_lines(){
  * @note Version lines are all tagged versions that share the same MAJOR.MINOR version numbers. E.g. 2.2.0, 2.2.1, 2.2.2, 2.2.3 are all part of the 2.2 code line
  *
  * @param string $version_lines
- * @return array Return the available versions for the git project
+ * @return array Return the available versions for the phoundation project
  */
 function code_get_phoundation_versions($version_lines = null){
     try{
@@ -283,6 +385,98 @@ function code_get_phoundation_versions($version_lines = null){
 
     }catch(Exception $e){
         throw new BException('code_get_phoundation_versions(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the framework version from the phoundation project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_locate_phoundation()
+ * @see code_get_available_versions()
+ * @version 2.2.0: Added function and documentation
+ * @note Version lines are all tagged versions that share the same MAJOR.MINOR version numbers. E.g. 2.2.0, 2.2.1, 2.2.2, 2.2.3 are all part of the 2.2 code line
+ *
+ * @return array Return the framework version for the phoundation project
+ */
+function code_get_phoundation_framework_version(){
+    try{
+        $path    = code_locate_phoundation();
+        $version = code_get_framework_version($path);
+
+        return $version;
+
+    }catch(Exception $e){
+        throw new BException('code_get_phoundation_framework_version(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the project version from the phoundation project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_locate_phoundation()
+ * @see code_get_available_versions()
+ * @version 2.2.0: Added function and documentation
+ * @note Version lines are all tagged versions that share the same MAJOR.MINOR version numbers. E.g. 2.2.0, 2.2.1, 2.2.2, 2.2.3 are all part of the 2.2 code line
+ *
+ * @return array Return the current project version for the phoundation project
+ */
+function code_get_phoundation_project_version(){
+    try{
+        $path    = code_locate_phoundation();
+        $version = code_get_project_version($path);
+
+        return $version;
+
+    }catch(Exception $e){
+        throw new BException('code_get_phoundation_project_version(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the available branch version lines from the project on the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see git_list_branches()
+ * @see code_get_available_versions()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $path The root directory of the project where to find the version lines from
+ * @return array Return the available branches for the git project
+ */
+function code_get_branch_lines($path = ROOT){
+    try{
+        $branches = git_list_branches($path, true);
+
+        foreach($branches as $id => $branch){
+            if(!str_is_version($branch.'.0')){
+                unset($branches[$id]);
+            }
+        }
+
+        return $branches;
+
+    }catch(Exception $e){
+        throw new BException('code_get_branch_lines(): Failed', $e);
     }
 }
 
@@ -368,6 +562,288 @@ function code_get_available_versions($path = ROOT, $version_lines = null){
 
     }catch(Exception $e){
         throw new BException('code_get_available_versions(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the framework version for the specified phoundation project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $path The root directory of the project where to get the framework version from
+ * @return string The current version for the specified Phoundation type  project path
+ */
+function code_get_framework_version($path = ROOT){
+    try{
+        $file = slash($path).'libs/system.php';
+
+        if(!file_exists($file)){
+            throw new bException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+        }
+
+        $data   = file_get_contents($file);
+        $exists = preg_match_all('/define\(\'FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
+
+        if(!$exists){
+            throw new bException(tr('code_get_framework_version(): Failed to extract project framework version from system library file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
+        }
+
+        return $matches[1][0];
+
+    }catch(Exception $e){
+        throw new BException('code_get_framework_version(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the project version for the specified phoundation project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $path The root directory of the project where to get the project version from
+ * @return string The current version for the specified Phoundation type  project path
+ */
+function code_get_project_version($path = ROOT){
+    try{
+        $file = slash($path).'config/project.php';
+
+        if(!file_exists($file)){
+            throw new bException(tr('code_get_project_version(): No project configuration file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+        }
+
+        $data   = file_get_contents($file);
+        $exists = preg_match_all('/define\(\'PROJECTCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
+
+        if(!$exists){
+            throw new bException(tr('code_get_project_version(): Failed to extract project code version from project file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
+        }
+
+        return $matches[1][0];
+
+    }catch(Exception $e){
+        throw new BException('code_get_project_version(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Check if the specified file exists in the Toolkit project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_diff_phoundation()
+ * @see code_diff_toolkit()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $file The file to be checked
+ * @return boolean True if the specified file exists in the Toolkit project, false if not
+ */
+function code_file_exists_in_phoundation($file){
+    try{
+        $path = code_locate_phoundation();
+        return file_exists($path.$file);
+
+    }catch(Exception $e){
+        throw new BException('code_file_exists_in_phoundation(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Check if the specified file exists in the Toolkit project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_diff_phoundation()
+ * @see code_diff_toolkit()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $file The file to be checked
+ * @return boolean True if the specified file exists in the Toolkit project, false if not
+ */
+function code_file_exists_in_toolkit($file){
+    try{
+        $path = code_locate_toolkit();
+        return file_exists($path.$file);
+
+
+    }catch(Exception $e){
+        throw new BException('code_file_exists_in_toolkit(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Perform a diff between the two specified files
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_diff_phoundation()
+ * @see code_diff_toolkit()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $file The first file to be compared
+ * @param string $file2 The second file to be compared
+ * @return string The difference between the two files
+ */
+function code_diff($file, $file2){
+    try{
+        return safe_exec('diff '.$file.' '.$file2);
+
+    }catch(Exception $e){
+        throw new BException('code_diff(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Perform a diff between the specified file in this project and the same file in the Phoundation project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_diff()
+ * @see code_diff_toolkit()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $file The first file to be compared
+ * @param string $file2 The second file to be compared
+ * @return string The difference between the two files
+ */
+function code_diff_phoundation($file){
+    try{
+        $path = code_locate_phoundation();
+        return code_diff(ROOT.$file, $path.$file);
+
+    }catch(Exception $e){
+        throw new BException('code_diff_phoundation(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Perform a diff between the specified file in this project and the same file in the Toolkit project
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_diff()
+ * @see code_diff_phoundation()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $file The first file to be compared
+ * @param string $file2 The second file to be compared
+ * @return string The difference between the two files
+ */
+function code_diff_toolkit($file){
+    try{
+        $path = code_locate_toolkit();
+        return code_diff(ROOT.$file, $path.$file);
+
+    }catch(Exception $e){
+        throw new BException('code_diff_toolkit(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get git diff for the specified file and try to apply it on the Phoundation or Toolkit projects
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see git_diff()
+ * @see git_apply()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $file The first file to be compared
+ * @param string $file2 The second file to be compared
+ * @return string The difference between the two files
+ */
+function code_patch($file, $path, $method = 'apply', $replaces = null){
+    try{
+        switch($method){
+            case 'diff':
+                log_console(tr('Showing diff patch for file ":file"', array(':file' => $file)), 'white');
+                echo git_diff($file, !NOCOLOR);
+                break;
+
+            case 'create':
+                // FALLTHROUGH
+            case 'apply':
+                // FALLTHROUGH
+            case 'patch':
+                $patch      = git_diff($file);
+                $patch_file = $path.sha1($file).'.patch';
+
+                if(empty($patch)){
+                    throw new BException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $file)), 'empty');
+                }
+
+                if($replaces){
+                    /*
+                     * Perform a search / replace on the patch data
+                     */
+                    foreach($replaces as $search => $replace){
+                        $patch = str_replace($search, $replace, $patch);
+                    }
+                }
+
+                file_put_contents($patch_file, $patch);
+
+                if($method == 'create'){
+                    /*
+                     * Don't actually apply the patch
+                     */
+
+                }else{
+                    git_apply($patch_file);
+                    file_delete($patch_file);
+                }
+
+                break;
+
+            default:
+                throw new BException(tr('code_patch(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
+        }
+
+    }catch(Exception $e){
+        throw new BException(tr('code_patch(): Failed for file ":file"', array(':file' => $file)), $e);
     }
 }
 ?>
