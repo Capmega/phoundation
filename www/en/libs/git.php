@@ -89,7 +89,7 @@ function git_apply($file){
         return $result;
 
     }catch(Exception $e){
-        $data = $e->getData();
+        $data = array_force($e->getData());
         $data = array_pop($data);
 
         if(strstr($data, 'patch does not apply')){
@@ -113,10 +113,9 @@ function git_apply($file){
  *
  * @param string $branch
  * @param string $path
- * @param boolean $create
  * @return
  */
-function git_branch($branch = null, $path = ROOT, $create = false){
+function git_branch($branch = null, $path = ROOT){
     try{
         git_check_path($path);
 
@@ -124,7 +123,7 @@ function git_branch($branch = null, $path = ROOT, $create = false){
             /*
              * Set the branch
              */
-            safe_exec('cd '.$path.'; git checkout '.($create ? ' -B ' : '').$branch);
+            safe_exec('cd '.$path.'; git branch '.$branch);
         }
 
         /*
@@ -240,12 +239,13 @@ function git_check_path(&$path){
  *
  * @param string $path
  * @param string $branch
+ * @param boolean $create
  * @return
  */
-function git_checkout($path, $branch = null){
+function git_checkout($branch = null, $path = ROOT, $create = false){
     try{
         if($branch){
-            safe_exec('cd '.$path.'; git checkout '.$branch);
+            safe_exec('cd '.$path.'; git checkout '.($create ? ' -B ' : '').$branch);
 
         }else{
             if(is_dir($path)){
