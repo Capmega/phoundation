@@ -59,7 +59,7 @@ patch                           - Will apply the diff patches to both
 require_once(__DIR__.'/../../libs/startup.php');
 
 cli_only();
-load_libs('git,patch');
+load_libs('git,code');
 
 $path            = cli_argument('--path'  , true, ROOT);
 $filter          = cli_argument('--filter', true, '/.+\.(php|html)/');
@@ -144,8 +144,6 @@ switch(cli_method()){
          * Get our current framework version line, then get available version lines from
          * the local phoundation project
          */
-        load_libs('code');
-
         $current_branch       = code_phoundation_branch();
         $branches             = code_get_phoundation_branch_lines();
         $current_version_line = code_get_version_line(FRAMEWORKCODEVERSION);
@@ -159,7 +157,7 @@ switch(cli_method()){
         /*
          * Checkout the current version on phoundation
          */
-        code_phoundation_branch($current_version_line);
+        code_phoundation_checkout($current_version_line);
         $phoundation_version = code_get_phoundation_framework_version();
 
         switch(version_compare(FRAMEWORKCODEVERSION, $phoundation_version)){
@@ -206,10 +204,6 @@ switch(cli_method()){
                 }
         }
 
-
-
-showdie('aaaaaaaaaaaaaaaaaaaaaaa');
-
         // FALLTROUGH
     case 'status':
         // FALLTROUGH
@@ -251,13 +245,6 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                 }
             }
         }
-
-        /*
-         * Move phoundation project to the master branch
-         * Move toolkit project to the master branch
-         */
-        git_checkout($paths['toolkit']    , 'master');
-        git_checkout($paths['phoundation'], 'master');
 
         /*
          * Get a list of all files that contain changes and separate them by phoundation and toolkit sections
@@ -320,7 +307,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                      * This is an admin UI file
                      */
                     if(!$phoundation_only){
-                        if(patch_file_exists_in_toolkit(str_replace('admin/', '', $file))){
+                        if(code_file_exists_in_toolkit(str_replace('admin/', '', $file))){
                             log_console(tr('Identified file as toolkit'), 'VERBOSE');
                             $sections['toolkit'][$file] = $status;
                             $marked = true;
@@ -332,7 +319,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                      * This is a blog management system file, managedd by toolkit
                      */
                     if(!$phoundation_only){
-                        if(patch_file_exists_in_toolkit($file)){
+                        if(code_file_exists_in_toolkit($file)){
                             log_console(tr('Identified file as toolkit'), 'VERBOSE');
                             $sections['toolkit'][$file] = $status;
                             $marked = true;
@@ -344,7 +331,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                      * This is a storage system file, managedd by toolkit
                      */
                     if(!$phoundation_only){
-                        if(patch_file_exists_in_toolkit($file)){
+                        if(code_file_exists_in_toolkit($file)){
                             log_console(tr('Identified file as toolkit'), 'VERBOSE');
                             $sections['toolkit'][$file] = $status;
                             $marked = true;
@@ -357,7 +344,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                      */
                     if(!$phoundation_only){
                         if($type == 'intranet'){
-                            if(patch_file_exists_in_toolkit(str_replace('admin/', '', $file))){
+                            if(code_file_exists_in_toolkit(str_replace('admin/', '', $file))){
                                 log_console(tr('Identified file as toolkit'), 'VERBOSE');
                                 $sections['toolkit'][$file] = $status;
                                 $marked = true;
@@ -369,7 +356,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                     /*
                      * This is a phoundation javascript file
                      */
-                    if(patch_file_exists_in_phoundation(str_replace('admin/', '', $file))){
+                    if(code_file_exists_in_phoundation(str_replace('admin/', '', $file))){
                         log_console(tr('Identified file as phoundation'), 'VERBOSE');
                         $sections['phoundation'][$file] = $status;
                         $marked = true;
@@ -387,7 +374,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                                  * project. Do NOT patch this!
                                  */
                             }else{
-                                if(patch_file_exists_in_toolkit(str_replace('admin/', '', $file))){
+                                if(code_file_exists_in_toolkit(str_replace('admin/', '', $file))){
                                     log_console(tr('Identified file as toolkit'), 'VERBOSE');
                                     $sections['toolkit'][$file] = $status;
                                     $marked = true;
@@ -408,7 +395,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                              */
 
                         }else{
-                            if(patch_file_exists_in_toolkit(str_replace('admin/', '', $file))){
+                            if(code_file_exists_in_toolkit(str_replace('admin/', '', $file))){
                                 log_console(tr('Identified file as toolkit'), 'VERBOSE');
                                 $sections['toolkit'][$file] = $status;
                                 $marked = true;
@@ -432,7 +419,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                          * These are library files, might be project, toolkit,
                          * or phoundation library files. Do not copy project library files!
                          */
-                        if(patch_file_exists_in_phoundation($file)){
+                        if(code_file_exists_in_phoundation($file)){
                             /*
                              * These are phoundation library files
                              */
@@ -440,7 +427,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                             $sections['phoundation'][$file] = $status;
                             $marked = true;
 
-                        }elseif(patch_file_exists_in_toolkit($file)){
+                        }elseif(code_file_exists_in_toolkit($file)){
                             /*
                              * These are toolkit library files
                              */
@@ -455,14 +442,14 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                      * Library handler files, possibly project, toolkit,
                      * phoundation, or new
                      */
-                    if(patch_file_exists_in_phoundation($file)){
+                    if(code_file_exists_in_phoundation($file)){
                         /*
                          * phoundation existing library handler files
                          */
                         log_console(tr('Identified file as phoundation'), 'VERBOSE');
                         $sections['phoundation'][$file] = $status;
                         $marked = true;
-                    }elseif(patch_file_exists_in_toolkit($file)){
+                    }elseif(code_file_exists_in_toolkit($file)){
                         /*
                          * Toolkit existing library handler files
                          */
@@ -488,7 +475,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                     $marked = true;
 
                 }elseif(preg_match('/scripts\/tests\/[a-z0-9-]+/', $file)){
-                    if(patch_file_exists_in_phoundation($file)){
+                    if(code_file_exists_in_phoundation($file)){
                         /*
                          * phoundation existing test script files
                          */
@@ -578,11 +565,11 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                      * Patch or show diff
                      */
                     if($section == 'phoundation'){
-                        patch(ROOT.$file, $paths[$section], (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()));
+                        code_patch(ROOT.$file, $paths[$section], (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()));
                         $status = 'patched';
 
                     }elseif(!$phoundation_only){
-                        patch(ROOT.$file, $paths[$section], (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()), array($file => str_replace('admin/', '', $file)));
+                        code_patch(ROOT.$file, $paths[$section], (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()), array($file => str_replace('admin/', '', $file)));
                         $status = 'patched';
                     }
 
@@ -598,11 +585,11 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                              */
                             try{
                                 git_clean($paths['phoundation'], true, true);
-                                git_checkout($paths['phoundation']);
+                                git_checkout(null, $paths['phoundation']);
 
                                 if(!$phoundation_only){
                                     git_clean($paths['toolkit'], true, true);
-                                    git_checkout($paths['toolkit']);
+                                    git_checkout(null, $paths['toolkit']);
                                 }
 
                             }catch(Exception $f){
@@ -676,7 +663,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaaa');
                                 cli_dot(1, 'green', '.', true);
                             }
 
-                            git_checkout(ROOT.$file);
+                            git_checkout(null, ROOT.$file);
                         }
                     }
                 }
