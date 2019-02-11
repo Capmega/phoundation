@@ -336,8 +336,10 @@ function route($regex, $target, $flags = null){
              */
             $core->register['script'] = str_rfrom($page, '/');
 
-            foreach($core->register['routemap'] as $code => &$map){
-                $map = array_flip($map);
+            if(isset($core->register['routemap'])){
+                foreach($core->register['routemap'] as $code => &$map){
+                    $map = array_flip($map);
+                }
             }
 
             log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
