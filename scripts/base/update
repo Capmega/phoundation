@@ -170,7 +170,7 @@ log_console(tr('Found newer Phoundation version ":version"', array(':version' =>
 /*
  * Checkout the highest version branch for our version line and start updating!
  */
-code_phoundation_branch('v'.$highest);
+code_phoundation_checkout('v'.$highest);
 
 
 
@@ -279,7 +279,7 @@ unset($exitcode);
 /*
  * Return the phoundation project to its original branch
  */
-code_phoundation_branch($current_version_line);
+code_phoundation_checkout($current_version_line);
 
 
 
