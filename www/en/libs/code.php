@@ -821,10 +821,13 @@ function code_diff_toolkit($file){
  * @version 2.2.0: Added function and documentation
  *
  * @param string $file The first file to be compared
- * @param string $file2 The second file to be compared
+ * @param string $path
+ * @param string $method
+ * @param array $replaces
+ * @param boolean $clean If set to true, delete the patch file
  * @return string The difference between the two files
  */
-function code_patch($file, $path, $method = 'apply', $replaces = null){
+function code_patch($file, $path, $method = 'apply', $replaces = null, $clean = true){
     try{
         switch($method){
             case 'diff':
@@ -864,7 +867,10 @@ function code_patch($file, $path, $method = 'apply', $replaces = null){
 
                 }else{
                     git_apply($patch_file);
-                    file_delete($patch_file);
+
+                    if($clean){
+                        file_delete($patch_file);
+                    }
                 }
 
                 break;
@@ -874,7 +880,7 @@ function code_patch($file, $path, $method = 'apply', $replaces = null){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('code_patch(): Failed for file ":file"', array(':file' => $file)), $e);
+        throw new BException(tr('code_patch(): Failed for file ":file"', array(':file' => $file)), $e, array('patch_file' => isset_get($patch_file)));
     }
 }
 ?>
