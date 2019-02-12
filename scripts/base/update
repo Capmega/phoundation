@@ -37,35 +37,65 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only(true);
 
 try{
-    $noinit       = cli_argument('--no-init');
-    $nocommit     = cli_argument('--no-commit');
-    $ignore       = cli_argument('-i,--ignore-changes');
-    $local        = cli_argument('-l,--local');
-    $no_times     = cli_argument('-n,--no-times');
-    $reupdate     = cli_argument('-r,--re-update');
-    $upgrade      = cli_argument('-u,--upgrade', true);
-    $branch       = cli_argument('-b,--branch'      , true, 'production');
-    $version_line = cli_argument('-c,--version_line', true, 'production');
+    /*
+     * Get parameters
+     */
+    $noinit   = cli_argument('--no-init');
+    $nocommit = cli_argument('--no-commit');
+    $ignore   = cli_argument('-i,--ignore-changes');
+    $local    = cli_argument('-l,--local');
+    $no_times = cli_argument('-n,--no-times');
+    $reupdate = cli_argument('-r,--re-update');
+    $upgrade  = cli_argument('-u,--upgrade', true);
+    $branch   = cli_argument('-b,--branch' , true);
+
+    cli_no_arguments_left();
+    load_libs('git,code');
+    load_config('update');
+
+    if(TEST){
+        log_console(tr('Running update script in test mode, NOT REALLY UPDATING!'), 'yellow');
+    }
+
+
+
+    /*
+     * Validate parameters
+     */
+    if($upgrade){
+        if($reupdate){
+            throw new BException(tr('Both --upgrade and --re-update were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
+        }
+
+        if($branch){
+            throw new BException(tr('Both --upgrade and --branch were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
+        }
+
+        log_console(tr('Attempting upgrade update to code line ":line"', array(':line' => $upgrade)), 'cyan');
+
+        if(!str_is_version($upgrade.'.0')){
+            throw new BException(tr('Specified upgrade version line ":version" is invalid. Please specify a version in the MAJOR.MINOR format', array(':version' => $upgrade)), 'validation');
+        }
+
+    }elseif($reupdate){
+        if($branch){
+            throw new BException(tr('Both --re-update and --branch were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
+        }
+
+        log_console(tr('Attempting re-update'), 'cyan');
+
+    }elseif($branch){
+        log_console(tr('Attempting upgrade update to branch ":branch"', array(':branch' => $branch)), 'cyan');
+
+    }else{
+        log_console(tr('Attempting normal update'), 'cyan');
+    }
 
 
 
     /*
      *
      */
-    cli_no_arguments_left();
-    load_libs('git,code');
-    load_config('update');
-
-    if($upgrade){
-        if($reupdate){
-            throw new BException(tr('Both --upgrade and --re-update were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
-        }
-
-        if(!str_is_version($upgrade.'.0')){
-            throw new BException(tr('Specified upgrade version line ":version" is invalid. Please specify a version in the MAJOR.MINOR format', array(':version' => $upgrade)), 'validation');
-        }
-    }
-
     if($local){
         /*
          * Get the data from the local phoundation repository instead of the centralized one
@@ -75,10 +105,6 @@ try{
 
     }else{
         $phoundation = $_CONFIG['update']['local'];
-    }
-
-    if(TEST){
-        log_console(tr('Running update script in test mode, NOT REALLY UPDATING!'), 'yellow');
     }
 
 
@@ -140,11 +166,13 @@ try{
      * Get our current framework version line, then get available version lines from
      * the local phoundation project
      */
-    $current_branch          = code_phoundation_branch();
-    $current_version_line    = code_get_version_line(FRAMEWORKCODEVERSION);
-    $available_version_lines = code_get_phoundation_lines();
+    $current_branch       = code_phoundation_branch();
+    $current_version_line = code_get_version_line(FRAMEWORKCODEVERSION);
 
     if($upgrade){
+        /*
+         * Upgrade to specified code line
+         */
         if($upgrade === $current_version_line){
             /*
              * We're upgrading to the current version line, just do a normal
@@ -153,19 +181,39 @@ try{
             $upgrade = null;
         }
 
+        $available_version_lines = code_get_phoundation_lines();
+
         if(!in_array($upgrade, $available_version_lines)){
             throw new BException(tr('The requested upgrade version line ":line" is not available in your phoundation project', array(':line' => $upgrade)), 'warning/not-exists');
         }
 
         $current_version_line = $upgrade;
         $frameworkcodeversion = $upgrade.'.0';
+        $find_highest         = true;
+
+    }elseif($branch){
+        /*
+         * Upgrade to latest commit of specified branch
+         */
+        $available_branch_lines = code_get_phoundation_branch_lines();
+        $frameworkcodeversion   = FRAMEWORKCODEVERSION;
+        $find_highest           = false;
+
+        if(!in_array($branch, $available_branch_lines)){
+            throw new BException(tr('The specified version line branch ":line" is not available in your phoundation project', array(':line' => $branch)), 'warning/not-exists');
+        }
 
     }else{
+        /*
+         * Update to latest version within our current code line
+         */
+        $available_version_lines = code_get_phoundation_lines();
+        $frameworkcodeversion    = FRAMEWORKCODEVERSION;
+        $find_highest            = true;
+
         if(!in_array($current_version_line, $available_version_lines)){
             throw new BException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
         }
-
-        $frameworkcodeversion = FRAMEWORKCODEVERSION;
     }
 
 
@@ -173,43 +221,50 @@ try{
     /*
      * Filter out the highest version
      */
-    $available_versions = code_get_phoundation_versions($current_version_line);
-    $highest            = '0.0.0';
+    if($find_highest){
+        $available_versions = code_get_phoundation_versions($current_version_line);
+        $highest            = '0.0.0';
 
-    foreach($available_versions as $id => $version){
-        switch(version_compare($version, $frameworkcodeversion)){
-            case 0:
-                $phoundation_frameworkcodeversion = $frameworkcodeversion;
-                break;
+        foreach($available_versions as $id => $version){
+            switch(version_compare($version, $frameworkcodeversion)){
+                case 0:
+                    $phoundation_frameworkcodeversion = $frameworkcodeversion;
+                    break;
 
-            case 1:
-                if(version_compare($version, $highest) >= 0){
-                    $highest = $version;
+                case 1:
+                    if(version_compare($version, $highest) >= 0){
+                        $highest = $version;
+                    }
+
+                    break;
+            }
+        }
+
+        switch($highest){
+            case '0.0.0':
+                if(!$reupdate){
+                    throw new BException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => $frameworkcodeversion)), 'warning/not-exists');
                 }
 
+                if(!isset($phoundation_frameworkcodeversion)){
+                    throw new BException(tr('Reupdate failed because current framework code version ":version" does not exist in the found Phoundation project', array(':version' => $frameworkcodeversion)), 'warning/not-exists');
+                }
+
+                /*
+                 * Update to the same current version
+                 */
+                $highest = $phoundation_frameworkcodeversion;
+                log_console(tr('Reupdating to Phoundation version ":version"', array(':version' => $highest)), 'green');
                 break;
+
+            default:
+                log_console(tr('Found newer Phoundation version ":version"', array(':version' => $highest)), 'green');
         }
-    }
 
-    switch($highest){
-        case '0.0.0':
-            if(!$reupdate){
-                throw new BException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => $frameworkcodeversion)), 'warning/not-exists');
-            }
+        $checkout = 'v'.$highest;
 
-            if(!isset($phoundation_frameworkcodeversion)){
-                throw new BException(tr('Reupdate failed because current framework code version ":version" does not exist in the found Phoundation project', array(':version' => $frameworkcodeversion)), 'warning/not-exists');
-            }
-
-            /*
-             * Update to the same current version
-             */
-            $highest = $phoundation_frameworkcodeversion;
-            log_console(tr('Reupdating to Phoundation version ":version"', array(':version' => $highest)), 'green');
-            break;
-
-        default:
-            log_console(tr('Found newer Phoundation version ":version"', array(':version' => $highest)), 'green');
+    }else{
+        $checkout = $branch;
     }
 
 
@@ -217,7 +272,7 @@ try{
     /*
      * Checkout the highest version branch for our version line and start updating!
      */
-    code_phoundation_checkout('v'.$highest);
+    code_phoundation_checkout($checkout);
 
 
 
@@ -235,7 +290,7 @@ try{
     /*
      * Copy from phoundation
      */
-    log_console(tr('Updating from Phoundation version ":version"', array(':version' => $highest)), 'white');
+    log_console(tr('Updating from Phoundation branch or tag ":version"', array(':version' => $checkout)), 'white');
 
 
 
@@ -326,7 +381,8 @@ try{
     /*
      * Return the phoundation project to its original branch
      */
-    code_phoundation_checkout($current_version_line);
+    log_console(tr('Returning phoundation to its original branch ":branch"', array(':branch' => $current_branch)), 'VERBOSE/cyan');
+    code_phoundation_checkout($current_branch);
 
 
 
