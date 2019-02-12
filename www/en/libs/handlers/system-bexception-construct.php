@@ -35,6 +35,13 @@ if(is_object($code)){
     $orgmessage = $e->getMessage();
     $code       = $e->getCode();
 
+    if($data){
+        $this->data = $data;
+
+    }else{
+        $this->data = $e->getData();
+    }
+
 }else{
     if(!is_scalar($code)){
         throw new BException(tr('BException: Specified exception code ":code" for exception ":message" is not valid (should be either scalar, or an exception object)', array(':code' => $code, ':message' => $messages)), 'invalid');
