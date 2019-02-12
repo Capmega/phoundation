@@ -36,290 +36,329 @@ Possible arguments:
 require_once(__DIR__.'/../../libs/startup.php');
 cli_only(true);
 
-$noinit       = cli_argument('--no-init');
-$nocommit     = cli_argument('--no-commit');
-$ignore       = cli_argument('-i,--ignore-changes');
-$local        = cli_argument('-l,--local');
-$no_times     = cli_argument('-n,--no-times');
-$reupdate     = cli_argument('-r,--re-update');
-$upgrade      = cli_argument('-u,--upgrade');
-$branch       = cli_argument('-b,--branch'      , true, 'production');
-$version_line = cli_argument('-c,--version_line', true, 'production');
+try{
+    $noinit       = cli_argument('--no-init');
+    $nocommit     = cli_argument('--no-commit');
+    $ignore       = cli_argument('-i,--ignore-changes');
+    $local        = cli_argument('-l,--local');
+    $no_times     = cli_argument('-n,--no-times');
+    $reupdate     = cli_argument('-r,--re-update');
+    $upgrade      = cli_argument('-u,--upgrade', true);
+    $branch       = cli_argument('-b,--branch'      , true, 'production');
+    $version_line = cli_argument('-c,--version_line', true, 'production');
 
 
 
-/*
- *
- */
-cli_no_arguments_left();
-load_libs('git,code');
-load_config('update');
-
-if($local){
     /*
-     * Get the data from the local phoundation repository instead of the centralized one
+     *
      */
-    $phoundation = $_CONFIG['update']['local'];
-    log_console(tr('Running in "local" mode, getting all phoundation data from ":path" for faster update', array(':path' => $phoundation['path'])), 'yellow');
+    cli_no_arguments_left();
+    load_libs('git,code');
+    load_config('update');
 
-}else{
-    $phoundation = $_CONFIG['update']['local'];
-}
-
-if(TEST){
-    log_console(tr('Running update script in test mode, NOT REALLY UPDATING!'), 'yellow');
-}
-
-
-
-/*
- * Check if we are not on main phoundation repository
- */
-if(trim(shell_exec('grep "/git/phoundation.git" '.ROOT.'.git/config'))) {
-    throw new bException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
-}
-
-
-
-/*
- * Check if we dont have any commits
- */
-if(git_status()){
-    if(!$ignore){
-        throw new BException(tr('Git commit(s) pending'), 'warning/validation');
-    }
-
-    log_console(tr('Stashing git changes because of --ignore-changes option specified'), 'cyan');
-    git_stash();
-    $stashed = true;
-}
-
-
-
-/*
- * Verify data
- */
-if(!$phoundation['host']){
-    throw new BException(tr('No update host configured, see $_CONFIG[update][host]'), 'warning/configuration');
-}
-
-if(!$phoundation['port']){
-    throw new BException(tr('No update host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
-}
-
-if(!is_natural($phoundation['port']) or ($phoundation['port'] > 65535)){
-    throw new BException(tr('Invalid host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
-}
-
-
-
-/*
- * Ensure phoundation can do updates, and get the latest tags and branches
- */
-if(code_phoundation_status() AND !FORCE) {
-    throw new BException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
-}
-
-log_console(tr('Fetching latest phoundation branches and tags'), 'VERBOSE/cyan');
-code_phoundation_fetch(array('all' => true));
-
-
-
-/*
- * Get our current framework version line, then get available version lines from
- * the local phoundation project
- */
-$current_branch          = code_phoundation_branch();
-$current_version_line    = code_get_version_line(FRAMEWORKCODEVERSION);
-$available_version_lines = code_get_phoundation_lines();
-
-if(!in_array($current_version_line, $available_version_lines)){
-    throw new BException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
-}
-
-
-
-/*
- * Filter out the highest version
- */
-$available_versions = code_get_phoundation_versions($current_version_line);
-$highest            = '0.0.0';
-
-foreach($available_versions as $id => $version){
-    if(version_compare($version, FRAMEWORKCODEVERSION) == 1){
-        if(version_compare($version, $highest) >= 0){
-            $highest = $version;
+    if($upgrade){
+        if(!str_is_version($upgrade.'.0')){
+            throw new BException(tr('Specified upgrade version line ":version" is invalid. Please specify a version in the MAJOR.MINOR format', array(':version' => $upgrade)), 'validation');
         }
     }
-}
 
-switch($highest){
-    case '0.0.0':
-        throw new BException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => FRAMEWORKCODEVERSION)), 'warning/not-exists');
+    if($local){
+        /*
+         * Get the data from the local phoundation repository instead of the centralized one
+         */
+        $phoundation = $_CONFIG['update']['local'];
+        log_console(tr('Running in "local" mode, getting all phoundation data from ":path" for faster update', array(':path' => $phoundation['path'])), 'yellow');
 
-    case FRAMEWORKCODEVERSION:
-        if($reupdate){
-            $highest = FRAMEWORKCODEVERSION;
-        }
-}
-
-log_console(tr('Found newer Phoundation version ":version"', array(':version' => $highest)), 'green');
-
-
-
-/*
- * Checkout the highest version branch for our version line and start updating!
- */
-code_phoundation_checkout('v'.$highest);
-
-
-
-/*
- * Should we use sudo? if so, what sudo command?
- */
-include(ROOT.'config/deploy.php');
-
-if($no_times or !empty($_CONFIG['deploy'][ENVIRONMENT]['no_times'])){
-    $no_times = ' --no-times ';
-}
-
-
-
-/*
- * Copy from phoundation
- */
-log_console(tr('Updating from Phoundation version ":version"', array(':version' => $highest)), 'white');
-
-
-
-/*
- * Libraries
- */
-log_console(tr('Copying libraries'), 'cyan');
-
-if(empty($test)){
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/libs '.ROOT.'www/en/', $exitcodes['www/en/libs']);
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/tests '.ROOT.'www/en/', $exitcodes['www/en']);
-}
-
-// Phoundation AJAX files
-log_console(tr('Copying ajax files'), 'cyan');
-
-if(empty($test)){
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/ajax/', $exitcodes['www/en/ajax']);
-
-    // Phoundation AJAX files for admin section
-    if(file_exists(ROOT.'www/en/admin/ajax/')){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/admin/ajax/', $exitcodes['www/en/admin/ajax']);
+    }else{
+        $phoundation = $_CONFIG['update']['local'];
     }
-}
 
-// Phoundation scripts
-log_console(tr('Copying phoundation scripts'), 'cyan');
-
-if(empty($test)){
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/base/* '.ROOT.'scripts/base/', $exitcodes['scripts/base']);
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/tests/* '.ROOT.'scripts/tests/', $exitcodes['libs']);
-}
-
-// Framework init files
-log_console(tr('Copying framework init files'), 'cyan');
-
-if(empty($test)){
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/init/framework/* '.ROOT.'init/framework/', $exitcodes['init/framework']);
-}
-
-// phoundation configuration
-log_console(tr('Copying phoundation configuration'), 'cyan');
-
-if(empty($test)){
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/config/base/* '.ROOT.'config/base/', $exitcodes['config/base']);
-}
-
-// Javascript
-log_console(tr('Copying javascript files'), 'cyan');
-
-if(empty($test)){
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/pub/js/base/', $exitcodes['www/en/pub/js/base']);
-
-    if(file_exists(ROOT.'www/en/admin/pub/js/')){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/admin/pub/js/base/', $exitcodes['www/en/admin/pub/js/base']);
+    if(TEST){
+        log_console(tr('Running update script in test mode, NOT REALLY UPDATING!'), 'yellow');
     }
-}
 
-// Documentation
-log_console(tr('Copying documentation'), 'cyan');
 
-if(empty($test)){
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/doc/* '.ROOT.'data/doc/', $exitcodes['data/doc']);
-}
 
-// Audio files
-log_console(tr('Copying audio files'), 'cyan');
-
-if(empty($test)){
-    passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.ROOT.'data/audio/', $exitcodes['data/audio']);
-}
-
-foreach($exitcodes as $path => $exitcode){
-    if($exitcode){
-        log_console(tr('Rsync of ":path" failed with exit code ":code"', array(':path' => $path, ':code' => $exitcode)));
-        $e = true;
+    /*
+     * Check if we are not on main phoundation repository
+     */
+    if(trim(shell_exec('grep "/git/phoundation.git" '.ROOT.'.git/config'))) {
+        throw new bException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
     }
-}
-
-if(isset($e) and !FORCE){
-    throw new bException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
-}
-
-unset($exitcode);
 
 
 
-/*
- * Return the phoundation project to its original branch
- */
-code_phoundation_checkout($current_version_line);
-
-
-
-/*
- * Auto commit all updated phoundation files
- */
-if($nocommit){
-    log_console(tr('Skipping git commit due to "--no-commit" option'), 'yellow');
-
-}else{
+    /*
+     * Check if we dont have any commits
+     */
     if(git_status()){
-        log_console(tr('Update changed files, committing updates in git'), 'white');
-        git_add();
-        git_commit('Update from phoundation');
+        if(!$ignore){
+            throw new BException(tr('Git commit(s) pending'), 'warning/validation');
+        }
+
+        log_console(tr('Stashing git changes because of --ignore-changes option specified'), 'cyan');
+        git_stash();
+        $stashed = true;
     }
+
+
+
+    /*
+     * Verify data
+     */
+    if(!$phoundation['host']){
+        throw new BException(tr('No update host configured, see $_CONFIG[update][host]'), 'warning/configuration');
+    }
+
+    if(!$phoundation['port']){
+        throw new BException(tr('No update host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
+    }
+
+    if(!is_natural($phoundation['port']) or ($phoundation['port'] > 65535)){
+        throw new BException(tr('Invalid host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
+    }
+
+
+
+    /*
+     * Ensure phoundation can do updates, and get the latest tags and branches
+     */
+    if(code_phoundation_status() AND !FORCE) {
+        throw new BException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
+    }
+
+    log_console(tr('Fetching latest phoundation branches and tags'), 'VERBOSE/cyan');
+    code_phoundation_fetch(array('all' => true));
+
+
+
+    /*
+     * Get our current framework version line, then get available version lines from
+     * the local phoundation project
+     */
+    $current_branch          = code_phoundation_branch();
+    $current_version_line    = code_get_version_line(FRAMEWORKCODEVERSION);
+    $available_version_lines = code_get_phoundation_lines();
+
+    if($upgrade){
+        if($upgrade === $current_version_line){
+            /*
+             * We're upgrading to the current version line, just do a normal
+             * update
+             */
+            $upgrade = null;
+        }
+
+        if(!in_array($upgrade, $available_version_lines)){
+            throw new BException(tr('The requested upgrade version line ":line" is not available in your phoundation project', array(':line' => $upgrade)), 'warning/not-exists');
+        }
+
+        $current_version_line = $upgrade;
+
+    }else{
+        if(!in_array($current_version_line, $available_version_lines)){
+            throw new BException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
+        }
+    }
+
+
+
+    /*
+     * Filter out the highest version
+     */
+    $available_versions = code_get_phoundation_versions($current_version_line);
+    $highest            = '0.0.0';
+
+    foreach($available_versions as $id => $version){
+        if(version_compare($version, FRAMEWORKCODEVERSION) == 1){
+            if(version_compare($version, $highest) >= 0){
+                $highest = $version;
+            }
+        }
+    }
+
+    switch($highest){
+        case '0.0.0':
+            throw new BException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => FRAMEWORKCODEVERSION)), 'warning/not-exists');
+
+        case FRAMEWORKCODEVERSION:
+            if($reupdate){
+                $highest = FRAMEWORKCODEVERSION;
+            }
+    }
+
+    log_console(tr('Found newer Phoundation version ":version"', array(':version' => $highest)), 'green');
+
+
+
+    /*
+     * Checkout the highest version branch for our version line and start updating!
+     */
+    code_phoundation_checkout('v'.$highest);
+
+
+
+    /*
+     * Should we use sudo? if so, what sudo command?
+     */
+    include(ROOT.'config/deploy.php');
+
+    if($no_times or !empty($_CONFIG['deploy'][ENVIRONMENT]['no_times'])){
+        $no_times = ' --no-times ';
+    }
+
+
+
+    /*
+     * Copy from phoundation
+     */
+    log_console(tr('Updating from Phoundation version ":version"', array(':version' => $highest)), 'white');
+
+
+
+    /*
+     * Libraries
+     */
+    log_console(tr('Copying libraries'), 'cyan');
+
+    if(empty($test)){
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/libs '.ROOT.'www/en/', $exitcodes['www/en/libs']);
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/tests '.ROOT.'www/en/', $exitcodes['www/en']);
+    }
+
+    // Phoundation AJAX files
+    log_console(tr('Copying ajax files'), 'cyan');
+
+    if(empty($test)){
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/ajax/', $exitcodes['www/en/ajax']);
+
+        // Phoundation AJAX files for admin section
+        if(file_exists(ROOT.'www/en/admin/ajax/')){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/admin/ajax/', $exitcodes['www/en/admin/ajax']);
+        }
+    }
+
+    // Phoundation scripts
+    log_console(tr('Copying phoundation scripts'), 'cyan');
+
+    if(empty($test)){
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/base/* '.ROOT.'scripts/base/', $exitcodes['scripts/base']);
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/tests/* '.ROOT.'scripts/tests/', $exitcodes['libs']);
+    }
+
+    // Framework init files
+    log_console(tr('Copying framework init files'), 'cyan');
+
+    if(empty($test)){
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/init/framework/* '.ROOT.'init/framework/', $exitcodes['init/framework']);
+    }
+
+    // phoundation configuration
+    log_console(tr('Copying phoundation configuration'), 'cyan');
+
+    if(empty($test)){
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/config/base/* '.ROOT.'config/base/', $exitcodes['config/base']);
+    }
+
+    // Javascript
+    log_console(tr('Copying javascript files'), 'cyan');
+
+    if(empty($test)){
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/pub/js/base/', $exitcodes['www/en/pub/js/base']);
+
+        if(file_exists(ROOT.'www/en/admin/pub/js/')){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/admin/pub/js/base/', $exitcodes['www/en/admin/pub/js/base']);
+        }
+    }
+
+    // Documentation
+    log_console(tr('Copying documentation'), 'cyan');
+
+    if(empty($test)){
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/doc/* '.ROOT.'data/doc/', $exitcodes['data/doc']);
+    }
+
+    // Audio files
+    log_console(tr('Copying audio files'), 'cyan');
+
+    if(empty($test)){
+        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.ROOT.'data/audio/', $exitcodes['data/audio']);
+    }
+
+    foreach($exitcodes as $path => $exitcode){
+        if($exitcode){
+            log_console(tr('Rsync of ":path" failed with exit code ":code"', array(':path' => $path, ':code' => $exitcode)));
+            $e = true;
+        }
+    }
+
+    if(isset($e) and !FORCE){
+        throw new bException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
+    }
+
+    unset($exitcode);
+
+
+
+    /*
+     * Return the phoundation project to its original branch
+     */
+    code_phoundation_checkout($current_version_line);
+
+
+
+    /*
+     * Auto commit all updated phoundation files
+     */
+    if($nocommit){
+        log_console(tr('Skipping git commit due to "--no-commit" option'), 'yellow');
+
+    }else{
+        if(git_status()){
+            log_console(tr('Update changed files, committing updates in git'), 'white');
+            git_add();
+            git_commit('Update from phoundation');
+        }
+    }
+
+
+
+    /*
+     * Execute init script
+     */
+    if($noinit){
+        log_console(tr('Skipping system init due to "--no-init" option'), 'yellow');
+
+    }else{
+        log_console(tr('Excuting system init'), 'white');
+        script_exec('base/init');
+    }
+
+
+
+    /*
+     * Did we stash anything? get it back now..
+     */
+    if(!empty($stashed)){
+        log_console(tr('Found stashed git changes, popping them back'), 'cyan');
+        git_stash_pop();
+        git_reset();
+    }
+
+    cli_run_once_local(true);
+
+}catch(Exception $e){
+    log_console(tr('Encountered exception, cleaning up'), 'yellow');
+
+    /*
+     * Did we stash anything? get it back now..
+     */
+    if(!empty($stashed)){
+        log_console(tr('Found stashed git changes, popping them back'), 'cyan');
+        git_stash_pop();
+        git_reset();
+    }
+
+    throw $e;
 }
-
-
-
-/*
- * Execute init script
- */
-if($noinit){
-    log_console(tr('Skipping system init due to "--no-init" option'), 'yellow');
-
-}else{
-    log_console(tr('Excuting system init'), 'white');
-    script_exec('base/init');
-}
-
-
-
-/*
- * Did we stash anything? get it back now..
- */
-if(!empty($stashed)){
-    log_console(tr('Found stashed git changes, popping them back'), 'cyan');
-    git_stash_pop();
-    git_reset();
-}
-
-cli_run_once_local(true);
 ?>
