@@ -687,6 +687,12 @@ switch(cli_method()){
             }
         }
 
+        /*
+         * Bump the Phoundation framework version
+         */
+        $version = code_bump_phoundation_framework_version();
+        log_console(tr('Bumped phoundation framework version to ":version"', array(':version' => $version)), 'green');
+
         break;
 
     case '':
