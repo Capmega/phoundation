@@ -173,12 +173,24 @@ if($section){
         cli_run_once_local(true);
 
     }catch(Exception $e){
-        if($e->getCode() != 'noinit'){
-            throw new BException('scripts/base/init: Failed', $e);
+        switch($e->getCode()){
+            case 'noinit':
+                log_console(tr('Core database init system has been disabled in db configuration'), 'yellow');
+                throw $e;
+
+            case 'old-framework-code':
+                // FALLTHROUGH
+            case 'invalid-framework-code':
+                // FALLTHROUGH
+            case 'old-project-code':
+                // FALLTHROUGH
+            case 'invalid-project-code':
+                throw $e->makeWarning(true);
+
+            default:
+                throw new BException('scripts/base/init: Failed', $e);
         }
 
-        log_console(tr('Core database init system has been disabled in db configuration'), 'yellow');
-        throw $e;
     }
 }
 ?>
