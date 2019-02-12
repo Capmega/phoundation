@@ -420,6 +420,43 @@ function code_get_phoundation_versions($version_lines = null){
 
 
 /*
+ * Bump the phoundation framework version by incrementing the revision by one
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_get_phoundation_framework_version()
+ * @see code_get_available_versions()
+ * @see code_get_phoundation_versions()
+ * @version 2.2.0: Added function and documentation
+ * @note Version lines are all tagged versions that share the same MAJOR.MINOR version numbers. E.g. 2.2.0, 2.2.1, 2.2.2, 2.2.3 are all part of the 2.2 code line
+ *
+ * @return array Return the framework version for the phoundation project
+ */
+function code_bump_phoundation_framework_version(){
+    try{
+        $path     = code_locate_phoundation();
+        $version  = code_get_framework_version($path);
+        $line     = str_runtil($version, '.');
+        $revision = str_rfrom ($version, '.');
+
+        $revision++;
+        $version = $line.'.'.$revision;
+
+        code_update_framework_version($version, $path);
+
+        return $version;
+
+    }catch(Exception $e){
+        throw new BException('code_bump_phoundation_framework_version(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Return the framework version from the phoundation project
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -486,7 +523,6 @@ function code_get_phoundation_project_version(){
  * @category Function reference
  * @package code
  * @see git_list_branches()
- * @see code_get_available_versions()
  * @version 2.2.0: Added function and documentation
  *
  * @param string $path The root directory of the project where to find the version lines from
@@ -628,6 +664,39 @@ function code_get_framework_version($path = ROOT){
 
     }catch(Exception $e){
         throw new BException('code_get_framework_version(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Update the framework version for the specified phoundation project to the specified version
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param string $path The root directory of the project where to get the framework version from
+ * @return string The current version for the specified Phoundation type  project path
+ */
+function code_update_framework_version($version, $path = ROOT){
+    try{
+        $file = slash($path).'libs/system.php';
+
+        if(!file_exists($file)){
+            throw new bException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+        }
+
+        $data = file_get_contents($file);
+        $data = preg_replace('/define\(\'FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', "define('FRAMEWORKCODEVERSION', '".$version."');", $data);
+
+        file_put_contents($file, $data);
+
+    }catch(Exception $e){
+        throw new BException('code_update_framework_version(): Failed', $e);
     }
 }
 
