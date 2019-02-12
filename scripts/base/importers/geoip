@@ -55,7 +55,7 @@ if(cli_argument('--no-download')){
     $path = get_global_data_path('geoip');
 
     if(!file_exists($path.'GeoLiteCity-latest.zip')){
-        throw new bException('The global data path "'.$path.'" does not contain the required geoip file "GeoLiteCity-latest.zip"', 'not-exist');
+        throw new BException('The global data path "'.$path.'" does not contain the required geoip file "GeoLiteCity-latest.zip"', 'not-exist');
     }
 
     copy($path.'GeoLiteCity-latest.zip', $tmpdir.'GeoLiteCity-latest.zip');
@@ -66,7 +66,7 @@ if(cli_argument('--no-download')){
 }
 
 if(!file_exists($tmpdir.'GeoLiteCity-latest.zip')){
-    throw new bException('The geoip file "'.$tmpdir.'GeoLiteCity-latest.zip" was not found at its location', 'not-exist');
+    throw new BException('The geoip file "'.$tmpdir.'GeoLiteCity-latest.zip" was not found at its location', 'not-exist');
 }
 
 if(cli_argument('--no-unzip')){
@@ -78,12 +78,12 @@ if(cli_argument('--no-unzip')){
     try{
         safe_exec('cd '.$tmpdir.'; unzip '.$tmpdir.'GeoLiteCity-latest.zip');
 
-    }catch(bException $e){
+    }catch(BException $e){
         /*
          * Unzip failed. Does the unzip program exist?
          */
         if(!cli_command_exists('unzip')){
-            throw new bException(tr('The unzip command is not available. Please install it in order to continue. On Ubuntu like systems, use "apt install unzip", on Redhat like systems, use "yum install unzip"'), 'not-exist');
+            throw new BException(tr('The unzip command is not available. Please install it in order to continue. On Ubuntu like systems, use "apt install unzip", on Redhat like systems, use "yum install unzip"'), 'not-exist');
         }
 
         throw $e;
@@ -125,11 +125,11 @@ if(cli_argument('--no-import')){
     load_libs('sql_exists');
 
     if(!file_exists($tmpdir.'geoip_blocks.csv')){
-        throw new bException(tr('The required file ":tmpdirgeoip_blocks.csv" is missing', array(':tmpdir' => $tmpdir)));
+        throw new BException(tr('The required file ":tmpdirgeoip_blocks.csv" is missing', array(':tmpdir' => $tmpdir)));
     }
 
     if(!file_exists($tmpdir.'geoip_location.csv')){
-        throw new bException(tr('The required file ":tmpdirgeoip_location.csv" is missing', array(':tmpdir' => $tmpdir)));
+        throw new BException(tr('The required file ":tmpdirgeoip_location.csv" is missing', array(':tmpdir' => $tmpdir)));
     }
 
     sql_table_exists('geoip_location', '!RENAME TABLE `geoip_locations` TO `geoip_location`');

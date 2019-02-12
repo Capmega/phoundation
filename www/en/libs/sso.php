@@ -44,7 +44,7 @@ function sso_library_init(){
         load_config('sso');
 
     }catch(Exception $e){
-        throw new bException(tr('sso_library_init(): Failed'), $e);
+        throw new BException(tr('sso_library_init(): Failed'), $e);
     }
 }
 
@@ -97,7 +97,7 @@ function sso_install($params){
         file_delete(TMP.'hybridauth');
 
     }catch(Exception $e){
-        throw new bException(tr('sso_install(): Failed'), $e);
+        throw new BException(tr('sso_install(): Failed'), $e);
     }
 }
 
@@ -119,10 +119,10 @@ function sso($provider, $method, $redirect, $role = 'user'){
                 break;
 
             case '':
-                throw new bException(tr('sso(): No provider specified'), 'not-specified');
+                throw new BException(tr('sso(): No provider specified'), 'not-specified');
 
             default:
-                throw new bException(tr('sso(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
+                throw new BException(tr('sso(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
         }
 
         switch($method){
@@ -137,7 +137,7 @@ function sso($provider, $method, $redirect, $role = 'user'){
                     /*
                      * Invalid request!
                      */
-                    throw new bException(tr('sso(): Neither one of required hauth_start or hauth_done has been specified'), 'invalid');
+                    throw new BException(tr('sso(): Neither one of required hauth_start or hauth_done has been specified'), 'invalid');
                 }
 
                 break;
@@ -282,48 +282,48 @@ function sso($provider, $method, $redirect, $role = 'user'){
                 break;
 
             case '':
-                throw new bException(tr('sso(): No method specified'), 'not-specified');
+                throw new BException(tr('sso(): No method specified'), 'not-specified');
 
             default:
-                throw new bException(tr('sso(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
+                throw new BException(tr('sso(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
         }
 
     }catch(Exception $e){
         switch($e->getCode()){
             case 0:
-                throw new bException(tr('sso(): Unspecified error'), $e);
+                throw new BException(tr('sso(): Unspecified error'), $e);
 
             case 1:
-                throw new bException(tr('sso(): Hybridauth configuration error'), $e);
+                throw new BException(tr('sso(): Hybridauth configuration error'), $e);
 
             case 2:
-                throw new bException(tr('sso(): Provider not properly configured'), $e);
+                throw new BException(tr('sso(): Provider not properly configured'), $e);
 
             case 3:
-                throw new bException(tr('sso(): Unknown or disabled provider'), $e);
+                throw new BException(tr('sso(): Unknown or disabled provider'), $e);
 
             case 4:
-                $e = new bException(tr('sso(): Missing provider application credentials'), $e);
+                $e = new BException(tr('sso(): Missing provider application credentials'), $e);
                 throw $e->setCode(400);
 
             case 5:
-                $e = new bException(tr('sso(): Authentication failed The user has canceled the authentication or the provider refused the connection'), $e);
+                $e = new BException(tr('sso(): Authentication failed The user has canceled the authentication or the provider refused the connection'), $e);
                 throw $e->setCode(400);
 
             case 6:
                 $result->logout();
-                throw new bException(tr('sso(): User profile request failed. Most likely the user is not connected to the provider and he should to authenticate again'), $e);
+                throw new BException(tr('sso(): User profile request failed. Most likely the user is not connected to the provider and he should to authenticate again'), $e);
 
             case 7:
                 $result->logout();
-                throw new bException(tr('sso(): User not connected to the provider'), $e);
+                throw new BException(tr('sso(): User not connected to the provider'), $e);
 
             case 8:
-                $e = new bException(tr('sso(): Provider does not support this feature'), $e);
+                $e = new BException(tr('sso(): Provider does not support this feature'), $e);
                 throw $e->setCode(400);
 
             default:
-                throw new bException(tr('sso(): Failed'), $e);
+                throw new BException(tr('sso(): Failed'), $e);
         }
     }
 }
@@ -410,7 +410,7 @@ function sso_config($provider){
                     break;
 
                 default:
-                    throw new bException(tr('sso(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
+                    throw new BException(tr('sso(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
             }
 
             file_ensure_path($path);
@@ -424,7 +424,7 @@ function sso_config($provider){
         return $file;
 
     }catch(Exception $e){
-        throw new bException(tr('sso_config(): Failed'), $e);
+        throw new BException(tr('sso_config(): Failed'), $e);
     }
 }
 

@@ -23,7 +23,7 @@ try{
          */
 
     }else{
-        throw new bException(tr('debug_bar(): Unknown configuration option ":option" specified. Please specify true, false, or "limited"', array(':option' => $_CONFIG['debug']['bar'])), 'unknown');
+        throw new BException(tr('debug_bar(): Unknown configuration option ":option" specified. Please specify true, false, or "limited"', array(':option' => $_CONFIG['debug']['bar'])), 'unknown');
     }
 
     /*
@@ -141,7 +141,7 @@ try{
     return $html;
 
 }catch(Exception $e){
-    throw new bException(tr('debug_bar(): Failed'), $e);
+    throw new BException(tr('debug_bar(): Failed'), $e);
 }
 
 
@@ -165,7 +165,7 @@ function debug_bar_sort($a, $b){
         }
 
     }catch(Exception $e){
-        throw new bException(tr('debug_bar_sort(): Failed'), $e);
+        throw new BException(tr('debug_bar_sort(): Failed'), $e);
     }
 }
 ?>

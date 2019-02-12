@@ -26,7 +26,7 @@ function geo_library_init(){
         load_config('geo');
 
     }catch(Exception $e){
-        throw new bException('geo_library_init(): Failed', $e);
+        throw new BException('geo_library_init(): Failed', $e);
     }
 }
 
@@ -69,7 +69,7 @@ function geo_countries_select($params) {
         return cache_write(html_select($params), $cache_key);
 
     }catch(Exception $e){
-        throw new bException('geo_countries_select(): Failed', $e);
+        throw new BException('geo_countries_select(): Failed', $e);
     }
 }
 
@@ -125,7 +125,7 @@ function geo_states_select($params) {
         return cache_write(html_select($params), $cache_key);
 
     }catch(Exception $e){
-        throw new bException('geo_states_select(): Failed', $e);
+        throw new BException('geo_states_select(): Failed', $e);
     }
 }
 
@@ -178,7 +178,7 @@ function geo_cities_select($params) {
         return cache_write(html_select($params), $cache_key);
 
     }catch(Exception $e){
-        throw new bException('geo_cities_select(): Failed', $e);
+        throw new BException('geo_cities_select(): Failed', $e);
     }
 }
 
@@ -255,7 +255,7 @@ function geo_get_country($country, $single_column = false){
         return $country;
 
     }catch(Exception $e){
-        throw new bException('geo_get_country(): Failed', $e);
+        throw new BException('geo_get_country(): Failed', $e);
     }
 }
 
@@ -294,7 +294,7 @@ function geo_get_state($state, $country = null, $single_column = false){
                 }
 
             }else{
-                throw new bException(tr('geo_get_state(): Invalid country ":country" specified', array(':country' => $country)), 'invalid');
+                throw new BException(tr('geo_get_state(): Invalid country ":country" specified', array(':country' => $country)), 'invalid');
             }
 
             $where  .= ' AND `country_code` = :country_code';
@@ -338,7 +338,7 @@ function geo_get_state($state, $country = null, $single_column = false){
         return $state;
 
     }catch(Exception $e){
-        throw new bException('geo_get_state(): Failed', $e);
+        throw new BException('geo_get_state(): Failed', $e);
     }
 }
 
@@ -392,7 +392,7 @@ function geo_get_city($city, $state = null, $country = null, $single_column = fa
                     }
 
                 }else{
-                    throw new bException(tr('geo_get_state(): Invalid country ":country" specified', array(':country' => $country)), 'invalid');
+                    throw new BException(tr('geo_get_state(): Invalid country ":country" specified', array(':country' => $country)), 'invalid');
                 }
 
                 $where .= ' AND `country_code` = :country_code';
@@ -448,7 +448,7 @@ function geo_get_city($city, $state = null, $country = null, $single_column = fa
         return $city;
 
     }catch(Exception $e){
-        throw new bException('geo_get_city(): Failed', $e);
+        throw new BException('geo_get_city(): Failed', $e);
     }
 }
 
@@ -487,7 +487,7 @@ function geo_get_city_from_ip($ip = null, $filters = null, $single_column = fals
         return geo_get_city($_CONFIG['geo']['detect']['default']['city'], $_CONFIG['geo']['detect']['default']['state'], $_CONFIG['geo']['detect']['default']['country']);
 
     }catch(Exception $e){
-        throw new bException('geo_get_city_from_ip(): Failed', $e);
+        throw new BException('geo_get_city_from_ip(): Failed', $e);
     }
 }
 
@@ -573,8 +573,8 @@ function geo_get_country_from_location($latitude, $longitude, $single_column = f
 
         return $country;
 
-    }catch(bException $e){
-        throw new bException('geo_get_country_from_location() Failed', $e);
+    }catch(BException $e){
+        throw new BException('geo_get_country_from_location() Failed', $e);
     }
 }
 
@@ -648,8 +648,8 @@ function geo_get_state_from_location($latitude, $longitude, $single_column = fal
 
         return $state;
 
-    }catch(bException $e){
-        throw new bException('geo_get_state_from_location() Failed', $e);
+    }catch(BException $e){
+        throw new BException('geo_get_state_from_location() Failed', $e);
     }
 }
 
@@ -703,7 +703,7 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
                         break;
 
                     default:
-                        throw new bException(tr('geo_get_city_from_location(): Unknown filter ":filter" specified', array(':filter' => $key)), 'unknown');
+                        throw new BException(tr('geo_get_city_from_location(): Unknown filter ":filter" specified', array(':filter' => $key)), 'unknown');
                 }
             }
         }
@@ -798,8 +798,8 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
         //log_file(tr('Location ":latitude,:longitude" detection gave city ":city" in country ":country"', array(':latitude' => $latitude, ':longitude' => $longitude, ':city' => $city['name'], ':country' => $city['country_code'])));
         //return $city;
 
-    }catch(bException $e){
-        throw new bException('geo_get_city_from_location() Failed', $e);
+    }catch(BException $e){
+        throw new BException('geo_get_city_from_location() Failed', $e);
     }
 }
 
@@ -825,7 +825,7 @@ function geo_get_location_from_city($city){
         return $location;
 
     }catch(Exception $e){
-        throw new bException('geo_get_location_from_city(): Failed', $e);
+        throw new BException('geo_get_location_from_city(): Failed', $e);
     }
 }
 
@@ -886,8 +886,8 @@ function geo_detect_client_location($params = null){
 
         return $html;
 
-    }catch(bException $e){
-        throw new bException('geo_detect_client_location() Failed', $e);
+    }catch(BException $e){
+        throw new BException('geo_detect_client_location() Failed', $e);
     }
 }
 
@@ -914,7 +914,7 @@ function geo_validate($geo){
             $geo = $geo['coords'];
         }
 
-        $v = new validate_form($geo, 'latitude,longitude,zoom,accuracy,cities_id,states_id,countries_id');
+        $v = new ValidateForm($geo, 'latitude,longitude,zoom,accuracy,cities_id,states_id,countries_id');
 
         $v->isNumeric($geo['longitude'], tr('Invalid longitude ":longitude" specified', array(':longitude' => $geo['longitude'])));
         $v->isBetween($geo['longitude'], -180, 180, tr('Invalid longitude ":longitude" specified', array(':longitude' => $geo['longitude'])));
@@ -1005,8 +1005,8 @@ function geo_validate($geo){
 
         return $geo;
 
-    }catch(bException $e){
-        throw new bException('geo_validate() Failed', $e);
+    }catch(BException $e){
+        throw new BException('geo_validate() Failed', $e);
     }
 }
 
@@ -1052,8 +1052,8 @@ function geo_set_session($geo, $expand_location = true){
 
         return $_SESSION['location'];
 
-    }catch(bException $e){
-        throw new bException('geo_set_session() Failed', $e);
+    }catch(BException $e){
+        throw new BException('geo_set_session() Failed', $e);
     }
 }
 
@@ -1075,8 +1075,8 @@ function geo_loaded(){
         $count = sql_get('SELECT COUNT(`id`) AS `count` FROM `geo_cities`', true);
         return (boolean) $count;
 
-    }catch(bException $e){
-        throw new bException('geo_loaded() Failed', $e);
+    }catch(BException $e){
+        throw new BException('geo_loaded() Failed', $e);
     }
 }
 
@@ -1115,8 +1115,8 @@ function geo_get_nearest_city($latitude, $longitude, $filters = null, $single_co
     try{
         return geo_get_city_from_location($latitude, $longitude, $filters, $single_column);
 
-    }catch(bException $e){
-        throw new bException('geo_get_nearest_city() Failed', $e);
+    }catch(BException $e){
+        throw new BException('geo_get_nearest_city() Failed', $e);
     }
 }
 ?>

@@ -30,7 +30,7 @@ function servers_library_init(){
         load_config('servers');
 
     }catch(Exception $e){
-        throw new bException('servers_library_init(): Failed', $e);
+        throw new BException('servers_library_init(): Failed', $e);
     }
 }
 
@@ -56,7 +56,7 @@ function servers_validate($server, $structure_only = false, $password_strength =
     try{
         load_libs('validate,seo,customers,providers');
 
-        $v = new validate_form($server, 'id,ipv4,ipv6,port,domain,domains,seoprovider,seocustomer,ssh_account,description,ssh_proxy,database_accounts_id,bill_duedate,cost,interval,allow_sshd_modification,register');
+        $v = new ValidateForm($server, 'id,ipv4,ipv6,port,domain,domains,seoprovider,seocustomer,ssh_account,description,ssh_proxy,database_accounts_id,bill_duedate,cost,interval,allow_sshd_modification,register');
 
         if($structure_only){
             return $server;
@@ -230,7 +230,7 @@ function servers_validate($server, $structure_only = false, $password_strength =
         return $server;
 
     }catch(Exception $e){
-        throw new bException('servers_validate(): Failed', $e);
+        throw new BException('servers_validate(): Failed', $e);
     }
 }
 
@@ -284,7 +284,7 @@ function servers_insert($server){
         return $server;
 
     }catch(Exception $e){
-        throw new bException('servers_insert(): Failed', $e);
+        throw new BException('servers_insert(): Failed', $e);
     }
 }
 
@@ -316,7 +316,7 @@ function servers_erase($server){
         return $server;
 
     }catch(Exception $e){
-        throw new bException('servers_insert(): Failed', $e);
+        throw new BException('servers_insert(): Failed', $e);
     }
 }
 
@@ -379,7 +379,7 @@ function servers_update($server){
         return $server;
 
     }catch(Exception $e){
-        throw new bException('servers_update(): Failed', $e);
+        throw new BException('servers_update(): Failed', $e);
     }
 }
 
@@ -432,14 +432,14 @@ function servers_like($domain){
                                            ':seodomain' => '%'.$domain.'%'));
 
             if(!$server){
-                throw new bException(tr('servers_like(): Specified server ":server" does not exist', array(':server' => $domain)), 'not-exist');
+                throw new BException(tr('servers_like(): Specified server ":server" does not exist', array(':server' => $domain)), 'not-exist');
             }
         }
 
         return $server;
 
     }catch(Exception $e){
-        throw new bException('servers_like(): Failed', $e);
+        throw new BException('servers_like(): Failed', $e);
     }
 }
 
@@ -503,7 +503,7 @@ function servers_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('servers_select(): Failed', $e);
+        throw new BException('servers_select(): Failed', $e);
     }
 }
 
@@ -559,7 +559,7 @@ function servers_update_domains($server, $domains = null){
         return count($domains);
 
     }catch(Exception $e){
-        throw new bException('servers_update_domains(): Failed', $e);
+        throw new BException('servers_update_domains(): Failed', $e);
     }
 }
 
@@ -600,7 +600,7 @@ function servers_add_domain($server, $domain){
         return true;
 
     }catch(Exception $e){
-        throw new bException('servers_add_domain(): Failed', $e);
+        throw new BException('servers_add_domain(): Failed', $e);
     }
 }
 
@@ -651,14 +651,14 @@ function servers_remove_domain($server, $domain = null){
                 $r = sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain));
 
             }else{
-                throw new bException(tr('servers_remove_domain(): Neither $domain not $server specified. At least one must be specified'), 'not-specified');
+                throw new BException(tr('servers_remove_domain(): Neither $domain not $server specified. At least one must be specified'), 'not-specified');
             }
         }
 
         return sql_num_rows($r);
 
     }catch(Exception $e){
-        throw new bException('servers_remove_domain(): Failed', $e);
+        throw new BException('servers_remove_domain(): Failed', $e);
     }
 }
 
@@ -696,7 +696,7 @@ function servers_list_domains($server){
         return $results;
 
     }catch(Exception $e){
-        throw new bException('servers_list_domains(): Failed', $e);
+        throw new BException('servers_list_domains(): Failed', $e);
     }
 }
 
@@ -734,7 +734,7 @@ function servers_exec($server, $commands = null, $background = false, $function 
             if(empty($server['identity_file'])){
                 if(empty($server['ssh_key'])){
                     if(empty($server['password'])){
-                        throw new bException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server['domain'])), 'missing-data');
+                        throw new BException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server['domain'])), 'missing-data');
                     }
 
 
@@ -770,7 +770,7 @@ function servers_exec($server, $commands = null, $background = false, $function 
             notify(tr('servers_exec() cannot delete key'), $e, 'developers');
         }
 
-        throw new bException('servers_exec(): Failed', $e);
+        throw new BException('servers_exec(): Failed', $e);
     }
 }
 
@@ -852,7 +852,7 @@ function servers_exec_on_all($params){
         return $servers->rowCount();
 
     }catch(Exception $e){
-        throw new bException('servers_exec_on_all(): Failed', $e);
+        throw new BException('servers_exec_on_all(): Failed', $e);
     }
 }
 
@@ -887,7 +887,7 @@ function servers_register_host($server){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('servers_register_host(): Failed', $e);
+        throw new BException('servers_register_host(): Failed', $e);
     }
 }
 
@@ -923,7 +923,7 @@ function servers_unregister_host($server){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('servers_unregister_host(): Failed', $e);
+        throw new BException('servers_unregister_host(): Failed', $e);
     }
 }
 
@@ -972,7 +972,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
             }
 
         }elseif(!is_scalar($server)){
-            throw new bException(tr('servers_get(): The specified server ":server" is invalid', array(':server' => $server)), 'invalid');
+            throw new BException(tr('servers_get(): The specified server ":server" is invalid', array(':server' => $server)), 'invalid');
 
         }elseif(substr($server, 0, 1) === '+'){
             /*
@@ -1063,7 +1063,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                 $execute = array(':domain' => $server['domain']);
 
             }else{
-                throw new bException(tr('servers_get(): Specified server array domain should be a natural numeric id or a domain, but is a ":type"', array(':type' => gettype($server['domain']))), 'invalid');
+                throw new BException(tr('servers_get(): Specified server array domain should be a natural numeric id or a domain, but is a ":type"', array(':type' => gettype($server['domain']))), 'invalid');
             }
 
         }elseif(is_string($server)){
@@ -1077,7 +1077,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                              ':seodomain' => $server);
 
         }else{
-            throw new bException(tr('servers_get(): Invalid server or domain specified. Should be either a natural nuber, domain, or array containing domain information'), 'invalid');
+            throw new BException(tr('servers_get(): Invalid server or domain specified. Should be either a natural nuber, domain, or array containing domain information'), 'invalid');
         }
 
         if($database){
@@ -1093,7 +1093,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
         $dbserver = sql_get($query.$from.$where.' GROUP BY `servers`.`id`', null, $execute, 'core');
 
         if(!$dbserver){
-            throw new bException(tr('servers_get(): Specified server ":server" does not exist', array(':server' => (is_array($server) ? $server['domain'] : $server))), 'not-exist');
+            throw new BException(tr('servers_get(): Specified server ":server" does not exist', array(':server' => (is_array($server) ? $server['domain'] : $server))), 'not-exist');
         }
 
         if($return_proxies){
@@ -1131,10 +1131,10 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
 
     }catch(Exception $e){
         if($e->getCode() == 'multiple'){
-            throw new bException(tr('servers_get(): Specified domain ":domain" matched multiple results, please specify a more exact domain', array(':domain' => (is_array($server) ? isset_get($server['domain']) : $server))), 'multiple');
+            throw new BException(tr('servers_get(): Specified domain ":domain" matched multiple results, please specify a more exact domain', array(':domain' => (is_array($server) ? isset_get($server['domain']) : $server))), 'multiple');
         }
 
-        throw new bException('servers_get(): Failed', $e);
+        throw new BException('servers_get(): Failed', $e);
     }
 }
 
@@ -1148,7 +1148,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package servers
- * @exception bException/failed-connect when server connection test fails
+ * @exception BException/failed-connect when server connection test fails
  *
  * @param mixed $server The server to be tested. Specified either by only a domain string, or a server array
  * @return void If the server test was executed succesfully, nothing happens
@@ -1161,13 +1161,13 @@ function servers_test($domain){
         $result = array_pop($result);
 
         if($result != '1'){
-            throw new bException(tr('servers_test(): Failed to SSH connect to ":server"', array(':server' => $user.'@'.$domain.':'.$port)), 'failed-connect');
+            throw new BException(tr('servers_test(): Failed to SSH connect to ":server"', array(':server' => $user.'@'.$domain.':'.$port)), 'failed-connect');
         }
 
         sql_query('UPDATE `servers` SET `status` = NULL WHERE `domain` = :domain', array(':domain' => $domain), 'core');
 
     }catch(Exception $e){
-        throw new bException('servers_test(): Failed', $e);
+        throw new BException('servers_test(): Failed', $e);
     }
 }
 
@@ -1190,7 +1190,7 @@ function servers_get_key($username){
         return sql_get('SELECT `ssh_key` FROM `ssh_accounts` WHERE `username` = :username', 'ssh_key', null, array(':username' => $username), 'core');
 
     }catch(Exception $e){
-        throw new bException('servers_get_key(): Failed', $e);
+        throw new BException('servers_get_key(): Failed', $e);
     }
 }
 
@@ -1226,7 +1226,7 @@ function servers_clear_key(&$server){
         return true;
 
     }catch(Exception $e){
-        throw new bException('servers_clear_key(): Failed', $e);
+        throw new BException('servers_clear_key(): Failed', $e);
     }
 }
 
@@ -1269,7 +1269,7 @@ function servers_create_identity_file($ssh_key){
         return substr($identity_file, -8, 8);
 
     }catch(Exception $e){
-        throw new bException('servers_create_identity_file(): Failed', $e);
+        throw new BException('servers_create_identity_file(): Failed', $e);
     }
 }
 
@@ -1308,7 +1308,7 @@ function servers_remove_identity_file($identity_file, $background = false){
         return true;
 
     }catch(Exception $e){
-        throw new bException('servers_remove_identity_file(): Failed', $e);
+        throw new BException('servers_remove_identity_file(): Failed', $e);
     }
 }
 
@@ -1335,7 +1335,7 @@ function servers_detect_os($domain){
         $output_version = servers_exec($domain, 'cat /proc/version');
 
         if(empty($output_version)){
-            throw new bException(tr('servers_detect_os(): No operating system found on /proc/version for domain ":domain"', array(':domain' => $domain)), 'unknown');
+            throw new BException(tr('servers_detect_os(): No operating system found on /proc/version for domain ":domain"', array(':domain' => $domain)), 'unknown');
         }
 
         /*
@@ -1344,7 +1344,7 @@ function servers_detect_os($domain){
         preg_match('/(ubuntu |debian |red hat )/i', $output_version, $matches);
 
         if(empty($matches)){
-            throw new bException(tr('servers_detect_os(): No group version found'), 'unknown');
+            throw new BException(tr('servers_detect_os(): No group version found'), 'unknown');
         }
 
         $group = trim(strtolower($matches[0]));
@@ -1364,11 +1364,11 @@ function servers_detect_os($domain){
                 break;
 
             default:
-                throw new bException(tr('servers_detect_os(): No os group valid :group', array(':group' => $matches[0])), 'invalid');
+                throw new BException(tr('servers_detect_os(): No os group valid :group', array(':group' => $matches[0])), 'invalid');
         }
 
         if(empty($release)){
-            throw new bException(tr('servers_detect_os(): No data found on for os group ":group"', array(':group' => $matches[0])), 'not-exist');
+            throw new BException(tr('servers_detect_os(): No data found on for os group ":group"', array(':group' => $matches[0])), 'not-exist');
         }
 
         $server_os['type']  = 'linux';
@@ -1380,7 +1380,7 @@ function servers_detect_os($domain){
         preg_match('/((:?[kxl]|edu)?ubuntu|mint|debian|red hat enterprise|fedora|centos)/i', $release, $matches);
 
         if(!isset($matches[0])){
-            throw new bException(tr('servers_detect_os(): No name found for os group ":group"', array(':group' => $matches[0])), 'not-exist');
+            throw new BException(tr('servers_detect_os(): No name found for os group ":group"', array(':group' => $matches[0])), 'not-exist');
         }
 
         $server_os['name'] = strtolower($matches[0]);
@@ -1391,7 +1391,7 @@ function servers_detect_os($domain){
         preg_match('/\d*\.?\d+/', $release, $version);
 
         if(!isset($version[0])){
-            throw new bException(tr('servers_detect_os(): No version found for os ":os"', array(':os' => $server_os['name'])), 'not-exist');
+            throw new BException(tr('servers_detect_os(): No version found for os ":os"', array(':os' => $server_os['name'])), 'not-exist');
         }
 
         $server_os['version'] = $version[0];
@@ -1399,7 +1399,7 @@ function servers_detect_os($domain){
         return $server_os;
 
     }catch(Exception $e){
-        throw new bException('servers_get_os(): Failed', $e);
+        throw new BException('servers_get_os(): Failed', $e);
     }
 }
 
@@ -1428,7 +1428,7 @@ function servers_get_public_ip($domain){
         return $ip;
 
     }catch(Exception $e){
-        throw new bException('servers_get_public_ip(): Failed', $e);
+        throw new BException('servers_get_public_ip(): Failed', $e);
     }
 }
 
@@ -1470,7 +1470,7 @@ function servers_get_proxy($servers_id){
         return $server;
 
     }catch(Exception $e){
-        throw new bException('servers_get_proxy(): Failed', $e);
+        throw new BException('servers_get_proxy(): Failed', $e);
     }
 }
 
@@ -1508,7 +1508,7 @@ function servers_list_proxies($servers_id){
         return $servers;
 
     }catch(Exception $e){
-        throw new bException('servers_list_proxies(): Failed', $e);
+        throw new BException('servers_list_proxies(): Failed', $e);
     }
 }
 
@@ -1530,11 +1530,11 @@ function servers_list_proxies($servers_id){
 function servers_add_ssh_proxy($servers_id, $proxies_id){
     try{
         if(empty($servers_id)){
-            throw new bException(tr('proxies_create_relation(): No servers id specified'), 'not-specified');
+            throw new BException(tr('proxies_create_relation(): No servers id specified'), 'not-specified');
         }
 
         if(empty($proxies_id)){
-            throw new bException(tr('proxies_create_relation(): No proxies id specified'), 'not-specified');
+            throw new BException(tr('proxies_create_relation(): No proxies id specified'), 'not-specified');
         }
 
         sql_query('INSERT INTO `servers_ssh_proxies` (`servers_id`, `proxies_id`)
@@ -1546,7 +1546,7 @@ function servers_add_ssh_proxy($servers_id, $proxies_id){
         return sql_insert_id('core');
 
     }catch(Exception $e){
-		throw new bException('servers_add_ssh_proxy(): Failed', $e);
+		throw new BException('servers_add_ssh_proxy(): Failed', $e);
 	}
 }
 
@@ -1569,15 +1569,15 @@ function servers_add_ssh_proxy($servers_id, $proxies_id){
 function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id){
     try{
         if(empty($servers_id)){
-            throw new bException(tr('servers_update_ssh_proxy(): No servers id specified'), 'not-specified');
+            throw new BException(tr('servers_update_ssh_proxy(): No servers id specified'), 'not-specified');
         }
 
         if(empty($old_proxies_id)){
-            throw new bException(tr('servers_update_ssh_proxy(): No old proxies id specified'), 'not-specified');
+            throw new BException(tr('servers_update_ssh_proxy(): No old proxies id specified'), 'not-specified');
         }
 
         if(empty($new_proxies_id)){
-            throw new bException(tr('servers_update_ssh_proxy(): No new proxies id specified'), 'not-specified');
+            throw new BException(tr('servers_update_ssh_proxy(): No new proxies id specified'), 'not-specified');
         }
 
         $id = sql_get('SELECT `id`
@@ -1609,7 +1609,7 @@ function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id)
         }
 
     }catch(Exception $e){
-		throw new bException('servers_update_ssh_proxy(): Failed', $e);
+		throw new BException('servers_update_ssh_proxy(): Failed', $e);
 	}
 }
 
@@ -1638,7 +1638,7 @@ function servers_delete_ssh_proxy($servers_id, $proxies_id){
                          ':proxies_id' => $proxies_id), 'core');
 
     }catch(Exception $e){
-		throw new bException('servers_delete_ssh_proxy(): Failed', $e);
+		throw new BException('servers_delete_ssh_proxy(): Failed', $e);
 	}
 }
 
@@ -1673,7 +1673,7 @@ function servers_get_id($server){
         return $server;
 
     }catch(Exception $e){
-		throw new bException('servers_get_id(): Failed', $e);
+		throw new BException('servers_get_id(): Failed', $e);
 	}
 }
 
@@ -1715,7 +1715,7 @@ function servers_scan_domains($server = null){
         return 1;
 
     }catch(Exception $e){
-		throw new bException('servers_scan_domains(): Failed', $e);
+		throw new BException('servers_scan_domains(): Failed', $e);
 	}
 }
 
@@ -1747,7 +1747,7 @@ function servers_check_ssh_access($server, $account, $password = null){
             $account = ssh_get_account($account);
 
             if(!$account){
-                throw new bException(tr('servers_check_ssh_access(): The specified account "" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exist');
+                throw new BException(tr('servers_check_ssh_access(): The specified account "" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exist');
             }
 
             $results = servers_exec($server);
@@ -1756,7 +1756,7 @@ function servers_check_ssh_access($server, $account, $password = null){
 showdie($results);
 
     }catch(Exception $e){
-		throw new bException('servers_check_ssh_access(): Failed', $e);
+		throw new BException('servers_check_ssh_access(): Failed', $e);
 	}
 }
 ?>

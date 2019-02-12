@@ -37,7 +37,7 @@ function test_library_init(){
         define('TESTPATH', ROOT.'data/tests/content/');
 
     }catch(Exception $e){
-        throw new bException('test_library_init(): Failed', $e);
+        throw new BException('test_library_init(): Failed', $e);
     }
 }
 
@@ -53,7 +53,7 @@ function test($name, $description, $function){
         log_console($name.' [TEST] '.$description, '', false);
 
         if(!is_callable($function)){
-            throw new bException(tr('test(): Specified function is not a function but a ":type"', array(':type' => gettype($function))), 'invalid');
+            throw new BException(tr('test(): Specified function is not a function but a ":type"', array(':type' => gettype($function))), 'invalid');
         }
 
         $function();
@@ -90,13 +90,13 @@ function test_completed($name, $type = 'test'){
     log_console($name.' ['.$type.' COMPLETED] ', 'white', false);
 
     if(!isset($core->register['timers']['tests']['errors'][$type])){
-        throw new bException(tr('test_completed(): Unknown type ":type" specified. Specify one of "test", "library" or "all"', array(':type' => $type)), 'unknown');
+        throw new BException(tr('test_completed(): Unknown type ":type" specified. Specify one of "test", "library" or "all"', array(':type' => $type)), 'unknown');
     }
 
     $errors = $core->register['timers']['tests']['errors'][$type];
 
     if(!is_array($errors)){
-        throw new bException(tr('test_completed(): The specified error list should have datatype array but has datatype ":type"', array(':type' => gettype($errors))), 'invalid');
+        throw new BException(tr('test_completed(): The specified error list should have datatype array but has datatype ":type"', array(':type' => gettype($errors))), 'invalid');
     }
 
     if($errors){

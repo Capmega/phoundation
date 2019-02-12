@@ -32,6 +32,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new bException('scripts/mailer/start: Failed', $e);
+    throw new BException('scripts/mailer/start: Failed', $e);
 }
 ?>

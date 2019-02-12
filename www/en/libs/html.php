@@ -16,7 +16,7 @@
  */
 function html_only(){
     if(!PLATFORM_HTTP){
-        throw new bException('html_only(): This can only be done over HTML', 'htmlonly');
+        throw new BException('html_only(): This can only be done over HTML', 'htmlonly');
     }
 }
 
@@ -31,7 +31,7 @@ function html_echo($html){
     try{
         if(ob_get_contents()){
             if($_CONFIG['production']){
-                throw new bException(tr('html_echo(): Output buffer is not empty'), 'not-empty');
+                throw new BException(tr('html_echo(): Output buffer is not empty'), 'not-empty');
             }
 
             log_console(tr('html_echo(): Output buffer is not empty'), 'yellow');
@@ -41,7 +41,7 @@ function html_echo($html){
         die();
 
     }catch(Exception $e){
-        throw new bException('html_echo(): Failed', $e);
+        throw new BException('html_echo(): Failed', $e);
     }
 }
 
@@ -55,7 +55,7 @@ function html_safe($html){
         return htmlentities($html);
 
     }catch(Exception $e){
-        throw new bException('html_safe(): Failed', $e);
+        throw new BException('html_safe(): Failed', $e);
     }
 }
 
@@ -80,7 +80,7 @@ function html_iefilter($html, $filter){
         return "\n<!--[if IE ".str_from($filter, 'ie')."]>\n\t".$html."\n<![endif]-->\n";
 
     }catch(Exception $e){
-        throw new bException('html_iefilter(): Failed', $e);
+        throw new BException('html_iefilter(): Failed', $e);
     }
 }
 
@@ -133,7 +133,7 @@ function html_bundler($type){
                 break;
 
             default:
-                throw new bException(tr('html_bundler(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
+                throw new BException(tr('html_bundler(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
         }
 
         /*
@@ -334,7 +334,7 @@ function html_bundler($type){
         return true;
 
     }catch(Exception $e){
-        throw new bException('html_bundler(): Failed', $e);
+        throw new BException('html_bundler(): Failed', $e);
     }
 }
 
@@ -374,7 +374,7 @@ function html_load_css($files = '', $media = null){
 
         if(!is_array($files)){
             if(!is_string($files)){
-                throw new bException('html_load_css(): Invalid files specification');
+                throw new BException('html_load_css(): Invalid files specification');
             }
 
             $files = explode(',', $files);
@@ -388,7 +388,7 @@ function html_load_css($files = '', $media = null){
         }
 
 }catch(Exception $e){
-        throw new bException('html_load_css(): Failed', $e);
+        throw new BException('html_load_css(): Failed', $e);
     }
 }
 
@@ -450,7 +450,7 @@ function html_generate_css(){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('html_generate_css(): Failed', $e);
+        throw new BException('html_generate_css(): Failed', $e);
     }
 }
 
@@ -494,11 +494,11 @@ function html_load_js($files){
                  */
                 if(substr($file, -3, 3) == '.js'){
                     $file = substr($file, 0, -3);
-                    notify(new bException(tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file)), 'invalid'));
+                    notify(new BException(tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file)), 'invalid'));
 
                 }elseif(substr($file, -7, 7) == '.min.js'){
                     $file = substr($file, 0, -7);
-                    notify(new bException(tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file)), 'invalid'));
+                    notify(new BException(tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file)), 'invalid'));
                 }
             }
 
@@ -546,7 +546,7 @@ function html_load_js($files){
         unset($config);
 
     }catch(Exception $e){
-        throw new bException('html_load_js(): Failed', $e);
+        throw new BException('html_load_js(): Failed', $e);
     }
 }
 
@@ -598,7 +598,7 @@ function html_generate_js(){
                     /*
                      * We should never have empty files
                      */
-                    notify(new bException(tr('html_generate_js(): Empty file specified'), 'not-specified'));
+                    notify(new BException(tr('html_generate_js(): Empty file specified'), 'not-specified'));
                     continue;
                 }
 
@@ -644,7 +644,7 @@ function html_generate_js(){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('html_generate_js(): Failed', $e);
+        throw new BException('html_generate_js(): Failed', $e);
     }
 }
 
@@ -725,11 +725,11 @@ function html_header($params = null, $meta = array()){
         }
 
         if(empty($meta['description'])){
-            throw new bException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
+            throw new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
         }
 
         if(empty($meta['keywords'])){
-            throw new bException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
+            throw new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
         }
 
         if(!empty($meta['noindex'])){
@@ -752,7 +752,7 @@ function html_header($params = null, $meta = array()){
         }
 
         if(!$meta['viewport']){
-            throw new bException(tr('html_header(): Meta viewport tag is not specified'), 'not-specified');
+            throw new BException(tr('html_header(): Meta viewport tag is not specified'), 'not-specified');
         }
 
         if(!empty($params['amp'])){
@@ -857,7 +857,7 @@ function html_header($params = null, $meta = array()){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('html_header(): Failed', $e);
+        throw new BException('html_header(): Failed', $e);
     }
 }
 
@@ -877,7 +877,7 @@ function html_footer(){
         return '</body></html>';
 
     }catch(Exception $e){
-        throw new bException('html_footer(): Failed', $e);
+        throw new BException('html_footer(): Failed', $e);
     }
 }
 
@@ -907,7 +907,7 @@ function html_title($params){
                 return $params;
             }
 
-            throw new bException('html_title(): Invalid title specified');
+            throw new BException('html_title(): Invalid title specified');
         }
 
         /*
@@ -920,7 +920,7 @@ function html_title($params){
         return $title;
 
     }catch(Exception $e){
-        throw new bException('html_title(): Failed', $e);
+        throw new BException('html_title(): Failed', $e);
     }
 }
 
@@ -954,7 +954,7 @@ function html_flash($class = null){
 
     try{
         if(!PLATFORM_HTTP){
-            throw new bException('html_flash(): This function can only be executed on a webserver!');
+            throw new BException('html_flash(): This function can only be executed on a webserver!');
         }
 
         if(!isset($_SESSION['flash'])){
@@ -1059,7 +1059,7 @@ function html_flash($class = null){
                     break;
 
                 default:
-                    throw new bException(tr('html_flash(): Unknown html flash type ":type" specified. Please check your $_CONFIG[flash][type] configuration', array(':type' => $_CONFIG['flash']['type'])), 'unknown');
+                    throw new BException(tr('html_flash(): Unknown html flash type ":type" specified. Please check your $_CONFIG[flash][type] configuration', array(':type' => $_CONFIG['flash']['type'])), 'unknown');
             }
 
             $core->register['flash'] = true;
@@ -1096,7 +1096,7 @@ function html_flash($class = null){
         }
 
     }catch(Exception $e){
-        throw new bException('html_flash(): Failed', $e);
+        throw new BException('html_flash(): Failed', $e);
     }
 }
 
@@ -1135,14 +1135,14 @@ function html_flash_set($params, $type = 'info', $class = null){
 
     try{
         if(!PLATFORM_HTTP){
-            throw new bException(tr('html_flash_set(): This function can only be executed on a webserver!'), 'invalid');
+            throw new BException(tr('html_flash_set(): This function can only be executed on a webserver!'), 'invalid');
         }
 
         if(!$params){
             /*
              * Wut? no message?
              */
-            throw new bException(tr('html_flash_set(): No messages specified'), 'not-specified');
+            throw new BException(tr('html_flash_set(): No messages specified'), 'not-specified');
         }
 
         /*
@@ -1171,7 +1171,7 @@ function html_flash_set($params, $type = 'info', $class = null){
          */
         if(empty($params['html']) and empty($params['text']) and empty($params['title'])){
             if($_CONFIG['production']){
-                throw new bException(tr('Invalid html_flash_set() call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
+                throw new BException(tr('Invalid html_flash_set() call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
             }
 
             notify('invalid html flash set', $params, 'developers');
@@ -1198,7 +1198,7 @@ function html_flash_set($params, $type = 'info', $class = null){
         /*
          * Here, something actually went wrong within html_flash_set()
          */
-        throw new bException('html_flash_set(): Failed', $e);
+        throw new BException('html_flash_set(): Failed', $e);
     }
 }
 
@@ -1220,7 +1220,7 @@ function html_flash_set($params, $type = 'info', $class = null){
 //        return false;
 //
 //    }catch(Exception $e){
-//        throw new bException('html_flash_class(): Failed', $e);
+//        throw new BException('html_flash_class(): Failed', $e);
 //    }
 //}
 
@@ -1251,7 +1251,7 @@ function html_a($params){
         }
 
         if(empty($params['href'])){
-            throw new bException('html_a(): No href specified', 'not-specified');
+            throw new BException('html_a(): No href specified', 'not-specified');
         }
 
         if($params['name']){
@@ -1267,7 +1267,7 @@ function html_a($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('html_a(): Failed', $e);
+        throw new BException('html_a(): Failed', $e);
     }
 }
 
@@ -1309,7 +1309,7 @@ function html_submit($params, $class = ''){
         return $retval.isset_get($script);
 
     }catch(Exception $e){
-        throw new bException('html_submit(): Failed', $e);
+        throw new BException('html_submit(): Failed', $e);
     }
 }
 
@@ -1367,13 +1367,13 @@ function html_select_submit($params){
                 $type .= tr(' of class :class', array(':class' => get_class($params['buttons'])));
             }
 
-            throw new bException(tr('html_select_submit(): Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', array(':type' => $type)), 'invalid');
+            throw new BException(tr('html_select_submit(): Invalid data type specified for params "buttons", it should be an array or PDO statement object, but it is an ":type"', array(':type' => $type)), 'invalid');
         }
 
         return html_select($params);
 
     }catch(Exception $e){
-        throw new bException('html_select_submit(): Failed', $e);
+        throw new BException('html_select_submit(): Failed', $e);
     }
 }
 
@@ -1453,7 +1453,7 @@ function html_select($params){
         array_default($params, 'multiple'    , false);
 
         if(!$params['name']){
-            throw new bException(tr('html_select(): No name specified'), 'not-specified');
+            throw new BException(tr('html_select(): No name specified'), 'not-specified');
         }
 
         if($params['autosubmit']){
@@ -1487,7 +1487,7 @@ function html_select($params){
             //        $params['disabled'] = true;
             //
             //    }else{
-            //        throw new bException(tr('html_select(): Invalid resource of type "%type%" specified, should be either null, an array, or a PDOStatement object', array('%type%' => gettype($params['resource']))), 'invalid');
+            //        throw new BException(tr('html_select(): Invalid resource of type "%type%" specified, should be either null, an array, or a PDOStatement object', array('%type%' => gettype($params['resource']))), 'invalid');
             //    }
             //}
         }
@@ -1556,7 +1556,7 @@ function html_select($params){
         return $retval.html_script('$("[name=\''.$params['autosubmit'].'\']").change(function(){ $(this).closest("form").find("input,textarea,select").addClass("ignore"); $(this).closest("form").submit(); });');
 
     }catch(Exception $e){
-        throw new bException('html_select(): Failed', $e);
+        throw new BException('html_select(): Failed', $e);
     }
 }
 
@@ -1605,7 +1605,7 @@ function html_select_body($params) {
         }
 
         if($params['data_resource'] and !is_array($params['data_resource'])){
-            throw new bException(tr('html_select_body(): Invalid data_resource specified, should be an array, but received a ":gettype"', array(':gettype' => gettype($params['data_resource']))), 'invalid');
+            throw new BException(tr('html_select_body(): Invalid data_resource specified, should be an array, but received a ":gettype"', array(':gettype' => gettype($params['data_resource']))), 'invalid');
         }
 
         if($params['resource']){
@@ -1638,7 +1638,7 @@ function html_select_body($params) {
 
             }elseif(is_object($params['resource'])){
                 if(!($params['resource'] instanceof PDOStatement)){
-                    throw new bException(tr('html_select_body(): Specified resource object is not an instance of PDOStatement'), 'invalidresource');
+                    throw new BException(tr('html_select_body(): Specified resource object is not an instance of PDOStatement'), 'invalidresource');
                 }
 
                 if($params['auto_select'] and ($params['resource']->rowCount() == 1)){
@@ -1677,7 +1677,7 @@ function html_select_body($params) {
                 }
 
             }else{
-                throw new bException(tr('html_select_body(): Specified resource ":resource" is neither an array nor a PDO statement', array(':resource' => $params['resource'])), 'invalid');
+                throw new BException(tr('html_select_body(): Specified resource ":resource" is neither an array nor a PDO statement', array(':resource' => $params['resource'])), 'invalid');
             }
         }
 
@@ -1699,7 +1699,7 @@ function html_select_body($params) {
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('html_select_body(): Failed', $e);
+        throw new BException('html_select_body(): Failed', $e);
     }
 }
 
@@ -1784,7 +1784,7 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
         return '';
 
     }catch(Exception $e){
-        throw new bException('html_script(): Failed', $e);
+        throw new BException('html_script(): Failed', $e);
     }
 }
 
@@ -1827,7 +1827,7 @@ function html_favicon($icon = null, $mobile_icon = null, $sizes = null, $precomp
         }
 
     }catch(Exception $e){
-        throw new bException('html_favicon(): Failed', $e);
+        throw new BException('html_favicon(): Failed', $e);
     }
 }
 
@@ -1839,11 +1839,11 @@ function html_favicon($icon = null, $mobile_icon = null, $sizes = null, $precomp
 function html_list($params, $selected = ''){
     try{
         if(!is_array($params)){
-            throw new bException('html_list(): Specified params is not an array', 'invalid');
+            throw new BException('html_list(): Specified params is not an array', 'invalid');
         }
 
         if(empty($params['steps']) or !is_array($params['steps'])){
-            throw new bException('html_list(): params[steps] is not specified or not an array', 'invalid');
+            throw new BException('html_list(): params[steps] is not specified or not an array', 'invalid');
         }
 
         array_default($params, 'selected'    , $selected);
@@ -1926,7 +1926,7 @@ function html_list($params, $selected = ''){
         return $retval.'</div>';
 
     }catch(Exception $e){
-        throw new bException('html_list(): Failed', $e);
+        throw new BException('html_list(): Failed', $e);
     }
 }
 
@@ -1946,7 +1946,7 @@ function html_status_select($params){
         return html_select($params);
 
     }catch(Exception $e){
-        throw new bException('html_status_select(): Failed', $e);
+        throw new BException('html_status_select(): Failed', $e);
     }
 }
 
@@ -1960,7 +1960,7 @@ function html_hidden($source, $key = 'id'){
         return '<input type="hidden" name="'.$key.'" value="'.isset_get($source[$key]).'">';
 
     }catch(Exception $e){
-        throw new bException('html_hidden(): Failed', $e);
+        throw new BException('html_hidden(): Failed', $e);
     }
 }
 
@@ -2002,13 +2002,13 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                 return '';
             }
 
-            throw new bException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $alt)), 'no-image');
+            throw new BException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $alt)), 'no-image');
         }
 
 // :DELETE: All projects should be updated to conform with the new html_img() function and then this check should be dumped with the garbage
         if(!$width and $height and !is_numeric($height)){
             if(!$_CONFIG['production'] and $_CONFIG['system']['obsolete_exception']){
-                throw new bException(tr('html_img(): Update html_img() argument order'), 'obsolete');
+                throw new BException(tr('html_img(): Update html_img() argument order'), 'obsolete');
             }
 
             $more   = $height;
@@ -2017,11 +2017,11 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
 
         if(!$_CONFIG['production']){
             if(!$src){
-                throw new bException(tr('html_img(): No image src specified'), 'not-specified');
+                throw new BException(tr('html_img(): No image src specified'), 'not-specified');
             }
 
             if(!$alt){
-                throw new bException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $src)), 'not-specified');
+                throw new BException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $src)), 'not-specified');
             }
 
         }else{
@@ -2176,7 +2176,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
         return '<img src="'.$src.'" alt="'.htmlentities($alt).'"'.$width.$height.($more ? ' '.$more : '').'>';
 
     }catch(Exception $e){
-        throw new bException('html_img(): Failed', $e);
+        throw new BException('html_img(): Failed', $e);
     }
 }
 
@@ -2194,7 +2194,7 @@ function html_video($params){
 
         if(!$_CONFIG['production']){
             if(!$params['src']){
-                throw new bException(tr('html_video(): No video src specified'), 'not-specified');
+                throw new BException(tr('html_video(): No video src specified'), 'not-specified');
             }
         }
 
@@ -2202,19 +2202,19 @@ function html_video($params){
 // But in this case, we have to use a external "library" to get this done
 // Investigate the best option for this!
         if(!$params['width']){
-            throw new bException(tr('html_video(): No width specified'), 'not-specified');
+            throw new BException(tr('html_video(): No width specified'), 'not-specified');
         }
 
         if(!is_natural($params['width'])){
-            throw new bException(tr('html_video(): Invalid width ":width" specified', array(':width' => $params['width'])), 'invalid');
+            throw new BException(tr('html_video(): Invalid width ":width" specified', array(':width' => $params['width'])), 'invalid');
         }
 
         if(!$params['height']){
-            throw new bException(tr('html_video(): No height specified'), 'not-specified');
+            throw new BException(tr('html_video(): No height specified'), 'not-specified');
         }
 
         if(!is_natural($params['height'])){
-            throw new bException(tr('html_video(): Invalid height ":height" specified', array(':height' => $params['height'])), 'invalid');
+            throw new BException(tr('html_video(): Invalid height ":height" specified', array(':height' => $params['height'])), 'invalid');
         }
 
         /*
@@ -2253,11 +2253,11 @@ function html_video($params){
                  * Remote videos MUST have height and width specified!
                  */
                 if(!$params['height']){
-                    throw new bException(tr('html_video(): No height specified for remote video'), 'not-specified');
+                    throw new BException(tr('html_video(): No height specified for remote video'), 'not-specified');
                 }
 
                 if(!$params['width']){
-                    throw new bException(tr('html_video(): No width specified for remote video'), 'not-specified');
+                    throw new BException(tr('html_video(): No width specified for remote video'), 'not-specified');
                 }
 
                 switch($params['type']){
@@ -2277,7 +2277,7 @@ function html_video($params){
                         break;
 
                     default:
-                        throw new bException(tr('html_video(): Unknown type ":type" specified for remote video', array(':type' => $params['type'])), 'unknown');
+                        throw new BException(tr('html_video(): Unknown type ":type" specified for remote video', array(':type' => $params['type'])), 'unknown');
                 }
             }
         }
@@ -2293,7 +2293,7 @@ function html_video($params){
 
     }catch(Exception $e){
         if(!$_CONFIG['production']){
-            throw new bException('html_video(): Failed', $e);
+            throw new BException('html_video(): Failed', $e);
         }
 
         notify($e);
@@ -2341,7 +2341,7 @@ function html_autosuggest($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException(tr('html_autosuggest(): Failed'), $e);
+        throw new BException(tr('html_autosuggest(): Failed'), $e);
     }
 }
 
@@ -2368,7 +2368,7 @@ function html_minify($html){
         return $html;
 
     }catch(Exception $e){
-        throw new bException(tr('html_minify(): Failed'), $e);
+        throw new BException(tr('html_minify(): Failed'), $e);
     }
 }
 
@@ -2389,7 +2389,7 @@ function html_minify($html){
         return $translations[$name];
 
      }catch(Exception $e){
-         throw new bException(tr('html_translate(): Failed'), $e);
+         throw new BException(tr('html_translate(): Failed'), $e);
      }
  }
 
@@ -2413,7 +2413,7 @@ function html_untranslate(){
         return $count;
 
     }catch(Exception $e){
-        throw new bException(tr('html_untranslate(): Failed'), $e);
+        throw new BException(tr('html_untranslate(): Failed'), $e);
     }
 }
 
@@ -2444,7 +2444,7 @@ function html_fix_checkbox_values(){
         }
 
      }catch(Exception $e){
-         throw new bException(tr('html_fix_checkbox_values(): Failed'), $e);
+         throw new BException(tr('html_fix_checkbox_values(): Failed'), $e);
      }
 }
 
@@ -2491,7 +2491,7 @@ function html_form($method = 'post', $action = null, $name = 'form', $class = 'f
         }
 
         if(empty($keys)){
-            throw new bException(tr('html_form(): No variables specified'), 'not-specified');
+            throw new BException(tr('html_form(): No variables specified'), 'not-specified');
         }
 
         $form = '<form '.implode(' ', $keys).'>';
@@ -2504,7 +2504,7 @@ function html_form($method = 'post', $action = null, $name = 'form', $class = 'f
         return $form;
 
     }catch(Exception $e){
-        throw new bException(tr('html_form(): Failed'), $e);
+        throw new BException(tr('html_form(): Failed'), $e);
     }
 }
 ?>

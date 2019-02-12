@@ -27,6 +27,6 @@ try{
     test_completed('script_exec()');
 
 }catch(Exception $e){
-    throw new bException('scripts/tests/script_exec: Failed', $e);
+    throw new BException('scripts/tests/script_exec: Failed', $e);
 }
 ?>

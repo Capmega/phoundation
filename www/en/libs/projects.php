@@ -28,7 +28,7 @@ function projects_library_init(){
         load_config('projects');
 
     }catch(Exception $e){
-        throw new bException('projects_library_init(): Failed', $e);
+        throw new BException('projects_library_init(): Failed', $e);
     }
 }
 
@@ -50,7 +50,7 @@ function projects_validate($project, $reload_only = false){
     try{
         load_libs('validate,seo');
 
-        $v = new validate_form($project, 'seocategory,seocustomer,name,code,seoprocess,step,documents_id,api_key,fcm_api_key,description');
+        $v = new ValidateForm($project, 'seocategory,seocustomer,name,code,seoprocess,step,documents_id,api_key,fcm_api_key,description');
 
         /*
          * Validate category
@@ -218,7 +218,7 @@ function projects_validate($project, $reload_only = false){
         return $project;
 
     }catch(Exception $e){
-        throw new bException(tr('projects_validate(): Failed'), $e);
+        throw new BException(tr('projects_validate(): Failed'), $e);
     }
 }
 
@@ -269,7 +269,7 @@ function projects_select($params = null){
             $params['customers_id'] = customers_get($params['seocustomer'], 'id');
 
             if(!$params['customers_id']){
-                throw new bException(tr('projects_select(): The reqested customer ":customer" is not available', array(':customer' => $params['seocustomer'])), 'not-available');
+                throw new BException(tr('projects_select(): The reqested customer ":customer" is not available', array(':customer' => $params['seocustomer'])), 'not-available');
             }
         }
 
@@ -297,7 +297,7 @@ function projects_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('projects_select(): Failed', $e);
+        throw new BException('projects_select(): Failed', $e);
     }
 }
 
@@ -376,7 +376,7 @@ function projects_get($project, $column = null, $status = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('projects_get(): Failed', $e);
+        throw new BException('projects_get(): Failed', $e);
     }
 }
 ?>

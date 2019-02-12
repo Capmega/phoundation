@@ -32,7 +32,7 @@ function composer_library_init(){
          * Do a version check so we're sure this stuff is supported
          */
         if(version_compare(PHP_VERSION, '5.3.2') < 0){
-            throw new bException('composer_library_init(): PHP composer requires PHP 5.3.2+', 'notsupported');
+            throw new BException('composer_library_init(): PHP composer requires PHP 5.3.2+', 'notsupported');
         }
 
         ensure_installed(array('name'     => 'composer',
@@ -44,7 +44,7 @@ function composer_library_init(){
         }
 
     }catch(Exception $e){
-        throw new bException('composer_library_init(): Failed', $e);
+        throw new BException('composer_library_init(): Failed', $e);
     }
 }
 
@@ -74,7 +74,7 @@ function composer_install($params){
         $required_hash = download('https://composer.github.io/installer.sig');
 
         if($file_hash != $required_hash){
-            throw new bException(tr('composer_install(): File hash check failed for composer-setup.php'), 'hash-fail');
+            throw new BException(tr('composer_install(): File hash check failed for composer-setup.php'), 'hash-fail');
         }
 
         file_execute_mode(ROOT.'www/en/libs/external/', 0770, function(){
@@ -84,7 +84,7 @@ function composer_install($params){
         file_delete(TMP.'composer');
 
     }catch(Exception $e){
-        throw new bException('composer_install(): Failed', $e);
+        throw new BException('composer_install(): Failed', $e);
     }
 }
 
@@ -100,7 +100,7 @@ function composer_init_file(){
         });
 
     }catch(Exception $e){
-        throw new bException('composer_init_file(): Failed', $e);
+        throw new BException('composer_init_file(): Failed', $e);
     }
 }
 
@@ -130,7 +130,7 @@ function composer_require($package){
         safe_exec(ROOT.'libs/external/composer.phar require "'.$package.'"');
 
     }catch(Exception $e){
-        throw new bException('composer_require(): Failed', $e);
+        throw new BException('composer_require(): Failed', $e);
     }
 }
 
@@ -160,7 +160,7 @@ function composer_install($package){
         safe_exec(ROOT.'libs/external/composer.phar install "'.$package.'"');
 
     }catch(Exception $e){
-        throw new bException('composer_install(): Failed', $e);
+        throw new BException('composer_install(): Failed', $e);
     }
 }
 ?>

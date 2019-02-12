@@ -28,7 +28,7 @@ function storage_documents_library_init(){
         load_libs('storage');
 
     }catch(Exception $e){
-        throw new bException('storage_documents_library_init(): Failed', $e);
+        throw new BException('storage_documents_library_init(): Failed', $e);
     }
 }
 
@@ -118,7 +118,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
             }
 
         }else{
-            throw new bException(tr('storage_documents_get(): Invalid document specified, is datatype ":type", should be null, numeric, string, or array', array(':type' => gettype($document))), 'invalid');
+            throw new BException(tr('storage_documents_get(): Invalid document specified, is datatype ":type", should be null, numeric, string, or array', array(':type' => gettype($document))), 'invalid');
         }
 
         if($column){
@@ -168,7 +168,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
         return $document;
 
     }catch(Exception $e){
-        throw new bException('storage_documents_get(): Failed', $e);
+        throw new BException('storage_documents_get(): Failed', $e);
     }
 }
 
@@ -229,7 +229,7 @@ function storage_documents_add($document, $section = null){
         return $document;
 
     }catch(Exception $e){
-        throw new bException('storage_documents_add(): Failed', $e);
+        throw new BException('storage_documents_add(): Failed', $e);
     }
 }
 
@@ -300,7 +300,7 @@ function storage_documents_update($document, $new = false){
         return $document;
 
     }catch(Exception $e){
-        throw new bException('storage_documents_update(): Failed', $e);
+        throw new BException('storage_documents_update(): Failed', $e);
     }
 }
 
@@ -343,7 +343,7 @@ function storage_documents_validate($document){
         array_default($params['errors'], 'valid_rating'        , tr('Please specify a valid ratings number'));
         array_default($params['errors'], 'valid_comments'      , tr('Please specify a valid comments number'));
 
-        $v = new validate_form($document, 'id,meta_id,status,sections_id,masters_id,parents_id,customers_id,providers_id,rights_id,assigned_to_id,featured_until,category1,category2,category3,upvotes,downvotes,priority,level,views,rating,comments');
+        $v = new ValidateForm($document, 'id,meta_id,status,sections_id,masters_id,parents_id,customers_id,providers_id,rights_id,assigned_to_id,featured_until,category1,category2,category3,upvotes,downvotes,priority,level,views,rating,comments');
 
         $v->isNatural($document['id'], 1, tr('Please specify a valid documents id'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->isNatural($page['meta_id'], 1, $params['errors']['valid_meta_id'], VALIDATE_ALLOW_EMPTY_NULL);
@@ -370,7 +370,7 @@ function storage_documents_validate($document){
         return $document;
 
     }catch(Exception $e){
-        throw new bException('storage_documents_validate(): Failed', $e);
+        throw new BException('storage_documents_validate(): Failed', $e);
     }
 }
 
@@ -396,7 +396,7 @@ function storage_document_has_access($documents_id, $users_id = null){
         }
 
     }catch(Exception $e){
-        throw new bException('storage_document_has_access(): Failed', $e);
+        throw new BException('storage_document_has_access(): Failed', $e);
     }
 }
 ?>

@@ -63,7 +63,7 @@ function chat_get_user($user){
         return sql_get('SELECT `user_name`, `user_password` FROM `users` WHERE `user_id` = :user_id', array(':user_id' => $user['id']), null, 'chat');
 
     }catch(Exception $e){
-        throw new bException(tr('chat_get_user(): Failed'), $e);
+        throw new BException(tr('chat_get_user(): Failed'), $e);
     }
 }
 
@@ -80,7 +80,7 @@ function chat_start($user){
             /*
              * This user doesnt exist yet
              */
-            throw new bException(tr('chat_start(): Specified user ":user" doesn\'t exist in the chat database', array(':user' => $user['id'])), 'not-exist');
+            throw new BException(tr('chat_start(): Specified user ":user" doesn\'t exist in the chat database', array(':user' => $user['id'])), 'not-exist');
         }
 
         setcookie('username', $user['user_name']    , time() + 86400, '/', ''.str_starts($_SESSION['domain'], '.'));
@@ -89,7 +89,7 @@ function chat_start($user){
         return '<iframe src="'.$_CONFIG['protocol'].'chat.'.$_CONFIG['domain'].'" frameborder="0" class="chat"></iframe>';
 
     }catch(Exception $e){
-        throw new bException(tr('chat_start(): Failed'), $e);
+        throw new BException(tr('chat_start(): Failed'), $e);
     }
 }
 
@@ -112,7 +112,7 @@ function chat_end($userid){
                    null, 'chat');
 
     }catch(Exception $e){
-        throw new bException(tr('chat_end(): Failed'), $e);
+        throw new BException(tr('chat_end(): Failed'), $e);
     }
 }
 
@@ -138,7 +138,7 @@ function chat_add_user($user){
         return sql_insert_id('chat');
 
     }catch(Exception $e){
-        throw new bException(tr('chat_add_user(): Failed'), $e);
+        throw new BException(tr('chat_add_user(): Failed'), $e);
     }
 }
 
@@ -204,7 +204,7 @@ function chat_update_user($user){
         }
 
     }catch(Exception $e){
-        throw new bException(tr('chat_update_user(): Failed'), $e);
+        throw new BException(tr('chat_update_user(): Failed'), $e);
     }
 }
 
@@ -241,12 +241,12 @@ function chat_update_rank($user){
              */
             if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']))){
                 load_libs('user');
-                throw new bException(tr('chat_update_rank(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exist');
+                throw new BException(tr('chat_update_rank(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exist');
             }
         }
 
     }catch(Exception $e){
-        throw new bException(tr('chat_update_rank(): Failed'), $e);
+        throw new BException(tr('chat_update_rank(): Failed'), $e);
     }
 }
 
@@ -276,12 +276,12 @@ function chat_sync_users($user, $log_console = false){
                 }
 
             }catch(Exception $e){
-                throw new bException(tr('chat_sync_users(): Failed to process user ":user"', array(':user' => name($user))), $e);
+                throw new BException(tr('chat_sync_users(): Failed to process user ":user"', array(':user' => name($user))), $e);
             }
         }
 
     }catch(Exception $e){
-        throw new bException(tr('chat_sync_users(): Failed'), $e);
+        throw new BException(tr('chat_sync_users(): Failed'), $e);
     }
 }
 
@@ -304,7 +304,7 @@ function chat_update_avatar($user, $avatar){
                               ':user_avatar' => $avatar), null, 'chat');
 
     }catch(Exception $e){
-        throw new bException(tr('chat_update_avatar(): Failed'), $e);
+        throw new BException(tr('chat_update_avatar(): Failed'), $e);
     }
 }
 ?>

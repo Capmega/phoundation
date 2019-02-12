@@ -32,7 +32,7 @@ function linux_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new bException('linux_library_init(): Failed', $e);
+        throw new BException('linux_library_init(): Failed', $e);
     }
 }
 
@@ -67,11 +67,11 @@ function linux_get_ssh_tcp_forwarding($server){
                 return false;
 
             default:
-                throw new bException(tr('linux_get_ssh_tcp_forwarding(): Unknown result ":result" received from SSHD configuration on server ":server"', array(':server' => $server, ':result' => $result)), 'unknown');
+                throw new BException(tr('linux_get_ssh_tcp_forwarding(): Unknown result ":result" received from SSHD configuration on server ":server"', array(':server' => $server, ':result' => $result)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new bException('linux_get_ssh_tcp_forwarding(): Failed', $e);
+        throw new BException('linux_get_ssh_tcp_forwarding(): Failed', $e);
     }
 }
 
@@ -96,7 +96,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
         $server = servers_get($server);
 
         if(!$server['allow_sshd_modification'] and !$force){
-            throw new bException(tr('linux_set_ssh_tcp_forwarding(): The specified server ":server" does not allow SSHD modifications', array(':server' => $server['hostname'])), 'not-allowed');
+            throw new BException(tr('linux_set_ssh_tcp_forwarding(): The specified server ":server" does not allow SSHD modifications', array(':server' => $server['hostname'])), 'not-allowed');
         }
 
         $enable   = ($enable ? 'yes' : 'no');
@@ -106,7 +106,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
         return $enable;
 
     }catch(Exception $e){
-        throw new bException('linux_enable_ssh_tcp_forwarding(): Failed', $e);
+        throw new BException('linux_enable_ssh_tcp_forwarding(): Failed', $e);
     }
 }
 
@@ -134,7 +134,7 @@ function linux_file_exists($server, $path){
 
     }catch(Exception $e){
 showdie($e);
-        throw new bException('linux_file_exists(): Failed', $e);
+        throw new BException('linux_file_exists(): Failed', $e);
     }
 }
 
@@ -163,7 +163,7 @@ function linux_scandir($server, $path){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('linux_scandir(): Failed', $e);
+        throw new BException('linux_scandir(): Failed', $e);
     }
 }
 
@@ -179,7 +179,7 @@ function linux_scandir($server, $path){
  * @category Function reference
  * @package linux
  * @note If the specified file pattern does not exist (doesn't match any files), no error will be thrown
- * @exception bException will be thrown if files, for whatever reasons, cannot be deleted
+ * @exception BException will be thrown if files, for whatever reasons, cannot be deleted
  *
  * @param mixed $server
  * @param string $path
@@ -189,7 +189,7 @@ function linux_scandir($server, $path){
 function linux_file_delete($server, $patterns, $clean_path = false, $sudo = false){
     try{
         if(!$patterns){
-            throw new bException('linux_file_delete(): No files or patterns specified');
+            throw new BException('linux_file_delete(): No files or patterns specified');
         }
 
         $server = servers_get($server);
@@ -203,7 +203,7 @@ function linux_file_delete($server, $patterns, $clean_path = false, $sudo = fals
         }
 
     }catch(Exception $e){
-        throw new bException('linux_file_delete(): Failed', $e);
+        throw new BException('linux_file_delete(): Failed', $e);
     }
 }
 
@@ -287,7 +287,7 @@ function linux_file_clear_path($server, $path){
         linux_file_clear_path($server, $path);
 
     }catch(Exception $e){
-        throw new bException('linux_file_clear_path(): Failed', $e);
+        throw new BException('linux_file_clear_path(): Failed', $e);
     }
 }
 
@@ -316,7 +316,7 @@ function linux_is_writable($server, $file){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('linux_is_writable(): Failed', $e);
+        throw new BException('linux_is_writable(): Failed', $e);
     }
 }
 
@@ -353,7 +353,7 @@ function linux_pgrep($server, $name){
         return $results;
 
     }catch(Exception $e){
-        throw new bException('linux_pgrep(): Failed', $e);
+        throw new BException('linux_pgrep(): Failed', $e);
     }
 }
 
@@ -418,11 +418,11 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify =
                 }
             }
 
-            throw new bException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
+            throw new BException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
         }
 
     }catch(Exception $e){
-        throw new bException('linux_pkill(): Failed', $e);
+        throw new BException('linux_pkill(): Failed', $e);
     }
 }
 
@@ -478,7 +478,7 @@ function linux_list_processes($server, $filters){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('linux_list_processes(): Failed', $e);
+        throw new BException('linux_list_processes(): Failed', $e);
     }
 }
 
@@ -502,7 +502,7 @@ function linux_pid($server, $pid){
         return linux_file_exists($server, '/proc/'.$pid);
 
     }catch(Exception $e){
-        throw new bException('linux_pid(): Failed', $e);
+        throw new BException('linux_pid(): Failed', $e);
     }
 }
 
@@ -527,7 +527,7 @@ function linux_netstat($server, $options){
         return linux_file_exists($server, 'netstat '.$parameters);
 
     }catch(Exception $e){
-        throw new bException('linux_netstat(): Failed', $e);
+        throw new BException('linux_netstat(): Failed', $e);
     }
 }
 ?>

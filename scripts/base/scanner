@@ -95,7 +95,7 @@ switch(cli_method()){
         $device = scanimage_get($scanimage['device']);
 
         if(!$device){
-            throw new bException(tr('Specified device ":device" does not exist', array(':device' => $scanimage['device'])), 'not-exist');
+            throw new BException(tr('Specified device ":device" does not exist', array(':device' => $scanimage['device'])), 'not-exist');
         }
 
         /*
@@ -110,7 +110,7 @@ switch(cli_method()){
                  */
                 if(is_array($valid_values)){
                     if(!in_array($value, $valid_values)){
-                        throw new bException(tr('Value ":value" for the specified option ":key" is invalid', array(':key' => $key, ':value' => $value)));
+                        throw new BException(tr('Value ":value" for the specified option ":key" is invalid', array(':key' => $key, ':value' => $value)));
                     }
 
                 }else{
@@ -160,7 +160,7 @@ switch(cli_method()){
 
         if(!$scanimage['file']){
             if(empty($scanimage['options']['batch'])){
-                throw new bException(tr('No target file specified'), 'not-specified');
+                throw new BException(tr('No target file specified'), 'not-specified');
             }
 
         }else{
@@ -174,7 +174,7 @@ switch(cli_method()){
 
         if(!file_exists($scanimage['file'])){
             if(!$scanimage['batch']){
-                throw new bException(tr('Sane reported scan was saved to target file ":file", but the file was not found', array(':file' => $scanimage['file'])), 'not-found');
+                throw new BException(tr('Sane reported scan was saved to target file ":file", but the file was not found', array(':file' => $scanimage['file'])), 'not-found');
             }
         }
 
@@ -182,9 +182,9 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new bException(tr('No method specified'), 'no-method');
+        throw new BException(tr('No method specified'), 'no-method');
 
     default:
-        throw new bException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

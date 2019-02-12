@@ -35,7 +35,7 @@ try{
 
 }catch(Exception $e){
     $e->setCode('parameters');
-    throw new bException(tr('core::startup(): Failed to parse one or more system parameters'), $e);
+    throw new BException(tr('core::startup(): Failed to parse one or more system parameters'), $e);
 }
 
 
@@ -92,7 +92,7 @@ try{
 
                 }else{
                     if(empty($GLOBALS['help'])){
-                        throw new bException(tr('core::startup(): Sorry, this script has no help text defined'), 'warning');
+                        throw new BException(tr('core::startup(): Sorry, this script has no help text defined'), 'warning');
                     }
 
                     $GLOBALS['help'] = array_force($GLOBALS['help'], "\n");
@@ -119,11 +119,11 @@ try{
                  * Set language to be used
                  */
                 if(isset($language)){
-                    throw new bException(tr('core::startup(): Language has been specified twice'), 'exists');
+                    throw new BException(tr('core::startup(): Language has been specified twice'), 'exists');
                 }
 
                 if(!isset($GLOBALS['argv'][$argid + 1])){
-                    throw new bException(tr('core::startup(): The "language" argument requires a two letter language core right after it'), 'invalid');
+                    throw new BException(tr('core::startup(): The "language" argument requires a two letter language core right after it'), 'invalid');
                 }
 
                 $language = $GLOBALS['argv'][$argid + 1];
@@ -139,11 +139,11 @@ try{
                  * Set environment and reset next
                  */
                 if(isset($environment)){
-                    throw new bException(tr('core::startup(): Environment has been specified twice'), 'exists');
+                    throw new BException(tr('core::startup(): Environment has been specified twice'), 'exists');
                 }
 
                 if(!isset($GLOBALS['argv'][$argid + 1])){
-                    throw new bException(tr('core::startup(): The "environment" argument requires an existing environment name right after it'), 'invalid');
+                    throw new BException(tr('core::startup(): The "environment" argument requires an existing environment name right after it'), 'invalid');
                 }
 
                 $environment = $GLOBALS['argv'][$argid + 1];
@@ -163,7 +163,7 @@ try{
                     /*
                      * The specified column ordering is NOT valid
                      */
-                    throw new bException(tr('core::startup(): The specified orderby argument ":argument" is invalid', array(':argument' => ORDERBY)), 'invalid');
+                    throw new BException(tr('core::startup(): The specified orderby argument ":argument" is invalid', array(':argument' => ORDERBY)), 'invalid');
                 }
 
                 unset($GLOBALS['argv'][$argid]);
@@ -175,11 +175,11 @@ try{
                  * Set timezone
                  */
                 if(isset($timezone)){
-                    throw new bException(tr('core::startup(): Timezone has been specified twice'), 'exists');
+                    throw new BException(tr('core::startup(): Timezone has been specified twice'), 'exists');
                 }
 
                 if(!isset($GLOBALS['argv'][$argid + 1])){
-                    throw new bException(tr('core::startup(): The "timezone" argument requires a valid and existing timezone name right after it'), 'invalid');
+                    throw new BException(tr('core::startup(): The "timezone" argument requires a valid and existing timezone name right after it'), 'invalid');
 
                 }
 
@@ -362,7 +362,7 @@ $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
 $language = not_empty(cli_argument('--language'), cli_argument('L'), $_CONFIG['language']['default']);
 
 if($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])){
-    throw new bException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
+    throw new BException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
 }
 
 define('LANGUAGE', $language);
@@ -388,7 +388,7 @@ if(cli_argument('-D,--debug')){
  */
 if(VERBOSE){
     if(QUIET){
-        throw new bException(tr('core::startup(): Both QUIET and VERBOSE have been specified but these options are mutually exclusive. Please specify either one or the other'), 'warning/invalid');
+        throw new BException(tr('core::startup(): Both QUIET and VERBOSE have been specified but these options are mutually exclusive. Please specify either one or the other'), 'warning/invalid');
     }
 
     if(VERYVERBOSE){
@@ -403,7 +403,7 @@ if(VERBOSE){
 
 if(FORCE){
     if(TEST){
-        throw new bException(tr('core::startup(): Both FORCE and TEST modes where specified, these modes are mutually exclusive'), 'invalid');
+        throw new BException(tr('core::startup(): Both FORCE and TEST modes where specified, these modes are mutually exclusive'), 'invalid');
     }
 
     log_console(tr('Running in FORCE mode'), 'yellow');
@@ -414,7 +414,7 @@ if(FORCE){
 
 if(ALL){
     if(DELETED){
-        throw new bException(tr('core::startup(): Both ALL and DELETED modes where specified, these modes are mutually exclusive'), 'invalid');
+        throw new BException(tr('core::startup(): Both ALL and DELETED modes where specified, these modes are mutually exclusive'), 'invalid');
     }
 
     log_console(tr('Showing ALL entries'), 'VERBOSE/cyan');

@@ -28,7 +28,7 @@ function customers_library_init(){
         load_config('customers');
 
     }catch(Exception $e){
-        throw new bException('customers_library_init(): Failed', $e);
+        throw new BException('customers_library_init(): Failed', $e);
     }
 }
 
@@ -65,7 +65,7 @@ function customers_validate($customer){
     try{
         load_libs('validate,seo');
 
-        $v = new validate_form($customer, 'seocategory,name,code,company,email,phones,address1,address2,address3,zipcode,documents_id,seocountry,seostate,seocity,description');
+        $v = new ValidateForm($customer, 'seocategory,name,code,company,email,phones,address1,address2,address3,zipcode,documents_id,seocountry,seostate,seocity,description');
         $v->isNotEmpty ($customer['name']    , tr('No customers name specified'));
         $v->hasMinChars($customer['name'],  2, tr('Please ensure the customer\'s name has at least 2 characters'));
         $v->hasMaxChars($customer['name'], 64, tr('Please ensure the customer\'s name has less than 64 characters'));
@@ -278,7 +278,7 @@ function customers_validate($customer){
         return $customer;
 
     }catch(Exception $e){
-        throw new bException(tr('customers_validate(): Failed'), $e);
+        throw new BException(tr('customers_validate(): Failed'), $e);
     }
 }
 
@@ -329,7 +329,7 @@ function customers_select($params = null){
             $params['categories_id'] = categories_get($params['seocategory'], 'id');
 
             if(!$params['categories_id']){
-                throw new bException(tr('customers_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
+                throw new BException(tr('customers_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
             }
         }
 
@@ -357,7 +357,7 @@ function customers_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('customers_select(): Failed', $e);
+        throw new BException('customers_select(): Failed', $e);
     }
 }
 
@@ -460,7 +460,7 @@ function customers_get($customer, $column = null, $status = null, $categories_id
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('customers_get(): Failed', $e);
+        throw new BException('customers_get(): Failed', $e);
     }
 }
 ?>

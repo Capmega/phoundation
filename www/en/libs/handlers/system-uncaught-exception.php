@@ -170,7 +170,7 @@ try{
             log_console(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'])), 'red');
             debug(true);
 
-            if($e instanceof bException){
+            if($e instanceof BException){
                 if($e->getCode() === 'no-trace'){
                     $messages = $e->getMessages();
                     log_console(array_pop($messages), 'red');
@@ -281,7 +281,7 @@ try{
                 $e->setCode(400);
             }
 
-            if(($e instanceof bException) and is_numeric($e->getRealCode()) and page_show($e->getRealCode(), array('exists' => true))){
+            if(($e instanceof BException) and is_numeric($e->getRealCode()) and page_show($e->getRealCode(), array('exists' => true))){
                 if($e->isWarning()){
                     html_flash_set($e->getMessage(), 'warning', $e->getRealCode());
                 }
@@ -371,7 +371,7 @@ try{
 
                 echo $retval;
 
-                if($e instanceof bException){
+                if($e instanceof BException){
                     /*
                      * Clean data
                      */

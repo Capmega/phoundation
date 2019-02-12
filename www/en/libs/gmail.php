@@ -24,11 +24,11 @@ function gmail_get_forward_code($email){
         preg_match_all('/\d{9}/'                 , $email['subject'], $matches_code);
 
         if(!$matches_from[0]){
-            throw new bException(tr('gmail_get_forward_code(): Could not find gmail forwarder address in specified email text'), 'not-found');
+            throw new BException(tr('gmail_get_forward_code(): Could not find gmail forwarder address in specified email text'), 'not-found');
         }
 
         if(!$matches_code[0]){
-            throw new bException(tr('gmail_get_forward_code(): Could not find gmail forwarding code in specified email text'), 'not-found');
+            throw new BException(tr('gmail_get_forward_code(): Could not find gmail forwarding code in specified email text'), 'not-found');
         }
 
         /*
@@ -39,7 +39,7 @@ function gmail_get_forward_code($email){
                      'target' => isset_get($matches_from[0][1]));
 
     }catch(Exception $e){
-        throw new bException(tr('gmail_get_forward_code(): Failed'), $e);
+        throw new BException(tr('gmail_get_forward_code(): Failed'), $e);
     }
 }
 ?>

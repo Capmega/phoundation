@@ -21,15 +21,15 @@ try{
     }
 
     if(!file_exists($path.$cmd)){
-        throw new bException(tr('run_background(): Specified command ":cmd" does not exists', array(':cmd' => $path.$cmd)), 'not-exist');
+        throw new BException(tr('run_background(): Specified command ":cmd" does not exists', array(':cmd' => $path.$cmd)), 'not-exist');
     }
 
     if(!is_file($path.$cmd)){
-        throw new bException(tr('run_background(): Specified command ":cmd" is not a file', array(':cmd' => $path.$cmd)), 'notfile');
+        throw new BException(tr('run_background(): Specified command ":cmd" is not a file', array(':cmd' => $path.$cmd)), 'notfile');
     }
 
     if(!is_executable($path.$cmd)){
-        throw new bException(tr('run_background(): Specified command ":cmd" is not executable', array(':cmd' => $path.$cmd)), 'notexecutable');
+        throw new BException(tr('run_background(): Specified command ":cmd" is not executable', array(':cmd' => $path.$cmd)), 'notexecutable');
     }
 
     if($log === true){
@@ -85,6 +85,6 @@ try{
     return $pid;
 
 }catch(Exception $e){
-    throw new bException('run_background(): Failed', $e);
+    throw new BException('run_background(): Failed', $e);
 }
 ?>

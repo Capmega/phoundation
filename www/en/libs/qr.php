@@ -21,7 +21,7 @@ function qr_check(){
                                'functions' => 'gd_info'));
 
     }catch(Exception $e){
-        throw new bException('qr_check(): Failed', $e);
+        throw new BException('qr_check(): Failed', $e);
     }
 }
 
@@ -59,7 +59,7 @@ function qr_install(){
         }
 
     }catch(Exception $e){
-        throw new bException('qr_install(): Failed', $e);
+        throw new BException('qr_install(): Failed', $e);
     }
 }
 
@@ -80,11 +80,11 @@ under_construction();
                 break;
 
             default:
-                throw new bException(tr('qr_decode(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
+                throw new BException(tr('qr_decode(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new bException('qr_encode(): Failed', $e);
+        throw new BException('qr_encode(): Failed', $e);
     }
 }
 
@@ -104,7 +104,7 @@ function qr_decode($image){
         return $text;
 
     }catch(Exception $e){
-        throw new bException('qr_decode(): Failed', $e);
+        throw new BException('qr_decode(): Failed', $e);
     }
 }
 ?>

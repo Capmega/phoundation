@@ -68,7 +68,7 @@ function paging_generate($params){
         }
 
         if(!fmod($params['show_pages'], 2)){
-            throw new bException('paging_generate(): show_pages should always be an odd number (1, 3, 5, etc)', 'invalid');
+            throw new BException('paging_generate(): show_pages should always be an odd number (1, 3, 5, etc)', 'invalid');
         }
 
         if($page_count < $params['show_pages']){
@@ -178,7 +178,7 @@ function paging_generate($params){
         return $html.'<input type="hidden" name="page" id="page" value="'.$params['current'].'">';
 
     }catch(Exception $e){
-        throw new bException('paging_generate(): Failed', $e);
+        throw new BException('paging_generate(): Failed', $e);
     }
 }
 
@@ -200,7 +200,7 @@ function paging_check_page($page, $page_max){
 
         if(($page and ($checked_page != $page)) or ($page > $page_max)){
             if($page_max){
-                throw new bException(tr('paging_check_page(): Specified page "%page%" appears out of range with page_max "%max%"', array('%page%' => $page, '%max%' => $page_max)), 'range');
+                throw new BException(tr('paging_check_page(): Specified page "%page%" appears out of range with page_max "%max%"', array('%page%' => $page, '%max%' => $page_max)), 'range');
             }
 
             /*
@@ -211,7 +211,7 @@ function paging_check_page($page, $page_max){
         return $page;
 
     }catch(Exception $e){
-        throw new bException('paging_check_page(): Failed', $e);
+        throw new BException('paging_check_page(): Failed', $e);
     }
 }
 
@@ -257,7 +257,7 @@ function paging_data($page, $limit, $rows){
             page_show(404);
         }
 
-        throw new bException('paging_data(): Failed', $e);
+        throw new BException('paging_data(): Failed', $e);
     }
 }
 
@@ -274,7 +274,7 @@ function paging_limit($limit, $default_limit = null){
         return sql_valid_limit(not_empty($limit, $default_limit, $_CONFIG['paging']['limit']));
 
     }catch(Exception $e){
-        throw new bException('paging_limit(): Failed', $e);
+        throw new BException('paging_limit(): Failed', $e);
     }
 }
 
@@ -294,7 +294,7 @@ function paging_get_url($url, $page = null, $disabled = false){
         }
 
         if(!is_array($url)){
-            throw new bException(tr('paging_get_url(): Invalid url specified, should be either string, or array, but is "%type%"', array('%type%' => gettype($url))), 'invalid');
+            throw new BException(tr('paging_get_url(): Invalid url specified, should be either string, or array, but is "%type%"', array('%type%' => gettype($url))), 'invalid');
         }
 
         if(isset($url[$page])){
@@ -302,13 +302,13 @@ function paging_get_url($url, $page = null, $disabled = false){
         }
 
         if(!isset($url['default'])){
-            throw new bException(tr('paging_get_url(): URL was specified as array, but no "default" key was specified'), 'invalid');
+            throw new BException(tr('paging_get_url(): URL was specified as array, but no "default" key was specified'), 'invalid');
         }
 
         return $url['default'];
 
     }catch(Exception $e){
-        throw new bException('paging_get_url(): Failed', $e);
+        throw new BException('paging_get_url(): Failed', $e);
     }
 }
 ?>

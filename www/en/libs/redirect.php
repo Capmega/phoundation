@@ -18,13 +18,13 @@ function redirect_from_code($code){
         $url = sql_get('SELECT `url` FROM `redirects` WHERE `code` = :code', 'url', array(':code' => $code));
 
         if(!$url){
-            throw new bException(tr('redirect_from_code(): Specified code ":code" does not exist', array(':code' => $code)), 'not-exist');
+            throw new BException(tr('redirect_from_code(): Specified code ":code" does not exist', array(':code' => $code)), 'not-exist');
         }
 
         redirect($url);
 
     }catch(Exception $e){
-        throw new bException('redirect_from_code(): Failed', $e);
+        throw new BException('redirect_from_code(): Failed', $e);
     }
 }
 
@@ -50,7 +50,7 @@ function redirect_add_code($url, $code = null){
        return $code;
 
     }catch(Exception $e){
-        throw new bException('redirect_add_code(): Failed', $e);
+        throw new BException('redirect_add_code(): Failed', $e);
     }
 }
 ?>

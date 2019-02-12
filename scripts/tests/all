@@ -38,6 +38,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new bException('scripts/tests/all: Failed', $e);
+    throw new BException('scripts/tests/all: Failed', $e);
 }
 ?>

@@ -39,7 +39,7 @@ function roles_get($role = null){
 
         if($role){
             if(!is_string($role)){
-                throw new bException(tr('roles_get(): Specified role name ":name" is not a string', array(':name' => $role)), 'invalid');
+                throw new BException(tr('roles_get(): Specified role name ":name" is not a string', array(':name' => $role)), 'invalid');
             }
 
             $retval = sql_get($query.'
@@ -76,7 +76,7 @@ function roles_get($role = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('roles_get(): Failed', $e);
+        throw new BException('roles_get(): Failed', $e);
     }
 }
 
@@ -89,7 +89,7 @@ function roles_validate($role){
     try{
         load_libs('validate');
 
-        $v = new validate_form($role, 'name,description');
+        $v = new ValidateForm($role, 'name,description');
 
         $v->isNatural($role['id'], tr('Invalid role id specified'));
         $v->isNotEmpty($role['name'], tr('No roles name specified'));
@@ -127,7 +127,7 @@ function roles_validate($role){
         return $role;
 
     }catch(Exception $e){
-        throw new bException(tr('roles_validate(): Failed'), $e);
+        throw new BException(tr('roles_validate(): Failed'), $e);
     }
 }
 
@@ -140,11 +140,11 @@ function roles_validate($role){
 function roles_update_rights($role, $rights){
     try{
         if(empty($role['id'])){
-            throw new bException('roles_update_rights(): Cannot update rights, no role specified', 'not_specified');
+            throw new BException('roles_update_rights(): Cannot update rights, no role specified', 'not_specified');
         }
 
         if(isset_get($rights) and !is_array($rights)){
-            throw new bException('roles_update_rights(): The specified rights list is invalid', 'invalid');
+            throw new BException('roles_update_rights(): The specified rights list is invalid', 'invalid');
         }
 
         /*
@@ -219,7 +219,7 @@ function roles_update_rights($role, $rights){
         return $rights_list;
 
     }catch(Exception $e){
-        throw new bException('roles_update_rights(): Failed', $e);
+        throw new BException('roles_update_rights(): Failed', $e);
     }
 }
 ?>

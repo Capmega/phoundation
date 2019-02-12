@@ -28,7 +28,7 @@ function sessions_mc_library_init(){
 under_construction();
 
     }catch(Exception $e){
-        throw new bException('sessions_mc_library_init(): Failed', $e);
+        throw new BException('sessions_mc_library_init(): Failed', $e);
     }
 }
 
@@ -51,7 +51,7 @@ function sessions_mc_open($save_path, $session_name){
     try{
 
     }catch(Exception $e){
-        throw new bException('sessions_mc_open(): Failed', $e);
+        throw new BException('sessions_mc_open(): Failed', $e);
     }
 }
 
@@ -72,7 +72,7 @@ function sessions_mc_close(){
     try{
 
     }catch(Exception $e){
-        throw new bException('sessions_mc_close(): Failed', $e);
+        throw new BException('sessions_mc_close(): Failed', $e);
     }
 }
 
@@ -94,7 +94,7 @@ function sessions_mc_read($sessions_id){
     try{
 
     }catch(Exception $e){
-        throw new bException('sessions_mc_read(): Failed', $e);
+        throw new BException('sessions_mc_read(): Failed', $e);
     }
 }
 
@@ -117,7 +117,7 @@ function sessions_mc_write($sessions_id, $data){
     try{
 
     }catch(Exception $e){
-        throw new bException('sessions_mc_write(): Failed', $e);
+        throw new BException('sessions_mc_write(): Failed', $e);
     }
 }
 
@@ -139,7 +139,7 @@ function sessions_mc_destroy($sessions_id){
     try{
 
     }catch(Exception $e){
-        throw new bException('sessions_mc_destroy(): Failed', $e);
+        throw new BException('sessions_mc_destroy(): Failed', $e);
     }
 }
 
@@ -161,7 +161,7 @@ function sessions_mc_gc($lifetime){
     try{
 
     }catch(Exception $e){
-        throw new bException('sessions_mc_gc(): Failed', $e);
+        throw new BException('sessions_mc_gc(): Failed', $e);
     }
 }
 
@@ -184,7 +184,7 @@ function sessions_mc_create_sid($save_path, $session_name){
     try{
 
     }catch(Exception $e){
-        throw new bException('sessions_mc_create_sid(): Failed', $e);
+        throw new BException('sessions_mc_create_sid(): Failed', $e);
     }
 }
 ?>

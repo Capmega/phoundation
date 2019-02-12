@@ -17,6 +17,6 @@ try{
     die();
 
 }catch(Exception $e){
-    throw new bException(tr('showdie(): Failed'), $e);
+    throw new BException(tr('showdie(): Failed'), $e);
 }
 ?>

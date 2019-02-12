@@ -69,15 +69,15 @@ function rsync($params){
         array_default($params, 'remote_rsync', false);
 
         if(!$params['source']){
-            throw new bException(tr('rsync(): No source specified'), 'not-specified');
+            throw new BException(tr('rsync(): No source specified'), 'not-specified');
         }
 
         if(!$params['target']){
-            throw new bException(tr('rsync(): No target specified'), 'not-specified');
+            throw new BException(tr('rsync(): No target specified'), 'not-specified');
         }
 
         if($params['source'] == $params['target']){
-            throw new bException(tr('rsync(): Specified source and target are the same'), 'not-specified');
+            throw new BException(tr('rsync(): Specified source and target are the same'), 'not-specified');
         }
 
         $command    = 'rsync';
@@ -155,7 +155,7 @@ function rsync($params){
         }
 
     }catch(Exception $e){
-        throw new bException('rsync(): Failed', $e);
+        throw new BException('rsync(): Failed', $e);
     }
 }
 ?>

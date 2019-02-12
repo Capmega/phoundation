@@ -21,9 +21,9 @@ function notifications_send($params){
 //        log_file(isset_get($params['message']), 'notifications', 'warning');
 
         if(is_object($params) and ($params instanceof Exception)){
-            if(is_object($params) and ($params instanceof bException)){
+            if(is_object($params) and ($params instanceof BException)){
                 /*
-                 * Notify about a bException
+                 * Notify about a BException
                  */
                 $params  = array('title'       => ($params->isWarning() ? tr('Warning') : tr('Exception')),
                                  'exception'   => true,
@@ -72,7 +72,7 @@ return false;
              * Instead of notifying, throw an exception that can be fixed by
              * the developer
              */
-            throw new bException($message, $event);
+            throw new BException($message, $event);
         }
 
         if(++$count > 15){
@@ -84,7 +84,7 @@ return false;
                 return false;
             }
 
-            throw new bException(tr('notifications_send(): Stopped nofity_send endless loop for ":event" for classes ":classes" with message ":message"', array(':event' => $params['event'], ':classes' => $params['classes'], ':message' => $params['message'])), 'loop');
+            throw new BException(tr('notifications_send(): Stopped nofity_send endless loop for ":event" for classes ":classes" with message ":message"', array(':event' => $params['event'], ':classes' => $params['classes'], ':message' => $params['message'])), 'loop');
         }
 
         $config = $_CONFIG['notifications'];
@@ -146,7 +146,7 @@ return false;
             /*
              * No classes found to send notifications to
              */
-            throw new bException(tr('notifications_send(): No classes found for specified classes ":classes"', array(':classes' => $params['classes'])));
+            throw new BException(tr('notifications_send(): No classes found for specified classes ":classes"', array(':classes' => $params['classes'])));
         }
 
         foreach($list as $id => $methods){
@@ -210,7 +210,7 @@ return false;
                         break;
 
                     default:
-                        throw new bException(tr('notifications_send(): Unknown method ":method" specified', array(':method' => $method)));
+                        throw new BException(tr('notifications_send(): Unknown method ":method" specified', array(':method' => $method)));
                 }
             }
         }
@@ -231,7 +231,7 @@ return false;
             }
         }
 
-        throw new bException('notifications_send(): Failed', $e);
+        throw new BException('notifications_send(): Failed', $e);
     }
 }
 
@@ -292,7 +292,7 @@ function notifications_email($event, $message, $users){
         }
 
     }catch(Exception $e){
-        throw new bException('notifications_email(): Failed', $e);
+        throw new BException('notifications_email(): Failed', $e);
     }
 }
 
@@ -335,12 +335,12 @@ function notifications_twilio($event, $message, $users){
                 twilio_send_message(substr($message, 0, 140), $user['phones'], '');
 
             }else{
-                throw new bException(tr('User ":user" has not configured phone', array(':user' => $user['username'])));
+                throw new BException(tr('User ":user" has not configured phone', array(':user' => $user['username'])));
             }
         }
 
     }catch(Exception $e){
-        throw new bException('notifications_twilio(): Failed', $e);
+        throw new BException('notifications_twilio(): Failed', $e);
     }
 }
 
@@ -372,7 +372,7 @@ function notifications_prowl($event, $message, $users){
         }
 
     }catch(Exception $e){
-        throw new bException('notifications_prowl(): Failed', $e);
+        throw new BException('notifications_prowl(): Failed', $e);
     }
 }
 
@@ -404,7 +404,7 @@ function notifications_desktop($params){
         }
 
     }catch(Exception $e){
-        throw new bException('notifications_desktop(): Failed', $e);
+        throw new BException('notifications_desktop(): Failed', $e);
     }
 }
 
@@ -416,7 +416,7 @@ function notifications_desktop($params){
 function notifications_class_validate($class){
     try{
         load_libs('validate');
-        $v = new validate_form($class, 'name,methods,description');
+        $v = new ValidateForm($class, 'name,methods,description');
 
         $v->hasMinChars($class['name']       ,  2, tr('Please ensure that the notifications class name has more than 2 characters'));
         $v->hasMaxChars($class['name']       ,  32, tr('Please ensure that the notifications class name has less than 32 characters'));
@@ -479,7 +479,7 @@ function notifications_class_validate($class){
         $v->isValid();
 
     }catch(Exception $e){
-        throw new bException('notifications_class_validate(): Failed', $e);
+        throw new BException('notifications_class_validate(): Failed', $e);
     }
 }
 
@@ -491,10 +491,10 @@ function notifications_class_validate($class){
 function notifications_member_validate($member){
     try{
         load_libs('validate');
-        $v = new validate_form($member, 'name,methods,description');
+        $v = new ValidateForm($member, 'name,methods,description');
 
     }catch(Exception $e){
-        throw new bException('notifications_member_validate(): Failed', $e);
+        throw new BException('notifications_member_validate(): Failed', $e);
     }
 }
 ?>

@@ -25,7 +25,7 @@ function messenger_icon($messenger, $name){
     try{
 
     }catch(Exception $e){
-        throw new bException('messenger_icon(): Failed', $e);
+        throw new BException('messenger_icon(): Failed', $e);
     }
 }
 ?>

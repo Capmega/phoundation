@@ -28,7 +28,7 @@ function audio_library_init(){
         load_config('audio');
 
     }catch(Exception $e){
-        throw new bException('audio_library_init(): Failed', $e);
+        throw new BException('audio_library_init(): Failed', $e);
     }
 }
 
@@ -42,7 +42,7 @@ function audio_library_init(){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package audio
- * @bException not-exists Thrown when the specified audio class does not exist
+ * @BException not-exists Thrown when the specified audio class does not exist
  *
  * @param string $class
  * @return boolean True if the audio file was played, false if the audio file was not played
@@ -69,7 +69,7 @@ function audio_play($class = null){
          * Check if given class is in CONFIG[audio]
          */
         if(empty($_CONFIG['audio']['classes'][$class])){
-            throw new bException(tr('audio_play(): This audio class does not exist ":class"', array(':class' => $class)), 'not-exists');
+            throw new BException(tr('audio_play(): This audio class does not exist ":class"', array(':class' => $class)), 'not-exists');
         }
 
         $file = ROOT.'data/audio/'.$_CONFIG['audio']['classes'][$class];
@@ -78,7 +78,7 @@ function audio_play($class = null){
          * Check if audio file exists
          */
         if(!file_exists($file)){
-            throw new bException(tr('audio_play(): This audio file does not exist ":file"', array(':file' => $file)), 'audio');
+            throw new BException(tr('audio_play(): This audio file does not exist ":file"', array(':file' => $file)), 'audio');
         }
 
         /*
@@ -93,7 +93,7 @@ function audio_play($class = null){
                 safe_exec($_CONFIG['audio']['command'].' '.$file.' &');
 
             }catch(Exception $e){
-                throw new bException(tr('audio_play(): Can not play audio file ":file", commando ":command" returned error: ":error"', array(':file' => $file, ':command' => $_CONFIG['audio']['command'], ':error' => $e)), 'audio');
+                throw new BException(tr('audio_play(): Can not play audio file ":file", commando ":command" returned error: ":error"', array(':file' => $file, ':command' => $_CONFIG['audio']['command'], ':error' => $e)), 'audio');
             }
 
         }else{
@@ -123,7 +123,7 @@ function audio_play($class = null){
         return true;
 
     }catch(Exception $e){
-        throw new bException('audio_play(): Failed', $e);
+        throw new BException('audio_play(): Failed', $e);
     }
 }
 ?>

@@ -28,7 +28,7 @@ function editors_nicedit($params){
 //               html_script('nicEditors.findEditor('.$params['name'].');');
 
     }catch(Exception $e){
-        throw new bException('editors_nicedit(): Failed', $e);
+        throw new BException('editors_nicedit(): Failed', $e);
     }
 }
 
@@ -101,7 +101,7 @@ function editors_tinymce($params){
         return $html;
 
     }catch(Exception $e){
-        throw new bException('editors_tinymce(): Failed', $e);
+        throw new BException('editors_tinymce(): Failed', $e);
     }
 }
 
@@ -150,7 +150,7 @@ function editors_summernote($params = null){
              * Validate the toolbar
              */
             if(!is_array($params['toolbar'])){
-                throw new bException('editors_summernote(): Specified toolbar option is invalid, must be an array', 'invalid');
+                throw new BException('editors_summernote(): Specified toolbar option is invalid, must be an array', 'invalid');
             }
 
             $available = array('picture',
@@ -183,16 +183,16 @@ function editors_summernote($params = null){
                 $entry = array($group);
 
                 if(!is_array($buttons)){
-                    throw new bException(tr('editors_summernote(): Specified toolbar group ":group" is invalid, must be an array', array(':group' => $group)), 'invalid');
+                    throw new BException(tr('editors_summernote(): Specified toolbar group ":group" is invalid, must be an array', array(':group' => $group)), 'invalid');
                 }
 
                 foreach($buttons as $button){
                     if(!is_scalar($button)){
-                        throw new bException(tr('editors_summernote(): Specified toolbar group ":group" contains an invalid button. Button name should be scalar', array(':group' => $group)), 'invalid');
+                        throw new BException(tr('editors_summernote(): Specified toolbar group ":group" contains an invalid button. Button name should be scalar', array(':group' => $group)), 'invalid');
                     }
 
                     if(!in_array($button, $available)){
-                        throw new bException(tr('editors_summernote(): Specified toolbar group ":group" contains unknown button ":button". Buttons should be one of ""', array(':group' => $group, ':button' => $button)), 'unknown');
+                        throw new BException(tr('editors_summernote(): Specified toolbar group ":group" contains unknown button ":button". Buttons should be one of ""', array(':group' => $group, ':button' => $button)), 'unknown');
                     }
                 }
 
@@ -246,7 +246,7 @@ function editors_summernote($params = null){
         return $html;
 
     }catch(Exception $e){
-        throw new bException('editors_summernote(): Failed', $e);
+        throw new BException('editors_summernote(): Failed', $e);
     }
 }
 

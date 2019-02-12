@@ -3,7 +3,7 @@ global $core;
 
 try{
     if(!$core->register['ready']){
-        throw new bException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'invalid');
+        throw new BException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'invalid');
     }
 
 
@@ -60,7 +60,7 @@ try{
 
         case 'shell_exec':
             if(substr($command, -1, 1) == '&'){
-                throw new bException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the requested PHP exec function shell_exec()', array(':command' => $command)), 'not-supported');
+                throw new BException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the requested PHP exec function shell_exec()', array(':command' => $command)), 'not-supported');
 
             }
 
@@ -96,7 +96,7 @@ under_construction();
             break;
 
         default:
-            throw new bException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, or system', array(':function' => $function)), 'not-specified');
+            throw new BException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, or system', array(':function' => $function)), 'not-specified');
             break;
     }
 
@@ -132,7 +132,7 @@ under_construction();
             //    log_file($lasline, 'safe_exec', 'error');
             //}
 
-            throw new bException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $command, ':exitcode' => $exitcode)), $exitcode, $output);
+            throw new BException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $command, ':exitcode' => $exitcode)), $exitcode, $output);
         }
     }
 
@@ -145,6 +145,6 @@ under_construction();
 
     $e->setData($output);
 
-    throw new bException('safe_exec(): Failed', $e);
+    throw new BException('safe_exec(): Failed', $e);
 }
 ?>

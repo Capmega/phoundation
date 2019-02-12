@@ -27,7 +27,7 @@ function categories_library_init(){
     try{
 
     }catch(Exception $e){
-        throw new bException('categories_library_init(): Failed', $e);
+        throw new BException('categories_library_init(): Failed', $e);
     }
 }
 
@@ -49,7 +49,7 @@ function categories_validate($category){
     try{
         load_libs('validate,seo');
 
-        $v = new validate_form($category, 'name,seoparent,description');
+        $v = new ValidateForm($category, 'name,seoparent,description');
 
         /*
          * Validate parents_id
@@ -124,7 +124,7 @@ function categories_validate($category){
       return $category;
 
     }catch(Exception $e){
-        throw new bException('categories_validate(): Failed', $e);
+        throw new BException('categories_validate(): Failed', $e);
     }
 }
 
@@ -189,13 +189,13 @@ function categories_select($params = null){
                         /*
                          * The category exists, but has non NULL status, we cannot continue!
                          */
-                        throw new bException(tr('categories_select(): The reqested parent ":parent" does exist, but is not available', array(':parent' => $params['seoparent'])), 'not-available');
+                        throw new BException(tr('categories_select(): The reqested parent ":parent" does exist, but is not available', array(':parent' => $params['seoparent'])), 'not-available');
                     }
 
                     /*
                      * The category exists, but it's a child category
                      */
-                    throw new bException(tr('categories_select(): The reqested parent ":parent" does exist, but is a child category itself. Child categories cannot be parent categories', array(':parent' => $params['seoparent'])), 'not-available');
+                    throw new BException(tr('categories_select(): The reqested parent ":parent" does exist, but is a child category itself. Child categories cannot be parent categories', array(':parent' => $params['seoparent'])), 'not-available');
                 }
 
                 load_libs('seo');
@@ -264,7 +264,7 @@ function categories_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('categories_select(): Failed', $e);
+        throw new BException('categories_select(): Failed', $e);
     }
 }
 
@@ -349,7 +349,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('categories_get(): Failed', $e);
+        throw new BException('categories_get(): Failed', $e);
     }
 }
 
@@ -393,7 +393,7 @@ function categories_get_children($category){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('categories_get_children(): Failed', $e);
+        throw new BException('categories_get_children(): Failed', $e);
     }
 }
 ?>

@@ -31,7 +31,7 @@ cli_no_arguments_left();
 log_console(tr('Updating project file permissions'), 'white');
 
 if(empty($_CONFIG['deploy'][$target])){
-    throw new bException(tr('Specified environment ":env" does not exist', array(':env' => $target)), 'not-exist');
+    throw new BException(tr('Specified environment ":env" does not exist', array(':env' => $target)), 'not-exist');
 }
 
 $deploy_config = $_CONFIG['deploy'][$target];
@@ -39,20 +39,20 @@ $target_dir    = cli_argument('--target-dir', true, isset_get($deploy_config['ta
 
 try{
     if(empty($_CONFIG['deploy'][$target])){
-        throw new bException(tr('Specified target environment ":target" has no deploy configuration $_CONFIG[deploy][:target] in ":ROOTconfig/deploy.php"', array(':target' => $target, ':ROOT' => ROOT)), 'missing-configuration');
+        throw new BException(tr('Specified target environment ":target" has no deploy configuration $_CONFIG[deploy][:target] in ":ROOTconfig/deploy.php"', array(':target' => $target, ':ROOT' => ROOT)), 'missing-configuration');
     }
 
     if(!empty($deploy_config['target_server'])){
         if(empty($deploy_config['user'])){
-            throw new bException(tr('No $_CONFIG[deploy][:target][user] specified', array(':target' => $target)), 'missing-configuration');
+            throw new BException(tr('No $_CONFIG[deploy][:target][user] specified', array(':target' => $target)), 'missing-configuration');
         }
 
         if(empty($deploy_config['group'])){
-            throw new bException(tr('No $_CONFIG[deploy][:target][group] specified', array(':target' => $target)), 'missing-configuration');
+            throw new BException(tr('No $_CONFIG[deploy][:target][group] specified', array(':target' => $target)), 'missing-configuration');
         }
 
         if(!isset($deploy_config['modes'])){
-            throw new bException(tr('No $_CONFIG[deploy][:target][modes] specified', array(':target' => $target)), 'missing-configuration');
+            throw new BException(tr('No $_CONFIG[deploy][:target][modes] specified', array(':target' => $target)), 'missing-configuration');
         }
     }
 
@@ -76,7 +76,7 @@ try{
     }
 
 }catch(Exception $e){
-    throw new bException(tr('Check configuration in ":ROOTconfig/deploy.php"', array(':ROOT' => ROOT)), $e);
+    throw new BException(tr('Check configuration in ":ROOTconfig/deploy.php"', array(':ROOT' => ROOT)), $e);
 }
 
 
@@ -89,7 +89,7 @@ if($sudo and !empty($deploy_config['target_server'])){
     passthru($sudo.'chown '.$deploy_config['user'].':'.$deploy_config['group'].' '.ROOT.' -R;', $exitcode);
 
     if($exitcode){
-        throw new bException('Failed to update target directory tree user/group ownership', 'update-ownership');
+        throw new BException('Failed to update target directory tree user/group ownership', 'update-ownership');
     }
 
     log_console(tr('Updated owner:\group permissions to ":owner::group" for entire project', array(':owner' => $deploy_config['user'], ':group' => $deploy_config['group'])), 'green');
@@ -166,7 +166,7 @@ foreach($deploy_config['modes'] as $type => $modes){
                     passthru($sudo.'find '.unslash(ROOT).$path.' -type d -exec chmod '.$mode.' {} \;', $exitcode);
 
                     if($exitcode){
-                        throw new bException(tr('Failed to update mode for directories in path ":path"', array(':path' => unslash(ROOT).$path)), 'failed');
+                        throw new BException(tr('Failed to update mode for directories in path ":path"', array(':path' => unslash(ROOT).$path)), 'failed');
                     }
                 }
             }
@@ -191,7 +191,7 @@ foreach($deploy_config['modes'] as $type => $modes){
                     passthru($sudo.'find '.unslash(ROOT).$path.' -type f -exec chmod '.$mode.' {} \;', $exitcode);
 
                     if($exitcode){
-                        throw new bException(tr('Failed to update mode for files in path ":path"', array(':path' => unslash(ROOT).$path)), 'failed');
+                        throw new BException(tr('Failed to update mode for files in path ":path"', array(':path' => unslash(ROOT).$path)), 'failed');
                     }
                 }
             }
@@ -200,7 +200,7 @@ foreach($deploy_config['modes'] as $type => $modes){
             break;
 
         default:
-            throw new bException(tr('Unknown mode type ":type" specified', array(':type' => $type)), 'unknown');
+            throw new BException(tr('Unknown mode type ":type" specified', array(':type' => $type)), 'unknown');
     }
 }
 

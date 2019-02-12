@@ -3,7 +3,7 @@ try{
     global $_CONFIG;
 
     if(PLATFORM != 'http'){
-        throw new bException(tr('redirect(): This function can only be called on webservers'));
+        throw new BException(tr('redirect(): This function can only be called on webservers'));
     }
 
     /*
@@ -78,7 +78,7 @@ try{
             break;
 
         default:
-            throw new bException(tr('redirect(): Invalid HTTP code ":code" specified', array(':code' => $http_code)), 'invalid-http-code');
+            throw new BException(tr('redirect(): Invalid HTTP code ":code" specified', array(':code' => $http_code)), 'invalid-http-code');
     }
 
     if($clear_session_redirect){
@@ -101,6 +101,6 @@ try{
     die();
 
 }catch(Exception $e){
-    throw new bException(tr('redirect(): Failed'), $e);
+    throw new BException(tr('redirect(): Failed'), $e);
 }
 ?>

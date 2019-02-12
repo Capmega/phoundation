@@ -16,11 +16,11 @@
 function groups_get($group, $createdby = null){
     try{
         if(!$group){
-            throw new bException(tr('groups_get(): No group specified'), 'not-specified');
+            throw new BException(tr('groups_get(): No group specified'), 'not-specified');
         }
 
         if(!is_scalar($group)){
-            throw new bException(tr('groups_get(): Specified group ":group" is not scalar', array(':group' => $group)), 'invalid');
+            throw new BException(tr('groups_get(): Specified group ":group" is not scalar', array(':group' => $group)), 'invalid');
         }
 
         $query = 'SELECT    `groups`.`id`,
@@ -56,7 +56,7 @@ function groups_get($group, $createdby = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('groups_get(): Failed', $e);
+        throw new BException('groups_get(): Failed', $e);
     }
 }
 
@@ -73,7 +73,7 @@ function groups_validate($group, $old_group = null){
             $group = array_merge($old_group, $group);
         }
 
-        $v = new validate_form($group, 'name,description');
+        $v = new ValidateForm($group, 'name,description');
         $v->isNotEmpty ($group['name']    , tr('No groups name specified'));
         $v->hasMinChars($group['name'],  2, tr('Please ensure the group\'s name has at least 2 characters'));
         $v->hasMaxChars($group['name'], 64, tr('Please ensure the group\'s name has less than 64 characters'));
@@ -111,7 +111,7 @@ function groups_validate($group, $old_group = null){
         return $group;
 
     }catch(Exception $e){
-        throw new bException(tr('groups_validate(): Failed'), $e);
+        throw new BException(tr('groups_validate(): Failed'), $e);
     }
 }
 
@@ -144,7 +144,7 @@ function groups_get_users($group){
                            OR        `groups`.`seoname` = :group)', array(':group' => $group));
 
         if(empty($retval)){
-            throw new bException(tr('groups_get_users(): Specified group ":group" does not exist', array(':group' => $group)), 'invalid');
+            throw new BException(tr('groups_get_users(): Specified group ":group" does not exist', array(':group' => $group)), 'invalid');
         }
 
         $users = sql_query('SELECT    `users`.`id`,
@@ -167,7 +167,7 @@ function groups_get_users($group){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException(tr('groups_get_users(): Failed'), $e);
+        throw new BException(tr('groups_get_users(): Failed'), $e);
     }
 }
 ?>

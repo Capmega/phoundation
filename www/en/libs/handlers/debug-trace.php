@@ -27,6 +27,6 @@ try{
     return $trace;
 
 }catch(Exception $e){
-    throw new bException('debug_trace(): Failed', $e);
+    throw new BException('debug_trace(): Failed', $e);
 }
 ?>

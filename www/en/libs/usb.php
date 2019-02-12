@@ -50,7 +50,7 @@ function usb_list($libusb = null){
         return $devices;
 
     }catch(Exception $e){
-        throw new bException('usb_list(): Failed', $e);
+        throw new BException('usb_list(): Failed', $e);
     }
 }
 ?>

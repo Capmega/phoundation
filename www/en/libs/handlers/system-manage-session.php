@@ -137,7 +137,7 @@ switch($_CONFIG['sessions']['domain']){
         }
 
         if(!strstr($domain, $test)){
-            notify(new bException(tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['sessions']['domain'], '.'), ':cookie_domain' => $_CONFIG['sessions']['domain'], ':current_domain' => $domain)), 'cookiedomain'));
+            notify(new BException(tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['sessions']['domain'], '.'), ':cookie_domain' => $_CONFIG['sessions']['domain'], ':current_domain' => $domain)), 'cookiedomain'));
             redirect($_CONFIG['protocol'].str_starts_not($_CONFIG['sessions']['domain'], '.'));
         }
 
@@ -316,7 +316,7 @@ try{
                          * permissions of PHP session directory?
                          */
             // :TODO: Add check on $core->register['script'] file if it contains BOM!
-                        throw new bException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
+                        throw new BException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
                     }
                 }
 
@@ -403,9 +403,9 @@ try{
 
 }catch(Exception $e){
     if(!is_writable(session_save_path())){
-        throw new bException('startup-manage-session: Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
+        throw new BException('startup-manage-session: Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
     }
 
-    throw new bException('startup-manage-session: Session startup failed', $e);
+    throw new BException('startup-manage-session: Session startup failed', $e);
 }
 ?>

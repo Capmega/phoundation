@@ -28,7 +28,7 @@ function providers_library_init(){
         load_config('providers');
 
     }catch(Exception $e){
-        throw new bException('providers_library_init(): Failed', $e);
+        throw new BException('providers_library_init(): Failed', $e);
     }
 }
 
@@ -65,7 +65,7 @@ function providers_validate($provider){
     try{
         load_libs('validate,seo');
 
-        $v = new validate_form($provider, 'seocategory,name,code,url,email,phones,description');
+        $v = new ValidateForm($provider, 'seocategory,name,code,url,email,phones,description');
         $v->isNotEmpty ($provider['name']    , tr('No providers name specified'));
         $v->hasMinChars($provider['name'],  2, tr('Please ensure the provider\'s name has at least 2 characters'));
         $v->hasMaxChars($provider['name'], 64, tr('Please ensure the provider\'s name has less than 64 characters'));
@@ -154,7 +154,7 @@ function providers_validate($provider){
         return $provider;
 
     }catch(Exception $e){
-        throw new bException(tr('providers_validate(): Failed'), $e);
+        throw new BException(tr('providers_validate(): Failed'), $e);
     }
 }
 
@@ -223,7 +223,7 @@ function providers_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('providers_select(): Failed', $e);
+        throw new BException('providers_select(): Failed', $e);
     }
 }
 
@@ -298,7 +298,7 @@ function providers_get($provider, $column = null, $status = null, $categories_id
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('providers_get(): Failed', $e);
+        throw new BException('providers_get(): Failed', $e);
     }
 }
 ?>

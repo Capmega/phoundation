@@ -23,7 +23,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package template
- * @version 2.0.5: Added function and documentation
+ * @version 2.2.0: Added function and documentation
  *
  * @return void
  */
@@ -36,7 +36,7 @@ function template_library_init(){
                                'which'     => 'template,foobar'));
 
     }catch(Exception $e){
-        throw new bException('template_library_init(): Failed', $e);
+        throw new BException('template_library_init(): Failed', $e);
     }
 }
 
@@ -49,7 +49,7 @@ function template_library_init(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @version 2.0.5: Added function and documentation
+ * @version 2.2.0: Added function and documentation
  * @package template
  *
  * @param
@@ -64,7 +64,7 @@ function template_install($params){
         apt_install('template');
 
     }catch(Exception $e){
-        throw new bException('template_install(): Failed', $e);
+        throw new BException('template_install(): Failed', $e);
     }
 }
 
@@ -88,7 +88,7 @@ function template_install($params){
  * @see date_convert() Used to convert the sitemap entry dates
  * @table: `template`
  * @note: This is a note
- * @version 2.0.5: Added function and documentation
+ * @version 2.2.0: Added function and documentation
  * @example [Title]
  * code
  * $result = template_function(array('foo' => 'bar'));
@@ -109,7 +109,7 @@ function template_function($params){
     try{
 
     }catch(Exception $e){
-        throw new bException('template_function(): Failed', $e);
+        throw new BException('template_function(): Failed', $e);
     }
 }
 ?>

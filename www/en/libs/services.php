@@ -32,7 +32,7 @@ function services_library_init(){
         load_config('services');
 
     }catch(Exception $e){
-        throw new bException('services_library_init(): Failed', $e);
+        throw new BException('services_library_init(): Failed', $e);
     }
 }
 
@@ -81,7 +81,7 @@ function services_scan($server = null){
         return 1;
 
     }catch(Exception $e){
-        throw new bException('services_scan(): Failed', $e);
+        throw new BException('services_scan(): Failed', $e);
     }
 }
 
@@ -103,7 +103,7 @@ function services_validate($service){
     try{
 
     }catch(Exception $e){
-        throw new bException('services_validate(): Failed', $e);
+        throw new BException('services_validate(): Failed', $e);
     }
 }
 
@@ -141,7 +141,7 @@ function services_insert($service){
         return $service;
 
     }catch(Exception $e){
-        throw new bException('services_insert(): Failed', $e);
+        throw new BException('services_insert(): Failed', $e);
     }
 }
 
@@ -182,7 +182,7 @@ function services_update($service){
         return $service;
 
     }catch(Exception $e){
-        throw new bException('services_update(): Failed', $e);
+        throw new BException('services_update(): Failed', $e);
     }
 }
 
@@ -205,7 +205,7 @@ function services_update_server($service){
     try{
 
     }catch(Exception $e){
-        throw new bException('services_update_server(): Failed', $e);
+        throw new BException('services_update_server(): Failed', $e);
     }
 }
 
@@ -266,7 +266,7 @@ function services_get($service, $column = null, $status = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('services_get(): Failed', $e);
+        throw new BException('services_get(): Failed', $e);
     }
 }
 
@@ -297,7 +297,7 @@ function services_clear($server){
         return $r->rowCount();
 
     }catch(Exception $e){
-        throw new bException('services_clear(): Failed', $e);
+        throw new BException('services_clear(): Failed', $e);
     }
 }
 
@@ -320,7 +320,7 @@ function services_add($server, $service){
     try{
 
     }catch(Exception $e){
-        throw new bException('services_add(): Failed', $e);
+        throw new BException('services_add(): Failed', $e);
     }
 }
 
@@ -384,7 +384,7 @@ function services_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('services_select(): Failed', $e);
+        throw new BException('services_select(): Failed', $e);
     }
 }
 ?>

@@ -29,7 +29,7 @@ function fprint_library_init(){
         load_config('fprint');
 
     }catch(Exception $e){
-        throw new bException('fprint_library_init(): Failed', $e);
+        throw new BException('fprint_library_init(): Failed', $e);
     }
 }
 
@@ -69,11 +69,11 @@ function fprint_enroll($users_id, $finger = 'auto'){
             return true;
         }
 
-        throw new bException(tr('fprint_enroll(): Enroll failed with ":error"', array(':error' => $result)), 'failed');
+        throw new BException(tr('fprint_enroll(): Enroll failed with ":error"', array(':error' => $result)), 'failed');
 
     }catch(Exception $e){
         fprint_handle_exception($e, $users_id);
-        throw new bException('fprint_enroll(): Failed', $e);
+        throw new BException('fprint_enroll(): Failed', $e);
     }
 }
 
@@ -103,11 +103,11 @@ function fprint_verify($user, $finger = 'auto'){
         $dbuser = user_get($user);
 
         if(!$dbuser){
-            throw new bException(tr('fprint_verify(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+            throw new BException(tr('fprint_verify(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
         }
 
         if(!$dbuser['fingerprint']){
-            throw new bException(tr('fprint_verify(): User ":user" has no fingerprint registered', array(':user' => name($dbuser))), 'warning/empty');
+            throw new BException(tr('fprint_verify(): User ":user" has no fingerprint registered', array(':user' => name($dbuser))), 'warning/empty');
         }
 
         $finger = fprint_verify_finger($finger);
@@ -129,7 +129,7 @@ function fprint_verify($user, $finger = 'auto'){
 
     }catch(Exception $e){
         fprint_handle_exception($e, $user);
-        throw new bException('fprint_verify(): Failed', $e);
+        throw new BException('fprint_verify(): Failed', $e);
     }
 }
 
@@ -155,7 +155,7 @@ function fprint_list_users(){
         return $results;
 
     }catch(Exception $e){
-        throw new bException('fprint_list_users(): Failed', $e);
+        throw new BException('fprint_list_users(): Failed', $e);
     }
 }
 
@@ -181,7 +181,7 @@ function fprint_list($users){
         return $results;
 
     }catch(Exception $e){
-        throw new bException('fprint_list(): Failed', $e);
+        throw new BException('fprint_list(): Failed', $e);
     }
 }
 
@@ -205,7 +205,7 @@ function fprint_delete($user){
         $device = fprint_select_device();
 
         if(!linux_file_exists($device['server'], '/var/lib/fprint/'.$user)){
-            throw new bException(tr('fprint_delete(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+            throw new BException(tr('fprint_delete(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
         }
 
         /*
@@ -214,7 +214,7 @@ function fprint_delete($user){
         linux_file_delete($device['server'], '/var/lib/fprint/'.$user, false, true);
 
     }catch(Exception $e){
-        throw new bException('fprint_delete(): Failed', $e);
+        throw new BException('fprint_delete(): Failed', $e);
     }
 }
 
@@ -238,7 +238,7 @@ function fprint_kill(){
         return linux_pkill($device['server'], 'fprintd', 15, true);
 
     }catch(Exception $e){
-        throw new bException('fprint_kill(): Failed', $e);
+        throw new BException('fprint_kill(): Failed', $e);
     }
 }
 
@@ -262,7 +262,7 @@ function fprint_process(){
         return linux_pgrep($device['server'], 'fprintd');
 
     }catch(Exception $e){
-        throw new bException('fprint_kill(): Failed', $e);
+        throw new BException('fprint_kill(): Failed', $e);
     }
 }
 
@@ -309,13 +309,13 @@ function fprint_verify_finger($finger){
                 return $finger;
 
             default:
-                throw new bException('fprint_verify_finger(): Unknown finger ":finger" specified. Please specify one of "left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger"', 'unknown');
+                throw new BException('fprint_verify_finger(): Unknown finger ":finger" specified. Please specify one of "left-thumb, left-index-finger, left-middle-finger, left-ring-finger, left-little-finger, right-thumb, right-index-finger, right-middle-finger, right-ring-finger, right-little-finger"', 'unknown');
         }
 
         return $finger;
 
     }catch(Exception $e){
-        throw new bException('fprint_verify_finger(): Failed', $e);
+        throw new BException('fprint_verify_finger(): Failed', $e);
     }
 }
 
@@ -331,7 +331,7 @@ function fprint_verify_finger($finger){
  * @package fprint
  * @version 1.24.0: Added documentation
  *
- * @param bException $e The exception that has to be handled
+ * @param BException $e The exception that has to be handled
  * @param mixed $user The user that was being processed
  * @return void
  */
@@ -347,23 +347,23 @@ function fprint_handle_exception($e, $user){
                  * Only counds for verify!
                  * Do NOT send previous exception, generate a new one, its just a simple warning!
                  */
-                throw new bException(tr('fprint_handle_exception(): Finger print data missing for user ":user"', array(':user' => name($user))), 'warning/not-exist');
+                throw new BException(tr('fprint_handle_exception(): Finger print data missing for user ":user"', array(':user' => name($user))), 'warning/not-exist');
             }
 
             if(strstr($data, 'No devices available') !== false){
                 /*
                  * Do NOT send previous exception, generate a new one, its just a simple warning!
                  */
-                throw new bException(tr('fprint_handle_exception(): No finger print scanner devices found'), 'warning/no-devices');
+                throw new BException(tr('fprint_handle_exception(): No finger print scanner devices found'), 'warning/no-devices');
             }
         }
 
         if($e->getCode() == 124){
-            throw new bException(tr('fprint_handle_exception(): finger print scan timed out'), 'warning/timeout');
+            throw new BException(tr('fprint_handle_exception(): finger print scan timed out'), 'warning/timeout');
         }
 
     }catch(Exception $e){
-        throw new bException('fprint_handle_exception(): Failed', $e);
+        throw new BException('fprint_handle_exception(): Failed', $e);
     }
 }
 
@@ -386,11 +386,11 @@ function fprint_detect_software(){
         $device = fprint_select_device();
 
         if(!linux_file_exists($device['server'], '/var/lib/fprint')){
-            throw new bException(tr('fprint_detect_software(): fprintd application data directory "/var/lib/fprint" not found, it it probably is not installed. Please fix this by executing "sudo apt-get install fprintd" on the command line'), 'install');
+            throw new BException(tr('fprint_detect_software(): fprintd application data directory "/var/lib/fprint" not found, it it probably is not installed. Please fix this by executing "sudo apt-get install fprintd" on the command line'), 'install');
         }
 
     }catch(Exception $e){
-        throw new bException('fprint_detect_software(): Failed', $e);
+        throw new BException('fprint_detect_software(): Failed', $e);
     }
 }
 
@@ -412,7 +412,7 @@ function fprint_detect_device(){
     try{
 
     }catch(Exception $e){
-        throw new bException('fprint_detect_device(): Failed', $e);
+        throw new BException('fprint_detect_device(): Failed', $e);
     }
 }
 
@@ -441,7 +441,7 @@ function fprint_select_device($category = null){
             $device = devices_select('fingerprint-reader', $category);
 
             if(!$device){
-                throw new bException(t('fprint_select_device(): No fingerprint reader device found'), 'not-exist');
+                throw new BException(t('fprint_select_device(): No fingerprint reader device found'), 'not-exist');
             }
 
             $device['persist'] = true;
@@ -450,7 +450,7 @@ function fprint_select_device($category = null){
         return $device;
 
     }catch(Exception $e){
-        throw new bException('fprint_select_device(): Failed', $e);
+        throw new BException('fprint_select_device(): Failed', $e);
     }
 }
 
@@ -483,15 +483,15 @@ function fprint_test_device(){
         $result  = array_pop($results);
 
         if(strstr($result, 'No devices available')){
-            throw new bException(tr('fprint_test_device(): No fingerprint devices available'), 'warning/not-exist');
+            throw new BException(tr('fprint_test_device(): No fingerprint devices available'), 'warning/not-exist');
         }
 
         if(strstr($result, 'Could not attempt device open')){
             $device = array_shift($results);
-            throw new bException(tr('fprint_test_device(): Failed to open fingerprint device ":device"', array(':device' => $device)), 'failed');
+            throw new BException(tr('fprint_test_device(): Failed to open fingerprint device ":device"', array(':device' => $device)), 'failed');
         }
 
-        throw new bException('fprint_test_device(): Failed', $e);
+        throw new BException('fprint_test_device(): Failed', $e);
     }
 }
 
@@ -530,29 +530,29 @@ function fprint_process_result(){
             return $action;
 
         case 'not-authenticated':
-            throw new bException(tr('fprint_process_result(): Finger print did not match'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Finger print did not match'), 'warning/'.$result);
 
         case 'timeout':
-            throw new bException(tr('fprint_process_result(): Finger print scan process timed out'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Finger print scan process timed out'), 'warning/'.$result);
 
         case 'no-devices':
-            throw new bException(tr('fprint_process_result(): No finger print scan devices found'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): No finger print scan devices found'), 'warning/'.$result);
 
         case 'no-sudo':
             load_libs('process');
-            throw new bException(tr('fprint_process_result(): Current process owner ":owner" cannot execute fprint with sudo without password', array(':owner' => process_get_user())), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Current process owner ":owner" cannot execute fprint with sudo without password', array(':owner' => process_get_user())), 'warning/'.$result);
 
         case 'not-exist':
-            throw new bException(tr('fprint_process_result(): User ":user" has no fingerprints registered', array(':user' => name(isset_get($_SESSION['user'])))), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): User ":user" has no fingerprints registered', array(':user' => name(isset_get($_SESSION['user'])))), 'warning/'.$result);
 
         case 'no-fprint-file':
-            throw new bException(tr('fprint_process_result(): Fingerprint process failed'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Fingerprint process failed'), 'warning/'.$result);
 
         case 'fingerprints-missing':
-            throw new bException(tr('fprint_process_result(): Fingerprint files missing'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Fingerprint files missing'), 'warning/'.$result);
 
         default:
-            throw new bException(tr('fprint_process_result(): Finger print scan process failed'), $result);
+            throw new BException(tr('fprint_process_result(): Finger print scan process failed'), $result);
     }
 }
 ?>

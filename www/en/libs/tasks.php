@@ -28,7 +28,7 @@ function tasks_library_init(){
         load_config('tasks');
 
     }catch(Exception $e){
-        throw new bException('tasks_library_init(): Failed', $e);
+        throw new BException('tasks_library_init(): Failed', $e);
     }
 }
 
@@ -86,7 +86,7 @@ function tasks_add($task){
         return $task;
 
     }catch(Exception $e){
-        throw new bException('tasks_add(): Failed', $e);
+        throw new BException('tasks_add(): Failed', $e);
     }
 }
 
@@ -141,7 +141,7 @@ function tasks_update($task, $executed = false){
         return $task;
 
     }catch(Exception $e){
-        throw new bException('tasks_update(): Failed', $e);
+        throw new BException('tasks_update(): Failed', $e);
     }
 }
 
@@ -181,7 +181,7 @@ function tasks_validate($task){
     try{
         load_libs('validate');
 
-        $v = new validate_form($task, 'status,command,after,data,results,method,time_limit,executed,time_spent,parents_id,parrallel,verbose');
+        $v = new ValidateForm($task, 'status,command,after,data,results,method,time_limit,executed,time_spent,parents_id,parrallel,verbose');
 
         if($task['time_limit'] === ''){
             $task['time_limit'] = $_CONFIG['tasks']['default_time_limit'];
@@ -237,7 +237,7 @@ function tasks_validate($task){
         return $task;
 
     }catch(Exception $e){
-        throw new bException('tasks_validate(): Failed', $e);
+        throw new BException('tasks_validate(): Failed', $e);
     }
 }
 
@@ -266,12 +266,12 @@ function tasks_validate_status($status){
                     break;
 
                 default:
-                    throw new bException(tr('tasks_validate_status(): Unknown status ":status" specified', array(':status' => $entry)), 'unknown');
+                    throw new BException(tr('tasks_validate_status(): Unknown status ":status" specified', array(':status' => $entry)), 'unknown');
             }
         }
 
     }catch(Exception $e){
-        throw new bException('tasks_validate_status(): Failed', $e);
+        throw new BException('tasks_validate_status(): Failed', $e);
     }
 }
 
@@ -346,7 +346,7 @@ function tasks_get($filters, $set_status = false, $min_id = null){
         return $task;
 
     }catch(Exception $e){
-        throw new bException('tasks_get(): Failed', $e);
+        throw new BException('tasks_get(): Failed', $e);
     }
 }
 
@@ -415,7 +415,7 @@ function tasks_list($status, $limit = 10){
         return $task;
 
     }catch(Exception $e){
-        throw new bException('tasks_list(): Failed', $e);
+        throw new BException('tasks_list(): Failed', $e);
     }
 }
 
@@ -442,7 +442,7 @@ function task_test_mysql(){
             /*
              * This is a different error, keep on throwing
              */
-            throw new bException('task_test_mysql(): Failed', $e);
+            throw new BException('task_test_mysql(): Failed', $e);
         }
 
         /*
@@ -473,7 +473,7 @@ function tasks_reset($tasks_id){
         return $count;
 
     }catch(Exception $e){
-        throw new bException('tasks_reset(): Failed', $e);
+        throw new BException('tasks_reset(): Failed', $e);
     }
 }
 
@@ -498,7 +498,7 @@ function tasks_failed($tasks_id){
         return $count;
 
     }catch(Exception $e){
-        throw new bException('tasks_failed(): Failed', $e);
+        throw new BException('tasks_failed(): Failed', $e);
     }
 }
 
@@ -512,11 +512,11 @@ function tasks_check_pid($tasks_id){
         $task = sql_get('SELECT `id`, `pid` FROM `tasks` WHERE `id` = :id', array(':id' => $tasks_id));
 
         if(!$task){
-            throw new bException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exist');
+            throw new BException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exist');
         }
 
         if(!$task['pid']){
-            throw new bException(tr('tasks_check_pid(): Task ":task" does not have a pid', array(':task' => $tasks_id)), 'empty');
+            throw new BException(tr('tasks_check_pid(): Task ":task" does not have a pid', array(':task' => $tasks_id)), 'empty');
         }
 
         load_libs('cli');
@@ -524,7 +524,7 @@ function tasks_check_pid($tasks_id){
         return cli_pid($task['pid']);
 
     }catch(Exception $e){
-        throw new bException('tasks_check_pid(): Failed', $e);
+        throw new BException('tasks_check_pid(): Failed', $e);
     }
 }
 ?>

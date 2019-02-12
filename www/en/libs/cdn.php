@@ -31,7 +31,7 @@ function cdn_library_init(){
         load_config('cdn');
 
     }catch(Exception $e){
-        throw new bException('cdn_library_init(): Failed', $e);
+        throw new BException('cdn_library_init(): Failed', $e);
     }
 }
 
@@ -54,7 +54,7 @@ function cdn_send_files($files, $server, $section, $group = null){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('cdn_send_files(): Failed', $e);
+        throw new BException('cdn_send_files(): Failed', $e);
     }
 }
 
@@ -70,7 +70,7 @@ function cdn_delete_files($list, $column = 'file'){
         load_libs('api');
 
         if(!$list){
-            throw new bException(tr('cdn_delete_files(): No files specified'), 'not-specified');
+            throw new BException(tr('cdn_delete_files(): No files specified'), 'not-specified');
         }
 
         /*
@@ -127,7 +127,7 @@ function cdn_delete_files($list, $column = 'file'){
         }
 
     }catch(Exception $e){
-        throw new bException('cdn_delete_files(): Failed', $e);
+        throw new BException('cdn_delete_files(): Failed', $e);
     }
 }
 
@@ -141,7 +141,7 @@ function cdn_delete_groups($groups){
         return cdn_delete_files($groups, 'group');
 
     }catch(Exception $e){
-        throw new bException('cdn_delete_groups(): Failed', $e);
+        throw new BException('cdn_delete_groups(): Failed', $e);
     }
 }
 
@@ -156,7 +156,7 @@ function cdn_delete_sections($sections){
         return cdn_delete_files($groups, 'section');
 
     }catch(Exception $e){
-        throw new bException('cdn_delete_sections(): Failed', $e);
+        throw new BException('cdn_delete_sections(): Failed', $e);
     }
 }
 
@@ -173,7 +173,7 @@ function cdn_assign_servers(){
         return $servers;
 
     }catch(Exception $e){
-        throw new bException('cdn_assign_servers(): Failed', $e);
+        throw new BException('cdn_assign_servers(): Failed', $e);
     }
 }
 
@@ -188,15 +188,15 @@ function cdn_pick_server($cdns){
 
     try{
         if(!$cdns){
-            throw new bException(tr('cdn_pick_server(): No CDNs specified'), 'not-specified');
+            throw new BException(tr('cdn_pick_server(): No CDNs specified'), 'not-specified');
         }
 
         if(!is_array($cdns)){
-            throw new bException(tr('cdn_pick_server(): Invalid CDN ":cdns" specified, must be array', array(':cdns' => $cdns)), 'invalid');
+            throw new BException(tr('cdn_pick_server(): Invalid CDN ":cdns" specified, must be array', array(':cdns' => $cdns)), 'invalid');
         }
 
         if(!array_diff($_CONFIG['cdn']['servers'], $cdns)){
-            throw new bException(tr('cdn_pick_server(): Specified CDN ":cdns" does not exist, check "$_CONFIG[cdn][servers]" configuration', array(':cdns' => $cdns)), 'invalid');
+            throw new BException(tr('cdn_pick_server(): Specified CDN ":cdns" does not exist, check "$_CONFIG[cdn][servers]" configuration', array(':cdns' => $cdns)), 'invalid');
         }
 
         if($key === null){
@@ -217,7 +217,7 @@ function cdn_pick_server($cdns){
         return $cdns[$key];
 
     }catch(Exception $e){
-        throw new bException('cdn_pick_server(): Failed', $e);
+        throw new BException('cdn_pick_server(): Failed', $e);
     }
 }
 
@@ -232,7 +232,7 @@ function cdn_balance($params){
     try{
         //
     }catch(Exception $e){
-        throw new bException('cdn_balance(): Failed', $e);
+        throw new BException('cdn_balance(): Failed', $e);
     }
 }
 
@@ -247,7 +247,7 @@ function cdn_update_session(){
     try{
         //
     }catch(Exception $e){
-        throw new bException('cdn_update_session(): Failed', $e);
+        throw new BException('cdn_update_session(): Failed', $e);
     }
 }
 
@@ -264,7 +264,7 @@ function cdn_get_url($table, $filename){
 //        return /'.$_CONFIG['domain'].'/'.$table.'/'.$filename.'/';
 
     }catch(Exception $e){
-        throw new bException('cdn_get_url(): Failed', $e);
+        throw new BException('cdn_get_url(): Failed', $e);
     }
 }
 
@@ -280,7 +280,7 @@ function cdn_get_domain($cdn_id){
         return str_replace(':id', $cdn_id, $_CONFIG['cdn']['domain']);
 
     }catch(Exception $e){
-        throw new bException('cdn_get_url(): Failed', $e);
+        throw new BException('cdn_get_url(): Failed', $e);
     }
 }
 
@@ -294,7 +294,7 @@ function cdn_validate_server($server){
     try{
         load_libs('validate,seo');
 
-        $v = new validate_form($server, 'name,baseurl,api_account,description');
+        $v = new ValidateForm($server, 'name,baseurl,api_account,description');
 
         $v->isNotEmpty ($server['name']        , tr('Please specify a CDN server name'));
         $v->hasMaxChars($server['name']   ,  32, tr('Please make sure the specified CDN server name is less than 32 characters long'));
@@ -323,7 +323,7 @@ function cdn_validate_server($server){
         return $server;
 
     }catch(Exception $e){
-        throw new bException(tr('cdn_validate_server(): Failed'), $e);
+        throw new BException(tr('cdn_validate_server(): Failed'), $e);
     }
 }
 
@@ -337,7 +337,7 @@ function cdn_validate_project($project, $insert = true){
     try{
         load_libs('validate,seo');
 
-        $v = new validate_form($project, 'name,description');
+        $v = new ValidateForm($project, 'name,description');
 
         $v->isNotEmpty ($project['name']    , tr('No project specified'));
         $v->hasMinChars($project['name'],  2, tr('Please ensure the path has at least 2 characters'));
@@ -358,7 +358,7 @@ function cdn_validate_project($project, $insert = true){
         return $project;
 
     }catch(Exception $e){
-        throw new bException(tr('cdn_validate_project(): Failed'), $e);
+        throw new BException(tr('cdn_validate_project(): Failed'), $e);
     }
 }
 
@@ -383,13 +383,13 @@ function cdn_get_api_account($server){
                                 true, array(':seoname' => $server));
 
         if(!$api_account){
-            throw new bException(tr('cdn_validate_project(): Specified server ":server" does not exist', array(':server' => $server)), 'not-exist');
+            throw new BException(tr('cdn_validate_project(): Specified server ":server" does not exist', array(':server' => $server)), 'not-exist');
         }
 
         return $api_account;
 
     }catch(Exception $e){
-        throw new bException('cdn_get_api_account(): Failed', $e);
+        throw new BException('cdn_get_api_account(): Failed', $e);
     }
 }
 
@@ -408,7 +408,7 @@ function cdn_get_server_info($server){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('cdn_get_server_info(): Failed', $e);
+        throw new BException('cdn_get_server_info(): Failed', $e);
     }
 }
 
@@ -429,7 +429,7 @@ function cdn_test_server($server){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('cdn_test_server(): Failed', $e);
+        throw new BException('cdn_test_server(): Failed', $e);
     }
 }
 
@@ -461,7 +461,7 @@ function cdn_register_project($server){
         return false;
 
     }catch(Exception $e){
-        throw new bException('cdn_register_project(): Failed', $e);
+        throw new BException('cdn_register_project(): Failed', $e);
     }
 }
 
@@ -489,7 +489,7 @@ function cdn_unregister_project($server){
         return $result;
 
     }catch(Exception $e){
-        throw new bException('cdn_unregister_project(): Failed', $e);
+        throw new BException('cdn_unregister_project(): Failed', $e);
     }
 }
 
@@ -502,7 +502,7 @@ function cdn_update_pub(){
     try{
 
     }catch(Exception $e){
-        throw new bException('cdn_update_pub(): Failed', $e);
+        throw new BException('cdn_update_pub(): Failed', $e);
     }
 }
 ?>
