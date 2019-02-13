@@ -4,10 +4,14 @@
  *
  * This library file contains easy access functions to use Xapian
  *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @author Johan Geuze
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Johan Geuze, Sven Oostenbrink <support@capmega.com>
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package xapian
  */
-
+obsolete();
 /*
  * Autoload the xapian PHP library
  */

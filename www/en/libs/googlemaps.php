@@ -23,7 +23,7 @@
  */
 function googlemaps_library_init(){
     try{
-        load_config('googlemaps');
+        load_config('google_maps');
 
     }catch(Exception $e){
         throw new BException('googlemaps_library_init(): Failed', $e);
@@ -155,7 +155,7 @@ function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
 
         load_libs('curl');
 
-        $data = curl_get('http://maps.googleapis.com/maps/api/streetview?size='.$x.'x'.$y.'&location='.$lat.',%20'.$long.'&sensor=true&key='.$_CONFIG['google-map-api-key'],'http://'.$_SESSION['domain']);
+        $data = curl_get('http://maps.googleapis.com/maps/api/streetview?size='.$x.'x'.$y.'&location='.$lat.',%20'.$long.'&sensor=true&key='.$_CONFIG['google_maps']['api_key'],'http://'.$_SESSION['domain']);
 
         if(isset($data['status']['http_code']) and ($data['status']['http_code'] == 200)) {
             if(strlen($data['data'])<10000) {
@@ -214,7 +214,7 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
 
     try{
         //load external library
-        html_load_js('<jquery,https://maps.googleapis.com/maps/api/js?key='.$_CONFIG['google-map-api-key']);
+        html_load_js('<jquery,https://maps.googleapis.com/maps/api/js?key='.$_CONFIG['google_maps']['api_key']);
 
         //google maps
         $html='<script>
@@ -446,7 +446,7 @@ function googlemaps_markers($locations, $longitude = null){
             $retval[] = array('lat'  => $location['latitude'],
                               'lng'  => $location['longitude'],
                               'html' => '',
-                              'icon' => $_CONFIG['googlemaps']['markers']['icon']);
+                              'icon' => $_CONFIG['google_maps']['markers']['icon']);
         }
 
         return $retval;
@@ -466,7 +466,7 @@ function googlemaps_map_drag_marker($lat, $lng, $divid = 'map-canvas'){
 
     try{
         //load external library
-        html_load_js('<jquery,script,https://maps.googleapis.com/maps/api/js?key='.$_CONFIG['google-map-api-key']);
+        html_load_js('<jquery,script,https://maps.googleapis.com/maps/api/js?key='.$_CONFIG['google_maps']['api_key']);
 
         //google maps
         $html='<script>

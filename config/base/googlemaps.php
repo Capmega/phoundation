@@ -8,5 +8,6 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Sven Oostenbrink <support@capmega.com>, Johan Geuze
  */
-$_CONFIG['googlemaps'] = array('markers' => array('icon' => '/pub/img/googlemaps/a.png'));
+$_CONFIG['google_maps'] = array('api_key' => '',
+                                'markers' => array('icon' => '/pub/img/googlemaps/a.png'));
 ?>

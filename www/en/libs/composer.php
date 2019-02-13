@@ -22,7 +22,7 @@
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package empty
+ * @package composer
  *
  * @return void
  */
@@ -42,6 +42,8 @@ function composer_library_init(){
         if(!file_exists(ROOT.'/composer.json')){
             composer_init_file();
         }
+
+        load_config('composer');
 
     }catch(Exception $e){
         throw new BException('composer_library_init(): Failed', $e);
