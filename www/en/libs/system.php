@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.1');
+define('FRAMEWORKCODEVERSION', '2.4.2');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -84,6 +84,37 @@ switch(PLATFORM){
          */
         load_libs('http,strings,array,sql,mb,meta,file,json');
         register_shutdown_function('http_done');
+
+        /*
+         * Check what environment we're in
+         */
+        $env = getenv(PROJECT.'_ENVIRONMENT');
+
+        if(empty($env)){
+            /*
+             * No environment set in ENV, maybe given by parameter?
+             */
+            die('startup: Required environment not specified for project "'.PROJECT.'"');
+        }
+
+        if(strstr($env, '_')){
+            die('startup: Specified environment "'.$env.'" is invalid, environment names cannot contain the underscore character');
+        }
+
+        define('ENVIRONMENT', $env);
+
+        /*
+         * Load basic configuration for the current environment
+         * Load cache libraries (done until here since these need configuration @ load time)
+         */
+        load_config(' ');
+
+
+
+        /*
+         * Set protocol
+         */
+        define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
         break;
 }
 
@@ -185,22 +216,37 @@ class Core{
                     $this->register['http_code'] = 200;
 
                     /*
-                     * Auto detect what http platform we're on
+                     * Determine what our target file is. With direct execution,
+                     * $_SERVER[PHP_SELF] would contain this, with route
+                     * execution, $_SERVER[PHP_SELF] would be route, so we
+                     * cannot use that. Route will store the file being executed
+                     * in $this->register['script_path'] instead
                      */
-                    if((substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') or (substr($_SERVER['REQUEST_URI'], 3, 7) == '/admin/')){
+                    if(isset($this->register['script_path'])){
+                        $file = $this->register['script_path'];
+
+                    }else{
+                        $file = $_SERVER['PHP_SELF'];
+                    }
+
+                    /*
+                     * Auto detect what http call type we're on from the script
+                     * being executed
+                     */
+                    if(substr($file, 2, 7) == '/admin/'){
                         $this->callType = 'admin';
 
-                    }elseif(strstr($_SERVER['PHP_SELF'], '/ajax/')){
+                    }elseif(strstr($file, '/ajax/')){
                         $this->callType = 'ajax';
 
-                    }elseif(strstr($_SERVER['PHP_SELF'], '/api/')){
+                    }elseif(strstr($file, '/api/')){
                         $this->callType = 'api';
 
                     }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
                         $this->callType = 'amp';
 
-                    }elseif(is_numeric(substr($_SERVER['PHP_SELF'], -7, 3))){
-                        $this->register['http_code'] = substr($_SERVER['PHP_SELF'], -7, 3);
+                    }elseif(is_numeric(substr($file, -7, 3))){
+                        $this->register['http_code'] = substr($file, -7, 3);
                         $this->callType = 'system';
 
                     }else{
@@ -1913,17 +1959,17 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
         }
 
         if(!$url){
-            $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix;
+            $retval = PROTOCOL.slash($domain).$language.$prefix;
 
         }elseif($url === true){
-            $retval = $_CONFIG['protocol'].$domain.str_starts($_SERVER['REQUEST_URI'], '/');
+            $retval = PROTOCOL.$domain.str_starts($_SERVER['REQUEST_URI'], '/');
 
         }else{
             if($prefix){
                 $prefix = str_starts_not(str_ends($prefix, '/'), '/');
             }
 
-            $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix.str_starts_not($url, '/');
+            $retval = PROTOCOL.slash($domain).$language.$prefix.str_starts_not($url, '/');
         }
 
         if($query){

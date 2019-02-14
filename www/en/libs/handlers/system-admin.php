@@ -9,37 +9,8 @@
 
 
 /*
- * Force disabling in configuration of all caching
+ * Load admin configuration
  */
-$_CONFIG['cache']['method']          = false;
-$_CONFIG['cache']['http']['enabled'] = false;
-
-
-
-/*
- * Check what environment we're in
- */
-$env = getenv(PROJECT.'_ENVIRONMENT');
-
-if(empty($env)){
-    /*
-     * No environment set in ENV, maybe given by parameter?
-     */
-    die('startup: Required environment not specified for project "'.PROJECT.'"');
-}
-
-if(strstr($env, '_')){
-    die('startup: Specified environment "'.$env.'" is invalid, environment names cannot contain the underscore character');
-}
-
-define('ENVIRONMENT', $env);
-
-
-
-/*
- * Load basic configuration for the current environment
- */
-load_config(' ');
 load_config('admin');
 
 

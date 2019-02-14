@@ -29,7 +29,7 @@ if(!$domain){
      * No domain was requested at all, so probably instead of a domain
      * name, an IP was requested. Redirect to the domain name
      */
-    redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+    redirect(PROTOCOL.$_CONFIG['domain']);
 }
 
 
@@ -52,7 +52,7 @@ if($domain === $_CONFIG['domain']){
          * white label domains are disabled, so the requested domain
          * MUST match the configured domain
          */
-        redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+        redirect(PROTOCOL.$_CONFIG['domain']);
 
     }elseif($_CONFIG['whitelabels'] === 'all'){
         /*
@@ -65,7 +65,7 @@ if($domain === $_CONFIG['domain']){
          * $_CONFIG[domain] are allowed
          */
         if(str_from($domain, '.') !== $_CONFIG['domain']){
-            redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+            redirect(PROTOCOL.$_CONFIG['domain']);
         }
 
     }elseif($_CONFIG['whitelabels'] === 'list'){
@@ -75,7 +75,7 @@ if($domain === $_CONFIG['domain']){
         $domain = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain AND `status` IS NULL', true, array(':domain' => $_SERVER['HTTP_HOST']));
 
         if(empty($domain)){
-            redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+            redirect(PROTOCOL.$_CONFIG['domain']);
         }
 
     }elseif(is_array($_CONFIG['whitelabels'])){
@@ -83,7 +83,7 @@ if($domain === $_CONFIG['domain']){
          * Domain must be specified in one of the array entries
          */
         if(!in_array($domain, $_CONFIG['whitelabels'])){
-            redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+            redirect(PROTOCOL.$_CONFIG['domain']);
         }
 
     }else{
@@ -92,7 +92,7 @@ if($domain === $_CONFIG['domain']){
          * specified in $_CONFIG[whitelabels][enabled]
          */
         if($domain !== $_CONFIG['whitelabels']){
-            redirect($_CONFIG['protocol'].$_CONFIG['domain']);
+            redirect(PROTOCOL.$_CONFIG['domain']);
         }
 
     }
@@ -138,7 +138,7 @@ switch($_CONFIG['sessions']['domain']){
 
         if(!strstr($domain, $test)){
             notify(new BException(tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['sessions']['domain'], '.'), ':cookie_domain' => $_CONFIG['sessions']['domain'], ':current_domain' => $domain)), 'cookiedomain'));
-            redirect($_CONFIG['protocol'].str_starts_not($_CONFIG['sessions']['domain'], '.'));
+            redirect(PROTOCOL.str_starts_not($_CONFIG['sessions']['domain'], '.'));
         }
 
         unset($test);

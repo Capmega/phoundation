@@ -9,34 +9,6 @@
 
 
 /*
- * Check what environment we're in
- */
-$env = getenv(PROJECT.'_ENVIRONMENT');
-
-if(empty($env)){
-    /*
-     * No environment set in ENV, maybe given by parameter?
-     */
-    die('startup: Required environment not specified for project "'.PROJECT.'"');
-}
-
-if(strstr($env, '_')){
-    die('startup: Specified environment "'.$env.'" is invalid, environment names cannot contain the underscore character');
-}
-
-define('ENVIRONMENT', $env);
-
-
-
-/*
- * Load basic configuration for the current environment
- * Load cache libraries (done until here since these need configuration @ load time)
- */
-load_config(' ');
-
-
-
-/*
  * Define basic platform constants
  */
 define('ADMIN'   , '');

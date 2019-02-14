@@ -114,7 +114,7 @@ function route($regex, $target, $flags = null){
             foreach(array_shift($variables) as $variable){
                 switch($variable){
                     case 'PROTOCOL':
-                        $route = str_replace(':PROTOCOL', $_CONFIG['protocol'], $route);
+                        $route = str_replace(':PROTOCOL', PROTOCOL, $route);
                         break;
 
                     case 'DOMAIN':
@@ -334,7 +334,8 @@ function route($regex, $target, $flags = null){
              * now english keys. This way, the routemap can be easily used to
              * generate foreign language URLs
              */
-            $core->register['script'] = str_rfrom($page, '/');
+            $core->register['script_path'] = $page;
+            $core->register['script']      = str_rfrom($page, '/');
 
             if(isset($core->register['routemap'])){
                 foreach($core->register['routemap'] as $code => &$map){

@@ -12,16 +12,16 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_no_arguments_left();
 sql_query('SELECT 1');
 
-log_console(cli_color(tr('Project name:'), 'white').' '.PROJECT);
-log_console(cli_color(tr('Framework code version:'), 'white').' '.FRAMEWORKCODEVERSION);
-log_console(cli_color(tr('Framework database version:'), 'white').' '.FRAMEWORKDBVERSION);
-log_console(cli_color(tr('Project code version:'), 'white').' '.PROJECTCODEVERSION);
-log_console(cli_color(tr('Project database version:'), 'white').' '.PROJECTDBVERSION);
-log_console(cli_color(tr('Init required:'), 'white').' '.str_boolean((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
-log_console(cli_color(tr('Platform:'), 'white').' '.PLATFORM);
-log_console(cli_color(tr('Environment:'), 'white').' '.ENVIRONMENT);
-log_console(cli_color(tr('Production:'), 'white').' '.str_boolean($_CONFIG['production']));
-log_console(cli_color(tr('Debug:'), 'white').' '.str_boolean(debug()));
-log_console(cli_color(tr('Core database:'), 'white').' '.$_CONFIG['db']['core']['db']);
-log_console(cli_color(tr('Active users:'), 'white').' '.sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
+log_console(cli_color(str_size(tr('Project name:')              , 27), 'white').' '.PROJECT);
+log_console(cli_color(str_size(tr('Framework code version:')    , 27), 'white').' '.FRAMEWORKCODEVERSION);
+log_console(cli_color(str_size(tr('Framework database version:'), 27), 'white').' '.FRAMEWORKDBVERSION);
+log_console(cli_color(str_size(tr('Project code version:')      , 27), 'white').' '.PROJECTCODEVERSION);
+log_console(cli_color(str_size(tr('Project database version:')  , 27), 'white').' '.PROJECTDBVERSION);
+log_console(cli_color(str_size(tr('Init required:')             , 27), 'white').' '.str_boolean((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
+log_console(cli_color(str_size(tr('Platform:')                  , 27), 'white').' '.PLATFORM);
+log_console(cli_color(str_size(tr('Environment:')               , 27), 'white').' '.ENVIRONMENT);
+log_console(cli_color(str_size(tr('Production:')                , 27), 'white').' '.str_boolean($_CONFIG['production']));
+log_console(cli_color(str_size(tr('Debug:')                     , 27), 'white').' '.str_boolean(debug()));
+log_console(cli_color(str_size(tr('Core database:')             , 27), 'white').' '.$_CONFIG['db']['core']['db']);
+log_console(cli_color(str_size(tr('Active users:')              , 27), 'white').' '.sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
 ?>

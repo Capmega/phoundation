@@ -639,6 +639,10 @@ function git_status($path = ROOT, $filters = null){
                     $status = 'not tracked';
                     break;
 
+                case 'UU':
+                    $status = 'Both modified';
+                    break;
+
                 default:
                     throw new BException(tr('git_status(): Unknown git status ":status" encountered for file ":file"', array(':status' => $status, ':file' => substr($line, 3))), 'unknown');
             }

@@ -193,7 +193,7 @@ function api_authenticate($apikey){
              * This is a production platform, only allow JSON API key
              * authentications over a secure connection
              */
-            if(($_CONFIG['protocol'] !== 'https://') and !empty($_CONFIG['production'])){
+            if((PROTOCOL !== 'https://') and !empty($_CONFIG['production'])){
                 throw new BException(tr('api_authenticate(): No API key authentication allowed on unsecure connections over non HTTPS connections'), 'ssl-required');
             }
         }
