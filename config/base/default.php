@@ -248,9 +248,6 @@ $_CONFIG['prefetch']           = array('dns'                                => a
 // Is this a production environment?
 $_CONFIG['production']         = true;
 
-//domain
-$_CONFIG['https']           = 'https://';                                                                                                // The base protocol of this website. Basically either "http://",  or "https://".
-
 // Redirects configuration (This ususally would not require changes unless you want to have other file names for certain actions like signin, etc)
 $_CONFIG['redirects']          = array('auto'                               => 'get',                                                       // Auto redirects (usually because of user or right required) done by "session" or "get"
                                                                                'index'            => 'index.html',                          // What is the default index page for this site
