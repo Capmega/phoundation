@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.3');
+define('FRAMEWORKCODEVERSION', '2.4.5');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -62,13 +62,23 @@ set_error_handler('php_error_handler');
 set_exception_handler('uncaught_exception');
 
 
+
 /*
  * Create the core object and load the basic libraries
  */
 $core = new Core();
 
-switch(PLATFORM){
+/*
+ * Check what platform we're in
+ */
+switch(php_sapi_name()){
     case 'cli':
+        define('PLATFORM'     , 'cli');
+        define('PLATFORM_HTTP', false);
+        define('PLATFORM_CLI' , true);
+
+        $core->register['script'] = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+
         /*
          * Load basic libraries for command line interface
          * All scripts will execute cli_done() automatically once done
@@ -77,7 +87,21 @@ switch(PLATFORM){
         register_shutdown_function('cli_done');
         break;
 
-    case 'http':
+    default:
+        define('PLATFORM'     , 'http');
+        define('PLATFORM_HTTP', true);
+        define('PLATFORM_CLI' , false);
+        define('NOCOLOR'      ,  (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+
+        /*
+         * Define what the current script
+         * Detect requested language
+         */
+        $core->register['http_code']         = 200;
+        $core->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+        $core->register['accepts']           = accepts();
+        $core->register['accepts_languages'] = accepts_languages();
+
         /*
          * Load basic libraries
          * All scripts will execute http_done() automatically once done
@@ -108,8 +132,13 @@ switch(PLATFORM){
          * Load cache libraries (done until here since these need configuration @ load time)
          */
         load_config(' ');
+        $core->register['ready'] = true;
 
-
+        /*
+         * Define VERBOSE / VERYVERBOSE here because we need debug() data
+         */
+        define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
+        define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
 
         /*
          * Set protocol
@@ -148,48 +177,6 @@ class Core{
                               'footer'        => '',
                               'debug_queries' => array());
 
-    /*
-     * The core::startup() method starts the correct call type handler
-     *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @return void
-     */
-    function __construct(){
-        /*
-         * Check what platform we're in
-         */
-        switch(php_sapi_name()){
-            case 'cli':
-                define('PLATFORM'     , 'cli');
-                define('PLATFORM_HTTP', false);
-                define('PLATFORM_CLI' , true);
-
-                $this->register['script'] = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-                break;
-
-            default:
-                define('PLATFORM'     , 'http');
-                define('PLATFORM_HTTP', true);
-                define('PLATFORM_CLI' , false);
-                define('NOCOLOR'      ,  (getenv('NOCOLOR')                                                ? 'NOCOLOR'     : null));
-                define('VERYVERBOSE'  , ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose']))        ? 'VERYVERBOSE' : null));
-                define('VERBOSE'      , ((VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
-
-                /*
-                 * Define what the current script
-                 * Detect requested language
-                 */
-                $this->register['accepts_languages'] = accepts_languages();
-                $this->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-                break;
-        }
-    }
-
 
 
     /*
@@ -212,9 +199,6 @@ class Core{
              */
             switch(PLATFORM){
                 case 'http':
-                    $this->register['accepts']   = accepts();
-                    $this->register['http_code'] = 200;
-
                     /*
                      * Determine what our target file is. With direct execution,
                      * $_SERVER[PHP_SELF] would contain this, with route

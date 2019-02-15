@@ -323,56 +323,27 @@ function route($regex, $target, $flags = null){
         unregister_shutdown('route_404');
 
         /*
-         * Create $_GET variables
          * Execute the page specified in $target (from here, $route)
+         * Update the current running script name
+         *
+         * Flip the routemap keys <=> values foreach language so that its
+         * now english keys. This way, the routemap can be easily used to
+         * generate foreign language URLs
          */
-        try{
-            /*
-             * Update the current running script name
-             *
-             * Flip the routemap keys <=> values foreach language so that its
-             * now english keys. This way, the routemap can be easily used to
-             * generate foreign language URLs
-             */
-            $core->register['script_path'] = $page;
-            $core->register['script']      = str_rfrom($page, '/');
+        $core->register['script_path'] = $page;
+        $core->register['script']      = str_rfrom($page, '/');
 
-            if(isset($core->register['routemap'])){
-                foreach($core->register['routemap'] as $code => &$map){
-                    $map = array_flip($map);
-                }
+        if(isset($core->register['routemap'])){
+            foreach($core->register['routemap'] as $code => &$map){
+                $map = array_flip($map);
             }
-
-            log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
-
-            unset($map);
-            include($page);
-            die();
-
-        }catch(Exception $e){
-            /*
-             * Page execution failed. If the system has already started up and
-             * is ready, the uncaught exception handler will take care of it. If
-             * not, we first need to startup the system ourselves
-             */
-            if(!$core->register['ready']){
-                require_once(__DIR__.'/startup.php');
-            }
-
-            throw $e;
-
-        }catch(Error $e){
-            /*
-             * Page execution failed. If the system has already started up and
-             * is ready, the uncaught exception handler will take care of it. If
-             * not, we first need to startup the system ourselves
-             */
-            if(!$core->register['ready']){
-                require_once(__DIR__.'/startup.php');
-            }
-
-            throw $e;
         }
+
+        log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
+
+        unset($map);
+        include($page);
+        die();
 
     }catch(Exception $e){
         if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){
