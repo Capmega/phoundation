@@ -67,7 +67,7 @@ function linux_get_ssh_tcp_forwarding($server){
                 return false;
 
             default:
-                throw new BException(tr('linux_get_ssh_tcp_forwarding(): Unknown result ":result" received from SSHD configuration on server ":server"', array(':server' => $server, ':result' => $result)), 'unknown');
+                throw new BException(tr('linux_get_ssh_tcp_forwarding(): Unknown result ":result" received from SSHD configuration on server ":server"', array(':server' => $server['domain'], ':result' => $result)), 'unknown');
         }
 
     }catch(Exception $e){
@@ -96,7 +96,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
         $server = servers_get($server);
 
         if(!$server['allow_sshd_modification'] and !$force){
-            throw new BException(tr('linux_set_ssh_tcp_forwarding(): The specified server ":server" does not allow SSHD modifications', array(':server' => $server['hostname'])), 'not-allowed');
+            throw new BException(tr('linux_set_ssh_tcp_forwarding(): The specified server ":server" does not allow SSHD modifications', array(':server' => $server['domain'])), 'not-allowed');
         }
 
         $enable   = ($enable ? 'yes' : 'no');
