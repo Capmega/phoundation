@@ -1,16 +1,37 @@
 <?php
-global $_CONFIG, $core;
-static $executed = false;
-
+/*
+ * Phoundation uncaught exception handler
+ *
+ * IMPORTANT! IF YOU ARE FACED WITH AN UNCAUGHT EXCEPTION, OR WEIRD EFFECTS LIKE
+ * WHITE SCREEN, ALWAYS FOLLOW THESE STEPS:
+ *
+ *    Check the ROOT/data/log/syslog (or exception log if you have single_log
+ *    disabled). In here you can find 99% of the issues
+ *
+ *    If the syslog did not contain information, then check your apache / nginx
+ *    or PHP error logs. Typically you will find these in /var/log/php and
+ *    /var/log/apache2 or /var/log/nginx
+ *
+ *    If that gives you nothing, then try uncommenting the line in the section
+ *    right below these comments. This will forcibly display the error
+ */
 
 /*
  * If you are faced with an uncaught exception that does not give any
  * information (for example, "exception before platform detection", or
- * "pre ready exception"), uncomment the following line to see whats up. For
- * security, Base will not display the entire exception as it doesn't know if it
- * is on a production environment or not
+ * "pre ready exception"), uncomment the following line to see whats up.
+ *
+ * The reason that this is normally commented out and that logging or displaying
+ * your errors might fail is for security, as Phoundation may not know at the
+ * point where your error occurred if it is on a production environment or not.
+ *
+ * For cases like these, uncomment the following lines and you should see your
+ * error displayed on your browser.
  */
 //echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
+
+global $_CONFIG, $core;
+static $executed = false;
 
 try{
     if($executed){
@@ -23,13 +44,22 @@ try{
 
     $executed = true;
 
-    if(empty($core->register['script'])){
-        $core->register('script', 'unknown');
-    }
+    if(isset($core)){
+        if(empty($core->register['script'])){
+            $core->register('script', 'unknown');
+        }
 
-    if($core->register['ready']){
-        log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => $core->register['script'])), 'exceptions', 'error');
-        log_file($e, 'exceptions');
+        if($core->register['ready']){
+            log_file(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" IN ":type" SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => $core->register['script'])), 'exceptions', 'error');
+            log_file($e, 'exceptions');
+        }
+
+    }else{
+        error_log(tr('*** UNCAUGHT PRE-CORE-AVAILABLE EXCEPTION ":code" ***', array(':code' => $e->getCode())), 'exceptions', 'error');
+        error_log($e, 'exceptions');
+
+        echo tr('*** UNCAUGHT PRE-CORE-AVAILABLE EXCEPTION ":code" ***', array(':code' => $e->getCode()));
+        die();
     }
 
     if(!defined('PLATFORM')){
@@ -400,11 +430,18 @@ try{
     }
 
 }catch(Exception $f){
+    if(!isset($core)){
+        error_log(tr('*** UNCAUGHT PRE CORE AVAILABLE EXCEPTION HANDLER CRASHED ***'));
+        error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
+        error_log($f->getMessage());
+        die('Pre core available exception with handling failure');
+    }
+
     if(!defined('PLATFORM') or !$core->register['ready']){
         error_log(tr('*** UNCAUGHT PRE READY EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])));
         error_log(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'));
         error_log($f->getMessage());
-        die('Pre ready exception with handling failure');
+        die('Pre ready core exception with handling failure');
     }
 
     log_file('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 'exception-handler', 'red');
