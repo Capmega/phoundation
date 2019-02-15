@@ -126,13 +126,12 @@ switch(cli_method()){
 
             cli_no_arguments_left();
 
-            if($server){
+            $servers_devices = devices_scan($filters, $server);
 
-            }
-            $devices = devices_scan($filters, $server);
-
-            foreach($devices as $device){
-                devices_insert($device, $server);
+            foreach($servers_devices as $server => $devices){
+                foreach($devices as $device){
+                    devices_insert($device, $server);
+                }
             }
 
             if(count($devices)){

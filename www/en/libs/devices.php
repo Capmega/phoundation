@@ -742,7 +742,9 @@ function devices_clear($product){
 
 
 /*
+ * Scan one or multiple servers for connected hardware devices and return a list of all these devices
  *
+ * The
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -755,81 +757,196 @@ function devices_clear($product){
  * @param
  * @return
  */
-function devices_scan_usb($filters, $server){
+function devices_scan($types, $server = null){
     try{
         load_libs('servers');
 
-        $retval            = array();
+        if(!$server){
+            /*
+             * Scan all registered servers
+             */
+            $retval  = array();
+            $servers = servers_list(true);
+
+            while($server = sql_fetch($servers)){
+                log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
+                $devices = devices_scan($types, $server['id']);
+
+                if($devices){
+                    $retval[$server['seodomain']] = $devices[$server['seodomain']];
+                }
+            }
+
+            return $retval;
+        }
+
         $server            = servers_get($server);
         $server['persist'] = true;
-        $devices           = servers_exec($server, 'lsusb | grep -i "'.$filters.'"');
+        $seodomain         = $server['seodomain'];
+        $retval            = array();
+        $types             = devices_validate_types($types, true);
 
-        foreach($devices as $device){
-            $found = preg_match_all('/Bus (\d+) Device (.+?): ID ([0-9a-f]{4}:[0-9a-f]{4}) (.+)/i', $device, $matches);
+        foreach(array_force($types) as $type => $filter){
+            switch($type){
+                case 'usb':
+                    // FALLTHROUGH
+                case 'fingerprint-reader':
+                    $devices = servers_exec($server, 'lsusb | grep -i "'.$filter.'"', false, null, '0,1');
+                    $entries = array();
 
-            if(!$found){
-                continue;
+                    foreach($devices as $device){
+                        $found = preg_match_all('/Bus (\d+) Device (.+?): ID ([0-9a-f]{4}:[0-9a-f]{4}) (.+)/i', $device, $matches);
+
+                        if(!$found){
+                            continue;
+                        }
+
+                        log_console(tr('Found device ":device" on server ":server"', array(':device' => $device, ':server' => $server['domain'])), 'VERBOSE/green');
+
+                        $entry = array('type'        => $type,
+                                       'raw'         => $matches[0][0],
+                                       'device'      => $matches[2][0],
+                                       'bus'         => $matches[1][0],
+                                       'string'      => $matches[3][0],
+                                       'description' => $matches[4][0]);
+
+                        $data = servers_exec($server, 'lsusb -vs '.$entry['bus'].':'.$entry['device']);
+
+                        foreach($data as $line){
+                            if(stristr($line, 'idProduct')){
+                                $entry['product']        = str_from($line             , '0x');
+                                $entry['product_string'] = str_from($entry['product'] , ' ');
+                                $entry['product']        = str_until($entry['product'], ' ');
+                            }
+
+                            if(stristr($line, 'idVendor')){
+                                $entry['vendor']        = str_from($line            , '0x');
+                                $entry['vendor_string'] = str_from($entry['vendor'] , ' ');
+                                $entry['vendor']        = str_until($entry['vendor'], ' ');
+                            }
+
+                            if(stristr($line, 'idManufacturer')){
+                                $entry['manufacturer'] = str_from($line, 'idManufacturer');
+                            }
+                        }
+
+                        $entries[] = $entry;
+                    }
+
+                    if($entries){
+                        $retval[$seodomain] = $entries;
+                    }
+
+                    break;
+
+                case 'document-scanner':
+
+                    break;
+
+                default:
+
             }
-
-            log_console(tr('Found device ":device"', array(':device' => $device)), 'VERBOSE');
-
-            $entry = array('raw'         => $matches[0][0],
-                           'device'      => $matches[2][0],
-                           'bus'         => $matches[1][0],
-                           'string'      => $matches[3][0],
-                           'description' => $matches[4][0]);
-
-            $data = servers_exec($server, 'lsusb -vs '.$entry['bus'].':'.$entry['device']);
-
-            foreach($data as $line){
-                if(stristr($line, 'idProduct')){
-                    $entry['product']        = str_from($line, '0x');
-                    $entry['product_string'] = str_from($entry['product'] , ' ');
-                    $entry['product']        = str_until($entry['product'], ' ');
-                }
-
-                if(stristr($line, 'idVendor')){
-                    $entry['vendor']        = str_from($line, '0x');
-                    $entry['vendor_string'] = str_from($entry['vendor'] , ' ');
-                    $entry['vendor']        = str_until($entry['vendor'], ' ');
-                }
-
-                if(stristr($line, 'idManufacturer')){
-                    $entry['manufacturer'] = str_from($line, 'idManufacturer');
-                }
-            }
-
-            $retval[] = $entry;
         }
 
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('devices_scan_usb(): Failed', $e);
+        throw new bException('devices_scan(): Failed', $e);
     }
 }
 
 
 
 /*
- * Scan all servers for devices within the specified filters
+ * Validate the given device type or devices type list and ensures it is supported
+ *
+ * Currently supported devices are "fingerprint-reader" and "scanner"
+ *
+ * If part of a device type is specified, this will match and the function will update the given device type part string to reflect the correct device type. If the specified part matches multiple supported devices, an exception will be thrown. If the given device type (part) does not match any supported devices, an exception will be thrown
+ *
+ * If in stead of one single device type a list of device types is specified in an array, the same rules apply, but on each entry in the array
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package devices
- * @version 1.27.1: Added function and documentation
+ * @see devices_scan()
+ * @version 2.4.0: Added function and documentation
+ * @example [Title]
+ * code
+ * $result = devices_validate_types(array('scan' => 'fing'));
+ * showdie($result);
+ * /code
  *
- * @param
- * @return
+ * This would return
+ * code
+ * array('scanner', 'fingerprint-reader')
+ * /code
+ *
+ * @param string|array $types The device type or multiple device types to validate
+ * @return string|array The device types, validated and sanitized
  */
-function devices_scan_servers($filters){
+function devices_validate_types($types, $return_filters = false){
+    static $supported = array('fingerprint-reader' => 'Fingerprint Reader',
+                              'document-scanner'   => '');
+
     try{
-        load_libs('servers');
+        if($types){
+            /*
+             * Device types list specified. Compare them all to the supported types
+             */
+            if(is_array($types)){
+                foreach($types as $key => &$type){
+                    if(!is_string($type)){
+                        throw new BException(tr('devices_validate_types(): Specified device type list is invalid. Key ":key" should be a string but is an ":type" instead', array(':key' => $key, ':type' => gettype($type))), 'invalid');
+                    }
+
+                    $type = devices_validate_types($type);
+                }
+
+                return $types;
+            }
+
+            /*
+             * Single type specified. Compare to the supported types.
+             */
+            if(is_string($types)){
+                foreach($supported as $support => $filter){
+                    if(str_exists($types, $support)){
+                        if(isset($match)){
+                            throw new BException(tr('devices_validate_types(): Specified device type ":type" matches multiple supported devices', array(':type' => $types)), 'multiple');
+                        }
+
+                        if($return_filters){
+                            $match = $filter;
+
+                        }else{
+                            $match = $support;
+                        }
+                    }
+                }
+
+                if(!isset($match)){
+                    throw new BException(tr('devices_validate_types(): Specified device type ":type" does not match any of the supported devices', array(':type' => $types)), 'not-exist');
+                }
+
+                return $match;
+            }
+
+            /*
+             * Specified device type is neither string nor array
+             */
+            throw new BException(tr('devices_validate_types(): Invalid device type or list of device types specified. Expected a string or array, but got an ":type" instead', array(':type' => gettype($types))), 'invalid');
+        }
+
+        /*
+         * No type list specified, return all supported devices
+         */
+        return $supported;
 
     }catch(Exception $e){
-        throw new BException('devices_scan_servers(): Failed', $e);
+        throw new BException('devices_validate_types(): Failed', $e);
     }
 }
 ?>
