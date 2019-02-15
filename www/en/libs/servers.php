@@ -403,15 +403,26 @@ function servers_like($domain){
             return $domain;
         }
 
-        $server = sql_get('SELECT `domain`
+        if(is_numeric($domain)){
+            $server = sql_get('SELECT `domain`
 
-                           FROM   `servers`
+                               FROM   `servers`
 
-                           WHERE  `domain`    LIKE :domain
-                           OR     `seodomain` LIKE :seodomain',
+                               WHERE  `id` = :id',
 
-                           true, array(':domain'    => '%'.$domain.'%',
-                                       ':seodomain' => '%'.$domain.'%'));
+                               true, array(':id' => $domain));
+
+        }else{
+            $server = sql_get('SELECT `domain`
+
+                               FROM   `servers`
+
+                               WHERE  `domain`    LIKE :domain
+                               OR     `seodomain` LIKE :seodomain',
+
+                               true, array(':domain'    => '%'.$domain.'%',
+                                           ':seodomain' => '%'.$domain.'%'));
+        }
 
         if(!$server){
             /*
@@ -723,6 +734,8 @@ function servers_list_domains($server){
  */
 function servers_exec($server, $commands = null, $background = false, $function = null, $ok_exitcodes = 0){
     try{
+        $server = servers_like($server);
+
         array_params($server, 'domain');
         array_default($server, 'hostkey_check', true);
         array_default($server, 'background'   , $background);
