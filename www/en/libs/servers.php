@@ -930,6 +930,46 @@ function servers_unregister_host($server){
 
 
 /*
+ * List all registered servers that are available
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package servers
+ * @see servers_get()
+ * @version 2.4.0: Added function and documentation
+ *
+ * @return array The currently registered servers that are available
+ */
+function servers_list($as_resource = false){
+    try{
+        $query = 'SELECT `id`,
+                         `domain`,
+                         `seodomain`
+
+                  FROM   `servers`
+
+                  WHERE  `status` IS NULL';
+
+        if($as_resource){
+            $retval = sql_query($query);
+
+        }else{
+            $retval = sql_list($query);
+
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('servers_list(): Failed', $e);
+    }
+}
+
+
+
+/*
  *
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1747,7 +1787,7 @@ function servers_check_ssh_access($server, $account, $password = null){
             $account = ssh_get_account($account);
 
             if(!$account){
-                throw new BException(tr('servers_check_ssh_access(): The specified account "" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exist');
+                throw new BException(tr('servers_check_ssh_access(): The specified account ":account" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exist');
             }
 
             $results = servers_exec($server);
