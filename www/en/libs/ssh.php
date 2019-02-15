@@ -102,7 +102,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
             $retry = 0;
 
             load_libs('servers');
-            return servers_exec($ssh, $commands, $background, $function, $ok_exitcodes);
+            return servers_exec($ssh, $ssh['commands'], $ssh['background'], $function, $ok_exitcodes);
         }
 
         /*
@@ -113,7 +113,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
             $retry = 0;
 
             load_libs('servers');
-            return servers_exec($ssh, $commands, $background, $function, $ok_exitcodes);
+            return servers_exec($ssh, $ssh['commands'], $ssh['background'], $function, $ok_exitcodes);
         }
 
         /*
