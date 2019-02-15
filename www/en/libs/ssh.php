@@ -78,6 +78,8 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
         array_default($ssh, 'proxies'      , null);
         array_default($ssh, 'persist'      , false);
 
+        $ssh['commands'] = addslashes($ssh['commands']);
+
         /*
          * If no domain is specified, then don't execute this command on a
          * remote server, just use safe_exec and execute it locally
@@ -159,7 +161,6 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
         return $results;
 
     }catch(Exception $e){
-        try{
             switch($e->getRealCode()){
                 case 'not-exist':
                     // FALLTHROUGH
@@ -168,50 +169,68 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
 
                 default:
                     /*
-                     * Check if the exception perhaps was caused by missing ssh server fingerprints (common enough to test)
+                     * Check if access was plainly denied because of missing SSH key
                      */
-                    if($ssh['domain']){
-                        $known = ssh_host_is_known($ssh['domain'], $ssh['port']);
+                    $data = $e->getData();
 
-                        if($known === false){
-                            /*
-                             * There are no fingerprints availabe in either the
-                             * `ssh_fingerprints` table or known_hosts file
-                             */
-                            $e->setCode('host-verification-failed');
-                            throw new BException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $ssh['domain'])), $e);
+                    if($data){
+                        $data = array_force($data);
+                        $data = array_pop($data);
+                        $data = strtolower($data);
 
-                        }elseif(is_numeric($known)){
-                            /*
-                             * There are no fingerprints availabe in the known_hosts
-                             * file, but they were in the `ssh_fingerprints` table.
-                             * The fingerprints have been added to the known_hosts
-                             * file so we can retry the command.
-                             */
-                            log_console(tr('Retrying execution of command ":command"', array(':command' => $ssh['commands'])), 'yellow');
-                            return ssh_exec($ssh, $commands, $background, $function, $ok_exitcodes);
+                        if(str_exists($data, 'permission denied')){
+                            $e = new BException(tr('ssh_exec(): Got access denied when trying to connect to server ":server"', array(':server' => $ssh['domain'])), $e);
+                            $e->setCode('access-denied');
+                            throw $e->makeWarning(true);
                         }
                     }
 
-                    /*
-                     * Check if SSH can connect to the specified server / port
-                     */
-                    if(empty($not_check_inet) and isset($ssh['port'])){
-                        try{
-                            load_libs('inet');
-                            inet_test_host_port($ssh['domain'], $ssh['port']);
+                    try{
+                        /*
+                         * Check if the exception perhaps was caused by missing ssh server fingerprints (common enough to test)
+                         */
+                        if($ssh['domain']){
+                            $known = ssh_host_is_known($ssh['domain'], $ssh['port']);
 
-                        }catch(Exception $f){
-                            throw new BException(tr('ssh_exec(): inet_test_host_port() failed with ":e"', array(':e' => $f->getMessage())), $e);
+                            if($known === false){
+                                /*
+                                 * There are no fingerprints availabe in either the
+                                 * `ssh_fingerprints` table or known_hosts file
+                                 */
+                                $e->setCode('host-verification-failed');
+                                throw new BException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $ssh['domain'])), $e);
+
+                            }elseif(is_numeric($known)){
+                                /*
+                                 * There are no fingerprints availabe in the known_hosts
+                                 * file, but they were in the `ssh_fingerprints` table.
+                                 * The fingerprints have been added to the known_hosts
+                                 * file so we can retry the command.
+                                 */
+                                log_console(tr('Retrying execution of command ":command"', array(':command' => $ssh['commands'])), 'yellow');
+                                return ssh_exec($ssh, $commands, $background, $function, $ok_exitcodes);
+                            }
                         }
+
+                        /*
+                         * Check if SSH can connect to the specified server / port
+                         */
+                        if(empty($not_check_inet) and isset($ssh['port'])){
+                            try{
+                                load_libs('inet');
+                                inet_test_host_port($ssh['domain'], $ssh['port']);
+
+                            }catch(Exception $f){
+                                throw new BException(tr('ssh_exec(): inet_test_host_port() failed with ":e"', array(':e' => $f->getMessage())), $e);
+                            }
+                        }
+
+                    }catch(BException $f){
+                        $f = new BException(tr('ssh_exec(): Failed to auto resolve ssh_exec() exception ":e"', array(':e' => $e)), $f);
+                        notify($f);
+                        throw  $f;
                     }
             }
-
-        }catch(BException $f){
-            $f = new BException(tr('ssh_exec(): Failed to auto resolve ssh_exec() exception ":e"', array(':e' => $e)), $f);
-            notify($f);
-            throw  $f;
-        }
 
         /*
          * Remove "Permanently added host blah" error, even in this exception
