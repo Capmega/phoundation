@@ -169,4 +169,14 @@ try{
  */
 load_libs('custom');
 http_validate_get();
+
+
+
+/*
+ * Did the startup sequence encounter reasons for us to actually show another
+ * page?
+ */
+if(isset($core->register['page_show'])){
+    page_show($core->register['page_show']);
+}
 ?>

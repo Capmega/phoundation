@@ -433,4 +433,14 @@ if(debug()){
  * Load custom library, if available
  */
 load_libs('custom');
+
+
+
+/*
+ * Did the startup sequence encounter reasons for us to actually show another
+ * page?
+ */
+if(isset($core->register['page_show'])){
+    page_show($core->register['page_show']);
+}
 ?>
