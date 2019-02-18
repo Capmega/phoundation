@@ -212,9 +212,7 @@ function route($regex, $target, $flags = null){
                     $count = 1;
                     unset($flags[$flags_id]);
                     include(current_file(1));
-
-                    unregister_shutdown('route_404');
-                    die('qqqqqqqqqqqqqqqqqqqqqqqqq');
+                    die();
 
                 case 'G':
                     /*
@@ -301,7 +299,7 @@ function route($regex, $target, $flags = null){
                 /*
                  * Page doesn't exist. Maybe a URL section is mapped?
                  */
-                if($core->register['routemap']){
+                if(isset($core->register['routemap'])){
                     /*
                      * Found mapping configuration. Find language match. Assume
                      * that $matches[1] contains the language, unless specified
