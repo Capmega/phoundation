@@ -332,15 +332,21 @@ try{
                 if($_CONFIG['security']['url_cloaking']['enabled'] and $_CONFIG['security']['url_cloaking']['strict']){
                     /*
                      * URL cloaking was enabled and requires strict checking.
+                     *
                      * Ensure that we have a cloaked URL users_id and that it
                      * matches the sessions users_id
+                     *
+                     * Only check cloaking rules if we are NOT displaying a
+                     * system page
                      */
-                    if(empty($core->register['url_cloak_users_id'])){
-                        throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
-                    }
+                    if(!$core->callType('system')){
+                        if(empty($core->register['url_cloak_users_id'])){
+                            throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
+                        }
 
-                    if($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']){
-                        throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', array(':session_users_id' => $_SESSION['user']['id'], ':cloak_users_id' => $core->register['url_cloak_users_id'])), 403);
+                        if($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']){
+                            throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', array(':session_users_id' => $_SESSION['user']['id'], ':cloak_users_id' => $core->register['url_cloak_users_id'])), 403);
+                        }
                     }
                 }
 

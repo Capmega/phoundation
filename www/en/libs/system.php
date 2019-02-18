@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.6');
+define('FRAMEWORKCODEVERSION', '2.4.7');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -239,8 +239,8 @@ class Core{
                     }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
                         $this->callType = 'amp';
 
-                    }elseif(is_numeric(substr($file, -7, 3))){
-                        $this->register['http_code'] = substr($file, -7, 3);
+                    }elseif(is_numeric(substr($file, -3, 3))){
+                        $this->register['http_code'] = substr($file, -3, 3);
                         $this->callType = 'system';
 
                     }else{
@@ -390,7 +390,7 @@ class Core{
                     // FALLTHROUGH
                 case 'amp':
                     // FALLTHROUGH
-                case 404:
+                case 'system':
                     break;
 
                 default:
