@@ -427,7 +427,7 @@ function array_sequential_values($count, $base_valuename){
 /*
  * Return the source array with the keys all replaced by sequential values based on base_keyname
  */
-function array_sequential_keys($source, $base_keyname){
+function array_sequential_keys($source, $base_keyname, $filter_null = false, $null_string = false){
     try{
         if(!is_array($source)){
             throw new BException(tr('array_sequential_keys(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
@@ -437,6 +437,23 @@ function array_sequential_keys($source, $base_keyname){
         $retval = array();
 
         foreach($source as $value){
+            /*
+             * Regard all "null" and "NULL" strings as NULL
+             */
+            if($null_string){
+                if(($value === 'null') or ($value === 'NULL')){
+                    $value = null;
+                }
+            }
+
+            /*
+             * Filter out all NULL values
+             */
+            if($filter_null){
+                if($value === null){
+                    continue;
+                }
+            }
 
             $retval[$base_keyname.$i++] = $value;
         }
