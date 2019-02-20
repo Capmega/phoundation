@@ -4,8 +4,11 @@
  *
  * This library contains functions to build the web ui for the storage system
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package storage
  */
 
 
@@ -174,9 +177,30 @@ function storage_ui_process_dosubmit($params, $section, $page){
                 break;
 
             case $params['buttons']['redetect_scanners']:
-                $devices = scanimage_update_devices();
-                html_flash_set(tr('Device detection successful, found ":count" device(s)', array(':count' => count($devices))), 'success', 'documents');
-                redirect(domain(true));
+                try{
+                    $devices = devices_scan('document-scanners');
+
+                    foreach($devices as $server => $devices){
+                        foreach($devices as $device){
+                            $count++;
+                            devices_insert($device, $server);
+                        }
+                    }
+
+                    if(count($devices)){
+                        log_console(tr('Added / updated ":count" devices', array(':count' => $count)), 'green');
+                        html_flash_set(tr('Scanner device detection successful, found ":count" device(s)', array(':count' => count($devices))), 'success', 'documents');
+
+                    }else{
+                        html_flash_set(tr('Scanner device detection successful, found no scanner device(s)'), 'success', 'documents');
+                    }
+
+                    redirect(domain(true));
+
+                }catch(Exception $e){
+                    html_flash_set(tr('Failed to detect scanners'), 'warning', 'documents');
+                }
+
                 break;
 
             case $params['buttons']['create']:
