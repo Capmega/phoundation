@@ -399,6 +399,10 @@ function servers_update($server){
  */
 function servers_like($domain){
     try{
+        if(!$domain){
+            return null;
+        }
+
         if(is_array($domain)){
             return $domain;
         }
