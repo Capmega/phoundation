@@ -462,6 +462,7 @@ function scanimage_detect_devices($server = null){
 
 
 
+// :DELETE: After 2019/04
 ///*
 // *
 // *

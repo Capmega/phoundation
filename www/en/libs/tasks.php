@@ -355,7 +355,7 @@ function tasks_get($filters, $set_status = false, $min_id = null){
 /*
  * List all tasts with the specified status
  */
-function tasks_list($status, $limit = 10){
+function tasks_list($status){
     try{
         if($status){
             $status = array_force($status);
@@ -406,9 +406,7 @@ function tasks_list($status, $limit = 10){
 
                            '.$where.'
 
-                           ORDER BY  `tasks`.`createdon` ASC
-
-                           LIMIT     '.$limit,
+                           ORDER BY  `tasks`.`createdon` DESC'.sql_limit(),
 
                            $status);
 

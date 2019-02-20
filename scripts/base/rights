@@ -24,7 +24,7 @@ switch(cli_method()){
                              FROM   `rights`
 
                              WHERE  `status` IS NULL
-                             OR     `status` != "_new" '.(LIMIT ? ' LIMIT '.LIMIT : ''));
+                             OR     `status` != "_new" '.sql_limit());
 
         if(!$rights->rowCount()){
             log_console(tr('There are currently no rights available'), 'QUIET/yellow');

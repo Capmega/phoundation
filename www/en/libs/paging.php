@@ -5,13 +5,46 @@
  * This library contains functions to generate HTML paging snippets
  * The only really necesary functions are paging_data() and paging_generate()
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package empty
  */
 
 
+
 /*
- * Pagination function, can create any type of HTML paging structure
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package paging
+ *
+ * @return void
+ */
+function paging_library_init(){
+    global $core, $_CONFIG;
+
+    try{
+        if(PLATFORM_HTTP){
+            $core->register['limit'] = isset_get($_GET['limit']);
+            $core->register['page']  = isset_get($_GET['page']);
+        }
+
+    }catch(Exception $e){
+        throw new BException('paging_library_init(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Paging function, can create any type of HTML paging structure
  *
  * Example usage:
  * $html .= paging_generate(array('html'    => '<div class="center mbottom50">
@@ -40,7 +73,7 @@ function paging_generate($params){
         array_default($params, 'prev_next'     , isset_get($_CONFIG['paging']['prev_next']));
         array_default($params, 'first_last'    , isset_get($_CONFIG['paging']['first_last']));
         array_default($params, 'show_pages'    , $_CONFIG['paging']['show_pages']);
-        array_default($params, 'limit'         , $_CONFIG['paging']['limit']);
+        array_default($params, 'limit'         , 0);
         array_default($params, 'hide_single'   , $_CONFIG['paging']['hide_single']);
         array_default($params, 'hide_ends'     , $_CONFIG['paging']['hide_ends']);
         array_default($params, 'disabled'      , '');
@@ -264,23 +297,6 @@ function paging_data($page, $limit, $rows){
 
 
 /*
- *
- */
-function paging_limit($limit, $default_limit = null){
-    global $_CONFIG;
-
-    try{
-        if(!$limit) return 0;
-        return sql_valid_limit(not_empty($limit, $default_limit, $_CONFIG['paging']['limit']));
-
-    }catch(Exception $e){
-        throw new BException('paging_limit(): Failed', $e);
-    }
-}
-
-
-
-/*
  * Return the correct URL for the specified page
  */
 function paging_get_url($url, $page = null, $disabled = false){
@@ -309,6 +325,89 @@ function paging_get_url($url, $page = null, $disabled = false){
 
     }catch(Exception $e){
         throw new BException('paging_get_url(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the current row limit variable
+ *
+ * This function will ensure that the specified function will not be executed on shutdown
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package paging
+ * @version 2.4.8: Added function and documentation
+ *
+ * @param null numeric $limit The
+ * @return mixed The value of the shutdown function in case it existed
+ */
+function paging_limit($limit = null, $default_limit = null){
+    global $_CONFIG, $core;
+
+    try{
+        if($limit === 0){
+            return 0;
+        }
+
+        if(isset($core->register['all'])){
+            return 0;
+        }
+
+        $limit = not_empty($limit, $default_limit, $core->register['limit'], $_CONFIG['paging']['limit']);
+        $limit = sql_valid_limit($limit);
+
+        if(!is_natural($limit)){
+            throw new BException(tr('paging_limit(): Specified limit ":limit" is not a natural number', array(':limit' => $limit)), 'invalid');
+        }
+
+        return $limit;
+
+    }catch(Exception $e){
+        throw new BException('paging_limit(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the current row limit variable
+ *
+ * This function will ensure that the specified function will not be executed on shutdown
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package paging
+ * @version 2.4.8: Added function and documentation
+ *
+ * @param null numeric $limit The
+ * @return mixed The value of the shutdown function in case it existed
+ */
+function paging_page($page = null){
+    global $core;
+
+    try{
+        if(!$page){
+            $page = $core->register('page');
+        }
+
+        if($page){
+            if(!is_natural($page)){
+                throw new BException(tr('paging_page(): $core::register[page] ":page" is not a natural number', array(':page' => $page)), 'invalid');
+            }
+
+            return $page;
+        }
+
+        return 1;
+
+    }catch(Exception $e){
+        throw new BException(tr('paging_page(): Failed'), $e);
     }
 }
 ?>

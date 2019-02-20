@@ -29,6 +29,8 @@ scan FILE                       - Scan to the specified FILE. If the path for
     --device DEVICE             - Scan using the specified device. Specify the
                                   device using the URL from the \"list\" method
 
+    --server SERVER             - Scan using the device on the specified server
+
     --resolution RESOLUTION     - Scan using the specified resolution. Should
                                   be one of 75, 150, 300, 600, 1200, 2400, 4800
                                   or 9600. Defaults to
@@ -90,9 +92,10 @@ switch(cli_method()){
 
     case 'scan':
         $scanimage['device']  = cli_argument('--device', true);
+        $scanimage['server']  = cli_argument('--server', true);
         $scanimage['options'] = array();
 
-        $device = scanimage_get($scanimage['device']);
+        $device = scanimage_get($scanimage['device'], $scanimage['server']);
 
         if(!$device){
             throw new BException(tr('Specified device ":device" does not exist', array(':device' => $scanimage['device'])), 'not-exist');

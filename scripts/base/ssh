@@ -113,7 +113,7 @@ try{
             }
 
             $order    = ' ORDER BY `ssh_accounts`.`status` IS NOT NULL DESC ';
-            $accounts = sql_query($query.$where.$order.(LIMIT ? ' LIMIT '.LIMIT : ''), $execute);
+            $accounts = sql_query($query.$where.$order.sql_limit(), $execute);
 
             if(!$accounts->rowCount()){
                     log_console(tr('There are currently no accounts registered'), 'QUIET/yellow');

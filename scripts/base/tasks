@@ -66,9 +66,9 @@ list                            - List all tasks. By default, only open tasks
 
     --all                       - List all tasks
 
-    --limit LIMIT               - Limit list to LIMIT entries (defaults to 100)
+    -L / --limit LIMIT          - Limit list to LIMIT entries (defaults to 100)
 
-    --page PAGE                 - Start list on PAGE * LIMIT entries (defaults
+    -P / --page PAGE            - Start list on PAGE * LIMIT entries (defaults
                                   to 0)
 
 
@@ -135,15 +135,12 @@ under_construction('add');
         /*
          * Clear all tasks
          */
-        $all       = (cli_argument('--all')   or cli_argument('-a'));
-        $limit     = (cli_argument('--limit') or cli_argument('-l'));
-        $page      = (cli_argument('--page')  or cli_argument('-p'));
-        $status    = cli_argument('--status', true);
         $only_data = cli_argument('--only-data');
+        $status    = STATUS;
 
         cli_no_arguments_left();
 
-        if($all){
+        if(ALL){
             if($status){
                 throw new BException(tr('--status cannot be used with --all'), 'warning/invalid');
             }
@@ -152,7 +149,17 @@ under_construction('add');
                 throw new BException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
             }
 
-            log_console(tr('Clearing all tasks'), 'white');
+            if($only_data){
+                /*
+                 * Only clear data and results fields
+                 */
+                log_console(tr('Clearing all tasks data'), 'cyan');
+                $r = sql_query('UPDATE `tasks` SET `data` = null, `results` = null');
+
+            }else{
+                log_console(tr('Clearing all tasks'), 'cyan');
+                $r = sql_query('DELETE FROM `tasks`');
+            }
 
         }else{
             if(!$status){
@@ -164,30 +171,15 @@ under_construction('add');
                 }
             }
 
-            log_console(tr('Clearing tasks with status ":status"', array(':status' => $status)), 'white');
-        }
-
-        if($all){
             if($only_data){
                 /*
                  * Only clear data and results fields
                  */
-                $r = sql_query('UPDATE `tasks` SET `data` = null, `results` = null');
-
-            }else{
-                $r = sql_query('DELETE FROM `tasks`');
-            }
-
-        }else{
-            $status = sql_in(array_force($status));
-
-            if($only_data){
-                /*
-                 * Only clear data and results fields
-                 */
+                log_console(tr('Clearing tasks data with status ":status"', array(':status' => $status)), 'cyan');
                 $r = sql_query('UPDATE `tasks` WHERE `data` = null, `results` = null `status` IN ('.implode(', ', array_keys($status)).')', $status);
 
             }else{
+                log_console(tr('Clearing tasks with status ":status"', array(':status' => $status)), 'cyan');
                 $r = sql_query('DELETE FROM `tasks` WHERE `status` IN ('.implode(', ', array_keys($status)).')', $status);
             }
         }
@@ -202,17 +194,11 @@ under_construction('add');
         break;
 
     case 'list':
-        $all    = (cli_argument('--all')   or cli_argument('-a'));
-        $limit  = (cli_argument('--limit') or cli_argument('-l'));
-        $page   = (cli_argument('--page')  or cli_argument('-p'));
-        $status = cli_argument('--status', true);
+        $status = STATUS;
+
         cli_no_arguments_left();
 
-        if(!$limit){
-            $limit = 1000;
-        }
-
-        if($all){
+        if(ALL){
             if($status){
                 throw new BException(tr('--status cannot be used with --all'), 'warning/invalid');
             }
@@ -235,7 +221,7 @@ under_construction('add');
             log_console(str_size('#id', 6).str_size('Meta id', 7).' '.str_size('User', 32).str_size('Parent task id', 14).' '.str_size('Command', 32).str_size('Status', 16).' '.str_size('Description', 32).str_size('Execution method', 20).str_size('Time limit', 4).' '.str_size('Time spent', 10), 'cyan');
         }
 
-        $tasks = tasks_list($status, $limit);
+        $tasks = tasks_list($status);
 
         while($task = sql_fetch($tasks)){
             switch($task['status']){

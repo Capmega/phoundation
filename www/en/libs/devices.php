@@ -61,16 +61,14 @@ function devices_insert($device, $server = null){
         /*
          * Ensure the device does not exist yet
          */
-        $exists = devices_get($device['string'], $device['servers_id']);
+        $exists = devices_get($device['seostring'], $device['servers_id']);
 
         if($exists){
             /*
-             * This device product already exist on the specified server on the specified bus:device
+             * Device already exists
              */
-            $device['id']      = $exists['id'];
-            $device['meta_id'] = $exists['meta_id'];
-
-            return devices_update($device);
+            $device['_exists'] = true;
+            return $exists;
         }
 
         sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `description`)
@@ -100,6 +98,7 @@ function devices_insert($device, $server = null){
                          ':description'        => $device['description']));
 
         $device['id'] = sql_insert_id();
+        devices_insert_options($device['id'], $device['options']);
 
         return $device;
 
@@ -149,7 +148,7 @@ function devices_update($device, $server = null){
         return $device;
 
     }catch(Exception $e){
-        throw new BException('devices_insert(): Failed', $e);
+        throw new BException('devices_update(): Failed', $e);
     }
 }
 
@@ -165,14 +164,14 @@ function devices_update($device, $server = null){
  * @package devices
  * @version 1.25.0: Added function and documentation
  *
- * @param
- * @param
- * @return
+ * @param params $device
+ * @param params $server
+ * @return params
  */
 function devices_validate($device, $server){
     try{
         load_libs('validate,seo,categories,companies,servers');
-        $v = new ValidateForm($device, 'manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,server,description');
+        $v = new ValidateForm($device, 'type,manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,server,description,options');
 
         $v->isAlphaNumeric($device['manufacturer'], tr('Please specify a valid device manufacturer'), VALIDATE_ALLOW_EMPTY_NULL|VALIDATE_IGNORE_DASH);
         $v->hasMinChars($device['manufacturer'],  2, tr('Please specify a device manufacturer of 2 characters or more'), VALIDATE_ALLOW_EMPTY_NULL);
@@ -206,7 +205,7 @@ function devices_validate($device, $server){
         $v->hasMinChars($device['string'],   2, tr('Please specify a device string of 2 characters or more'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->hasMaxChars($device['string'], 128, tr('Please specify a device string of maximum 128 characters'), VALIDATE_ALLOW_EMPTY_NULL);
 
-        $device['seo_product_string'] = seo_string($device['product_string']);
+        $v->isNotEmpty($device['type'], tr('Please specify a device type'));
 
         /*
          * Validate server
@@ -296,6 +295,19 @@ function devices_validate($device, $server){
             }
         }
 
+        $v->isValid();
+
+        /*
+         * Cleanup
+         */
+        $device['type']               = devices_validate_types($device['type']);
+        $device['seostring']          = seo_string($device['string']);
+        $device['seo_product_string'] = seo_string($device['product_string']);
+        $device['description']        = str_replace('_', ' ', $device['description']);
+
+        /*
+         * Ensure no double default
+         */
         if($device['default']){
             /*
              * Ensure that there is not another device already the default
@@ -315,12 +327,6 @@ function devices_validate($device, $server){
         }
 
         $v->isValid();
-
-        /*
-         * Cleanup
-         */
-        $device['seostring']   = seo_unique($device['string'], 'devices', isset_get($device['id']), 'seostring');
-        $device['description'] = str_replace('_', ' ', $device['description']);
 
         return $device;
 
@@ -348,7 +354,7 @@ function devices_validate($device, $server){
 function devices_set_status($device, $status){
     try{
         if(is_numeric($device)){
-            $delete = sql_query('UPDATE `devices` SET `status` = :status WHERE `id` = :id'        , array(':id'     => $device, ':status' => $status));
+            $delete = sql_query('UPDATE `devices` SET `status` = :status WHERE `id`     = :id'    , array(':id'     => $device, ':status' => $status));
 
         }else{
             $delete = sql_query('UPDATE `devices` SET `status` = :status WHERE `string` = :string', array(':string' => $device, ':status' => $status));
@@ -380,6 +386,13 @@ function devices_set_status($device, $status){
  */
 function devices_insert_options($devices_id, $options){
     try{
+        if(!$options){
+            /*
+             * This device has no options
+             */
+            return 0;
+        }
+
         $count  = 0;
         $insert = sql_prepare('INSERT INTO `devices_options` (`devices_id`, `status`, `key`, `value`, `default`)
                                VALUES                        (:devices_id , :status , :key , :value , :default )');
@@ -509,45 +522,224 @@ function devices_list_options($devices_id, $inactive = false){
  *
  * @param
  * @param
+ * @return
+ */
+function devices_list_option_keys($devices_id, $inactive = false){
+    try{
+        if($inactive){
+            $retval  = array();
+            $options = sql_query('SELECT `key`, `value`, `default` FROM `devices_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
+
+        }else{
+            $retval  = array();
+            $options = sql_query('SELECT `key`, `value`, `default` FROM `devices_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
+        }
+
+        if(!$options){
+            if($inactive){
+                $exists = sql_get('SELECT `id` FROM `devices` WHERE `id` = :id', true, array(':id' => $devices_id));
+
+            }else{
+                $exists = sql_get('SELECT `id` FROM `devices` WHERE `id` = :id AND `status` IS NULL', true, array(':id' => $devices_id));
+            }
+
+            if($exists){
+                throw new BException(tr('devices_list_options(): Speficied devices id ":id" does not have any device options', array(':id' => $devices_id)), 'not-exist');
+            }
+
+            throw new BException(tr('devices_list_options(): Speficied devices id ":id" does not exist', array(':id' => $devices_id)), 'not-exist');
+        }
+
+        foreach($options as $option){
+            if(empty($retval[$option['key']])){
+                $retval[$option['key']] = array();
+            }
+
+            $retval[$option['key']][$option['value']] = $option['value'];
+
+            if($option['default']){
+                $retval[$option['key']]['default'] = $option['default'];
+            }
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('devices_list_option_keys(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return an array with the available option values for the specified option key
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package devices
+ * @version 2.4.7: Added function and documentation
+ *
  * @param
  * @return
  */
-function devices_list($seo_product_string, $all = false, $default_only = false){
+function devices_list_option_values($devices_id, $key){
     try{
-        if($default_only){
-            $where = 'WHERE  `seo_product_string` = :seo_product_string
-                      AND    `status`             IS NULL
-                      AND    `default`            = 1';
+        array_ensure($params, '');
 
-        }elseif($all){
-            $where = 'WHERE  `seo_product_string` = :seo_product_string';
-
-        }else{
-            $where = 'WHERE  `seo_product_string` = :seo_product_string
-                      AND    `status` IS NULL';
+        if(empty($devices_id)){
+            throw new BException(tr('devices_list_options(): No devices_id specified'), 'not-specified');
         }
 
-        $devices = sql_query('SELECT `id`,
-                                     `meta_id`,
-                                     `status`,
-                                     `seo_product_string`,
-                                     `manufacturer`,
-                                     `model`,
-                                     `vendor`,
-                                     `vendor_string`,
-                                     `product`,
-                                     `product_string`,
-                                     `seo_product_string`,
-                                     `libusb`,
-                                     `bus`,
-                                     `device`,
-                                     `string`,
-                                     `default`,
-                                     `description`
+        if(empty($key)){
+            throw new BException(tr('devices_list_options(): No key specified for devices id ":id"', array(':id' => $devices_id)), 'not-specified');
+        }
 
-                              FROM   `devices`'.$where,
+        $retval = sql_query('SELECT `value`, `value`, `default` FROM `devices_options` WHERE `devices_id` = :devices_id AND `key` = :key', array(':devices_id' => $devices_id, ':key' => $key));
 
-                              array(':seo_product_string' => $seo_product_string));
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('devices_list_option_values(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return an array with the available option values for the specified option key
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package devices
+ * @version 2.4.7: Added function and documentation
+ *
+ * @param params $params
+ * @return
+ */
+function devices_get_option_html_element($params){
+    global $core;
+
+    try{
+        array_ensure($params, '');
+        array_default($params, 'key'       , '');
+        array_default($params, 'devices_id', '');
+        array_default($params, 'name'      , $params['key']);
+        array_default($params, 'class'     , 'form-control');
+
+        load_libs('numbers');
+
+        $params['resource'] = devices_list_option_values($params['devices_id'], $params['key']);
+
+        switch($params['resource']->rowCount()){
+            case 0:
+                throw new BException(tr('devices_get_option_html_element(): Speficied devices id ":id" does not have the key ":key"', array(':id' => $params['devices_id'], ':key' => $params['key'])), 'not-exist');
+
+            case 1:
+                /*
+                 * Single entry, returns an input element
+                 */
+                $data        = sql_fetch($params['resource']);
+                $data['min'] = str_until($data['value'], '..');
+                $data['max'] = str_from($data['value'] , '..');
+
+                switch($params['key']){
+                    case 'x':
+                        // FALLTHROUGH
+                    case 'y':
+                        // FALLTHROUGH
+                    case 'l':
+                        // FALLTHROUGH
+                    case 't':
+                        $data['step'] = '0.01';
+                        break;
+
+                    default:
+                        $data['step'] = numbers_get_step($data['min'], $data['max'], $data['default']);
+                }
+
+                return '<input type="number" name="'.$params['name'].'" id="'.$params['name'].'" min="'.$data['min'].'" max="'.$data['max'].'" step="'.$data['step'].'" value="'.$data['default'].'" tabindex="'.$core->register['tabindex']++.'" class="'.$params['class'].'">';
+
+            default:
+                /*
+                 * Multiple entries, return an HTML select
+                 */
+                return html_select($params);
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('devices_get_option_html_element(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the available registered drivers for the specified seo_product_string
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package devices
+ * @version 1.25.0: Added function and documentation
+ *
+ * @param
+ * @param
+ * @param
+ * @return
+ */
+function devices_list($type, $all = false, $default_only = false){
+    try{
+        $type = devices_validate_types($type);
+
+        if($default_only){
+            $where = 'WHERE `devices`.`type`    = :type
+                      AND   `devices`.`status`  IS NULL
+                      AND   `devices`.`default` = 1';
+
+        }elseif($all){
+            $where = 'WHERE `devices`.`type` = :type';
+
+        }else{
+            $where = 'WHERE `devices`.`type` = :type
+                      AND   `devices`.`status` IS NULL';
+        }
+
+        $devices = sql_query('SELECT    `devices`.`id`,
+                                        `devices`.`meta_id`,
+                                        `devices`.`status`,
+                                        `devices`.`servers_id`,
+                                        `devices`.`seo_product_string`,
+                                        `devices`.`manufacturer`,
+                                        `devices`.`model`,
+                                        `devices`.`vendor`,
+                                        `devices`.`vendor_string`,
+                                        `devices`.`product`,
+                                        `devices`.`product_string`,
+                                        `devices`.`seo_product_string`,
+                                        `devices`.`libusb`,
+                                        `devices`.`bus`,
+                                        `devices`.`device`,
+                                        `devices`.`seostring`,
+                                        `devices`.`string`,
+                                        `devices`.`default`,
+                                        `devices`.`description`,
+
+                                        `servers`.`domain`,
+                                        `servers`.`seodomain`
+
+                              FROM      `devices`
+
+                              LEFT JOIN `servers`
+                              ON        `servers`.`id` = `devices`.`servers_id`'.$where,
+
+                              array(':type' => $type));
 
         return $devices;
 
@@ -582,9 +774,9 @@ function devices_get($device, $server = null){
             load_libs('servers');
 
             $server = servers_get($server);
-            $where  = ' WHERE `devices`.`string` = :string AND `devices`.`servers_id` = :servers_id ';
+            $where  = ' WHERE `devices`.`seostring` = :seostring AND `devices`.`servers_id` = :servers_id ';
 
-            $execute[':string']     = $device;
+            $execute[':seostring']  = $device;
             $execute[':servers_id'] = $server['id'];
 
         }else{
@@ -611,6 +803,7 @@ function devices_get($device, $server = null){
                                      `devices`.`bus`,
                                      `devices`.`device`,
                                      `devices`.`string`,
+                                     `devices`.`seostring`,
                                      `devices`.`default`,
                                      `devices`.`description`,
 
@@ -813,6 +1006,7 @@ function devices_scan($types, $server = null){
         $server['persist'] = true;
         $seodomain         = $server['seodomain'];
         $retval            = array();
+        $types             = array_force($types);
         $types             = devices_validate_types($types, true);
 
         foreach(array_force($types) as $type => $filter){
@@ -822,6 +1016,10 @@ function devices_scan($types, $server = null){
                 case 'usb':
                     // FALLTHROUGH
                 case 'fingerprint-reader':
+                    // FALLTHROUGH
+                case 'barcode-scanner':
+                    // FALLTHROUGH
+                case 'webcam':
                     $devices = servers_exec($server, 'lsusb | grep -i "'.$filter.'"', false, null, '0,1');
                     $entries = array();
 
@@ -942,8 +1140,10 @@ function devices_scan($types, $server = null){
  * @return string|array The device types, validated and sanitized
  */
 function devices_validate_types($types = null, $return_filters = false){
-    static $supported = array('fingerprint-reader' => 'Fingerprint Reader',
-                              'document-scanner'   => '');
+    static $supported = array('fingerprint-reader' => 'fingerprint',
+                              'document-scanner'   => '',
+                              'barcode-scanner'    => 'barcode',
+                              'webcam'             => 'webcam');
 
     try{
         if($types){
@@ -956,10 +1156,11 @@ function devices_validate_types($types = null, $return_filters = false){
                         throw new BException(tr('devices_validate_types(): Specified device type list is invalid. Key ":key" should be a string but is an ":type" instead', array(':key' => $key, ':type' => gettype($type))), 'invalid');
                     }
 
-                    $type = devices_validate_types($type);
+                    $retval[devices_validate_types($type)] = devices_validate_types($type, $return_filters);
                 }
 
-                return $types;
+                unset($type);
+                return $retval;
             }
 
             /*
@@ -967,7 +1168,7 @@ function devices_validate_types($types = null, $return_filters = false){
              */
             if(is_string($types)){
                 foreach($supported as $support => $filter){
-                    if(str_exists($types, $support)){
+                    if(str_exists($support, $types)){
                         if(isset($match)){
                             throw new BException(tr('devices_validate_types(): Specified device type ":type" matches multiple supported devices', array(':type' => $types)), 'multiple');
                         }

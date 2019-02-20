@@ -581,6 +581,7 @@ function http_done(){
          */
         if(mt_rand(0, 100) <= $_CONFIG['check_disk']['http_interval']){
             log_file(tr('Executing disk check'), 'http-done', 'VERBOSE/cyan');
+            load_libs('check-disk');
             register_shutdown('check_disk', null);
         }
 
