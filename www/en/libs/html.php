@@ -1442,7 +1442,7 @@ function html_select($params){
         array_default($params, 'id'          , $params['name']);
         array_default($params, 'none'        , tr('None selected'));
         array_default($params, 'empty'       , tr('None available'));
-        array_default($params, 'tabindex'    , 0);
+        array_default($params, 'tabindex'    , null);
         array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'selected'    , null);
         array_default($params, 'bodyonly'    , false);
@@ -1451,6 +1451,10 @@ function html_select($params){
         array_default($params, 'hide_empty'  , false);
         array_default($params, 'autofocus'   , false);
         array_default($params, 'multiple'    , false);
+
+        if(!$params['tabindex']){
+            $params['tabindex'] = html_tabindex();
+        }
 
         if(!$params['name']){
             throw new BException(tr('html_select(): No name specified'), 'not-specified');
@@ -2505,6 +2509,28 @@ function html_form($method = 'post', $action = null, $name = 'form', $class = 'f
 
     }catch(Exception $e){
         throw new BException(tr('html_form(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Returns the current global tabindex and automatically increases it
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ *
+ * @return natural The current tab index
+ */
+function html_tabindex(){
+    try{
+        return ++$core->register['tabindex'];
+
+    }catch(Exception $e){
+        throw new BException(tr('html_tabindex(): Failed'), $e);
     }
 }
 ?>
