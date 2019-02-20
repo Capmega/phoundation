@@ -197,6 +197,8 @@ function route($regex, $target, $flags = null){
                      * URL cloaking was used. See if we have a real URL behind
                      * the specified cloak
                      */
+                    load_libs('url');
+
                     $_SERVER['REQUEST_URI'] = url_decloak($route);
 
                     if(!$_SERVER['REQUEST_URI']){
