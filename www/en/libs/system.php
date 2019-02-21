@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.8');
+define('FRAMEWORKCODEVERSION', '2.4.9');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1939,10 +1939,6 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
 
         $language = get_language($language);
 
-        if($language){
-            $language .= '/';
-        }
-
         if($prefix === null){
 // :COMPATIBILITY:  Remove "root" support after 2019-04-01
             if(!empty($_CONFIG['url_prefix'])){
@@ -1953,18 +1949,18 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             }
         }
 
+        $prefix = str_starts(str_ends($prefix, '/'), '/');
+        $domain = slash($domain);
+
         if(!$url){
-            $retval = PROTOCOL.slash($domain).$language.$prefix;
+            $retval = PROTOCOL.$domain.$language.$prefix;
 
         }elseif($url === true){
             $retval = PROTOCOL.$domain.str_starts($_SERVER['REQUEST_URI'], '/');
 
         }else{
-            if($prefix){
-                $prefix = str_starts_not(str_ends($prefix, '/'), '/');
-            }
 
-            $retval = PROTOCOL.slash($domain).$language.$prefix.str_starts_not($url, '/');
+            $retval = PROTOCOL.$domain.$language.$prefix.str_starts_not($url, '/');
         }
 
         if($query){
@@ -3469,18 +3465,33 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
 
 
 /*
+ * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see domain()
+ * @see mapped_domain()
+ * @version 2.4.9: Added documentation
+ *
+ * @params string $file
+ * @params string $section
+ * @params boolean $false_on_not_exist
+ * @params boolean $force_cdn
+ * @return string The result
  */
-function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force_cdn = false){
+function cdn_domain($file = '', $section = 'pub', $false_on_not_exist = false, $force_cdn = false){
     global $_CONFIG;
 
     try{
         if(!$_CONFIG['cdn']['enabled'] and !$force_cdn){
             if($section == 'pub'){
-                $prefix = not_empty($_CONFIG['cdn']['prefix'], '/');
+                $section = not_empty($_CONFIG['cdn']['prefix'], '/');
             }
 
-            return domain($file, null, isset_get($prefix,''), $_CONFIG['cdn']['domain'], null, false);
+            return domain($file, null, $section, $_CONFIG['cdn']['domain'], null, false);
         }
 
         if($section == 'pub'){
@@ -3727,7 +3738,7 @@ function str_from($source, $needle, $more = 0, $require = false){
 /*
  * Return the given string from 0 until the specified needle
  */
-function str_until($source, $needle, $more = 0, $start = 0){
+function str_until($source, $needle, $more = 0, $start = 0, $require = false){
     try{
         if(!$needle){
             throw new BException('str_until(): No needle specified', 'not-specified');
@@ -3735,7 +3746,13 @@ function str_until($source, $needle, $more = 0, $start = 0){
 
         $pos = mb_strpos($source, $needle);
 
-        if($pos === false) return $source;
+        if($pos === false){
+            if($require){
+                return '';
+            }
+
+            return $source;
+        }
 
         return mb_substr($source, $start, $pos + $more);
 
