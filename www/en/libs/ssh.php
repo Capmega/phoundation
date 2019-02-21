@@ -179,9 +179,11 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
                         $data = strtolower($data);
 
                         if(str_exists($data, 'permission denied')){
-                            $e = new BException(tr('ssh_exec(): Got access denied when trying to connect to server ":server"', array(':server' => $ssh['domain'])), $e);
-                            $e->setCode('access-denied');
-                            throw $e->makeWarning(true);
+                            if(strtolower(substr($data, 0, 5)) !== 'bash:'){
+                                $e = new BException(tr('ssh_exec(): Got access denied when trying to connect to server ":server"', array(':server' => $ssh['domain'])), $e);
+                                $e->setCode('access-denied');
+                                throw $e->makeWarning(true);
+                            }
                         }
                     }
 
