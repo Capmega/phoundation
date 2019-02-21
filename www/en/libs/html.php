@@ -865,16 +865,36 @@ function html_header($params = null, $meta = array()){
 
 /*
  * Generate and return the HTML footer
+ *
+ * This function generates and returns the HTML footer. Any data stored in $core->register[footer] will be added, and if the debug bar is enabled, it will be attached as well
+ *
+ * This function should be called in your c_page() function
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_header()
+ * @version 2.5.9: Added documentation, added debug bar support
+ *
+ * @return string The footer HTML
  */
 function html_footer(){
     global $_CONFIG, $core;
 
     try{
-        if($core->register['footer']){
-            return $core->register['footer'].'</body></html>';
+        $html = '';
+
+        if(debug()){
+            $html .= debug_bar();
         }
 
-        return '</body></html>';
+        if($core->register['footer']){
+            $html .= $core->register['footer'];
+        }
+
+        return $html.'</body></html>';
 
     }catch(Exception $e){
         throw new BException('html_footer(): Failed', $e);
@@ -2526,11 +2546,37 @@ function html_form($method = 'post', $action = null, $name = 'form', $class = 'f
  * @return natural The current tab index
  */
 function html_tabindex(){
+    global $core;
+
     try{
         return ++$core->register['tabindex'];
 
     }catch(Exception $e){
         throw new BException(tr('html_tabindex(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Set the base URL for CDN requests from javascript
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ *
+ * @return void()
+ */
+function html_set_js_cdn_url(){
+    global $_CONFIG, $core;
+
+    try{
+        $core->register['header'] = html_script('var cdnprefix="'.cdn_domain().'";', false);
+
+    }catch(Exception $e){
+        throw new BException(tr('html_set_js_cdn_url(): Failed'), $e);
     }
 }
 ?>
