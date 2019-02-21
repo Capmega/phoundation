@@ -26,7 +26,7 @@
 function scanimage_library_init(){
     try{
         load_config('scanimage');
-        load_libs('servers');
+        load_libs('linux,image');
 
     }catch(Exception $e){
         throw new BException('scanimage_library_init(): Failed', $e);
@@ -64,31 +64,32 @@ function scanimage($params){
          */
         try{
             if(empty($params['batch'])){
-                switch($params['format']){
-                    case 'tiff':
-                        $command .= ' > '.$params['file'];
-                        $result   = servers_exec($params['server'], $command);
-                        break;
-
-                    case 'jpeg':
-                        $command .= ' | convert tiff:- '.$params['file'];
-                        $result   = servers_exec($params['server'], $command);
-                        break;
-                }
+                $command .= ' > '.$params['file'];
+                $result   = servers_exec($params['domain'], $command);
 
                 file_chown($params['file']);
 
             }else{
-                switch($params['format']){
-                    case 'tiff':
-                        $result   = servers_exec($params['server'], $command);
-                        break;
-
-                    case 'jpeg':
-                        $result   = servers_exec($params['server'], $command);
-                        break;
-                }
+                $result = servers_exec($params['domain'], $command);
             }
+
+            /*
+             * Change file format?
+             */
+            switch($params['format']){
+                case 'tiff':
+                    break;
+
+                case 'jpeg':
+                    image_convert($params['file'], str_replace('.tiff', '.jpg', $params['file']), array('method' => 'format',
+                                                                                                        'format' => 'jpg'));
+
+//                        $command .= ' | convert tiff:- '.$params['file'];
+                    break;
+            }
+
+            file_chown($params['file']);
+
 
         }catch(Exception $e){
             $data = $e->getData();
@@ -100,18 +101,29 @@ function scanimage($params){
                 $line = '';
             }
 
-            switch(substr($line, 0, 33)){
-                case 'scanimage: open of device images':
-                    /*
-                     *
-                     */
-                    throw new BException(tr('scanimage(): Scan failed'), 'failed');
-
-                case 'scanimage: no SANE devices found':
+            switch(substr($line, 0, 25)){
+                case 'scanimage: no SANE device':
                     /*
                      * No scanner found
                      */
                     throw new BException(tr('scanimage(): No scanner found'), 'not-found');
+
+                case 'scanimage: open of device':
+                    /*
+                     * Failed to open the device, it might be busy or not
+                     * responding
+                     */
+                    $server  = servers_get($params['domain']);
+                    $process = linux_pgrep($server, 'scanimage');
+
+                    if(substr($line, -24, 24) === 'failed: Invalid argument'){
+                        throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
+
+                    }else{
+                        if($process){
+                            throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
+                        }
+                    }
 
                 default:
                     throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
@@ -150,14 +162,14 @@ function scanimage_validate($params){
 
     try{
         load_libs('validate');
-        $v       = new ValidateForm($params, 'server,device,jpeg_quality,format,file,buffer_size,options,server');
+        $v       = new ValidateForm($params, 'domain,device,batch,jpeg_quality,format,file,buffer_size,options');
         $options = array();
 
         /*
          * Get the device with the device options list
          */
         if($params['device']){
-            $device = scanimage_get($params['device'], $params['server']);
+            $device = scanimage_get($params['device'], $params['domain']);
 
         }else{
             $device = scanimage_get_default();
@@ -166,6 +178,8 @@ function scanimage_validate($params){
                 $v->setError(tr('No scanner specified and no default scanner found'));
             }
         }
+
+        $params['device'] = $device['string'];
 
         /*
          * Ensure this is a document scanner device
@@ -342,6 +356,7 @@ function scanimage_list(){
         throw new BException('scanimage_list(): Failed', $e);
     }
 }
+
 
 
 
@@ -791,11 +806,10 @@ function scanimage_get_default(){
     try{
         $scanners = scanimage_list();
 
-        foreach($scanners as $devices_id => $scanner){
+        while($scanner = sql_fetch($scanners)){
             if($scanner['default']){
                 load_libs('devices');
-
-                $scanner['options'] = devices_list_options($devices_id);
+                $scanner = scanimage_get($scanner['seostring'], $scanner['servers_id']);
                 return $scanner;
             }
         }
@@ -821,13 +835,20 @@ function scanimage_get_default(){
  * @param string $device_string The device to get and return data from
  * @return array All found data for the specified device
  */
-function scanimage_get($device_seostring, $server = null){
+function scanimage_get($device, $server = null){
     try{
+        if(!$device){
+            /*
+             * No specific device specified, use the default
+             */
+            return scanimage_get_default();
+        }
+
         load_libs('devices');
-        $scanner = devices_get($device_seostring, $server);
+        $scanner = devices_get($device, $server);
 
         if(!$scanner){
-            throw new BException(tr('scanimage_get(): Specified scanner with device seo string ":string" does not exist on server ":server"', array(':string' => $device_seostring, ':server' => $server)), 'not-exist');
+            throw new BException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server)), 'not-exist');
         }
 
         $scanner['options'] = devices_list_options($scanner['id']);
@@ -945,6 +966,102 @@ function scanimage_command(){
 
     }catch(Exception $e){
         throw new BException('scanimage_command(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns true if the scanimage process is running for the server for the
+ * specified device
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ * @see empty_install()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @version 2.4.9: Added function and documentation
+ *
+ * @params mixed $device
+ * @params null mixed $server
+ * @return natural The amount of processes found
+ */
+function scanimage_runs($device, $server = null){
+    try{
+        if(!$device){
+            throw new BException(tr('scanimage_runs(): No device specified'), 'not-specified');
+        }
+
+        $dbdevice = scanimage_get($device, $server);
+
+        if(!$dbdevice){
+            throw new BException(tr('scanimage_runs(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
+        }
+
+        $count   = 0;
+        $server  = servers_get($dbdevice['servers_id']);
+        $results = linux_pgrep($server, 'scanimage');
+
+        foreach($results as $result){
+            $processes = linux_list_processes($server, array($result, 'scanimage'));
+
+            if($processes){
+                foreach($processes as $id => $process){
+                    if(!str_exists($process, $dbdevice['string'])){
+                        unset($processes[$id]);
+                    }
+                }
+
+                $count = count($processes);
+            }
+        }
+
+        return $count;
+
+    }catch(Exception $e){
+        throw new BException('scanimage_runs(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Kill the scanimage process for the specified scanner
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ * @see empty_install()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @version 2.4.9: Added function and documentation
+ *
+ * @params mixed $device
+ * @params null mixed $server
+ * @return void()
+ */
+function scanimage_kill($device, $server = null, $hard = false){
+    try{
+        if(!$device){
+            throw new BException(tr('scanimage_kill(): No device specified'), 'not-specified');
+        }
+
+        $dbdevice = scanimage_get($device, $server);
+
+        if(!$dbdevice){
+            throw new BException(tr('scanimage_kill(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
+        }
+
+        $server  = servers_get($dbdevice['servers_id']);
+        $results = linux_pkill($server, 'scanimage', ($hard ? 9 : 15), true);
+
+        log_console(tr('Successfully killed the scanimage process for scanner device ":device" on server ":server"', array(':device' => $dbdevice['string'], ':server' => $server['domain'])), 'green');
+
+    }catch(Exception $e){
+        throw new BException('scanimage_kill(): Failed', $e);
     }
 }
 ?>
