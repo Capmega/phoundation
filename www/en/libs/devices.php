@@ -68,6 +68,7 @@ function devices_insert($device, $server = null){
              * Device already exists
              */
             $device['_exists'] = true;
+            log_console(tr('Not inserting ":device" on server ":server", it is already registered', array(':device' => $exists, ':server' => $exists['domain'])), 'VERYVERBOSE/yellow');
             return $exists;
         }
 
@@ -100,6 +101,7 @@ function devices_insert($device, $server = null){
         $device['id'] = sql_insert_id();
         devices_insert_options($device['id'], $device['options']);
 
+        log_console(tr('Inserted ":device" on server ":server"', array(':device' => $device['string'], ':server' => $device['domain'])), 'VERYVERBOSE/green');
         return $device;
 
     }catch(Exception $e){
@@ -211,18 +213,31 @@ function devices_validate($device, $server){
          * Validate server
          */
         if($server){
-            $server = servers_get($server);
-            $device['servers_id'] = $server['id'];
+            $dbserver = servers_get($server);
+
+            if(!$dbserver){
+                $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server)));
+            }
+
+            $device['servers_id'] = $dbserver['id'];
+            $device['domain']     = $dbserver['domain'];
+            $device['seodomain']  = $dbserver['seodomain'];
 
         }elseif($device['server']){
-           $device['servers_id'] = servers_get($device['server'], 'id');
+            $server = servers_get($device['server']);
 
             if(!$device['servers_id']){
                 $v->setError(tr('Specified server ":server" does not exist', array(':server' => $device['server'])));
             }
 
+            $device['servers_id'] = $server['id'];
+            $device['domain']     = $server['domain'];
+            $device['seodomain']  = $server['seodomain'];
+
         }else{
             $device['servers_id'] = null;
+            $device['domain']     = '-';
+            $device['seodomain']  = '-';
         }
 
         /*
@@ -242,14 +257,13 @@ function devices_validate($device, $server){
         /*
          * Description
          */
-        if(empty($server['description'])){
-            $server['description'] = '';
+        if(empty($device['description'])){
+            $device['description'] = '';
 
         }else{
-            $v->hasMinChars($server['description'],   16, tr('Please specifiy a minimum of 16 characters for the description'));
-            $v->hasMaxChars($server['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
+            $v->hasMaxChars($device['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
 
-            $server['description'] = cfm($server['description']);
+            $device['description'] = cfm($device['description']);
         }
 
         /*
@@ -696,19 +710,24 @@ function devices_get_option_html_element($params){
  */
 function devices_list($type, $all = false, $default_only = false){
     try{
-        $type = devices_validate_types($type);
+        $execute = array();
+
+        if($type){
+            $type = devices_validate_types($type);
+            $where[] = ' `devices`.`type` = :type ';
+            $execute[':type'] = $type;
+        }
 
         if($default_only){
-            $where = 'WHERE `devices`.`type`    = :type
-                      AND   `devices`.`status`  IS NULL
-                      AND   `devices`.`default` = 1';
+            $where[] = ' `devices`.`default` = 1 ';
+        }
 
-        }elseif($all){
-            $where = 'WHERE `devices`.`type` = :type';
+        if(!$all){
+            $where[] = ' `devices`.`status` IS NULL ';
+        }
 
-        }else{
-            $where = 'WHERE `devices`.`type` = :type
-                      AND   `devices`.`status` IS NULL';
+        if($where){
+            $where = ' WHERE '.implode(' AND ', $where);
         }
 
         $devices = sql_query('SELECT    `devices`.`id`,
@@ -717,6 +736,7 @@ function devices_list($type, $all = false, $default_only = false){
                                         `devices`.`servers_id`,
                                         `devices`.`seo_product_string`,
                                         `devices`.`manufacturer`,
+                                        `devices`.`type`,
                                         `devices`.`model`,
                                         `devices`.`vendor`,
                                         `devices`.`vendor_string`,
@@ -739,7 +759,7 @@ function devices_list($type, $all = false, $default_only = false){
                               LEFT JOIN `servers`
                               ON        `servers`.`id` = `devices`.`servers_id`'.$where,
 
-                              array(':type' => $type));
+                              $execute);
 
         return $devices;
 
@@ -1068,7 +1088,7 @@ function devices_scan($types, $server = null){
                     }
 
                     if($entries){
-                        $retval[$seodomain] = $entries;
+                        $retval[$seodomain] = array_merge(isset_get($retval[$seodomain], array()), $entries);
                     }
 
                     break;
@@ -1089,14 +1109,14 @@ function devices_scan($types, $server = null){
                         }
 
                         if($devices){
-                            $retval[$seodomain] = $devices;
+                            $retval[$seodomain] = array_merge(isset_get($retval[$seodomain], array()), $devices);
                         }
                     }
 
                     break;
 
                 default:
-
+                    throw new BException(tr('devices_scan(): Unknown device type ":type" specified', array(':type' => $types)), 'unknown');
             }
         }
 
