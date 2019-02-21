@@ -140,7 +140,7 @@ under_construction('add');
 
         cli_no_arguments_left();
 
-        if(ALL){
+        if($core->register['all']){
             if($status){
                 throw new BException(tr('--status cannot be used with --all'), 'warning/invalid');
             }
@@ -154,7 +154,7 @@ under_construction('add');
                  * Only clear data and results fields
                  */
                 log_console(tr('Clearing all tasks data'), 'cyan');
-                $r = sql_query('UPDATE `tasks` SET `data` = null, `results` = null');
+                $r = sql_query('UPDATE `tasks` SET `data` = NULL, `results` = NULL');
 
             }else{
                 log_console(tr('Clearing all tasks'), 'cyan');
@@ -163,11 +163,27 @@ under_construction('add');
 
         }else{
             if(!$status){
-                $status = 'completed,failed';
+                $status = array('completed', 'failed');
 
             }else{
-                if(!FORCE){
-                    throw new BException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
+                /*
+                 * Validate the specified statusses that should be cleared
+                 */
+                foreach($status as $entry){
+                    switch($entry){
+                        case 'completed':
+                            // FALLTHROUGH
+                        case 'failed':
+                            /*
+                             * These are okay to clear without force option
+                             */
+                            break;
+
+                        default:
+                            if(!FORCE){
+                                throw new BException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
+                            }
+                    }
                 }
             }
 
@@ -176,11 +192,16 @@ under_construction('add');
                  * Only clear data and results fields
                  */
                 log_console(tr('Clearing tasks data with status ":status"', array(':status' => $status)), 'cyan');
-                $r = sql_query('UPDATE `tasks` WHERE `data` = null, `results` = null `status` IN ('.implode(', ', array_keys($status)).')', $status);
+
+                $in = sql_in($status);
+                $r  = sql_query('UPDATE `tasks` WHERE `data` = null, `results` = null `status` IN ('.sql_in_columns($in).')', $in);
 
             }else{
                 log_console(tr('Clearing tasks with status ":status"', array(':status' => $status)), 'cyan');
-                $r = sql_query('DELETE FROM `tasks` WHERE `status` IN ('.implode(', ', array_keys($status)).')', $status);
+
+                $in = sql_in($status);
+                $r  = sql_query('DELETE FROM `tasks` WHERE `status` IN ('.sql_in_columns($in).') AND `parents_id` IS NOT NULL', $in);
+                $r  = sql_query('DELETE FROM `tasks` WHERE `status` IN ('.sql_in_columns($in).')'                             , $in);
             }
         }
 
@@ -198,7 +219,7 @@ under_construction('add');
 
         cli_no_arguments_left();
 
-        if(ALL){
+        if($core->register['all']){
             if($status){
                 throw new BException(tr('--status cannot be used with --all'), 'warning/invalid');
             }
