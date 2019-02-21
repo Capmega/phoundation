@@ -108,7 +108,7 @@ switch(cli_method()){
 
                 }else{
                     if(!$status){
-                        $status = 'new,processing,null';
+                        $status = '_new,processing,null';
                     }
 
                     if(!QUIET){
@@ -117,13 +117,13 @@ switch(cli_method()){
                 }
 
                 if(!QUIET){
-                    log_console(str_size('Section', 16).' '.str_size('#id', 6, ' ', true).' '.str_size('Page count', 10), 'cyan');
+                    log_console(str_size('Section', 16).' '.str_size('#id', 12, ' ', true).' '.str_size('Page count', 10), 'cyan');
                 }
 
                 $documents = storage_documents_list(array_force($status));
 
                 while($document = sql_fetch($documents)){
-                    log_console(str_size($document['section'], 16).' '.str_size($document['id'], 6, ' ', true).' '.cli_status_color(str_size($document['page_count'], 10, ' ', true)));
+                    log_console(str_size($document['section'], 16).' '.str_size($document['id'], 12, ' ', true).' '.cli_status_color(str_size($document['page_count'], 10, ' ', true)));
                 }
 
                 break;
@@ -187,7 +187,7 @@ switch(cli_method()){
             throw new BException(tr('Specified document ":document" is invalid', array(':document' => $request['documents_id'])), 'warning/invalid');
         }
 
-        $document = storage_documents_get($section, $request['documents_id']);
+        $document = storage_documents_get($section, $request['documents_id'], false, null, false);
 
         if(!$document){
             throw new BException(tr('Specified document ":document" does not exist', array(':document' => $request['documents_id'])), 'warning/not-exist');
@@ -246,8 +246,13 @@ switch(cli_method()){
                          * Skip navication directories, skip PART files which
                          * are still being scanned / downloaded / etc
                          */
-                        if(($file == '.') or ($file == '..')) continue;
-                        if(str_rfrom($file, '.') == 'part')   continue;
+                        if(($file == '.') or ($file == '..')){
+                            continue;
+                        }
+
+                        if(str_rfrom($file, '.') == 'part'){
+                            continue;
+                        }
 
                         log_file(tr('Adding file ":file" from path ":path"', array(':file' => $file, ':path' => $path)), 'storage');
 
