@@ -1945,7 +1945,7 @@ function sql_where_null($value, $not = false){
 function sql_simple_where($column, $values, $not = false, $extra = null){
     try{
         $extra  = '';
-        $table  = str_until($column, '.');
+        $table  = str_until($column, '.', 0, 0, true);
         $column = str_from ($column, '.');
 
         if(!$values){
