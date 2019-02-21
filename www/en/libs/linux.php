@@ -372,54 +372,74 @@ function linux_pgrep($server, $name){
  * @param string $file The file to be tested
  * @return boolean True if the specified file is writable, false if not
  */
-function linux_pkill($server, $process, $signal = null, $sudo = false, $verify = 3, $sigkill = true){
+function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_tries = 3, $check_timeout = 1, $sigkill = true){
     try{
         $server = servers_get($server);
 
-        if(!$signal){
-            $signal = 15;
+        switch($signal){
+            case 9:
+                // FALLTHROUGH
+            case 15:
+                /*
+                 * These are valid and supported signal
+                 */
+                break;
+
+            case '':
+                $signal = 15;
+                break;
+
+            default:
+                throw new BException(tr('linux_pkill(): Unknown signal ":signal" specified', array(':signal' => $signal)), 'unknown');
         }
 
         /*
-         * pkill returns 1 if process wasn't found, we can ignore that
+         * pkill returns 1 if no process name matched, so we can ignore that
          */
-        servers_exec($server, ($sudo ? 'sudo ' : '').'pkill -'.$signal.' '.$process, false, null, 1);
+        $results = servers_exec($server, ($sudo ? 'sudo ' : '').'pkill -'.$signal.' '.$process, false, null, 1);
+        $results = array_shift($results);
 
-        if($verify){
-            while(--$verify >= 0){
-                sleep(0.5);
-
-                /*
-                 * Ensure that the progress is gone
-                 */
-                $results = linux_pgrep($server, $process);
-
-                if(!$results){
-                    /*
-                     * Killed it softly
-                     */
-                    return true;
-                }
-
-                sleep(0.5);
-            }
-
-            if($sigkill){
-                /*
-                 * Sigkill it!
-                 */
-                $result = linux_pkill($server, $process, 9, $sudo, $verify, false);
-
-                if($result){
-                    /*
-                     * Killed it the hard way!
-                     */
-                    return true;
-                }
-            }
-
-            throw new BException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
+        if($results){
+            /*
+             * pkill returned some issue
+             */
+            throw new BException(tr('linux_pkill(): Failed to kill process ":process" with error ":e"', array(':process' => $process, ':e' => $results)), 'failed');
         }
+
+        /*
+         * Ensure that the progress is gone?
+         */
+        if(--$verify_tries > 0){
+            sleep($check_timeout);
+
+            $results = linux_pgrep($server, $process);
+
+            if(!$results){
+                /*
+                 * Killed it softly
+                 */
+                return true;
+            }
+
+            return linux_pkill($server, $process, $signal, $sudo, $verify_tries, $check_timeout, $sigkill);
+        }
+
+        if($sigkill){
+            /*
+             * Verifications failed, now sigkill it
+             * Sigkill it!
+             */
+            $result = linux_pkill($server, $process, 9, $sudo, false, $check_timeout, true);
+
+            if($result){
+                /*
+                 * Killed it the hard way!
+                 */
+                return true;
+            }
+        }
+
+        throw new BException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
 
     }catch(Exception $e){
         throw new BException('linux_pkill(): Failed', $e);
@@ -460,7 +480,7 @@ function linux_list_processes($server, $filters){
         unset($filter);
 
         $filters = implode(' | grep --color=never ', $filters);
-        $command = 'ps ax | grep --color=never '.$filters;
+        $command = 'ps ax | grep -v "grep" | grep --color=never '.$filters;
         $results = servers_exec($server, $command, false, null, '0,1');
         $retval  = array();
 
