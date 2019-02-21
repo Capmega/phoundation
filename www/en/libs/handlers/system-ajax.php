@@ -165,21 +165,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 
 
-// :TODO: What to do with this?
-//$_CONFIG['cdn']['prefix'] = slash($_CONFIG['cdn']['prefix']);
-//
-//if($_CONFIG['cdn']['prefix'] != '/pub/'){
-//    if($_CONFIG['cdn']['enabled']){
-//        load_libs('cdn');
-//        $core->register['header'] = html_script('var cdnprefix="'.cdn_domain($_CONFIG['cdn']['prefix']).'";', false);
-//
-//    }else{
-//        $core->register['header'] = html_script('var cdnprefix="'.$_CONFIG['cdn']['prefix'].'";', false);
-//    }
-//}
-
-
-
 /*
  * Load custom library, if available
  */
