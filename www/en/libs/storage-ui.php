@@ -178,18 +178,20 @@ function storage_ui_process_dosubmit($params, $section, $page){
 
             case $params['buttons']['redetect_scanners']:
                 try{
-                    $devices = devices_scan('document-scanners');
+                    load_libs('devices');
+                    $count           = 0;
+                    $servers_devices = devices_scan('document-scanner');
 
-                    foreach($devices as $server => $devices){
+                    foreach($servers_devices as $server => $devices){
                         foreach($devices as $device){
                             $count++;
                             devices_insert($device, $server);
                         }
                     }
 
-                    if(count($devices)){
+                    if(count($count)){
                         log_console(tr('Added / updated ":count" devices', array(':count' => $count)), 'green');
-                        html_flash_set(tr('Scanner device detection successful, found ":count" device(s)', array(':count' => count($devices))), 'success', 'documents');
+                        html_flash_set(tr('Scanner device detection successful, found ":count" device(s)', array(':count' => $count)), 'success', 'documents');
 
                     }else{
                         html_flash_set(tr('Scanner device detection successful, found no scanner device(s)'), 'success', 'documents');
