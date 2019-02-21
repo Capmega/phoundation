@@ -150,15 +150,24 @@
     $.flashMessage = function(message, type, autoClose, selector, opacity){
         // Auto loader for flahs message library
         if (typeof cdnprefix === 'undefined') {
-            cdnprefix = "/pub/";
-        }
+            console.error("cdnprefix is not defined!");
 
-        $.getScript(cdnprefix+"js/base/flash.js")
-            .done(function( ){ $.flashMessage(message, type, autoClose, selector, opacity); })
-            .fail(function(e){
-                alert("The JS flash message system seems not to be working because of \"" + e + "\", sorry for the alerts!");
-                alert(message);
-            });
+        }else{
+            $.getScript(cdnprefix+"js/base/flash.js")
+                .done(function( ){
+                    console.log(message);
+                    console.log("aaaaaaaaaaaaaaaaaaaaa");
+                    $.flashMessage(message, type, autoClose, selector, opacity);
+                })
+                .fail(function(e, data){
+                    console.error("Failed to load the flash.js library because of next error");
+                    console.error(e);
+                    console.error(data);
+
+                    console.log(message);
+                    alert("The JS flash message system seems not to be working");
+                });
+        }
     };
 
     // Redirect in the correct way
