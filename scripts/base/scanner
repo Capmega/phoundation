@@ -3,10 +3,12 @@
 /*
  * This is the scanner manager script
  */
-$usage = "./scripts/base/scanner\n".
-         "./scripts/base/scanner execute [option]\n";
+$usage = './scripts/base/scanner
+./scripts/base/scanner list
+./scripts/base/scanner kill ID
+./scripts/base/scanner scan [option]';
 
-$help  = "This is the scanner manager script
+$help  = 'This is the scanner manager script
 
 This script can manage connected scanners (USB or network)
 
@@ -20,6 +22,21 @@ list                            - List availabe scanners (USB or network)
 
 
 
+kill ID [ -h / --hard]          - Kill the scanimage process for the specified
+                                  scanner. By default the process will be killed
+                                  by signal 15 (KILL, ask the process friendly
+                                  to terminate), but if -h / --hard is
+                                  specified, the process will be killed with
+                                  signal 9 (SIGKILL, kill the process no
+                                  questions asked)
+
+
+
+runs ID                         - Returns "1" if the specified scanner is being
+                                  used by scanimage
+
+
+
 scan FILE                       - Scan to the specified FILE. If the path for
                                   the specified file does not exist, it will be
                                   created if possible. If no device was
@@ -27,7 +44,7 @@ scan FILE                       - Scan to the specified FILE. If the path for
                                   used
 
     --device DEVICE             - Scan using the specified device. Specify the
-                                  device using the URL from the \"list\" method
+                                  device using the URL from the "list" method
 
     --server SERVER             - Scan using the device on the specified server
 
@@ -53,20 +70,20 @@ scan FILE                       - Scan to the specified FILE. If the path for
                                   \$_CONFIG[scanimage][jpeg_quality]
 
     --transfer_format FORMAT    - Transfer the scanned file in the specified
-                                  format. Supported formats are \"jpeg\", or
-                                  \"tiff\". Defaults to
+                                  format. Supported formats are "jpeg", or
+                                  "tiff". Defaults to
                                   \$_CONFIG[scanimage][transfer_format]
 
     --mode MODE                 - Scan using the specified mode. Supported
-                                  modes are \"lineart\", \"grey\", or \"color\"
+                                  modes are "lineart", "grey", or "color"
 
     --format FORMAT             - Save the scanned file in the specified
-                                  format. Supported formats are \"jpeg\", or
-                                  \"tiff\". Defaults to
+                                  format. Supported formats are "jpeg", or
+                                  "tiff". Defaults to
                                   \$_CONFIG[scanimage][format]
 
     --clear-exif                - Clear the EXIF information from the resulting
-                                  file";
+                                  file';
 
 require_once(__DIR__.'/../../libs/startup.php');
 
@@ -76,30 +93,70 @@ load_libs('scanimage,sane');
 switch(cli_method()){
     case 'list':
         cli_no_arguments_left();
-
         log_console(tr('Showing found SANE scanners'), 'white');
-        log_console(str_size('#id', 6).str_size('Type', 12).str_size('Name', 24).' Device', 'cyan');
 
-        $count = 0;
+        $devices = scanimage_list();
 
-        foreach(scanimage_list() as $type => $devices){
-            foreach($devices as $device ){
-                log_console(str_size($count++, 6).str_size($type, 12).str_size($device['name'], 24).$device['device']);
+        if(!$devices->rowCount()){
+            log_console(tr('There are currently no devices available'), 'QUIET/yellow');
+
+        }else{
+            log_console(tr('Showing currently available devices'), 'QUIET/white');
+            log_console(str_size(tr('#id'), 6).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 16).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
+
+            while($device = sql_fetch($devices)){
+                log_console(str_size($device['id'], 6).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 16).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.$device['description']);
             }
         }
 
         break;
 
+    case 'kill':
+        $id   = cli_argument(1);
+        $hard = cli_argument('-h,--hard');
+
+        try{
+            cli_no_arguments_left();
+            scanimage_kill($id, null, $hard);
+
+        }catch(Exception $e){
+            if($e->getRealCode() == 'not-specified'){
+                $e->makeWarning(true);
+            }
+
+            throw $e;
+        }
+
+        break;
+
+    case 'runs':
+        $id = cli_argument(1);
+        cli_no_arguments_left();
+
+        try{
+            $runs = scanimage_runs($id);
+            echo $runs;
+
+        }catch(Exception $e){
+            if($e->getRealCode() == 'not-specified'){
+                $e->makeWarning(true);
+            }
+
+            throw $e;
+        }
+
+        break;
+
     case 'scan':
-        $scanimage['device']  = cli_argument('--device', true);
-        $scanimage['server']  = cli_argument('--server', true);
+        $device = cli_argument('--device', true);
+        $domain = cli_argument('--server', true);
+        $device = scanimage_get($device, $domain);
+
+        $scanimage['domain']  = $device['domain'];
+        $scanimage['device']  = $device['seostring'];
         $scanimage['options'] = array();
 
-        $device = scanimage_get($scanimage['device'], $scanimage['server']);
-
-        if(!$device){
-            throw new BException(tr('Specified device ":device" does not exist', array(':device' => $scanimage['device'])), 'not-exist');
-        }
+        log_console(tr('About to scan from scanner ":scanner" on server ":server"', array(':scanner' => $device['string'], ':server' => $device['domain'])), 'cyan');
 
         /*
          * Parse parameters for this specific device
@@ -170,18 +227,34 @@ switch(cli_method()){
             $scanimage['file'] = file_absolute($scanimage['file']);
         }
 
+        log_console(tr('Scanning to file ":file"', array(':file' => $scanimage['file'])), 'cyan');
+
         $scanimage['path'] = dirname($scanimage['file']);
 
         file_ensure_path($scanimage['path']);
-        scanimage($scanimage);
 
-        if(!file_exists($scanimage['file'])){
-            if(!$scanimage['batch']){
-                throw new BException(tr('Sane reported scan was saved to target file ":file", but the file was not found', array(':file' => $scanimage['file'])), 'not-found');
+        try{
+            scanimage($scanimage);
+
+            if(!file_exists($scanimage['file'])){
+                if(!$scanimage['batch']){
+                    throw new BException(tr('Sane reported scan was saved to target file ":file", but the file was not found', array(':file' => $scanimage['file'])), 'not-found');
+                }
             }
+
+            log_console(tr('Scanned image to file ":file"', array(':file' => $scanimage['file'])));
+
+        }catch(Exception $e){
+            switch($e->getRealCode()){
+                case 'busy':
+                    // FALLTHGOUH
+                case 'stuck':
+                    $e->makeWarning(true);
+            }
+
+            throw $e;
         }
 
-        log_console(tr('Scanned image to file ":file"', array(':file' => $scanimage['file'])));
         break;
 
     case '':
