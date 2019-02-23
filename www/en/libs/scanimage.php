@@ -4,10 +4,12 @@
  *
  * This library allows to run the scanimage program, scan images and save them to disk
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package scanimage
+ * @see https://support.brother.com/g/s/id/linux/en/download_scn.html Brother scanner models and required drivers
  */
 
 
@@ -63,33 +65,83 @@ function scanimage($params){
          * Finish scan command and execute it
          */
         try{
-            if(empty($params['batch'])){
-                $command .= ' > '.$params['file'];
-                $result   = servers_exec($params['domain'], $command);
+            if($params['domain'] !== ''){
+                load_libs('rsync');
+            }
 
-                file_chown($params['file']);
+            if($params['batch']){
+                $result = servers_exec($params['domain'], $command);
+
+                /*
+                 * Move files
+                 */
+                if($params['domain'] === ''){
+                    /*
+                     * This is the own machine
+                     */
+
+                }else{
+                    /*
+                     * This is a remote server
+                     */
+
+                }
 
             }else{
-                $result = servers_exec($params['domain'], $command);
+                /*
+                 * Scan a single file
+                 */
+                if($params['domain'] === ''){
+                    /*
+                     * This is the own machine. Scan to the TMP file
+                     */
+                    $file     = TMP.str_random(16);
+                    $command .= ' > '.$file;
+                    $result   = servers_exec($params['domain'], $command);
+
+                }else{
+                    /*
+                     * This is a remote server. Scan and rsync the file to TMP
+                     */
+                    $remote   = '/tmp/'.str_random(16);
+                    $file     = TMP.str_random(16);
+                    $command .= ' > '.$remote;
+                    $result   = servers_exec($params['domain'], $command);
+
+                    rsync(array('source'              => $params['domain'].':'.$remote,
+                                'target'              => $file,
+                                'remove_source_files' => true));
+                }
             }
 
             /*
              * Change file format?
              */
+            file_delete($params['file']);
+
             switch($params['format']){
                 case 'tiff':
+                    /*
+                     * File should already be in TIFF, so we only have to rename
+                     * it to the target file
+                     */
+                    rename($file, $params['file']);
                     break;
 
+                case 'jpg':
+                    // FALLTHROUGH
                 case 'jpeg':
-                    image_convert($params['file'], str_replace('.tiff', '.jpg', $params['file']), array('method' => 'format',
-                                                                                                        'format' => 'jpg'));
+                    /*
+                     * We have to convert it to a JPG file
+                     */
+                    image_convert($file, $params['file'], array('method' => 'format',
+                                                                'format' => 'jpg'));
 
 //                        $command .= ' | convert tiff:- '.$params['file'];
                     break;
             }
 
-            file_chown($params['file']);
-
+            return $params['file'];
 
         }catch(Exception $e){
             $data = $e->getData();
@@ -129,8 +181,6 @@ function scanimage($params){
                     throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
             }
         }
-
-        return $params['file'];
 
     }catch(Exception $e){
         throw new BException('scanimage(): Failed', $e);
@@ -193,6 +243,8 @@ function scanimage_validate($params){
         /*
          * Validate target file
          */
+        $params['file'] = strtolower(trim($params['file']));
+
         if(!$params['file']){
             if(empty($params['batch'])){
                 $v->setError(tr('No file specified'));
@@ -225,6 +277,8 @@ function scanimage_validate($params){
          * Ensure requested format is known and file ends with correct extension
          */
         switch($params['format']){
+            case 'jpg':
+                // FALLTHROUGH
             case 'jpeg':
                 $extension = 'jpg';
                 break;
@@ -245,7 +299,14 @@ function scanimage_validate($params){
 
             }else{
                 if(str_rfrom($params['file'], '.') != $extension){
-                    $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
+                    if(($extension !== 'jpg') and (str_rfrom($params['file'], '.') !== 'jpeg')){
+                        $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
+                    }
+
+                    /*
+                     * User specified .jpeg, make it .jpg
+                     */
+                    $params['file'] = str_runtil($params['file'], '.').',jpg';
                 }
             }
         }
@@ -431,7 +492,7 @@ function scanimage_detect_devices($server = null){
                     $device['options'] = scanimage_get_options($device['string'], $server);
 
                 }catch(Exception $e){
-                    devices_set_status($device['string'], 'failed');
+                    devices_set_status('failed', $device['string']);
 
                     /*
                      * Options for one device failed to add, continue adding the rest
@@ -848,7 +909,7 @@ function scanimage_get($device, $server = null){
         $scanner = devices_get($device, $server);
 
         if(!$scanner){
-            throw new BException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server)), 'not-exist');
+            throw new BException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server)), 'not-exists');
         }
 
         $scanner['options'] = devices_list_options($scanner['id']);
