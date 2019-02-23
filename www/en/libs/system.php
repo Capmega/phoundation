@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.9');
+define('FRAMEWORKCODEVERSION', '2.4.10');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1956,10 +1956,9 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             $retval = PROTOCOL.$domain.$language.$prefix;
 
         }elseif($url === true){
-            $retval = PROTOCOL.$domain.str_starts($_SERVER['REQUEST_URI'], '/');
+            $retval = PROTOCOL.$domain.str_starts_not($_SERVER['REQUEST_URI'], '/');
 
         }else{
-
             $retval = PROTOCOL.$domain.$language.$prefix.str_starts_not($url, '/');
         }
 
