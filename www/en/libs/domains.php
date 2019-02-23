@@ -475,7 +475,7 @@ function domains_like($domain){
              * Specified domain not found in the default domains list, try domains list
              */
             if(!$domain){
-                throw new BException(tr('domains_like(): Specified domain ":domain" does not exist', array(':domain' => $domain)), 'not-exist');
+                throw new BException(tr('domains_like(): Specified domain ":domain" does not exist', array(':domain' => $domain)), 'not-exists');
             }
         }
 

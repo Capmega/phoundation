@@ -360,7 +360,7 @@ try{
 
 }catch(Exception $e){
     switch($e->getRealCode()){
-        case 'not-exist':
+        case 'not-exists':
             // FALLTHROUGH
         case 'multiple':
             // FALLTHROUGH

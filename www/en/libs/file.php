@@ -19,7 +19,7 @@ function file_append($target, $data){
          * Open target
          */
         if(!file_exists(dirname($target))){
-            throw new BException(tr('file_append(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exist');
+            throw new BException(tr('file_append(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exists');
         }
 
         $target_h = fopen($target, 'a');
@@ -48,7 +48,7 @@ function file_concat($target, $sources){
          * Open target
          */
         if(!file_exists(dirname($target))){
-            throw new BException(tr('file_concat(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exist');
+            throw new BException(tr('file_concat(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exists');
         }
 
         $target_h = fopen($target, 'a');
@@ -654,7 +654,11 @@ function file_mimetype($file){
          * Check the source file
          */
         if(!is_file($file)){
-            throw new BException(tr('file_mimetype(): Specified path ":path" is not a file', array(':path' => $file)), 'not-file');
+            if(!file_exists($file)){
+                throw new BException(tr('file_mimetype(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            }
+
+            throw new BException(tr('file_mimetype(): Specified file ":file" is not a file', array(':file' => $file)), 'invalid');
         }
 
         if(!$finfo){
@@ -692,7 +696,7 @@ function file_is_text($file){
  */
 function file_check($file){
     if(!file_exists($file)){
-        throw new BException('file_check(): Specified file "'.str_log($file).'" does not exist', 'not-exist');
+        throw new BException('file_check(): Specified file "'.str_log($file).'" does not exist', 'not-exists');
     }
 
     if(!is_file($file)){
@@ -842,14 +846,14 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
             }
 
             if(!file_exists($source)){
-                throw new BException('file_copy_tree(): Specified source "'.str_log($source).'" does not exist', 'not-exist');
+                throw new BException('file_copy_tree(): Specified source "'.str_log($source).'" does not exist', 'not-exists');
             }
 
             $destination = unslash($destination);
 
             if(!file_exists($destination)){
                 if(!file_exists(dirname($destination))){
-                    throw new BException('file_copy_tree(): Specified destination "'.str_log(dirname($destination)).'" does not exist', 'not-exist');
+                    throw new BException('file_copy_tree(): Specified destination "'.str_log(dirname($destination)).'" does not exist', 'not-exists');
                 }
 
                 if(!is_dir(dirname($destination))){
@@ -1278,11 +1282,11 @@ function file_system_path($type, $path = ''){
 function file_random($path){
     try{
         if(!file_exists($path)){
-            throw new BException('file_random(): The specified path "'.str_log($path).'" does not exist', 'not-exist');
+            throw new BException('file_random(): The specified path "'.str_log($path).'" does not exist', 'not-exists');
         }
 
         if(!file_exists($path)){
-            throw new BException('file_random(): The specified path "'.str_log($path).'" does not exist', 'not-exist');
+            throw new BException('file_random(): The specified path "'.str_log($path).'" does not exist', 'not-exists');
         }
 
         $files = scandir($path);
@@ -1291,7 +1295,7 @@ function file_random($path){
         unset($files[array_search('..', $files)]);
 
         if(!$files){
-            throw new BException('file_random(): The specified path "'.str_log($path).'" contains no files', 'not-exist');
+            throw new BException('file_random(): The specified path "'.str_log($path).'" contains no files', 'not-exists');
         }
 
         return slash($path).array_get_random($files);
@@ -1351,7 +1355,7 @@ function file_session_store($label, $file = null, $path = TMP){
 function file_check_dir($path, $writable = false){
     try{
         if(!file_exists($path)){
-            throw new BException('file_check_dir(): The specified path "'.str_log($path).'" does not exist', 'not-exist');
+            throw new BException('file_check_dir(): The specified path "'.str_log($path).'" does not exist', 'not-exists');
         }
 
         if(!is_dir($path)){
@@ -1396,7 +1400,7 @@ function file_http_download($file, $stream = false){
         // make sure the file exists
         if(file_exists($file)){
             header('HTTP/1.0 404 Not Found');
-            throw new BException('file_http_download(): Specified file "'.str_log($file).'" does not exist or is not accessible', 'not-exist');
+            throw new BException('file_http_download(): Specified file "'.str_log($file).'" does not exist or is not accessible', 'not-exists');
         }
 
         // make sure the file can be opened
@@ -1592,7 +1596,7 @@ function file_mode_readable($mode){
 function file_tree($path, $method){
     try{
         if(!file_exists($path)){
-            throw new BException(tr('file_tree(): Specified path "%path%" does not exist', array('%path%' => str_log($path))), 'not-exist');
+            throw new BException(tr('file_tree(): Specified path "%path%" does not exist', array('%path%' => str_log($path))), 'not-exists');
         }
 
         switch($method){
@@ -1907,7 +1911,7 @@ function file_tree_execute($params){
         }
 
         if(!file_exists($params['path'])){
-            throw new BException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exist');
+            throw new BException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
         }
 
         /*
@@ -1972,7 +1976,7 @@ function file_tree_execute($params){
                         $file = $path.$file;
 
                         if(!file_exists($file)){
-                            throw new BException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $file)), 'not-exist');
+                            throw new BException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $file)), 'not-exists');
                         }
 
                         $type = file_type($file);
@@ -2048,7 +2052,7 @@ function file_tree_execute($params){
                             throw $e;
                         }
 
-                        if($e->getCode() === 'not-exist'){
+                        if($e->getCode() === 'not-exists'){
                             log_console(tr('file_tree_execute(): Skipping file ":file", it does not exist (in case of a symlink, it may be that the target does not exist)', array(':file' => $file)), 'VERBOSE/yellow');
 
                         }else{
@@ -2133,7 +2137,7 @@ function file_root($path){
 function file_execute_mode($path, $mode, $callback, $params = null){
     try{
         if(!file_exists($path)){
-            throw new BException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+            throw new BException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         if($mode){
@@ -2172,7 +2176,7 @@ function file_link_exists($file){
         throw new BException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'no-target');
     }
 
-    throw new BException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exist');
+    throw new BException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exists');
 }
 
 
@@ -2184,11 +2188,11 @@ function file_link_exists($file){
 function file_search_replace($source, $target, $replaces){
     try{
         if(!file_exists($source)){
-            throw new BException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exist');
+            throw new BException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
         if(!file_exists(dirname($target))){
-            throw new BException(tr('file_search_replace(): Specified target path ":targetg" does not exist', array(':target' => $target)), 'not-exist');
+            throw new BException(tr('file_search_replace(): Specified target path ":targetg" does not exist', array(':target' => $target)), 'not-exists');
         }
 
         if(!is_array($replaces)){
@@ -2233,7 +2237,7 @@ function file_search_replace($source, $target, $replaces){
 function file_line_count($source){
     try{
         if(!file_exists($source)){
-            throw new BException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exist');
+            throw new BException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
     }catch(Exception $e){
@@ -2249,7 +2253,7 @@ function file_line_count($source){
 function file_word_count($source){
     try{
         if(!file_exists($source)){
-            throw new BException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exist');
+            throw new BException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
     }catch(Exception $e){
@@ -2267,7 +2271,7 @@ function file_word_count($source){
 function file_scan($path, $file){
     try{
         if(!file_exists($path)){
-            throw new BException(tr('file_scan(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+            throw new BException(tr('file_scan(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         while(strlen($path) > 1){
@@ -2348,7 +2352,7 @@ function file_chown($file, $user = null, $group = null){
         $file = realpath($file);
 
         if(!$file){
-            throw new BException(tr('file_chown(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            throw new BException(tr('file_chown(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
         if(!strstr($file, ROOT)){

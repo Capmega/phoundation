@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.10');
+define('FRAMEWORKCODEVERSION', '2.4.11');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1104,7 +1104,7 @@ function read_config($file = null, $environment = null){
         }
 
         if(empty($loaded)){
-            throw new BException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exist');
+            throw new BException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exists');
         }
 
         return $_CONFIG;
@@ -1257,7 +1257,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
         }
 
         if(!$autocreate){
-            throw new BException('load_content(): Specified file "'.str_log($file).'" does not exist for language "'.str_log($language).'"', 'not-exist');
+            throw new BException('load_content(): Specified file "'.str_log($file).'" does not exist for language "'.str_log($language).'"', 'not-exists');
         }
 
         /*
@@ -2080,7 +2080,8 @@ function download($url, $section = false, $callback = null){
             $file = TMP.$file;
         }
 
-        file_ensure_path(TMP.$section, 0770, true);
+        load_libs('linux');
+        linux_ensure_path(TMP.$section, 0770, true);
         safe_exec('wget -q -O '.$file.' - "'.$url.'"');
 
         if(!$section){
@@ -2282,7 +2283,7 @@ function user_or_signin(){
                  * Redirect all pages EXCEPT the lock page itself!
                  */
                 if(empty($_CONFIG['redirects'][$_SESSION['force_page']])){
-                    throw new BException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exist');
+                    throw new BException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exists');
                 }
 
                 if($_CONFIG['redirects'][$_SESSION['force_page']] !== str_until(str_rfrom($_SERVER['REQUEST_URI'], '/'), '?')){
@@ -2569,7 +2570,7 @@ function status($status, $list = null){
             return 'Ok';
         }
 
-        return str_capitalize($status);
+        return str_capitalize(str_replace('-', ' ', $status));
 
     }catch(Exception $e){
         throw new BException(tr('status(): Failed'), $e);
@@ -2894,7 +2895,7 @@ function name($user = null, $key_prefix = '', $default = null){
                  * Fetch user data from DB, then treat it as an array
                  */
                 if(!$user = sql_get('SELECT `nickname`, `name`, `username`, `email` FROM `users` WHERE `id` = :id', array(':id' => $user))){
-                    throw new BException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exist');
+                    throw new BException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exists');
                 }
             }
 

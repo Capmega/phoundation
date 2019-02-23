@@ -1072,7 +1072,7 @@ function email_from_exists($email){
 
             if(!$account){
 // :DELETE: _exists() functions should just return true or false, the entry exists or not
-                //throw new BException(tr('email_from_exists(): Specified email address ":email" does not exist', array(':email' => $email)), 'not-exist');
+                //throw new BException(tr('email_from_exists(): Specified email address ":email" does not exist', array(':email' => $email)), 'not-exists');
                 return false;
             }
 
@@ -1237,7 +1237,7 @@ function email_prepare($email){
         //
         //if(!$user){
         //    if($params['require_user']){
-        //        throw new BException(tr('email_delay(): Specified user ":user" does not exist', array(':user' => $params['to'])), 'not-exist');
+        //        throw new BException(tr('email_delay(): Specified user ":user" does not exist', array(':user' => $params['to'])), 'not-exists');
         //    }
         //
         //    $user = array('id' => null);
@@ -1366,7 +1366,7 @@ function email_get_account($email, $columns = null){
                            array(':email' => $email));
 
         if(!$retval){
-            throw new BException(tr('email_get_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exist');
+            throw new BException(tr('email_get_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
         }
 
         return $retval;
@@ -1435,7 +1435,7 @@ function email_get_client_account($email, $columns = null){
                                  ':seoemail' => $email));
 
         if(!$retval){
-            throw new BException(tr('email_get_client_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exist');
+            throw new BException(tr('email_get_client_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
         }
 
         return $retval;

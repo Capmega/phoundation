@@ -411,7 +411,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
         $account_data = sql_get('SELECT `id`, `baseurl`, `apikey` FROM `api_accounts` WHERE `seoname` = :seoname', array(':seoname' => $account));
 
         if(!$account_data){
-            throw new BException(tr('api_call_base(): Specified API account ":account" does not exist', array(':account' => $account)), 'not-exist');
+            throw new BException(tr('api_call_base(): Specified API account ":account" does not exist', array(':account' => $account)), 'not-exists');
         }
 
         /*
@@ -429,7 +429,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
                                        'post'           => array('PHPSESSID' => $account_data['apikey'])));
 
                 if(!$json){
-                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'not-exist');
+                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'not-exists');
                 }
 
                 $result = json_decode_custom($json['data']);

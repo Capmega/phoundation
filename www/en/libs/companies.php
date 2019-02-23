@@ -427,7 +427,7 @@ function companies_select_branch($params = null){
             $params['companies_id'] = companies_get($params['seocompany'], 'id');
 
             if(!$params['companies_id']){
-                throw new BException(tr('companies_select_branch(): The specified company ":company" does not exist or is not available', array(':company' => $params['company'])), 'not-exist');
+                throw new BException(tr('companies_select_branch(): The specified company ":company" does not exist or is not available', array(':company' => $params['company'])), 'not-exists');
             }
         }
 
@@ -491,7 +491,7 @@ function companies_get_branch($company, $branch, $column = null, $status = null)
             $companies_id = companies_get($company, 'id');
 
             if(!$companies_id){
-                throw new BException(tr('companies_get_branch(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exist');
+                throw new BException(tr('companies_get_branch(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
             }
 
         }else{
@@ -803,7 +803,7 @@ function companies_get_department($company, $branch, $department, $column = null
             $companies_id = companies_get($company, 'id');
 
             if(!$companies_id){
-                throw new BException(tr('companies_get_department(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exist');
+                throw new BException(tr('companies_get_department(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
             }
 
         }else{
@@ -820,7 +820,7 @@ function companies_get_department($company, $branch, $department, $column = null
             $branches_id = companies_get_branch($companies_id, $branch, 'id');
 
             if(!$branches_id){
-                throw new BException(tr('companies_get_department(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exist');
+                throw new BException(tr('companies_get_department(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
             }
 
         }else{
@@ -1192,7 +1192,7 @@ function companies_get_employee($company, $branch, $department, $employee, $colu
             $companies_id = companies_get($company, 'id');
 
             if(!$companies_id){
-                throw new BException(tr('companies_get_employee(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exist');
+                throw new BException(tr('companies_get_employee(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
             }
 
         }else{
@@ -1209,7 +1209,7 @@ function companies_get_employee($company, $branch, $department, $employee, $colu
             $branches_id = companies_get_branch($companies_id, $branch, 'id');
 
             if(!$branches_id){
-                throw new BException(tr('companies_get_employee(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exist');
+                throw new BException(tr('companies_get_employee(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
             }
 
         }else{
@@ -1226,7 +1226,7 @@ function companies_get_employee($company, $branch, $department, $employee, $colu
             $departments_id = companies_get_department($companies_id, $branches_id, $department, 'id');
 
             if(!$departments_id){
-                throw new BException(tr('companies_get_employee(): Specified department ":department" does not exist', array(':department' => $department)), 'not-exist');
+                throw new BException(tr('companies_get_employee(): Specified department ":department" does not exist', array(':department' => $department)), 'not-exists');
             }
 
         }else{

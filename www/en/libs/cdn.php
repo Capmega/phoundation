@@ -383,7 +383,7 @@ function cdn_get_api_account($server){
                                 true, array(':seoname' => $server));
 
         if(!$api_account){
-            throw new BException(tr('cdn_validate_project(): Specified server ":server" does not exist', array(':server' => $server)), 'not-exist');
+            throw new BException(tr('cdn_validate_project(): Specified server ":server" does not exist', array(':server' => $server)), 'not-exists');
         }
 
         return $api_account;

@@ -262,7 +262,7 @@ function storage_ui_get_section($params){
         $section = storage_sections_get($_GET['section']);
 
         if(!$section or is_new($section)){
-            html_flash_set(log_database(tr('Specified :labelsection ":section" does not exist', array(':labelsection' => $params['section'], ':section' => $_GET[$params['seosection']])), 'not-exist'), 'error', 404);
+            html_flash_set(log_database(tr('Specified :labelsection ":section" does not exist', array(':labelsection' => $params['section'], ':section' => $_GET[$params['seosection']])), 'not-exists'), 'error', 404);
             page_show(404);
         }
 
@@ -290,7 +290,7 @@ function storage_ui_get_page($params, $section, $object){
             $page = storage_pages_get($section, $_GET[$params['seo'.$object]]);
 
             if(!$page){
-                html_flash_set(log_database(tr('Specified :labeldocument ":document" does not exist', array(':labeldocument' => $params[$object], ':document' => $_GET[$params['seo'.$object]])), 'not-exist'), 'error', 404);
+                html_flash_set(log_database(tr('Specified :labeldocument ":document" does not exist', array(':labeldocument' => $params[$object], ':document' => $_GET[$params['seo'.$object]])), 'not-exists'), 'error', 404);
                 page_show(404);
             }
 
@@ -363,7 +363,7 @@ function storage_ui_icon($file){
 
     }catch(Exception $e){
         switch($e->getCode()){
-            case 'not-exist':
+            case 'not-exists':
                 /*
                  * Show a "not exist" icon
                  */

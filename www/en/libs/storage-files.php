@@ -120,7 +120,7 @@ function storage_files_delete($params){
         $file = storage_files_get($params['file'], $params['documents_id'], $params['pages_id']);
 
         if(!$file){
-            throw new BException(tr('storage_files_delete(): Specified file ":file" does not exist for S/D/P ":section/:document/:page"', array(':file' => $params['file'], ':section' => $params['sections_id'], ':document' => $params['documents_id'], ':page' => $params['pages_id'])), 'not-exist');
+            throw new BException(tr('storage_files_delete(): Specified file ":file" does not exist for S/D/P ":section/:document/:page"', array(':file' => $params['file'], ':section' => $params['sections_id'], ':document' => $params['documents_id'], ':page' => $params['pages_id'])), 'not-exists');
         }
 
         sql_query('DELETE FROM `storage_files` WHERE `id` = :id', array(':id' => $file['id']));

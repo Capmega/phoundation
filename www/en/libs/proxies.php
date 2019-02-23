@@ -612,13 +612,13 @@ function proxies_remove($root_host, $remove_host, $apply = true){
         $remove = proxies_get_server($remove_host);
 
         if(empty($root['proxies'])){
-            throw new BException(tr('proxies_remove(): Root host ":root_host" does not have proxies chain', array(':root_host' => $root_host)), 'not-exist');
+            throw new BException(tr('proxies_remove(): Root host ":root_host" does not have proxies chain', array(':root_host' => $root_host)), 'not-exists');
         }
 
         $host_on_chain = proxies_validate_on_chain($root['proxies'], $remove_host);
 
         if(!$host_on_chain){
-            throw new BException(tr('proxies_remove(): Host ":remove_host" is not on the proxies chain', array(':remove_host' => $remove_host)), 'not-exist');
+            throw new BException(tr('proxies_remove(): Host ":remove_host" is not on the proxies chain', array(':remove_host' => $remove_host)), 'not-exists');
         }
 
         /*

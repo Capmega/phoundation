@@ -6,7 +6,7 @@ try{
     $script_file = ROOT.'scripts/'.$script;
 
     if(!file_exists($script_file)){
-        throw new bException(tr('script_exec(): Specified script ":script" does not exist', array(':script' => $script)), 'not-exist');
+        throw new bException(tr('script_exec(): Specified script ":script" does not exist', array(':script' => $script)), 'not-exists');
     }
 
     if($arguments){

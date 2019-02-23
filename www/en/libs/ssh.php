@@ -162,7 +162,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
 
     }catch(Exception $e){
             switch($e->getRealCode()){
-                case 'not-exist':
+                case 'not-exists':
                     // FALLTHROUGH
                 case 'invalid':
                     break;
@@ -264,7 +264,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
  * @params array options
  * @return string The connection string
  */
-function ssh_build_command(&$server = null, $ssh_command = 'ssh'){
+function ssh_build_command(&$server = null, $ssh_command = 'ssh', $no_user_server = false){
     global $_CONFIG;
 
     try{
@@ -368,7 +368,7 @@ showdie($command);
                         }
 
                         if(!file_exists($value)){
-                            throw new BException(tr('ssh_build_command(): Specified log file directory ":path" does not exist', array(':file' => dirname($value))), 'not-exist');
+                            throw new BException(tr('ssh_build_command(): Specified log file directory ":path" does not exist', array(':file' => dirname($value))), 'not-exists');
                         }
 
                         $command .= ' -E "'.$value.'"';
@@ -480,7 +480,7 @@ showdie($command);
                         }
 
                         if(!file_exists($value)){
-                            throw new BException(tr('ssh_build_command(): Specified identity file ":file" does not exist', array(':file' => $value)), 'not-exist');
+                            throw new BException(tr('ssh_build_command(): Specified identity file ":file" does not exist', array(':file' => $value)), 'not-exists');
                         }
 
                         $command .= ' -i "'.$value.'"';
@@ -601,9 +601,11 @@ showdie($command);
         $command .= ' -o ControlPersist='.$_CONFIG['ssh']['persist']['timeout'].' -o ControlPath="'.ROOT.'data/run/ssh/'.$server['username'].'@'.$server['domain'].':'.$server['port'].(isset_get($server['tunnel']) ? 'T' : '').'" ';
 
         /*
-         * Add the target server
+         * Add the user@server, if allowed
          */
-        $command .= ' "'.$server['username'].'@'.$server['domain'].'"';
+        if(!$no_user_server){
+            $command .= ' "'.$server['username'].'@'.$server['domain'].'"';
+        }
 
         if(isset_get($server['commands'])){
             $command .= ' "'.$server['commands'].'"';
@@ -1000,7 +1002,7 @@ function ssh_add_known_host($domain, $port){
                 $exists = array_key_exists($fingerprint['fingerprint'], $dbfingerprints);
 
                 if(!$exists){
-                    throw new BException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does not match any of the already registered fingerprints', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'])), 'not-exist');
+                    throw new BException(tr('ssh_add_known_host(): The domain ":domain" gave fingerprint ":fingerprint", which does not match any of the already registered fingerprints', array(':domain' => $fingerprint['domain'], ':fingerprint' => $fingerprint['fingerprint'])), 'not-exists');
                 }
 
                 if($dbfingerprints[$fingerprint['fingerprint']] != $fingerprint['algorithm']){
@@ -1511,7 +1513,7 @@ under_construction();
                                    array(':domain' => $source));
 
                 if(!$server){
-                    throw new BException(tr('ssh_cp(): Specified server ":server" does not exist', array(':server' => $source)), 'not-exist');
+                    throw new BException(tr('ssh_cp(): Specified server ":server" does not exist', array(':server' => $source)), 'not-exists');
                 }
 
                 $source         = $server;
@@ -1550,7 +1552,7 @@ under_construction();
                                      array(':domain' => $target));
 
                 if(!$server){
-                    throw new BException(tr('ssh_cp(): Specified target server ":server" does not exist', array(':server' => $target)), 'not-exist');
+                    throw new BException(tr('ssh_cp(): Specified target server ":server" does not exist', array(':server' => $target)), 'not-exists');
                 }
 
                 $target         = $server;

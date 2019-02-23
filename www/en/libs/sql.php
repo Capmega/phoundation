@@ -383,7 +383,7 @@ function sql_init($connector = null){
         }
 
         if(empty($_CONFIG['db'][$connector])){
-            throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exist');
+            throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exists');
         }
 
         $db = $_CONFIG['db'][$connector];
@@ -656,7 +656,7 @@ function sql_import($file, $connector = null){
         $connector = sql_connector_name($connector);
 
         if(!file_exists($file)){
-            throw new BException(tr('sql_import(): Specified file ":file" does not exist', array(':file' =>$file)), 'not-exist');
+            throw new BException(tr('sql_import(): Specified file ":file" does not exist', array(':file' =>$file)), 'not-exists');
         }
 
         $tel    = 0;
@@ -1597,7 +1597,7 @@ function sql_get_database($db_name){
                              array(':name' => $db_name));
 
         if(!$database){
-            throw new BException(log_database(tr('Specified database ":database" does not exist', array(':database' => $_GET['database'])), 'not-exist'));
+            throw new BException(log_database(tr('Specified database ":database" does not exist', array(':database' => $_GET['database'])), 'not-exists'));
         }
 
         return $database;
@@ -1787,7 +1787,7 @@ function sql_test_tunnel($server){
         $server         = servers_get($server, true);
 
         if(!$server['database_accounts_id']){
-            throw new BException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exist');
+            throw new BException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exists');
         }
 
         sql_make_connector($connector_name, array('port'       => $port,

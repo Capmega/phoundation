@@ -510,7 +510,7 @@ function tasks_check_pid($tasks_id){
         $task = sql_get('SELECT `id`, `pid` FROM `tasks` WHERE `id` = :id', array(':id' => $tasks_id));
 
         if(!$task){
-            throw new BException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exist');
+            throw new BException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exists');
         }
 
         if(!$task['pid']){

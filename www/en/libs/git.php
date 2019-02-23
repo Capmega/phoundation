@@ -211,7 +211,7 @@ function git_check_path(&$path){
         }
 
         if(!file_exists($path)){
-            throw new BException(tr('git_check_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+            throw new BException(tr('git_check_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         if(!file_scan($path, '.git')){

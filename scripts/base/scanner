@@ -43,6 +43,8 @@ scan FILE                       - Scan to the specified FILE. If the path for
                                   specified, the first device available will be
                                   used
 
+    -s / --show                 - Show the scanned image when finished scanning
+
     --device DEVICE             - Scan using the specified device. Specify the
                                   device using the URL from the "list" method
 
@@ -150,13 +152,14 @@ switch(cli_method()){
     case 'scan':
         $device = cli_argument('--device', true);
         $domain = cli_argument('--server', true);
+        $show   = cli_argument('-s,--show');
         $device = scanimage_get($device, $domain);
 
         $scanimage['domain']  = $device['domain'];
         $scanimage['device']  = $device['seostring'];
         $scanimage['options'] = array();
 
-        log_console(tr('About to scan from scanner ":scanner" on server ":server"', array(':scanner' => $device['string'], ':server' => $device['domain'])), 'cyan');
+        log_console(tr('About to scan from scanner ":scanner" on server ":server"', array(':scanner' => $device['string'], ':server' => $device['domain'])), 'VERBOSE/cyan');
 
         /*
          * Parse parameters for this specific device
@@ -253,6 +256,14 @@ switch(cli_method()){
             }
 
             throw $e;
+        }
+
+        /*
+         * Show the scanned image?
+         */
+        if($show){
+            load_libs('view');
+            view($scanimage['file']);
         }
 
         break;

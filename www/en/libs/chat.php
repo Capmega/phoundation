@@ -80,7 +80,7 @@ function chat_start($user){
             /*
              * This user doesnt exist yet
              */
-            throw new BException(tr('chat_start(): Specified user ":user" doesn\'t exist in the chat database', array(':user' => $user['id'])), 'not-exist');
+            throw new BException(tr('chat_start(): Specified user ":user" doesn\'t exist in the chat database', array(':user' => $user['id'])), 'not-exists');
         }
 
         setcookie('username', $user['user_name']    , time() + 86400, '/', ''.str_starts($_SESSION['domain'], '.'));
@@ -241,7 +241,7 @@ function chat_update_rank($user){
              */
             if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']))){
                 load_libs('user');
-                throw new BException(tr('chat_update_rank(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exist');
+                throw new BException(tr('chat_update_rank(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exists');
             }
         }
 

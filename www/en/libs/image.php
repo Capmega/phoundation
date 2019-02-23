@@ -325,6 +325,8 @@ function image_convert($source, $destination, $params = null){
 
                 break;
 
+            case 'jpeg':
+                // FALLTHROUGH
             case 'jpg':
                 $command  .= ' -background white';
                 $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
@@ -400,8 +402,14 @@ function image_convert($source, $destination, $params = null){
                 break;
 
             case 'custom':
-                $complete_command = $command.' "'.$source.'" '.isset_get($params['custom']).' "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
+                $complete_command = $command.' tiff:- "'.$source.'"  "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
 
+                safe_exec($complete_command, 0);
+                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                break;
+
+            case 'format':
+                $complete_command = $command.'  "'.$source.'" '.isset_get($params['custom']).' "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
                 safe_exec($complete_command, 0);
                 file_put_contents($params['log'], $complete_command, FILE_APPEND);
                 break;

@@ -366,7 +366,7 @@ function coupons_use(string $code){
         $coupon = coupons_get($code);
 
         if(!$coupon){
-            throw new BException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exist');
+            throw new BException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exists');
         }
 
         sql_query('INSERT INTO `coupons_used` (`createdby`, `coupons_id`, `meta_id`)

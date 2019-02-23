@@ -167,7 +167,7 @@ function email_servers_validate_domain($domain){
             $server   = servers_get($domain['server']);
             $domain = not_empty($servers[$domain['server']], $domain['server']);
 
-            throw new BException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exist');
+            throw new BException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
         }
 
         throw new BException(tr('email_servers_validate_domain(): Failed'), $e);
@@ -229,7 +229,7 @@ function email_servers_validate_account($domain){
             $server   = servers_get($domain['server']);
             $domain = not_empty($servers[$domain['server']], $domain['server']);
 
-            throw new BException(tr('email_servers_validate_account(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exist');
+            throw new BException(tr('email_servers_validate_account(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
         }
 
         throw new BException(tr('email_servers_validate_account(): Failed'), $e);

@@ -15,7 +15,7 @@ $users   = cli_argument('users'  , true);
 load_libs('mailer');
 
 if(!$mailings_id = mailer_get($mailing)){
-    throw new BException('Mailing "'.$mailing.'" does not exist', 'not-exist');
+    throw new BException('Mailing "'.$mailing.'" does not exist', 'not-exists');
 }
 
 if(!$users){

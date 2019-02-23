@@ -97,7 +97,7 @@ if($source){
     $source = slash(realpath($source));
 
     if(!file_exists($source)){
-        throw new BException(tr('The specified source path ":path" does not exist', array(':path' => $path)), 'not-exist');
+        throw new BException(tr('The specified source path ":path" does not exist', array(':path' => $path)), 'not-exists');
     }
 }
 

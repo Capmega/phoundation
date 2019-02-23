@@ -661,7 +661,7 @@ function inventories_select_item($params = null){
             $params['categories_id'] = inventories_get($params['seocategory'], 'id');
 
             if(!$params['categories_id']){
-                throw new BException(tr('inventories_select_items(): The specified category ":category" does not exist or is not available', array(':category' => $params['category'])), 'not-exist');
+                throw new BException(tr('inventories_select_items(): The specified category ":category" does not exist or is not available', array(':category' => $params['category'])), 'not-exists');
             }
         }
 
@@ -736,7 +736,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
             $categories_id = categories_get($category, 'id');
 
             if(!$categories_id){
-                throw new BException(tr('Specified category ":category" does not exist', array(':category' => $category)), 'not-exist');
+                throw new BException(tr('Specified category ":category" does not exist', array(':category' => $category)), 'not-exists');
             }
 
             $where[] = ' `inventories_items`.`categories_id` = :categories_id ';
@@ -816,7 +816,7 @@ function inventories_get_default_code($items_id, $companies_id){
         $item = sql_get('SELECT `id`, `code` FROM `inventories_items` WHERE `id` = :id', array(':id' => $items_id));
 
         if(!$item){
-            throw new BException(tr('inventories_get_default_code(): The specified item ":id" does not exist', array(':id' => $items_id)), 'not-exist');
+            throw new BException(tr('inventories_get_default_code(): The specified item ":id" does not exist', array(':id' => $items_id)), 'not-exists');
         }
 
         if(!$item['code']){

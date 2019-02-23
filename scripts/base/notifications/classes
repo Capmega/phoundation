@@ -88,7 +88,7 @@ try{
                 $old_class = sql_get('SELECT `id`, `name`, `methods`, `description` FROM `notifications_classes` WHERE `id` = :class OR `name` = :class', array(':class' => $class));
 
                 if(!$old_class){
-                    throw new BException(tr('The specified class "%class%" does not exist', array('%class%' => $class)), 'not-exist');
+                    throw new BException(tr('The specified class "%class%" does not exist', array('%class%' => $class)), 'not-exists');
                 }
 
                 $class = array_copy_clean($old_class, cli_arguments('name,methods,description'));

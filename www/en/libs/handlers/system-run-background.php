@@ -21,7 +21,7 @@ try{
     }
 
     if(!file_exists($path.$cmd)){
-        throw new BException(tr('run_background(): Specified command ":cmd" does not exists', array(':cmd' => $path.$cmd)), 'not-exist');
+        throw new BException(tr('run_background(): Specified command ":cmd" does not exists', array(':cmd' => $path.$cmd)), 'not-exists');
     }
 
     if(!is_file($path.$cmd)){

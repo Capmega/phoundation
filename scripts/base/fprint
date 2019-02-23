@@ -113,7 +113,7 @@ switch(cli_method()){
             $user = sql_get('SELECT `id` FROM `users` WHERE `id` = :id OR `username` = :username OR `email` = :email', true, array(':id' => $requested, ':username' => $requested, ':email' => $requested));
 
             if(!$user){
-                throw new BException(tr('The user ":user" does not exist', array(':user' => $requested)), 'not-exist');
+                throw new BException(tr('The user ":user" does not exist', array(':user' => $requested)), 'not-exists');
             }
 
         }
@@ -141,7 +141,7 @@ switch(cli_method()){
                 $deleted++;
 
             }catch(Exception $e){
-                if($e->getCode() !== 'not-exist'){
+                if($e->getCode() !== 'not-exists'){
                     /*
                      * Oops, a real error!
                      */

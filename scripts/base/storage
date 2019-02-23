@@ -256,9 +256,9 @@ switch(cli_method()){
 
                         log_file(tr('Adding file ":file" from path ":path"', array(':file' => $file, ':path' => $path)), 'storage');
 
-                        $file = storage_files_add(array('sections_id'  => $page['sections_id'],
-                                                        'documents_id' => $page['documents_id'],
-                                                        'pages_id'     => $page['id'],
+                        $file = storage_files_add(array('sections_id'  => $section['id'],
+                                                        'documents_id' => $document['id'],
+                                                        'pages_id'     => isset_get($page['id']),
                                                         'file'         => $path.$file,
                                                         'update_owner' => $request['update_owner'],
                                                         'convert'      => $request['convert']));
@@ -269,9 +269,9 @@ switch(cli_method()){
                 }else{
                     log_file(tr('Adding file ":file"', array(':file' => $file)), 'storage');
 
-                    $path = storage_files_add(array('sections_id'  => $page['sections_id'],
-                                                    'documents_id' => $page['documents_id'],
-                                                    'pages_id'     => $page['pages_id'],
+                    $path = storage_files_add(array('sections_id'  => $section['id'],
+                                                    'documents_id' => $document['id'],
+                                                    'pages_id'     => isset_get($page['id']),
                                                     'file'         => $file,
                                                     'update_owner' => $request['update_owner'],
                                                     'convert'      => $request['convert']));
