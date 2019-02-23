@@ -68,8 +68,21 @@ function devices_insert($device, $server = null){
              * Device already exists
              */
             $device['_exists'] = true;
-            log_console(tr('Not inserting ":device" on server ":server", it is already registered', array(':device' => $exists, ':server' => $exists['domain'])), 'VERYVERBOSE/yellow');
-            return $exists;
+
+            switch($exists['status']){
+                case 'not-found':
+                    log_console(tr('Not inserting ":device" on server ":server", it is already registered. Enabling existing device instead.', array(':device' => $exists, ':server' => $exists['domain'])), 'VERBOSE/yellow');
+                    devices_set_status(null, $exists['id']);
+                    return $exists;
+
+                case null:
+                    log_console(tr('Not inserting ":device" on server ":server", it is already registered.', array(':device' => $exists, ':server' => $exists['domain'])), 'VERBOSE/yellow');
+                    return $exists;
+
+                default:
+                    log_console(tr('Not inserting ":device" on server ":server", it is already registered, though with status ":status".', array(':device' => $exists, ':server' => $exists['domain'], ':status' => $exists['status'])), 'VERBOSE/yellow');
+                    return $exists;
+            }
         }
 
         sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `description`)
@@ -365,16 +378,28 @@ function devices_validate($device, $server){
  * @param
  * @return
  */
-function devices_set_status($device, $status){
+function devices_set_status($status, $device = null){
     try{
-        if(is_numeric($device)){
-            $delete = sql_query('UPDATE `devices` SET `status` = :status WHERE `id`     = :id'    , array(':id'     => $device, ':status' => $status));
+        if(!$device){
+            /*
+             * Update all devices
+             */
+            $update = sql_query('UPDATE `devices` SET `status` = :status'                               , array(':status' => $status));
+
+        }elseif(is_numeric($device)){
+            /*
+             * Update device by id
+             */
+            $update = sql_query('UPDATE `devices` SET `status` = :status WHERE `id`        = :id'       , array(':status' => $status, ':id'        => $device));
 
         }else{
-            $delete = sql_query('UPDATE `devices` SET `status` = :status WHERE `string` = :string', array(':string' => $device, ':status' => $status));
+            /*
+             * Update device by seostring
+             */
+            $update = sql_query('UPDATE `devices` SET `status` = :status WHERE `seostring` = :seostring', array(':status' => $status, ':seostring' => $device));
         }
 
-        return $delete->rowCount();
+        return $update->rowCount();
 
     }catch(Exception $e){
         throw new BException('devices_set_status(): Failed', $e);
@@ -500,7 +525,7 @@ function devices_list_options($devices_id, $inactive = false){
         }
 
         if(!$options){
-            throw new BException(tr('devices_list_options(): Speficied drivers id ":id" does not exist', array(':id' => $devices_id)), 'not-exist');
+            throw new BException(tr('devices_list_options(): Speficied drivers id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
         }
 
         foreach($options as $option){
@@ -558,10 +583,10 @@ function devices_list_option_keys($devices_id, $inactive = false){
             }
 
             if($exists){
-                throw new BException(tr('devices_list_options(): Speficied devices id ":id" does not have any device options', array(':id' => $devices_id)), 'not-exist');
+                throw new BException(tr('devices_list_options(): Speficied devices id ":id" does not have any device options', array(':id' => $devices_id)), 'not-exists');
             }
 
-            throw new BException(tr('devices_list_options(): Speficied devices id ":id" does not exist', array(':id' => $devices_id)), 'not-exist');
+            throw new BException(tr('devices_list_options(): Speficied devices id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
         }
 
         foreach($options as $option){
@@ -650,7 +675,7 @@ function devices_get_option_html_element($params){
 
         switch($params['resource']->rowCount()){
             case 0:
-                throw new BException(tr('devices_get_option_html_element(): Speficied devices id ":id" does not have the key ":key"', array(':id' => $params['devices_id'], ':key' => $params['key'])), 'not-exist');
+                throw new BException(tr('devices_get_option_html_element(): Speficied devices id ":id" does not have the key ":key"', array(':id' => $params['devices_id'], ':key' => $params['key'])), 'not-exists');
 
             case 1:
                 /*
@@ -1203,7 +1228,7 @@ function devices_validate_types($types = null, $return_filters = false){
                 }
 
                 if(!isset($match)){
-                    throw new BException(tr('devices_validate_types(): Specified device type ":type" does not match any of the supported devices', array(':type' => $types)), 'not-exist');
+                    throw new BException(tr('devices_validate_types(): Specified device type ":type" does not match any of the supported devices', array(':type' => $types)), 'not-exists');
                 }
 
                 return $match;
