@@ -54,17 +54,21 @@ switch(cli_method()){
                               ON        `servers`.`id` = `devices`.`servers_id`
 
                               WHERE     `devices`.`status` IS NULL
-                              OR        `devices`.`status` != "_new" '.sql_limit());
+                              OR        `devices`.`status` != "_new"
+
+                              ORDER BY  `servers`.`domain` ASC, `devices`.`type` ASC
+
+                              '.sql_limit());
 
         if(!$devices->rowCount()){
             log_console(tr('There are currently no devices available'), 'QUIET/yellow');
 
         }else{
             log_console(tr('Showing currently available devices'), 'QUIET/white');
-            log_console(str_size(tr('#id'), 6).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 16).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
+            log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 12).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.str_size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
 
             while($device = sql_fetch($devices)){
-                log_console(str_size($device['id'], 6).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 16).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.$device['description']);
+                log_console(str_size($device['id'], 6, ' ', true).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
             }
         }
 
@@ -181,7 +185,7 @@ switch(cli_method()){
                 $category = categories_get($assign_category);
 
                 if(!$category){
-                    throw new BException(tr('The specified category ":category" does not exist', array(':category' => $assign_category)), 'not-exist');
+                    throw new BException(tr('The specified category ":category" does not exist', array(':category' => $assign_category)), 'not-exists');
                 }
             }
 
@@ -190,7 +194,7 @@ switch(cli_method()){
                 $company = categories_get($assign_company);
 
                 if(!$company){
-                    throw new BException(tr('The specified company ":company" does not exist', array(':company' => $assign_company)), 'not-exist');
+                    throw new BException(tr('The specified company ":company" does not exist', array(':company' => $assign_company)), 'not-exists');
                 }
             }
 
@@ -202,7 +206,7 @@ switch(cli_method()){
                 $branch = categories_get_branch($assign_branch);
 
                 if(!$branch){
-                    throw new BException(tr('The specified branch ":branch" does not exist in the company', array(':branch' => $assign_branch, ':company' => $company['name'])), 'not-exist');
+                    throw new BException(tr('The specified branch ":branch" does not exist in the company', array(':branch' => $assign_branch, ':company' => $company['name'])), 'not-exists');
                 }
             }
 
@@ -214,9 +218,11 @@ switch(cli_method()){
                 $department = categories_get_department($assign_department);
 
                 if(!$department){
-                    throw new BException(tr('The specified department ":department" does not exist in the branch ":branch"', array(':department' => $assign_department, ':branch' => $branch['name'])), 'not-exist');
+                    throw new BException(tr('The specified department ":department" does not exist in the branch ":branch"', array(':department' => $assign_department, ':branch' => $branch['name'])), 'not-exists');
                 }
             }
+
+            devices_set_status('not-found');
 
             $servers_devices = devices_scan($filters, $server);
 
@@ -256,7 +262,7 @@ switch(cli_method()){
 
         }catch(Exception $e){
             switch($e->getRealCode()){
-                case 'not-exist':
+                case 'not-exists':
                     throw $e->makeWarning(true);
             }
 
@@ -414,6 +420,17 @@ switch(cli_method()){
             }
         }
 
+        break;
+
+    case 'setup':
+        $type  = cli_argument(1);
+        $brand = cli_argument(2);
+        $model = cli_argument(3);
+
+        cli_no_arguments_left();
+        load_libs('drivers');
+
+        drivers_setup($type, $brand, $model);
         break;
 
     case '':
