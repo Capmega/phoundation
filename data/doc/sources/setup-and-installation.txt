@@ -8,7 +8,6 @@
     3. git init                  : This will set your folder as a local repository
     4. git add .                 : This will add the initial working tree to our project
     5. git commit 'First commit' : This will add the initial working tree to our project
-    6. git commit 'First commit' : This will add the initial working tree to our project
 
     UPDATE APACHE
       cd /etc/apache2/sites-available
@@ -17,6 +16,7 @@
       Add PROJECTNAME_SUBENVIRONMENT, if project requires sub environments
       Update DocumentDirectory Apache configuration, update log file names, etc.
       Add PROJECTNAME to /etc/hosts file, so you can access it directly from browser
+      Run a2ensite <project config file> to enable site on apache server
 
     SETUP BASIC CONFIGURATION
     Edit ROOT/config/project.php
