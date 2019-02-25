@@ -373,12 +373,16 @@ function scanimage_detect_devices($server = null){
                 /*
                  * Found a scanner
                  */
-                $device = array('raw'         => $matches[0][0],
-                                'driver'      => $matches[1][0],
-                                'bus'         => $matches[2][0],
-                                'device'      => $matches[3][0],
-                                'string'      => $matches[1][0].':bus'.$matches[2][0].';dev'.$matches[3][0],
-                                'description' => $matches[4][0]);
+                $device = array('product'        => null,
+                                'product_string' => null,
+                                'vendor'         => null,
+                                'vendor_string'  => null,
+                                'bus'            => $matches[2][0],
+                                'device'         => $matches[3][0],
+                                'raw'            => $matches[0][0],
+                                'driver'         => $matches[1][0],
+                                'string'         => $matches[1][0].':bus'.$matches[2][0].';dev'.$matches[3][0],
+                                'description'    => $matches[4][0]);
             }else{
                 $found = preg_match_all('/device `((.+?):.+?)\' is a (.+)/i', $scanner, $matches);
 
@@ -386,23 +390,27 @@ function scanimage_detect_devices($server = null){
                     /*
                      * Found a scanner
                      */
-                    $device = array('raw'         => $matches[0][0],
-                                    'driver'      => $matches[2][0],
-                                    'bus'         => null,
-                                    'device'      => null,
-                                    'string'      => $matches[1][0],
-                                    'description' => $matches[3][0]);
+                    $device = array('product'        => null,
+                                    'product_string' => null,
+                                    'vendor'         => null,
+                                    'vendor_string'  => null,
+                                    'bus'            => null,
+                                    'device'         => null,
+                                    'raw'            => $matches[0][0],
+                                    'driver'         => $matches[2][0],
+                                    'string'         => $matches[1][0],
+                                    'description'    => $matches[3][0]);
                 }
             }
 
             if($device){
                 $device['manufacturer'] = trim(str_until($device['description'], ' '));
                 $device['model']        = trim(str_until(str_from($device['description'], ' '), ' '));
+                $device['type']         = 'document-scanner';
 
                 $devices[] = $device;
             }
         }
-
 
         return $devices;
 

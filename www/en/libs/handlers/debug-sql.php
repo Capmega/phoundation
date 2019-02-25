@@ -49,6 +49,7 @@ try{
         return $query;
     }
 
+    log_file(str_ends($query, ';'), 'debug-sql');
     return show(str_ends($query, ';'), 6);
 
 }catch(Exception $e){

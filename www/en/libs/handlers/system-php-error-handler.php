@@ -1,6 +1,10 @@
 <?php
 global $core;
 
+if(!isset($core)){
+    throw new BException('Pre core available PHP ERROR ['.$errno.'] "'.$errstr.'" in "'.$errfile.'@'.$errline.'"', $errno);
+}
+
 if(!$core->register['ready']){
     throw new BException('Pre core-ready PHP ERROR ['.$errno.'] "'.$errstr.'" in "'.$errfile.'@'.$errline.'"', $errno);
 }

@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.3');
+define('FRAMEWORKCODEVERSION', '2.4.7');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -62,13 +62,24 @@ set_error_handler('php_error_handler');
 set_exception_handler('uncaught_exception');
 
 
+
 /*
  * Create the core object and load the basic libraries
  */
 $core = new Core();
 
-switch(PLATFORM){
+/*
+ * Check what platform we're in
+ */
+switch(php_sapi_name()){
     case 'cli':
+        define('PLATFORM'     , 'cli');
+        define('PLATFORM_HTTP', false);
+        define('PLATFORM_CLI' , true);
+
+        $core->register['script']      = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+        $core->register['real_script'] = $core->register['script'];
+
         /*
          * Load basic libraries for command line interface
          * All scripts will execute cli_done() automatically once done
@@ -77,7 +88,22 @@ switch(PLATFORM){
         register_shutdown_function('cli_done');
         break;
 
-    case 'http':
+    default:
+        define('PLATFORM'     , 'http');
+        define('PLATFORM_HTTP', true);
+        define('PLATFORM_CLI' , false);
+        define('NOCOLOR'      ,  (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+
+        /*
+         * Define what the current script
+         * Detect requested language
+         */
+        $core->register['http_code']         = 200;
+        $core->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+        $core->register['real_script']       = $core->register['script'];
+        $core->register['accepts']           = accepts();
+        $core->register['accepts_languages'] = accepts_languages();
+
         /*
          * Load basic libraries
          * All scripts will execute http_done() automatically once done
@@ -108,14 +134,27 @@ switch(PLATFORM){
          * Load cache libraries (done until here since these need configuration @ load time)
          */
         load_config(' ');
+        $core->register['ready'] = true;
 
-
+        /*
+         * Define VERBOSE / VERYVERBOSE here because we need debug() data
+         */
+        define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
+        define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
 
         /*
          * Set protocol
          */
         define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
         break;
+}
+
+if($_CONFIG['security']['url_cloaking']['enabled']){
+    /*
+     * URL cloaking enabled. Load the URL library so that the URL cloaking
+     * functions are available
+     */
+    load_libs('url');
 }
 
 
@@ -148,48 +187,6 @@ class Core{
                               'footer'        => '',
                               'debug_queries' => array());
 
-    /*
-     * The core::startup() method starts the correct call type handler
-     *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @return void
-     */
-    function __construct(){
-        /*
-         * Check what platform we're in
-         */
-        switch(php_sapi_name()){
-            case 'cli':
-                define('PLATFORM'     , 'cli');
-                define('PLATFORM_HTTP', false);
-                define('PLATFORM_CLI' , true);
-
-                $this->register['script'] = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-                break;
-
-            default:
-                define('PLATFORM'     , 'http');
-                define('PLATFORM_HTTP', true);
-                define('PLATFORM_CLI' , false);
-                define('NOCOLOR'      ,  (getenv('NOCOLOR')                                                ? 'NOCOLOR'     : null));
-                define('VERYVERBOSE'  , ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose']))        ? 'VERYVERBOSE' : null));
-                define('VERBOSE'      , ((VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
-
-                /*
-                 * Define what the current script
-                 * Detect requested language
-                 */
-                $this->register['accepts_languages'] = accepts_languages();
-                $this->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-                break;
-        }
-    }
-
 
 
     /*
@@ -212,9 +209,6 @@ class Core{
              */
             switch(PLATFORM){
                 case 'http':
-                    $this->register['accepts']   = accepts();
-                    $this->register['http_code'] = 200;
-
                     /*
                      * Determine what our target file is. With direct execution,
                      * $_SERVER[PHP_SELF] would contain this, with route
@@ -245,8 +239,8 @@ class Core{
                     }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
                         $this->callType = 'amp';
 
-                    }elseif(is_numeric(substr($file, -7, 3))){
-                        $this->register['http_code'] = substr($file, -7, 3);
+                    }elseif(is_numeric(substr($file, -3, 3))){
+                        $this->register['http_code'] = substr($file, -3, 3);
                         $this->callType = 'system';
 
                     }else{
@@ -396,7 +390,7 @@ class Core{
                     // FALLTHROUGH
                 case 'amp':
                     // FALLTHROUGH
-                case 404:
+                case 'system':
                     break;
 
                 default:
@@ -1519,7 +1513,7 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
          * Always log to file log as well
          */
         if($log_file){
-            log_file($messages, $core->register['script'], $color);
+            log_file($messages, $core->register['real_script'], $color);
         }
 
         if(!PLATFORM_CLI){
@@ -1760,14 +1754,14 @@ function log_file($messages, $class = 'syslog', $color = null){
                     $message = cli_color($message, $color, null, true);
                 }
 
-                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['script'].' '.$class.$key.' => '.$message."\n");
+                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
 
             }else{
                 if(!empty($color)){
                     $message = cli_color($message, $color, null, true);
                 }
 
-                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['script'].' '.$class.$message."\n");
+                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['real_script'].' '.$class.$message."\n");
             }
         }
 
@@ -1916,7 +1910,7 @@ function get_domain(){
  *
  * @return void
  */
-function domain($url = null, $query = null, $prefix = null, $domain = null, $language = null){
+function domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
     global $_CONFIG;
 
     try{
@@ -1980,6 +1974,13 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             $retval = str_until($retval, '?');
         }
 
+        if($allow_url_cloak and $_CONFIG['security']['url_cloaking']['enabled']){
+            /*
+             * Cloak the URL before returning it
+             */
+            $retval = url_cloak($retval);
+        }
+
         return $retval;
 
     }catch(Exception $e){
@@ -2009,7 +2010,7 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
  * @param string $language
  * @return string The domain from domain() after being mapped
  */
-function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null){
+function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
     global $core;
 
     try{
@@ -2029,7 +2030,7 @@ function mapped_domain($url = null, $query = null, $prefix = null, $domain = nul
             }
         }
 
-        return domain($url, $query, $prefix, $domain, $language);
+        return domain($url, $query, $prefix, $domain, $language, $allow_url_cloak);
 
     }catch(Exception $e){
         throw new BException('mapped_domain(): Failed', $e);
@@ -2968,6 +2969,8 @@ function page_show($pagename, $params = null, $get = null){
             $core->register['http_code'] = $pagename;
         }
 
+        $core->register['real_script'] = $pagename;
+
         switch($core->callType()){
             case 'ajax':
                 $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
@@ -3019,6 +3022,12 @@ function page_show($pagename, $params = null, $get = null){
                     }
 
                     log_file(tr('Showing ":language" language system page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+
+                    /*
+                     * Wait a small random time to avoid timing attacks on
+                     * system pages
+                     */
+                    usleep(mt_rand(1, 250));
 
                 }else{
                     $include = ROOT.'www/'.$language.'/'.$pagename.'.php';
@@ -3470,7 +3479,7 @@ function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force
                 $prefix = not_empty($_CONFIG['cdn']['prefix'], '/');
             }
 
-            return domain($file, null, isset_get($prefix,''), $_CONFIG['cdn']['domain']);
+            return domain($file, null, isset_get($prefix,''), $_CONFIG['cdn']['domain'], null, false);
         }
 
         if($section == 'pub'){
@@ -3546,7 +3555,7 @@ function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force
             return false;
         }
 
-        return domain($file);
+        return domain($file, null, null, null, null, false);
 
 // :TODO: What why where?
         ///*
@@ -5395,12 +5404,12 @@ function check_disk($params = null){
             /*
              * Perform default recovery actions
              */
-            $params['callback'] = function($total, $available, $limits){
+            $params['callback'] = function($total, $available, $percentage, $bytes){
                 file_delete(ROOT.'data/tmp');
                 file_delete(ROOT.'data/cache');
                 file_delete(ROOT.'data/log');
 
-                notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage'])), 'low-diskspace'));
+                notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $bytes, ':percentage' => $percentage)), 'low-diskspace'));
                 notify(new BException(tr('check_disk(): Low diskspace default callback function executing, deleting projects\' tmp, cache, and log directories'), 'low-diskspace'));
             };
         }

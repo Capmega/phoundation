@@ -6,11 +6,37 @@
  * scanners, webcams, etc. The devices can be connected by USB, or PCI, on this
  * local machine or on remote servers
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package devices
  */
+
+
+
+/*
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package template
+ * @version 2.2.0: Added function and documentation
+ *
+ * @return void
+ */
+function devices_library_init(){
+    try{
+        load_libs('linux');
+
+    }catch(Exception $e){
+        throw new BException('devices_library_init(): Failed', $e);
+    }
+}
 
 
 
@@ -47,8 +73,8 @@ function devices_insert($device, $server = null){
             return devices_update($device);
         }
 
-        sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `description`)
-                   VALUES                (:createdby , :meta_id , :servers_id , :categories_id , :companies_id , :branches_id , :departments_id , :manufacturer , :model , :vendor , :vendor_string , :product , :product_string , :seo_product_string , :libusb , :bus , :device , :string , :seostring , :default , :description )',
+        sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `description`)
+                   VALUES                (:createdby , :meta_id , :servers_id , :categories_id , :companies_id , :branches_id , :departments_id , :type , :manufacturer , :model , :vendor , :vendor_string , :product , :product_string , :seo_product_string , :libusb , :bus , :device , :string , :seostring , :default , :description )',
 
                    array(':createdby'          => isset_get($_SESSION['user']['id']),
                          ':meta_id'            => meta_action(),
@@ -57,6 +83,7 @@ function devices_insert($device, $server = null){
                          ':companies_id'       => $device['companies_id'],
                          ':branches_id'        => $device['branches_id'],
                          ':departments_id'     => $device['departments_id'],
+                         ':type'               => $device['type'],
                          ':manufacturer'       => $device['manufacturer'],
                          ':model'              => $device['model'],
                          ':vendor'             => $device['vendor'],
@@ -129,7 +156,7 @@ function devices_update($device, $server = null){
 
 
 /*
- * Add options for a device
+ * Validate the specified device
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -305,7 +332,7 @@ function devices_validate($device, $server){
 
 
 /*
- * Add options for a device
+ * Update the status for the specified device to the specified status value
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -572,6 +599,7 @@ function devices_get($device, $server = null){
                                      `devices`.`branches_id`,
                                      `devices`.`departments_id`,
                                      `devices`.`status`,
+                                     `devices`.`type`,
                                      `devices`.`manufacturer`,
                                      `devices`.`model`,
                                      `devices`.`vendor`,
@@ -780,6 +808,7 @@ function devices_scan($types, $server = null){
             return $retval;
         }
 
+        $server            = servers_like($server);
         $server            = servers_get($server);
         $server['persist'] = true;
         $seodomain         = $server['seodomain'];
@@ -787,6 +816,8 @@ function devices_scan($types, $server = null){
         $types             = devices_validate_types($types, true);
 
         foreach(array_force($types) as $type => $filter){
+            log_console(tr('Scanning server ":server" for ":type" type devices', array(':server' => $server['domain'], ':type' => $type)), 'VERBOSE/cyan');
+
             switch($type){
                 case 'usb':
                     // FALLTHROUGH
@@ -801,14 +832,19 @@ function devices_scan($types, $server = null){
                             continue;
                         }
 
-                        log_console(tr('Found device ":device" on server ":server"', array(':device' => $device, ':server' => $server['domain'])), 'VERBOSE/green');
+                        log_console(tr('Found device ":device" on server ":server"', array(':device' => $device, ':server' => $server['domain'])), 'green');
 
-                        $entry = array('type'        => $type,
-                                       'raw'         => $matches[0][0],
-                                       'device'      => $matches[2][0],
-                                       'bus'         => $matches[1][0],
-                                       'string'      => $matches[3][0],
-                                       'description' => $matches[4][0]);
+                        $entry = array('manufacturer'   => null,
+                                       'product'        => null,
+                                       'product_string' => null,
+                                       'vendor'         => null,
+                                       'vendor_string'  => null,
+                                       'type'           => $type,
+                                       'raw'            => $matches[0][0],
+                                       'device'         => $matches[2][0],
+                                       'bus'            => $matches[1][0],
+                                       'string'         => $matches[3][0],
+                                       'description'    => $matches[4][0]);
 
                         $data = servers_exec($server, 'lsusb -vs '.$entry['bus'].':'.$entry['device']);
 
@@ -840,6 +876,24 @@ function devices_scan($types, $server = null){
                     break;
 
                 case 'document-scanner':
+                    load_libs('scanimage');
+
+                    /*
+                     * Only scan for scanners if scanimage has been installed on
+                     * the taget server
+                     */
+                    if(linux_which($server, 'scanimage')){
+                        $devices = scanimage_detect_devices($server);
+                        $entries = array();
+
+                        foreach($devices as $device){
+                            log_console(tr('Found document-scanner device ":device" on server ":server"', array(':device' => $device['raw'], ':server' => $server['domain'])), 'green');
+                        }
+
+                        if($devices){
+                            $retval[$seodomain] = $devices;
+                        }
+                    }
 
                     break;
 
@@ -887,7 +941,7 @@ function devices_scan($types, $server = null){
  * @param string|array $types The device type or multiple device types to validate
  * @return string|array The device types, validated and sanitized
  */
-function devices_validate_types($types, $return_filters = false){
+function devices_validate_types($types = null, $return_filters = false){
     static $supported = array('fingerprint-reader' => 'Fingerprint Reader',
                               'document-scanner'   => '');
 

@@ -18,6 +18,15 @@ if(empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])){
 
 
 
+/*
+ * Add a powered-by header
+ */
+if($_CONFIG['security']['signature']){
+    header('Powered-By: Phoundation version "'.FRAMEWORKCODEVERSION.'"');
+}
+
+
+
 // :TODO: The next section may be included in the whitelabel domain check
 /*
  * Check if the requested domain is allowed
@@ -320,6 +329,27 @@ try{
                     }
                 }
 
+                if($_CONFIG['security']['url_cloaking']['enabled'] and $_CONFIG['security']['url_cloaking']['strict']){
+                    /*
+                     * URL cloaking was enabled and requires strict checking.
+                     *
+                     * Ensure that we have a cloaked URL users_id and that it
+                     * matches the sessions users_id
+                     *
+                     * Only check cloaking rules if we are NOT displaying a
+                     * system page
+                     */
+                    if(!$core->callType('system')){
+                        if(empty($core->register['url_cloak_users_id'])){
+                            throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
+                        }
+
+                        if($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']){
+                            throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', array(':session_users_id' => $_SESSION['user']['id'], ':cloak_users_id' => $core->register['url_cloak_users_id'])), 403);
+                        }
+                    }
+                }
+
                 if($_CONFIG['sessions']['regenerate_id']){
                     if(isset($_SESSION['created']) and (time() - $_SESSION['created'] > $_CONFIG['sessions']['regenerate_id'])){
                         /*
@@ -390,7 +420,7 @@ try{
                  */
                 $_SESSION['init']     = time();
                 $_SESSION['first']    = true;
-    // :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
+// :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
                 $_SESSION['client']   = isset_get($core->register['session']['client']);
                 $_SESSION['location'] = isset_get($core->register['session']['location']);
                 $_SESSION['language'] = isset_get($core->register['session']['language']);
@@ -402,10 +432,16 @@ try{
     }
 
 }catch(Exception $e){
-    if(!is_writable(session_save_path())){
-        throw new BException('startup-manage-session: Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
-    }
+    if($e->getRealCode() == 403){
+        log_file($e->getMessage(), 403, 'yellow');
+        $core->register['page_show'] = 403;
 
-    throw new BException('startup-manage-session: Session startup failed', $e);
+    }else{
+        if(!is_writable(session_save_path())){
+            throw new BException('startup-manage-session: Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
+        }
+
+        throw new BException('startup-manage-session: Session startup failed', $e);
+    }
 }
 ?>

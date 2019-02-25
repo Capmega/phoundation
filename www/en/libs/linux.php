@@ -530,4 +530,31 @@ function linux_netstat($server, $options){
         throw new BException('linux_netstat(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Locates the specifed command on the specified server and returns it path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.0.5: Added function and documentation
+ *
+ * @param string $file The file to be unzipped
+ * @return string The path of the specified file
+ */
+function linux_which($server, $file){
+    try{
+        $result = servers_exec($server, 'which "'.$file.'"', false, null, '0,1');
+        $result = array_shift($result);
+
+        return get_null($result);
+
+    }catch(Exception $e){
+        throw new BException('cli_which(): Failed', $e);
+    }
+}
 ?>

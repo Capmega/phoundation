@@ -91,7 +91,7 @@ $_CONFIG['cdn']                = array('min'                                => t
 $_CONFIG['charset']            = 'UTF-8';                                                                                               // The default character set for this website (Will be used in meta charset tag)
 
 // Client configuration
-$_CONFIG['check_disk']         = array('http_interval'                      => 10,                                                      // The % chance that the check_disk will automatically execute on HTTP shutdown
+$_CONFIG['check_disk']         = array('http_interval'                      => 10,                                                      // The % chance that the check_disk will automatically execute on HTTP shutdown. Set to 0 to not execute
                                        'percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %
                                        'bytes'                              => 0);                                                      // The default minimum required available disk space for the filesystem for ROOT in bytes
 
@@ -278,11 +278,17 @@ $_CONFIG['security']           = array('signin'                             => a
                                                                                      'unique_updates'   => 3,                               // Passwords cannot be updated to the same password for minimum N times
                                                                                      'unique_days'      => 30),                             // Passwords cannot be updated to the same password for minimum N days
 
+                                       'url_cloaking'                       => array('enabled'          => false,                           // Enable the URL cloaking system if set to true
+                                                                                     'strict'           => true,                            // If set to true, each cloaked URL can only be used by the user that created it
+                                                                                     'interval'         => 1,                               // The chance in % that the url_cloaking table will be cleaned at a page load
+                                                                                     'expires'          => 86400),                          // The time until a cloaked URL will be removed from the URL cloaking table and no longer available
+
                                        'user'                               => 'apache',                                                    //
                                        'group'                              => 'apache',                                                    //
                                        'umask'                              =>  0007,                                                       //
                                        'expose_php'                         => false,                                                       // If false, will hide the X-Powered-By PHP header. If true, will leave the header as is. If set to any other value, will send that value as X-Powered-By value
                                        'seed'                               => '%T"$#HET&UJHRT87',                                          // SEED for generating codes
+                                       'signature'                          => true,                                                        // If set to true, add a phoundation signature in HTTP headers and on certain pages.
 
                                        'csrf'                               => array('enabled'          => 'force',                         // CSRF detection configuration. true | false | "force". Force will forcibly check every POST on CSRF
                                                                                      'buffer_size'      => 10,                              // The amount of server side CSRF keys that are being kept. With more keys, more pages can be run in parrallel

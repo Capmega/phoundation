@@ -566,7 +566,7 @@ function sql_connect($connector, $use_database = true){
                 $connect_string = $connector['driver'].':host='.$connector['host'].(empty($connector['port']) ? '' : ';port='.$connector['port']).((empty($connector['db']) or !$use_database) ? '' : ';dbname='.$connector['db']);
                 $pdo            = new PDO($connect_string, $connector['user'], $connector['pass'], $connector['pdo_attributes']);
 
-                log_console(tr('Connected with PDO connect string ":string"', array(':string' => $connect_string)), 'VERYVERBOSE');
+                log_console(tr('Connected with PDO connect string ":string"', array(':string' => $connect_string)), 'VERYVERBOSE/green');
                 break;
 
             }catch(Exception $e){
