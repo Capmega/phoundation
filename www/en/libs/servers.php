@@ -478,8 +478,6 @@ function servers_like($domain){
  * @param string $params[name]
  * @param class
  * @param extra
- * @param tabindex
- * @param empty
  * @param none
  * @param selected
  * @param parents_id
@@ -497,8 +495,6 @@ function servers_select($params = null){
         array_default($params, 'status'  , null);
         array_default($params, 'empty'   , tr('No servers available'));
         array_default($params, 'none'    , tr('Select a server'));
-        array_default($params, 'tabindex', 0);
-        array_default($params, 'extra'   , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby' , '`domain`');
 
         if($params['status'] !== false){

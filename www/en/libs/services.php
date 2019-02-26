@@ -341,8 +341,6 @@ function services_add($server, $service){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -361,8 +359,6 @@ function services_select($params = null){
         array_default($params, 'status'  , null);
         array_default($params, 'empty'   , tr('No services available'));
         array_default($params, 'none'    , tr('Select a service'));
-        array_default($params, 'tabindex', 0);
-        array_default($params, 'extra'   , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby' , '`name`');
 
         if($params['status'] !== false){

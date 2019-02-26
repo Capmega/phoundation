@@ -39,27 +39,14 @@ function providers_library_init(){
  *
  * This function will validate all relevant fields in the specified $provider array
  *
- * This function will generate HTML for an HTML select box using html_select() and fill it with the available categories
- *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package categories
+ * @package providers
  *
- * @param array $params The parameters required
- * @param $params name
- * @param $params class
- * @param $params extra
- * @param $params tabindex
- * @param $params empty
- * @param $params none
- * @param $params selected
- * @param $params parents_id
- * @param $params status
- * @param $params orderby
- * @param $params resource
- * @return string HTML for a categories select box within the specified parameters
+ * @param $params $provider
+ * @return
  */
 function providers_validate($provider){
     try{
@@ -174,8 +161,6 @@ function providers_validate($provider){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -195,8 +180,6 @@ function providers_select($params = null){
         array_default($params, 'status'       , null);
         array_default($params, 'empty'        , tr('No providers available'));
         array_default($params, 'none'         , tr('Select a provider'));
-        array_default($params, 'tabindex'     , 0);
-        array_default($params, 'extra'        , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'      , '`name`');
 
         if($params['categories_id'] !== false){

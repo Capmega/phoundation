@@ -239,8 +239,6 @@ function projects_validate($project, $reload_only = false){
  * @param $params name
  * @param $params class
  * @param $params extra
- * @param $params tabindex
- * @param $params empty
  * @param $params none
  * @param $params selected
  * @param $params parents_id
@@ -260,8 +258,6 @@ function projects_select($params = null){
         array_default($params, 'customers_id', null);
         array_default($params, 'empty'       , tr('No projects available'));
         array_default($params, 'none'        , tr('Select a project'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'     , '`name`');
 
         if($params['seocustomer']){

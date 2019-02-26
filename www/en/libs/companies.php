@@ -29,10 +29,10 @@ function companies_library_init(){
     try{
         load_config('companies');
 
-        if(empty($_GET['seocompany']) and empty($_POST['seocompany'])){
-            $_GET['seocompany']  = $_CONFIG['companies']['default'];
-            $_POST['seocompany'] = $_CONFIG['companies']['default'];
-        }
+        //if(empty($_GET['seocompany']) and empty($_POST['seocompany'])){
+        //    $_GET['seocompany']  = $_CONFIG['companies']['default'];
+        //    $_POST['seocompany'] = $_CONFIG['companies']['default'];
+        //}
 
     }catch(Exception $e){
         throw new BException('companies_library_init(): Failed', $e);
@@ -149,8 +149,6 @@ function companies_validate($company){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -173,8 +171,6 @@ function companies_select($params = null){
         array_default($params, 'autosubmit'   , true);
         array_default($params, 'empty'        , tr('No companies available'));
         array_default($params, 'none'         , tr('Select a company'));
-        array_default($params, 'tabindex'     , 0);
-        array_default($params, 'extra'        , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'      , '`name`');
 
         if($params['seocategory']){
@@ -395,8 +391,6 @@ function companies_validate_branch($branch, $reload_only = false){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -419,8 +413,6 @@ function companies_select_branch($params = null){
         array_default($params, 'autosubmit'  , true);
         array_default($params, 'empty'       , tr('No branches available'));
         array_default($params, 'none'        , tr('Select a branch'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'     , '`name`');
 
         if($params['seocompany']){
@@ -696,8 +688,6 @@ function companies_validate_department($department, $reload_only = false){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -722,8 +712,6 @@ function companies_select_department($params = null){
         array_default($params, 'autosubmit'  , true);
         array_default($params, 'empty'       , tr('No departments available'));
         array_default($params, 'none'        , tr('Select a department'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'     , '`name`');
 
         if($params['seocompany']){
@@ -1071,8 +1059,6 @@ function companies_validate_employee($employee, $reload_only = false){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -1098,8 +1084,6 @@ function companies_select_employee($params = null){
         array_default($params, 'remove'        , null);
         array_default($params, 'empty'         , tr('No employees available'));
         array_default($params, 'none'          , tr('Select an employee'));
-        array_default($params, 'tabindex'      , 0);
-        array_default($params, 'extra'         , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'       , '`name`');
 
         if($params['seocompany']){

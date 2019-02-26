@@ -144,7 +144,7 @@ function categories_validate($category){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
+ * @param $params empty
  * @param $params none
  * @param $params selected
  * @param $params parents_id

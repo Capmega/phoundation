@@ -85,8 +85,8 @@ function devices_insert($device, $server = null){
             }
         }
 
-        sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `description`)
-                   VALUES                (:createdby , :meta_id , :servers_id , :categories_id , :companies_id , :branches_id , :departments_id , :type , :manufacturer , :model , :vendor , :vendor_string , :product , :product_string , :seo_product_string , :libusb , :bus , :device , :string , :seostring , :default , :description )',
+        sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `employees_id`, `customers_id`, `providers_id`, `inventories_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `description`)
+                   VALUES                (:createdby , :meta_id , :servers_id , :categories_id , :companies_id , :branches_id , :departments_id , :employees_id , :customers_id , :providers_id , :inventories_id , :type , :manufacturer , :model , :vendor , :vendor_string , :product , :product_string , :seo_product_string , :libusb , :bus , :device , :string , :seostring , :default , :description )',
 
                    array(':createdby'          => isset_get($_SESSION['user']['id']),
                          ':meta_id'            => meta_action(),
@@ -95,6 +95,10 @@ function devices_insert($device, $server = null){
                          ':companies_id'       => $device['companies_id'],
                          ':branches_id'        => $device['branches_id'],
                          ':departments_id'     => $device['departments_id'],
+                         ':employees_id'       => $device['employees_id'],
+                         ':customers_id'       => $device['customers_id'],
+                         ':providers_id'       => $device['providers_id'],
+                         ':inventories_id'     => $device['inventories_id'],
                          ':type'               => $device['type'],
                          ':manufacturer'       => $device['manufacturer'],
                          ':model'              => $device['model'],
@@ -149,6 +153,10 @@ function devices_update($device, $server = null){
                           `companies_id`   = :companies_id,
                           `branches_id`    = :branches_id,
                           `departments_id` = :departments_id,
+                          `employees_id`   = :employees_id,
+                          `customers_id`   = :customers_id,
+                          `providers_id`   = :providers_id,
+                          `inventories_id` = :inventories_id,
                           `description`    = :description
 
                    WHERE  `id`             = :id',
@@ -158,6 +166,10 @@ function devices_update($device, $server = null){
                          ':companies_id'   => $device['companies_id'],
                          ':branches_id'    => $device['branches_id'],
                          ':departments_id' => $device['departments_id'],
+                         ':employees_id'   => $device['employees_id'],
+                         ':customers_id'   => $device['customers_id'],
+                         ':providers_id'   => $device['providers_id'],
+                         ':inventories_id' => $device['inventories_id'],
                          ':description'    => $device['description']));
 
         return $device;
@@ -772,7 +784,7 @@ function devices_get_option_html_element($params){
                         $data['step'] = numbers_get_step($data['min'], $data['max'], $data['default']);
                 }
 
-                return '<input type="number" name="'.$params['name'].'" id="'.$params['name'].'" min="'.$data['min'].'" max="'.$data['max'].'" step="'.$data['step'].'" value="'.$data['default'].'" tabindex="'.$core->register['tabindex']++.'" class="'.$params['class'].'">';
+                return '<input type="number" name="'.$params['name'].'" id="'.$params['name'].'" min="'.$data['min'].'" max="'.$data['max'].'" step="'.$data['step'].'" value="'.$data['default'].'" tabindex="'.html_tabindex().'" class="'.$params['class'].'">';
 
             default:
                 /*
@@ -907,6 +919,10 @@ function devices_get($device, $server = null){
                                      `devices`.`companies_id`,
                                      `devices`.`branches_id`,
                                      `devices`.`departments_id`,
+                                     `devices`.`employees_id`,
+                                     `devices`.`customers_id`,
+                                     `devices`.`providers_id`,
+                                     `devices`.`inventories_id`,
                                      `devices`.`status`,
                                      `devices`.`type`,
                                      `devices`.`manufacturer`,
@@ -980,76 +996,48 @@ function devices_get($device, $server = null){
  */
 function devices_select($product, $category = null){
     try{
-        if($category){
-            $categories_id = categories_get($category, 'id');
+        array_ensure($params);
+        array_default($params, 'name'       , 'seodevice');
+        array_default($params, 'class'      , 'form-control');
+        array_default($params, 'selected'   , null);
+        array_default($params, 'seocategory', null);
+        array_default($params, 'type'       , false);
+        array_default($params, 'status'     , null);
+        array_default($params, 'empty'      , tr('No devices available'));
+        array_default($params, 'none'       , tr('Select a device'));
+        array_default($params, 'orderby'    , '`name`');
+
+        if($params['seocategory']){
+            load_libs('categories');
+            $params['categories_id'] = categories_get($params['seocategory'], 'id');
+
+            if(!$params['categories_id']){
+                throw new BException(tr('devices_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
+            }
         }
 
-        $device = sql_get('SELECT    `devices`.`id`,
-                                     `devices`.`meta_id`,
-                                     `devices`.`servers_id`,
-                                     `devices`.`categories_id`,
-                                     `devices`.`companies_id`,
-                                     `devices`.`branches_id`,
-                                     `devices`.`departments_id`,
-                                     `devices`.`status`,
-                                     `devices`.`manufacturer`,
-                                     `devices`.`model`,
-                                     `devices`.`vendor`,
-                                     `devices`.`vendor_string`,
-                                     `devices`.`product`,
-                                     `devices`.`product_string`,
-                                     `devices`.`seo_product_string`,
-                                     `devices`.`libusb`,
-                                     `devices`.`bus`,
-                                     `devices`.`device`,
-                                     `devices`.`string`,
-                                     `devices`.`default`,
-                                     `devices`.`description`,
-
-                                     `categories`.`name`  AS `category`,
-                                     `companies`.`name`   AS `company`,
-                                     `branches`.`name`    AS `branch`,
-                                     `departments`.`name` AS `department`
-
-                           FROM      `devices`
-
-                           LEFT JOIN `categories`
-                           ON       (`devices`.`categories_id`  IS NULL OR `devices`.`categories_id`  = :categories_id)
-                           AND       `devices`.`categories_id`  =`categories`.`id`
-
-                           LEFT JOIN `companies`
-                           ON       (`devices`.`companies_id`   IS NULL OR `devices`.`companies_id`   = :companies_id)
-                           AND       `devices`.`companies_id`   = `companies`.`id`
-
-                           LEFT JOIN `branches`
-                           ON       (`devices`.`branches_id`    IS NULL OR `devices`.`branches_id`    = :branches_id)
-                           AND       `devices`.`branches_id`    = `branches`.`id`
-
-                           LEFT JOIN `departments`
-                           ON       (`devices`.`departments_id` IS NULL OR `devices`.`departments_id` = :departments_id)
-                           AND       `devices`.`departments_id` = `departments`.`id`
-
-                           WHERE     `devices`.`seo_product_string` = :seo_product_string
-
-                           ORDER BY  `default` DESC
-
-                           LIMIT     1',
-
-                           array(':categories_id'      => isset_get($categories_id),
-                                 ':companies_id'       => isset_get($_SESSION['user']['companies_id']),
-                                 ':branches_id'        => isset_get($_SESSION['user']['branches_id']),
-                                 ':departments_id'     => isset_get($_SESSION['user']['departments_id']),
-                                 ':seo_product_string' => $product));
-
-        if($device and $device['servers_id']){
-            /*
-             * Get server data
-             */
-            load_libs('servers');
-            $device['server'] = servers_get($device['servers_id']);
+        if($params['type'] !== false){
+            $where[] = ' `type` '.sql_is($params['type']).' :type ';
+            $execute[':type'] = $params['type'];
         }
 
-        return $device;
+        if($params['status'] !== false){
+            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $execute[':status'] = $params['status'];
+        }
+
+        if(empty($where)){
+            $where = '';
+
+        }else{
+            $where = ' WHERE '.implode(' AND ', $where).' ';
+        }
+
+        $query              = 'SELECT `seostring`, `string` FROM `devices` '.$where.' ORDER BY '.$params['orderby'];
+        $params['resource'] = sql_query($query, $execute, 'core');
+        $retval             = html_select($params);
+
+        return $retval;
 
     }catch(Exception $e){
         throw new BException('devices_select(): Failed', $e);
