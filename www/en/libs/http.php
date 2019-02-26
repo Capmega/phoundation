@@ -577,15 +577,6 @@ function http_done(){
         $exit_code = isset_get($core->register['exit_code'], 0);
 
         /*
-         * Do a filesystem check?
-         */
-        if(mt_rand(0, 100) < $_CONFIG['check_disk']['http_interval']){
-            log_file(tr('Executing disk check'), 'http-done', 'VERBOSE/cyan');
-            load_libs('check-disk');
-            register_shutdown('check_disk', null);
-        }
-
-        /*
          * Do we need to run other shutdown functions?
          */
         shutdown();

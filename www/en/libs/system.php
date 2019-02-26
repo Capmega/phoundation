@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.13');
+define('FRAMEWORKCODEVERSION', '2.4.14');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5273,7 +5273,7 @@ function get_yes_no($value){
  * @return string "yes" for boolean true, "no" for boolean false
  */
 function shutdown(){
-    global $core;
+    global $core, $_CONFIG;
 
     try{
         /*
@@ -5306,6 +5306,19 @@ function shutdown(){
 
             }catch(Exception $e){
                 notify($e);
+            }
+        }
+
+        /*
+         * Periodically execute the following functions
+         */
+        $level = mt_rand(0, 100);
+
+        foreach($_CONFIG['shutdown'] as $name => $parameters){
+            if($level < $parameters['interval']){
+                log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
+                load_libs($parameters['library']);
+                $parameters['function']();
             }
         }
 

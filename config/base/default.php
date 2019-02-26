@@ -90,9 +90,8 @@ $_CONFIG['cdn']                = array('min'                                => t
 // Characterset
 $_CONFIG['charset']            = 'UTF-8';                                                                                               // The default character set for this website (Will be used in meta charset tag)
 
-// Client configuration
-$_CONFIG['check_disk']         = array('http_interval'                      => 10,                                                      // The % chance that the check_disk will automatically execute on HTTP shutdown. Set to 0 to not execute
-                                       'percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %
+// Check disk configuration
+$_CONFIG['check_disk']         = array('percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %
                                        'bytes'                              => 0);                                                      // The default minimum required available disk space for the filesystem for ROOT in bytes
 
 // Client configuration
@@ -317,6 +316,15 @@ $_CONFIG['sessions']           = array('enabled'                            => t
                                        'signin'                             => array('force'         => false,                              //
                                                                                      'allow_next'    => true,                               //
                                                                                      'redirect'      => 'index.php'));                      //
+
+// Shutdown configuration
+$_CONFIG['shutdown']           = array('check_disk' => array('interval' => 10,                                                              // Execute this function every INTERVAL / 100 times
+                                                             'library'  => 'check-disk',                                                    // To execute the function, load this library
+                                                             'function' => 'check_disk'),                                                   // The function to execute
+
+                                       'log_rotate' => array('interval' => 2,
+                                                             'library'  => 'log',
+                                                             'function' => 'log_rotate'));
 
 // Sync configuration.
 $_CONFIG['sync']               = array();                                                                                                   //
