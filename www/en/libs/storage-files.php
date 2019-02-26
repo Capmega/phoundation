@@ -249,9 +249,13 @@ function storage_files_get($file, $documents_id, $pages_id = null){
 /*
  *
  */
-function storage_file_url($file, $type){
+function storage_file_url($file, $type = null){
     try{
-        return domain('/files/'.$file);
+        if($type){
+            return cdn_domain(str_runtil($file, '.').'-'.$type.'.'.str_rfrom($file, '.'), 'files');
+        }
+
+        return cdn_domain($file, 'files');
 
     }catch(Exception $e){
         throw new BException('storage_file_url(): Failed', $e);
