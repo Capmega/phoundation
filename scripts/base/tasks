@@ -238,28 +238,33 @@ under_construction('add');
             }
         }
 
-        if(!QUIET){
-            log_console(str_size('#id', 6).str_size('Meta id', 7).' '.str_size('User', 32).str_size('Parent task id', 14).' '.str_size('Command', 32).str_size('Status', 16).' '.str_size('Description', 32).str_size('Execution method', 20).str_size('Time limit', 4).' '.str_size('Time spent', 10), 'cyan');
-        }
-
         $tasks = tasks_list($status);
 
-        while($task = sql_fetch($tasks)){
-            switch($task['status']){
-                case 'processing':
-                    $task['status'] = cli_color($task['status'], 'light_blue');
-                    break;
+        if(!$tasks->rowCount()){
+            log_console(tr('There are no tasks available with the specified filters'), 'yellow');
 
-                case 'completed':
-                    $task['status'] = cli_color($task['status'], 'green');
-                    break;
-
-                case 'failed':
-                    $task['status'] = cli_color($task['status'], 'red');
-                    break;
+        }else{
+            if(!QUIET){
+                log_console(str_size('#id', 6).' '.str_size('Meta id', 7).' '.str_size('User', 22).' '.str_size('Parent task id', 14).' '.str_size('Command', 32).' '.str_size('Status', 16).' '.str_size('Description', 48).' '.str_size('Execution method', 20).' '.str_size('Time limit', 4).' '.str_size('Time spent', 10), 'cyan');
             }
 
-            log_console(str_size($task['id'], 6).str_size($task['meta_id'], 7, ' ', true).' '.str_size(name($task), 32).str_size(not_empty(($task['parents_id'] ? '* ' : '').$task['parents_id'], '-'), 14, ' ', true).' '.str_size($task['command'], 32).str_size($task['status'], 16).' '.str_size($task['description'], 32).str_size($task['method'], 20).str_size(($task['time_limit'] ? $task['time_limit'] : '-'), 4, ' ', true).' '.str_size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
+            while($task = sql_fetch($tasks)){
+                switch($task['status']){
+                    case 'processing':
+                        $task['status'] = cli_color($task['status'], 'light_blue');
+                        break;
+
+                    case 'completed':
+                        $task['status'] = cli_color($task['status'], 'green');
+                        break;
+
+                    case 'failed':
+                        $task['status'] = cli_color($task['status'], 'red');
+                        break;
+                }
+
+                log_console(str_size($task['id'], 6).' '.str_size($task['meta_id'], 7, ' ', true).' '.str_size(name($task), 22).' '.str_size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.str_size($task['command'], 32).' '.str_size($task['status'], 16).' '.str_size($task['description'], 48).' '.str_size($task['method'], 20).' '.str_size(($task['time_limit'] ? $task['time_limit'] : '-'), 4, ' ', true).' '.str_size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
+            }
         }
 
         break;
@@ -367,15 +372,14 @@ under_construction('add');
         cli_no_arguments_left();
         load_libs('date,time');
 
-        if(!$restarts and ($restarts !== "0")){
+        if(!$restarts and ($restarts !== '0')){
             $restarts = $_CONFIG['tasks']['restart']['amount'];
         }
 
         $count    = 0;
         $previous = null;
 
-        log_console(tr('Started task execution...'), 'white');
-        log_file(tr('Started task execution'), 'tasks');
+        log_console(tr('Started tasks execution...'), 'white');
 
         while(true){
             if($count > 50){
@@ -385,7 +389,7 @@ under_construction('add');
                 }
 
                 log_console(tr('Passed the maximum amount of task cycles, restarting'));
-                run_background('base/tasks execute --env '.ENVIRONMENT.' --restart '.$restarts, true, false);
+                run_background('base/tasks execute --env '.ENVIRONMENT.' --restart '.$restarts.(VERBOSE ? (VERYVERBOSE ? ' --very-verbose' : ' --verbose') : ''), true, false);
                 die();
             }
 
@@ -422,20 +426,24 @@ under_construction('add');
                     }
 
                     if($task['parrallel']){
-                        if(($parent['status'] != 'completed') and ($parent['status'] != 'processing')){
+                        if(($parent['status'] !== 'completed') and ($parent['status'] !== 'processing')){
                             /*
                              * Cannot execute this task, the parent task hasn't started yet!
                              */
+                            log_console(tr('Updating parrallel task ":task" to status "set-wait", it depends on task ":parent" which has not started or finished yet', array(':task' => $task['id'], ':parent' => $task['parents_id'])), 'VERBOSE/yellow');
+
                             meta_action($task['meta_id'], 'set-wait');
                             sql_query('UPDATE `tasks` SET `status` = "waiting_parent" WHERE `id` = :id', array(':id' => $task['id']));
                             continue;
                         }
 
                     }else{
-                        if($parent['status'] != 'completed'){
+                        if($parent['status'] !== 'completed'){
                             /*
                              * Cannot execute this task, the parent task hasn't been completed yet!
                              */
+                            log_console(tr('Updating task ":task" to status "set-wait", it depends on task ":parent" which has not finished yet', array(':task' => $task['id'], ':parent' => $task['parents_id'])), 'VERBOSE/yellow');
+
                             meta_action($task['meta_id'], 'set-wait');
                             sql_query('UPDATE `tasks` SET `status` = "waiting_parent" WHERE `id` = :id', array(':id' => $task['id']));
                             continue;
@@ -450,8 +458,7 @@ under_construction('add');
                     $interval = date_convert($task['after'], 'object')->diff(new DateTime());
                 }
 
-                log_console(tr('Executing task ":task" with description ":description"', array(':task' => $task['id'], ':description' => $task['description'])));
-                log_file(tr('Executing task ":task" with description ":description"'   , array(':task' => $task['id'], ':description' => $task['description'])), 'tasks');
+                log_console(tr('Executing task ":task" with method ":method" and description ":description"', array(':task' => $task['id'], ':method' => $task['method'], ':description' => $task['description'])), 'cyan');
 
                 $task['results'] = json_decode_custom($task['results']);
                 $task['data']    = json_decode_custom($task['data']);
@@ -468,6 +475,18 @@ under_construction('add');
                 if(!empty($task['data']['method'])){
                     $options .= ' '.$task['data']['method'];
                     unset($task['data']['method']);
+                }
+
+                /*
+                 * Run the task in verbose mode?
+                 */
+                if(VERBOSE){
+                    if(VERYVERBOSE){
+                        $task['data'][] = '--very-verbose';
+
+                    }else{
+                        $task['data'][] = '--verbose';
+                    }
                 }
 
                 foreach($task['data'] as $key => $value){
@@ -539,7 +558,6 @@ under_construction('add');
                 set_time_limit(0);
 
                 log_console(tr('Task ":task" executed successfully in ":time"', array(':task' => $task['id'], ':time' => time_difference($start, $end, 'auto', 5))), 'green');
-                log_file(tr('Task ":task" executed successfully in ":time"'   , array(':task' => $task['id'], ':time' => time_difference($start, $end, 'auto', 5))), 'tasks');
 
             }catch(Exception $e){
                 $end = microtime(true);
@@ -547,7 +565,6 @@ under_construction('add');
 
                 try{
                     log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), 'red');
-                    log_file(tr('Task ":task" failed with ":e" in ":time"'   , array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), 'tasks');
 
                     $task['status']     = 'failed';
                     $task['results']    = array_merge($e->getMessages(), array(' '), $e->getData());
@@ -561,14 +578,12 @@ under_construction('add');
                 }catch(Exception $e){
                     notify($e);
                     log_console(tr('Exception handling for task ":task" failed with ":e"', array(':task' => $task['id'], ':e' => $e)), 'red');
-                    log_file(tr('Exception handling for task ":task" failed with ":e"'   , array(':task' => $task['id'], ':e' => $e)), 'tasks');
                 }
             }
         }
 
         if($count){
             log_console(tr('Executed ":count" tasks', array(':count' => $count)), 'green');
-            log_file(tr('Executed ":count" tasks', array(':count' => $count)), 'tasks');
         }
 
         break;
