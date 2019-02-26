@@ -134,7 +134,7 @@ function scanimage($params){
                     /*
                      * We have to convert it to a JPG file
                      */
-                    image_convert($file, $params['file'], array('method' => 'format',
+                    image_convert($file, $params['file'], array('method' => 'custom',
                                                                 'format' => 'jpg'));
 
 //                        $command .= ' | convert tiff:- '.$params['file'];
@@ -287,6 +287,9 @@ function scanimage_validate($params){
                 $extension = 'tiff';
                 break;
 
+            case '':
+                $v->setError(tr('No format specified'));
+                break;
             default:
                 $v->setError(tr('Unknown format ":format" specified', array(':format' => $params['format'])));
         }
