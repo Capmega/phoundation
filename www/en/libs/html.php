@@ -1462,8 +1462,8 @@ function html_select($params){
         array_default($params, 'id'          , $params['name']);
         array_default($params, 'none'        , tr('None selected'));
         array_default($params, 'empty'       , tr('None available'));
-        array_default($params, 'tabindex'    , null);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
+        array_default($params, 'tabindex'    , html_tabindex());
+        array_default($params, 'extra'       , '');
         array_default($params, 'selected'    , null);
         array_default($params, 'bodyonly'    , false);
         array_default($params, 'autosubmit'  , false);
@@ -2088,12 +2088,15 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
 
             }else{
                 try{
+                    /*
+                     *
+                     */
                     $url      = str_exists($src, '://');
                     $file_src = $src;
 
-                    if(str_exists($file_src, domain(''))){
+                    if(str_exists($file_src, cdn_domain(''))){
                         $url      = false;
-                        $file_src = str_from($file_src, domain(''));
+                        $file_src = str_from($file_src, cdn_domain(''));
                         $src      = $file_src;
                     }
 
@@ -2334,20 +2337,22 @@ function html_autosuggest($params){
 
     try{
         array_params($params);
-        array_default($params, 'class'            , '');
-        array_default($params, 'input_class'      , '');
-        array_default($params, 'name'             , '');
-        array_default($params, 'id'               , $params['name']);
-        array_default($params, 'placeholder'      , '');
-        array_default($params, 'required'         , false);
-        array_default($params, 'value'            , '');
-        array_default($params, 'source'           , '');
-        array_default($params, 'maxlength'        , '');
-        array_default($params, 'filter_selector'  , '');
-        array_default($params, 'selector'         , 'form.autosuggest');
+        array_default($params, 'class'          , '');
+        array_default($params, 'input_class'    , 'form-control');
+        array_default($params, 'name'           , '');
+        array_default($params, 'id'             , $params['name']);
+        array_default($params, 'placeholder'    , '');
+        array_default($params, 'required'       , false);
+        array_default($params, 'tabindex'       , html_tabindex());
+        array_default($params, 'extra'          , '');
+        array_default($params, 'value'          , '');
+        array_default($params, 'source'         , '');
+        array_default($params, 'maxlength'      , '');
+        array_default($params, 'filter_selector', '');
+        array_default($params, 'selector'       , 'form.autosuggest');
 
         $retval = ' <div class="autosuggest'.($params['class'] ? ' '.$params['class'] : '').'">
-                        <input autocomplete="new_password" spellcheck="false" role="combobox" dir="ltr" '.($params['input_class'] ? 'class="'.$params['input_class'].'" ' : '').'type="text" name="'.$params['name'].'" id="'.$params['id'].'" placeholder="'.$params['placeholder'].'" data-source="'.$params['source'].'" value="'.$params['value'].'"'.($params['filter_selector'] ? ' data-filter-selector="'.$params['filter_selector'].'"' : '').($params['maxlength'] ? ' maxlength="'.$params['maxlength'].'"' : '').($params['required'] ? ' required' : '').'>
+                        <input autocomplete="new_password" spellcheck="false" role="combobox" dir="ltr" '.($params['input_class'] ? 'class="'.$params['input_class'].'" ' : '').'type="text" name="'.$params['name'].'" id="'.$params['id'].'" placeholder="'.$params['placeholder'].'" data-source="'.$params['source'].'" value="'.$params['value'].'"'.($params['filter_selector'] ? ' data-filter-selector="'.$params['filter_selector'].'"' : '').($params['maxlength'] ? ' maxlength="'.$params['maxlength'].'"' : '').($params['extra'] ? ' '.$params['extra'] : '').($params['required'] ? ' required' : '').'>
                         <ul>
                         </ul>
                     </div>';
