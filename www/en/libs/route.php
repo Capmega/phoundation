@@ -101,7 +101,7 @@ function route($regex, $target, $flags = null){
             return false;
         }
 
-        log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERYVERBOSE/green');
+        log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERBOSE/green');
 
         $route = $target;
 
