@@ -1220,7 +1220,7 @@ function mysqlr_monitor_database($database){
                     load_libs('tasks');
                     log_console(tr('Replication add master for database :database of server :server', array(':database' => $database['database_name'], ':server' => $database['domain'])), 'white');
                     mysqlr_update_replication_status($database, 'preparing');
-                    $task = tasks_add(array('command'     => 'base/mysql',
+                    $task = tasks_insert(array('command'     => 'base/mysql',
                                             'time_limit'  => 1200,
                                             'status'      => 'new',
                                             'description' => tr('Add replication master of database ":database" on server ":server"', array(':database' => $database['database_name'], ':server' => $database['domain'])),
@@ -1259,7 +1259,7 @@ function mysqlr_monitor_database($database){
                     load_libs('tasks');
                     log_console(tr('Replication add master for database :database of server :server', array(':database' => $database['database_name'], ':server' => $database['domain'])), 'white');
                     mysqlr_update_replication_status($database, 'preparing');
-                    $task = tasks_add(array('command'     => 'base/mysql',
+                    $task = tasks_insert(array('command'     => 'base/mysql',
                                             'time_limit'  => 1200,
                                             'status'      => 'new',
                                             'description' => tr('Add replication master of database ":database" on server ":server"', array(':database' => $database['database_name'], ':server' => $database['domain'])),
