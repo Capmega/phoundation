@@ -185,8 +185,8 @@ function devices_update($device, $server = null){
  */
 function devices_validate($device, $server){
     try{
-        load_libs('validate,seo,categories,companies,servers');
-        $v = new ValidateForm($device, 'type,manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,server,description,options');
+        load_libs('validate,seo,categories,companies,servers,customers,providers,inventories');
+        $v = new ValidateForm($device, 'type,manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,employee,customer,provider,inventory,server,description,options');
 
         $v->isAlphaNumeric($device['manufacturer'], tr('Please specify a valid device manufacturer'), VALIDATE_ALLOW_EMPTY_NULL|VALIDATE_IGNORE_DASH);
         $v->hasMinChars($device['manufacturer'],  2, tr('Please specify a device manufacturer of 2 characters or more'), VALIDATE_ALLOW_EMPTY_NULL);
@@ -254,6 +254,18 @@ function devices_validate($device, $server){
         }
 
         /*
+         * Description
+         */
+        if(empty($device['description'])){
+            $device['description'] = '';
+
+        }else{
+            $v->hasMaxChars($device['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
+
+            $device['description'] = cfm($device['description']);
+        }
+
+        /*
          * Validate category
          */
         if($device['category']){
@@ -268,19 +280,49 @@ function devices_validate($device, $server){
         }
 
         /*
-         * Description
+         * Validate customer
          */
-        if(empty($device['description'])){
-            $device['description'] = '';
+        if($device['customer']){
+           $device['customers_id'] = customers_get($device['customer'], 'id');
+
+            if(!$device['customers_id']){
+                $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $device['customer'])));
+            }
 
         }else{
-            $v->hasMaxChars($device['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
-
-            $device['description'] = cfm($device['description']);
+            $device['customers_id'] = null;
         }
 
         /*
-         * Validate company / branch / department
+         * Validate provider
+         */
+        if($device['provider']){
+           $device['providers_id'] = providers_get($device['provider'], 'id');
+
+            if(!$device['providers_id']){
+                $v->setError(tr('Specified provider ":provider" does not exist', array(':provider' => $device['provider'])));
+            }
+
+        }else{
+            $device['providers_id'] = null;
+        }
+
+        /*
+         * Validate inventory
+         */
+        if($device['inventory']){
+           $device['inventories_id'] = inventories_get($device['inventory'], 'id');
+
+            if(!$device['inventories_id']){
+                $v->setError(tr('Specified inventory key ":inventory" does not exist', array(':inventory' => $device['inventory'])));
+            }
+
+        }else{
+            $device['inventories_id'] = null;
+        }
+
+        /*
+         * Validate company / branch / department / employee
          */
         if($device['company']){
             $device['companies_id'] = companies_get($device['company'], 'id');
@@ -292,26 +334,52 @@ function devices_validate($device, $server){
                 $device['departments_id'] = null;
 
             }else{
-                $device['branches_id'] = companies_get_branch($device['companies_id'], $device['branch'], 'id');
+                /*
+                 * Validate branch
+                 */
+                if($device['branch']){
+                    $device['branches_id'] = companies_get_branch($device['companies_id'], $device['branch'], 'id');
 
-                if(!$device['branches_id']){
-                    $v->setError(tr('Specified branch ":branch" does not exist in company ":company"', array(':company' => $device['company'], ':branch' => $device['branch'])));
+                    if(!$device['branches_id']){
+                        $v->setError(tr('Specified branch ":branch" does not exist in company ":company"', array(':company' => $device['company'], ':branch' => $device['branch'])));
 
-                   $device['departments_id'] = null;
+                       $device['departments_id'] = null;
 
-                }else{
-                    $device['departments_id'] = companies_get_department($device['companies_id'], $device['department'], 'id');
+                    }else{
+                        /*
+                         * Validate department
+                         */
+                        if($device['department']){
+                            $device['departments_id'] = companies_get_department($device['companies_id'], $device['branches_id'], $device['department'], 'id');
 
-                    if(!$device['departments_id']){
-                        $v->setError(tr('Specified department ":department" does not exist in company ":company"', array(':company' => $device['company'], ':department' => $device['department'])));
+                            if(!$device['departments_id']){
+                                $v->setError(tr('Specified department ":department" does not exist in company ":company"', array(':company' => $device['company'], ':department' => $device['department'])));
+
+                            }else{
+                                /*
+                                 * Validate employee
+                                 */
+                                if($device['employee']){
+                                    $device['employees_id'] = companies_get_employee($device['companies_id'], $device['branches_id'], $device['departments_id'], $device['employee'], 'id');
+
+                                    if(!$device['employees_id']){
+                                        $v->setError(tr('Specified employee ":employee" does not exist in company ":company"', array(':company' => $device['company'], ':employee' => $device['employee'])));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
 
         }else{
+            /*
+             * None of it!
+             */
             $device['companies_id']   = null;
             $device['branches_id']    = null;
             $device['departments_id'] = null;
+            $device['employees_id']   = null;
 
             if($device['branch']){
                 $v->setError(tr('No company specified for branch ":branch"', array(':branch' => $device['branch'])));
@@ -319,6 +387,10 @@ function devices_validate($device, $server){
 
             if($device['department']){
                 $v->setError(tr('No company specified for department ":department"', array(':department' => $device['department'])));
+            }
+
+            if($device['employee']){
+                $v->setError(tr('No company specified for employee ":employee"', array(':employee' => $device['employee'])));
             }
         }
 
@@ -852,8 +924,11 @@ function devices_get($device, $server = null){
                                      `devices`.`default`,
                                      `devices`.`description`,
 
+                                     `servers`.`ipv4`,
+                                     `servers`.`ipv6`,
                                      `servers`.`domain`,
                                      `servers`.`seodomain`,
+
                                      `categories`.`name`  AS `category`,
                                      `companies`.`name`   AS `company`,
                                      `branches`.`name`    AS `branch`,
@@ -930,6 +1005,7 @@ function devices_select($product, $category = null){
                                      `devices`.`string`,
                                      `devices`.`default`,
                                      `devices`.`description`,
+
                                      `categories`.`name`  AS `category`,
                                      `companies`.`name`   AS `company`,
                                      `branches`.`name`    AS `branch`,
