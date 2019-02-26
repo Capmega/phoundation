@@ -206,10 +206,7 @@ switch(cli_method()){
             }
         }
 
-        $scanimage['file'] = cli_argument();
-        array_default($scanimage, 'format', 'jpeg');
-
-         //$scanimage['resolution']     = not_empty(cli_argument('--resolution'     , true), isset_get($device['options']['resolution']));
+        //$scanimage['resolution']     = not_empty(cli_argument('--resolution'     , true), isset_get($device['options']['resolution']));
         //$scanimage['contrast']       = not_empty(cli_argument('--contrast'       , true), isset_get($_CONFIG['scanimage']['contrast']));
         //$scanimage['brightness']     = not_empty(cli_argument('--brightness'     , true), isset_get($_CONFIG['scanimage']['brightness']));
         //$scanimage['gamma']          = not_empty(cli_argument('--gamma, true'    , true), isset_get($_CONFIG['scanimage']['gamma']));
@@ -219,6 +216,10 @@ switch(cli_method()){
         //$scanimage['format']         = not_empty(cli_argument('--format'         , true), isset_get($_CONFIG['scanimage']['format']));
         //$scanimage['clear_exif']     = not_empty(cli_argument('--clear-exif'     , true), isset_get($_CONFIG['scanimage']['clear_exif']));
         //$scanimage['file']           = cli_argument();
+
+        $scanimage['format'] = cli_argument('-f,--format', true, isset_get($_CONFIG['scanimage']['format']));
+        $scanimage['file']   = cli_argument();
+
         cli_no_arguments_left();
 
         if(!$scanimage['file']){
