@@ -169,6 +169,8 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
         sql_query('DELETE FROM `files` WHERE `id` = :id', array(':id' => $dbfile['id']));
         file_delete(slash($base_path).$dbfile['filename']);
 
+        log_console(tr('Deleted files library file ":file"', array(':file' => $dbfile['filename'])), 'green');
+
         return $dbfile;
 
     }catch(Exception $e){
