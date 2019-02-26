@@ -62,8 +62,7 @@ function check_disk($params = null){
                 file_delete(ROOT.'data/cache');
                 file_delete(ROOT.'data/log');
 
-                notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytes bytes / :percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $bytes, ':percentage' => $percentage)), 'low-diskspace'));
-                notify(new BException(tr('check_disk(): Low diskspace default callback function executing, deleting projects\' tmp, cache, and log directories'), 'low-diskspace'));
+                notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytes bytes / :percentage%". Executing default callback function which will delete projects\' tmp, cache, and log directories', array(':available' => $available, ':total' => $total, ':bytes' => $bytes, ':percentage' => $percentage)), 'warning/low-diskspace'));
             };
         }
 
