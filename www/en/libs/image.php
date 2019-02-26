@@ -96,6 +96,10 @@ function image_convert($source, $destination, $params = null){
         /*
          * Validations
          */
+        if(!file_exists($source)){
+            throw new BException(tr('image_convert(): The specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
+        }
+
         if(file_exists($destination) and $destination != $source){
             throw new BException(tr('image_convert(): Destination file ":file" already exists', array(':file' => $destination)), 'exists');
         }
@@ -402,14 +406,8 @@ function image_convert($source, $destination, $params = null){
                 break;
 
             case 'custom':
-                $complete_command = $command.' tiff:- "'.$source.'"  "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
+                $complete_command = $command.' "'.$source.'"  "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
 
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
-                break;
-
-            case 'format':
-                $complete_command = $command.'  "'.$source.'" '.isset_get($params['custom']).' "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
                 safe_exec($complete_command, 0);
                 file_put_contents($params['log'], $complete_command, FILE_APPEND);
                 break;
