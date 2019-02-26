@@ -235,7 +235,7 @@ switch(cli_method()){
         while(true){
             foreach($files as $path){
                 if(!file_exists($path)){
-                    throw new BException('Specified file or path ":path" does not exist', array(':warning/' => $path), 'warning/not-exist');
+                    throw new BException(tr('Specified file or path ":path" does not exist', array(':path' => $path)), 'warning/not-exist');
                 }
 
                 if(is_dir($path)){
@@ -251,10 +251,14 @@ switch(cli_method()){
                         }
 
                         if(str_rfrom($file, '.') == 'part'){
+                            /*
+                             * This file is still being processed
+                             */
+                            log_console(tr('Ignoring file ":file" from path ":path", its still being processed', array(':file' => $file, ':path' => $path)), 'VERBOSE/yellow');
                             continue;
                         }
 
-                        log_file(tr('Adding file ":file" from path ":path"', array(':file' => $file, ':path' => $path)), 'storage');
+                        log_console(tr('Adding file ":file" from path ":path"', array(':file' => $file, ':path' => $path)), 'VERBOSE/cyan');
 
                         $file = storage_files_add(array('sections_id'  => $section['id'],
                                                         'documents_id' => $document['id'],
@@ -263,11 +267,11 @@ switch(cli_method()){
                                                         'update_owner' => $request['update_owner'],
                                                         'convert'      => $request['convert']));
 
-                        log_console(tr('Added file ":file" from path ":path" to section ":section", document ":document" page ":page"', array(':path' => $path, ':file' => basename($file['filename']), ':section' => $page['sections_id'], ':document' => $page['documents_id'], ':page' => $page['id'])));
+                        log_console(tr('Added file ":file" from path ":path" to section ":section", document ":document" page ":page"', array(':path' => $path, ':file' => basename($file['filename']), ':section' => $section['id'], ':document' => $document['id'], ':page' => isset_get($page['id']))), 'green');
                     }
 
                 }else{
-                    log_file(tr('Adding file ":file"', array(':file' => $file)), 'storage');
+                    log_console(tr('Adding file ":file"', array(':file' => $file)), 'VERBOSE/cyan');
 
                     $path = storage_files_add(array('sections_id'  => $section['id'],
                                                     'documents_id' => $document['id'],
@@ -276,7 +280,7 @@ switch(cli_method()){
                                                     'update_owner' => $request['update_owner'],
                                                     'convert'      => $request['convert']));
 
-                    log_console(tr('Added file ":file" to section ":section", document ":document" page ":page"', array(':file' => $path['filename'], ':section' => $page['sections_id'], ':document' => $page['documents_id'], ':page' => $page['id'])));
+                    log_console(tr('Added file ":file" to section ":section", document ":document" page ":page"', array(':file' => $path['filename'], ':section' => $section['id'], ':document' => $document['id'], ':page' => isset_get($page['id']))), 'green');
                 }
             }
 
@@ -287,23 +291,32 @@ switch(cli_method()){
                 break;
             }
 
-            if($request['monitor_task']){
-                load_libs('tasks');
-
-                if(tasks_check_pid($request['monitor_task'])){
-                    log_file(tr('Task ":task" still running, continuing path ":path" monitoring', array(':task' => $request['monitor_task'], ':path' => $path)), 'storage');
-
-                }else{
-                    /*
-                     * The process is done, break the loop
-                     */
-                    log_file(tr('Task ":task" finished, doing one last file check before finishing', array(':task' => $request['monitor_task'])), 'storage');
-                    $break = true;
-                }
-
-                usleep(100000);
-                continue;
+            if(!$request['monitor_task']){
+                /*
+                 * We're done!
+                 */
+                break;
             }
+
+            /*
+             * Monitor the specified task to see if it is still running. While
+             * it is running, we do not stop either.
+             */
+            load_libs('tasks');
+
+            if(tasks_check_pid($request['monitor_task'])){
+                log_console(tr('Task ":task" still running, continuing path ":path" monitoring', array(':task' => $request['monitor_task'], ':path' => $path)), 'VERBOSE/cyan');
+
+            }else{
+                /*
+                 * The process is done, break the loop
+                 */
+                log_console(tr('Task ":task" finished, doing one last file check before finishing', array(':task' => $request['monitor_task'])), 'cyan');
+                $break = true;
+            }
+
+            usleep(100000);
+            continue;
         }
 
         break;
