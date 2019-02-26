@@ -87,7 +87,7 @@ if(!$connector){
 }
 
 if(empty($_CONFIG['db'][$connector])){
-    throw new BException(tr('Specified connector ":connector" does not exist. Please check the configuration $_CONFIG[db][CONNECTORNAME]', array(':connector' => $connector)), 'not-exist');
+    throw new BException(tr('Specified connector ":connector" does not exist. Please check the configuration $_CONFIG[db][CONNECTORNAME]', array(':connector' => $connector)), 'not-exists');
 }
 
 $connector_data = $_CONFIG['db'][$connector];
@@ -121,7 +121,7 @@ if($all){
         $exist = sql_get('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = :TABLE_SCHEMA GROUP BY `TABLE_SCHEMA` LIMIT 1', 'TABLE_SCHEMA', array(':TABLE_SCHEMA' => $database), $connector);
 
         if(!$exist){
-            throw new BException(tr('Specified database ":database" does not exist', array(':database' => $database)), 'not-exist');
+            throw new BException(tr('Specified database ":database" does not exist', array(':database' => $database)), 'not-exists');
         }
     }
 }

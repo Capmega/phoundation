@@ -103,7 +103,7 @@ function fprint_verify($user, $finger = 'auto'){
         $dbuser = user_get($user);
 
         if(!$dbuser){
-            throw new BException(tr('fprint_verify(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+            throw new BException(tr('fprint_verify(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
         }
 
         if(!$dbuser['fingerprint']){
@@ -205,7 +205,7 @@ function fprint_delete($user){
         $device = fprint_select_device();
 
         if(!linux_file_exists($device['server'], '/var/lib/fprint/'.$user)){
-            throw new BException(tr('fprint_delete(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+            throw new BException(tr('fprint_delete(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
         }
 
         /*
@@ -441,7 +441,7 @@ function fprint_select_device($category = null){
             $device = devices_select('fingerprint-reader', $category);
 
             if(!$device){
-                throw new BException(t('fprint_select_device(): No fingerprint reader device found'), 'not-exist');
+                throw new BException(t('fprint_select_device(): No fingerprint reader device found'), 'not-exists');
             }
 
             $device['persist'] = true;
@@ -542,7 +542,7 @@ function fprint_process_result(){
             load_libs('process');
             throw new BException(tr('fprint_process_result(): Current process owner ":owner" cannot execute fprint with sudo without password', array(':owner' => process_get_user())), 'warning/'.$result);
 
-        case 'not-exist':
+        case 'not-exists':
             throw new BException(tr('fprint_process_result(): User ":user" has no fingerprints registered', array(':user' => name(isset_get($_SESSION['user'])))), 'warning/'.$result);
 
         case 'no-fprint-file':

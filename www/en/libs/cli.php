@@ -1469,6 +1469,15 @@ function cli_status_color($status){
             case 'failed':
                 return cli_color($status, 'red');
 
+            case 'disabled':
+                return cli_color($status, 'yellow');
+
+            case 'not found':
+                return cli_color($status, 'yellow');
+
+            case 'not exists':
+                return cli_color($status, 'yellow');
+
             case 'deleted':
                 return cli_color($status, 'yellow');
 
@@ -1476,7 +1485,7 @@ function cli_status_color($status){
 
         }
 
-        return $status;
+        return cli_color($status, 'purple');
 
     }catch(Exception $e){
         throw new BException('cli_status_color(): Failed', $e);
@@ -1598,15 +1607,30 @@ function cli_list_processes($filters){
  * @version 2.0.5: Added function and documentation
  *
  * @param string $file The file to be unzipped
+ * @param boolean $remove If set to true, the specified zip file will be removed after the unzip action
  * @return string The path of the specified file
  */
-function cli_unzip($file){
+function cli_unzip($file, $remove = true){
     try{
-        $path = dirname($file);
-        safe_exec('cd '.$path.'; unzip "'.$file.'"');
+        $filename = filename($file);
+        $filename = str_runtil($file, '.');
+        $path     = TMP.$filename.'/';
 
-// :TODO: ENSURE THAT $PATH HAS A TERMINATING SLASH!
-showdie($path);
+        file_ensure_path($path);
+
+        if($move){
+            rename($file, $path.$filename);
+
+        }else{
+            copy($file, $path.$filename);
+        }
+
+        /*
+         * Unzip and
+         */
+        safe_exec('cd '.$path.'; gunzip "'.$filename.'"');
+        file_delete($path.$filename);
+
         return $path;
 
     }catch(Exception $e){

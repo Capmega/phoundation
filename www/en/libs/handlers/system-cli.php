@@ -27,8 +27,6 @@ try{
     define('FORCE'      , cli_argument('-F,--force'));
     define('NOCOLOR'    , cli_argument('-C,--no-color'));
     define('TEST'       , cli_argument('-T,--test'));
-    define('LIMIT'      , not_empty(cli_argument('--limit', true), $_CONFIG['paging']['limit']));
-    define('ALL'        , cli_argument('-A,--all'));
     define('DELETED'    , cli_argument('--deleted'));
     define('STATUS'     , cli_argument('-S,--status' , true));
     define('STARTDIR'   , slash(getcwd()));
@@ -384,6 +382,17 @@ if(cli_argument('-D,--debug')){
 
 
 /*
+ * Set more system parameters
+ */
+$core->register['all']         = cli_argument('-A,--all');
+$core->register['page']        = not_empty(cli_argument('-P,--page', true), 1);
+$core->register['limit']       = not_empty(cli_argument('--limit'  , true), $_CONFIG['paging']['limit']);
+$core->register['clean_debug'] = cli_argument('--clean-debug');
+
+
+
+/*
+ * Validate parameters
  * Give some startup messages, if needed
  */
 if(VERBOSE){
@@ -412,19 +421,31 @@ if(FORCE){
     log_console(tr('Running in TEST mode'), 'yellow');
 }
 
-if(ALL){
-    if(DELETED){
-        throw new BException(tr('core::startup(): Both ALL and DELETED modes where specified, these modes are mutually exclusive'), 'invalid');
-    }
-
-    log_console(tr('Showing ALL entries'), 'VERBOSE/cyan');
-
-}elseif(DELETED){
-    log_console(tr('Showing DELETED entries'), 'VERBOSE/cyan');
-}
-
 if(debug()){
     log_console(tr('Running in DEBUG mode'), 'VERBOSE/yellow');
+}
+
+if(!is_natural($core->register['page'])){
+    throw new BException(tr('paging_library_init(): Specified -P or --page ":page" is not a natural number', array(':page' => $core->register['page'])), 'invalid');
+}
+
+if(!is_natural($core->register['limit'])){
+    throw new BException(tr('paging_library_init(): Specified --limit":limit" is not a natural number', array(':limit' => $core->register['limit'])), 'invalid');
+}
+
+if($core->register['all']){
+    if($core->register['page'] > 1){
+        throw new BException(tr('paging_library_init(): Both -A or --all and -P or --page have been specified, these options are mutually exclusive'), 'invalid');
+    }
+
+    if(DELETED){
+        throw new BException(tr('paging_library_init(): Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'), 'invalid');
+    }
+
+    if(STATUS){
+        throw new BException(tr('paging_library_init(): Both -A or --all and -S or --status have been specified, these options are mutually exclusive'), 'invalid');
+    }
+
 }
 
 

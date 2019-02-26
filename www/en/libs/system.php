@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.7');
+define('FRAMEWORKCODEVERSION', '2.4.13');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -179,7 +179,8 @@ class Core{
 
     public $sql       = array();
     public $mc        = array();
-    public $register  = array('ready'         => false,
+    public $register  = array('tabindex'      => 0,
+                              'ready'         => false,
                               'js_header'     => array(),
                               'js_footer'     => array(),
                               'css'           => array(),
@@ -1103,7 +1104,7 @@ function read_config($file = null, $environment = null){
         }
 
         if(empty($loaded)){
-            throw new BException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exist');
+            throw new BException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exists');
         }
 
         return $_CONFIG;
@@ -1256,7 +1257,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
         }
 
         if(!$autocreate){
-            throw new BException('load_content(): Specified file "'.str_log($file).'" does not exist for language "'.str_log($language).'"', 'not-exist');
+            throw new BException('load_content(): Specified file "'.str_log($file).'" does not exist for language "'.str_log($language).'"', 'not-exists');
         }
 
         /*
@@ -1938,10 +1939,6 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
 
         $language = get_language($language);
 
-        if($language){
-            $language .= '/';
-        }
-
         if($prefix === null){
 // :COMPATIBILITY:  Remove "root" support after 2019-04-01
             if(!empty($_CONFIG['url_prefix'])){
@@ -1952,18 +1949,17 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             }
         }
 
+        $prefix = str_starts(str_ends($prefix, '/'), '/');
+        $domain = slash($domain);
+
         if(!$url){
-            $retval = PROTOCOL.slash($domain).$language.$prefix;
+            $retval = PROTOCOL.$domain.$language.$prefix;
 
         }elseif($url === true){
-            $retval = PROTOCOL.$domain.str_starts($_SERVER['REQUEST_URI'], '/');
+            $retval = PROTOCOL.$domain.str_starts_not($_SERVER['REQUEST_URI'], '/');
 
         }else{
-            if($prefix){
-                $prefix = str_starts_not(str_ends($prefix, '/'), '/');
-            }
-
-            $retval = PROTOCOL.slash($domain).$language.$prefix.str_starts_not($url, '/');
+            $retval = PROTOCOL.$domain.$language.$prefix.str_starts_not($url, '/');
         }
 
         if($query){
@@ -2084,7 +2080,8 @@ function download($url, $section = false, $callback = null){
             $file = TMP.$file;
         }
 
-        file_ensure_path(TMP.$section, 0770, true);
+        load_libs('linux');
+        linux_ensure_path(TMP.$section, 0770, true);
         safe_exec('wget -q -O '.$file.' - "'.$url.'"');
 
         if(!$section){
@@ -2286,7 +2283,7 @@ function user_or_signin(){
                  * Redirect all pages EXCEPT the lock page itself!
                  */
                 if(empty($_CONFIG['redirects'][$_SESSION['force_page']])){
-                    throw new BException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exist');
+                    throw new BException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exists');
                 }
 
                 if($_CONFIG['redirects'][$_SESSION['force_page']] !== str_until(str_rfrom($_SERVER['REQUEST_URI'], '/'), '?')){
@@ -2573,7 +2570,7 @@ function status($status, $list = null){
             return 'Ok';
         }
 
-        return str_capitalize($status);
+        return str_capitalize(str_replace('-', ' ', $status));
 
     }catch(Exception $e){
         throw new BException(tr('status(): Failed'), $e);
@@ -2898,7 +2895,7 @@ function name($user = null, $key_prefix = '', $default = null){
                  * Fetch user data from DB, then treat it as an array
                  */
                 if(!$user = sql_get('SELECT `nickname`, `name`, `username`, `email` FROM `users` WHERE `id` = :id', array(':id' => $user))){
-                    throw new BException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exist');
+                    throw new BException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exists');
                 }
             }
 
@@ -3468,18 +3465,33 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
 
 
 /*
+ * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see domain()
+ * @see mapped_domain()
+ * @version 2.4.9: Added documentation
+ *
+ * @params string $file
+ * @params string $section
+ * @params boolean $false_on_not_exist
+ * @params boolean $force_cdn
+ * @return string The result
  */
-function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force_cdn = false){
+function cdn_domain($file = '', $section = 'pub', $false_on_not_exist = false, $force_cdn = false){
     global $_CONFIG;
 
     try{
         if(!$_CONFIG['cdn']['enabled'] and !$force_cdn){
             if($section == 'pub'){
-                $prefix = not_empty($_CONFIG['cdn']['prefix'], '/');
+                $section = not_empty($_CONFIG['cdn']['prefix'], '/');
             }
 
-            return domain($file, null, isset_get($prefix,''), $_CONFIG['cdn']['domain'], null, false);
+            return domain($file, null, $section, $_CONFIG['cdn']['domain'], null, false);
         }
 
         if($section == 'pub'){
@@ -3726,7 +3738,7 @@ function str_from($source, $needle, $more = 0, $require = false){
 /*
  * Return the given string from 0 until the specified needle
  */
-function str_until($source, $needle, $more = 0, $start = 0){
+function str_until($source, $needle, $more = 0, $start = 0, $require = false){
     try{
         if(!$needle){
             throw new BException('str_until(): No needle specified', 'not-specified');
@@ -3734,7 +3746,13 @@ function str_until($source, $needle, $more = 0, $start = 0){
 
         $pos = mb_strpos($source, $needle);
 
-        if($pos === false) return $source;
+        if($pos === false){
+            if($require){
+                return '';
+            }
+
+            return $source;
+        }
 
         return mb_substr($source, $start, $pos + $more);
 
@@ -5277,12 +5295,12 @@ function shutdown(){
                      * Shutdown function value is an array. Execute it for each entry
                      */
                     foreach($value as $entry){
-                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key, ':value' => $entry)), 'VERBOSE/cyan');
+                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key.'()', ':value' => $entry)), 'VERBOSE/cyan');
                         $key($entry);
                     }
 
                 }else{
-                    log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key, ':value' => $value)), 'VERBOSE/cyan');
+                    log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key.'()', ':value' => $value)), 'VERBOSE/cyan');
                     $key($value);
                 }
 
@@ -5356,94 +5374,6 @@ function unregister_shutdown($name){
 
     }catch(Exception $e){
         throw new BException(tr('unregister_shutdown(): Failed'), $e);
-    }
-}
-
-
-
-/*
- * Check the disk full status under the specified path (defaults to this projects) and execute callback if limit is passed
- *
- * This function will check the disk where the specified path is mounted for available and total space and compare those two to the specified limits. If one or multiple limits are passed, the callback function will be executed
- *
- * By default, the callback function will empty the cache, tmp, and log directories
- *
- * Limits can be specified either by an absolute number with or without a KMGTP suffix (e.g. 500000, 100K, 50M, 300G, etc), or a % (e.g. 10%) or a combination of an absolute number and % separated by a comma (e.g. 10%,500M)
- *
- * If a % is specified, and the disk where the specified path is mounted has less than that % available, the callback function will execute
- *
- * If an absolute number is specified, and the disk where the specified path is mounted has less than that number in bytes available, the callback function will execute
- *
- * If both are specified, and either one of them has less than the specified limit, both will execute
- *
- * The callback function signature is $params[callback](integer $total, integer $available, integer $limit_percentage integer $limit_bytes) where $total is the total size for the filesystem on the specified path, $available is the amount of bytes available, $limit_percentage is the caller specified minimum percentage, and $limit_bytes is the caller specified minimum amount of bytes
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- * @version 2.0.6: Added function and documentation
- *
- * @param params $params The function parameters
- * @param $params[path] The directory to check. Defaults to ROOT
- * @param null string $params[bytes] =$_CONFIG[check_disk][bytes] The amount of minimal available bytes limit that should not be crossed. Must be an absolute number in bytes with or without a KMGTP suffix (e.g. 500000, 100K, 50M, 300G, etc)
- * @param null string $params[percentage] =$_CONFIG[check_disk][percentage] The percentage of minimal available bytes limit that should not be crossed. Must be in the form of N% (e.g. 10%)
- * @param function $params[callback] The callback function to execute if disk full limits have been crossed. Defaults to a default function that clears cache, tmp, and log directories
- * @return null mixed If disk usage did not cross the specified limits null, else the output of the callback function
- */
-function check_disk($params = null){
-    global $_CONFIG;
-
-    try{
-        array_ensure($params, 'percentage,bytes');
-        array_default($params, 'bytes'     , $_CONFIG['check_disk']['bytes']);
-        array_default($params, 'percentage', $_CONFIG['check_disk']['percentage']);
-
-        if(empty($params['callback'])){
-            /*
-             * Perform default recovery actions
-             */
-            $params['callback'] = function($total, $available, $percentage, $bytes){
-                file_delete(ROOT.'data/tmp');
-                file_delete(ROOT.'data/cache');
-                file_delete(ROOT.'data/log');
-
-                notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $bytes, ':percentage' => $percentage)), 'low-diskspace'));
-                notify(new BException(tr('check_disk(): Low diskspace default callback function executing, deleting projects\' tmp, cache, and log directories'), 'low-diskspace'));
-            };
-        }
-
-        if(empty($params['path'])){
-            $params['path'] = ROOT;
-        }
-
-        if(!file_exists($params['path'])){
-            throw new BException(tr('check_disk(): The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
-        }
-
-        $total      = disk_total_space($params['path']);
-        $available  = disk_free_space($params['path']);
-        $bytes      = $total - $available;
-        $percentage = (($available / $total) * 100);
-
-        if($percentage < $params['percentage']){
-            $execute = true;
-        }
-
-        if($bytes < $params['bytes']){
-            $execute = true;
-        }
-
-        if(isset($execute)){
-            notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage'])), 'low-diskspace'));
-            return $params['callback']($total, $available, $params['percentage'], $bytes);
-        }
-
-        return null;
-
-    }catch(Exception $e){
-        throw new BException(tr('check_disk(): Failed'), $e);
     }
 }
 

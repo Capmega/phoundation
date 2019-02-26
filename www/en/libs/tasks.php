@@ -47,7 +47,7 @@ function tasks_library_init(){
  * @param params $task The task to be added to the database
  * @return params The added task, validated and with the tasks id added
  */
-function tasks_add($task){
+function tasks_insert($task){
     try{
         array_params($task);
         array_default($task, 'status'      , 'new');
@@ -75,18 +75,17 @@ function tasks_add($task){
 
         $task['id'] = sql_insert_id();
 
-        if($task['auto_execute']){
-            log_file(tr('Added new auto executing task ":description" with id ":id"', array(':description' => $task['description'], ':id' => $task['id'])), 'tasks');
-            run_background('base/tasks execute --env '.ENVIRONMENT, true, false);
+        log_console(tr('Added new task ":description" with id ":id"', array(':description' => $task['description'], ':id' => $task['id'])), 'green');
 
-        }else{
-            log_file(tr('Added new task ":description" with id ":id"', array(':description' => $task['description'], ':id' => $task['id'])), 'tasks');
+        if($task['auto_execute']){
+            log_console(tr('Auto starting tasks manager in background'), 'cyan');
+            run_background('base/tasks execute --env '.ENVIRONMENT.(VERBOSE ? (VERYVERBOSE ? ' --very-verbose' : ' --verbose') : ''), true, false);
         }
 
         return $task;
 
     }catch(Exception $e){
-        throw new BException('tasks_add(): Failed', $e);
+        throw new BException('tasks_insert(): Failed', $e);
     }
 }
 
@@ -157,7 +156,7 @@ function tasks_update($task, $executed = false){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package scanimage
- * @see tasks_add()
+ * @see tasks_insert()
  * @see tasks_update()
  *
  * @param params $task The task to be validated
@@ -222,7 +221,6 @@ function tasks_validate($task){
 
         $task['verbose']   = (boolean) $task['verbose'];
         $task['parrallel'] = (boolean) $task['parrallel'];
-
 
         if(is_object($task['data'])){
             $v->setError(tr('Specified task data is an object data type, which is not supported'));
@@ -355,7 +353,7 @@ function tasks_get($filters, $set_status = false, $min_id = null){
 /*
  * List all tasts with the specified status
  */
-function tasks_list($status, $limit = 10){
+function tasks_list($status){
     try{
         if($status){
             $status = array_force($status);
@@ -406,9 +404,7 @@ function tasks_list($status, $limit = 10){
 
                            '.$where.'
 
-                           ORDER BY  `tasks`.`createdon` ASC
-
-                           LIMIT     '.$limit,
+                           ORDER BY  `tasks`.`createdon` DESC'.sql_limit(),
 
                            $status);
 
@@ -512,7 +508,7 @@ function tasks_check_pid($tasks_id){
         $task = sql_get('SELECT `id`, `pid` FROM `tasks` WHERE `id` = :id', array(':id' => $tasks_id));
 
         if(!$task){
-            throw new BException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exist');
+            throw new BException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exists');
         }
 
         if(!$task['pid']){

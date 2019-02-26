@@ -34,7 +34,7 @@ if(empty($_CONFIG['data']['global'])){
         /*
          * Umm, we don't have a user data directory
          */
-        throw new BException(tr('No user home directory found for non root user'), 'not-exist');
+        throw new BException(tr('No user home directory found for non root user'), 'not-exists');
     }
 }
 

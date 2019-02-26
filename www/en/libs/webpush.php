@@ -70,7 +70,7 @@ function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = f
         $user = sql_get('SELECT `webpush` FROM `users` WHERE `id` = :id', array(':id' => $users_id));
 
         if(empty($user)){
-            throw new BException(tr('webpush_notify_user(): Specified user ":user" does not exist', array(':user' => $users_id)), 'not-exist');
+            throw new BException(tr('webpush_notify_user(): Specified user ":user" does not exist', array(':user' => $users_id)), 'not-exists');
         }
 
         if(empty($_CONFIG['webpush']['public_key']) or empty($_CONFIG['webpush']['private_key'])){

@@ -97,13 +97,13 @@ function mailer_insert($params){
          * Validate content file
          */
         if(!file_exists(ROOT.'data/content/'.LANGUAGE.'/mailer/template.html')){
-            throw new BException('mailer_insert(): Template file "'.ROOT.'data/content/'.LANGUAGE.'/mailer/template.html" does not exist', 'not-exist');
+            throw new BException('mailer_insert(): Template file "'.ROOT.'data/content/'.LANGUAGE.'/mailer/template.html" does not exist', 'not-exists');
         }
 
         $params['content'] = cfm($params['content']);
 
         if(!file_exists($file = ROOT.'data/content/'.LANGUAGE.'/mailer/'.$params['content'].'.html')){
-            throw new BException('mailer_insert(): Specified content file "'.$params['content'].'.html'.'" does not exist in email content path "'.ROOT.'data/content/'.LANGUAGE.'/mailer/'.'"', 'not-exist');
+            throw new BException('mailer_insert(): Specified content file "'.$params['content'].'.html'.'" does not exist in email content path "'.ROOT.'data/content/'.LANGUAGE.'/mailer/'.'"', 'not-exists');
         }
 
         /*
@@ -176,7 +176,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true){
         }
 
         if($mailings_id < 1){
-            throw new BException('mailer_add_users(): Specified mailing "'.str_log($mailing).'" does not exist', 'not-exist');
+            throw new BException('mailer_add_users(): Specified mailing "'.str_log($mailing).'" does not exist', 'not-exists');
         }
 
         $count = 0;
@@ -596,7 +596,7 @@ function mailer_viewed($code){
         $recipient = mailer_get_recipient($code, 'sent');
 
         if(!$recipient){
-            throw new BException('mailer_viewed(): Specified code "'.str_log($code).'" does not exist', 'not-exist');
+            throw new BException('mailer_viewed(): Specified code "'.str_log($code).'" does not exist', 'not-exists');
         }
 
         sql_query('INSERT INTO `mailer_views` (`recipients_id`, `ip`, `host`, `referrer`)

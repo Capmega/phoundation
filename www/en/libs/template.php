@@ -23,7 +23,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package template
- * @version 2.2.0: Added function and documentation
+ * @version 2.4.11: Added function and documentation
  *
  * @return void
  */
@@ -49,7 +49,7 @@ function template_library_init(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @version 2.2.0: Added function and documentation
+ * @version 2.4.11: Added function and documentation
  * @package template
  *
  * @param
@@ -88,7 +88,7 @@ function template_install($params){
  * @see date_convert() Used to convert the sitemap entry dates
  * @table: `template`
  * @note: This is a note
- * @version 2.2.0: Added function and documentation
+ * @version 2.4.11: Added function and documentation
  * @example [Title]
  * code
  * $result = template_function(array('foo' => 'bar'));

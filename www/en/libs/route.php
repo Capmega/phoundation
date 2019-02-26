@@ -101,7 +101,7 @@ function route($regex, $target, $flags = null){
             return false;
         }
 
-        log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERYVERBOSE/green');
+        log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERBOSE/green');
 
         $route = $target;
 
@@ -197,6 +197,8 @@ function route($regex, $target, $flags = null){
                      * URL cloaking was used. See if we have a real URL behind
                      * the specified cloak
                      */
+                    load_libs('url');
+
                     $_SERVER['REQUEST_URI'] = url_decloak($route);
 
                     if(!$_SERVER['REQUEST_URI']){

@@ -144,8 +144,6 @@ function categories_validate($category){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -158,19 +156,17 @@ function categories_validate($category){
 function categories_select($params = null){
     try{
         array_ensure($params);
-        array_default($params, 'name'        , 'seocategory');
-        array_default($params, 'class'       , 'form-control');
-        array_default($params, 'selected'    , null);
-        array_default($params, 'seoparent'    , null);
-        array_default($params, 'autosubmit'  , true);
-        array_default($params, 'parents_id'  , null);
-        array_default($params, 'status'      , null);
-        array_default($params, 'remove'      , null);
-        array_default($params, 'empty'       , tr('No categories available'));
-        array_default($params, 'none'        , tr('Select a category'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
-        array_default($params, 'orderby'     , '`name`');
+        array_default($params, 'name'      , 'seocategory');
+        array_default($params, 'class'     , 'form-control');
+        array_default($params, 'selected'  , null);
+        array_default($params, 'seoparent' , null);
+        array_default($params, 'autosubmit', true);
+        array_default($params, 'parents_id', null);
+        array_default($params, 'status'    , null);
+        array_default($params, 'remove'    , null);
+        array_default($params, 'empty'     , tr('No categories available'));
+        array_default($params, 'none'      , tr('Select a category'));
+        array_default($params, 'orderby'   , '`name`');
 
         if($params['seoparent']){
             /*

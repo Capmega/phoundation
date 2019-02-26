@@ -527,13 +527,13 @@ function init_section($section, $version){
         $path = ROOT.'init/'.$section.'/';
 
         if(!file_exists($path)){
-            throw new BException(tr('init_section(): Specified section ":section" path ":path" does not exist', array(':section' => $section, ':path' => $path)), 'not-exist');
+            throw new BException(tr('init_section(): Specified section ":section" path ":path" does not exist', array(':section' => $section, ':path' => $path)), 'not-exists');
         }
 
         $connector = sql_get_connector($section);
 
         if(!$connector){
-            throw new BException(tr('init_section(): Specified section ":section" does not have a connector configuration. Please check $_CONFIG[db] or the `sql_connectors` table', array(':section' => $section)), 'not-exist');
+            throw new BException(tr('init_section(): Specified section ":section" does not have a connector configuration. Please check $_CONFIG[db] or the `sql_connectors` table', array(':section' => $section)), 'not-exists');
         }
 
         /*

@@ -113,7 +113,7 @@ try{
             }
 
             $order    = ' ORDER BY `ssh_accounts`.`status` IS NOT NULL DESC ';
-            $accounts = sql_query($query.$where.$order.(LIMIT ? ' LIMIT '.LIMIT : ''), $execute);
+            $accounts = sql_query($query.$where.$order.sql_limit(), $execute);
 
             if(!$accounts->rowCount()){
                     log_console(tr('There are currently no accounts registered'), 'QUIET/yellow');
@@ -133,7 +133,7 @@ try{
             $account_data = ssh_get_account($account);
 
             if(!$account_data){
-                throw new BException(tr('The specified SSH account ":account" does not exist', array(':account' => $account)), 'not-exist');
+                throw new BException(tr('The specified SSH account ":account" does not exist', array(':account' => $account)), 'not-exists');
             }
 
             $account_data = array_hide($account_data);
@@ -210,7 +210,7 @@ try{
 $background    = cli_argument('-b,--background');
 $function      = not_empty(cli_argument('-f,--function'), 'passthru');
 $identity_file = cli_argument('-i,--identity-file');
-$domain      = cli_method();
+$domain        = cli_method();
 $port          = cli_method(1);
 $commands      = cli_argument(1);
 
@@ -249,7 +249,7 @@ try{
         case 'multiple':
             throw new BException(tr('Specified domain ":domain" matched multiple registered servers, please be more specific', array(':domain' => $domain)), 'warning/multiple');
 
-        case 'not-exist':
+        case 'not-exists':
             throw new BException(tr('Specified domain ":domain" matched no registered servers', array(':domain' => $domain)), 'warning/not-exist');
 
         case 'host-verification-failed':

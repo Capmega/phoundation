@@ -5,15 +5,23 @@
  */
 $usage = './scripts/base/devices list
 ./scripts/base/devices scan PRODUCT_FILTER [SERVER]
+./scripts/base/devices supported
 ./scripts/base/devices list
 ./scripts/base/devices show DEVICE_ID
 ./scripts/base/devices modify DEVICE_ID [--category CATEGORY] [--company COMPANY] [--branch BRANCH] [--department DEPARTMENT]
 ./scripts/base/devices delete|undelete|erase ID|NAME ID|NAME ...';
 
-$help  = 'This is the devices management script';
+$help  = 'This is the devices management script
+
+
+
+METHODS
+
+
+
+supported                       - Prints a list of the supported device types';
 
 require_once(__DIR__.'/../../libs/startup.php');
-
 load_libs('devices');
 
 switch(cli_method()){
@@ -46,37 +54,68 @@ switch(cli_method()){
                               ON        `servers`.`id` = `devices`.`servers_id`
 
                               WHERE     `devices`.`status` IS NULL
-                              OR        `devices`.`status` != "_new" '.(LIMIT ? ' LIMIT '.LIMIT : ''));
+                              OR        `devices`.`status` != "_new"
+
+                              ORDER BY  `servers`.`domain` ASC, `devices`.`type` ASC
+
+                              '.sql_limit());
 
         if(!$devices->rowCount()){
             log_console(tr('There are currently no devices available'), 'QUIET/yellow');
 
         }else{
             log_console(tr('Showing currently available devices'), 'QUIET/white');
-            log_console(str_size(tr('#id'), 6).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 16).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
+            log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 12).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.str_size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
 
             while($device = sql_fetch($devices)){
-                log_console(str_size($device['id'], 6).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(status($device['status']), 16).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.$device['description']);
+                log_console(str_size($device['id'], 6, ' ', true).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
             }
         }
 
         break;
 
     case 'show':
-        $id = cli_argument(1);
+        $id     = cli_argument(1);
+        $server = cli_argument(2);
 
         cli_no_arguments_left();
 
-        $device = devices_get($id);
+        $device = devices_get($id, $server);
 
         if(!$device){
             throw new BException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+        }
+
+        ksort($device);
+
+        foreach($device as $key => $value){
+            log_console(cli_color($key.':', 'white').' '.$value);
+        }
+
+        $options = devices_list_option_keys($device['id']);
+
+        if(!$options){
+            log_console();
+            log_console(tr('This device does not have any configurable options available'), 'white');
 
         }else{
-            ksort($device);
+            log_console();
+            log_console(tr('Configurable options:'), 'white');
 
-            foreach($device as $key => $value){
-                log_console(cli_color($key.':', 'white').' '.$value);
+            foreach($options as $key => $values){
+                if(isset($values['default'])){
+                    $default = $values['default'];
+                    unset($values['default']);
+
+                }else{
+                    $default = null;
+                }
+
+                log_console($key.':'.($default ? cli_color(' [ '.$default.' ]', 'cyan') : ''), 'white');
+
+                foreach($values as $value){
+                    log_console('        '.$value);
+                }
             }
         }
 
@@ -113,31 +152,108 @@ switch(cli_method()){
             $device['department'] = $department;
         }
 
-        devices_insert($device);
+        devices_update($device);
+        break;
+
+    case 'supported':
+        $devices = devices_validate_types();
+        log_console(tr('Supported device types:'), 'QUIET/white');
+
+        foreach($devices as $device => $filter){
+            log_console($device);
+        }
+
         break;
 
     case 'scan':
         try{
-            $category   = cli_argument('--category'  , true);
-            $company    = cli_argument('--company'   , true);
-            $branch     = cli_argument('--branch'    , true);
-            $department = cli_argument('--department', true);
-            $filters    = cli_argument(1);
-            $server     = cli_argument(2);
-            $count      = 0;
+            $assign_category   = cli_argument('--category'  , true);
+            $assign_company    = cli_argument('--company'   , true);
+            $assign_branch     = cli_argument('--branch'    , true);
+            $assign_department = cli_argument('--department', true);
+            $filters           = cli_argument(1);
+            $server            = cli_argument(2);
+            $count             = 0;
 
             cli_no_arguments_left();
+
+            /*
+             * Validate category / company / branch / department data
+             */
+            if($assign_category){
+                load_libs('categories');
+                $category = categories_get($assign_category);
+
+                if(!$category){
+                    throw new BException(tr('The specified category ":category" does not exist', array(':category' => $assign_category)), 'not-exists');
+                }
+            }
+
+            if($assign_company){
+                load_libs('companies');
+                $company = categories_get($assign_company);
+
+                if(!$company){
+                    throw new BException(tr('The specified company ":company" does not exist', array(':company' => $assign_company)), 'not-exists');
+                }
+            }
+
+            if($assign_branch){
+                if(empty($company)){
+                    throw new BException(tr('No company specified for the branch ":branch"', array(':branch' => $assign_branch)), 'not-specified');
+                }
+
+                $branch = categories_get_branch($assign_branch);
+
+                if(!$branch){
+                    throw new BException(tr('The specified branch ":branch" does not exist in the company', array(':branch' => $assign_branch, ':company' => $company['name'])), 'not-exists');
+                }
+            }
+
+            if($assign_department){
+                if(empty($branch)){
+                    throw new BException(tr('No branch specified for the department ":department"', array(':department' => $assign_department)), 'not-specified');
+                }
+
+                $department = categories_get_department($assign_department);
+
+                if(!$department){
+                    throw new BException(tr('The specified department ":department" does not exist in the branch ":branch"', array(':department' => $assign_department, ':branch' => $branch['name'])), 'not-exists');
+                }
+            }
+
+            devices_set_status('not-found');
 
             $servers_devices = devices_scan($filters, $server);
 
             foreach($servers_devices as $server => $devices){
                 foreach($devices as $device){
-                    $count++;
-                    devices_insert($device, $server);
+                    /*
+                     * Assign device to category / company / branch / department
+                     */
+                    $device['categories_id']  = isset_get($category['id']);
+                    $device['companies_id']   = isset_get($company['id']);
+                    $device['branches_id']    = isset_get($branch['id']);
+                    $device['departments_id'] = isset_get($department['id']);
+
+                    try{
+                        $device = devices_insert($device, $server);
+
+                        if(empty($device['_exists'])){
+                            $count++;
+                        }
+
+                    }catch(Exception $e){
+                        /*
+                         * Device failed to add. Log and continue to next device
+                         */
+                        log_console($e);
+                        log_console(tr('Failed to add device ":device"', array(':device' => isset_get($device['string']))), 'yellow');
+                    }
                 }
             }
 
-            if(count($devices)){
+            if($count){
                 log_console(tr('Added / updated ":count" devices', array(':count' => $count)), 'green');
 
             }else{
@@ -145,6 +261,11 @@ switch(cli_method()){
             }
 
         }catch(Exception $e){
+            switch($e->getRealCode()){
+                case 'not-exists':
+                    throw $e->makeWarning(true);
+            }
+
             throw new BException(tr('Failed to scan for devices'), $e);
         }
 
@@ -299,6 +420,17 @@ switch(cli_method()){
             }
         }
 
+        break;
+
+    case 'setup':
+        $type  = cli_argument(1);
+        $brand = cli_argument(2);
+        $model = cli_argument(3);
+
+        cli_no_arguments_left();
+        load_libs('drivers');
+
+        drivers_setup($type, $brand, $model);
         break;
 
     case '':

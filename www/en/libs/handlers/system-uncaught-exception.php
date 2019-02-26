@@ -49,7 +49,7 @@ try{
             $core->register('script', 'unknown');
         }
 
-        if($core->register['ready']){
+        if(!$core->register['ready']){
             log_file(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" IN ":type" SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => $core->register['script'])), 'exceptions', 'error');
             log_file($e, 'exceptions');
         }

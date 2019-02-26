@@ -179,7 +179,7 @@ function user_update_groups($user, $groups, $validate = false){
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
                 if(!$users_id){
-                    throw new BException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+                    throw new BException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
                 }
             }
         }
@@ -307,7 +307,7 @@ function user_add_to_group($user, $groups, $validate = true){
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
                 if(!$users_id){
-                    throw new BException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+                    throw new BException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
                 }
             }
         }
@@ -350,7 +350,7 @@ function user_add_to_group($user, $groups, $validate = true){
             $groups_id = sql_get('SELECT `id` FROM `groups` WHERE `seoname` = :seoname', 'id', array(':seoname' => $groups));
 
             if(!$groups_id){
-                throw new BException(tr('user_add_to_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exist');
+                throw new BException(tr('user_add_to_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exists');
             }
         }
 
@@ -404,7 +404,7 @@ function user_remove_from_group($user, $groups, $validate = true){
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
                 if(!$users_id){
-                    throw new BException(tr('user_remove_from_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+                    throw new BException(tr('user_remove_from_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
                 }
             }
         }
@@ -445,7 +445,7 @@ function user_remove_from_group($user, $groups, $validate = true){
             $groups_id = sql_get('SELECT `id` FROM `groups` WHERE `seoname` = :seoname', 'id', array(':seoname' => $groups));
 
             if(!$groups_id){
-                throw new BException(tr('user_remove_from_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exist');
+                throw new BException(tr('user_remove_from_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exists');
             }
         }
 
@@ -1117,7 +1117,7 @@ function user_set_verify_code($user, $email_type = false){
                                   ':verify_code' => cfm($code)));
 
             if(!sql_affected_rows($r)){
-                throw new BException(tr('user_set_verify_code(): Specified user ":user" does not exist', array(':user' => $user['id'])), 'not-exist');
+                throw new BException(tr('user_set_verify_code(): Specified user ":user" does not exist', array(':user' => $user['id'])), 'not-exists');
             }
         }
 
@@ -1148,7 +1148,7 @@ function user_set_verify_code($user, $email_type = false){
                 break;
 
             default:
-                throw new BException(tr('user_set_verify_code(): Specified email type ":type" does not exist', array(':type' => $email_type)), 'not-exist');
+                throw new BException(tr('user_set_verify_code(): Specified email type ":type" does not exist', array(':type' => $email_type)), 'not-exists');
         }
 
         return $code;
@@ -1168,7 +1168,7 @@ function user_verify($code){
         $user = sql_get('SELECT * FROM `users` WHERE `verify_code` = :verify_code', array(':verify_code' => cfm($code)));
 
         if(!$user){
-            throw new BException(tr('user_verify(): The specified verify code ":code" does not exist', array(':code' => $code)), 'not-exist');
+            throw new BException(tr('user_verify(): The specified verify code ":code" does not exist', array(':code' => $code)), 'not-exists');
         }
 
         /*
@@ -1385,7 +1385,7 @@ function user_update_password($params, $current = true){
              * because the user does not exist. check for this!
              */
             if(!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', 'id', array(':id' => $params['id']))){
-                throw new BException(tr('user_update_password(): The specified users_id "'.str_log($params['id']).'" does not exist'), 'not-exist');
+                throw new BException(tr('user_update_password(): The specified users_id "'.str_log($params['id']).'" does not exist'), 'not-exists');
             }
 
             /*
@@ -2109,7 +2109,7 @@ function user_get_key($user = null, $force = false){
         }
 
         if(!$dbuser){
-            throw new BException(tr('user_get_key(): Specified user ":user" does not exist', array(':user' => str_log($user))), 'not-exist');
+            throw new BException(tr('user_get_key(): Specified user ":user" does not exist', array(':user' => str_log($user))), 'not-exists');
         }
 
         if(!$dbuser['key'] or $force){

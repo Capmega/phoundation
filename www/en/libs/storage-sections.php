@@ -4,18 +4,33 @@
  *
  * This library manages storage sections, see storage library
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package storage
  */
 
 
 
 /*
- * Generate a new storage section
+ * Read and return the specified section from the storage database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package storage
+ * @see storage_section_list()
+ * @version 2.4.8: Added documentation
+ *
+ * @params string $section
+ * @params boolean $auto_create
+ * @return null params The data for the requested section
  */
-function storage_sections_get($get_section = null, $auto_create = false){
+function storage_sections_get($section = null, $auto_create = false){
     try{
-        if(empty($get_section)){
+        if(empty($section)){
             /*
              * Get a _new record for the current user
              */
@@ -30,42 +45,80 @@ function storage_sections_get($get_section = null, $auto_create = false){
                 $execute = array(':createdby' => $_SESSION['user']['id']);
             }
 
-        }elseif(is_numeric($get_section)){
+        }elseif(is_numeric($section)){
             $where   = ' WHERE  `id` = :id
                          AND    `status` IS NULL';
-            $execute = array(':id' => $get_section);
+            $execute = array(':id' => $section);
 
         }else{
             $where   = ' WHERE  `seoname` = :seoname
                          AND    `status`  IS NULL';
-            $execute = array(':seoname' => $get_section);
+            $execute = array(':seoname' => $section);
         }
 
-        $section = sql_get('SELECT `id`,
-                                   `meta_id`,
-                                   `status`,
-                                   `name`,
-                                   `seoname`,
-                                   `url_template`,
-                                   `random_ids`,
-                                   `restrict_file_types`,
-                                   `slogan`,
-                                   `description`
+        $dbsection = sql_get('SELECT `id`,
+                                     `meta_id`,
+                                     `status`,
+                                     `name`,
+                                     `seoname`,
+                                     `url_template`,
+                                     `random_ids`,
+                                     `restrict_file_types`,
+                                     `slogan`,
+                                     `description`
 
-                            FROM   `storage_sections`'.$where,
+                              FROM   `storage_sections`'.$where,
 
-                            $execute);
+                              $execute);
 
-        if(empty($section) and empty($get_section) and $auto_create){
+        if(empty($dbsection) and empty($section) and $auto_create){
             return storage_sections_add(array('status'              => '_new',
                                               'random_ids'          => true,
                                               'restrict_file_types' => true), true);
         }
 
-        return $section;
+        return $dbsection;
 
     }catch(Exception $e){
         throw new BException('storage_sections_get(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a list of the available sections
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package storage
+ * @see storage_section_get()
+ * @version 2.4.8: Added function and documentation
+ *
+ * @params null string $status
+ * @params boolean $pdo_statement If set to true, the function will not return an array list but a PDO statement
+ * @return null array a list of the available sections
+ */
+function storage_sections_list($status = null, $pdo_statement = true){
+    try{
+        $sections = sql_query('SELECT `id`,
+                                      `createdby`,
+                                      `createdon`,
+                                      `meta_id`,
+                                      `status`,
+                                      `name`,
+                                      `seoname`
+
+                               FROM   `storage_sections`'.sql_simple_where('status', $status).sql_limit(),
+
+                               sql_simple_execute(':status', $status));
+
+        return $sections;
+
+    }catch(Exception $e){
+        throw new BException('storage_sections_list(): Failed', $e);
     }
 }
 

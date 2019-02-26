@@ -172,7 +172,7 @@ switch(cli_method()){
             $r = sql_query('SELECT `id`, `status`, `cdn` FROM `listings` WHERE `id` = :id', array(':id' => $listing));
 
             if(!$r->rowCount()){
-                throw new bException(tr('Listing ":listing" does not exist', array(':listing' => $listing)), 'not-exist');
+                throw new bException(tr('Listing ":listing" does not exist', array(':listing' => $listing)), 'not-exists');
             }
 
         }else{
@@ -252,11 +252,11 @@ switch(cli_method()){
         }
 
         if(!in_array($cdn, $_CONFIG['cdn']['servers'])){
-            throw new bException(tr('Non existing CDN ":cdn" specified, must be one of ":list"', array(':cdn' => $cdn, ':list' => implode(',', $_CONFIG['cdn']['servers']))), 'not-exist');
+            throw new bException(tr('Non existing CDN ":cdn" specified, must be one of ":list"', array(':cdn' => $cdn, ':list' => implode(',', $_CONFIG['cdn']['servers']))), 'not-exists');
         }
 
         if($cdn == $_CONFIG['cdn']['this']){
-            throw new bException(tr('Cannot move files to CDN ":cdn", because that is the current CDN server', array(':cdn' => $cdn)), 'not-exist');
+            throw new bException(tr('Cannot move files to CDN ":cdn", because that is the current CDN server', array(':cdn' => $cdn)), 'not-exists');
         }
 
         if(!$listings_id){
@@ -266,11 +266,11 @@ switch(cli_method()){
         $listing = sql_get('SELECT `id`, `cdn` FROM `listings` WHERE `id` = :id', array(':id' => $listings_id));
 
         if(!$listing){
-            throw new bException(tr('Non existing listing ":listing" specified', array(':listing' => $listings_id)), 'not-exist');
+            throw new bException(tr('Non existing listing ":listing" specified', array(':listing' => $listings_id)), 'not-exists');
         }
 
         if($listing['cdn'] == $cdn){
-            throw new bException(tr('Listing ":listing" already has its files on cdn ":cdn"', array(':listing' => $listings_id, ':cdn' => $cdn)), 'not-exist');
+            throw new bException(tr('Listing ":listing" already has its files on cdn ":cdn"', array(':listing' => $listings_id, ':cdn' => $cdn)), 'not-exists');
         }
 
         break;

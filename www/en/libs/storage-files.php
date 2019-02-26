@@ -1,11 +1,14 @@
 <?php
 /*
- * Empty library
+ * Storage files library
  *
  * This is an empty template library file
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package storage
  */
 
 
@@ -117,7 +120,7 @@ function storage_files_delete($params){
         $file = storage_files_get($params['file'], $params['documents_id'], $params['pages_id']);
 
         if(!$file){
-            throw new BException(tr('storage_files_delete(): Specified file ":file" does not exist for S/D/P ":section/:document/:page"', array(':file' => $params['file'], ':section' => $params['sections_id'], ':document' => $params['documents_id'], ':page' => $params['pages_id'])), 'not-exist');
+            throw new BException(tr('storage_files_delete(): Specified file ":file" does not exist for S/D/P ":section/:document/:page"', array(':file' => $params['file'], ':section' => $params['sections_id'], ':document' => $params['documents_id'], ':page' => $params['pages_id'])), 'not-exists');
         }
 
         sql_query('DELETE FROM `storage_files` WHERE `id` = :id', array(':id' => $file['id']));
@@ -246,9 +249,13 @@ function storage_files_get($file, $documents_id, $pages_id = null){
 /*
  *
  */
-function storage_file_url($file, $type){
+function storage_file_url($file, $type = null){
     try{
-        return domain('/files/'.$file);
+        if($type){
+            return cdn_domain(str_runtil($file, '.').'-'.$type.'.'.str_rfrom($file, '.'), 'files');
+        }
+
+        return cdn_domain($file, 'files');
 
     }catch(Exception $e){
         throw new BException('storage_file_url(): Failed', $e);

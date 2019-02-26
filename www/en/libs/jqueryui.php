@@ -16,7 +16,7 @@
 load_config('jqueryui');
 
 if(empty($_CONFIG['jquery-ui']['theme'])){
-    throw new BException(tr('jqueryui(): No jquery-ui theme specified, please check $_CONFIG[jquery-ui][theme]'), 'not-exist');
+    throw new BException(tr('jqueryui(): No jquery-ui theme specified, please check $_CONFIG[jquery-ui][theme]'), 'not-exists');
 }
 
 html_load_js('jquery-ui/jquery-ui');

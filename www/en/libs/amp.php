@@ -95,13 +95,13 @@ function amp_page($params){
         $file = ROOT.'data/content/amp/'.$params['template'].'.amp';
 
         if(!file_exists($file)){
-            throw new BException(tr('amp_page(): Specified template ":template" does not exist', array(':template' => $params['template'])), 'not-exist');
+            throw new BException(tr('amp_page(): Specified template ":template" does not exist', array(':template' => $params['template'])), 'not-exists');
         }
 
         $data = file_get_contents($file);
 
         if(!$data){
-            throw new BException(tr('amp_page(): Specified template ":template" is empty', array(':template' => $params['template'])), 'not-exist');
+            throw new BException(tr('amp_page(): Specified template ":template" is empty', array(':template' => $params['template'])), 'not-exists');
         }
 
         $data = str_replace(':canonical', $params['canonical'], $data);

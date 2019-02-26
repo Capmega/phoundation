@@ -4,10 +4,12 @@
  *
  * This library allows to run the scanimage program, scan images and save them to disk
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
  * @package scanimage
+ * @see https://support.brother.com/g/s/id/linux/en/download_scn.html Brother scanner models and required drivers
  */
 
 
@@ -26,7 +28,7 @@
 function scanimage_library_init(){
     try{
         load_config('scanimage');
-        load_libs('servers');
+        load_libs('linux,image');
 
     }catch(Exception $e){
         throw new BException('scanimage_library_init(): Failed', $e);
@@ -63,32 +65,83 @@ function scanimage($params){
          * Finish scan command and execute it
          */
         try{
-            if(empty($params['batch'])){
-                switch($params['format']){
-                    case 'tiff':
-                        $command .= ' > '.$params['file'];
-                        $result   = servers_exec($params['server'], $command);
-                        break;
+            if($params['domain'] !== ''){
+                load_libs('rsync');
+            }
 
-                    case 'jpeg':
-                        $command .= ' | convert tiff:- '.$params['file'];
-                        $result   = servers_exec($params['server'], $command);
-                        break;
+            if($params['batch']){
+                $result = servers_exec($params['domain'], $command);
+
+                /*
+                 * Move files
+                 */
+                if($params['domain'] === ''){
+                    /*
+                     * This is the own machine
+                     */
+
+                }else{
+                    /*
+                     * This is a remote server
+                     */
+
                 }
-
-                file_chown($params['file']);
 
             }else{
-                switch($params['format']){
-                    case 'tiff':
-                        $result   = servers_exec($params['server'], $command);
-                        break;
+                /*
+                 * Scan a single file
+                 */
+                if($params['domain'] === ''){
+                    /*
+                     * This is the own machine. Scan to the TMP file
+                     */
+                    $file     = TMP.str_random(16);
+                    $command .= ' > '.$file;
+                    $result   = servers_exec($params['domain'], $command);
 
-                    case 'jpeg':
-                        $result   = servers_exec($params['server'], $command);
-                        break;
+                }else{
+                    /*
+                     * This is a remote server. Scan and rsync the file to TMP
+                     */
+                    $remote   = '/tmp/'.str_random(16);
+                    $file     = TMP.str_random(16);
+                    $command .= ' > '.$remote;
+                    $result   = servers_exec($params['domain'], $command);
+
+                    rsync(array('source'              => $params['domain'].':'.$remote,
+                                'target'              => $file,
+                                'remove_source_files' => true));
                 }
             }
+
+            /*
+             * Change file format?
+             */
+            file_delete($params['file']);
+
+            switch($params['format']){
+                case 'tiff':
+                    /*
+                     * File should already be in TIFF, so we only have to rename
+                     * it to the target file
+                     */
+                    rename($file, $params['file']);
+                    break;
+
+                case 'jpg':
+                    // FALLTHROUGH
+                case 'jpeg':
+                    /*
+                     * We have to convert it to a JPG file
+                     */
+                    image_convert($file, $params['file'], array('method' => 'custom',
+                                                                'format' => 'jpg'));
+
+//                        $command .= ' | convert tiff:- '.$params['file'];
+                    break;
+            }
+
+            return $params['file'];
 
         }catch(Exception $e){
             $data = $e->getData();
@@ -100,25 +153,34 @@ function scanimage($params){
                 $line = '';
             }
 
-            switch(substr($line, 0, 33)){
-                case 'scanimage: open of device images':
-                    /*
-                     *
-                     */
-                    throw new BException(tr('scanimage(): Scan failed'), 'failed');
-
-                case 'scanimage: no SANE devices found':
+            switch(substr($line, 0, 25)){
+                case 'scanimage: no SANE device':
                     /*
                      * No scanner found
                      */
                     throw new BException(tr('scanimage(): No scanner found'), 'not-found');
 
+                case 'scanimage: open of device':
+                    /*
+                     * Failed to open the device, it might be busy or not
+                     * responding
+                     */
+                    $server  = servers_get($params['domain']);
+                    $process = linux_pgrep($server, 'scanimage');
+
+                    if(substr($line, -24, 24) === 'failed: Invalid argument'){
+                        throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
+
+                    }else{
+                        if($process){
+                            throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
+                        }
+                    }
+
                 default:
                     throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
             }
         }
-
-        return $params['file'];
 
     }catch(Exception $e){
         throw new BException('scanimage(): Failed', $e);
@@ -150,14 +212,14 @@ function scanimage_validate($params){
 
     try{
         load_libs('validate');
-        $v       = new ValidateForm($params, 'device,jpeg_quality,format,file,buffer_size,options,server');
+        $v       = new ValidateForm($params, 'domain,device,batch,jpeg_quality,format,file,buffer_size,options');
         $options = array();
 
         /*
          * Get the device with the device options list
          */
         if($params['device']){
-            $device = scanimage_get($params['device']);
+            $device = scanimage_get($params['device'], $params['domain']);
 
         }else{
             $device = scanimage_get_default();
@@ -167,11 +229,22 @@ function scanimage_validate($params){
             }
         }
 
+        $params['device'] = $device['string'];
+
+        /*
+         * Ensure this is a document scanner device
+         */
+        if($device['type'] !== 'document-scanner'){
+            throw new BException(tr('scanimage_validate(): The specified device ":device" is not a document scanner device', array(':device' => $device['id'].' / '.$device['string'])), 'invalid');
+        }
+
         $options[] = '--device "'.$device['string'].'"';
 
         /*
          * Validate target file
          */
+        $params['file'] = strtolower(trim($params['file']));
+
         if(!$params['file']){
             if(empty($params['batch'])){
                 $v->setError(tr('No file specified'));
@@ -204,6 +277,8 @@ function scanimage_validate($params){
          * Ensure requested format is known and file ends with correct extension
          */
         switch($params['format']){
+            case 'jpg':
+                // FALLTHROUGH
             case 'jpeg':
                 $extension = 'jpg';
                 break;
@@ -212,6 +287,9 @@ function scanimage_validate($params){
                 $extension = 'tiff';
                 break;
 
+            case '':
+                $v->setError(tr('No format specified'));
+                break;
             default:
                 $v->setError(tr('Unknown format ":format" specified', array(':format' => $params['format'])));
         }
@@ -224,7 +302,14 @@ function scanimage_validate($params){
 
             }else{
                 if(str_rfrom($params['file'], '.') != $extension){
-                    $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
+                    if(($extension !== 'jpg') and (str_rfrom($params['file'], '.') !== 'jpeg')){
+                        $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
+                    }
+
+                    /*
+                     * User specified .jpeg, make it .jpg
+                     */
+                    $params['file'] = str_runtil($params['file'], '.').',jpg';
                 }
             }
         }
@@ -328,19 +413,14 @@ function scanimage_list(){
          * Get device data from cache
          */
         load_libs('devices');
-        $devices = devices_list('scanner');
-
-        if($devices){
-            $devices = sql_list($devices);
-            return $devices;
-        }
-
-        return null;
+        $devices = devices_list('document-scanner');
+        return $devices;
 
     }catch(Exception $e){
         throw new BException('scanimage_list(): Failed', $e);
     }
 }
+
 
 
 
@@ -408,6 +488,46 @@ function scanimage_detect_devices($server = null){
                 $device['model']        = trim(str_until(str_from($device['description'], ' '), ' '));
                 $device['type']         = 'document-scanner';
 
+                /*
+                 * Get device options
+                 */
+                try{
+                    $device['options'] = scanimage_get_options($device['string'], $server);
+
+                }catch(Exception $e){
+                    devices_set_status('failed', $device['string']);
+
+                    /*
+                     * Options for one device failed to add, continue adding the rest
+                     */
+                    if(empty($device['options'])){
+                        /*
+                         * HP device? Give information on how to solve this issue
+                         */
+                        log_console(tr('Failed to retrieve options for device ":device" with device string ":string", scanner device has been disabled', array(':device' => $device['description'], ':string' => $device['string'])), 'yellow');
+                        log_console(tr('Scanner options exception:'), 'yellow');
+                        log_console($e, 'yellow');
+
+                        if(strstr($device['string'], 'hpaio') or strstr($device['string'], 'Hewlett-Packard') or strstr($device['string'], ' HP')){
+                            if(strstr($e->getData(), 'Error during device I/O')){
+                                log_console(tr('*** INFO *** Device ":string" appears to be an Hewlett Packard scanner with an "Error during device I/O" error. This possibly is a known issue with a solution', array(':string' => $device['string'])), 'yellow');
+                                log_console(tr('Uninstall the current "hplip" package from your installation, and install the official HP version'), 'yellow');
+                                log_console(tr('For more information, see ":url"', array(':url' => 'https://unix.stackexchange.com/questions/272951/hplip-hpaio-error-during-device-i-o')), 'yellow');
+                                log_console(tr('For more information, see ":url"', array(':url' => '//https://developers.hp.com/hp-linux-imaging-and-printing')), 'yellow');
+                            }
+                        }
+
+                    }else{
+                        log_console(tr('Failed to store options for device ":device" with device string ":string", scanner device has been disabled', array(':device' => $device['description'], ':string' => $device['string'])), 'yellow');
+                        log_console(tr('Options data:'), 'yellow');
+                        log_console($device['options'], 'yellow');
+                        log_console(tr('Scanner exception:'), 'yellow');
+                        log_console($e, 'yellow');
+                    }
+
+                    continue;
+                }
+
                 $devices[] = $device;
             }
         }
@@ -421,101 +541,102 @@ function scanimage_detect_devices($server = null){
 
 
 
-/*
- *
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package scanimage
- * @example scanimage -L outputs would be
- * device `brother4:bus4;dev1' is a Brother MFC-L8900CDW USB scanner
- * device `imagescan:esci:usb:/sys/devices/pci0000:00/0000:00:1c.0/0000:03:00.0/usb4/4-2/4-2:1.0' is a EPSON DS-1630
- *
- * @return array All found scanner devices
- */
-function scanimage_update_devices(){
-    try{
-        load_libs('devices');
-        devices_clear('scanner');
-
-        $scanners = scanimage_detect_devices();
-        $failed   = 0;
-
-        foreach($scanners as $scanner){
-            unset($options);
-
-            try{
-                $scanner = devices_insert($scanner, 'scanner');
-                log_console(tr('Added device ":device" with device string ":string"', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'green');
-
-            }catch(Exception $e){
-                $failed++;
-
-                /*
-                 * One device failed to add, continue adding the rest
-                 */
-                log_console(tr('Failed to add device ":device" with device string ":string"', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'yellow');
-                log_console(tr('Scanner data:'), 'yellow');
-                log_console($scanner, 'yellow');
-                log_console(tr('Scanner exception:'), 'yellow');
-                log_console($e, 'yellow');
-                continue;
-            }
-
-            try{
-                $options = scanimage_get_options($scanner['string']);
-                $count   = devices_insert_options($scanner['id'], $options);
-
-                log_console(tr('Added ":count" options for device string ":string"', array(':string' => $scanner['string'], ':count' => $count)), 'VERBOSE/green');
-
-            }catch(Exception $e){
-                $failed++;
-                devices_set_status($scanner['string'], 'failed');
-
-                /*
-                 * Options for one device failed to add, continue adding the rest
-                 */
-                if(empty($options)){
-                    /*
-                     * HP device? Give information on how to solve this issue
-                     */
-                    log_console(tr('Failed to retrieve options for device ":device" with device string ":string", scanner device has been disabled', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'yellow');
-                    log_console(tr('Scanner options exception:'), 'yellow');
-                    log_console($e, 'yellow');
-
-                    if(strstr($scanner['string'], 'hpaio') or strstr($scanner['string'], 'Hewlett-Packard') or strstr($scanner['string'], ' HP')){
-                        if(strstr($e->getData(), 'Error during device I/O')){
-                            log_console(tr('*** INFO *** Device ":string" appears to be an Hewlett Packard scanner with an "Error during device I/O" error. This possibly is a known issue with a solution', array(':string' => $scanner['string'])), 'yellow');
-                            log_console(tr('Uninstall the current "hplip" package from your installation, and install the official HP version'), 'yellow');
-                            log_console(tr('For more information, see ":url"', array(':url' => 'https://unix.stackexchange.com/questions/272951/hplip-hpaio-error-during-device-i-o')), 'yellow');
-                            log_console(tr('For more information, see ":url"', array(':url' => '//https://developers.hp.com/hp-linux-imaging-and-printing')), 'yellow');
-                        }
-                    }
-
-                }else{
-                    log_console(tr('Failed to store options for device ":device" with device string ":string", scanner device has been disabled', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'yellow');
-                    log_console(tr('Options data:'), 'yellow');
-                    log_console($options, 'yellow');
-                    log_console(tr('Scanner exception:'), 'yellow');
-                    log_console($e, 'yellow');
-                }
-
-                continue;
-            }
-        }
-
-        if(empty($failed)){
-            return $scanners;
-        }
-
-        throw new BException(tr('scanimage_update_devices(): Failed to add ":count" scanners or driver options, see file log for more information', array(':count' => $failed)), 'warning/failed');
-
-    }catch(Exception $e){
-        throw new BException('scanimage_update_devices(): Failed', $e);
-    }
-}
+// :DELETE: After 2019/04
+///*
+// *
+// *
+// * @author Sven Olaf Oostenbrink <sven@capmega.com>
+// * @copyright Copyright (c) 2018 Capmega
+// * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+// * @category Function reference
+// * @package scanimage
+// * @example scanimage -L outputs would be
+// * device `brother4:bus4;dev1' is a Brother MFC-L8900CDW USB scanner
+// * device `imagescan:esci:usb:/sys/devices/pci0000:00/0000:00:1c.0/0000:03:00.0/usb4/4-2/4-2:1.0' is a EPSON DS-1630
+// *
+// * @return array All found scanner devices
+// */
+//function scanimage_update_devices(){
+//    try{
+//        load_libs('devices');
+//        devices_clear('scanner');
+//
+//        $scanners = scanimage_detect_devices();
+//        $failed   = 0;
+//
+//        foreach($scanners as $scanner){
+//            unset($options);
+//
+//            try{
+//                $scanner = devices_insert($scanner, 'scanner');
+//                log_console(tr('Added device ":device" with device string ":string"', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'green');
+//
+//            }catch(Exception $e){
+//                $failed++;
+//
+//                /*
+//                 * One device failed to add, continue adding the rest
+//                 */
+//                log_console(tr('Failed to add device ":device" with device string ":string"', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'yellow');
+//                log_console(tr('Scanner data:'), 'yellow');
+//                log_console($scanner, 'yellow');
+//                log_console(tr('Scanner exception:'), 'yellow');
+//                log_console($e, 'yellow');
+//                continue;
+//            }
+//
+//            try{
+//                $options = scanimage_get_options($scanner['string']);
+//                $count   = devices_insert_options($scanner['id'], $options);
+//
+//                log_console(tr('Added ":count" options for device string ":string"', array(':string' => $scanner['string'], ':count' => $count)), 'VERBOSE/green');
+//
+//            }catch(Exception $e){
+//                $failed++;
+//                devices_set_status($scanner['string'], 'failed');
+//
+//                /*
+//                 * Options for one device failed to add, continue adding the rest
+//                 */
+//                if(empty($options)){
+//                    /*
+//                     * HP device? Give information on how to solve this issue
+//                     */
+//                    log_console(tr('Failed to retrieve options for device ":device" with device string ":string", scanner device has been disabled', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'yellow');
+//                    log_console(tr('Scanner options exception:'), 'yellow');
+//                    log_console($e, 'yellow');
+//
+//                    if(strstr($scanner['string'], 'hpaio') or strstr($scanner['string'], 'Hewlett-Packard') or strstr($scanner['string'], ' HP')){
+//                        if(strstr($e->getData(), 'Error during device I/O')){
+//                            log_console(tr('*** INFO *** Device ":string" appears to be an Hewlett Packard scanner with an "Error during device I/O" error. This possibly is a known issue with a solution', array(':string' => $scanner['string'])), 'yellow');
+//                            log_console(tr('Uninstall the current "hplip" package from your installation, and install the official HP version'), 'yellow');
+//                            log_console(tr('For more information, see ":url"', array(':url' => 'https://unix.stackexchange.com/questions/272951/hplip-hpaio-error-during-device-i-o')), 'yellow');
+//                            log_console(tr('For more information, see ":url"', array(':url' => '//https://developers.hp.com/hp-linux-imaging-and-printing')), 'yellow');
+//                        }
+//                    }
+//
+//                }else{
+//                    log_console(tr('Failed to store options for device ":device" with device string ":string", scanner device has been disabled', array(':device' => $scanner['description'], ':string' => $scanner['string'])), 'yellow');
+//                    log_console(tr('Options data:'), 'yellow');
+//                    log_console($options, 'yellow');
+//                    log_console(tr('Scanner exception:'), 'yellow');
+//                    log_console($e, 'yellow');
+//                }
+//
+//                continue;
+//            }
+//        }
+//
+//        if(empty($failed)){
+//            return $scanners;
+//        }
+//
+//        throw new BException(tr('scanimage_update_devices(): Failed to add ":count" scanners or driver options, see file log for more information', array(':count' => $failed)), 'warning/failed');
+//
+//    }catch(Exception $e){
+//        throw new BException('scanimage_update_devices(): Failed', $e);
+//    }
+//}
 
 
 
@@ -544,7 +665,7 @@ function scanimage_get_options($device, $server = null){
         foreach($results as $result){
             if(strstr($result, 'failed:')){
                 if(strtolower(trim(str_from($result, 'failed:'))) == 'invalid argument'){
-                    throw new BException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required daccess to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
+                    throw new BException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required access to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
                 }
 
                 throw new BException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e"', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
@@ -749,11 +870,10 @@ function scanimage_get_default(){
     try{
         $scanners = scanimage_list();
 
-        foreach($scanners as $devices_id => $scanner){
+        while($scanner = sql_fetch($scanners)){
             if($scanner['default']){
                 load_libs('devices');
-
-                $scanner['options'] = devices_list_options($devices_id);
+                $scanner = scanimage_get($scanner['seostring'], $scanner['servers_id']);
                 return $scanner;
             }
         }
@@ -761,7 +881,7 @@ function scanimage_get_default(){
         return null;
 
     }catch(Exception $e){
-        throw new BException('scanner_get_default(): Failed', $e);
+        throw new BException('scanimage_get_default(): Failed', $e);
     }
 }
 
@@ -779,20 +899,27 @@ function scanimage_get_default(){
  * @param string $device_string The device to get and return data from
  * @return array All found data for the specified device
  */
-function scanimage_get($device_string){
+function scanimage_get($device, $server = null){
     try{
+        if(!$device){
+            /*
+             * No specific device specified, use the default
+             */
+            return scanimage_get_default();
+        }
+
         load_libs('devices');
-        $scanner = devices_get($device_string);
+        $scanner = devices_get($device, $server);
 
         if(!$scanner){
-            throw new BException(tr('scanner_get(): Specified scanner with device string ":string" does not exist', array(':string' => $device_string)), 'not-exist');
+            throw new BException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server)), 'not-exists');
         }
 
         $scanner['options'] = devices_list_options($scanner['id']);
         return $scanner;
 
     }catch(Exception $e){
-        throw new BException('scanner_get(): Failed', $e);
+        throw new BException('scanimage_get(): Failed', $e);
     }
 }
 
@@ -821,7 +948,7 @@ function scanimage_select($params){
         $scanners = scanimage_list();
 
         foreach($scanners as $scanner){
-            $params['resource'][$scanner['string']] = $scanner['description'];
+            $params['resource'][$scanner['seodomain'].'/'.$scanner['seostring']] = $scanner['description'];
         }
 
         $html = html_select($params);
@@ -903,6 +1030,102 @@ function scanimage_command(){
 
     }catch(Exception $e){
         throw new BException('scanimage_command(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns true if the scanimage process is running for the server for the
+ * specified device
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ * @see empty_install()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @version 2.4.9: Added function and documentation
+ *
+ * @params mixed $device
+ * @params null mixed $server
+ * @return natural The amount of processes found
+ */
+function scanimage_runs($device, $server = null){
+    try{
+        if(!$device){
+            throw new BException(tr('scanimage_runs(): No device specified'), 'not-specified');
+        }
+
+        $dbdevice = scanimage_get($device, $server);
+
+        if(!$dbdevice){
+            throw new BException(tr('scanimage_runs(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
+        }
+
+        $count   = 0;
+        $server  = servers_get($dbdevice['servers_id']);
+        $results = linux_pgrep($server, 'scanimage');
+
+        foreach($results as $result){
+            $processes = linux_list_processes($server, array($result, 'scanimage'));
+
+            if($processes){
+                foreach($processes as $id => $process){
+                    if(!str_exists($process, $dbdevice['string'])){
+                        unset($processes[$id]);
+                    }
+                }
+
+                $count = count($processes);
+            }
+        }
+
+        return $count;
+
+    }catch(Exception $e){
+        throw new BException('scanimage_runs(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Kill the scanimage process for the specified scanner
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ * @see empty_install()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @version 2.4.9: Added function and documentation
+ *
+ * @params mixed $device
+ * @params null mixed $server
+ * @return void()
+ */
+function scanimage_kill($device, $server = null, $hard = false){
+    try{
+        if(!$device){
+            throw new BException(tr('scanimage_kill(): No device specified'), 'not-specified');
+        }
+
+        $dbdevice = scanimage_get($device, $server);
+
+        if(!$dbdevice){
+            throw new BException(tr('scanimage_kill(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
+        }
+
+        $server  = servers_get($dbdevice['servers_id']);
+        $results = linux_pkill($server, 'scanimage', ($hard ? 9 : 15), true);
+
+        log_console(tr('Successfully killed the scanimage process for scanner device ":device" on server ":server"', array(':device' => $dbdevice['string'], ':server' => $server['domain'])), 'green');
+
+    }catch(Exception $e){
+        throw new BException('scanimage_kill(): Failed', $e);
     }
 }
 ?>

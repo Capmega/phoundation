@@ -65,7 +65,7 @@ function os_execute_command($hostname, $command = null){
             $server = servers_get($hostname);
 
             if(!$server){
-                throw new BException(tr('os_execute_command(): Specified hostname ":hostname" does not exist', array(':hostname' => $hostname)), 'not-exist');
+                throw new BException(tr('os_execute_command(): Specified hostname ":hostname" does not exist', array(':hostname' => $hostname)), 'not-exists');
             }
         }
 

@@ -34,7 +34,7 @@
     }
 
     if(empty($_CONFIG['db'][$connector])){
-        throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exist');
+        throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exists');
     }
 
     try{

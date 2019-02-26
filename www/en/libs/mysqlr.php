@@ -467,7 +467,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
         $database = mysql_get_database($db);
 
         if(empty($database)){
-            throw new BException(tr('mysqlr_pause_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exist');
+            throw new BException(tr('mysqlr_pause_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
         }
 
         mysqlr_update_replication_status($database, 'pausing');
@@ -535,7 +535,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
         $database = mysql_get_database($db);
 
         if(empty($database)){
-            throw new BException(tr('mysqlr_resume_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exist');
+            throw new BException(tr('mysqlr_resume_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
         }
 
         mysqlr_update_replication_status($database, 'resuming');
@@ -601,7 +601,7 @@ function mysqlr_check_configuration_path($server_target){
             $mysql_cnf      = servers_exec($server_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
 
             if(!$mysql_cnf[0]){
-                throw new BException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_target)), 'not-exist');
+                throw new BException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_target)), 'not-exists');
             }
         }
 
@@ -656,7 +656,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
                                  WHERE     `servers`.`domain` = :domain', array(':domain' => $server['domain']));
 
             if(!$dbserver){
-                throw new BException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exist');
+                throw new BException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
             }
 
             $server = sql_merge($server, $dbserver);
@@ -894,7 +894,7 @@ function mysqlr_scp_database($server, $source, $destnation, $from_server = false
                                  array(':domain' => $server['domain']));
 
             if(!$dbserver){
-                throw new BException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exist');
+                throw new BException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
             }
 
             $server = sql_merge($server, $dbserver);
@@ -1220,7 +1220,7 @@ function mysqlr_monitor_database($database){
                     load_libs('tasks');
                     log_console(tr('Replication add master for database :database of server :server', array(':database' => $database['database_name'], ':server' => $database['domain'])), 'white');
                     mysqlr_update_replication_status($database, 'preparing');
-                    $task = tasks_add(array('command'     => 'base/mysql',
+                    $task = tasks_insert(array('command'     => 'base/mysql',
                                             'time_limit'  => 1200,
                                             'status'      => 'new',
                                             'description' => tr('Add replication master of database ":database" on server ":server"', array(':database' => $database['database_name'], ':server' => $database['domain'])),
@@ -1259,7 +1259,7 @@ function mysqlr_monitor_database($database){
                     load_libs('tasks');
                     log_console(tr('Replication add master for database :database of server :server', array(':database' => $database['database_name'], ':server' => $database['domain'])), 'white');
                     mysqlr_update_replication_status($database, 'preparing');
-                    $task = tasks_add(array('command'     => 'base/mysql',
+                    $task = tasks_insert(array('command'     => 'base/mysql',
                                             'time_limit'  => 1200,
                                             'status'      => 'new',
                                             'description' => tr('Add replication master of database ":database" on server ":server"', array(':database' => $database['database_name'], ':server' => $database['domain'])),

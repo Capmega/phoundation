@@ -1,4 +1,6 @@
 <?php
+global $core;
+
 try{
     if(is_array($execute)){
         /*
@@ -47,6 +49,11 @@ try{
 
     if($return_only){
         return $query;
+    }
+
+    if(empty($core->register['clean_debug'])){
+        $query = str_replace("\n", ' ', $query);
+        $query = str_nodouble($query, ' ', '\s');
     }
 
     log_file(str_ends($query, ';'), 'debug-sql');

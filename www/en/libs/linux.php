@@ -8,8 +8,11 @@
  *
  * NOTE: These functions should NOT be called directly, they should be called by functions from the "os" library!
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package linux
  */
 
 
@@ -372,54 +375,74 @@ function linux_pgrep($server, $name){
  * @param string $file The file to be tested
  * @return boolean True if the specified file is writable, false if not
  */
-function linux_pkill($server, $process, $signal = null, $sudo = false, $verify = 3, $sigkill = true){
+function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_tries = 3, $check_timeout = 1, $sigkill = true){
     try{
         $server = servers_get($server);
 
-        if(!$signal){
-            $signal = 15;
+        switch($signal){
+            case 9:
+                // FALLTHROUGH
+            case 15:
+                /*
+                 * These are valid and supported signal
+                 */
+                break;
+
+            case '':
+                $signal = 15;
+                break;
+
+            default:
+                throw new BException(tr('linux_pkill(): Unknown signal ":signal" specified', array(':signal' => $signal)), 'unknown');
         }
 
         /*
-         * pkill returns 1 if process wasn't found, we can ignore that
+         * pkill returns 1 if no process name matched, so we can ignore that
          */
-        servers_exec($server, ($sudo ? 'sudo ' : '').'pkill -'.$signal.' '.$process, false, null, 1);
+        $results = servers_exec($server, ($sudo ? 'sudo ' : '').'pkill -'.$signal.' '.$process, false, null, 1);
+        $results = array_shift($results);
 
-        if($verify){
-            while(--$verify >= 0){
-                sleep(0.5);
-
-                /*
-                 * Ensure that the progress is gone
-                 */
-                $results = linux_pgrep($server, $process);
-
-                if(!$results){
-                    /*
-                     * Killed it softly
-                     */
-                    return true;
-                }
-
-                sleep(0.5);
-            }
-
-            if($sigkill){
-                /*
-                 * Sigkill it!
-                 */
-                $result = linux_pkill($server, $process, 9, $sudo, $verify, false);
-
-                if($result){
-                    /*
-                     * Killed it the hard way!
-                     */
-                    return true;
-                }
-            }
-
-            throw new BException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
+        if($results){
+            /*
+             * pkill returned some issue
+             */
+            throw new BException(tr('linux_pkill(): Failed to kill process ":process" with error ":e"', array(':process' => $process, ':e' => $results)), 'failed');
         }
+
+        /*
+         * Ensure that the progress is gone?
+         */
+        if(--$verify_tries > 0){
+            sleep($check_timeout);
+
+            $results = linux_pgrep($server, $process);
+
+            if(!$results){
+                /*
+                 * Killed it softly
+                 */
+                return true;
+            }
+
+            return linux_pkill($server, $process, $signal, $sudo, $verify_tries, $check_timeout, $sigkill);
+        }
+
+        if($sigkill){
+            /*
+             * Verifications failed, now sigkill it
+             * Sigkill it!
+             */
+            $result = linux_pkill($server, $process, 9, $sudo, false, $check_timeout, true);
+
+            if($result){
+                /*
+                 * Killed it the hard way!
+                 */
+                return true;
+            }
+        }
+
+        throw new BException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
 
     }catch(Exception $e){
         throw new BException('linux_pkill(): Failed', $e);
@@ -460,7 +483,7 @@ function linux_list_processes($server, $filters){
         unset($filter);
 
         $filters = implode(' | grep --color=never ', $filters);
-        $command = 'ps ax | grep --color=never '.$filters;
+        $command = 'ps ax | grep -v "grep" | grep --color=never '.$filters;
         $results = servers_exec($server, $command, false, null, '0,1');
         $retval  = array();
 
@@ -554,7 +577,303 @@ function linux_which($server, $file){
         return get_null($result);
 
     }catch(Exception $e){
-        throw new BException('cli_which(): Failed', $e);
+        throw new BException('linux_which(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Ensures existence of specified path on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4.10: Added function and documentation
+ *
+ * @param string $file The file to be unzipped
+ * @return string The path of the specified file
+ */
+function linux_ensure_path($server, $path, $mode = null, $clear = false){
+    try{
+
+    }catch(Exception $e){
+        throw new BException('linux_ensure_path(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4.10: Added function and documentation
+ *
+ * @param string $file The file to be unzipped
+ * @return string The path of the specified file
+ */
+function linux_rename($server, $path, $source, $target, $sudo = false){
+    try{
+
+    }catch(Exception $e){
+        throw new BException('linux_rename(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4.10: Added function and documentation
+ *
+ * @param string $file The file to be unzipped
+ * @return string The path of the specified file
+ */
+function linux_copy($server, $source, $target, $sudo = false){
+    try{
+
+    }catch(Exception $e){
+        throw new BException('linux_copy(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Delete the specified path on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4.10: Added function and documentation
+ *
+ * @param string $file The file to be unzipped
+ * @return string The path of the specified file
+ */
+function linux_delete($server, $patterns, $clean_path = false, $sudo = false){
+    try{
+
+    }catch(Exception $e){
+        throw new BException('linux_delete(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Unzip the specified file un the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4.10: Added function and documentation
+ *
+ * @param string $file The file to be unzipped
+ * @param boolean $remove If set to true, the specified zip file will be removed after the unzip action
+ * @return string The path of the specified file
+ */
+function linux_unzip($server, $file, $remove = true){
+    try{
+        $filename = filename($file);
+        $filename = str_runtil($file, '.');
+        $path     = TMP.$filename.'/';
+
+        linux_ensure_path($server, $path);
+
+        if($move){
+            linux_rename($server, $file, $path.$filename);
+
+        }else{
+            linux_copy($server, $file, $path.$filename);
+        }
+
+        /*
+         * Unzip and
+         */
+        servers_exec($server, 'cd '.$path.'; gunzip "'.$filename.'"');
+        linux_delete($server, $path.$filename);
+
+        return $path;
+
+    }catch(Exception $e){
+        if(!linux_file_exists($file)){
+            throw new BException(tr('linux_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+        }
+
+        throw new BException('linux_unzip(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Download the specified single file to the specified path on the specified server
+ *
+ * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @see download()
+ * @version 2.4.10: Added function and documentation
+ *
+ * @param mixed $server
+ * @param string $url The URL of the file to be downloaded
+ * @param mixed $section If set to false, will return the contents of the downloaded file instead of the target filename. As the caller function will not know the exact filename used, the target file will be deleted automatically! If set to a string
+ * @param null function $callback If specified, download will execute this callback with either the filename or file contents (depending on $section)
+ * @return string The downloaded file
+ */
+function linux_download($server, $url, $section = false, $callback = null){
+    try{
+        $file = str_from($url, '://');
+        $file = str_rfrom($url, '/');
+        $file = str_until($file, '?');
+
+        if($section){
+            if(!is_string($section)){
+                throw new BException(tr('linux_download(): Specified section should either be false or a string. However, it is not false, and is of type ":type"', array(':type' => gettype($section))), 'invalid');
+            }
+
+            $file = TMP.$section.'/'.$file;
+
+        }else{
+            $file = TMP.$file;
+        }
+
+        load_libs('linux');
+        linux_ensure_path(TMP.$section, 0770, true);
+        safe_exec('wget -q -O '.$file.' - "'.$url.'"');
+
+        if(!$section){
+            /*
+             * No section was specified, return contents of file instead.
+             */
+            if($callback){
+                /*
+                 * Execute the callbacks before returning the data
+                 */
+                $callback($file);
+                file_delete($file);
+            }
+
+            return $file;
+        }
+
+        /*
+         * Do not return the filename but the file contents instead
+         * When doing this, automatically delete the file in question, since
+         * the caller will not know the exact file name used
+         */
+        $retval = file_get_contents($file);
+        file_delete($file);
+
+        if($callback){
+            $callback($retval);
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('linux_download(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Install the specified package on the linux operating system
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @version 2.4.11: Added function and documentation
+ *
+ * @param string $package
+ * @return void
+ */
+function linux_install_package($server, $package){
+    try{
+//        $os = linux_detect_os($server);
+        $os['distribution'] = 'ubuntu-server';
+
+        switch($os['distribution']){
+            case 'ubuntu-server':
+                // FALLTHROUGH
+            case 'ubuntu':
+                // FALLTHROUGH
+            case 'kubuntu':
+                // FALLTHROUGH
+            case 'lubuntu':
+                // FALLTHROUGH
+            case 'xubuntu':
+                // FALLTHROUGH
+            case 'edubuntu':
+                // FALLTHROUGH
+            case 'debian':
+                // FALLTHROUGH
+            case 'mint':
+                load_libs('apt');
+                return apt_install($package);
+
+            case 'redhat':
+                // FALLTHROUGH
+            case 'centos':
+                // FALLTHROUGH
+            case 'fedora':
+                break;
+
+            default:
+                throw new BException(tr('linux_install_package(): The detected operating system ":distribution" is not supported', array(':distribution' => $os['distribution'])), 'not-supported');
+        }
+
+    }catch(Exception $e){
+        throw new BException('linux_install_package(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Detect the operating system on specified server and return the data
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @version 2.4.11: Added function and documentation
+ *
+ * @param mixed $server
+ * @return array The operating system parameters
+ */
+function linux_detect_os($server){
+    try{
+        $results = server_exec($server, 'cat /etc/issue; echo; uname -a');
+showdie($results);
+
+    }catch(Exception $e){
+        throw new BException('linux_detect_os(): Failed', $e);
     }
 }
 ?>
