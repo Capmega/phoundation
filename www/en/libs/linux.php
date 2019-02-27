@@ -565,13 +565,16 @@ function linux_netstat($server, $options){
  * @category Function reference
  * @package cli
  * @version 2.0.5: Added function and documentation
+ * @version 2.4.16: Added $whereis support
  *
- * @param string $file The file to be unzipped
+ * @param mixed $server The server where this function will be executed
+ * @param string $file The command searched for
+ * @param boolean $whereis If set to true, instead of "which", "whereis" will be used
  * @return string The path of the specified file
  */
-function linux_which($server, $file){
+function linux_which($server, $command, $whereis = false){
     try{
-        $result = servers_exec($server, 'which "'.$file.'"', false, null, '0,1');
+        $result = servers_exec($server, ($whereis ? 'whereis' : 'which').' "'.$command.'"', false, null, '0,1');
         $result = array_shift($result);
 
         return get_null($result);
@@ -635,9 +638,11 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
         }
 
         if($clear){
+showdie($path);
             server_exec($server, 'rm "'.$path.'" -rf; mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
 
         }else{
+showdie($path);
             server_exec($server, 'mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
         }
 

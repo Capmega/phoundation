@@ -1653,13 +1653,15 @@ function cli_unzip($file, $remove = true){
  * @category Function reference
  * @package cli
  * @version 2.0.5: Added function and documentation
+ * @version 2.4.16: Added $whereis support
  *
- * @param string $file The file to be unzipped
+ * @param string $command The command searched for
+ * @param boolean $whereis If set to true, instead of "which", "whereis" will be used
  * @return string The path of the specified file
  */
-function cli_which($file){
+function cli_which($command, $whereis = false){
     try{
-        $result = safe_exec('which "'.$file.'"', '0,1');
+        $result = safe_exec(($whereis ? 'whereis' : 'which').' "'.$command.'"', '0,1');
         $result = array_shift($result);
 
         return get_null($result);
