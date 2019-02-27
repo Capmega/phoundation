@@ -58,6 +58,7 @@ function scanimage_library_init(){
  */
 function scanimage($params){
     try{
+        $server  = servers_get($params['domain']);
         $params  = scanimage_validate($params);
         $command = scanimage_command().' --format tiff '.$params['options'];
 
@@ -70,24 +71,37 @@ function scanimage($params){
             }
 
             if($params['batch']){
-                $result = servers_exec($params['domain'], $command);
+                log_console(tr('Batch scanning to path ":path"', array(':path' => $params['path'])), 'cyan');
 
                 /*
-                 * Move files
+                 * Batch scanning is done to a PATH, not a FILE!
                  */
                 if($params['domain'] === ''){
                     /*
                      * This is the own machine
                      */
+show('LOCAL');
+                    $result = safe_exec($command, 2);
+showdie($result);
 
                 }else{
                     /*
                      * This is a remote server
                      */
+                    $remote = '/tmp/'.str_random(16);
+                    $remote = linux_ensure_path($server, $remote);
+                    $pid    = servers_exec($server, $command, true);
 
+                    rsync(array('source'              => $server['domain'].':'.$params['file'],
+                                'target'              => $params['local']['batch'],
+                                'monitor_pid'         => $pid,
+                                'remove_source_files' => true));
+showdie($pid);
                 }
 
             }else{
+                log_console(tr('Scanning to file ":file"', array(':file' => $params['file'])), 'cyan');
+
                 /*
                  * Scan a single file
                  */
@@ -97,7 +111,7 @@ function scanimage($params){
                      */
                     $file     = TMP.str_random(16);
                     $command .= ' > '.$file;
-                    $result   = servers_exec($params['domain'], $command);
+                    $result   = servers_exec($server, $command);
 
                 }else{
                     /*
@@ -106,7 +120,7 @@ function scanimage($params){
                     $remote   = '/tmp/'.str_random(16);
                     $file     = TMP.str_random(16);
                     $command .= ' > '.$remote;
-                    $result   = servers_exec($params['domain'], $command);
+                    $result   = servers_exec($server, $command);
 
                     rsync(array('source'              => $params['domain'].':'.$remote,
                                 'target'              => $file,
@@ -151,6 +165,16 @@ function scanimage($params){
 
             }else{
                 $line = '';
+            }
+
+            switch($line){
+                case 'scanimage: sane_start: Error during device I/O':
+                    // FALLTROUGH
+                case 'scanimage: sane_start: Operation was cancelled':
+                    /*
+                     * Scanner is having issues
+                     */
+                    throw new BException(tr('scanimage(): Scanner failed'), 'failed');
             }
 
             switch(substr($line, 0, 25)){
@@ -212,8 +236,38 @@ function scanimage_validate($params){
 
     try{
         load_libs('validate');
+
         $v       = new ValidateForm($params, 'domain,device,batch,jpeg_quality,format,file,buffer_size,options');
         $options = array();
+        $local   = array();
+
+        /*
+         * Check source options
+         */
+        if($params['source']){
+            $params['options']['source'] = $params['source'];
+
+            if(preg_match('/(?:bed)|(?:flat)|(?:table)/i', $params['source'])){
+                /*
+                 * Flatbed table
+                 */
+
+
+            }elseif(preg_match('/(?:auto)|(?:feeder)|(?:adf)/i', $params['source'])){
+                /*
+                 * ADF Auto Document Feeder
+                 *
+                 * Assume batch job
+                 */
+                $params['batch'] = true;
+
+            }else{
+                /*
+                 * Unknown source type, assume flatbed
+                 */
+
+            }
+        }
 
         /*
          * Get the device with the device options list
@@ -235,7 +289,7 @@ function scanimage_validate($params){
          * Ensure this is a document scanner device
          */
         if($device['type'] !== 'document-scanner'){
-            throw new BException(tr('scanimage_validate(): The specified device ":device" is not a document scanner device', array(':device' => $device['id'].' / '.$device['string'])), 'invalid');
+            $v->setError(tr('scanimage_validate(): The specified device ":device" is not a document scanner device', array(':device' => $device['id'].' / '.$device['string'])));
         }
 
         $options[] = '--device "'.$device['string'].'"';
@@ -246,23 +300,58 @@ function scanimage_validate($params){
         $params['file'] = strtolower(trim($params['file']));
 
         if(!$params['file']){
+            /*
+             * Target file has not been specified
+             */
             if(empty($params['batch'])){
                 $v->setError(tr('No file specified'));
 
             }else{
-                /*
-                 * Batch orders have a target path with a file pattern
-                 */
-                if(!file_exists(dirname($params['options']['batch']))){
-                    $v->setError(tr('Specified batch target path ":path" does not exists', array(':path' => $params['options']['batch'])));
-                }
+                $v->setError(tr('No batch scan target path specified'));
             }
 
-        }elseif(file_exists($params['file']) and !FORCE){
-            $v->setError(tr('Specified file ":file" already exists', array(':file' => $params['file'])));
+            $params['path'] = '';
+
+        }elseif($params['batch']){
+            /*
+             * Ensure the target path exists
+             */
+            $params['path'] = slash($params['file']);
+
+            if(file_exists($params['path'])){
+                if(!is_dir($params['path'])){
+                    $v->setError(tr('Specified batch scan target path ":path" already exists as a file', array(':path' => $params['path'])));
+                }
+
+            }else{
+                file_path_ensure($server, $params['path']);
+            }
 
         }else{
-            file_ensure_path(dirname($params['file']));
+            /*
+             * Single file scan, ensure that the target file does not exist
+             */
+            $params['path'] = slash(dirname($params['file']));
+
+            if(file_exists($params['file'])){
+                if(!FORCE){
+                    $v->setError(tr('Specified file ":file" already exists', array(':file' => $params['file'])));
+
+                }elseif(is_file($params['file'])){
+                    file_delete($server, $params['file']);
+
+                }else{
+                    if(is_dir($params['file'])){
+                        $v->setError(tr('Specified file ":file" already exists but is a directory', array(':file' => $params['file'])));
+
+                    }else{
+                        $v->setError(tr('Specified file ":file" already exists and is not a normal file (maybe a socket or device file?)', array(':file' => $params['file'])));
+                    }
+                }
+
+            }else{
+                file_ensure_path($params['path']);
+            }
         }
 
         /*
@@ -272,6 +361,8 @@ function scanimage_validate($params){
             $v->isNatural($params['buffer_size'], tr('Please specify a valid natural numbered buffer size'));
             $v->isBetween($params['buffer_size'], 1, 1024, tr('Please specify a valid buffer size between 1 and 1024'));
         }
+
+        $v->isValid();
 
         /*
          * Ensure requested format is known and file ends with correct extension
@@ -294,23 +385,34 @@ function scanimage_validate($params){
                 $v->setError(tr('Unknown format ":format" specified', array(':format' => $params['format'])));
         }
 
-        if(!empty($extension)){
-            if($params['batch']){
-                if(str_rfrom($params['options']['batch'], '.') != 'tiff'){
-                    $v->setError(tr('Specified batch file pattern ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['options']['batch'], ':format' => $params['format'], ':extension' => $extension)));
+        $v->isValid();
+
+        if($params['batch']){
+            if($params['format'] != 'tiff'){
+                $v->setError(tr('Specified batch file pattern ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
+            }
+
+            $params['path'] = realpath($params['path']).'/';
+
+            if($params['domain']){
+                $params['local']['batch']   = $params['path'];
+                $params['path']             = '/tmp/'.str_random(16).'/';
+
+                file_ensure_path($params['path']);
+            }
+
+            $params['options']['batch'] = $params['path'].'image%d.'.$params['format'];
+
+        }else{
+            if(str_rfrom($params['file'], '.') != $extension){
+                if(($extension !== 'jpg') and (str_rfrom($params['file'], '.') !== 'jpeg')){
+                    $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
                 }
 
-            }else{
-                if(str_rfrom($params['file'], '.') != $extension){
-                    if(($extension !== 'jpg') and (str_rfrom($params['file'], '.') !== 'jpeg')){
-                        $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
-                    }
-
-                    /*
-                     * User specified .jpeg, make it .jpg
-                     */
-                    $params['file'] = str_runtil($params['file'], '.').',jpg';
-                }
+                /*
+                 * User specified .jpeg, make it .jpg
+                 */
+                $params['file'] = str_runtil($params['file'], '.').',jpg';
             }
         }
 
@@ -658,8 +760,7 @@ function scanimage_detect_devices($server = null){
  */
 function scanimage_get_options($device, $server = null){
     try{
-        $skip    = true;
-        $results = servers_exec($server, scanimage_command().' -h -d "'.$device.'"');
+        $results = servers_exec($server, scanimage_command().' -A -d "'.$device.'"');
         $retval  = array();
 
         foreach($results as $result){
@@ -669,15 +770,6 @@ function scanimage_get_options($device, $server = null){
                 }
 
                 throw new BException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e"', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
-            }
-
-            if($skip){
-                if(preg_match('/Options specific to device \`'.str_replace(array('.', '/'), array('\.', '\/'), $device).'\':/', $result)){
-                    $skip = false;
-                    continue;
-                }
-
-                continue;
             }
 
             $result = trim($result);
@@ -709,7 +801,7 @@ function scanimage_get_options($device, $server = null){
                 $default = trim(str_runtil($default, ']'));
                 $data    = trim(str_runtil($data, ' ['));
 
-                if($default == 'inactive'){
+                if($default === 'inactive'){
                     $status  =  $default;
                     $default = null;
                 }
@@ -802,7 +894,7 @@ function scanimage_get_options($device, $server = null){
                 $data    = str_runtil($data, ' [');
                 $data    = trim(str_replace('mm', '', $data));
 
-                if($default == 'inactive'){
+                if($default === 'inactive'){
                     $status  =  $default;
                     $default = null;
                 }
@@ -912,6 +1004,10 @@ function scanimage_get($device, $server = null){
         $scanner = devices_get($device, $server);
 
         if(!$scanner){
+            if(is_numeric($device)){
+                throw new BException(tr('scanimage_get(): Specified scanner ":device" does not exist', array(':device' => $device)), 'not-exists');
+            }
+
             throw new BException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server)), 'not-exists');
         }
 
