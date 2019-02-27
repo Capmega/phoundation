@@ -620,7 +620,9 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
         }
 
         if(substr_count($path, '/') < 3){
-            throw new BException(tr('linux_ensure_path(): Specified path ":path" is not deep enough. Top level- and second level directories cannot be ensured', array(':path' => $path)), 'invalid');
+            if(substr($path, 0, 5) !== '/tmp/'){
+                throw new BException(tr('linux_ensure_path(): Specified path ":path" is not deep enough. Top level- and second level directories cannot be ensured except in /tmp/', array(':path' => $path)), 'invalid');
+            }
         }
 
         /*
@@ -638,12 +640,10 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
         }
 
         if($clear){
-showdie($path);
-            server_exec($server, 'rm "'.$path.'" -rf; mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
+            servers_exec($server, 'rm "'.$path.'" -rf; mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
 
         }else{
-showdie($path);
-            server_exec($server, 'mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
+            servers_exec($server, 'mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
         }
 
         return $path;
