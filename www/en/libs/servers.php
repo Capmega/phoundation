@@ -400,7 +400,13 @@ function servers_update($server){
 function servers_like($domain){
     try{
         if(!$domain){
-            return null;
+            if(($domain === '') or ($domain === null)){
+                /*
+                 * "" server is the localdomain server
+                 * null means no server
+                 */
+                return $domain;
+            }
         }
 
         if(is_array($domain)){
@@ -884,7 +890,7 @@ function servers_exec_on_all($params){
  */
 function servers_register_host($server){
     try{
-        $server    = servers_get($server);
+        $server  = servers_get($server);
         $domains = servers_list_domains($server);
 
         foreach($domains as $domain){
