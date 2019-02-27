@@ -214,7 +214,15 @@ function rsync($params){
             $command .= ' -t ';
         }
 
+        $break    = true;
         $command .= ' '.$params['source'].' '.$params['target'];
+
+        if($params['monitor_task'] or $params['monitor_pid']){
+            /*
+             * We need to monitor tasks so we need to cycle at least twice
+             */
+            $break = false;
+        }
 
         while(true){
             log_console(tr('Rsyncing from ":source" to ":target"', array(':source' => $params['source'], ':target' => $params['target'])), 'cyan');
@@ -251,7 +259,7 @@ function rsync($params){
                  * Monitor the specified process to see if it is still running.
                  * While it is running, we do not stop either.
                  */
-                if(tasks_check_pid($params['monitor_pid'])){
+                if(cli_pid($params['monitor_pid'])){
                     log_console(tr('Process":pid" still running, continuing rsync cycle', array(':pid' => $params['monitor_pid'])), 'VERBOSE/cyan');
 
                 }else{
