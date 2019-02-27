@@ -38,7 +38,7 @@ try{
     /*
      * Add $PATH
      */
-    if($_CONFIG['exec']['path']){
+    if(!empty($_CONFIG['exec']['path'])){
         $command = 'export PATH="'.$_CONFIG['exec']['path'].'"; '.$command;
     }
 
