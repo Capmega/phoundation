@@ -7,11 +7,14 @@ $usage = './scripts/base/devices list
 ./scripts/base/devices scan PRODUCT_FILTER [SERVER]
 ./scripts/base/devices supported
 ./scripts/base/devices list
-./scripts/base/devices show DEVICE_ID
+./scripts/base/devices show DEVICE_ID | DEVICE SERVER
 ./scripts/base/devices modify DEVICE_ID [--category CATEGORY] [--company COMPANY] [--branch BRANCH] [--department DEPARTMENT]
-./scripts/base/devices delete|undelete|erase ID|NAME ID|NAME ...';
+./scripts/base/devices enable|disable|delete|undelete|erase ID|NAME ID|NAME ...
+./scripts/base/clear [TYPE]
+./scripts/base/setup DEVICE_ID';
 
-$help  = 'This is the devices management script
+$help  = 'This is the devices management script. This script can be used to manage the
+registered devices
 
 
 
@@ -19,7 +22,100 @@ METHODS
 
 
 
-supported                       - Prints a list of the supported device types';
+supported                       - Prints a list of the supported device types
+
+list                            - List the available devices
+
+show DEVICE                     - Show the specified device
+
+scan [TYPES] [SERVERS]          - Scan the specified servers for the specified
+                                  device types. If no device type was specified,
+                                  all device types will be scanned. If no
+                                  servers were specified, all servers will be
+                                  scanned
+
+                                  NOTE: The device scanning for certain devices
+                                  may take a while. Document scanners can take
+                                  10-15 per server to be scanned
+
+    [--category CATEGORY]         Assign the found devices to the specified
+                                  category
+
+    [--company COMPANY]           Assign the found devices to the specified
+                                  company
+
+    [--branch BRANCH]             Assign the found devices to the specified
+                                  branch
+
+    [--department DEPARTMENT]     Assign the found devices to the specified
+                                  department
+
+    [--employee EMPLOYEE]         Assign the found devices to the specified
+                                  employee
+
+    [--customer CUSTOMER]         Assign the found devices to the specified
+                                  customer
+
+    [--provider PROVIDER]         Assign the found devices to the specified
+                                  provider
+
+    [--inventory INVENTORY_CODE]  Assign the found devices to the specified
+                                  inventory code
+
+modify [ID]                     - Update the specified device
+
+    [--category CATEGORY]         Assign the specified device to the specified
+                                  category
+
+    [--company COMPANY]           Assign the specified device to the specified
+                                  company
+
+    [--branch BRANCH]             Assign the specified device to the specified
+                                  branch
+
+    [--department DEPARTMENT]     Assign the specified device to the specified
+                                  department
+
+    [--employee EMPLOYEE]         Assign the specified device to the specified
+                                  employee
+
+    [--customer CUSTOMER]         Assign the specified device to the specified
+                                  customer
+
+    [--provider PROVIDER]         Assign the specified device to the specified
+                                  provider
+
+    [--inventory INVENTORY_CODE]  Assign the specified device to the specified
+                                  inventory code
+
+disable DEVICES                 - Disable the specified devices. After this, the
+                                  devices will have status "disabled", will show
+                                  up by default with the "list" method, but can
+                                  not be used by the system
+
+enable DEVICES                  - Disable the specified devices. After this, the
+                                  devices will have status "NULL", will show
+                                  up by default with the "list" method, and can
+                                  be used by the system
+
+delete DEVICES                  - Disable the specified devices. After this, the
+                                  devices will have status "deleted", will show
+                                  up by default with the "list" method, but can
+                                  not be used by the system
+
+undelete DEVICES                - Disable the specified devices. After this, the
+                                  devices will have status "NULL", will show
+                                  up by default with the "list" method, and can
+                                  be used by the system
+
+erase DEVICES                   - Erase the specified devices
+
+clear [TYPE]                    - Erase the specified TYPE type devices from the
+                                  database. If no TYPE was specified, all
+                                  devices will be erased
+
+setup DEVICE                    - Setup the specified device by automatically
+                                  installing the required drivers (EXPERIMENTAL)';
 
 require_once(__DIR__.'/../../libs/startup.php');
 load_libs('devices');
@@ -122,63 +218,27 @@ switch(cli_method()){
         break;
 
     case 'modify':
-        $category   = cli_argument('--category'  , true);
-        $company    = cli_argument('--company'   , true);
-        $branch     = cli_argument('--branch'    , true);
-        $department = cli_argument('--department', true);
-        $id         = cli_argument(1);
-
-        cli_no_arguments_left();
-
-        $device = devices_get($id);
-
-        if(!$device){
-            throw new BException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
-        }
-
-        if($category){
-            $device['category'] = $category;
-        }
-
-        if($company){
-            $device['company'] = $company;
-        }
-
-        if($branch){
-            $device['branch'] = $branch;
-        }
-
-        if($department){
-            $device['department'] = $department;
-        }
-
-        devices_update($device);
-        break;
-
-    case 'supported':
-        $devices = devices_validate_types();
-        log_console(tr('Supported device types:'), 'QUIET/white');
-
-        foreach($devices as $device => $filter){
-            log_console($device);
-        }
-
-        break;
-
-    case 'scan':
         try{
             $assign_category   = cli_argument('--category'  , true);
             $assign_company    = cli_argument('--company'   , true);
             $assign_branch     = cli_argument('--branch'    , true);
             $assign_department = cli_argument('--department', true);
-            $filters           = cli_argument(1);
-            $server            = cli_argument(2);
-            $count             = 0;
+            $assign_employee   = cli_argument('--employee'  , true);
+            $assign_customer   = cli_argument('--customer'  , true);
+            $assign_provider   = cli_argument('--provider'  , true);
+            $assign_inventory  = cli_argument('--inventory' , true);
+            $id                = cli_argument(1);
 
             cli_no_arguments_left();
 
+            $device = devices_get($id);
+
+            if(!$device){
+                throw new BException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
+            }
+
             /*
-             * Validate category / company / branch / department data
+             * Validate category / company / branch / department / employee / customer / provider / inventory data
              */
             if($assign_category){
                 load_libs('categories');
@@ -186,6 +246,33 @@ switch(cli_method()){
 
                 if(!$category){
                     throw new BException(tr('The specified category ":category" does not exist', array(':category' => $assign_category)), 'not-exists');
+                }
+            }
+
+            if($assign_inventory){
+                load_libs('inventories');
+                $inventory = inventories_get($assign_inventory);
+
+                if(!$inventory){
+                    throw new BException(tr('The specified inventory ":inventory" does not exist', array(':inventory' => $assign_inventory)), 'not-exists');
+                }
+            }
+
+            if($assign_provider){
+                load_libs('providers');
+                $provider = providers_get($assign_provider);
+
+                if(!$provider){
+                    throw new BException(tr('The specified provider ":provider" does not exist', array(':provider' => $assign_provider)), 'not-exists');
+                }
+            }
+
+            if($assign_customer){
+                load_libs('customers');
+                $customer = customers_get($assign_customer);
+
+                if(!$customer){
+                    throw new BException(tr('The specified customer ":customer" does not exist', array(':customer' => $assign_customer)), 'not-exists');
                 }
             }
 
@@ -222,11 +309,146 @@ switch(cli_method()){
                 }
             }
 
+            if($assign_employee){
+                if(empty($department)){
+                    throw new BException(tr('No department specified for the employee ":employee"', array(':employee' => $assign_employee)), 'not-specified');
+                }
+
+                $employee = categories_get_employee($assign_employee);
+
+                if(!$employee){
+                    throw new BException(tr('The specified employee ":employee" does not exist in the department ":department"', array(':employee' => $assign_employee, ':department' => $department['name'])), 'not-exists');
+                }
+            }
+
+            devices_update($device);
+
+        }catch(Exception $e){
+            switch($e->getRealCode()){
+                case 'not-exists':
+                    throw $e->makeWarning(true);
+            }
+
+            throw new BException(tr('Failed to scan for devices'), $e);
+        }
+
+        break;
+
+    case 'supported':
+        $devices = devices_validate_types();
+        log_console(tr('Supported device types:'), 'QUIET/white');
+
+        foreach($devices as $device => $type){
+            log_console($device);
+        }
+
+        break;
+
+    case 'scan':
+        try{
+            $assign_category   = cli_argument('--category'  , true);
+            $assign_company    = cli_argument('--company'   , true);
+            $assign_branch     = cli_argument('--branch'    , true);
+            $assign_department = cli_argument('--department', true);
+            $assign_employee   = cli_argument('--employee'  , true);
+            $assign_customer   = cli_argument('--customer'  , true);
+            $assign_provider   = cli_argument('--provider'  , true);
+            $assign_inventory  = cli_argument('--inventory' , true);
+            $types             = cli_argument(1);
+            $server            = cli_argument(2);
+            $count             = 0;
+
+            cli_no_arguments_left();
+
+            /*
+             * Validate category / company / branch / department / employee / customer / provider / inventory data
+             */
+            if($assign_category){
+                load_libs('categories');
+                $category = categories_get($assign_category);
+
+                if(!$category){
+                    throw new BException(tr('The specified category ":category" does not exist', array(':category' => $assign_category)), 'not-exists');
+                }
+            }
+
+            if($assign_inventory){
+                load_libs('inventories');
+                $inventory = inventories_get($assign_inventory);
+
+                if(!$inventory){
+                    throw new BException(tr('The specified inventory ":inventory" does not exist', array(':inventory' => $assign_inventory)), 'not-exists');
+                }
+            }
+
+            if($assign_provider){
+                load_libs('providers');
+                $provider = providers_get($assign_provider);
+
+                if(!$provider){
+                    throw new BException(tr('The specified provider ":provider" does not exist', array(':provider' => $assign_provider)), 'not-exists');
+                }
+            }
+
+            if($assign_customer){
+                load_libs('customers');
+                $customer = customers_get($assign_customer);
+
+                if(!$customer){
+                    throw new BException(tr('The specified customer ":customer" does not exist', array(':customer' => $assign_customer)), 'not-exists');
+                }
+            }
+
+            if($assign_company){
+                load_libs('companies');
+                $company = categories_get($assign_company);
+
+                if(!$company){
+                    throw new BException(tr('The specified company ":company" does not exist', array(':company' => $assign_company)), 'not-exists');
+                }
+            }
+
+            if($assign_branch){
+                if(empty($company)){
+                    throw new BException(tr('No company specified for the branch ":branch"', array(':branch' => $assign_branch)), 'not-specified');
+                }
+
+                $branch = categories_get_branch($assign_branch);
+
+                if(!$branch){
+                    throw new BException(tr('The specified branch ":branch" does not exist in the company', array(':branch' => $assign_branch, ':company' => $company['name'])), 'not-exists');
+                }
+            }
+
+            if($assign_department){
+                if(empty($branch)){
+                    throw new BException(tr('No branch specified for the department ":department"', array(':department' => $assign_department)), 'not-specified');
+                }
+
+                $department = categories_get_department($assign_department);
+
+                if(!$department){
+                    throw new BException(tr('The specified department ":department" does not exist in the branch ":branch"', array(':department' => $assign_department, ':branch' => $branch['name'])), 'not-exists');
+                }
+            }
+
+            if($assign_employee){
+                if(empty($department)){
+                    throw new BException(tr('No department specified for the employee ":employee"', array(':employee' => $assign_employee)), 'not-specified');
+                }
+
+                $employee = categories_get_employee($assign_employee);
+
+                if(!$employee){
+                    throw new BException(tr('The specified employee ":employee" does not exist in the department ":department"', array(':employee' => $assign_employee, ':department' => $department['name'])), 'not-exists');
+                }
+            }
+
             devices_set_status('not-found');
 
-            $servers_devices = devices_scan($filters, $server);
+            $servers_devices = devices_scan($types, $server);
 
-            foreach($servers_devices as $server => $devices){
+            foreach($servers_devices as $servers_id => $devices){
                 foreach($devices as $device){
                     /*
                      * Assign device to category / company / branch / department
@@ -237,7 +459,7 @@ switch(cli_method()){
                     $device['departments_id'] = isset_get($department['id']);
 
                     try{
-                        $device = devices_insert($device, $server);
+                        $device = devices_insert($device, $servers_id);
 
                         if(empty($device['_exists'])){
                             $count++;
@@ -272,17 +494,18 @@ switch(cli_method()){
         break;
 
     case 'clear':
+        $type = cli_argument(0);
         cli_no_arguments_left();
 
-        $r = sql_query('DELETE FROM `devices`');
+        $count = devices_clear($type);
 
-        switch($r->rowCount()){
+        switch($count){
             case 0:
                 log_console(tr('Not deleted any devices'), 'error');
                 break;
 
             default:
-                log_console(tr('Deleted ":count" devices', array(':count' => $r->rowCount())), 'green');
+                log_console(tr('Deleted ":count" devices', array(':count' => $count)), 'green');
         }
 
         break;
