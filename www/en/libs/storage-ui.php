@@ -182,10 +182,10 @@ function storage_ui_process_dosubmit($params, $section, $page){
                     $count           = 0;
                     $servers_devices = devices_scan('document-scanner');
 
-                    foreach($servers_devices as $server => $devices){
+                    foreach($servers_devices as $servers_id => $devices){
                         foreach($devices as $device){
                             $count++;
-                            devices_insert($device, $server);
+                            devices_insert($device, $servers_id);
                         }
                     }
 
