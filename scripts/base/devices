@@ -164,7 +164,7 @@ switch(cli_method()){
             log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 12).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.str_size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
 
             while($device = sql_fetch($devices)){
-                log_console(str_size($device['id'], 6, ' ', true).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
+                log_console(str_size($device['id'], 6, ' ', true).' '.str_size($device['type'], 20).' '.str_size(not_empty($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
             }
         }
 
@@ -355,7 +355,7 @@ switch(cli_method()){
             $assign_provider   = cli_argument('--provider'  , true);
             $assign_inventory  = cli_argument('--inventory' , true);
             $types             = cli_argument(1);
-            $server            = cli_argument(2);
+            $servers           = cli_argument(2);
             $count             = 0;
 
             cli_no_arguments_left();
@@ -446,7 +446,7 @@ switch(cli_method()){
 
             devices_set_status('not-found');
 
-            $servers_devices = devices_scan($types, $server);
+            $servers_devices = devices_scan($types, $servers);
 
             foreach($servers_devices as $servers_id => $devices){
                 foreach($devices as $device){

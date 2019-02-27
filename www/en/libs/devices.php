@@ -1099,7 +1099,7 @@ function devices_scan($types, $server = null){
     try{
         load_libs('servers');
 
-        if(!$server){
+        if($server === null){
             /*
              * Scan all registered servers
              */
