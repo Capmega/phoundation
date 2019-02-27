@@ -661,7 +661,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                 return isset_get($retval);
             }
 
-            if(!empty($argv[$keys++])){
+            if(isset($argv[$keys++])){
                 $argument = $argv[$keys - 1];
                 unset($argv[$keys - 1]);
                 return $argument;
