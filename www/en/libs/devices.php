@@ -1047,22 +1047,30 @@ function devices_select($product, $category = null){
 
 
 /*
+ * Clear all devices from the database
  *
+ * This function will erase all devices from the `devices` table. If $type is specified, only the
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package devices
- * @version 1.25.0: Added function and documentation
+ * @version 2.4.15: Upgraded function and documentation
  *
- * @param string $product The seo_product_string that should be matched
- * @return
+ * @param null string $type The type of devices to erase. If not specified, all devices will be erased
+ * @return natural The amount of erased devices
  */
-function devices_clear($product){
+function devices_clear($type = null){
     try{
-        $delete = sql_query('DELETE FROM `devices` WHERE `seo_product_string` = :seo_product_string', array(':seo_product_string' => $product));
-        return $delete->rowCount();
+        if($type){
+            $erase = sql_query('DELETE FROM `devices` WHERE `type` = :type', array(':type' => $type));
+
+        }else{
+            $erase = sql_query('DELETE FROM `devices`');
+        }
+
+        return $erase->rowCount();
 
     }catch(Exception $e){
         throw new BException('devices_clear(): Failed', $e);
@@ -1103,17 +1111,39 @@ function devices_scan($types, $server = null){
                 $devices = devices_scan($types, $server['id']);
 
                 if($devices){
-                    $retval[$server['seodomain']] = $devices[$server['seodomain']];
+                    $retval[$server['id']] = $devices[$server['id']];
                 }
             }
 
             return $retval;
         }
 
+        if(str_exists($server, ',')){
+            /*
+             * A specific list of servers was specified
+             */
+            $servers = array_force($server);
+            $retval  = array();
+
+            foreach($servers as $server){
+                log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
+                $devices = devices_scan($types, $server['id']);
+
+                if($devices){
+                    $retval[$server['id']] = $devices[$server['id']];
+                }
+            }
+
+            return $retval;
+        }
+
+        /*
+         * Scan this specific server
+         */
         $server            = servers_like($server);
         $server            = servers_get($server);
         $server['persist'] = true;
-        $seodomain         = $server['seodomain'];
+        $servers_id        = $server['id'];
         $retval            = array();
         $types             = array_force($types);
         $types             = devices_validate_types($types, true);
@@ -1177,7 +1207,7 @@ function devices_scan($types, $server = null){
                     }
 
                     if($entries){
-                        $retval[$seodomain] = array_merge(isset_get($retval[$seodomain], array()), $entries);
+                        $retval[$servers_id] = array_merge(isset_get($retval[$servers_id], array()), $entries);
                     }
 
                     break;
@@ -1198,7 +1228,7 @@ function devices_scan($types, $server = null){
                         }
 
                         if($devices){
-                            $retval[$seodomain] = array_merge(isset_get($retval[$seodomain], array()), $devices);
+                            $retval[$servers_id] = array_merge(isset_get($retval[$servers_id], array()), $devices);
                         }
                     }
 
