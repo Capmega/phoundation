@@ -78,8 +78,6 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
         array_default($ssh, 'proxies'      , null);
         array_default($ssh, 'persist'      , false);
 
-        $ssh['commands'] = addslashes($ssh['commands']);
-
         /*
          * If no domain is specified, then don't execute this command on a
          * remote server, just use safe_exec and execute it locally
@@ -88,6 +86,11 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
             $retry = 0;
             return safe_exec($ssh['commands'].($ssh['background'] ? ' &' : ''), $ok_exitcodes, true, $function);
         }
+
+        /*
+         * From here, extra "" will be added, so slash all currently quotes
+         */
+        $ssh['commands'] = addslashes($ssh['commands']);
 
         /*
          * Ensure valid server variable
@@ -125,7 +128,7 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
         /*
          * Execute this entire SSH command from another server?
          */
-        $results = safe_exec($command, $ok_exitcodes, true, $function);
+        $results = safe_exec($command.($ssh['background'] ? ' &' : ''), $ok_exitcodes, true, $function);
 
         /*
          * Remove SSH warning
@@ -152,9 +155,6 @@ function ssh_exec($ssh, $commands = null, $background = false, $function = null,
 
                 log_console(tr('Created PERSISTENT SSH tunnel ":source_port::target_domain::target_port" to domain ":domain"', array(':domain' => $ssh['domain'], ':source_port' => $ssh['tunnel']['source_port'], ':target_domain' => $ssh['tunnel']['target_domain'], ':target_port' => $ssh['tunnel']['target_port'])));
             }
-
-        }elseif($ssh['background']){
-            $results = array_pop($results);
         }
 
         $retry = 0;
