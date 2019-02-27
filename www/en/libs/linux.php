@@ -597,7 +597,51 @@ function linux_which($server, $file){
  * @return string The path of the specified file
  */
 function linux_ensure_path($server, $path, $mode = null, $clear = false){
+    global $_CONFIG;
+
     try{
+        if(!$mode){
+            $mode = $_CONFIG['fs']['dir_mode'];
+        }
+
+        if(!$path){
+            throw new BException(tr('linux_ensure_path(): No path specified'), 'not-specified');
+        }
+
+        if($path[0] !== '/'){
+            throw new BException(tr('linux_ensure_path(): Specified path ":path" is not absolute', array(':path' => $path)), 'invalid');
+        }
+
+        if(str_exists($path, '..')){
+            throw new BException(tr('linux_ensure_path(): Specified path ":path" contains parent path sections', array(':path' => $path)), 'invalid');
+        }
+
+        if(substr_count($path, '/') < 3){
+            throw new BException(tr('linux_ensure_path(): Specified path ":path" is not deep enough. Top level- and second level directories cannot be ensured', array(':path' => $path)), 'invalid');
+        }
+
+        /*
+         * Ensure this is not executed on THIS path
+         */
+        $server = servers_get($server);
+
+        switch($server['domain']){
+            case '':
+                // FALLTHROUGH
+            case 'localhost':
+                if(str_exists(ROOT, $path)){
+                    throw new BException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
+                }
+        }
+
+        if($clear){
+            server_exec($server, 'rm "'.$path.'" -rf; mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
+
+        }else{
+            server_exec($server, 'mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
+        }
+
+        return $path;
 
     }catch(Exception $e){
         throw new BException('linux_ensure_path(): Failed', $e);
