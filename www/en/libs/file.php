@@ -364,14 +364,14 @@ function file_ensure_file($file, $mode = null, $path_mode = null){
             /*
              * Create the file
              */
-            file_execute_mode(dirname($file), 0770, function() use ($path, $mode){
+            file_execute_mode(dirname($file), 0770, function() use ($file, $mode){
                 log_console(tr('file_ensure_file(): Warning: file ":file" did not exist and was created empty to ensure system stability, but information may be missing', array(':file' => $file)), 'VERBOSE/yellow');
                 touch($file);
-            });
 
-            if($mode){
-                chmod($file, $mode);
-            }
+                if($mode){
+                    chmod($file, $mode);
+                }
+            });
         }
 
         return $file;
