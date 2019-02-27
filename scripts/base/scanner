@@ -48,6 +48,8 @@ scan FILE                       - Scan to the specified FILE. If the path for
     --device DEVICE             - Scan using the specified device. Specify the
                                   device using the URL from the "list" method
 
+    --source SOURCE             - Scan from the specified source. Note that the
+
     --server SERVER             - Scan using the device on the specified server
 
     --resolution RESOLUTION     - Scan using the specified resolution. Should
@@ -88,7 +90,6 @@ scan FILE                       - Scan to the specified FILE. If the path for
                                   file';
 
 require_once(__DIR__.'/../../libs/startup.php');
-
 cli_only();
 load_libs('scanimage,sane');
 
@@ -150,16 +151,21 @@ switch(cli_method()){
         break;
 
     case 'scan':
-        $device = cli_argument('--device', true);
-        $domain = cli_argument('--server', true);
         $show   = cli_argument('-s,--show');
+        $domain = cli_argument('--server', true);
+        $device = cli_argument('--device', true);
         $device = scanimage_get($device, $domain);
 
+        $scanimage['options'] = array();
+        $scanimage['source']  = cli_argument('--source', true);
+        $scanimage['batch']   = cli_argument('-b,--batch');
         $scanimage['domain']  = $device['domain'];
         $scanimage['device']  = $device['seostring'];
-        $scanimage['options'] = array();
+        $scanimage['format']  = cli_argument('-f,--format', true, isset_get($_CONFIG['scanimage']['format']));
 
         log_console(tr('About to scan from scanner ":scanner" on server ":server"', array(':scanner' => $device['string'], ':server' => $device['domain'])), 'VERBOSE/cyan');
+
+
 
         /*
          * Parse parameters for this specific device
@@ -173,7 +179,7 @@ switch(cli_method()){
                  */
                 if(is_array($valid_values)){
                     if(!in_array($value, $valid_values)){
-                        throw new BException(tr('Value ":value" for the specified option ":key" is invalid', array(':key' => $key, ':value' => $value)));
+                        throw new BException(tr('Value ":value" for the specified option ":key" is invalid', array(':key' => $key, ':value' => $value)), 'warning/invalid');
                     }
 
                 }else{
@@ -187,25 +193,28 @@ switch(cli_method()){
             }
         }
 
+
+
         /*
-         * Get system options
+         * Get batch options
          */
-        $system_options = array('batch',
-                                'batch-start',
+        $system_options = array('batch-start',
                                 'batch-count',
                                 'batch-increment',
-                                'batch--double');
+                                'batch-double');
 
         foreach($system_options as $option){
             if($value = cli_argument('--'.$option, true)){
-                if($option == 'batch'){
-                    $scanimage['batch'] = true;
-                }
-
+                $scanimage['batch'] = true;
                 $scanimage['options'][$option] = $value;
             }
         }
 
+
+
+        /*
+         *
+         */
         //$scanimage['resolution']     = not_empty(cli_argument('--resolution'     , true), isset_get($device['options']['resolution']));
         //$scanimage['contrast']       = not_empty(cli_argument('--contrast'       , true), isset_get($_CONFIG['scanimage']['contrast']));
         //$scanimage['brightness']     = not_empty(cli_argument('--brightness'     , true), isset_get($_CONFIG['scanimage']['brightness']));
@@ -217,26 +226,20 @@ switch(cli_method()){
         //$scanimage['clear_exif']     = not_empty(cli_argument('--clear-exif'     , true), isset_get($_CONFIG['scanimage']['clear_exif']));
         //$scanimage['file']           = cli_argument();
 
-        $scanimage['format'] = cli_argument('-f,--format', true, isset_get($_CONFIG['scanimage']['format']));
-        $scanimage['file']   = cli_argument();
+
+
+        /*
+         * Check target file / path arguments
+         */
+        $scanimage['file'] = cli_argument();
 
         cli_no_arguments_left();
 
-        if(!$scanimage['file']){
-            if(empty($scanimage['options']['batch'])){
-                throw new BException(tr('No target file specified'), 'not-specified');
-            }
 
-        }else{
-            $scanimage['file'] = file_absolute($scanimage['file']);
-        }
 
-        log_console(tr('Scanning to file ":file"', array(':file' => $scanimage['file'])), 'cyan');
-
-        $scanimage['path'] = dirname($scanimage['file']);
-
-        file_ensure_path($scanimage['path']);
-
+        /*
+         * Scan!
+         */
         try{
             scanimage($scanimage);
 
@@ -253,7 +256,11 @@ switch(cli_method()){
                 case 'busy':
                     // FALLTHGOUH
                 case 'stuck':
+                    throw $e->makeWarning(true);
+
+                case 'failed':
                     $e->makeWarning(true);
+                    throw new BException(tr('Scanner failed. Please check if the scanner is turned on and functioning properly. Restart the scanner if needed'), $e);
             }
 
             throw $e;
