@@ -1,12 +1,10 @@
 <?php
-global $core;
+global $core, $_CONFIG;
 
 try{
     if(!$core->register['ready']){
         throw new BException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'invalid');
     }
-
-
 
     /*
      * Join all commands together
@@ -37,20 +35,37 @@ try{
         $command = mb_trim($commands);
     }
 
-
+    /*
+     * Add $PATH
+     */
+    if($_CONFIG['exec']['path']){
+        $command = 'export PATH="'.$_CONFIG['exec']['path'].'"; '.$command;
+    }
 
     /*
-     *
+     * Setup commands for background execution if required so
      */
-    log_console(tr('Executing command ":command" using function ":function"', array(':command' => $command, ':function' => $function)), (PLATFORM_HTTP ? 'cyan' : 'VERBOSE/cyan'));
+    if(substr($command, -1, 1) == '&'){
+        $command    = substr($command, 0, -1);
+        $background = true;
+        log_console(tr('Executing background command ":command" using function ":function"', array(':command' => $command, ':function' => $function)), (PLATFORM_HTTP ? 'cyan' : 'VERBOSE/cyan'));
 
+    }else{
+        $background = false;
+        log_console(tr('Executing command ":command" using function ":function"', array(':command' => $command, ':function' => $function)), (PLATFORM_HTTP ? 'cyan' : 'VERBOSE/cyan'));
+    }
+
+    /*
+     * Execute the command
+     */
     switch($function){
         case 'exec':
-            if(substr($command, -1, 1) == '&'){
+            if($background){
                 /*
-                 * Background commands cannot use "exec()" because that one will always wait for the exit code
+                 *
                  */
                 $lastline = exec(substr($command, 0, -1).' > /dev/null 2>&1 3>&1 & echo $!', $output, $exitcode);
+                $output   = array_shift($output);
 
             }else{
                 $lastline = exec($command.($route_errors ? ' 2>&1 3>&1' : ''), $output, $exitcode);
@@ -59,9 +74,8 @@ try{
             break;
 
         case 'shell_exec':
-            if(substr($command, -1, 1) == '&'){
+            if($background){
                 throw new BException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the requested PHP exec function shell_exec()', array(':command' => $command)), 'not-supported');
-
             }
 
             $exitcode = null;
@@ -79,11 +93,12 @@ try{
         case 'system':
             $output = array();
 
-            if(substr($command, -1, 1) == '&'){
+            if($background){
                 /*
                  * Background commands cannot use "exec()" because that one will always wait for the exit code
                  */
                 $lastline = system(substr($command, 0, -1).' > /dev/null 2>&1 3>&1 & echo $!', $exitcode);
+                $output   = array_shift($output);
 
             }else{
                 $lastline = system($command.($route_errors ? ' 2>&1 3>&1' : ''), $exitcode);
@@ -100,18 +115,13 @@ under_construction();
             break;
     }
 
-
-
     /*
-     *
+     * In VERYVERBOSE we also log the command output
      */
     if(VERYVERBOSE){
-        foreach($output as $line){
-            log_console($output);
-        }
+        log_console('Command output:', 'purple');
+        log_console($output);
     }
-
-
 
     /*
      *

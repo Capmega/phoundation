@@ -138,8 +138,11 @@ $_CONFIG['db']                 = array('default'                            => '
                                                                                      //                            PDO::ATTR_STRINGIFY_FETCHES => false, ),
                                                                                      'timezone'         => 'UTC'));                         // Default timezone to use
 
-//domain
+// Domain configuration
 $_CONFIG['domain']             = 'auto';                                                                                                    // The base domain of this website. for example, "mywebsite.com",  "thisismine.com.mx", etc. If set to "auto" it will use $_SERVER[SERVER_NAME]
+
+// Exec configuration
+$_CONFIG['exec']               = array('path'                               => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin');     // The path used by safe_exec()
 
 // Feedback configuration
 $_CONFIG['feedback']           = array('emails'                             => array('Capmega Support' => 'support@capmega.com'));
