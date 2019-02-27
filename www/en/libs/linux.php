@@ -626,7 +626,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
         }
 
         /*
-         * Ensure this is not executed on THIS path
+         * Ensure this is not executed on ROOT or part of ROOT
          */
         $server = servers_get($server);
 
@@ -634,8 +634,18 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
             case '':
                 // FALLTHROUGH
             case 'localhost':
-                if(str_exists(ROOT, $path)){
-                    throw new BException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
+                try{
+                    if(str_exists(ROOT, linux_realpath($server, $path))){
+                        throw new BException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
+                    }
+
+                }catch(Exception $e){
+                    if($e->getRealCode() !== 'not-exists'){
+                        /*
+                         * If the target path would not exist we'd be okay
+                         */
+                        throw $e;
+                    }
                 }
         }
 
@@ -923,6 +933,54 @@ showdie($results);
 
     }catch(Exception $e){
         throw new BException('linux_detect_os(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get the real path for the specified path on the target server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @see realpath
+ * @version 2.4.20: Added function and documentation
+ *
+ * @param mixed $server
+ * @param string $path
+ * @return string The real path on the specified server
+ */
+function linux_realpath($server, $path){
+    try{
+        $server  = servers_get($server);
+        $results = servers_exec($server, 'cd "'.$path.'"; pwd');
+        $result  = array_shift($results);
+
+        if(count($results)){
+            $error = array_shift($results);
+            $error = str_from($error, 'bash: line 0: cd: ');
+            $error = str_from($error, ' ');
+            $error = strtolower(trim($error, ' '));
+
+            switch($error){
+                case 'no such file or directory':
+                    throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'not-exists');
+
+                case 'permission denied':
+                    throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'access-denied');
+            }
+
+show($result);
+            throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'failed');
+        }
+
+        return $result;
+
+    }catch(Exception $e){
+        throw new BException('linux_realpath(): Failed', $e);
     }
 }
 ?>
