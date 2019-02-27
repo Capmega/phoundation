@@ -25,11 +25,11 @@
  *
  * @return void()
  */
-function log_function(){
+function log_rotate(){
     try{
 
     }catch(Exception $e){
-        throw new BException('log_function(): Failed', $e);
+        throw new BException('log_rotate(): Failed', $e);
     }
 }
 ?>
