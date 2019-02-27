@@ -121,6 +121,42 @@ function rsync($params){
                             $params[$item] = $server['username'].'@'.$params[$item];
                         }
                     }
+
+                    /*
+                     * Ensure this is not executed on ROOT or part of ROOT
+                     */
+                    switch($server['domain']){
+                        case '':
+                            // FALLTHROUGH
+                        case 'localhost':
+                            foreach(array('source', 'target') as $subitem){
+                                if(str_exists($params[$subitem], ':')){
+                                    /*
+                                     * We're syncing to THIS server, are we not
+                                     * syncing to ROOT or its parents somehow?
+                                     */
+                                    try{
+                                        if(str_exists(ROOT, linux_realpath($server, str_from($params[$subitem], ':')))){
+                                            throw new BException(tr('rsync(): Specified remote ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
+                                        }
+
+                                    }catch(Exception $e){
+                                        if($e->getRealCode() !== 'not-exists'){
+                                            /*
+                                             * If the target path would not exist we'd be okay
+                                             */
+                                            throw $e;
+                                        }
+                                    }
+
+                                }else{
+                                    if(str_exists(ROOT, realpath($params[$subitem]))){
+                                        throw new BException(tr('rsync(): Specified local ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
+                                    }
+                                }
+                            }
+                    }
+
                 }
 
             }catch(Exception $e){
