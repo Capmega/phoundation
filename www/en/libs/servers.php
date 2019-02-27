@@ -737,13 +737,12 @@ function servers_list_domains($server){
 function servers_exec($server, $commands = null, $background = false, $function = null, $ok_exitcodes = 0){
     try{
         $server = servers_like($server);
+        $server = servers_get($server);
 
         array_params($server, 'domain');
         array_default($server, 'hostkey_check', true);
         array_default($server, 'background'   , $background);
         array_default($server, 'commands'     , $commands);
-
-        $server = servers_get($server);
 
         if(!empty($server['domain'])){
             if(empty($server['identity_file'])){
@@ -957,20 +956,22 @@ function servers_unregister_host($server){
  */
 function servers_list($as_resource = false){
     try{
-        $query = 'SELECT `id`,
-                         `domain`,
-                         `seodomain`
+        $query = 'SELECT   `id`,
+                           `domain`,
+                           `seodomain`
 
-                  FROM   `servers`
+                  FROM     `servers`
 
-                  WHERE  `status` IS NULL';
+                  WHERE    `status` IS NULL
+
+                  ORDER BY `domain` = "" DESC,
+                           `createdon`   ASC';
 
         if($as_resource){
             $retval = sql_query($query);
 
         }else{
             $retval = sql_list($query);
-
         }
 
         return $retval;
