@@ -80,23 +80,26 @@ function scanimage($params){
                     /*
                      * This is the own machine
                      */
-show('LOCAL');
-                    $result = safe_exec($command, 2);
-showdie($result);
+                    $results = safe_exec($command, 2);
+                    $result  = array_pop($results);
+                    $result  = str_cut($result, ',', 'pages');
+                    $result  = trim($result);
+
+                    return $result;
 
                 }else{
                     /*
                      * This is a remote server
                      */
-                    $remote = '/tmp/'.str_random(16);
-                    $remote = linux_ensure_path($server, $remote);
-                    $pid    = servers_exec($server, $command, true);
+                    $remote = linux_ensure_path($server, $params['path']);
+                    $pid    = servers_exec($server, $command, true, null, 2);
 
-                    rsync(array('source'              => $server['domain'].':'.$params['file'],
+                    rsync(array('source'              => $server['domain'].':'.$params['path'],
                                 'target'              => $params['local']['batch'],
                                 'monitor_pid'         => $pid,
                                 'remove_source_files' => true));
-showdie($pid);
+show($pid);
+showdie('aaaaaaaaaaaaaaaaaaaaaa');
                 }
 
             }else{
@@ -158,51 +161,56 @@ showdie($pid);
             return $params['file'];
 
         }catch(Exception $e){
-            $data = $e->getData();
+            if(is_numeric($e->getRealCode())){
+                /*
+                 * Try and parse output for error information
+                 */
+                $data = $e->getData();
 
-            if(is_array($data)){
-                $line = array_shift($data);
+                if(is_array($data)){
+                    $line = array_shift($data);
 
-            }else{
-                $line = '';
-            }
+                }else{
+                    $line = '';
+                }
 
-            switch($line){
-                case 'scanimage: sane_start: Error during device I/O':
-                    // FALLTROUGH
-                case 'scanimage: sane_start: Operation was cancelled':
-                    /*
-                     * Scanner is having issues
-                     */
-                    throw new BException(tr('scanimage(): Scanner failed'), 'failed');
-            }
+                switch($line){
+                    case 'scanimage: sane_start: Error during device I/O':
+                        // FALLTROUGH
+                    case 'scanimage: sane_start: Operation was cancelled':
+                        /*
+                         * Scanner is having issues
+                         */
+                        throw new BException(tr('scanimage(): Scanner failed'), 'failed');
+                }
 
-            switch(substr($line, 0, 25)){
-                case 'scanimage: no SANE device':
-                    /*
-                     * No scanner found
-                     */
-                    throw new BException(tr('scanimage(): No scanner found'), 'not-found');
+                switch(substr($line, 0, 25)){
+                    case 'scanimage: no SANE device':
+                        /*
+                         * No scanner found
+                         */
+                        throw new BException(tr('scanimage(): No scanner found'), 'not-found');
 
-                case 'scanimage: open of device':
-                    /*
-                     * Failed to open the device, it might be busy or not
-                     * responding
-                     */
-                    $server  = servers_get($params['domain']);
-                    $process = linux_pgrep($server, 'scanimage');
+                    case 'scanimage: open of device':
+                        /*
+                         * Failed to open the device, it might be busy or not
+                         * responding
+                         */
+                        $server  = servers_get($params['domain']);
+                        $process = linux_pgrep($server, 'scanimage');
 
-                    if(substr($line, -24, 24) === 'failed: Invalid argument'){
-                        throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
+                        if(substr($line, -24, 24) === 'failed: Invalid argument'){
+                            throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
 
-                    }else{
-                        if($process){
-                            throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
+                        }else{
+                            if($process){
+                                throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
+                            }
                         }
-                    }
 
-                default:
-                    throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
+                    default:
+                        throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
+                }
             }
         }
 
@@ -322,9 +330,6 @@ function scanimage_validate($params){
                 if(!is_dir($params['path'])){
                     $v->setError(tr('Specified batch scan target path ":path" already exists as a file', array(':path' => $params['path'])));
                 }
-
-            }else{
-                file_path_ensure($server, $params['path']);
             }
 
         }else{
@@ -338,7 +343,7 @@ function scanimage_validate($params){
                     $v->setError(tr('Specified file ":file" already exists', array(':file' => $params['file'])));
 
                 }elseif(is_file($params['file'])){
-                    file_delete($server, $params['file']);
+                    file_delete($params['file']);
 
                 }else{
                     if(is_dir($params['file'])){
