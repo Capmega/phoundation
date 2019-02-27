@@ -336,20 +336,38 @@ function file_create_target_path($path, $singledir = false, $length = false){
 
 /*
  * Ensure that the specified file exists in the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @note Will log to the console in case the file was created
+ * @version 2.4.16: Added documentation, improved log output
+ *
+ * @param string $file The file that must exist
+ * @param null octal $mode If the specified $file does not exist, it will be created with this file mode. Defaults to $_CONFIG[fs][file_mode]
+ * @param null octal $path_mode If parts of the path for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+ * @return string The specified file
  */
 function file_ensure_file($file, $mode = null, $path_mode = null){
+    global $_CONFIG;
+
     try{
+        if(!$mode){
+            $mode = $_CONFIG['fs']['file_mode'];
+        }
+
         file_ensure_path(dirname($file), $path_mode);
 
         if(!file_exists($file)){
             /*
              * Create the file
              */
-            if(VERBOSE and PLATFORM_CLI){
-                log_console('file_ensure_file(): Warning: file "'.str_log($file).'" did not existed and was created empty to ensure system stability, but information may be missing', 'yellow');
-            }
-
-            touch($file);
+            file_execute_mode(dirname($file), 0770, function() use ($path, $mode){
+                log_console(tr('file_ensure_file(): Warning: file ":file" did not exist and was created empty to ensure system stability, but information may be missing', array(':file' => $file)), 'VERBOSE/yellow');
+                touch($file);
+            });
 
             if($mode){
                 chmod($file, $mode);
@@ -366,7 +384,19 @@ function file_ensure_file($file, $mode = null, $path_mode = null){
 
 
 /*
- * Ensures existence of specified path
+ * Ensures existence of the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4.16: Added documentation
+ *
+ * @param string $path The path that must exist
+ * @param null octal $mode If the specified $path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+ * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
+ * @return string The specified file
  */
 function file_ensure_path($path, $mode = null, $clear = false){
     global $_CONFIG;
