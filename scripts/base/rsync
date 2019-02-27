@@ -43,6 +43,8 @@ $params['ssh_options']         = cli_argument('--ssh-options');
 $params['sparse']              = cli_argument('-s,--sparse');
 //$params['super']               = cli_argument('--');
 $params['times']               = cli_argument('-t,--times');
+$params['monitor_pid']         = cli_argument('--monitor-pid');
+$params['monitor_task']        = cli_argument('--monitor-task');
 
 rsync($params);
 ?>

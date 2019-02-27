@@ -73,6 +73,8 @@ function rsync($params){
         array_default($params, 'port'               , null);
         array_default($params, 'ssh_options'        , null);
         array_default($params, 'remote_rsync'       , false);
+        array_default($params, 'monitor_pid'        , false);
+        array_default($params, 'monitor_task'       , false);
 
         /*
          * Required parameters
@@ -214,9 +216,55 @@ function rsync($params){
 
         $command .= ' '.$params['source'].' '.$params['target'];
 
-        log_file($command, 'rsync');
+        while(true){
+            log_console(tr('Rsyncing from ":source" to ":target"', array(':source' => $params['source'], ':target' => $params['target'])), 'cyan');
+            $results = safe_exec($command, null, true, $params['function']);
 
-        $results = safe_exec($command, null, true, $params['function']);
+            if(!empty($break)){
+                /*
+                 * We're done!
+                 */
+                break;
+            }
+
+            if($params['monitor_task']){
+                /*
+                 * Monitor the specified task to see if it is still running. While
+                 * it is running, we do not stop either.
+                 */
+                load_libs('tasks');
+
+                if(tasks_check_pid($params['monitor_task'])){
+                    log_console(tr('Task ":task" still running, continuing rsync cycle', array(':task' => $params['monitor_task'])), 'VERBOSE/cyan');
+
+                }else{
+                    /*
+                     * The process is done, break the loop
+                     */
+                    log_console(tr('Task ":task" finished, doing one last file check before finishing', array(':task' => $params['monitor_task'])), 'cyan');
+                    $break = true;
+                }
+            }
+
+            if($params['monitor_pid']){
+                /*
+                 * Monitor the specified process to see if it is still running.
+                 * While it is running, we do not stop either.
+                 */
+                if(tasks_check_pid($params['monitor_pid'])){
+                    log_console(tr('Process":pid" still running, continuing rsync cycle', array(':pid' => $params['monitor_pid'])), 'VERBOSE/cyan');
+
+                }else{
+                    /*
+                     * The process is done, break the loop
+                     */
+                    log_console(tr('Process ":pid" finished, doing one last file check before finishing', array(':pid' => $params['monitor_pid'])), 'cyan');
+                    $break = true;
+                }
+            }
+
+            usleep(100000);
+        }
 
     }catch(Exception $e){
         /*
