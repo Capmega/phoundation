@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.21');
+define('FRAMEWORKCODEVERSION', '2.4.22');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1129,6 +1129,8 @@ function read_config($file = null, $environment = null){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
+ * @see ssh_exec()
+ * @see servers_exec()
  * @see notifications_send()
  *
  * @param string $commands The commands to be executed
@@ -1137,7 +1139,7 @@ function read_config($file = null, $environment = null){
  * @param (optional, default 'exec') string $function One of 'exec', 'passthru', or 'system'. The function to be used internally by safe_exec(). Each function will have different execution and different output. 'passthru' will send all command output directly to the client (browser or command line), 'exec' will return the complete output of the command, but cannot be used for background commands as it will check the process exit code, 'system' can run background processes.
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
-function safe_exec($commands, $ok_exitcodes = null, $route_errors = true, $function = 'exec', $timeout = 10){
+function safe_exec($params){
     return include(__DIR__.'/handlers/system-safe-exec.php');
 }
 

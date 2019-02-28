@@ -731,33 +731,30 @@ function servers_list_domains($server){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package servers
+ * @see ssh_exec()
+ * @see safe_exec()
  *
- * @param mixed $server
- * @param mixed $commands
- * @param boolean $background
- * @param string $function
- * @param mixed $ok_exitcodes
+ * @param mixed  $server
+ * @param mixed  $params[commands]
+ * @param string $server[function]
+ * @param mixed  $server[ok_exitcodes]
+ * @param string $server[timeout]
  * @return array The results of the executed SSH commands in an array, each entry containing one line of the output
  * @see ssh_exec()
  */
-function servers_exec($server, $commands = null, $background = false, $function = null, $ok_exitcodes = 0){
+function servers_exec($server, $params){
     try{
         $server = servers_like($server);
         $server = servers_get($server);
 
-        array_params($server, 'domain');
-        array_default($server, 'hostkey_check', true);
-        array_default($server, 'background'   , $background);
-        array_default($server, 'commands'     , $commands);
-
         if(!empty($server['domain'])){
+            array_default($server, 'hostkey_check', true);
+
             if(empty($server['identity_file'])){
                 if(empty($server['ssh_key'])){
                     if(empty($server['password'])){
                         throw new BException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server['domain'])), 'missing-data');
                     }
-
-
                 }
 
                 /*
@@ -770,8 +767,7 @@ function servers_exec($server, $commands = null, $background = false, $function 
         /*
          * Execute command on remote server
          */
-        $results = ssh_exec($server, $commands, $server['background'], $function, $ok_exitcodes);
-        return $results;
+        return ssh_exec($server, $params);
 
     }catch(Exception $e){
         /*

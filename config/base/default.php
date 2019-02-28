@@ -142,7 +142,8 @@ $_CONFIG['db']                 = array('default'                            => '
 $_CONFIG['domain']             = 'auto';                                                                                                    // The base domain of this website. for example, "mywebsite.com",  "thisismine.com.mx", etc. If set to "auto" it will use $_SERVER[SERVER_NAME]
 
 // Exec configuration
-$_CONFIG['exec']               = array('path'                               => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin');     // The path used by safe_exec()
+$_CONFIG['exec']               = array('path'                               => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',  // The path used by safe_exec()
+                                       'timeout'                            => 10);
 
 // Feedback configuration
 $_CONFIG['feedback']           = array('emails'                             => array('Capmega Support' => 'support@capmega.com'));
@@ -321,11 +322,11 @@ $_CONFIG['sessions']           = array('enabled'                            => t
                                                                                      'redirect'      => 'index.php'));                      //
 
 // Shutdown configuration
-$_CONFIG['shutdown']           = array('check_disk' => array('interval' => 10,                                                              // Execute this function every INTERVAL / 100 times
+$_CONFIG['shutdown']           = array('check-disk' => array('interval' => 10,                                                              // Execute this function every INTERVAL / 100 times
                                                              'library'  => 'check-disk',                                                    // To execute the function, load this library
                                                              'function' => 'check_disk'),                                                   // The function to execute
 
-                                       'log_rotate' => array('interval' => 2,
+                                       'log-rotate' => array('interval' => 2,
                                                              'library'  => 'log',
                                                              'function' => 'log_rotate'));
 

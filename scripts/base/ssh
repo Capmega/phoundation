@@ -242,7 +242,7 @@ try{
                       'commands'         => $commands,
                       'identity_file'    => $identity_file);
 
-    $result = servers_exec($server, $commands, $background, $function);
+    $result = servers_exec($server, $commands, $function, );
 
 }catch(Exception $e){
     switch($e->getCode()){

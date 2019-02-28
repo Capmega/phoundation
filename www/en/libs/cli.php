@@ -1208,6 +1208,8 @@ function cli_done(){
         die($exit_code);
 
     }catch(Exception $e){
+show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+showdie($e);
         throw new BException('cli_done(): Failed', $e);
     }
 }
@@ -1668,6 +1670,143 @@ function cli_which($command, $whereis = false){
 
     }catch(Exception $e){
         throw new BException('cli_which(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Build a command string from the specified commands array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4.22: Added function and documentation
+ * @note This function typically would only have to be called by safe_exec() or ssh_exec() to build command line strings from the command arrays they receive
+ *
+ * @param array $params The commands array from which the commands string must be built
+ * @return string The command string
+ */
+function cli_build_commands_string(&$params){
+    global $_CONFIG;
+
+    try{
+        $retval = array();
+
+        array_default($params, 'timeout'     , $_CONFIG['exec']['timeout']);
+        array_default($params, 'route_errors', true);
+        array_default($params, 'background'  , false);
+
+        /*
+         * Build the commands together
+         * Escape all commands and arguments first
+         */
+        foreach($params['commands'] as $key => $value){
+            if(!is_numeric($key)){
+                throw new BException(tr('cli_build_commands_string(): Specified command structure ":commands" is invalid. It should be a numerical array with a list of "command, argurments_array, command, argurments_array, etc.."', array(':commands' => $params['commands'])), 'invalid');
+            }
+
+            if(!($key % 2)){
+                /*
+                 * This value should contain a command
+                 */
+                if(!$value){
+                    throw new BException(tr('cli_build_commands_string(): No command specified'), 'invalid');
+                }
+
+                if(!is_string($value)){
+                    throw new BException(tr('cli_build_commands_string(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
+                }
+
+                $command = escapeshellcmd(mb_trim($value));
+                $timeout = $params['timeout'];
+
+                if($params['route_errors']){
+                    $route = ' 2>&1 ';
+
+                }else{
+                    $route = '';
+                }
+
+                continue;
+            }
+
+            /*
+             * This value should contain arguments and with these we can finish the
+             * command
+             */
+            $params['background'] = false;
+
+            if($value){
+                if(!is_array($value)){
+                    if(empty($command)){
+                        /*
+                         * No command was set yet, probably commands / arguments out of order?
+                         */
+                        throw new BException(tr('cli_build_commands_string(): Encountered (arguments?) array before command. Please check the commands parameter ":commands"', array(':commands' => $params['commands'])), 'invalid');
+                    }
+
+                    throw new BException(tr('cli_build_commands_string(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['commands']))), 'invalid');
+                }
+
+                foreach($value as $special => &$argument){
+                    if(!is_scalar($argument)){
+                        throw new BException(tr('cli_build_commands_string(): Specified argument ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
+                    }
+
+                    if(is_numeric($special)){
+                        $argument = escapeshellarg(mb_trim($argument));
+
+                    }else{
+                        /*
+                         * This is a special argument
+                         */
+                        switch($special){
+                            case 'background':
+                                $params['background'] = $argument;
+
+                                if($argument){
+                                    if($params['route_errors']){
+                                        $route = ' > /dev/null 2>&1 3>&1 & echo $!';
+
+                                    }else{
+                                        $route = ' > /dev/null & echo $!';
+                                    }
+                                }
+
+                                break;
+
+                            case 'timeout':
+                                $timeout = $argument;
+                                break;
+
+                            default:
+                                throw new BException(tr('cli_build_commands_string(): Unknown specified argument ":argument" specified', array(':argument' => $argument)), 'invalid');
+                        }
+                    }
+                }
+
+                unset($argument);
+
+                $command .= ' '.implode(' ', $value);
+                $command .= $route;
+            }
+
+            if($timeout){
+                $command = 'timeout '.escapeshellarg($timeout).' '.$command;
+            }
+
+            $retval[] = $command;
+            unset($command);
+        }
+
+        $retval = implode(' ; ', $retval);
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('cli_build_commands_string(): Failed', $e);
     }
 }
 
