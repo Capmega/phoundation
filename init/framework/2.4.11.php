@@ -4,10 +4,11 @@
  */
 load_libs('servers');
 
-$exists = servers_get('');
+try{
+    $exists = servers_get('');
 
-if(!$exists){
-    sql_query('INSERT INTO `servers` (`domain`, `seodomain`)
-               VALUES                (`domain`, `seodomain`)');
+}catch(Exception $e){
+        sql_query('INSERT INTO `servers` (`domain`, `seodomain`)
+                   VALUES                (`domain`, `seodomain`)');
 }
 ?>

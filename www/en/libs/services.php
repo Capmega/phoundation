@@ -73,9 +73,67 @@ function services_scan($server = null){
         $services = services_list();
 
         foreach($services as $service){
+            /*
+             * Scan for csf
+             */
+
+            /*
+             * Scan for apache
+             */
+
+            /*
+             * Scan for nginx
+             */
+
+            /*
+             * Scan for mysql
+             */
+
+            /*
+             * Scan for postgresql
+             */
+
+            /*
+             * Scan for (open)ldap
+             */
+
+            /*
+             * Scan for (free)radius
+             */
+
+            /*
+             * Scan for php
+             */
+
+            /*
+             * Scan for memcached
+             */
+
+            /*
+             * Scan for virtualizor
+             */
+
+            /*
+             * Scan for toolkit
+             */
+
+            /*
+             * Scan for phoundation based websites
+             */
+
+            /*
+             * Scan for wordpress based sites
+             */
+
+            /*
+             * Scan for serverangel
+             */
+
+            /*
+             * Scan for nextcloud
+             */
             $results = servers_exec();
         }
-
 
         services_update_server($server, $services);
         return 1;
@@ -101,6 +159,30 @@ function services_scan($server = null){
  */
 function services_validate($service){
     try{
+        load_libs('validate,seo');
+
+        $v = new ValidateForm($service, 'name');
+
+        $v->isNotEmpty($service['name'], tr('Please specifiy a name'));
+        $v->hasMinChars($service['name'], 3, tr('Please specifiy a minimum of 3 characters for the name'));
+        $v->hasMaxChars($service['name'], 32, tr('Please specifiy a maximum of 32 characters for the name'));
+
+        /*
+         * Description
+         */
+        if(empty($service['description'])){
+            $service['description'] = '';
+
+        }else{
+            $v->hasMinChars($service['description'],   16, tr('Please specifiy a minimum of 16 characters for the description'));
+            $v->hasMaxChars($service['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
+
+            $service['description'] = cfm($service['description']);
+        }
+
+        $v->isValid();
+
+        return $service;
 
     }catch(Exception $e){
         throw new BException('services_validate(): Failed', $e);
@@ -288,11 +370,15 @@ function services_get($service, $column = null, $status = null){
  */
 function services_clear($server){
     try{
-        $server = servers_get($server);
-        $r      = sql_query('DELETE FROM `services_servers`
-                             WHERE       `servers_id` = :servers_id',
+        if($server){
+            $server = servers_get($server);
+            $r      = sql_query('DELETE FROM `services_servers`
+                                 WHERE       `servers_id` = :servers_id',
 
-                             array(':servers_id' => $server['id']));
+                                 array(':servers_id' => $server['id']));
+        }else{
+            $r      = sql_query('DELETE FROM `services_servers`');
+        }
 
         return $r->rowCount();
 
@@ -316,11 +402,23 @@ function services_clear($server){
  * @param array $services
  * @return natural The database table insert id for the specified server / service record
  */
-function services_add($server, $service){
+function services_insert($server, $services){
     try{
+        $count  = 0;
+        $server = servers_get($server);
+        $insert = sql_prepare('INSERT INTO `services_servers` ()
+                               VALUES                         ()');
+
+        foreach($services as $service){
+            $count++;
+            $insert->execute(array('' => $server['id'],
+                                   '' => $service['']));
+        }
+
+        return $count;
 
     }catch(Exception $e){
-        throw new BException('services_add(): Failed', $e);
+        throw new BException('services_insert(): Failed', $e);
     }
 }
 
@@ -381,6 +479,65 @@ function services_select($params = null){
 
     }catch(Exception $e){
         throw new BException('services_select(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return an array or PDO resource with domains of all servers that supply the requested service
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @provider Function reference
+ * @package services
+ * @see services_insert()
+ * @see services_list()
+ *
+ * @param string $service The service that must be filtered on
+ * @param null string $domain A (part of a) domain name that should be matched as well
+ * @return array An array with all domain names that matches the requested type (and optionally $domain)
+ */
+function services_list_servers($service, $domain = null, $return_array = false){
+    try{
+        if($domain){
+            $where   = ' WHERE `services`.`seoname` = :seoname';
+            $execute = array(':seoname' => $service);
+
+        }else{
+            $where   = ' WHERE `services`.`seoname` = :seoname
+                         AND   `servers`.`domain`   = :domain';
+
+            $execute = array(':seoname' => $service,
+                             ':domain'  => $domain);
+        }
+
+        $retval = sql_query('SELECT   `servers`.`seodomain`,
+                                      `servers`.`domain`
+
+                             FROM     `services`
+
+                             JOIN     `services_servers`
+                             ON       `services_servers`.`servers_id` = `services`.`id`
+
+                             JOIN     `servers`
+                             ON       `servers`.`id`                  = `services_servers`.`servers_id`
+
+                             '.$where.'
+
+                             ORDER BY `servers`.`seodomain` ASC',
+
+                             $execute);
+
+        if($return_array){
+            return sql_list($retval);
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('services_list_servers(): Failed', $e);
     }
 }
 ?>
