@@ -961,7 +961,7 @@ function cli_process_uid_matches($auto_switch = false){
             /*
              * Re-execute this command as the specified user
              */
-            log_console(tr('Current user ":user" is not authorized to execute this script, reexecuting script as user ":reuser"', array(':user' => cli_get_process_uid(), ':reuser' => cli_get_process_user())), 'yellow', true, false, false);
+            log_console(tr('Current user ":user" is not authorized to execute this script, reexecuting script as user ":reuser"', array(':user' => cli_get_process_uid(), ':reuser' => getmyuid())), 'yellow', true, false, false);
             passthru(cli_sudo('sudo -Eu "'.get_current_user().'" '.ROOT.'scripts/'.str_rfrom($core->register['script_command'], 'scripts/')));
             die();
         }
