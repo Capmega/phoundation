@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.22');
+define('FRAMEWORKCODEVERSION', '2.4.26');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5067,6 +5067,39 @@ function debug_trace($filters = 'args'){
  */
 function debug_bar(){
     return include(__DIR__.'/handlers/debug-bar.php');
+}
+
+
+
+/*
+ * Used for ordering entries on the debug bar
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ *
+ * @return
+ */
+function debug_bar_sort($a, $b){
+    try{
+        if($a['time'] > $b['time']){
+            return -1;
+
+        }elseif($a['time'] < $b['time']){
+            return 1;
+
+        }else{
+            /*
+             * They're the same, so ordering doesn't matter
+             */
+            return 0;
+        }
+
+    }catch(Exception $e){
+        throw new BException(tr('debug_bar_sort(): Failed'), $e);
+    }
 }
 
 

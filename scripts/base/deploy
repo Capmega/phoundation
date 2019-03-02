@@ -105,6 +105,11 @@ GLOBAL OPTIONS
 
 -C --nocolor                    - Do not use color in output
 
+--no-preserve-owner-group       - Do not preserve ownership or groups for the
+                                  deployed files. This option will be required
+                                  for servers where the installation directory
+                                  is on an SSHFS mount, for exaple
+
 -T --test                       - Do not do anything, just test the flow of
                                   the deploy
 
@@ -246,7 +251,7 @@ $targets             =  cli_argument('--target,--targets', 'all');
 $nobomcheck          =  cli_argument('--no-bom-check');
 $nobackup            =  cli_argument('--no-backup');
 $dobackup            =  cli_argument('--do-backup');
-
+$no_preserve_og      =  cli_argument('--no-preserve-owner-group');
 $tilde               = '~'.date('Ymd-His');
 $categories          =  cli_arguments();
 
@@ -670,8 +675,9 @@ foreach($targets as $target_environment){
         throw new BException('Target environment "'.str_log($target_environment).'" has no configuration file', 'warning/validation');
     }
 
-    $deploy_config               = $_CONFIG['deploy'][$target_environment];
-    $deploy_config['target_dir'] = unslash($deploy_config['target_dir']);
+    $deploy_config                         = $_CONFIG['deploy'][$target_environment];
+    $deploy_config['target_dir']           = unslash($deploy_config['target_dir']);
+    $deploy_config['preserve_owner_group'] = (!$no_preserve_og and $deploy_config['preserve_owner_group']);
 
     array_ensure($deploy_config, 'target_user,target_server,target_port,target_dir,categories,modes,include_dirs,exclude_dirs,rsync_parrallel,sudo,user,group,dir_mode,file_mode,www_mode');
 
@@ -909,11 +915,7 @@ foreach($targets as $target_environment){
                 passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.'mkdir '.$deploy_config['target_dir'].'\'', $exitcode);
             }
 
-            passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.'rm '.$deploy_config['target_dir'].$tilde.' -rf; '.$sudo.'cp -a '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde.'\'', $exitcode);
-
-            if($exitcode){
-                throw new BException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
-            }
+            safe_exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.'rm '.$deploy_config['target_dir'].$tilde.' -rf; '.$sudo.'cp '.($deploy_config['preserve_owner_group'] ? '-a' : '--no-dereference --recursive --preserve=mode,links,xattr').' '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde.'\'');
         }
 
         $deploy_config['target_dir'] .= $tilde;
@@ -966,7 +968,7 @@ foreach($targets as $target_environment){
         }
 
         log_console(tr('Deploying project to target server ":server" on path ":path"', array(':server' => $deploy_config['target_server'], ':path' => $deploy_config['target_dir'])), 'white');
-        passthru('rsync -aczvAXHS --progress -p --force --delete '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.ROOT.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].':'.$deploy_config['target_dir'].' '.$include.' '.$exclude, $exitcode);
+        passthru('rsync -rlpDczvAXHS'.($deploy_config['preserve_owner_group'] ? 'tog' : '').' --progress --force --delete '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.ROOT.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].':'.$deploy_config['target_dir'].' '.$include.' '.$exclude, $exitcode);
 
         log_console(tr('Setting ROOT/data/system/last-deploy'));
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.'mkdir -p '.$deploy_config['target_dir'].'/data/system 2> /dev/null; '.$sudo.'touch '.$deploy_config['target_dir'].'/data/system/last-deploy\'', $contentoutput, $return);

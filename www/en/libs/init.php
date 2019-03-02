@@ -376,7 +376,7 @@ function init_process_version_diff(){
         }
 
         if(PLATFORM_HTTP or !cli_argument('--no-version-check')){
-            throw new BException(tr('init_process_version_diff(): Please run script ROOT/scripts/base/init because ":error"', array(':error' => $versionerror)), 'doinit');
+            throw new BException(tr('init_process_version_diff(): Please run script ROOT/scripts/base/init because ":error"', array(':error' => $versionerror)), 'warning/do-init');
         }
 
     }catch(Exception $e){
