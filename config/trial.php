@@ -9,15 +9,12 @@ $_CONFIG['debug']['enabled']                                                    
 // Content configuration
 $_CONFIG['content']['autocreate']                                               = true;
 
-// CDN configuration
+// Always use NON minimized files for development!
 $_CONFIG['cdn']['min']                                                          = false;
 $_CONFIG['cdn']['bundler']['enabled']                                           = false;
 
-// Mail configuration
-$_CONFIG['mail']['developer']                                                   = 'support@capmega.com';
-
 //domain
-$_CONFIG['domain']                                                              = 'phoundation.org.l.cpamega.com';
+$_CONFIG['domain']                                                              = 'phoundation.org.t.cpamega.com';
 
 // This is not a production environment!
 $_CONFIG['production']                                                          = false;
@@ -25,7 +22,7 @@ $_CONFIG['production']                                                          
 $_CONFIG['notifications']['force']                                              = true;
 
 // Session configuration
-$_CONFIG['sessions']['domain']                                                  = 'phoundation.org.l.cpamega.com';
+$_CONFIG['sessions']['domain']                                                  = 'phoundation.org.t.cpamega.com';
 $_CONFIG['sessions']['secure']                                                  = false;
 
 // Shutdown configuration
