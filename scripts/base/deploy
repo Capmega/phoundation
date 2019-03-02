@@ -35,7 +35,7 @@ GLOBAL OPTIONS
 --all / -a                      - Deploy all sub environments
 
 --ignore-changes / -i           - Ignore git status, don't check for
-                                  uncommitted changes
+                                  uncommitted changes (Implies --no-push)
 
 --do-content-check              - Check content files
 
@@ -236,7 +236,7 @@ $send_content_texts  =  cli_argument('--send-content-texts');
 $send_sitemap        =  cli_argument('--send-sitemap');
 
 $notag               = (cli_argument('--no-tag,--no-tags') or $noversion);
-$nopush              =  cli_argument('--no-push');
+$nopush              = (cli_argument('--no-push')          or $ignore);
 $stash               =  cli_argument('--stash');
 $notouch             =  cli_argument('--no-touch');
 
