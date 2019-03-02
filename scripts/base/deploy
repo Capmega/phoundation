@@ -1002,13 +1002,13 @@ foreach($targets as $target_environment){
         }
 
         if($exitcode){
-            throw new BException('fix-permissions failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new BException('fix-structure failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
 
-        init_hook('deploy_post_permission', $nohooks, array('target_user'   => $deploy_config['target_user'],
-                                                            'target_port'   => $deploy_config['target_port'],
-                                                            'target_server' => $deploy_config['target_server'],
-                                                            'target_dir'    => $deploy_config['target_dir']));
+        init_hook('deploy_post_structure', $nohooks, array('target_user'   => $deploy_config['target_user'],
+                                                           'target_port'   => $deploy_config['target_port'],
+                                                           'target_server' => $deploy_config['target_server'],
+                                                           'target_dir'    => $deploy_config['target_dir']));
     }
 
 
@@ -1020,23 +1020,28 @@ foreach($targets as $target_environment){
         log_console(tr('Skipping file permission fix due to "--no-fix-permissions" command line parameter'), 'yellow');
 
     }else{
-        log_console(tr('Executing file permission fix'), 'white');
-
-        if(!empty($deploy_config['rsync_parrallel'])){
-            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
+        if(!$deploy_config['preserve_owner_group']){
+            log_console(tr('Skipping permission fixing due to either --no-preserve-owner-group command line parameter, or "preserve_owner_group" set to false in deploy configuration for this target'), 'yellow');
 
         }else{
-            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
-        }
+            log_console(tr('Executing file permission fix'), 'white');
 
-        if($exitcode){
-            throw new BException(tr('fix-permissions failed with exit code ":code" while executing command ":command"', array(':code' => $exitcode, ':command' => $command)), 'warning/failed');
-        }
+            if(!empty($deploy_config['rsync_parrallel'])){
+                passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
 
-        init_hook('deploy_post_permission', $nohooks, array('target_user'   => $deploy_config['target_user'],
-                                                            'target_port'   => $deploy_config['target_port'],
-                                                            'target_server' => $deploy_config['target_server'],
-                                                            'target_dir'    => $deploy_config['target_dir']));
+            }else{
+                passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
+            }
+
+            if($exitcode){
+                throw new BException(tr('fix-permissions failed with exit code ":code" while executing command ":command"', array(':code' => $exitcode, ':command' => $command)), 'warning/failed');
+            }
+
+            init_hook('deploy_post_permission', $nohooks, array('target_user'   => $deploy_config['target_user'],
+                                                                'target_port'   => $deploy_config['target_port'],
+                                                                'target_server' => $deploy_config['target_server'],
+                                                                'target_dir'    => $deploy_config['target_dir']));
+        }
     }
 
 
