@@ -946,14 +946,22 @@ function cli_show_usage($usage, $color){
  * @category Function reference
  * @package cli
  *
- * @param boolean $auto_switch If set to true, the script
+ * @param boolean $auto_switch If set to true, the script will automatically restart with the correct user, instead of causing an exception
+ * @param boolean $permit_root If set to true, and the script was run by root, it will be authorized anyway
  * @return void
  */
-function cli_process_uid_matches($auto_switch = false){
+function cli_process_uid_matches($auto_switch = false, $permit_root = true){
     global $core;
 
     try{
         if(cli_get_process_uid() !== getmyuid()){
+            if(!cli_get_process_uid() and $permit_root){
+                /*
+                 * Root is authorized!
+                 */
+                return;
+            }
+
             if(!$auto_switch){
                 throw new BException(tr('cli_process_uid_matches(): The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', array(':puser' => get_current_user(), ':fuser' => cli_get_process_user())), 'not-authorized');
             }
