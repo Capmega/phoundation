@@ -241,7 +241,7 @@ try{
                       'disable_terminal' => isset_get($disable_terminal),
                       'commands'         => $commands,
                       'identity_file'    => $identity_file);
-
+under_construction('NOTE: REBUILD THE $COMMANDS');
     $result = servers_exec($server, $commands, $function, );
 
 }catch(Exception $e){

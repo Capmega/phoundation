@@ -6,23 +6,32 @@ try{
         throw new BException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
-// :COMPATIBILITY: Remove this section after 2019/06
-    if(!is_array($params)){
-        if(!is_string($params)){
-            throw new BException(tr('safe_exec(): Specified $params is invalid, should be an array but is an ":type"', array(':type' => gettype($params))), 'invalid');
-        }
-
-        $params = array('commands' => $params);
-    }
+// :COMPATIBILITY: Remove the following code after 2019/06
+if(is_string($params)){
+$params = array('commands' => $params);
+}
 
     if(!is_array($params)){
         throw new BException(tr('safe_exec(): Specified $params is invalid, should be an array but is an ":type"', array(':type' => gettype($params))), 'invalid');
     }
 
     array_default($params, 'path'        , $_CONFIG['exec']['path']);
+    array_default($params, 'domain'      , null);
     array_default($params, 'function'    , 'exec');
     array_default($params, 'ok_exitcodes', 0);
     array_default($params, 'background'  , false);
+    array_default($params, 'output_log'  , (VERYVERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
+
+    if($params['domain']){
+        /*
+         * Execute this command on the specified domain instead
+         */
+        $domain = $params['domain'];
+        unset($params['domain']);
+
+        load_libs('servers');
+        return servers_exec($domain, $params);
+    }
 
     /*
      * Validate command structure

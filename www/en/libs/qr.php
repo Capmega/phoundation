@@ -55,7 +55,8 @@ function qr_install(){
         file_delete($path);
 
         if(!is_callable('gd_info')){
-            safe_exec('sudo phpenmod gd');
+            load_libs('php');
+            php_enmod('gd');
         }
 
     }catch(Exception $e){

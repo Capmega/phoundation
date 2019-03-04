@@ -28,7 +28,7 @@
  */
 function video_library_init(){
     try{
-        if(!safe_exec('which ffmpeg')){
+        if(!cli_which('ffmpeg')){
             throw new BException(tr('video_library_init(): ffmpeg module not installed, run this command on your server: sudo apt update && sudo apt install ffmpeg libav-tools x264 x265;'), 'not_available');
         }
 
@@ -48,17 +48,16 @@ function video_library_init(){
  * @category Function reference
  * @package video
  *
- * @params string $video_file The video file from which a thumbnail must be made
+ * @params string $file The video file from which a thumbnail must be made
  * @params string $size The required size of the thumbnail in XxY format
  * @return string The generated thumbnail file
  */
-function video_get_thumbnail($video_file, $size = '50x50'){
+function video_get_thumbnail($file, $size = '50x50'){
     try{
-        $output_file = file_temp(false);
-        $command     = 'ffmpeg -i {'.$video_file.'} -deinterlace -an -ss 00:00:01 -t 00:00:02 -s {'.$size.'} -r 1 -y -vcodec mjpeg -f mjpeg {'.$output_file.'} 2>&1 >> '.ROOT.'data/log/video_thumbnail';
+        $retval = file_temp(false);
+        safe_exec(array('commands' => array('ffmpeg', array('-i', '{'.$file.'}', '-deinterlace', '-an', '-ss', '00:00:01', '-t', '00:00:02', '-s', '{'.$size.'}', '-r', '1', '-y', '-vcodec', 'mjpeg', '-f', 'mjpeg', '{'.$retval.'}'))));
 
-        safe_exec($command);
-        return $output_file;
+        return $retval;
 
     }catch(Exception $e){
         throw new BException('video_get_thumbnail(): Failed', $e);

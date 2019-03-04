@@ -135,7 +135,7 @@ function view_image_feh($file){
             linux_install_package(null, 'feh');
         }
 
-        safe_exec('feh "'.$file.'"');
+        safe_exec(array('commands' => array('feh', array($file))));
 
     }catch(Exception $e){
         throw new BException(tr('view_image_feh(): Failed'), $e);

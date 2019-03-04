@@ -38,7 +38,7 @@ try{
                 /*
                  * Delete all cache
                  */
-                safe_exec('rm '.ROOT.'/data/cache/ -rf');
+                safe_exec(array('commands' => array('rm', array(ROOT.'/data/cache/', '-rf'))));
             }
 
             file_ensure_path(ROOT.'data/cache');
@@ -69,7 +69,7 @@ try{
             break;
 
         default:
-            throw new BException(tr('cache_clear(): Unknown cache method "%method%" specified', array('%method%' => str_log($_CONFIG['cache']['method']))), 'unknown');
+            throw new BException(tr('cache_clear(): Unknown cache method ":method" specified', array('%method' => $_CONFIG['cache']['method'])), 'unknown');
     }
 
 }catch(Exception $e){

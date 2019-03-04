@@ -21,7 +21,7 @@ function process_get_user(){
             $user = $user['name'];
 
         }else{
-            $user = safe_exec('whoami');
+            $user = safe_exec(array('commands' => array('whoami')));
             $user = array_pop($user);
         }
 
@@ -29,21 +29,6 @@ function process_get_user(){
 
     }catch(Exception $e){
         throw new BException(tr('process_get_user(): Failed'), $e);
-    }
-}
-
-
-
-/*
- * Returns true if the specified process name is running
- */
-function process_runs($process_name){
-    try{
-        exec('pgrep '.$process_name, $output, $return);
-        return !$return;
-
-    }catch(Exception $e){
-        throw new BException('process_runs(): Failed', $e);
     }
 }
 

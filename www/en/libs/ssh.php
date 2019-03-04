@@ -1148,7 +1148,8 @@ function ssh_append_fingerprint($fingerprint){
     try{
         file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
 
-        $exists = safe_exec('grep "\['.$fingerprint['domain'].'\]:'.$fingerprint['port'].' '.$fingerprint['algorithm'].' '.$fingerprint['fingerprint'].'" '.ROOT.'data/ssh/known_hosts', '0,1');
+        $exists = safe_exec(array('ok_exitcodes' => '0,1',
+                                  'commands'     => array('grep', array('"\['.$fingerprint['domain'].'\]:'.$fingerprint['port'].' '.$fingerprint['algorithm'].' '.$fingerprint['fingerprint'].'"', ROOT.'data/ssh/known_hosts'))));
 
         if($exists){
             log_console(tr('Skipping fingerprint ":fingerprint" for domain ":domain", it already exists in known_hosts', array(':fingerprint' => $fingerprint['fingerprint'], ':domain' => $fingerprint['domain'])), 'VERYVERBOSE');
@@ -1193,7 +1194,7 @@ function ssh_get_fingerprints($domain, $port){
 
         $port    = ssh_get_port($port);
         $retval  = array();
-        $results = safe_exec('ssh-keyscan -p '.$port.' '.$domain);
+        $results = safe_exec(array('commands' => array('ssh-keyscan', array('-p', $port, $domain))));
 
         foreach($results as $result){
             if(substr($result, 0, 1) === '#') continue;
@@ -1292,7 +1293,8 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
 
         $port       = ssh_get_port($port);
         $db_count   = sql_get('SELECT COUNT(`id`) FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', true, array('domain' => $domain, ':port' => $port), 'core');
-        $file_count = safe_exec('grep "\['.$domain.'\]:'.$port.'" '.ROOT.'data/ssh/known_hosts | wc -l');
+        $file_count = safe_exec(array('commands' => array('grep', array('"\['.$domain.'\]:'.$port.'"', ROOT.'data/ssh/known_hosts', 'connect' => '|'),
+                                                          'wc'  , array('-l'))));
         $file_count = array_shift($file_count);
 
         if($file_count){
@@ -1565,7 +1567,7 @@ under_construction();
         /*
          * Execute command
          */
-        return safe_exec('scp '.$server['arguments'].' -P '.$server['port'].' -i '.$identity_file.' '.$command.'');
+        return safe_exec(array('commands' => array('scp', array($server['arguments'], '-P', $server['port'], '-i', $identity_file, $command))));
 
     }catch(Exception $e){
         notify($e);
@@ -1613,19 +1615,8 @@ function ssh_tunnel($params, $reuse = true){
         array_ensure ($params, 'domain,source_port,target_port,target_domain,persist,server');
         array_default($params, 'tunnel'     , 'localhost');
         array_default($params, 'test_tries' , 50);
+        array_default($params, 'function'   , 'exec');
         load_libs('inet,linux');
-
-        if(!$params['domain']){
-            throw new BException(tr('ssh_tunnel(): No domain specified'), 'not-specified');
-        }
-
-        if($params['server']){
-            load_libs('servers');
-
-            $server                            = $params['server'];
-            $params['server']                  = servers_get($server['domain']);
-            $params['server']['identity_file'] = $server['identity_file'];
-        }
 
         /*
          * Is a tunnel with the requested configuration already available? If
@@ -1671,7 +1662,7 @@ function ssh_tunnel($params, $reuse = true){
         unset($params['target_port']);
         unset($params['target_domain']);
 
-        $retval = ssh_exec($params, null, 'exec');
+        $retval = servers_exec($params['domain'], $params);
         $retval = array_shift($retval);
 
         log_console(tr('Created SSH tunnel ":source_port::target_domain::target_port"', array(':source_port' => $params['tunnel']['source_port'], ':target_domain' => $params['tunnel']['target_domain'], ':target_port' => $params['tunnel']['target_port'])), 'VERYVERBOSE');

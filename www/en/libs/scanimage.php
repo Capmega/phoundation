@@ -60,7 +60,7 @@ function scanimage($params){
     try{
         $server  = servers_get($params['domain']);
         $params  = scanimage_validate($params);
-        $command = scanimage_command().' --format tiff '.$params['options'];
+        $command = array('commands' => array(scanimage_command(), array('--format tiff', $params['options'])));
 
         /*
          * Finish scan command and execute it
@@ -547,7 +547,7 @@ function scanimage_list(){
  */
 function scanimage_detect_devices($server = null){
     try{
-        $scanners = servers_exec($server, scanimage_command().' -L -q');
+        $scanners = servers_exec($server, array('commands' => array(scanimage_command(), array('-L', '-q'))));
         $devices  = array();
 
         foreach($scanners as $scanner){
@@ -765,7 +765,7 @@ function scanimage_detect_devices($server = null){
  */
 function scanimage_get_options($device, $server = null){
     try{
-        $results = servers_exec($server, scanimage_command().' -A -d "'.$device.'"');
+        $results = servers_exec($server, array('commands' => array(scanimage_command(), array('-A', '-d', '"'.$device.'"'))));
         $retval  = array();
 
         foreach($results as $result){
