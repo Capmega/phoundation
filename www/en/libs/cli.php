@@ -1738,6 +1738,7 @@ function cli_build_commands_string(&$params){
                 $timeout   = $params['timeout'];
                 $sudo      = false;
                 $connector = ';';
+                $redirect  = '';
 
                 if($params['route_errors']){
                     $route = ' 2>&1 ';
@@ -1804,6 +1805,10 @@ function cli_build_commands_string(&$params){
 
                             case 'connector':
                                 $connector = $argument;
+                                break;
+
+                            case 'redirect':
+                                $redirect = $argument;
                                 break;
 
                             default:
