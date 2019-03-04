@@ -1735,10 +1735,7 @@ function cli_build_commands_string(&$params){
                 }
 
                 $command   = escapeshellcmd(mb_trim($value));
-                $timeout   = $params['timeout'];
-                $sudo      = false;
-                $connector = ';';
-                $redirect  = '';
+                $connector = '';
 
                 if($params['route_errors']){
                     $route = ' 2>&1 ';
@@ -1769,6 +1766,10 @@ function cli_build_commands_string(&$params){
                 }
 
                 foreach($value as $special => &$argument){
+                    $timeout   = $params['timeout'];
+                    $sudo      = false;
+                    $redirect  = '';
+
                     if(!is_scalar($argument)){
                         throw new BException(tr('cli_build_commands_string(): Specified argument ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
                     }
@@ -1835,8 +1836,12 @@ function cli_build_commands_string(&$params){
                 $command .= ' '.$redirect;
             }
 
-            $retval .= ' '.$connector.' '.$command;
+            if($connector){
+                $retval .= ' '.$connector.' '.$command;
+            }
+
             unset($command);
+            $connector = ';';
         }
 
         if($background){
@@ -1846,6 +1851,7 @@ function cli_build_commands_string(&$params){
             $retval = '{ '.$retval.' } &';
         }
 
+show($retval);
         return $retval;
 
     }catch(Exception $e){
