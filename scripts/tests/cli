@@ -1,0 +1,27 @@
+#!/usr/bin/php
+<?php
+/*
+ * This is a standard test script
+ */
+require_once(dirname(__FILE__).'/../../libs/startup.php');
+cli_only(true);
+load_libs('test');
+
+/*
+ * Test cli_list_processes()
+ */
+test('cli_list_processes()', 'List current proccesses on this machine, filtered by specified filters', function(){
+    /*
+     * Results should include this process itself
+     */
+    $results = cli_list_processes('php');
+
+    foreach($results as $result){
+        if(str_exists($result, './scripts/tests/cli_list_processes')){
+            return true;
+        }
+    }
+
+    throw new BException(tr('The current process could not be found with cli_list_processes()'), 'not-exist');
+});
+?>

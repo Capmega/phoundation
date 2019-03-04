@@ -57,7 +57,8 @@ function btrfs_library_init(){
  */
 function btrfs_install($params){
     try{
-        safe_exec('sudo apt -y install btrfs-tools');
+        load_libs('apt');
+        apt_install('btrfs-tools');
 
     }catch(Exception $e){
         throw new BException('btrfs_install(): Failed', $e);

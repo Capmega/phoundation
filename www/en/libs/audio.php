@@ -90,7 +90,7 @@ function audio_play($class = null){
              */
             try{
                 log_console(tr('Playing audio file ":file"', array(':file' => $file)), 'cyan');
-                safe_exec($_CONFIG['audio']['command'].' '.$file.' &');
+                safe_exec(array('commands', array($_CONFIG['audio']['command'], array($file, 'background' => '&'))));
 
             }catch(Exception $e){
                 throw new BException(tr('audio_play(): Can not play audio file ":file", commando ":command" returned error: ":error"', array(':file' => $file, ':command' => $_CONFIG['audio']['command'], ':error' => $e)), 'audio');

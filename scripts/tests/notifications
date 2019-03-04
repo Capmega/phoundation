@@ -3,37 +3,11 @@
 /*
  * This is a notifications test script template
  */
-$quiet = true;
 require_once(dirname(__FILE__).'/../../libs/startup.php');
+cli_only(true);
+load_libs('test');
 
-try{
-    cli_only();
-    load_libs('test');
-
-    foreach($argv as $arg){
-        switch($arg){
-            case 'all':
-// :TODO: Implement
-                break;
-        }
-    }
-
-    test('notify()', 'Function call should send notification for class "developers"', function(){
-        try{
-            notify('test', 'this is a test notification', 'test');
-
-        }catch(Exception $e){
-showdie($e);
-        }
-    });
-
-    test_completed('notify()');
-
-
-    // Completed system tests
-    test_completed('notify', 'library');
-
-}catch(Exception $e){
-    throw new BException('scripts/tests/notifications: Failed', $e);
-}
+test('notify()', 'Function call should send notification for class "developers"', function(){
+    notify('test', 'this is a test notification', 'test');
+});
 ?>

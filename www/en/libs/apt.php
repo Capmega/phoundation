@@ -58,7 +58,10 @@ function apt_library_init(){
  */
 function apt_install($packages, $server = null){
     try{
-        return servers_exec($server, 'sudo apt-get -y install '.str_force($packages, ' '));
+        $packages  = array_force($packages);
+        $arguments = array_merge(array('sudo' => true, '-y', 'install'), array_force($packages, ' '));
+
+        return servers_exec($server, array('commands' => array('apt', $arguments)));
 
     }catch(Exception $e){
         throw new BException('apt_install(): Failed', $e);

@@ -57,7 +57,8 @@ function cli_library_init(){
  */
 function cli_install($params){
     try{
-        safe_exec('sudo phpenmod posix');
+        load_libs('php');
+        php_enmod('posix');
 
     }catch(Exception $e){
         throw new BException('cli_install(): Failed', $e);
@@ -1216,8 +1217,6 @@ function cli_done(){
         die($exit_code);
 
     }catch(Exception $e){
-show('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-showdie($e);
         throw new BException('cli_done(): Failed', $e);
     }
 }
@@ -1559,39 +1558,31 @@ function cli_command_exists($command){
  * @category Function reference
  * @package cli
  *
- * @param numeric $source_port
- * @param numeric $hostname
- * @param numeric $target_port
- * @param numeric $target_hostname
- * @return numeric PID of the found tunnel with the specified parameters, null if no tunnel was found
+ * @param mixed $filters
+ * @return
  */
 function cli_list_processes($filters){
     try{
+        //foreach($filters as &$filter){
+        //    $filter = trim($filter);
+        //
+        //    if($filter[0] == '-'){
+        //        $filter = '\\\\'.$filter;
+        //    }
+        //
+        //    $filter = $filter;
+        //}
+        //
+        //unset($filter);
+
         $filters = array_force($filters);
-
-        foreach($filters as &$filter){
-            $filter = trim($filter);
-
-            if($filter[0] == '-'){
-                $filter = '\\\\'.$filter;
-            }
-
-            $filter = '"'.$filter.'"';
-        }
-
-        unset($filter);
-
-        $filters = implode(' | grep --color=never ', $filters);
-        $command = 'ps ax | grep --color=never '.$filters;
-        $results = safe_exec($command, '0,1');
+        $results = safe_exec(array('ok_exitcodes' => '0,1',
+                                   'commands'     => array('ps'  , array('ax', 'connector' => '|'),
+                                                           'grep', array_merge(array('--color=never', 'connector' => '|'), $filters),
+                                                           'grep', array('--color=never', '-v', 'grep --color=never'))));
         $retval  = array();
 
         foreach($results as $key => $result){
-            if(strstr($result, $command)){
-                unset($results[$key]);
-                continue;
-            }
-
             $result       = trim($result);
             $pid          = str_until($result, ' ');
             $retval[$pid] = substr($result, 27);
@@ -1639,9 +1630,17 @@ function cli_unzip($file, $target_path = null, $remove = true){
         /*
          * Unzip and
          */
-        safe_exec('cd '.$path.'; unzip "'.$filename.'"'.($target_path ? '-d '.$target_path : ''));
-        file_delete($path.$filename);
+        $arguments = array($filename);
 
+        if($target_path){
+            $arguments[] = '-d';
+            $arguments[] = $target_path;
+        }
+
+        safe_exec(array('commands' => array('cd'   , array($path),
+                                            'unzip', $arguments)));
+
+        file_delete($path.$filename);
         return $path;
 
     }catch(Exception $e){
@@ -1672,7 +1671,9 @@ function cli_unzip($file, $target_path = null, $remove = true){
  */
 function cli_which($command, $whereis = false){
     try{
-        $result = safe_exec(($whereis ? 'whereis' : 'which').' "'.$command.'"', '0,1');
+        $result = safe_exec(array('ok_exitcodes' => '0,1',
+                                  'commands'     => array(($whereis ? 'whereis' : 'which'), array($command))));
+
         $result = array_shift($result);
 
         return get_null($result);
@@ -1735,7 +1736,10 @@ function cli_build_commands_string(&$params){
                 }
 
                 $command   = escapeshellcmd(mb_trim($value));
-                $connector = '';
+                $sudo      = false;
+                $redirect  = '';
+                $connector = ';';
+
 
                 if($params['route_errors']){
                     $route = ' 2>&1 ';
@@ -1766,9 +1770,12 @@ function cli_build_commands_string(&$params){
                 }
 
                 foreach($value as $special => &$argument){
-                    $timeout   = $params['timeout'];
-                    $sudo      = false;
-                    $redirect  = '';
+                    if($params['timeout']){
+                        $timeout  = 'timeout '.escapeshellarg($params['timeout']).' ';
+
+                    }else{
+                        $timeout  = '';
+                    }
 
                     if(!is_scalar($argument)){
                         throw new BException(tr('cli_build_commands_string(): Specified argument ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
@@ -1794,22 +1801,35 @@ function cli_build_commands_string(&$params){
                                     }
                                 }
 
+                                unset($value[$special]);
                                 break;
 
                             case 'timeout':
-                                $timeout = $argument;
+                                $timeout = 'timeout '.escapeshellarg($argument).' ';
+                                unset($value[$special]);
                                 break;
 
                             case 'sudo':
-                                $sudo = $argument;
+                                if($argument === true){
+                                    $sudo = 'sudo ';
+
+                                }else{
+                                    $sudo = $argument;
+                                }
+
+                                unset($value[$special]);
                                 break;
 
                             case 'connector':
                                 $connector = $argument;
+
+                                unset($value[$special]);
                                 break;
 
                             case 'redirect':
-                                $redirect = $argument;
+                                $redirect = ' '.$argument;
+
+                                unset($value[$special]);
                                 break;
 
                             default:
@@ -1824,24 +1844,12 @@ function cli_build_commands_string(&$params){
                 $command .= $route;
             }
 
-            if($sudo){
-                $command = 'sudo '.$command;
-            }
+            $command  = $timeout.$command;
+            $command  = $sudo.$command;
+            $command .= $redirect;
 
-            if($timeout){
-                $command = 'timeout '.escapeshellarg($timeout).' '.$command;
-            }
-
-            if($redirect){
-                $command .= ' '.$redirect;
-            }
-
-            if($connector){
-                $retval .= ' '.$connector.' '.$command;
-            }
-
+            $retval  .= $command.' '.$connector.' ';
             unset($command);
-            $connector = ';';
         }
 
         if($background){
@@ -1851,7 +1859,6 @@ function cli_build_commands_string(&$params){
             $retval = '{ '.$retval.' } &';
         }
 
-show($retval);
         return $retval;
 
     }catch(Exception $e){

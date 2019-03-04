@@ -4,32 +4,15 @@
  * This is an empty test script template
  */
 require_once(dirname(__FILE__).'/../../libs/startup.php');
+cli_only(true);
+load_libs('test');
 
-try{
-    cli_only();
-    load_libs('test');
-
-    test('emptyfunction()', 'Function call which should do blah blah', function(){
-        try{
-            if(emptyfunction('lkjerlkfwejf', 127)){
-                throw new BException('Did not do blah blah');
-            }
-
-        }catch(Exception $e){
-showdie($e);
-        }
-    });
-
-    test_completed('empty()');
-
-
-
+/*
+ * Test
+ */
+test('NAME()', 'DESCRIPTION', function(){
     /*
-     * Completed system tests
+     * TEST CODE HERE
      */
-    test_completed('empty', 'library');
-
-}catch(Exception $e){
-    throw new BException('scripts/tests/empty: Failed', $e);
-}
+});
 ?>

@@ -1159,7 +1159,9 @@ function devices_scan($types, $server = null){
                 case 'barcode-scanner':
                     // FALLTHROUGH
                 case 'webcam':
-                    $devices = servers_exec($server, 'lsusb | grep -i "'.$filter.'"', false, null, '0,1');
+                    $devices = servers_exec($server, array('ok_exitcodes' => '0,1',
+                                                           'commands'     => array('lsusb', array('connector' => '|'),
+                                                                                   'grep' , array('-i', $filter))));
                     $entries = array();
 
                     foreach($devices as $device){
@@ -1183,7 +1185,7 @@ function devices_scan($types, $server = null){
                                        'string'         => $matches[3][0],
                                        'description'    => $matches[4][0]);
 
-                        $data = servers_exec($server, 'lsusb -vs '.$entry['bus'].':'.$entry['device']);
+                        $data = servers_exec($server, array('commands' => array('lsusb', array('-vs', $entry['bus'].':'.$entry['device']))));
 
                         foreach($data as $line){
                             if(stristr($line, 'idProduct')){

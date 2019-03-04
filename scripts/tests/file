@@ -3,40 +3,19 @@
 /*
  * This is an file test script template
  */
-$quiet = true;
 require_once(dirname(__FILE__).'/../../libs/startup.php');
+cli_only(true);
+load_libs('test');
 
-try{
-    cli_only();
-    load_libs('test');
+test('file_clear_path()', 'Function call should clear test path', function(){
+    $file = TESTPATH.'file_clear_path/'.file_assign_target(TESTPATH.'file_clear_path/');
 
-    foreach($argv as $arg){
-        switch($arg){
-            case 'all':
-// :TODO: Implement
-                break;
-        }
+    touch($file);
+
+    file_clear_path($file);
+
+    if(file_exists(dirname($file)) or file_exists(dirname(dirname($file)))){
+        throw new BException(tr('Function file_clear_path() did not clear test path ":path"', array(':path' => $file)), 'failed');
     }
-
-    test('file_clear_path()', 'Function call should clear test path', function(){
-        $file = TESTPATH.'file_clear_path/'.file_assign_target(TESTPATH.'file_clear_path/');
-
-        touch($file);
-
-        file_clear_path($file);
-
-        if(file_exists(dirname($file)) or file_exists(dirname(dirname($file)))){
-            throw new BException(tr('Function file_clear_path() did not clear test path ":path"', array(':path' => $file)), 'failed');
-        }
-    });
-
-    test_completed('file_clear_path()');
-
-
-    // Completed system tests
-    test_completed('file', 'library');
-
-}catch(Exception $e){
-    throw new BException('scripts/tests/file: Failed', $e);
-}
+});
 ?>
