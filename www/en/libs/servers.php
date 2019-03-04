@@ -1213,7 +1213,7 @@ function servers_test($domain){
     try{
         sql_query('UPDATE `servers` SET `status` = "testing" WHERE `domain` = :domain', array(':domain' => $domain), 'core');
 
-        $result = servers_exec($domain, 'echo 1');
+        $result = servers_exec($domain, array('commands' => array('echo', array('1'))));
         $result = array_pop($result);
 
         if($result != '1'){
@@ -1358,7 +1358,10 @@ function servers_remove_identity_file($identity_file, $background = false){
 
         if(file_exists($identity_file)){
             if($background){
-                safe_exec('{ sleep 5; sudo chmod 0660 '.$identity_file.' ; sudo rm -rf '.$identity_file.' ; } &');
+                safe_exec(array('background' => true,
+                                'commands'   => array('sleep', array('5'),
+                                                      'chmod', array('sudo' => true, '0660', $identity_file),
+                                                      'rm'   , array('sudo' => true, '-rf' , $identity_file))));
 
             }else{
                 chmod($identity_file, 0600);
@@ -1393,7 +1396,7 @@ function servers_detect_os($domain){
         /*
          * Getting complete operating system distribution
          */
-        $output_version = servers_exec($domain, 'cat /proc/version');
+        $output_version = servers_exec($domain, array('commands' => array('cat', array('proc/version'))));
 
         if(empty($output_version)){
             throw new BException(tr('servers_detect_os(): No operating system found on /proc/version for domain ":domain"', array(':domain' => $domain)), 'unknown');
@@ -1412,16 +1415,16 @@ function servers_detect_os($domain){
 
         switch($group){
             case 'debian':
-                $release = servers_exec($domain, 'cat /etc/issue');
+                $release = servers_exec($domain, array('commands' => array('cat', array('/etc/issue'))));
                 break;
 
             case 'ubuntu':
-                $release = servers_exec($domain, 'cat /etc/issue');
+                $release = servers_exec($domain, array('commands' => array('cat', array('/etc/issue'))));
                 break;
 
             case 'red hat':
                 $group   = 'redhat';
-                $release = servers_exec($domain, 'cat /etc/redhat-release');
+                $release = servers_exec($domain, array('commands' => array('cat', array('/etc/redhat-release'))));
                 break;
 
             default:
@@ -1480,7 +1483,7 @@ function servers_detect_os($domain){
  */
 function servers_get_public_ip($domain){
     try{
-        $ip = servers_exec($domain, 'dig +short myip.opendns.com @resolver1.opendns.com');
+        $ip = servers_exec($domain, array('commands' => array('dig', array('+short', 'myip.opendns.com', '@resolver1.opendns.com'))));
 
         if(is_array($ip)){
             $ip = $ip[0];
@@ -1802,7 +1805,7 @@ function servers_check_ssh_access($server, $account, $password = null){
 
         if($password){
             $server['password'] = $password;
-            $results = servers_exec($server);
+            $results = servers_exec($server, array('commands' => array('echo', array('1'))));
 
         }else{
             $account = ssh_get_account($account);
@@ -1811,7 +1814,7 @@ function servers_check_ssh_access($server, $account, $password = null){
                 throw new BException(tr('servers_check_ssh_access(): The specified account ":account" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exists');
             }
 
-            $results = servers_exec($server);
+            $results = servers_exec($server, array('commands' => array('echo', array('1'))));
         }
 
 showdie($results);

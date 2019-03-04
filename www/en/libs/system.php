@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.29');
+define('FRAMEWORKCODEVERSION', '2.4.30');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1166,7 +1166,7 @@ function safe_exec($params){
  * @param "passthru" mixed $function One of "passthru", "exec", "shell_exec" or "system"
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
-function script_exec($script, $arguments = null, $ok_exitcodes = null, $function = 'passthru'){
+function script_exec($script, $arguments = null, $ok_exitcodes = null, $function = null){
     return include(__DIR__.'/handlers/system-script-exec.php');
 }
 
@@ -2082,9 +2082,11 @@ function download($url, $section = false, $callback = null){
             $file = TMP.$file;
         }
 
-        load_libs('linux');
-        linux_ensure_path(TMP.$section, 0770, true);
-        safe_exec('wget -q -O '.$file.' - "'.$url.'"');
+        load_libs('wget');
+        file_ensure_path(TMP.$section, 0770, true);
+
+        wget(array('url'  => $url,
+                   'file' => $file));
 
         if(!$section){
             /*

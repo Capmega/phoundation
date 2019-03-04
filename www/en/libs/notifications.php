@@ -386,17 +386,17 @@ function notifications_prowl($event, $message, $users){
  */
 function notifications_desktop($params){
     try{
-        if($command = safe_exec('which kdialog')){
+        if($command = cli_which('kdialog')){
             /*
              * Welcome to KDE!
              */
 
-        }elseif($command = safe_exec('which notify-send')){
+        }elseif($command = cli_which('notify-send')){
             /*
              * This is gnome
              */
 
-        }elseif($command = safe_exec('which gol')){
+        }elseif($command = cli_which('gol')){
             /*
              * This device has Growl for Linux
              */

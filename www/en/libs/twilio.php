@@ -69,7 +69,7 @@ function twilio_install(){
          * Get library zip, unzip it to target, and cleanup
          */
         copy('https://github.com/twilio/twilio-php/archive/master.zip', TMP.'twilio_install.zip');
-        safe_exec('unzip '.TMP.'twilio_install.zip -d '.ROOT.'libs/external');
+        cli_unzip(TMP.'twilio_install.zip', ROOT.'libs/external');
         rename(ROOT.'libs/external/twilio-php-master', ROOT.'libs/external/twilio');
         unlink(TMP.'twilio_install.zip');
 

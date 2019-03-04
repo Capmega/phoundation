@@ -1617,10 +1617,11 @@ function cli_list_processes($filters){
  * @version 2.0.5: Added function and documentation
  *
  * @param string $file The file to be unzipped
+ * @param null string $target_path If specified, unzip the files to the specified target directory
  * @param boolean $remove If set to true, the specified zip file will be removed after the unzip action
  * @return string The path of the specified file
  */
-function cli_unzip($file, $remove = true){
+function cli_unzip($file, $target_path = null, $remove = true){
     try{
         $filename = filename($file);
         $filename = str_runtil($file, '.');
@@ -1638,7 +1639,7 @@ function cli_unzip($file, $remove = true){
         /*
          * Unzip and
          */
-        safe_exec('cd '.$path.'; gunzip "'.$filename.'"');
+        safe_exec('cd '.$path.'; unzip "'.$filename.'"'.($target_path ? '-d '.$target_path : ''));
         file_delete($path.$filename);
 
         return $path;
@@ -1701,11 +1702,16 @@ function cli_build_commands_string(&$params){
     global $_CONFIG;
 
     try{
-        $retval = array();
+        $retval = '';
 
         array_default($params, 'timeout'     , $_CONFIG['exec']['timeout']);
         array_default($params, 'route_errors', true);
         array_default($params, 'background'  , false);
+
+        /*
+         * Set global background
+         */
+        $background = $params['background'];
 
         /*
          * Build the commands together
@@ -1728,8 +1734,10 @@ function cli_build_commands_string(&$params){
                     throw new BException(tr('cli_build_commands_string(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
                 }
 
-                $command = escapeshellcmd(mb_trim($value));
-                $timeout = $params['timeout'];
+                $command   = escapeshellcmd(mb_trim($value));
+                $timeout   = $params['timeout'];
+                $sudo      = false;
+                $connector = ';';
 
                 if($params['route_errors']){
                     $route = ' 2>&1 ';
@@ -1777,10 +1785,10 @@ function cli_build_commands_string(&$params){
 
                                 if($argument){
                                     if($params['route_errors']){
-                                        $route = ' > /dev/null 2>&1 3>&1 & echo $!';
+                                        $route = ' > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
 
                                     }else{
-                                        $route = ' > /dev/null & echo $!';
+                                        $route = ' > '.$params['output_log'].' & echo $!';
                                     }
                                 }
 
@@ -1788,6 +1796,14 @@ function cli_build_commands_string(&$params){
 
                             case 'timeout':
                                 $timeout = $argument;
+                                break;
+
+                            case 'sudo':
+                                $sudo = $argument;
+                                break;
+
+                            case 'connector':
+                                $connector = $argument;
                                 break;
 
                             default:
@@ -1802,15 +1818,29 @@ function cli_build_commands_string(&$params){
                 $command .= $route;
             }
 
+            if($sudo){
+                $command = 'sudo '.$command;
+            }
+
             if($timeout){
                 $command = 'timeout '.escapeshellarg($timeout).' '.$command;
             }
 
-            $retval[] = $command;
+            if($redirect){
+                $command .= ' '.$redirect;
+            }
+
+            $retval .= ' '.$connector.' '.$command;
             unset($command);
         }
 
-        $retval = implode(' ; ', $retval);
+        if($background){
+            /*
+             * Put the entire command in the background
+             */
+            $retval = '{ '.$retval.' } &';
+        }
+
         return $retval;
 
     }catch(Exception $e){

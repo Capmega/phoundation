@@ -69,7 +69,8 @@ function uglify_css_check(){
             log_console('uglify_css_check(): Checking uglifycss availability', 'white');
         }
 
-        $result = safe_exec($npm.' list uglifycss', 1);
+        $result = safe_exec(array('ok_exitcodes' => 1,
+                                  'commands'     => array($npm, array('list', 'uglifycss'))));
 
         if(empty($result[1])){
             throw new BException('uglify_js_check(): npm list uglifycss returned invalid results', 'invalid_result');
@@ -380,7 +381,7 @@ function uglify_css($paths = null, $force = false){
                     file_delete(substr($file, 0, -4).'.min.css');
 
                     try{
-                        safe_exec($node.' '.$node_modules.'uglifycss/uglifycss '.$file.' >  '.substr($file, 0, -4).'.min.css');
+                        safe_exec(array('commands' => array($node, array($node_modules.'uglifycss/uglifycss', $file, 'redirect' => substr($file, 0, -4).'.min.css'))));
 
                     }catch(Exception $e){
                         /*
@@ -403,8 +404,8 @@ function uglify_css($paths = null, $force = false){
                     }else{
                         $time = date_convert($time, 'Y-m-d H:i:s');
 
-                        safe_exec('sudo touch --date="'.$time.'" '.str_runtil($file, '.').'.css');
-                        safe_exec('sudo touch --date="'.$time.'" '.str_runtil($file, '.').'.min.css');
+                        safe_exec(array('commands' => array('touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.css'),
+                                                            'touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.min.css'))));
                     }
 
                 }catch(Exception $e){
@@ -455,7 +456,8 @@ function uglify_js_check(){
             log_console('uglify_js_check(): Checking uglify-js availability', 'white');
         }
 
-        $result = safe_exec($npm.' list uglify-js', 1);
+        $result = safe_exec(array('ok_exitcodes' => 1,
+                                  'commands'     => array($npm, array('list', 'uglify-js'))));
 
         if(empty($result[1])){
             throw new BException('uglify_js_check(): npm list uglify-js returned invalid results', 'invalid_result');
@@ -758,7 +760,7 @@ function uglify_js($paths = null, $force = false){
                     file_delete(substr($file, 0, -3).'.min.js');
 
                     try{
-                        safe_exec($node.' '.$node_modules.'uglify-js/bin/uglifyjs --output '.substr($file, 0, -3).'.min.js '.$file);
+                        safe_exec(array('commands' => array($node, array($node_modules.'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
 
                     }catch(Exception $e){
                         /*
@@ -781,8 +783,8 @@ function uglify_js($paths = null, $force = false){
                     }else{
                         $time = date_convert($time, 'Y-m-d H:i:s');
 
-                        safe_exec('sudo touch --date="'.$time.'" '.str_runtil($file, '.').'.js');
-                        safe_exec('sudo touch --date="'.$time.'" '.str_runtil($file, '.').'.min.js');
+                        safe_exec(array('commands' => array('touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.js'),
+                                                            'touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.min.js'))));
                     }
 
                 }catch(Exception $e){

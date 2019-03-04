@@ -2492,4 +2492,195 @@ function file_create_stream_context($context){
         throw new BException(tr('file_create_stream_context(): Failed'), $e);
     }
 }
+
+
+
+/*
+ * Perform a "sed" action on the specified file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @see safe_exec()
+ * @version 2.4.22: Added function and documentation
+ *
+ * @param params $params The parameters for sed
+ * @param null mixed $params[ok_exitcodes]
+ * @param null boolean $params[sudo] If set to true, the sed command will be executed using sudo
+ * @param null mixed $params[function]
+ * @param null mixed $params[background]
+ * @return void()
+ */
+function file_sed($params){
+    try{
+        array_ensure($params, 'ok_exitcodes,function,sudo,background,domain');
+
+        if(empty($params['source'])){
+            throw new BException(tr('file_sed(): No source file specified'), 'not-specified');
+        }
+
+        if(empty($params['regex'])){
+            throw new BException(tr('file_sed(): No regex specified'), 'not-specified');
+        }
+
+        if(empty($params['target'])){
+            $arguments[] = 'i';
+            $arguments[] = $params['regex'];
+            $arguments[] = $params['source'];
+
+        }else{
+            $arguments[] = $params['regex'];
+            $arguments[] = $params['source'];
+            $arguments['redirect'] = '> '.$params['target'];
+        }
+
+        if(!empty($params['sudo'])){
+            $arguments['sudo'] = $params['sudo'];
+        }
+
+        safe_exec(array('domain'       => $params['domain'],
+                        'background'   => $params['background'],
+                        'function'     => $params['function'],
+                        'ok_exitcodes' => $params['ok_exitcodes'],
+                        'commands'     => array('sed' => $arguments)));
+
+    }catch(Exception $e){
+        throw new BException('file_sed(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Cat the output from one file to another
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @see safe_exec()
+ * @version 2.4.22: Added function and documentation
+ *
+ * @param params $params The parameters for sed
+ * @param null mixed $params[ok_exitcodes]
+ * @param null boolean $params[sudo] If set to true, the sed command will be executed using sudo
+ * @param null mixed $params[function]
+ * @param null mixed $params[background]
+ * @return void()
+ */
+function file_cat($params){
+    try{
+        array_ensure($params, 'ok_exitcodes,function,sudo,background,domain');
+
+        if(empty($params['source'])){
+            throw new BException(tr('file_cat(): No source file specified'), 'not-specified');
+        }
+
+        if(empty($params['target'])){
+            throw new BException(tr('file_cat(): No target file specified'), 'not-specified');
+        }
+
+        if(!empty($params['sudo'])){
+            $arguments['sudo'] = $params['sudo'];
+        }
+
+
+
+        safe_exec(array('domain'       => $params['domain'],
+                        'background'   => $params['background'],
+                        'function'     => $params['function'],
+                        'ok_exitcodes' => $params['ok_exitcodes'],
+                        'commands'     => array('cat' => $arguments)));
+
+    }catch(Exception $e){
+        throw new BException('file_cat(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Ensure that the specified file is not in restricted zones. This applies to real paths, with their symlinks expaned
+ *
+ * Authorized areas, by default, are the following paths. Any other path will be restricted
+ *
+ * ROOT/data
+ * /tmp/
+ *
+ * If $params is specified as a string, then the function will assume this is a single path and test it
+ *
+ * If $params is specified as an array, then the function will check for the following keys:
+ *
+ * * source
+ * * target
+ * * file
+ * * path
+ *
+ * Any of these will be assumed to be a file path, and tested.
+ *
+ * If $params[unrestricted] is specified, the function will not test anything
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4.24: Added function and documentation
+ *
+ * @param mixed $params The parameters for file_restrict
+ * @param null mixed $params[source]
+ * @param null mixed $params[target]
+ * @param null mixed $params[file]
+ * @param null mixed $params[path]
+ * @return void()
+ */
+function file_restrict($params, $name = null){
+    try{
+        if(is_string($params)){
+            /*
+             * This is a single path. Ensure its not outside of the restricted
+             * zones
+             */
+            $allowed = array(ROOT.'data/', '/tmp/');
+
+            foreach($allowed as $allow){
+                if(substr($params, 0, strlen($allow), $params) === $allow){
+                    /*
+                     * Passed!
+                     */
+                    return true;
+                }
+            }
+
+            throw new BException(tr('file_restrict(): The specified file or path ":path" for key ":key" is outside of the authorized paths', array(':path' => $params, ':key' => $key)), 'access-denied');
+        }
+
+        if(!empty($params['unrestricted'])){
+            /*
+             * No restrictions required
+             */
+            return false;
+        }
+
+        /*
+         * Search for default fields
+         */
+        $keys = array('source', 'target', 'path', 'file');
+
+        foreach($keys as $key){
+            if(isset($params[$key])){
+                /*
+                 * All these must be tested
+                 */
+                file_restrict($value, $key);
+            }
+        }
+
+    }catch(Exception $e){
+        throw new BException('file_restrict(): Failed', $e);
+    }
+}
 ?>

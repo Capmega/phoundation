@@ -72,6 +72,7 @@ function rsync($params){
         array_default($params, 'remove_source_files', true);
         array_default($params, 'port'               , null);
         array_default($params, 'ssh_options'        , null);
+        array_default($params, 'verbose'            , true);
         array_default($params, 'remote_rsync'       , false);
         array_default($params, 'monitor_pid'        , false);
         array_default($params, 'monitor_task'       , false);
@@ -171,7 +172,6 @@ function rsync($params){
         }
 
         unset($item);
-        $command = 'rsync';
 
         if(isset($remote)){
             if($params['ssh_options']){
@@ -183,75 +183,81 @@ function rsync($params){
         }
 
         if(isset($ssh)){
-            $command .= ' -e "'.$ssh.'" ';
+            $arguments[] = '-e';
+            $arguments[] = $ssh;
         }
 
         if($params['archive']){
-            $command .= ' -a ';
+            $arguments[] = '-a';
         }
 
         if($params['checksum']){
-            $command .= ' -c ';
+            $arguments[] = '-c';
         }
 
         if($params['compression']){
-            $command .= ' -z ';
+            $arguments[] = '-z';
         }
 
         if($params['remove_source_files']){
-            $command .= ' --remove-source-files';
+            $arguments[] = '--remove-source-files';
         }
 
         if($params['inplace']){
-            $command .= ' --inplace';
+            $arguments[] = '--inplace';
         }
 
         if($params['delete']){
-            $command .= ' --delete ';
+            $arguments[] = '--delete';
         }
 
         if($params['force']){
-            $command .= ' --force ';
+            $arguments[] = '--force';
         }
 
         if($params['group']){
-            $command .= ' -g ';
+            $arguments[] = '-g';
         }
 
         if($params['links']){
-            $command .= ' -l ';
+            $arguments[] = '-l';
         }
 
         if($params['owner']){
-            $command .= ' -o ';
+            $arguments[] = '-o';
         }
 
         if($params['permissions']){
-            $command .= ' -p ';
+            $arguments[] = '-p';
         }
 
         if($params['progress']){
-            $command .= ' --progress ';
+            $arguments[] = '--progress';
         }
 
         if($params['recursive']){
-            $command .= ' -r ';
+            $arguments[] = '-r';
         }
 
         if($params['remote_rsync']){
-            $command .= ' --rsync-path="'.$params['remote_rsync'].'" ';
+            $arguments[] = '--rsync-path="'.$params['remote_rsync'].'"';
         }
 
         if($params['super']){
-            $command .= ' --super ';
+            $arguments[] = '--super';
         }
 
         if($params['time']){
-            $command .= ' -t ';
+            $arguments[] = '-t';
         }
 
-        $break    = true;
-        $command .= ' '.$params['source'].' '.$params['target'];
+        if($params['verbose']){
+            $arguments[] = '-v';
+        }
+
+        $break       = true;
+        $arguments[] = $params['source'];
+        $arguments[] = $params['target'];
 
         if($params['monitor_task'] or $params['monitor_pid']){
             /*
@@ -262,7 +268,11 @@ function rsync($params){
 
         while(true){
             log_console(tr('Rsyncing from ":source" to ":target"', array(':source' => $params['source'], ':target' => $params['target'])), 'cyan');
-            $results = safe_exec($command, null, true, $params['function']);
+
+            $results = safe_exec(array('function'     => $params['function'],
+                                       'background'   => $params['background'],
+                                       'ok_exitcodes' => $params['exitcodes'],
+                                       'commands'     => array('rsync' => $arguments)));
 
             if(!empty($break)){
                 /*

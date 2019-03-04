@@ -54,7 +54,7 @@ function usb_library_init(){
  */
 function usb_list($libusb = null, $server = null){
     try{
-        $results = servers_exec('lsusb');
+        $results = servers_exec(array('commands' => array('lsusb')));
         $devices = array();
 
         foreach($results as $result){
@@ -115,7 +115,7 @@ function usb_list($libusb = null, $server = null){
  */
 function usb_scan($regex_filter, $server = null){
     try{
-        $results = safe_exec('lsusb -v');
+        $results = safe_exec(array('commands' => array('lsusb', array('-v'))));
         $devices = array();
         $retval  = array();
         $device  = '';

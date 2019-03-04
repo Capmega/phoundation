@@ -721,11 +721,27 @@ function linux_copy($server, $source, $target, $sudo = false){
  * @package cli
  * @version 2.4.10: Added function and documentation
  *
- * @param string $file The file to be unzipped
+ * @param mixed $file The file to be unzipped
+ * @param mixed $patterns The file patterns to be deleted. An array with multiple patterns can be specified
+ * @param boolean $sudo If set to true, the rm command will be executed with sudo
+ * @param boolean $clean_path If set to true, the rm command will cleanup all parent paths as well if they're empty
  * @return string The path of the specified file
  */
-function linux_delete($server, $patterns, $clean_path = false, $sudo = false){
+function linux_delete($server, $patterns, $sudo = false, $clean_path = true){
     try{
+notify('UNDER CONSTRUCTION! linux_delete() does not yet have support for $clean_path');
+        if(!is_array()){
+            $patterns = array($patterns);
+        }
+
+        if($sudo){
+            $patterns['sudo'] = $sudo;
+        }
+
+        servers_exec($server, array('commands' => array('rm', $patterns)));
+
+        if($clean_path){
+        }
 
     }catch(Exception $e){
         throw new BException('linux_delete(): Failed', $e);
@@ -946,7 +962,7 @@ showdie($results);
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package linux
- * @see realpath
+ * @see realpath()
  * @version 2.4.20: Added function and documentation
  *
  * @param mixed $server
@@ -981,6 +997,32 @@ show($result);
 
     }catch(Exception $e){
         throw new BException('linux_realpath(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Execute the service command on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @version 2.4.22: Added function and documentation
+ *
+ * @param mixed $server
+ * @param string $service
+ * @param string $action
+ * @return void()
+ */
+function linux_service($server, $service, $action){
+    try{
+        servers_exec($server, array('commands' => array('service', array('sudo' => true, $service, $action))));
+
+    }catch(Exception $e){
+        throw new BException('linux_service(): Failed', $e);
     }
 }
 ?>
