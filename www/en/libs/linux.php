@@ -985,30 +985,10 @@ showdie($results);
  */
 function linux_realpath($server, $path){
     try{
-        $server  = servers_get($server);
-        $results = servers_exec($server, array('commands' => array('cd', array($path),
-                                                                   'pwd')));
-        $result  = array_shift($results);
+        $results = servers_exec($server, array('commands' => array('realpath', array($path))));
+        $results = array_shift($results);
 
-        if(count($results)){
-            $error = array_shift($results);
-            $error = str_from($error, 'bash: line 0: cd: ');
-            $error = str_from($error, ' ');
-            $error = strtolower(trim($error, ' '));
-
-            switch($error){
-                case 'no such file or directory':
-                    throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'not-exists');
-
-                case 'permission denied':
-                    throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'access-denied');
-            }
-
-show($result);
-            throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'failed');
-        }
-
-        return $result;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('linux_realpath(): Failed', $e);
