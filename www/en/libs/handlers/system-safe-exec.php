@@ -20,6 +20,7 @@ $params = array('commands' => $params);
     array_default($params, 'function'    , 'exec');
     array_default($params, 'ok_exitcodes', 0);
     array_default($params, 'background'  , false);
+    array_default($params, 'log'         , true);
     array_default($params, 'output_log'  , (VERYVERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
 
     if($params['domain']){
@@ -55,7 +56,7 @@ $params = array('commands' => $params);
         $params['commands'] = 'export PATH="'.$_CONFIG['exec']['path'].'"; '.$params['commands'];
     }
 
-    log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), (PLATFORM_HTTP ? 'cyan' : 'VERBOSE/cyan'));
+    log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), (PLATFORM_HTTP ? 'cyan' : ($params['log'] ? '' : 'VERY').'VERBOSE/cyan'));
 
     /*
      * Execute the command
