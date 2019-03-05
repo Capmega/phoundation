@@ -60,7 +60,6 @@ function scanimage($params){
     try{
         $server  = servers_get($params['domain']);
         $params  = scanimage_validate($params);
-        $command = array('commands' => array(scanimage_command(), array('--format tiff', $params['options'])));
 
         /*
          * Finish scan command and execute it
@@ -80,7 +79,8 @@ function scanimage($params){
                     /*
                      * This is the own machine
                      */
-                    $results = safe_exec($command, 2);
+                    $results = safe_exec(array('timeout'  => 90,
+                                               'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))), 2);
                     $result  = array_pop($results);
                     $result  = str_cut($result, ',', 'pages');
                     $result  = trim($result);
@@ -92,7 +92,8 @@ function scanimage($params){
                      * This is a remote server
                      */
                     $remote = linux_ensure_path($server, $params['path']);
-                    $pid    = servers_exec($server, $command, true, null, 2);
+                    $pid    = servers_exec($server, array('timeout'  => 90,
+                                                          'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))), true, null, 2);
 
                     rsync(array('source'              => $server['domain'].':'.$params['path'],
                                 'target'              => $params['local']['batch'],
@@ -112,18 +113,23 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
                     /*
                      * This is the own machine. Scan to the TMP file
                      */
-                    $file     = TMP.str_random(16);
-                    $command .= ' > '.$file;
-                    $result   = servers_exec($server, $command);
+                    $file = TMP.str_random(16);
+                    file_ensure_path(dirname($file));
+
+                    $params['options']['redirect'] = ' > '.$file;
+                    $result                        = servers_exec($server, array('timeout'  => 90,
+                                                                                 'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                 }else{
                     /*
                      * This is a remote server. Scan and rsync the file to TMP
                      */
-                    $remote   = '/tmp/'.str_random(16);
-                    $file     = TMP.str_random(16);
-                    $command .= ' > '.$remote;
-                    $result   = servers_exec($server, $command);
+                    $file   = file_temp(false);
+                    $remote = '/tmp/'.str_random(16);
+
+                    $params['options']['redirect'] = ' > '.$remote;
+                    $result                        = servers_exec($server, array('timeout'  => 90,
+                                                                                 'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     rsync(array('source'              => $params['domain'].':'.$remote,
                                 'target'              => $file,
@@ -161,56 +167,62 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
             return $params['file'];
 
         }catch(Exception $e){
-            if(is_numeric($e->getRealCode())){
+            if(!is_numeric($e->getRealCode())){
                 /*
-                 * Try and parse output for error information
+                 *  This is some exception in the processing code, not an
+                 *  exception from the command line, apparently
                  */
-                $data = $e->getData();
+                throw $e;
+            }
 
-                if(is_array($data)){
-                    $line = array_shift($data);
+            /*
+             * Try and parse output for error information
+             */
+            $data = $e->getData();
 
-                }else{
-                    $line = '';
-                }
+            if(is_array($data)){
+                $line = array_shift($data);
 
-                switch($line){
-                    case 'scanimage: sane_start: Error during device I/O':
-                        // FALLTROUGH
-                    case 'scanimage: sane_start: Operation was cancelled':
-                        /*
-                         * Scanner is having issues
-                         */
-                        throw new BException(tr('scanimage(): Scanner failed'), 'failed');
-                }
+            }else{
+                $line = '';
+            }
 
-                switch(substr($line, 0, 25)){
-                    case 'scanimage: no SANE device':
-                        /*
-                         * No scanner found
-                         */
-                        throw new BException(tr('scanimage(): No scanner found'), 'not-found');
+            switch($line){
+                case 'scanimage: sane_start: Error during device I/O':
+                    // FALLTROUGH
+                case 'scanimage: sane_start: Operation was cancelled':
+                    /*
+                     * Scanner is having issues
+                     */
+                    throw new BException(tr('scanimage(): Scanner failed'), 'failed');
+            }
 
-                    case 'scanimage: open of device':
-                        /*
-                         * Failed to open the device, it might be busy or not
-                         * responding
-                         */
-                        $server  = servers_get($params['domain']);
-                        $process = linux_pgrep($server, 'scanimage');
+            switch(substr($line, 0, 25)){
+                case 'scanimage: no SANE device':
+                    /*
+                     * No scanner found
+                     */
+                    throw new BException(tr('scanimage(): No scanner found'), 'not-found');
 
-                        if(substr($line, -24, 24) === 'failed: Invalid argument'){
-                            throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
+                case 'scanimage: open of device':
+                    /*
+                     * Failed to open the device, it might be busy or not
+                     * responding
+                     */
+                    $server  = servers_get($params['domain']);
+                    $process = linux_pgrep($server, 'scanimage');
 
-                        }else{
-                            if($process){
-                                throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
-                            }
+                    if(substr($line, -24, 24) === 'failed: Invalid argument'){
+                        throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
+
+                    }else{
+                        if($process){
+                            throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
                         }
+                    }
 
-                    default:
-                        throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
-                }
+                default:
+                    throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
             }
         }
 
@@ -245,7 +257,7 @@ function scanimage_validate($params){
     try{
         load_libs('validate');
 
-        $v       = new ValidateForm($params, 'domain,device,batch,jpeg_quality,format,file,buffer_size,options');
+        $v       = new ValidateForm($params, 'sudo,domain,device,batch,jpeg_quality,format,file,buffer_size,options');
         $options = array();
         $local   = array();
 
@@ -300,7 +312,8 @@ function scanimage_validate($params){
             $v->setError(tr('scanimage_validate(): The specified device ":device" is not a document scanner device', array(':device' => $device['id'].' / '.$device['string'])));
         }
 
-        $options[] = '--device "'.$device['string'].'"';
+        $options[] = '--device';
+        $options[] = $device['string'];
 
         /*
          * Validate target file
@@ -480,10 +493,12 @@ function scanimage_validate($params){
                 }
 
                 if(strlen($key) == 1){
-                    $options[] = '-'.$key.' "'.$value.'"';
+                    $options[] = '-'.$key;
+                    $options[] = $value;
 
                 }else{
-                    $options[] = '--'.$key.' "'.$value.'"';
+                    $options[] = '--'.$key;
+                    $options[] = $value;
                 }
 
                 continue_validation:
@@ -492,7 +507,7 @@ function scanimage_validate($params){
 
         $v->isValid();
 
-        $params['options'] = implode(' ', $options);
+        $params['options'] = $options;
 
         return $params;
 
@@ -1104,34 +1119,6 @@ function scanimage_select_resolution($params){
 
     }catch(Exception $e){
         throw new BException('scanimage_select_resolution(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Returns the scanimage command. This, by default is "sudo scanimage" but by configuration may be something else
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package scanimage
- *
- * @return string The scanimage command
- */
-function scanimage_command(){
-    global $_CONFIG;
-
-    try{
-        if(empty($_CONFIG['scanimage']['sudo'])){
-            return 'scanimage';
-        }
-
-        return 'sudo scanimage';
-
-    }catch(Exception $e){
-        throw new BException('scanimage_command(): Failed', $e);
     }
 }
 
