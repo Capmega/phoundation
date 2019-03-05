@@ -242,6 +242,7 @@ function ssh_build_command(&$server, $params){
     global $_CONFIG;
 
     try{
+        array_ensure($params);
         array_default($params, 'ssh_command'   , 'ssh');
         array_default($params, 'no_user_server', false);
 
