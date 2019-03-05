@@ -79,18 +79,18 @@ function scanimage($params){
                     /*
                      * This is the own machine
                      */
-show($params);
-show(array('ok_exitcodes' => '0,2',
-           'timeout'      => 90,
-           'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
-                    $results = safe_exec(array('timeout'      => 90,
+                    $results = safe_exec(array('ok_exitcodes' => '0,2',
+                                               'timeout'      => 90,
                                                'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
-show($results);
+
                     $result  = array_pop($results);
                     $result  = str_cut($result, ',', 'pages');
                     $result  = trim($result);
 
-                    return $result;
+                    $params['results'] = $results;
+                    $params['result']  = $result;
+
+                    return $params;
 
                 }else{
                     /*
@@ -100,8 +100,10 @@ show($params);
 show(array('ok_exitcodes' => '0,2',
            'timeout'      => 90,
            'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
+
                     $remote = linux_ensure_path($server, $params['path']);
-                    $pid    = servers_exec($server, array('timeout'      => 90,
+                    $pid    = servers_exec($server, array('ok_exitcodes' => '0,2',
+                                                          'timeout'      => 90,
                                                           'background'   => true,
                                                           'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
@@ -109,6 +111,7 @@ show(array('ok_exitcodes' => '0,2',
                                 'target'              => $params['local']['batch'],
                                 'monitor_pid'         => $pid,
                                 'remove_source_files' => true));
+
 show($pid);
 showdie('aaaaaaaaaaaaaaaaaaaaaa');
                 }
@@ -127,7 +130,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
                     file_ensure_path(dirname($file));
 
                     $params['options']['redirect'] = ' > '.$file;
-                    $result                        = servers_exec($server, array('timeout'  => 90,
+                    $results                       = servers_exec($server, array('timeout'  => 90,
                                                                                  'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                 }else{
@@ -138,7 +141,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
                     $remote = '/tmp/'.str_random(16);
 
                     $params['options']['redirect'] = ' > '.$remote;
-                    $result                        = servers_exec($server, array('timeout'  => 90,
+                    $results                       = servers_exec($server, array('timeout'  => 90,
                                                                                  'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     rsync(array('source'              => $params['domain'].':'.$remote,
@@ -174,7 +177,10 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
                     break;
             }
 
-            return $params['file'];
+            $params['results'] = $results;
+            $params['result']  = $params['file'];
+
+            return $params;
 
         }catch(Exception $e){
             if(!is_numeric($e->getRealCode())){
@@ -218,7 +224,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
                      */
                     throw new BException(tr('scanimage(): Scanner failed'), 'failed');
             }
-show(substr($line, 0, 25));
+
             switch(substr($line, 0, 25)){
                 case 'scanimage: no SANE device':
                     /*
@@ -247,6 +253,8 @@ show(substr($line, 0, 25));
                     throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
             }
         }
+
+        return $params;
 
     }catch(Exception $e){
         throw new BException('scanimage(): Failed', $e);
@@ -434,7 +442,8 @@ function scanimage_validate($params){
                 linux_ensure_path($params['domain'], $params['path']);
             }
 
-            $params['options']['batch'] = $params['path'].'image%d.'.$params['format'];
+            $params['file']             = 'image%d.'.$params['format'];
+            $params['options']['batch'] = $params['path'].$params['file'];
 
         }else{
             if(str_rfrom($params['file'], '.') != $extension){
