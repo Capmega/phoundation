@@ -1722,7 +1722,6 @@ function cli_build_commands_string(&$params){
         array_default($params, 'timeout'     , $_CONFIG['exec']['timeout']);
         array_default($params, 'route_errors', true);
         array_default($params, 'background'  , false);
-        array_default($params, 'log'         , true);
 
         /*
          * Set global background
