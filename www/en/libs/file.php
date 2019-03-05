@@ -674,6 +674,38 @@ function file_delete_tree($directory){
 
 
 /*
+ * Return the absolute path for the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added function and documentation
+ *
+ * @param string $path
+ * @return string The absolute path
+ */
+function file_absolute_path($path){
+    try{
+        if(!$path){
+            return getcwd();
+        }
+
+        if($path[0] === '/'){
+            return $path;
+        }
+
+        return slash(getcwd()).unslash($path);
+
+    }catch(Exception $e){
+        throw new BException('file_absolute_path(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Returns the files mimetype
  */
 function file_mimetype($file){
