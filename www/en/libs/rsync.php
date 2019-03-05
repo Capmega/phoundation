@@ -55,10 +55,12 @@ function rsync($params){
         array_default($params, 'append'             , false);
         array_default($params, 'append_verify'      , false);
         array_default($params, 'archive'            , true);
+        array_default($params, 'background'         , false);
         array_default($params, 'function'           , (PLATFORM_CLI ? 'passthru' : null));
         array_default($params, 'checksum'           , true);
         array_default($params, 'compression'        , true);
         array_default($params, 'delete'             , true);
+        array_default($params, 'exitcodes'          , null);
         array_default($params, 'force'              , true);
         array_default($params, 'group'              , true);
         array_default($params, 'links'              , true);
@@ -118,7 +120,8 @@ function rsync($params){
                             /*
                              * Yay, we know the server, set the parameters!
                              */
-                            $ssh           = ssh_build_command($server, 'ssh', true);
+                            $ssh = ssh_build_command($server, array('ssh_command'    => 'ssh',
+                                                                    'no_user_server' => true));
                             $params[$item] = $server['username'].'@'.$params[$item];
                         }
                     }
@@ -272,7 +275,7 @@ function rsync($params){
             $results = safe_exec(array('function'     => $params['function'],
                                        'background'   => $params['background'],
                                        'ok_exitcodes' => $params['exitcodes'],
-                                       'commands'     => array('rsync' => $arguments)));
+                                       'commands'     => array('rsync', $arguments)));
 
             if(!empty($break)){
                 /*
