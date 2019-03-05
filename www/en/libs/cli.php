@@ -1668,6 +1668,38 @@ function cli_which($command, $whereis = false){
 
 
 /*
+ * Returns true if the specified command is builtin in bash or not
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4: Added function and documentation
+ *
+ * @param string $command The command to test
+ * @return boolean True if the specified command is built in, false if not
+ */
+function cli_is_builtin($command){
+    try{
+        $results = safe_exec(array('commands' => array('type', array($command))));
+        $results = array_shift($results);
+
+        return (substr($results, -7, 7) === 'builtin');
+
+    }catch(Exception $e){
+        switch($e->getRealCode()){
+            case '127':
+                throw new BException('cli_is_builtin(): The specified command ":command" does not exist', array(':command' => $command), $e);
+        }
+
+        throw new BException('cli_is_builtin(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Build a command string from the specified commands array
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1690,6 +1722,7 @@ function cli_build_commands_string(&$params){
         array_default($params, 'timeout'     , $_CONFIG['exec']['timeout']);
         array_default($params, 'route_errors', true);
         array_default($params, 'background'  , false);
+        array_default($params, 'log'         , true);
 
         /*
          * Set global background
@@ -1717,11 +1750,30 @@ function cli_build_commands_string(&$params){
                     throw new BException(tr('cli_build_commands_string(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
                 }
 
+                /*
+                 * Set default values
+                 */
                 $command   = escapeshellcmd(mb_trim($value));
                 $sudo      = false;
                 $redirect  = '';
                 $connector = ';';
+                $builtin   = false;
 
+                /*
+                 * Check if command is built in
+                 */
+                if($value === 'type'){
+                    $builtin       = true;
+                    $params['log'] = false;
+
+                }else{
+                    if(cli_is_builtin($value)){
+                        /*
+                         * timeout does NOT work with builtin bash commands!
+                         */
+                        $builtin = true;
+                    }
+                }
 
                 if($params['route_errors']){
                     $route = ' 2>&1 ';
@@ -1759,16 +1811,16 @@ function cli_build_commands_string(&$params){
                         $timeout  = '';
                     }
 
-                    if(!is_scalar($argument)){
-                        throw new BException(tr('cli_build_commands_string(): Specified argument ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
-                    }
-
                     if(!$argument){
                         /*
                          * Skip empty arguments
                          */
                         unset($value[$special]);
                         continue;
+                    }
+
+                    if(!is_scalar($argument)){
+                        throw new BException(tr('cli_build_commands_string(): Specified arguments ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
                     }
 
                     if(is_numeric($special)){
@@ -1833,7 +1885,10 @@ function cli_build_commands_string(&$params){
                 $command .= $route;
             }
 
-            $command  = $timeout.$command;
+            if(!$builtin){
+                $command  = $timeout.$command;
+            }
+
             $command  = $sudo.$command;
             $command .= $redirect;
 
