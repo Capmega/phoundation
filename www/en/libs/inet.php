@@ -599,6 +599,8 @@ function inet_validate_ip($ip, $allow_all = true){
  * @return
  */
 function inet_port_available($port, $ip = '0.0.0.0', $server = null){
+    load_libs('servers');
+
     try{
         $ip      = inet_validate_ip($ip);
         $port    = inet_validate_port($port);
