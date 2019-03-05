@@ -241,7 +241,7 @@ switch(cli_method()){
          * Scan!
          */
         try{
-            scanimage($scanimage);
+            $scanimage = scanimage($scanimage);
 
             if(!file_exists($scanimage['file'])){
                 if(!$scanimage['batch']){
@@ -271,7 +271,20 @@ switch(cli_method()){
          */
         if($show){
             load_libs('view');
-            view($scanimage['file']);
+
+            if($scanimage['batch']){
+                $scanimage['file'] = str_replace('%d', '\d+', $scanimage['file']);
+                $scanimage['file'] = '/'.$scanimage['file'].'/';
+
+                $files = file_list_tree($scanimage['path'], $scanimage['file']);
+
+                foreach($files as $file){
+                    view($file);
+                }
+
+            }else{
+                view($scanimage['file']);
+            }
         }
 
         break;
