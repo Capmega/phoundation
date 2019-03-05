@@ -1899,7 +1899,7 @@ function cli_build_commands_string(&$params){
             /*
              * Put the entire command in the background
              */
-            $retval = '{ '.$retval.' } &';
+            $retval = '{ '.$retval.' } > /dev/null & ';
         }
 
         return $retval;
