@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.36');
+define('FRAMEWORKCODEVERSION', '2.4.38');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5351,11 +5351,17 @@ function shutdown(){
          */
         $level = mt_rand(0, 100);
 
-        foreach($_CONFIG['shutdown'] as $name => $parameters){
-            if($level < $parameters['interval']){
-                log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
-                load_libs($parameters['library']);
-                $parameters['function']();
+        if($_CONFIG['shutdown']){
+            if(!is_array($_CONFIG['shutdown'])){
+                throw new BException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
+            }
+
+            foreach($_CONFIG['shutdown'] as $name => $parameters){
+                if($level < $parameters['interval']){
+                    log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
+                    load_libs($parameters['library']);
+                    $parameters['function']();
+                }
             }
         }
 
