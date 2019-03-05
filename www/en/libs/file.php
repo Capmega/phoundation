@@ -2047,7 +2047,7 @@ function file_tree_execute($params){
                         switch($type){
                             case 'link':
                                 if(!$params['follow_symlinks']){
-                                    continue;
+                                    continue 2;
                                 }
 
                                 $file = readlink($file);
