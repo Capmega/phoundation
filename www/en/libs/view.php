@@ -54,6 +54,13 @@ function view_library_init(){
  */
 function view($file){
     try{
+        if(is_dir($file)){
+            /*
+             * A directory was specified instead of a file.
+             */
+            throw new BException(tr('view(): The specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
+        }
+
         $mimetype = file_mimetype($file);
         $mimetype = str_until($mimetype, '/');
 
@@ -135,7 +142,8 @@ function view_image_feh($file){
             linux_install_package(null, 'feh');
         }
 
-        safe_exec(array('commands' => array('feh', array($file))));
+        safe_exec(array('background' => true,
+                        'commands'   => array('feh', array($file))));
 
     }catch(Exception $e){
         throw new BException(tr('view_image_feh(): Failed'), $e);
