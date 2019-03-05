@@ -790,7 +790,7 @@ function file_delete($patterns, $clean_path = false, $sudo = false){
         }
 
         foreach(array_force($patterns) as $pattern){
-            safe_exec(($sudo ? 'sudo ' : '').'rm -rf '.$pattern);
+            safe_exec(array('commands' => array('rm', array('sudo' => $sudo, '-rf', $pattern))));
 
             if($clean_path){
                 file_clear_path(dirname($patterns));
@@ -2390,7 +2390,7 @@ function file_chown($file, $user = null, $group = null){
             throw new BException(tr('file_chown(): Specified file ":file" is not in the projects ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
         }
 
-        safe_exec('sudo chown '.$user.':'.$group.' '.$file);
+        safe_exec(array('commands' => array('chown', array('sudo' => true, $user.':'.$group, $file))));
 
     }catch(Exception $e){
         throw new BException(tr('file_chown(): Failed'), $e);
@@ -2586,8 +2586,6 @@ function file_cat($params){
         if(!empty($params['sudo'])){
             $arguments['sudo'] = $params['sudo'];
         }
-
-
 
         safe_exec(array('domain'       => $params['domain'],
                         'background'   => $params['background'],
