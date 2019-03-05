@@ -58,8 +58,8 @@ function scanimage_library_init(){
  */
 function scanimage($params){
     try{
-        $server  = servers_get($params['domain']);
-        $params  = scanimage_validate($params);
+        $server = servers_get($params['domain']);
+        $params = scanimage_validate($params);
 
         /*
          * Finish scan command and execute it
@@ -79,8 +79,13 @@ function scanimage($params){
                     /*
                      * This is the own machine
                      */
-                    $results = safe_exec(array('timeout'  => 90,
-                                               'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))), 2);
+show($params);
+show(array('ok_exitcodes' => '0,2',
+           'timeout'      => 90,
+           'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
+                    $results = safe_exec(array('timeout'      => 90,
+                                               'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
+show($results);
                     $result  = array_pop($results);
                     $result  = str_cut($result, ',', 'pages');
                     $result  = trim($result);
@@ -91,9 +96,14 @@ function scanimage($params){
                     /*
                      * This is a remote server
                      */
+show($params);
+show(array('ok_exitcodes' => '0,2',
+           'timeout'      => 90,
+           'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
                     $remote = linux_ensure_path($server, $params['path']);
-                    $pid    = servers_exec($server, array('timeout'  => 90,
-                                                          'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))), true, null, 2);
+                    $pid    = servers_exec($server, array('timeout'      => 90,
+                                                          'background'   => true,
+                                                          'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     rsync(array('source'              => $server['domain'].':'.$params['path'],
                                 'target'              => $params['local']['batch'],
@@ -176,16 +186,28 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
             }
 
             /*
-             * Try and parse output for error information
+             * Try and parse output for error information to give understandable
+             * error messages
              */
             $data = $e->getData();
+            $line = '';
 
             if(is_array($data)){
-                $line = array_shift($data);
+                while($data){
+                    $line = array_shift($data);
+
+                    if(str_exists($line, 'sane_start')){
+                        break;
+                    }
+
+                    $line = '';
+                }
 
             }else{
                 $line = '';
             }
+
+            $line = strtolower($line);
 
             switch($line){
                 case 'scanimage: sane_start: Error during device I/O':
@@ -196,7 +218,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
                      */
                     throw new BException(tr('scanimage(): Scanner failed'), 'failed');
             }
-
+show(substr($line, 0, 25));
             switch(substr($line, 0, 25)){
                 case 'scanimage: no SANE device':
                     /*
@@ -335,15 +357,10 @@ function scanimage_validate($params){
 
         }elseif($params['batch']){
             /*
-             * Ensure the target path exists
+             * Ensure the target path exists as a directory
              */
-            $params['path'] = slash($params['file']);
-
-            if(file_exists($params['path'])){
-                if(!is_dir($params['path'])){
-                    $v->setError(tr('Specified batch scan target path ":path" already exists as a file', array(':path' => $params['path'])));
-                }
-            }
+            $params['path'] = file_absolute_path($params['file']);
+            $params['path'] = file_ensure_path($params['path']);
 
         }else{
             /*
@@ -410,13 +427,11 @@ function scanimage_validate($params){
                 $v->setError(tr('Specified batch file pattern ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
             }
 
-            $params['path'] = realpath($params['path']).'/';
-
             if($params['domain']){
-                $params['local']['batch']   = $params['path'];
-                $params['path']             = '/tmp/'.str_random(16).'/';
+                $params['local']['batch'] = $params['path'];
+                $params['path']           = '/tmp/'.str_random(16).'/';
 
-                file_ensure_path($params['path']);
+                linux_ensure_path($params['domain'], $params['path']);
             }
 
             $params['options']['batch'] = $params['path'].'image%d.'.$params['format'];
@@ -468,7 +483,7 @@ function scanimage_validate($params){
                             goto continue_validation;
                     }
 
-                    $options[] = '--'.$key.'="'.$value.'"';
+                    $options[] = '--'.$key.'='.$value;
                     $params['options'] = implode(' ', $options);
                     goto continue_validation;
                 }
@@ -493,12 +508,10 @@ function scanimage_validate($params){
                 }
 
                 if(strlen($key) == 1){
-                    $options[] = '-'.$key;
-                    $options[] = $value;
+                    $options[] = '-'.$key.'='.$value;
 
                 }else{
-                    $options[] = '--'.$key;
-                    $options[] = $value;
+                    $options[] = '--'.$key.'='.$value;
                 }
 
                 continue_validation:
