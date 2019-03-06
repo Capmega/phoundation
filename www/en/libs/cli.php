@@ -1873,7 +1873,11 @@ function cli_build_commands_string(&$params){
                                 break;
 
                             default:
-                                throw new BException(tr('cli_build_commands_string(): Unknown specified argument ":argument" specified', array(':argument' => $argument)), 'invalid');
+                                switch($special){
+                                    case 'connect':
+                                        throw new BException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified, maybe should be "connector" ?', array(':argument' => $special)), 'invalid');
+                                }
+                                throw new BException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified', array(':argument' => $special)), 'invalid');
                         }
                     }
                 }
