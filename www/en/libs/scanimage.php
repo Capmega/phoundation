@@ -89,22 +89,17 @@ function scanimage($params){
 
                     $params['results'] = $results;
                     $params['result']  = $result;
-
                     return $params;
 
                 }else{
                     /*
                      * This is a remote server
                      */
-show($params);
-show(array('ok_exitcodes' => '0,2',
-           'timeout'      => 90,
-           'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
-
                     $remote = linux_ensure_path($server, $params['path']);
                     $pid    = servers_exec($server, array('ok_exitcodes' => '0,2',
                                                           'timeout'      => 90,
                                                           'background'   => true,
+                                                          'output_log'   => true,
                                                           'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     rsync(array('source'              => $server['domain'].':'.$params['path'],
@@ -112,8 +107,8 @@ show(array('ok_exitcodes' => '0,2',
                                 'monitor_pid'         => $pid,
                                 'remove_source_files' => true));
 
-show($pid);
-showdie('aaaaaaaaaaaaaaaaaaaaaa');
+                    $params['result']  = $params['local']['batch'];
+                    return $params;
                 }
 
             }else{
@@ -201,8 +196,30 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
             if(is_array($data)){
                 while($data){
                     $line = array_shift($data);
+                    $line = strtolower($line);
+                    $line = trim($line);
+
+                    switch($line){
+                        case 'terminate called after throwing an instance of \'std::bad_alloc\'':
+                            // FALLTROUGH
+                        case 'scanimage: sane_start: Error during device I/O':
+                            // FALLTROUGH
+                        case 'scanimage: sane_start: Operation was cancelled':
+                            /*
+                             * Scanner is having issues
+                             */
+// :TODO: Rescan device?
+                            throw new BException(tr('scanimage(): Scanner failed, please check if scanner has documents. If all is okay, please restart scanner'), 'failed');
+
+                        case 'scanimage: sane_start: Document feeder out of documents':
+                            throw new BException(tr('scanimage(): Scanner document feeder has no documents'), 'empty');
+                    }
 
                     if(str_exists($line, 'sane_start')){
+                        break;
+                    }
+
+                    if(str_exists($line, 'scanimage:')){
                         break;
                     }
 
@@ -211,18 +228,6 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
 
             }else{
                 $line = '';
-            }
-
-            $line = strtolower($line);
-
-            switch($line){
-                case 'scanimage: sane_start: Error during device I/O':
-                    // FALLTROUGH
-                case 'scanimage: sane_start: Operation was cancelled':
-                    /*
-                     * Scanner is having issues
-                     */
-                    throw new BException(tr('scanimage(): Scanner failed'), 'failed');
             }
 
             switch(substr($line, 0, 25)){
@@ -240,7 +245,7 @@ showdie('aaaaaaaaaaaaaaaaaaaaaa');
                     $server  = servers_get($params['domain']);
                     $process = linux_pgrep($server, 'scanimage');
 
-                    if(substr($line, -24, 24) === 'failed: Invalid argument'){
+                    if(substr($line, -24, 24) === 'failed: invalid argument'){
                         throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
 
                     }else{
