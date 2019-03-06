@@ -127,10 +127,19 @@ function image_convert($source, $destination, $params = null){
         /*
          * Build command
          */
-        $command = $imagick['convert'];
+        $command   = $imagick['convert'];
+        $arguments = array();
 
         if($imagick['nice']){
-            $command = 'nice -n '.$imagick['nice'].' '.$command;
+            $arguments['nice'] = $imagick['nice'];
+        }
+
+        if($params['log']){
+            if($params['log'] === true){
+                $params['log'] = ROOT.'data/log/syslog';
+            }
+
+            $arguments['redirect'] = ' >> '.$params['log'];
         }
 
         array_params($params);
@@ -192,26 +201,34 @@ function image_convert($source, $destination, $params = null){
             switch($key){
                 case 'limit_memory':
                     if($value){
-                       $command .= ' -limit memory '.$value;
+                        $arguments[] = '-limit memory';
+                        $arguments[] = $value;
                     }
+
                     break;
 
                 case 'limit_map':
                     if($value){
-                        $command .= ' -limit map '.$value;
+                        $arguments[] = '-limit map';
+                        $arguments[] = $value;
                     }
+
                     break;
 
                 case 'quality':
                     if($value){
-                        $command .= ' -quality '.$value.'%';
+                       $arguments[] = '-quality '.$value.'%';
+                       $arguments[] = $value;
                     }
+
                     break;
 
                 case 'blur':
                     if($value){
-                        $command .= ' -gaussian-blur '.$value;
+                        $arguments[] = '-gaussian-blur';
+                        $arguments[] = $value;
                     }
+
                     break;
 
                 case 'keep_aspectratio':
@@ -219,14 +236,17 @@ function image_convert($source, $destination, $params = null){
 
                 case 'sampling_factor':
                     if($value){
-                        $command .= ' -sampling-factor '.$value;
+                        $arguments[] = '-sampling-factor';
+                        $arguments[] = $value;
                     }
+
                     break;
 
                 case 'defines':
                     if($value){
                         foreach($value as $define){
-                            $command .= ' -define '.$define;
+                            $arguments[] = '-define';
+                            $arguments[] = $define;
                         }
                     }
 
@@ -235,20 +255,22 @@ function image_convert($source, $destination, $params = null){
                 case 'strip':
                     //FALLTHROUGH
                 case 'exif':
-                    $command .= ' -strip ';
+                    $arguments[] = '-strip';
                     break;
 
                 case 'background':
                     if($value){
-                        $command .= ' -background '.$value;
+                        $arguments[] = '-background';
+                        $arguments[] = $value;
                     }
 
                     break;
 
                 case 'interlace':
                     if($value){
-                        $value    = image_interlace_valid(strtolower($value));
-                        $command .= ' -interlace '.$value;
+                        $value       = image_interlace_valid(strtolower($value));
+                        $arguments[] = '-interlace';
+                        $arguments[] = $value;
                     }
 
                     break;
@@ -324,16 +346,16 @@ function image_convert($source, $destination, $params = null){
                 /*
                  * Preserve transparent background
                  */
-                $command  .= ' -background none';
-                $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
+                $arguments[] = '-background none';
+                $dest_file   = str_runtil($dest_file, '.').'.'.$params['format'];
 
                 break;
 
             case 'jpeg':
                 // FALLTHROUGH
             case 'jpg':
-                $command  .= ' -background white';
-                $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
+                $arguments[] = '-background white';
+                $dest_file   = str_runtil($dest_file, '.').'.'.$params['format'];
 
                 break;
 
@@ -362,54 +384,92 @@ function image_convert($source, $destination, $params = null){
          */
         switch($params['method']){
             case 'rotate':
-                $complete_command = $command.' -rotate "'.$params['degrees'].'" "'.$source.'" "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                $arguments[] = '-rotate';
+                $arguments[] = $params['degrees'];
+                $arguments[] = $source;
+                $arguments[] = $destination;
+
+                safe_exec(array('commands' => array($command, $arguments)));
                 break;
 
             case 'thumb':
-                $complete_command = $command.' -thumbnail '.$params['x'].'x'.$params['y'].'^ -gravity center -extent '.$params['x'].'x'.$params['y'].' -flatten "'.$source.'" "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                $arguments[] = '-thumbnail';
+                $arguments[] = $params['x'].'x'.$params['y'].'^';
+                $arguments[] = '-gravity';
+                $arguments[] = 'center';
+                $arguments[] = '-extent';
+                $arguments[] = $params['x'].'x'.$params['y'];
+                $arguments[] = '-flatten';
+                $arguments[] = $source;
+                $arguments[] = $destination;
+
+                safe_exec(array('commands' => array($command, $arguments)));
                 break;
 
             case 'resize-w':
-                $complete_command = $command.' -resize '.$params['x'].'x\> -flatten "'.$source.'" "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                $arguments[] = '-resize';
+                $arguments[] = $params['x'].'x\>';
+                $arguments[] = '-flatten';
+                $arguments[] = $source;
+                $arguments[] = $destination;
+
+                safe_exec(array('commands' => array($command, $arguments)));
                 break;
 
             case 'resize':
-                $complete_command = $command.' -resize '.$params['x'].'x'.$params['y'].'^ -flatten "'.$source.'" "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                $arguments[] = '-resize';
+                $arguments[] = $params['x'].'x'.$params['y'].'^';
+                $arguments[] = '-flatten';
+                $arguments[] = $source;
+                $arguments[] = $destination;
+
+                safe_exec(array('commands' => array($command, $arguments)));
                 break;
 
             case 'thumb-circle':
-                $tmpfname         = tempnam("/tmp", "CVRT_");
-                $complete_command = $command.' -thumbnail '.$params['x'].'x'.$params['y'].'^ -gravity center -extent '.$params['x'].'x'.$params['y'].' -background white -flatten "'.$source.'" "'.$tmpfname.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
+                $tmpfname    = tempnam("/tmp", "CVRT_");
+                $arguments[] = '-thumbnail';
+                $arguments[] = $params['x'].'x'.$params['y'].'^';
+                $arguments[] = '-gravity';
+                $arguments[] = 'center';
+                $arguments[] = '-extent';
+                $arguments[] = $params['x'].'x'.$params['y'];
+                $arguments[] = '-background';
+                $arguments[] = 'white';
+                $arguments[] = '-flatten';
+                $arguments[] = $source;
+                $arguments[] = $tmpfname;
 
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                $arguments2[] = '-size';
+                $arguments2[] = $params['x'].'x'.$params['y'];
+                $arguments2[] = 'xc:none';
+                $arguments2[] = '-fill';
+                $arguments2[] = $tmpfname;
+                $arguments2[] = '-draw';
+                $arguments2[] = 'circle '.(floor($params['x'] / 2) - 1).','.(floor($params['y'] / 2) - 1).' '.($params['x']/2).',0';
+                $arguments2[] = $destination;
 
-                $complete_command = $command.' -size '.$params['x'].'x'.$params['y'].' xc:none -fill "'.$tmpfname.'" -draw "circle '.(floor($params['x'] / 2) - 1).','.(floor($params['y'] / 2) - 1).' '.($params['x']/2).',0" "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                safe_exec(array('commands' => array($command, $arguments),
+                                                    $command, $arguments2));
                 file_delete($tmpfname);
                 break;
 
             case 'crop-resize':
-                $complete_command = $command.' "'.$source.'" -crop '.cfi($params['w'], false).'x'.cfi($params['h'], false).'+'.cfi($params['x'], false).'+'.cfi($params['y'], false).' -resize '.cfi($params['to_w'], false).'x'.cfi($params['to_h'], false).' "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
+                $arguments[] = $source;
+                $arguments[] = '-crop';
+                $arguments[] = cfi($params['w'], false).'x'.cfi($params['h'], false).'+'.cfi($params['x'], false).'+'.cfi($params['y'], false);
+                $arguments[] = '-resize';
+                $arguments[] = cfi($params['to_w'], false).'x'.cfi($params['to_h'], false);
+                $arguments[] = $destination;
 
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                safe_exec(array('commands' => array($command, $arguments)));
                 break;
 
             case 'custom':
-                $complete_command = $command.' "'.$source.'"  "'.$destination.'"'.($params['log'] ? ' >> '.$params['log'].' 2>&1' : '');
+                $arguments[] = $source;
+                $arguments[] = $destination;
 
-                safe_exec($complete_command, 0);
-                file_put_contents($params['log'], $complete_command, FILE_APPEND);
+                safe_exec(array('commands' => array($command, $arguments)));
                 break;
 
             case '':
