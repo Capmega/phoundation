@@ -64,6 +64,10 @@ function ssh_exec($server, $params){
             throw new BException(tr('ssh_exec(): Command ":command" retried ":retry" times, command failed', array(':command' => isset_get($params['commands']), ':retry' => $retry)), 'failed');
         }
 
+        array_ensure($params);
+        array_default($params, 'output_log', (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
+
+
         /*
          * If no domain is specified, then don't execute this command on a
          * remote server, just use safe_exec and execute it locally
@@ -84,19 +88,22 @@ function ssh_exec($server, $params){
          * Build the command line
          * Also detect background mode (Will be set in $params)
          */
-        $params['commands'] = cli_build_commands_string($params);
+        $background           = isset_get($params['background']);
+        $params['background'] = false;
+        $params['commands']   = cli_build_commands_string($params);
 
         /*
          * Build the SSH command
          */
-        $params['commands'] = ssh_build_command($server, $params);
+        $params['commands']   = ssh_build_command($server, $params);
+        $params['background'] = $background;
 
         /*
          * Background task? Then the SSH command itself must be background too
          * and return its PID
          */
         if($params['background']){
-            $params['commands'] .= ' & echo $! ';
+            $params['commands'] .= ' > '.$params['output_log'].' 2>&1 3>&1 & echo $! ';
         }
 
         /*
