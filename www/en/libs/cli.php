@@ -1755,6 +1755,7 @@ function cli_build_commands_string(&$params){
                 $command   = escapeshellcmd(mb_trim($value));
                 $sudo      = false;
                 $redirect  = '';
+                $nice      = '';
                 $connector = ';';
                 $builtin   = false;
 
@@ -1866,6 +1867,12 @@ function cli_build_commands_string(&$params){
                                 unset($value[$special]);
                                 break;
 
+                            case 'nice':
+                                $nice = $argument;
+
+                                unset($value[$special]);
+                                break;
+
                             case 'redirect':
                                 $redirect = ' '.$argument;
 
@@ -1892,6 +1899,7 @@ function cli_build_commands_string(&$params){
                 $command  = $timeout.$command;
             }
 
+            $command  = $nice.$command;
             $command  = $sudo.$command;
             $command .= $redirect;
             $retval  .= $command.' '.$connector.' ';
