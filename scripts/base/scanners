@@ -276,10 +276,10 @@ switch(cli_method()){
                 $scanimage['file'] = str_replace('%d', '\d+', $scanimage['file']);
                 $scanimage['file'] = '/'.$scanimage['file'].'/';
 
-                $files = file_list_tree($scanimage['path'], $scanimage['file']);
+                $files = file_list_tree($scanimage['result'], $scanimage['file']);
 
                 if(!$files){
-                    throw new BException(tr('No scanned target files found in ":path"', array(':path' => $scanimage['path'])), 'not-exist');
+                    throw new BException(tr('No scanned target files found in ":path"', array(':path' => $scanimage['result'])), 'not-exist');
                 }
 
                 foreach($files as $file){
