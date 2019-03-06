@@ -21,7 +21,7 @@ $params = array('commands' => $params);
     array_default($params, 'ok_exitcodes', 0);
     array_default($params, 'background'  , false);
     array_default($params, 'log'         , true);
-    array_default($params, 'output_log'  , (VERYVERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
+    array_default($params, 'output_log'  , (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
 
     if($params['domain']){
         /*
@@ -94,6 +94,7 @@ $params = array('commands' => $params);
             $lastline = '';
 
             passthru($params['commands'], $exitcode);
+            $output = $exitcode;
             break;
 
         case 'system':
