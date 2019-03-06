@@ -56,8 +56,8 @@ function linux_library_init(){
 function linux_get_ssh_tcp_forwarding($server){
     try{
         $server   = servers_get($server);
-        $results  = servers_exec($server, array('commands' => array('sshd' => array('-T', 'redirect' => '2> /dev/null', 'connect' => '|'),
-                                                                    'grep' => array('-i', 'allowtcpforwarding'))));
+        $results  = servers_exec($server, array('commands' => array('sshd', array('-T', 'redirect' => '2> /dev/null', 'connector' => '|'),
+                                                                    'grep', array('-i', 'allowtcpforwarding'))));
         $result   = array_shift($results);
         $result   = strtolower(trim($result));
         $result   = str_cut($result, ' ', ' ');
@@ -404,7 +404,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
          * pkill returns 1 if no process name matched, so we can ignore that
          */
         $results = servers_exec($server, array('ok_exitcodes' => '0,1',
-                                               'commands'     => array('sudo' => $sudo, 'pkill', array('-'.$signal, $process))));
+                                               'commands'     => array('pkill', array('sudo' => $sudo, '-'.$signal, $process))));
         $results = array_shift($results);
 
         if($results){
@@ -792,7 +792,8 @@ under_construction('Move this to compress_unzip()');
         /*
          * Unzip and
          */
-        servers_exec($server, 'cd '.$path.'; gunzip "'.$filename.'"');
+        servers_exec($server, array('commands' => array('cd'    , array($path),
+                                                        'gunzip'. array($filename))));
         linux_delete($server, $path.$filename);
 
         return $path;
