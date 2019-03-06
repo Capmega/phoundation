@@ -97,7 +97,7 @@ function btrfs_defragment($params){
             $verbose = '';
         }
 
-        $results = servers_exec($params['server'], 'btrfs filesystem defragment '.$version.' "'.$params['path'].'"');
+        $results = servers_exec($params['server'], array('commands' => array('btrfs', array('filesystem', 'defragment', $version, $params['path']))));
         return $results;
 
     }catch(Exception $e){

@@ -80,7 +80,7 @@ function composer_install($params){
         }
 
         file_execute_mode(ROOT.'www/en/libs/external/', 0770, function(){
-            safe_exec('php '.$file.' --install-dir '.ROOT.'www/en/libs/external/'.(VERBOSE ? '' : ' --quiet'));
+            safe_exec(array('commands' => array('php', array($file, '--install-dir', ROOT.'www/en/libs/external/', (VERBOSE ? '' : '--quiet')))));
         });
 
         file_delete(TMP.'composer');
@@ -129,7 +129,7 @@ function composer_init_file(){
  */
 function composer_require($package){
     try{
-        safe_exec(ROOT.'libs/external/composer.phar require "'.$package.'"');
+        safe_exec(array('commands' => array(ROOT.'libs/external/composer.phar', array('require', $package))));
 
     }catch(Exception $e){
         throw new BException('composer_require(): Failed', $e);
@@ -159,7 +159,7 @@ function composer_require($package){
  */
 function composer_install($package){
     try{
-        safe_exec(ROOT.'libs/external/composer.phar install "'.$package.'"');
+        safe_exec(array('commands' => array(ROOT.'libs/external/composer.phar'. array('install', $package))));
 
     }catch(Exception $e){
         throw new BException('composer_install(): Failed', $e);

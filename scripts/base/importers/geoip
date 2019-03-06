@@ -76,7 +76,8 @@ if(cli_argument('--no-unzip')){
     log_console(tr('Unzipping geoip'), 'white');
 
     try{
-        safe_exec('cd '.$tmpdir.'; unzip '.$tmpdir.'GeoLiteCity-latest.zip');
+        safe_exec(array('commands' => array('cd'   , array($tmpdir),
+                                            'unzip', array($tmpdir.'GeoLiteCity-latest.zip'))));
 
     }catch(BException $e){
         /*
@@ -95,8 +96,12 @@ if(cli_argument('--no-encoding')){
 
 }else{
     log_console(tr('Converting encoding of GEOIP'), 'white');
-    safe_exec('cd '.$tmpdir.'GeoLiteCity_*/;iconv -t UTF-8 -f "ISO-8859-1" GeoLiteCity-Blocks.csv -o ../geoip_blocks.csv >> '.ROOT.'data/log/mysqlimport 2>&1');
-    safe_exec('cd '.$tmpdir.'GeoLiteCity_*/;iconv -t UTF-8 -f "ISO-8859-1" GeoLiteCity-Location.csv -o ../geoip_location.csv >> '.ROOT.'data/log/mysqlimport 2>&1');
+
+    safe_exec(array('commands' => array('cd'   , array($tmpdir.'GeoLiteCity_*/'),
+                                        'iconv', array('-t', 'UTF-8', '-f', 'ISO-8859-1', 'GeoLiteCity-Blocks.csv', '-o', '../geoip_blocks.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport'))));
+
+    safe_exec(array('commands' => array('cd'   , array($tmpdir.'GeoLiteCity_*/'),
+                                        'iconv', array('-t', 'UTF-8', '-f', 'ISO-8859-1', 'GeoLiteCity-Location.csv', '-o', '../geoip_location.csv', 'redirect' => ' >> '.ROOT.'data/log/mysqlimport'))));
 }
 
 

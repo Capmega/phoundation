@@ -493,6 +493,7 @@ under_construction();
  * @param string $branch
  * @return
  */
+// :DELETE: This is a duplicate of git_branch() ???
 function git_get_branch($branch = null){
     try{
         git_check_path($path);
@@ -531,7 +532,7 @@ function git_get_branch($branch = null){
  * @param string $branch
  * @return
  */
-function git_pull($path, $remote, $branch){
+function git_pull($path = ROOT, $remote, $branch){
     try{
         git_check_path($path);
 
@@ -539,6 +540,44 @@ function git_pull($path, $remote, $branch){
                                                       'git', array('pull', $remote, $branch))));
 
         return $retval;
+
+    }catch(Exception $e){
+        throw new BException('git_pull(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @param null string $remote
+ * @param null string $branch
+ * @param boolean $tags
+ * @return
+ */
+function git_push($path = ROOT, $remote = null, $branch = null, $tags = true){
+    try{
+        git_check_path($path);
+
+        if($branch and !$remote){
+            throw new BException(tr('git_push(): Branch ":branch" was specified without remote', array(':branch' => $branch)), 'invalid');
+        }
+
+        $push = safe_exec(array('commands' => array('cd' , array($path),
+                                                      'git', array('push', $remote, $branch))));
+
+        $tags = safe_exec(array('commands' => array('cd' , array($path),
+                                                    'git', array('push', '--tags', $remote, $branch))));
+
+        return array_merge($push, $tags);
 
     }catch(Exception $e){
         throw new BException('git_pull(): Failed', $e);

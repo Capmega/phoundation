@@ -1120,7 +1120,8 @@ function email_load_phpmailer(){
             $path = slash(dirname($file));
 
             file_put_contents($file, fopen('https://github.com/PHPMailer/PHPMailer/archive/master.zip', 'r'));
-            safe_exec('cd '.$path.'; unzip -f '.$file);
+            safe_exec(array('commands' => array('cd'   , array($path),
+                                                'unzip', array('-f', $file))));
 
             /*
              * Move PHPMailer into its required location. Ensure the path is writable.

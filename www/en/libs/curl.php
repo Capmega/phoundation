@@ -109,7 +109,8 @@ function curl_get_random_ip($allowipv6 = false) {
 
     try{
         try{
-            $result = implode("\n", safe_exec('/sbin/ifconfig'));
+            $result = safe_exec(array('commands' => array('/sbin/ifconfig')));
+            $result = implode("\n", $result);
 
         }catch(Exception $e){
             throw new BException(tr('curl_get_random_ip(): Failed to execute ifconfig, it probably is not installed. On Ubuntu install it by executing "sudo apt install net-toolks"'), $e);

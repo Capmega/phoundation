@@ -433,16 +433,15 @@ function image_convert($source, $destination, $params = null){
         return $destination;
 
     }catch(Exception $e){
-        try{
-            $exist = safe_exec('which convert');
+        $exist = cli_which('convert');
 
-        }catch(Exception $e){
+        if(!$exist){
             throw new BException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. To install imagemagick on ubuntu, please execute "sudo apt -y install imagemagick"'), 'not-installed');
         }
 
         try{
             if(file_exists(ROOT.'data/log/imagemagic_convert.log')){
-                $contents = safe_exec('tail -n 3 '.ROOT.'data/log/imagemagic_convert.log');
+                $contents = safe_exec(array('commands' => array('tail', array('-n', '3', ROOT.'data/log/imagemagic_convert.log'))));
             }
 
         }catch(Exception $e){
@@ -618,7 +617,7 @@ function image_info($file, $no_exif = false){
         switch(str_from($mime, '/')){
             case 'jpeg':
                 try{
-                    $retval['compression'] = safe_exec($_CONFIG['images']['imagemagick']['identify'].' -format "%Q" '.$file);
+                    $retval['compression'] = safe_exec(array('commands' => array($_CONFIG['images']['imagemagick']['identify'], array('-format', '%Q', $file))));
                     $retval['compression'] = array_shift($retval['compression']);
 
                 }catch(Exception $e){
@@ -1160,56 +1159,13 @@ function image_slider($params = null){
 
 
 /*
- * View the specified image using the configured image viewer
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package image
- *
- * @param string $file
- * @return void
+ * OBSOLETE
+ * Please use view();
  */
 function image_view($file, $background = true){
-    global $_CONFIG;
-
     try{
-        /*
-         * Validate requested image
-         */
-        if(!$file){
-            throw new BException(tr('image_view(): No image specified'), 'not-specified');
-        }
-
-        if(!is_image($file)){
-            throw new BException(tr('image_view(): Specified file ":file" is not an image', array(':file' => $file)), 'invalid');
-        }
-
-        /*
-         * Ensure that the requested viewer is installed
-         */
-        try{
-            $viewer = safe_exec('which "'.$_CONFIG['images']['viewer'].'"');
-            $viewer = array_shift($viewer);
-
-        }catch(Exception $e){
-            if(substr($_CONFIG['images']['viewer'], -3, 3) === 'feh'){
-                throw new BException(tr('image_view(): Configured viewer "feh" (See $_CONFIG[images][viewer]), is not yet installed. Please install it first to continue. On ubuntu and debian platforms, use "apt install -y feh", on Redhat and fedora platforms, use "yum install -y feh"'), 'not-installed');
-            }
-
-            throw new BException(tr('image_view(): Configured viewer ":viewer" could not be found', array(':viewer' => $_CONFIG['images']['viewer'])), 'not-installed');
-        }
-
-        /*
-         * Run in background or foreground
-         */
-        if($background){
-            run_background($viewer.' '.$file, true, false);
-
-        }else{
-            safe_exec($viewer.' '.$file);
-        }
+        load_libs('view');
+        return view($file);
 
     }catch(Exception $e){
         throw new BException('image_view(): Failed', $e);

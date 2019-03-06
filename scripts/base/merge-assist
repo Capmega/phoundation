@@ -12,6 +12,7 @@ OPTIONS
 
 --do-merge                     - ";
 
+obsolete();
 //$quiet = false;
 
 require_once(__DIR__.'/../../libs/startup.php');
@@ -41,12 +42,7 @@ if(git_has_changes()){
 /*
  * Detect the current branch
  */
-foreach(safe_exec('git branch') as $branch){
-    if(substr(trim($branch), 0, 1) == '*'){
-        $current = trim(str_from($branch, '*'));
-        break;
-    }
-}
+$current = git_branch();
 
 
 /*

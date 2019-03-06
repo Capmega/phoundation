@@ -493,10 +493,12 @@ under_construction('add');
                     if(empty($value)) continue;
 
                     if(is_integer($key)){
-                        $options .= ' "'.$value.'"';
+                        $options    .= ' "'.$value.'"';
+                        $arguments[] = $value;
 
                     }else{
-                        $options .= ' '.$key.' "'.$value.'"';
+                        $options    .= ' '.$key.' "'.$value.'"';
+                        $arguments[] = $value;
                     }
                 }
 
@@ -521,7 +523,7 @@ under_construction('add');
                         /*
                          * Execute this task as a normal task
                          */
-                        $task['results'] = safe_exec(ROOT.'scripts/'.$command.' '.$options);
+                        $task['results'] = safe_exec(array('commands' => array(ROOT.'scripts/'.$command, $arguments)));
                         break;
 
                     case 'function':
