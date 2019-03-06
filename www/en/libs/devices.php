@@ -280,7 +280,6 @@ function devices_validate($device, $server, $update = true){
             $device['name'] = null;
 
         }else{
-            $v->isAlphaNumeric($device['name'], tr('Please specify a valid device name'), VALIDATE_IGNORE_DASH|VALIDATE_IGNORE_SPACE);
             $v->hasMinChars($device['name'],  2, tr('Please specify a device name of 2 characters or more'));
             $v->hasMaxChars($device['name'], 64, tr('Please specify a device name of maximum 64 characters'));
 
