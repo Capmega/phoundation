@@ -58,7 +58,7 @@ function rsync($params){
         array_default($params, 'background'         , false);
         array_default($params, 'checksum'           , true);
         array_default($params, 'compression'        , true);
-        array_default($params, 'delete'             , true);
+        array_default($params, 'delete'             , false);
         array_default($params, 'exitcodes'          , null);
         array_default($params, 'force'              , true);
         array_default($params, 'function'           , (PLATFORM_CLI ? 'passthru' : null));
