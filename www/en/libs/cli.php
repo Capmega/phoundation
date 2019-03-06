@@ -1884,14 +1884,14 @@ function cli_build_commands_string(&$params){
                 $command .= $route;
             }
 
-            if(!$builtin){
+            if(!$builtin and !$background){
                 $command  = $timeout.$command;
             }
 
             $command  = $sudo.$command;
             $command .= $redirect;
-
             $retval  .= $command.' '.$connector.' ';
+
             unset($command);
         }
 
@@ -1899,7 +1899,8 @@ function cli_build_commands_string(&$params){
             /*
              * Put the entire command in the background
              */
-            $retval = '{ '.$retval.' } > /dev/null & ';
+            $params['background'] = $background;
+            $retval = '{ '.$retval.' } > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
         }
 
         return $retval;
