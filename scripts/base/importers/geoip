@@ -141,11 +141,11 @@ if(cli_argument('--no-import')){
 
     log_console(tr('Importing GEOIP blocks'), 'white');
     sql_query('TRUNCATE `geoip_blocks`');
-    safe_exec('mysqlimport --fields-terminated-by="," --fields-optionally-enclosed-by="\"" --lines-terminated-by="\n" --local --user='.$_CONFIG['db']['core']['user'].' --password=\''.$_CONFIG['db']['core']['pass'].'\' '.$_CONFIG['db']['core']['db'].' '.$tmpdir.'geoip_blocks.csv>> '.ROOT.'data/log/mysqlimport 2>&1');
+    safe_exec(array('commands' => array('mysqlimport', array('--fields-terminated-by=","', '--fields-optionally-enclosed-by="\""', '--lines-terminated-by="\n"', '--local', '--user='.$_CONFIG['db']['core']['user'], '--password=\''.$_CONFIG['db']['core']['pass'].'\'', $_CONFIG['db']['core']['db'], $tmpdir.'geoip_blocks.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport'))));
 
     log_console(tr('Importing GEOIP locations'));
     sql_query('TRUNCATE `geoip_location`');
-    safe_exec('mysqlimport --fields-terminated-by="," --fields-optionally-enclosed-by="\"" --lines-terminated-by="\n" --local --user='.$_CONFIG['db']['core']['user'].' --password=\''.$_CONFIG['db']['core']['pass'].'\' '.$_CONFIG['db']['core']['db'].' '.$tmpdir.'geoip_location.csv >> '.ROOT.'data/log/mysqlimport 2>&1');
+    safe_exec(array('commands' => array('mysqlimport', array('--fields-terminated-by=","', '--fields-optionally-enclosed-by="\""', '--lines-terminated-by="\n"', '--local', '--user='.$_CONFIG['db']['core']['user'], '--password=\''.$_CONFIG['db']['core']['pass'].'\'', $_CONFIG['db']['core']['db'], $tmpdir.'geoip_location.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport 2>&1'))));
 }
 
 if(cli_argument('--not-local')){
