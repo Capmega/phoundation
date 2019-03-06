@@ -56,7 +56,7 @@ function devices_library_init(){
  */
 function devices_insert($device, $server = null){
     try{
-        $device = devices_validate($device, $server);
+        $device = devices_validate($device, $server, false);
 
         /*
          * Ensure the device does not exist yet
@@ -85,8 +85,8 @@ function devices_insert($device, $server = null){
             }
         }
 
-        sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `employees_id`, `customers_id`, `providers_id`, `inventories_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `description`)
-                   VALUES                (:createdby , :meta_id , :servers_id , :categories_id , :companies_id , :branches_id , :departments_id , :employees_id , :customers_id , :providers_id , :inventories_id , :type , :manufacturer , :model , :vendor , :vendor_string , :product , :product_string , :seo_product_string , :libusb , :bus , :device , :string , :seostring , :default , :description )',
+        sql_query('INSERT INTO `devices` (`createdby`, `meta_id`, `servers_id`, `categories_id`, `companies_id`, `branches_id`, `departments_id`, `employees_id`, `customers_id`, `providers_id`, `inventories_id`, `type`, `manufacturer`, `model`, `vendor`, `vendor_string`, `product`, `product_string`, `seo_product_string`, `libusb`, `bus`, `device`, `string`, `seostring`, `default`, `name`, `seoname`, `description`)
+                   VALUES                (:createdby , :meta_id , :servers_id , :categories_id , :companies_id , :branches_id , :departments_id , :employees_id , :customers_id , :providers_id , :inventories_id , :type , :manufacturer , :model , :vendor , :vendor_string , :product , :product_string , :seo_product_string , :libusb , :bus , :device , :string , :seostring , :default , :name , :seoname , :description )',
 
                    array(':createdby'          => isset_get($_SESSION['user']['id']),
                          ':meta_id'            => meta_action(),
@@ -113,6 +113,8 @@ function devices_insert($device, $server = null){
                          ':string'             => $device['string'],
                          ':seostring'          => $device['seostring'],
                          ':default'            => $device['default'],
+                         ':name'               => $device['name'],
+                         ':seoname'            => $device['seoname'],
                          ':description'        => $device['description']));
 
         $device['id'] = sql_insert_id();
@@ -147,9 +149,11 @@ function devices_update($device, $server = null){
         $device = devices_validate($device, $server);
         meta_action($device['meta_id'], 'update');
 
-        sql_query('UPDATE `devices`
+        sql_query(' UPDATE `devices`
 
-                   SET    `categories_id`  = :categories_id,
+                   SET    `name`           = :name,
+                          `seoname`        = :seoname,
+                          `categories_id`  = :categories_id,
                           `companies_id`   = :companies_id,
                           `branches_id`    = :branches_id,
                           `departments_id` = :departments_id,
@@ -170,6 +174,8 @@ function devices_update($device, $server = null){
                          ':customers_id'   => $device['customers_id'],
                          ':providers_id'   => $device['providers_id'],
                          ':inventories_id' => $device['inventories_id'],
+                         ':name'           => $device['name'],
+                         ':seoname'        => $device['seoname'],
                          ':description'    => $device['description']));
 
         return $device;
@@ -195,10 +201,10 @@ function devices_update($device, $server = null){
  * @param params $server
  * @return params
  */
-function devices_validate($device, $server){
+function devices_validate($device, $server, $update = true){
     try{
         load_libs('validate,seo,categories,companies,servers,customers,providers,inventories');
-        $v = new ValidateForm($device, 'type,manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,employee,customer,provider,inventory,server,description,options');
+        $v = new ValidateForm($device, 'name,type,manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,employee,customer,provider,inventory,server,description,options');
 
         $v->isAlphaNumeric($device['manufacturer'], tr('Please specify a valid device manufacturer'), VALIDATE_ALLOW_EMPTY_NULL|VALIDATE_IGNORE_DASH);
         $v->hasMinChars($device['manufacturer'],  2, tr('Please specify a device manufacturer of 2 characters or more'), VALIDATE_ALLOW_EMPTY_NULL);
@@ -237,32 +243,48 @@ function devices_validate($device, $server){
         /*
          * Validate server
          */
-        if($server){
-            $dbserver = servers_get($server);
+        if(!$update){
+            if($server){
+                $dbserver = servers_get($server);
 
-            if(!$dbserver){
-                $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server)));
+                if(!$dbserver){
+                    $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server)));
+                }
+
+                $device['servers_id'] = $dbserver['id'];
+                $device['domain']     = $dbserver['domain'];
+                $device['seodomain']  = $dbserver['seodomain'];
+
+            }elseif($device['server']){
+                $server = servers_get($device['server']);
+
+                if(!$device['servers_id']){
+                    $v->setError(tr('Specified server ":server" does not exist', array(':server' => $device['server'])));
+                }
+
+                $device['servers_id'] = $server['id'];
+                $device['domain']     = $server['domain'];
+                $device['seodomain']  = $server['seodomain'];
+
+            }else{
+                $device['servers_id'] = null;
+                $device['domain']     = '-';
+                $device['seodomain']  = '-';
             }
+        }
 
-            $device['servers_id'] = $dbserver['id'];
-            $device['domain']     = $dbserver['domain'];
-            $device['seodomain']  = $dbserver['seodomain'];
-
-        }elseif($device['server']){
-            $server = servers_get($device['server']);
-
-            if(!$device['servers_id']){
-                $v->setError(tr('Specified server ":server" does not exist', array(':server' => $device['server'])));
-            }
-
-            $device['servers_id'] = $server['id'];
-            $device['domain']     = $server['domain'];
-            $device['seodomain']  = $server['seodomain'];
+        /*
+         * Name
+         */
+        if(empty($device['name'])){
+            $device['name'] = null;
 
         }else{
-            $device['servers_id'] = null;
-            $device['domain']     = '-';
-            $device['seodomain']  = '-';
+            $v->isAlphaNumeric($device['name'], tr('Please specify a valid device name'), VALIDATE_IGNORE_DASH|VALIDATE_IGNORE_SPACE);
+            $v->hasMinChars($device['name'],  2, tr('Please specify a device name of 2 characters or more'));
+            $v->hasMaxChars($device['name'], 64, tr('Please specify a device name of maximum 64 characters'));
+
+            $device['name'] = cfm($device['name']);
         }
 
         /*
@@ -439,6 +461,8 @@ function devices_validate($device, $server){
 
         $v->isValid();
 
+        $device['seoname'] = seo_unique($device['name'], 'devices', isset_get($device['id'], 0));
+
         return $device;
 
     }catch(Exception $e){
@@ -468,13 +492,13 @@ function devices_set_status($status, $device = null){
             /*
              * Update all devices
              */
-            $update = sql_query('UPDATE `devices` SET `status` = :status'                               , array(':status' => $status));
+            $update = sql_query('UPDATE `devices` SET `status` = :status', array(':status' => $status));
 
         }elseif(is_numeric($device)){
             /*
              * Update device by id
              */
-            $update = sql_query('UPDATE `devices` SET `status` = :status WHERE `id`        = :id'       , array(':status' => $status, ':id'        => $device));
+            $update = sql_query('UPDATE `devices` SET `status` = :status WHERE `id` = :id', array(':status' => $status, ':id' => $device));
 
         }else{
             /*
@@ -859,6 +883,8 @@ function devices_list($type, $all = false, $default_only = false){
                                         `devices`.`string`,
                                         `devices`.`default`,
                                         `devices`.`description`,
+                                        `devices`.`name`,
+                                        `devices`.`seoname`,
 
                                         `servers`.`domain`,
                                         `servers`.`seodomain`
@@ -939,6 +965,8 @@ function devices_get($device, $server = null){
                                      `devices`.`seostring`,
                                      `devices`.`default`,
                                      `devices`.`description`,
+                                     `devices`.`name`,
+                                     `devices`.`seoname`,
 
                                      `servers`.`ipv4`,
                                      `servers`.`ipv6`,

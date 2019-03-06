@@ -1092,7 +1092,12 @@ function scanimage_select($params){
         $scanners = scanimage_list();
 
         foreach($scanners as $scanner){
-            $params['resource'][$scanner['seodomain'].'/'.$scanner['seostring']] = $scanner['description'];
+            if(empty($scanner['name'])){
+                $params['resource'][$scanner['seodomain'].'/'.$scanner['seostring']] = $scanner['description'];
+
+            }else{
+                $params['resource'][$scanner['seodomain'].'/'.$scanner['seostring']] = $scanner['name'];
+            }
         }
 
         $html = html_select($params);
