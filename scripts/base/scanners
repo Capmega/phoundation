@@ -3,12 +3,12 @@
 /*
  * This is the scanner manager script
  */
-$usage = './scripts/base/scanner
-./scripts/base/scanner list
-./scripts/base/scanner kill ID
-./scripts/base/scanner scan [option]';
+$usage = './scripts/base/scanners
+./scripts/base/scanners list
+./scripts/base/scanners kill ID
+./scripts/base/scanners scan [option]';
 
-$help  = 'This is the scanner manager script
+$help  = 'This is the scanners management script
 
 This script can manage connected scanners (USB or network)
 
