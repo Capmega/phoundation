@@ -60,26 +60,19 @@ function fancybox_library_init(){
  */
 function fancybox_install($params){
     try{
-        $params['methods'] = array('download' => array('commands'  => function($hash){
-                                                                /*
-                                                                 * Download the fancybox library, and install it in the pub directory
-                                                                 */
-                                                                file_ensure_path(TMP.'fancybox', null, true);
+        /*
+         * Download the fancybox library, and install it in the pub directory
+         */
+        $js  = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js');
+        $css = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css');
 
-                                                                safe_exec('wget -O '.TMP.'fancybox/jquery.fancybox.js  https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.js');
-                                                                safe_exec('wget -O '.TMP.'fancybox/jquery.fancybox.css https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css');
+        file_execute_mode(ROOT.'www/en/pub/js', 0770, function(){
+            file_delete(ROOT.'www/en/pub/js/jquery.fancybox.js');
+            file_delete(ROOT.'www/en/pub/css/jquery.fancybox.css');
 
-                                                                file_execute_mode(ROOT.'www/en/pub/js', 0770, function(){
-                                                                    file_delete(ROOT.'www/en/pub/js/jquery.fancybox.js');
-                                                                    file_delete(ROOT.'www/en/pub/css/jquery.fancybox.css');
-                                                                    rename(TMP.'fancybox/jquery.fancybox.js',  ROOT.'www/en/pub/js/jquery.fancybox.js');
-                                                                    rename(TMP.'fancybox/jquery.fancybox.css', ROOT.'www/en/pub/css/jquery.fancybox.css');
-                                                                });
-
-                                                                file_delete(TMP.'fancybox');
-                                                              }));
-
-        return install($params);
+            rename($js ,  ROOT.'www/en/pub/js/jquery.fancybox.js');
+            rename($css, ROOT.'www/en/pub/css/jquery.fancybox.css');
+        });
 
     }catch(Exception $e){
         throw new BException('fancybox_install(): Failed', $e);

@@ -48,7 +48,7 @@ function image_get_text($image) {
     try{
         $tmpfile = file_tmp();
 
-         safe_exec('tesseract '.$image.' '.$tmpfile);
+         safe_exec(array('commands' => array('tesseract', array($image, $tmpfile))));
 
          $retval = file_get_contents($tmpfile);
 
@@ -57,7 +57,7 @@ function image_get_text($image) {
          return $retval;
 
     }catch(Exception $e){
-        if(!safe_exec('which tesseract')){
+        if(!cli_which('tesseract')){
             throw new BException('image_get_text(): Failed to find the "tesseract" command, is it installed? On Ubuntu, use "sudo apt-get install tesseract-ocr" to install the required command', $e);
         }
 
