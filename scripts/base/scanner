@@ -278,6 +278,10 @@ switch(cli_method()){
 
                 $files = file_list_tree($scanimage['path'], $scanimage['file']);
 
+                if(!$files){
+                    throw new BException(tr('No scanned target files found in ":path"', array(':path' => $scanimage['path'])), 'not-exist');
+                }
+
                 foreach($files as $file){
                     view($file);
                 }
