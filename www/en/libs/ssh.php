@@ -114,7 +114,7 @@ function ssh_exec($server, $params){
         /*
          * Remove SSH warning
          */
-        if(!$params['background']){
+        if(is_array($results)){
             if(preg_match('/Warning: Permanently added \'\[.+?\]:\d{1,5}\' \(\w+\) to the list of known hosts\./', isset_get($results[0]))){
                 /*
                  * Remove known host warning from results
