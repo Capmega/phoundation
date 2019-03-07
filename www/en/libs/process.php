@@ -35,6 +35,22 @@ function process_get_user(){
 
 
 /*
+ * Returns true if the specified process name is running
+ */
+function process_runs($process_name){
+    try{
+        $results = safe_exec(array('ok_exitcodes' => '1',
+                                   'commands'     => array('pgrep', array($process_name))));
+        return (boolean) count($results);
+
+    }catch(Exception $e){
+        throw new BException('process_runs(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Return TRUE if the user of the current process is the root user
  */
 function process_detect_root(){
