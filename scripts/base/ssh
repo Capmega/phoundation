@@ -228,21 +228,21 @@ if(empty($commands)){
     /*
      * Just run bash shell
      */
-    $commands         = 'bash';
     $force_terminal   = true;
     $disable_terminal = false;
-    $function         = 'passthru';
+
+    $commands = array('function' => 'passthru',
+                      'commands' => array('bash'));
 }
 
 try{
-    $domain = servers_like($domain);
-    $server   = array('domain'           => $domain,
-                      'force_terminal'   => isset_get($force_terminal),
-                      'disable_terminal' => isset_get($disable_terminal),
-                      'commands'         => $commands,
-                      'identity_file'    => $identity_file);
-under_construction('NOTE: REBUILD THE $COMMANDS');
-    $result = servers_exec($server, $commands, $function, );
+    $server                     = servers_like($domain);
+    $server                     = servers_get($server);
+    $server['force_terminal']   = isset_get($force_terminal);
+    $server['disable_terminal'] = isset_get($disable_terminal);
+    $server['identity_file']    = $identity_file;
+
+    $result = servers_exec($server, $commands);
 
 }catch(Exception $e){
     switch($e->getCode()){
