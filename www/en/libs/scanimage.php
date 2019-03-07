@@ -167,7 +167,6 @@ function scanimage($params){
                         image_convert($file, $params['file'], array('method' => 'custom',
                                                                     'format' => 'jpg'));
 
-    //                        $command .= ' | convert tiff:- '.$params['file'];
                         break;
                 }
             }
