@@ -1723,6 +1723,10 @@ function cli_build_commands_string(&$params){
         array_default($params, 'route_errors', true);
         array_default($params, 'background'  , false);
 
+        if(!is_array($params['commands'])){
+            throw new BException(tr('cli_build_commands_string(): Specified commands is not an array'), 'invalid');
+        }
+
         /*
          * Set global background
          */
@@ -1851,11 +1855,8 @@ function cli_build_commands_string(&$params){
                                 break;
 
                             case 'sudo':
-                                if($argument === true){
+                                if($argument){
                                     $sudo = 'sudo ';
-
-                                }else{
-                                    $sudo = $argument;
                                 }
 
                                 unset($value[$special]);
@@ -1868,7 +1869,7 @@ function cli_build_commands_string(&$params){
                                 break;
 
                             case 'nice':
-                                $nice = $argument;
+                                $nice = 'nice -n '.escapeshellarg($argument).' ';
 
                                 unset($value[$special]);
                                 break;
