@@ -355,6 +355,7 @@ switch(cli_method()){
             $assign_customer   = cli_argument('--customer'  , true);
             $assign_provider   = cli_argument('--provider'  , true);
             $assign_inventory  = cli_argument('--inventory' , true);
+            $sudo              = cli_argument('--sudo');
             $types             = cli_argument(1);
             $servers           = cli_argument(2);
             $count             = 0;
@@ -447,7 +448,7 @@ switch(cli_method()){
 
             devices_set_status('not-found');
 
-            $servers_devices = devices_scan($types, $servers);
+            $servers_devices = devices_scan($types, $servers, $sudo);
 
             foreach($servers_devices as $servers_id => $devices){
                 foreach($devices as $device){

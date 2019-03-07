@@ -28,7 +28,7 @@
 function scanimage_library_init(){
     try{
         load_config('scanimage');
-        load_libs('linux,image');
+        load_libs('linux,image,devices');
 
     }catch(Exception $e){
         throw new BException('scanimage_library_init(): Failed', $e);
@@ -143,33 +143,33 @@ function scanimage($params){
                                 'target'              => $file,
                                 'remove_source_files' => true));
                 }
-            }
 
-            /*
-             * Change file format?
-             */
-            file_delete($params['file']);
+                /*
+                 * Change file format?
+                 */
+                file_delete($params['file']);
 
-            switch($params['format']){
-                case 'tiff':
-                    /*
-                     * File should already be in TIFF, so we only have to rename
-                     * it to the target file
-                     */
-                    rename($file, $params['file']);
-                    break;
+                switch($params['format']){
+                    case 'tiff':
+                        /*
+                         * File should already be in TIFF, so we only have to rename
+                         * it to the target file
+                         */
+                        rename($file, $params['file']);
+                        break;
 
-                case 'jpg':
-                    // FALLTHROUGH
-                case 'jpeg':
-                    /*
-                     * We have to convert it to a JPG file
-                     */
-                    image_convert($file, $params['file'], array('method' => 'custom',
-                                                                'format' => 'jpg'));
+                    case 'jpg':
+                        // FALLTHROUGH
+                    case 'jpeg':
+                        /*
+                         * We have to convert it to a JPG file
+                         */
+                        image_convert($file, $params['file'], array('method' => 'custom',
+                                                                    'format' => 'jpg'));
 
-//                        $command .= ' | convert tiff:- '.$params['file'];
-                    break;
+    //                        $command .= ' | convert tiff:- '.$params['file'];
+                        break;
+                }
             }
 
             $params['results'] = $results;
@@ -292,9 +292,16 @@ function scanimage_validate($params){
     try{
         load_libs('validate');
 
-        $v       = new ValidateForm($params, 'sudo,domain,device,batch,jpeg_quality,format,file,buffer_size,options');
+        $v       = new ValidateForm($params, 'sudo,source,domain,device,batch,jpeg_quality,format,file,buffer_size,options');
         $options = array();
         $local   = array();
+
+        $params['sudo'] = ($params['sudo'] or $_CONFIG['devices']['sudo']);
+
+        /*
+         * Ensure we have an absolute target file
+         */
+        $params['file'] = file_absolute($params['file']);
 
         /*
          * Check source options
@@ -466,6 +473,10 @@ function scanimage_validate($params){
         /*
          * Validate parameters against the device
          */
+        if(!$params['options']){
+            $params['options'] = array();
+        }
+
         if(!is_array($params['options'])){
             $v->setError(tr('Please ensure options are specified as an array'));
 
@@ -561,7 +572,6 @@ function scanimage_list(){
         /*
          * Get device data from cache
          */
-        load_libs('devices');
         $devices = devices_list('document-scanner');
         return $devices;
 
@@ -587,10 +597,10 @@ function scanimage_list(){
  *
  * @return array All found scanner devices
  */
-function scanimage_detect_devices($server = null){
+function scanimage_detect_devices($server = null, $sudo = false){
     try{
         $scanners = servers_exec($server, array('timeout'  => 90,
-                                                'commands' => array(scanimage_command(), array('-L', '-q'))));
+                                                'commands' => array('scanimage', array('sudo' => $sudo, '-L', '-q'))));
         $devices  = array();
 
         foreach($scanners as $scanner){
@@ -642,7 +652,7 @@ function scanimage_detect_devices($server = null){
                  * Get device options
                  */
                 try{
-                    $device['options'] = scanimage_get_options($device['string'], $server);
+                    $device['options'] = scanimage_get_options($device['string'], $server, $sudo);
 
                 }catch(Exception $e){
                     devices_set_status('failed', $device['string']);
@@ -806,9 +816,9 @@ function scanimage_detect_devices($server = null){
  * @param string $device
  * @return
  */
-function scanimage_get_options($device, $server = null){
+function scanimage_get_options($device, $server = null, $sudo = false){
     try{
-        $results = servers_exec($server, array('commands' => array(scanimage_command(), array('-A', '-d', $device))));
+        $results = servers_exec($server, array('commands' => array('scanimage', array('sudo' => $sudo, '-A', '-d', $device))));
         $retval  = array();
 
         foreach($results as $result){
@@ -1012,7 +1022,6 @@ function scanimage_get_default(){
 
         while($scanner = sql_fetch($scanners)){
             if($scanner['default']){
-                load_libs('devices');
                 $scanner = scanimage_get($scanner['seostring'], $scanner['servers_id']);
                 return $scanner;
             }
@@ -1048,7 +1057,6 @@ function scanimage_get($device, $server = null){
             return scanimage_get_default();
         }
 
-        load_libs('devices');
         $scanner = devices_get($device, $server);
 
         if(!$scanner){

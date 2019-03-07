@@ -32,6 +32,7 @@
 function devices_library_init(){
     try{
         load_libs('linux');
+        load_config('devices');
 
     }catch(Exception $e){
         throw new BException('devices_library_init(): Failed', $e);
@@ -1122,9 +1123,13 @@ function devices_clear($type = null){
  * @param
  * @return
  */
-function devices_scan($types, $server = null){
+function devices_scan($types, $server = null, $sudo = false){
+    global $_CONFIG;
+
     try{
         load_libs('servers');
+
+        $sudo = ($sudo or $_CONFIG['devices']['sudo']);
 
         if($server === null){
             /*
@@ -1135,7 +1140,7 @@ function devices_scan($types, $server = null){
 
             while($server = sql_fetch($servers)){
                 log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
-                $devices = devices_scan($types, $server['id']);
+                $devices = devices_scan($types, $server['id'], $sudo);
 
                 if($devices){
                     $retval[$server['id']] = $devices[$server['id']];
@@ -1154,7 +1159,7 @@ function devices_scan($types, $server = null){
 
             foreach($servers as $server){
                 log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
-                $devices = devices_scan($types, $server['id']);
+                $devices = devices_scan($types, $server['id'], $sudo);
 
                 if($devices){
                     $retval[$server['id']] = $devices[$server['id']];
@@ -1187,7 +1192,7 @@ function devices_scan($types, $server = null){
                     // FALLTHROUGH
                 case 'webcam':
                     $devices = servers_exec($server, array('ok_exitcodes' => '0,1',
-                                                           'commands'     => array('lsusb', array('connector' => '|'),
+                                                           'commands'     => array('lsusb', array('sudo' => $sudo, 'connector' => '|'),
                                                                                    'grep' , array('-i', $filter))));
                     $entries = array();
 
@@ -1212,7 +1217,7 @@ function devices_scan($types, $server = null){
                                        'string'         => $matches[3][0],
                                        'description'    => $matches[4][0]);
 
-                        $data = servers_exec($server, array('commands' => array('lsusb', array('-vs', $entry['bus'].':'.$entry['device']))));
+                        $data = servers_exec($server, array('commands' => array('lsusb', array('sudo' => $sudo, '-vs', $entry['bus'].':'.$entry['device']))));
 
                         foreach($data as $line){
                             if(stristr($line, 'idProduct')){
@@ -1249,7 +1254,7 @@ function devices_scan($types, $server = null){
                      * the taget server
                      */
                     if(linux_which($server, 'scanimage')){
-                        $devices = scanimage_detect_devices($server);
+                        $devices = scanimage_detect_devices($server, $sudo);
                         $entries = array();
 
                         foreach($devices as $device){

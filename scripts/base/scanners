@@ -152,6 +152,7 @@ switch(cli_method()){
 
     case 'scan':
         $show   = cli_argument('-s,--show');
+        $sudo   = cli_argument('--sudo');
         $domain = cli_argument('--server', true);
         $device = cli_argument('--device', true);
         $device = scanimage_get($device, $domain);
@@ -232,6 +233,7 @@ switch(cli_method()){
          * Check target file / path arguments
          */
         $scanimage['file'] = cli_argument();
+        $scanimage['sudo'] = $sudo;
 
         cli_no_arguments_left();
 
