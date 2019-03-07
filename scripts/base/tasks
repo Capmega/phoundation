@@ -45,6 +45,11 @@ delete ID                       - Delete the task with the specified ID
 
 
 
+reset ID                        - Reset the task with the specified ID so it may
+                                  be executed again
+
+
+
 clear                           - Clear a group of tasks from the tasks table.
                                   By default all tasks with status \"completed\"
                                   and \"failed\" will be cleared
@@ -338,7 +343,9 @@ under_construction('add');
                     log_console(tr('This task has no results'), 'yellow');
 
                 }else{
-                    print_r(stripslashes(print_r($results, true)))."\n";
+                    foreach($results as $result){
+                        log_console(stripslashes($result));
+                    }
                 }
         }
 
@@ -525,7 +532,9 @@ under_construction('add');
                         /*
                          * Execute this task as a normal task
                          */
-                        $task['results'] = safe_exec(array('commands' => array(ROOT.'scripts/'.$command, $arguments)));
+                        $task['results'] = safe_exec(array('ok_exitcodes' => '0',
+                                                           'function'     => null,
+                                                           'commands'     => array(ROOT.'scripts/'.$command, $arguments)));
                         break;
 
                     case 'function':
@@ -564,14 +573,32 @@ under_construction('add');
                 log_console(tr('Task ":task" executed successfully in ":time"', array(':task' => $task['id'], ':time' => time_difference($start, $end, 'auto', 5))), 'green');
 
             }catch(Exception $e){
-                $end = microtime(true);
+                $end  = microtime(true);
+                $data = $e->getData();
+
+                if($e->isWarning()){
+                    $color = 'yellow';
+
+                }else{
+                    $color = 'red';
+                }
+
                 task_test_mysql();
 
                 try{
-                    log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), 'red');
+                    log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), $color);
+
+                    if($data){
+                        log_console(tr('Failed task ":task" exitcode: :code', array(':code' => $e->getRealCode())), $color);
+                        log_console(tr('Failed task ":task" output:', array(':task' => $task['id'])), $color);
+                        log_console($data, 'red');
+
+                        $task['results'] = $e->getMessages();
+                    }else{
+                        $task['results'] = array_merge($e->getMessages(), array(' '), array_force($e->getData()));
+                    }
 
                     $task['status']     = 'failed';
-                    $task['results']    = array_merge($e->getMessages(), array(' '), $e->getData());
                     $task['time_spent'] = microtime(true) - $start;
 
                     array_unshift($task['results'], tr('Task executed command ":command"'   , array(':command' => $command.' '.$options))."\n");
@@ -579,9 +606,9 @@ under_construction('add');
                     tasks_update($task);
                     tasks_failed($task['id']);
 
-                }catch(Exception $e){
-                    notify($e);
-                    log_console(tr('Exception handling for task ":task" failed with ":e"', array(':task' => $task['id'], ':e' => $e)), 'red');
+                }catch(Exception $f){
+                    notify($f);
+                    log_console(tr('Exception handling for task ":task" failed with ":e"', array(':task' => $task['id'], ':e' => $f)), 'red');
                 }
             }
         }
