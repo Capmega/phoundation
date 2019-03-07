@@ -104,6 +104,8 @@ function image_convert($source, $destination, $params = null){
             throw new BException(tr('image_convert(): Destination file ":file" already exists', array(':file' => $destination)), 'exists');
         }
 
+        array_ensure($params, 'log,nice');
+
         ///*
         // * Validate format
         // */
@@ -346,7 +348,8 @@ function image_convert($source, $destination, $params = null){
                 /*
                  * Preserve transparent background
                  */
-                $arguments[] = '-background none';
+                $arguments[] = '-background';
+                $arguments[] = 'none';
                 $dest_file   = str_runtil($dest_file, '.').'.'.$params['format'];
 
                 break;
@@ -354,7 +357,8 @@ function image_convert($source, $destination, $params = null){
             case 'jpeg':
                 // FALLTHROUGH
             case 'jpg':
-                $arguments[] = '-background white';
+                $arguments[] = '-background';
+                $arguments[] = 'white';
                 $dest_file   = str_runtil($dest_file, '.').'.'.$params['format'];
 
                 break;
