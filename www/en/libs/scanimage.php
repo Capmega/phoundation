@@ -80,7 +80,7 @@ function scanimage($params){
                      * This is the own machine
                      */
                     $results = safe_exec(array('ok_exitcodes' => '0,2',
-                                               'timeout'      => 90,
+                                               'timeout'      => $params['timeout'],
                                                'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     $result  = array_pop($results);
@@ -97,7 +97,7 @@ function scanimage($params){
                      */
                     $remote = linux_ensure_path($server, $params['path']);
                     $pid    = servers_exec($server, array('ok_exitcodes' => '0,2',
-                                                          'timeout'      => 90,
+                                                          'timeout'      => $params['timeout'],
                                                           'background'   => true,
                                                           'output_log'   => true,
                                                           'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
@@ -125,7 +125,7 @@ function scanimage($params){
                     file_ensure_path(dirname($file));
 
                     $params['options']['redirect'] = ' > '.$file;
-                    $results                       = servers_exec($server, array('timeout'  => 90,
+                    $results                       = servers_exec($server, array('timeout'  => $params['timeout'],
                                                                                  'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                 }else{
@@ -136,7 +136,7 @@ function scanimage($params){
                     $remote = '/tmp/'.str_random(16);
 
                     $params['options']['redirect'] = ' > '.$remote;
-                    $results                       = servers_exec($server, array('timeout'  => 90,
+                    $results                       = servers_exec($server, array('timeout'  => $params['timeout'],
                                                                                  'commands' => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     rsync(array('source'              => $params['domain'].':'.$remote,
@@ -291,7 +291,7 @@ function scanimage_validate($params){
     try{
         load_libs('validate');
 
-        $v       = new ValidateForm($params, 'sudo,source,domain,device,batch,jpeg_quality,format,file,buffer_size,options');
+        $v       = new ValidateForm($params, 'sudo,source,domain,device,batch,jpeg_quality,format,file,timeout,buffer_size,options');
         $options = array();
         $local   = array();
 
@@ -442,6 +442,8 @@ function scanimage_validate($params){
         $v->isValid();
 
         if($params['batch']){
+            array_default($params, 'timeout', $_CONFIG['devices']['timeout']['scanners_adf']);
+
             if($params['format'] != 'tiff'){
                 $v->setError(tr('Specified batch file pattern ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
             }
@@ -457,6 +459,8 @@ function scanimage_validate($params){
             $params['options']['batch'] = $params['path'].$params['file'];
 
         }else{
+            array_default($params, 'timeout', $_CONFIG['devices']['timeout']['scanners']);
+
             if(str_rfrom($params['file'], '.') != $extension){
                 if(($extension !== 'jpg') and (str_rfrom($params['file'], '.') !== 'jpeg')){
                     $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
