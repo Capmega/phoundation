@@ -115,7 +115,7 @@ under_construction();
             break;
 
         default:
-            throw new BException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, system, shell_exec, or pcntl_exec', array(':function' => $function)), 'not-specified');
+            throw new BException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, system, shell_exec, or pcntl_exec', array(':function' => $params['function'])), 'not-specified');
             break;
     }
 
