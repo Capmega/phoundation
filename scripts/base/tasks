@@ -468,9 +468,10 @@ under_construction('add');
                     set_time_limit($task['time_limit']);
                 }
 
-                $start   = microtime(true);
-                $command = $task['command'];
-                $options = '';
+                $start     = microtime(true);
+                $command   = $task['command'];
+                $options   = '';
+                $arguments = array();
 
                 if(!empty($task['data']['method'])){
                     $options .= ' '.$task['data']['method'];
@@ -498,6 +499,7 @@ under_construction('add');
 
                     }else{
                         $options    .= ' '.$key.' "'.$value.'"';
+                        $arguments[] = $key;
                         $arguments[] = $value;
                     }
                 }
