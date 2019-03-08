@@ -57,7 +57,7 @@ function tasks_insert($task){
 
         $task = tasks_validate($task);
 
-        sql_query(' INSERT INTO `tasks` (`createdby`, `meta_id`, `after`, `status`, `command`, `method`, `timeout`, `verbose`, `parents_id`, `parrallel`, `data`, `description`)
+        sql_query('INSERT INTO `tasks` (`createdby`, `meta_id`, `after`, `status`, `command`, `method`, `timeout`, `verbose`, `parents_id`, `parrallel`, `data`, `description`)
                    VALUES              (:createdby , :meta_id , :after , :status , :command , :method , :timeout , :verbose , :parents_id , :parrallel , :data , :description )',
 
                    array(':createdby'   => isset_get($_SESSION['user']['id']),
