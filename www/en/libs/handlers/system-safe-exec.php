@@ -146,6 +146,10 @@ under_construction();
             //    log_file($lasline, 'safe_exec', 'error');
             //}
 
+            if($e->getRealCode() === 124){
+                throw new BException(tr('safe_exec(): Command apperas to have been terminated by timeout'), $e);
+            }
+
             throw new BException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode, $output);
         }
     }
@@ -162,6 +166,10 @@ under_construction();
      */
     $e->setData($output);
 
-    throw new BException('safe_exec(): Failed', $e);
+    if($e->getRealCode() === 124){
+        throw new BException(tr('safe_exec(): Command probably terminated by timeout'), $e);
+    }
+
+    throw new BException(tr('safe_exec(): Failed'), $e);
 }
 ?>
