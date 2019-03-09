@@ -64,7 +64,7 @@ function ssh_exec($server, $params){
             throw new BException(tr('ssh_exec(): Command ":command" retried ":retry" times, command failed', array(':command' => isset_get($params['commands']), ':retry' => $retry)), 'failed');
         }
 
-        array_ensure($params);
+        array_ensure($params, 'domain,port,commands');
         array_default($params, 'output_log', (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
 
 
