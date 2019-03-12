@@ -29,7 +29,7 @@ add TASK JSON_DATA              - Add a new task. TASK is the name of the
                                   Must be one of \"normal\" (default),
                                   \"internal\", or \"background\"
 
-    --time_limit LIMIT          - Max amount of time that can be spent on
+    --timeout TIMEOUT           - Max amount of time that can be spent on
                                   executing this task (does not count for
                                   background tasks). Must be between 1 and 600,
                                   defaults to 30
@@ -250,7 +250,7 @@ under_construction('add');
 
         }else{
             if(!QUIET){
-                log_console(str_size('#id', 6).' '.str_size('Meta id', 7).' '.str_size('User', 22).' '.str_size('Parent task id', 14).' '.str_size('Command', 32).' '.str_size('Status', 16).' '.str_size('Description', 48).' '.str_size('Execution method', 20).' '.str_size('Time limit', 4).' '.str_size('Time spent', 10), 'cyan');
+                log_console(str_size('#id', 6).' '.str_size('Meta id', 7).' '.str_size('User', 22).' '.str_size('Parent task id', 14).' '.str_size('Command', 32).' '.str_size('Status', 16).' '.str_size('Description', 48).' '.str_size('Execution method', 20).' '.str_size('Timeout', 4).' '.str_size('Time spent', 10), 'cyan');
             }
 
             while($task = sql_fetch($tasks)){
@@ -268,7 +268,7 @@ under_construction('add');
                         break;
                 }
 
-                log_console(str_size($task['id'], 6).' '.str_size($task['meta_id'], 7, ' ', true).' '.str_size(name($task), 22).' '.str_size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.str_size($task['command'], 32).' '.str_size($task['status'], 16).' '.str_size($task['description'], 48).' '.str_size($task['method'], 20).' '.str_size(($task['time_limit'] ? $task['time_limit'] : '-'), 4, ' ', true).' '.str_size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
+                log_console(str_size($task['id'], 6).' '.str_size($task['meta_id'], 7, ' ', true).' '.str_size(name($task), 22).' '.str_size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.str_size($task['command'], 32).' '.str_size($task['status'], 16).' '.str_size($task['description'], 48).' '.str_size($task['method'], 20).' '.str_size(($task['timeout'] ? $task['timeout'] : '-'), 4, ' ', true).' '.str_size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
             }
         }
 
@@ -471,8 +471,8 @@ under_construction('add');
                 $task['data']    = json_decode_custom($task['data']);
                 $task['data'][]  = '--no-color';
 
-                if($task['time_limit']){
-                    set_time_limit($task['time_limit']);
+                if($task['timeout']){
+                    set_time_limit($task['timeout']);
                 }
 
                 $start     = microtime(true);
@@ -534,6 +534,7 @@ under_construction('add');
                          */
                         $task['results'] = safe_exec(array('ok_exitcodes' => '0',
                                                            'function'     => null,
+                                                           'timeout'      => $task['timeout'],
                                                            'commands'     => array(ROOT.'scripts/'.$command, $arguments)));
                         break;
 

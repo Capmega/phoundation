@@ -1166,7 +1166,7 @@ function safe_exec($params){
  * @param "passthru" mixed $function One of "passthru", "exec", "shell_exec" or "system"
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
-function script_exec($script, $arguments = null, $ok_exitcodes = null, $function = null){
+function script_exec($script, $arguments = null, $ok_exitcodes = null, $function = null, $timeout = 10){
     return include(__DIR__.'/handlers/system-script-exec.php');
 }
 

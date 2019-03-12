@@ -64,7 +64,7 @@ function ssh_exec($server, $params){
             throw new BException(tr('ssh_exec(): Command ":command" retried ":retry" times, command failed', array(':command' => isset_get($params['commands']), ':retry' => $retry)), 'failed');
         }
 
-        array_ensure($params);
+        array_ensure($params, 'domain,port,commands');
         array_default($params, 'output_log', (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
 
 
@@ -816,6 +816,96 @@ function ssh_build_options($options = null){
 
 
 /*
+ * Insert the specified SSH account into the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package ssh
+ * @see ssh_validate_account()
+ * @see ssh_update_account()
+ * @version 2.4.60: Added function and documentation
+ *
+ * @param params $account The ssh account to be added
+ * @return array The specified $account, validated and sanitized with the accounts id added
+ */
+function ssh_insert_account($account){
+    try{
+        $account = ssh_validate_account($account);
+
+        $account['seoname'] = seo_string($account['name']);
+
+        sql_query('INSERT INTO `ssh_accounts` (`createdby`, `meta_id`, `name`, `seoname`, `ssh_key`, `description`, `username`)
+                   VALUES                     (:createdby , :meta_id , :name , :seoname , :ssh_key , :description , :username )',
+
+                   array(':createdby'   => $_SESSION['user']['id'],
+                         ':meta_id'     => meta_action(),
+                         ':name'        => $account['name'],
+                         ':seoname'     => $account['seoname'],
+                         ':ssh_key'     => $account['ssh_key'],
+                         ':description' => $account['description'],
+                         ':username'    => $account['username']));
+
+        $account['id'] = ssh_insert_id();
+
+        return $account;
+
+    }catch(Exception $e){
+        throw new BException('ssh_insert_account(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Update the specified SSH account
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package ssh
+ * @see ssh_insert_account()
+ * @see ssh_validate_account()
+ * @version 2.4.60: Added function and documentation
+ *
+ * @param params $account The ssh account to be added
+ * @return array The specified $account, validated and sanitized
+ */
+function ssh_update_account($account){
+    try{
+        $account = ssh_validate_account($account);
+
+        meta_action($account['id'], 'update');
+
+        sql_query('UPDATE `ssh_accounts`
+
+                   SET    `name`        = :name,
+                          `seoname`     = :seoname,
+                          `ssh_key`     = :ssh_key,
+                          `username`    = :username,
+                          `description` = :description
+
+                   WHERE  `id`          = :id',
+
+                   array(':id'          => $ssh['id'],
+                         ':name'        => $ssh['name'],
+                         ':seoname'     => $ssh['seoname'],
+                         ':ssh_key'     => $ssh['ssh_key'],
+                         ':username'    => $ssh['username'],
+                         ':description' => $ssh['description']));
+
+        return $account;
+
+    }catch(Exception $e){
+        throw new BException('template_function(): Failed', $e);
+    }
+}
+
+
+
+/*
  * SSH account validation
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -823,45 +913,47 @@ function ssh_build_options($options = null){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
+ * @see ssh_insert_account()
+ * @see ssh_update_account()
  *
- * @param array $ssh
- * @return array the specified $ssh array validated and clean
+ * @param array $account
+ * @return array the specified $account array validated and clean
  */
-function ssh_validate_account($ssh){
+function ssh_validate_account($account){
     try{
         load_libs('validate,seo');
 
-        $v = new ValidateForm($ssh, 'name,username,ssh_key,description');
-        $v->isNotEmpty ($ssh['name'], tr('No account name specified'));
-        $v->hasMinChars($ssh['name'], 2, tr('Please ensure the account name has at least 2 characters'));
-        $v->hasMaxChars($ssh['name'], 32, tr('Please ensure the account name has less than 32 characters'));
+        $v = new ValidateForm($account, 'name,username,ssh_key,description');
+        $v->isNotEmpty ($account['name'], tr('No account name specified'));
+        $v->hasMinChars($account['name'], 2, tr('Please ensure the account name has at least 2 characters'));
+        $v->hasMaxChars($account['name'], 32, tr('Please ensure the account name has less than 32 characters'));
 
-        $v->isNotEmpty ($ssh['username'], tr('No user name specified'));
-        $v->hasMinChars($ssh['username'], 2, tr('Please ensure the user name has at least 2 characters'));
-        $v->hasMaxChars($ssh['username'], 32, tr('Please ensure the user name has less than 32 characters'));
+        $v->isNotEmpty ($account['username'], tr('No user name specified'));
+        $v->hasMinChars($account['username'], 2, tr('Please ensure the user name has at least 2 characters'));
+        $v->hasMaxChars($account['username'], 32, tr('Please ensure the user name has less than 32 characters'));
 
-        $v->isNotEmpty ($ssh['ssh_key'], tr('No SSH key specified to the account'));
+        $v->isNotEmpty ($account['ssh_key'], tr('No SSH key specified to the account'));
 
-        $v->isNotEmpty ($ssh['description'], tr('No description specified'));
-        $v->hasMinChars($ssh['description'], 2, tr('Please ensure the description has at least 2 characters'));
+        $v->isNotEmpty ($account['description'], tr('No description specified'));
+        $v->hasMinChars($account['description'], 2, tr('Please ensure the description has at least 2 characters'));
 
-        if(is_numeric(substr($ssh['name'], 0, 1))){
+        if(is_numeric(substr($account['name'], 0, 1))){
             $v->setError(tr('Please ensure that the account name does not start with a number'));
         }
 
         $v->isValid();
 
-        $exists = sql_get('SELECT `id` FROM `ssh_accounts` WHERE (`name` = :name OR `username` = :username) AND `id` != :id LIMIT 1', true, array(':name' => $ssh['name'], ':username' => $ssh['username'], ':id' => isset_get($ssh['id'], 0)), 'core');
+        $exists = sql_get('SELECT `id` FROM `ssh_accounts` WHERE (`name` = :name OR `username` = :username) AND `id` != :id LIMIT 1', true, array(':name' => $account['name'], ':username' => $account['username'], ':id' => isset_get($account['id'], 0)), 'core');
 
         if($exists){
-            $v->setError(tr('An SSH account with the username ":username" or name ":name" already exists', array(':name' => $ssh['name'], ':username' => $ssh['username'])));
+            $v->setError(tr('An SSH account with the username ":username" or name ":name" already exists', array(':name' => $account['name'], ':username' => $account['username'])));
         }
-
-        $ssh['seoname'] = seo_unique($ssh['name'], 'ssh_accounts', isset_get($ssh['id']));
 
         $v->isValid();
 
-        return $ssh;
+        $account['seoname'] = seo_unique($account['name'], 'ssh_accounts', isset_get($account['id']));
+
+        return $account;
 
     }catch(Exception $e){
         throw new BException(tr('ssh_validate_account(): Failed'), $e);

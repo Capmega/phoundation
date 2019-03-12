@@ -56,12 +56,17 @@ function test($name, $description, $function){
             throw new BException(tr('test(): Specified function is not a function but a ":type"', array(':type' => gettype($function))), 'invalid');
         }
 
-        $function();
+        $results = $function();
+
+        if($results){
+            echo ' ['.$results.']';
+        }
 
         log_console(' [ OK ]', 'green');
 
     }catch(Exception $e){
         log_console(' [ FAIL ]', 'red');
+        log_console($e->getMessage(), 'red');
 
         $e = array('name'        => $name,
                    'description' => $description,

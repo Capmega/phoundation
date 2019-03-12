@@ -7,17 +7,17 @@ require_once(dirname(__FILE__).'/../../libs/startup.php');
 cli_only(true);
 load_libs('test');
 
-/*
- * Test script_exec()
- */
-test('script_exec()', 'Execute a Phoundation script confined to ROOT/scripts', function(){
-    $results = script_exec('tests/echo');
-    $results = array_shift($results);
-
-    if($results !== '1'){
-        throw new BException(tr('script_exec() returned unexpected results. Expected "1" but received ":results" instead', array(':results' => $results)), 'unexpected');
-    }
-
-    cli_run_once_local(true);
-});
+///*
+// * Test script_exec()
+// */
+//test('script_exec()', 'Execute a Phoundation script confined to ROOT/scripts', function(){
+//    $results = script_exec('tests/echo');
+//    $results = array_shift($results);
+//
+//    if($results !== '1'){
+//        throw new BException(tr('script_exec() returned unexpected results. Expected "1" but received ":results" instead', array(':results' => $results)), 'unexpected');
+//    }
+//
+//    cli_run_once_local(true);
+//});
 ?>
