@@ -13,29 +13,6 @@
 
 
 /*
- * Initialize the library, automatically executed by libs_load()
- *
- * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @packagecoupons
- *
- * @return void
- */
-function coupons_library_init(){
-    try{
-
-    }catch(Exception $e){
-        throw new BException('coupons_library_init(): Failed', $e);
-    }
-}
-
-
-
-/*
  * Validate the specified coupon
  *
  * This function will validate and sanitize the specified coupon data for
@@ -79,13 +56,13 @@ function coupons_validate($coupon){
          * Validate the code
          */
         $v->isNotEmpty($coupon['code'], tr('Please specify a coupon code'));
-        $v->isRegex($coupon['code'], '/[a-z0-9-]{2,16}/i',  tr('Please specify a valid coupon code: minimum 2 characters, maximum 16 characters, only a-z, A-Z, 0-9 and -'));
+        $v->isRegex($coupon['code'], '/[a-z0-9-]{2,16}/i', tr('Please specify a valid coupon code: minimum 2 characters, maximum 16 characters, only a-z, A-Z, 0-9 and -'));
 
         /*
          * Validate the reward
          */
         $v->isNotEmpty($coupon['reward'], tr('Please specify a reward'));
-        $v->isRegex($coupon['reward'], '/[0-9-]{1,8}%?/',  tr('Please specify a valid reward: minimum 1 number, maximum 8 numbers, may end in %'));
+        $v->isRegex($coupon['reward'], '/[0-9-]{1,8}%?/', tr('Please specify a valid reward: minimum 1 number, maximum 8 numbers, may end in %'));
 
         /*
          * Validate the description
@@ -163,8 +140,8 @@ function coupons_insert($coupon){
     try{
         $coupon = coupons_validate($coupon);
 
-        sql_query('INSERT INTO `coupons` (`createdby`, `meta_id`, `categories_id`, `code`, `seocode`, `reward`, `description`, `count`, `expired`)
-                   VALUES                (:createdby , :meta_id , :categories_id , :code , :seocode , :reward , :description , :count , :expired)',
+        sql_query('INSERT INTO `coupons` (`createdby`, `meta_id`, `categories_id`, `code`, `seocode`, `reward`, `description`, `count`, `expires`)
+                   VALUES                (:createdby , :meta_id , :categories_id , :code , :seocode , :reward , :description , :count , :expires)',
 
                    array(':createdby'     => isset_get($_SESSION['user']['id']),
                          ':meta_id'       => meta_action(),
@@ -173,7 +150,7 @@ function coupons_insert($coupon){
                          ':seocode'       => $coupon['seocode'],
                          ':reward'        => $coupon['reward'],
                          ':count'         => $coupon['count'],
-                         ':expired'       => $coupon['expired'],
+                         ':expires'       => $coupon['expires'],
                          ':description'   => $coupon['description']));
 
         $coupon['id'] = sql_insert_id();
@@ -221,10 +198,8 @@ function coupons_insert($coupon){
  */
 function coupons_update($coupon){
     try{
-        load_libs('meta');
-
         $coupon = coupons_validate($coupon);
-        meta_action(meta_action(), 'update');
+        meta_action($coupon['meta_id'], 'update');
 
         sql_query('UPDATE `coupons`
 
@@ -296,23 +271,24 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         }
 
         if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `coupons`.`status` '.sql_is($status).' :status';
+            $where[] = ' `coupons`.`status` '.sql_is($status, ':status');
         }
 
         if($categories_id !== false){
-            $execute[':categories_id'] = $categories_id;
-            $where[] = ' `customers`.`categories_id` '.sql_is($categories_id).' :categories_id';
+            $where[] = ' `coupons`.`categories_id` '.sql_is($categories_id, ':categories_id');
         }
 
         if($available){
             $where[] = '  `status`  IS NULL ';
             $where[] = ' (`count`   IS NULL OR `count`   > 0) ';
-            $where[] = ' (`expires` IS NULL OR `expires` > UTC_TIMESTAMP) ';
+            $where[] = ' (`expires` IS NULL OR `expires` = "0000-00-00 00:00:00" OR `expires` > UTC_TIMESTAMP) ';
         }
 
         $where = ' WHERE '.implode(' AND ', $where).' ';
 
+        /*
+         *
+         */
         if($column){
             $retval = sql_get('SELECT `'.$column.'` FROM `coupons` '.$where, true, $execute);
 
@@ -333,10 +309,35 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
                                FROM      `coupons`'.$where, $execute);
         }
 
+        /*
+         *
+         */
         if(!$retval){
             return array('status' => '_new');
         }
 
+        /*
+         *
+         */
+        $used = sql_get('SELECT `id`
+
+                         FROM   `coupons_used`
+
+                         WHERE  `coupons_id` = :coupons_id
+                         AND    `createdby`  = :createdby',
+
+                         array(':coupons_id' => $retval['id'],
+                               ':createdby'  => $_SESSION['user']['id']));
+        /*
+         *
+         */
+        if($used){
+            return array('status' => 'used');
+        }
+
+        /*
+         *
+         */
         return $retval;
 
     }catch(Exception $e){
@@ -361,9 +362,9 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
  * @param mixed $coupon The requested coupon.
  * @return string the used coupon code
  */
-function coupons_use(string $code){
+function coupons_use($code){
     try{
-        $coupon = coupons_get($code);
+        $coupon = coupons_get($code, null, null, false, true);
 
         if(!$coupon){
             throw new BException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exists');
@@ -380,6 +381,136 @@ function coupons_use(string $code){
 
     }catch(Exception $e){
         throw new BException('coupons_use(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * SUB HEADER TEXT
+ *
+ * PARAGRAPH
+ *
+ * PARAGRAPH
+ *
+ * PARAGRAPH
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package template
+ * @see template_install()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @table: `template`
+ * @note: This is a note
+ * @version 2.4.11: Added function and documentation
+ * @example [Title]
+ * code
+ * $result = template_function(array('foo' => 'bar'));
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * Foo...bar
+ * /code
+ *
+ * @param params $params A parameters array
+ * @param string $params[foo]
+ * @param string $params[bar]
+ * @return string The result
+ */
+function coupons_add_coupon($code, $new_amount = 0){
+    try{
+        if($code){
+            $coupon = coupons_get((is_array($code)?$code['code']:$code), null, null, false, true);
+
+            if($coupon['status'] === null){
+                if(is_numeric($coupon['reward'])){
+                    if($new_amount < 0){
+                        coupons_add_to_wallet($new_amount*-1);
+
+                    }else{
+                        coupons_add_to_wallet($coupon['reward']);
+                    }
+
+                    coupons_use((is_array($code) ? $code['code'] : $code));
+                    html_flash_set(tr('This coupon ":coupon" was added to your wallet and give you $:amount',
+                                   array(':coupon' => $coupon['code'],
+                                         ':amount' => number_format(($new_amount<0?($new_amount*-1):$coupon['reward']), 2))), 'success');
+
+                }else{
+                    html_flash_set(tr('This coupon ":coupon" reward is :reward you only can use in listing discount', array(':coupon' => $code,
+                                                                                                                            ':reward' => $coupon['reward'])), 'warning');
+                }
+
+            }else{
+                switch($coupon['status']){
+                    case 'used':
+                        html_flash_set(tr('You already used this coupon ":coupon"', array(':coupon' => $code)), 'warning/used');
+                        break;
+
+                    case '_new':
+                        html_flash_set(tr('This coupon ":coupon" does not exist', array(':coupon' => $code)), 'warning');
+                        break;
+                }
+            }
+        }
+
+    }catch(Exception $e){
+        throw new bException('coupons_discount_coupon(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * SUB HEADER TEXT
+ *
+ * PARAGRAPH
+ *
+ * PARAGRAPH
+ *
+ * PARAGRAPH
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package template
+ * @see template_install()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @table: `template`
+ * @note: This is a note
+ * @version 2.4.11: Added function and documentation
+ * @example [Title]
+ * code
+ * $result = template_function(array('foo' => 'bar'));
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * Foo...bar
+ * /code
+ *
+ * @param params $params A parameters array
+ * @return natural The amount of credits available for this user
+ */
+function coupons_add_to_wallet($amount){
+    try{
+        $amount  = intval($amount);
+        $credits = sql_get('SELECT `credits` FROM `users` WHERE `id` = :id', true, array(':id' => $_SESSION['user']['id']));
+        $amount  = $credits + $amount;
+
+        sql_query('UPDATE `users` SET `credits` = :credits WHERE `id` = :id', array(':credits' => $amount,
+                                                                                    ':id'      => $_SESSION['user']['id']));
+
+        return $amount;
+
+    }catch(Exception $e){
+        throw new bException('coupons_add_to_wallet(): Failed', $e);
     }
 }
 ?>
