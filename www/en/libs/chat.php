@@ -133,7 +133,7 @@ function chat_add_user($user){
                          'user_ip'        => isset_get($_SERVER['REMOTE_ADDR'], '127.0.0.1'),
                          ':user_password' => unique_code()),
 
-                   null, 'chat');
+                   'chat');
 
         return sql_insert_id('chat');
 
