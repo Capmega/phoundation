@@ -24,19 +24,40 @@
  *
  * @return mixed The value found in $_POST['dosubmit']
  */
-function get_dosubmit(){
+function get_submit(){
+    static $submit;
+
     try{
-        if(empty($_POST['dosubmit'])){
-            return '';
+        if($submit !== null){
+            /*
+             * We have a cached value
+             */
+            return $submit;
         }
 
-        $dosubmit = strtolower(isset_get($_POST['dosubmit'], ''));
-        unset($_POST['dosubmit']);
+        /*
+         * Get submit value
+         */
+        if(empty($_POST['dosubmit'])){
+            if(empty($_POST['multisubmit'])){
+                $submit = '';
 
-        return $dosubmit;
+            }else{
+                $submit = $_POST['multisubmit'];
+                unset($_POST['multisubmit']);
+            }
+
+        }else{
+            $submit = $_POST['dosubmit'];
+            unset($_POST['dosubmit']);
+        }
+
+        $submit = strtolower($submit);
+
+        return $submit;
 
     }catch(Exception $e){
-        throw new BException('get_dosubmit(): Failed', $e);
+        throw new BException('get_submit(): Failed', $e);
     }
 }
 
