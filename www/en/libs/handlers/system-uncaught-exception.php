@@ -28,7 +28,7 @@
  * For cases like these, uncomment the following lines and you should see your
  * error displayed on your browser.
  */
-//echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
+//http_response_code(500); echo "<pre>\nEXCEPTION CODE: "; print_r($e->getCode()); echo "\n\nEXCEPTION:\n"; print_r($e); echo "\n\nBACKTRACE:\n"; print_r(debug_backtrace()); die();
 
 global $_CONFIG, $core;
 static $executed = false;
@@ -405,7 +405,7 @@ try{
                     /*
                      * Clean data
                      */
-                    $e->setData(array_hide($e->getData(), 'GLOBALS,%pass,ssh_key'));
+                    $e->setData(array_hide(array_force($e->getData()), 'GLOBALS,%pass,ssh_key'));
                 }
 
                 showdie($e);
