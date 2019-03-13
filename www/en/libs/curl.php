@@ -361,8 +361,8 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
             curl_setopt($ch, CURLOPT_INTERFACE     ,  curl_get_random_ip());
             curl_setopt($ch, CURLOPT_TIMEOUT       ,  $params['timeout']);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,  $params['connect_timeout']);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,  $params['verify_ssl']);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,  $params['verify_ssl']);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, ($params['verify_ssl'] ? 2 : 0));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, ($params['verify_ssl'] ? 1 : 0));
 
             if($params['user_pwd']){
                 curl_setopt($ch, CURLOPT_USERPWD,  $params['user_pwd']);
@@ -460,9 +460,9 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
 //                    $params['httpheaders'] = array();
 //                }
 //application/x-www-form-urlencoded
-////                $params['httpheaders'][] = 'Content-Type: application/x-www-form-urlencoded; charset='.$_CONFIG['charset'].';';
-////                $params['httpheaders'][] = 'Content-Type: application/x-www-form-urlencoded; charset='.$_CONFIG['charset'].';';
-////                $params['httpheaders'][] = 'Content-Type: text/html; charset='.strtolower($_CONFIG['charset']).';';
+////                $params['httpheaders'][] = 'Content-Type: application/x-www-form-urlencoded; charset='.$_CONFIG['encoding']['charset'].';';
+////                $params['httpheaders'][] = 'Content-Type: application/x-www-form-urlencoded; charset='.$_CONFIG['encoding']['charset'].';';
+////                $params['httpheaders'][] = 'Content-Type: text/html; charset='.strtolower($_CONFIG['encoding']['charset']).';';
 //            }
 
             if($params['posturlencoded']){
