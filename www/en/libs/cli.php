@@ -1766,17 +1766,20 @@ function cli_build_commands_string(&$params){
                 /*
                  * Check if command is built in
                  */
-                if($value === 'type'){
-                    $builtin       = true;
-                    $params['log'] = false;
+                switch($value){
+                    case 'type':
+                        $builtin       = true;
+                        $params['log'] = false;
+                        break;
 
-                }else{
-                    if(cli_is_builtin($value)){
-                        /*
-                         * timeout does NOT work with builtin bash commands!
-                         */
-                        $builtin = true;
-                    }
+                    default:
+                        if(cli_is_builtin($value)){
+                            /*
+                             * timeout does NOT work with builtin bash commands!
+                             * timeout does NOT work with SSH either for some reason
+                             */
+                            $builtin = true;
+                        }
                 }
 
                 if($params['route_errors']){
@@ -1809,7 +1812,7 @@ function cli_build_commands_string(&$params){
 
                 foreach($value as $special => &$argument){
                     if($params['timeout']){
-                        $timeout  = 'timeout '.escapeshellarg($params['timeout']).' ';
+                        $timeout  = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
 
                     }else{
                         $timeout  = '';
@@ -1828,6 +1831,9 @@ function cli_build_commands_string(&$params){
                     }
 
                     if(is_numeric($special)){
+                        /*
+                         * This is a normal argument
+                         */
                         $argument = escapeshellarg(mb_trim($argument));
 
                     }else{
@@ -1849,7 +1855,7 @@ function cli_build_commands_string(&$params){
                                 break;
 
                             case 'timeout':
-                                $timeout = 'timeout '.escapeshellarg($argument).' ';
+                                $timeout = 'timeout --foreground '.escapeshellarg($argument).' ';
 
                                 unset($value[$special]);
                                 break;
