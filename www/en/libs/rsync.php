@@ -59,6 +59,7 @@ function rsync($params){
         array_default($params, 'checksum'           , true);
         array_default($params, 'compression'        , true);
         array_default($params, 'delete'             , false);
+        array_default($params, 'exclude'            , null);
         array_default($params, 'exitcodes'          , null);
         array_default($params, 'force'              , true);
         array_default($params, 'function'           , (PLATFORM_CLI ? 'passthru' : null));
@@ -213,6 +214,17 @@ function rsync($params){
 
         if($params['delete']){
             $arguments[] = '--delete';
+        }
+
+        if($params['exclude']){
+            if(!is_array($params['exclude'])){
+                $params['exclude'] = array($params['exclude']);
+            }
+
+            foreach($params['exclude'] as $exclude){
+                $arguments[] = '--exclude';
+                $arguments[] = $exclude;
+            }
         }
 
         if($params['force']){
