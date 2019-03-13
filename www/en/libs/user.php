@@ -620,7 +620,8 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             $failures = 0;
         }
 
-        $captcha_required = ($captcha or user_authentication_requires_captcha($failures));
+        $captcha_required = false;
+        // $captcha_required = ($captcha or user_authentication_requires_captcha($failures));
 
         if($captcha_required){
 // :TODO: There might be a configuration issue where $_CONFIG['captcha']['type'] is disabled, but $captcha_required does require captcha..
@@ -909,7 +910,7 @@ function user_authentication_requires_captcha($failures = null){
  * @param boolean $html_flash
  * @return void
  */
-function user_signin($user, $extended = false, $redirect = null, $html_flash = null) {
+function user_signin($user, $extended = false, $redirect = null, $html_flash = null, $coupon = null) {
     global $_CONFIG;
 
     try{
@@ -965,6 +966,11 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
         }
 
         $_SESSION['user'] = $user;
+
+        if($coupon){
+            load_libs('coupons');
+            coupons_add_coupon($coupon);
+        }
 
         if(empty($_SESSION['user']['roles_id'])){
             $_SESSION['user']['role'] = null;
@@ -1085,7 +1091,7 @@ function user_create_extended_session($users_id) {
 /*
  * Set a users verification code
  */
-function user_set_verify_code($user, $email_type = false){
+function user_set_verify_code($user, $email_type = false, $email = null){
 	global $_CONFIG;
 
     try{
@@ -1116,35 +1122,35 @@ function user_set_verify_code($user, $email_type = false){
                             array(':id'          => cfi($user['id']),
                                   ':verify_code' => cfm($code)));
 
-            if(!sql_affected_rows($r)){
+            if(!$r->rowCount()){
                 throw new BException(tr('user_set_verify_code(): Specified user ":user" does not exist', array(':user' => $user['id'])), 'not-exists');
             }
         }
-
         switch($email_type){
             case '':
                 break;
 
             case 'signup':
-                email_send(array('template' => 'signup',
-                                 'format'   => 'html',
-                                 'subject'  => 'Welcome! Please verify your email address',
+
+                email_send(array('format'   => 'html',
+                                 'delayed'  => false,
                                  'to'       => $user['email'],
-                                 'from'     => 'noreply@'.$_CONFIG['domain'],
-                                 'body'     => ' <a href="'.domain('/verify/'.$code, null, null, null, '').'" style="border: none; color: #333333; background-color: #FFB108; border-color: #cccccc; padding: 8px 15px; font-weight: bold; text-decoration: none; border-radius: 3px;">
-                                                     '.tr('Click Here').'
-                                                 </a>'));
+                                 'from'     => ($email ? $email : 'noreply@'.$_CONFIG['domain']),
+                                 'template' => 'validate-email',
+                                 'keywords' => array(':title' => tr('Action Requiered: Confirm your account'),
+                                                     ':name'  => name($user),
+                                                     ':url'   => domain('/verify/'.$code))));
                 break;
 
             case 'update':
-                email_send(array('template' => 'email-update',
-                                 'format'   => 'html',
-                                 'subject'  => 'You updated your email address, pelase verify it!',
+                email_send(array('format'   => 'html',
+                                 'delayed'  => false,
                                  'to'       => $user['email'],
-                                 'from'     => 'noreply@'.$_CONFIG['domain'],
-                                 'body'     => ' <a href="'.domain('/verify/'.$code, null, null, null, '').'" style="border: none; color: #333333; background-color: #FFB108; border-color: #cccccc; padding: 8px 15px; font-weight: bold; text-decoration: none; border-radius: 3px;">
-                                                     '.tr('Click Here').'
-                                                 </a>'));
+                                 'from'     => ($email ? $email : 'noreply@'.$_CONFIG['domain']),
+                                 'template' => 'update-email',
+                                 'keywords' => array(':title' => tr('Action Requiered: Confirm your new email'),
+                                                     ':name'  => name($user),
+                                                     ':url'   => domain('/verify/'.$code))));
                 break;
 
             default:

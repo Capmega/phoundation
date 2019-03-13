@@ -361,7 +361,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
             curl_setopt($ch, CURLOPT_INTERFACE     ,  curl_get_random_ip());
             curl_setopt($ch, CURLOPT_TIMEOUT       ,  $params['timeout']);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,  $params['connect_timeout']);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, ($params['verify_ssl'] ? 2 : 0));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,  $params['verify_ssl']);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,  $params['verify_ssl']);
 
             if($params['user_pwd']){

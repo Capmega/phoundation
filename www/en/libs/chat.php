@@ -133,7 +133,7 @@ function chat_add_user($user){
                          'user_ip'        => isset_get($_SERVER['REMOTE_ADDR'], '127.0.0.1'),
                          ':user_password' => unique_code()),
 
-                   null, 'chat');
+                   'chat');
 
         return sql_insert_id('chat');
 
@@ -301,7 +301,7 @@ function chat_update_avatar($user, $avatar){
 
                         array(':user_id'     => $user['id'],
                               ':avatar'      => $avatar,
-                              ':user_avatar' => $avatar), null, 'chat');
+                              ':user_avatar' => $avatar), 'chat');
 
     }catch(Exception $e){
         throw new BException(tr('chat_update_avatar(): Failed'), $e);

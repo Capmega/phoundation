@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.62');
+define('FRAMEWORKCODEVERSION', '2.4.64');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1064,6 +1064,7 @@ function load_config($files = ''){
  * @category Function reference
  * @package system
  * @version 2.0.7: Fixed loading bugs, improved error handling
+ * @version 2.4.62: Fixed bug with "deploy" config
  *
  * @param string $file
  * @param string $environment
@@ -1077,30 +1078,30 @@ function read_config($file = null, $environment = null){
 
         if($file === 'deploy'){
             include(ROOT.'config/deploy.php');
+            return $_CONFIG;
+        }
+
+        if($file){
+            if(file_exists(ROOT.'config/base/'.$file.'.php')){
+                $loaded = true;
+                include(ROOT.'config/base/'.$file.'.php');
+            }
+
+            $file = '_'.$file;
 
         }else{
-            if($file){
-                if(file_exists(ROOT.'config/base/'.$file.'.php')){
-                    $loaded = true;
-                    include(ROOT.'config/base/'.$file.'.php');
-                }
+            $loaded = true;
+            include(ROOT.'config/base/default.php');
+        }
 
-                $file = '_'.$file;
+        if(file_exists(ROOT.'config/production'.$file.'.php')){
+            $loaded = true;
+            include(ROOT.'config/production'.$file.'.php');
+        }
 
-            }else{
-                $loaded = true;
-                include(ROOT.'config/base/default.php');
-            }
-
-            if(file_exists(ROOT.'config/production'.$file.'.php')){
-                $loaded = true;
-                include(ROOT.'config/production'.$file.'.php');
-            }
-
-            if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
-                $loaded = true;
-                include(ROOT.'config/'.$environment.$file.'.php');
-            }
+        if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
+            $loaded = true;
+            include(ROOT.'config/'.$environment.$file.'.php');
         }
 
         if(empty($loaded)){
@@ -3455,7 +3456,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
          */
         if($delete){
             foreach($files as $url => $file){
-                file_delete($file, true);
+                // file_delete($file, true);
             }
         }
 
