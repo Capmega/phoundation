@@ -54,7 +54,7 @@ umask($_CONFIG['security']['umask']);
 /*
  * Setup locale and character encoding
  */
-ini_set('default_charset', $_CONFIG['charset']);
+ini_set('default_charset', $_CONFIG['encoding']['charset']);
 
 foreach($_CONFIG['locale'] as $key => $value){
     if($value){
@@ -67,7 +67,7 @@ foreach($_CONFIG['locale'] as $key => $value){
 /*
  * Prepare for unicode usage
  */
-if($_CONFIG['charset'] = 'UTF-8'){
+if($_CONFIG['encoding']['charset'] = 'UTF-8'){
     mb_init(not_empty($_CONFIG['locale'][LC_CTYPE], $_CONFIG['locale'][LC_ALL]));
 
     if(function_exists('mb_internal_encoding')){

@@ -638,6 +638,8 @@ class ValidateForm {
      *
      */
     function isScalar(&$value, $message = null, $flags = null){
+        global $_CONFIG;
+
         try{
             if(!$this->parseFlags($value, $message, $flags)){
                 return true;
@@ -645,6 +647,10 @@ class ValidateForm {
 
             if($this->not xor !is_scalar($value)){
                 return $this->setError($message);
+            }
+
+            if(is_string($value)){
+                $value = normalizer_normalize($value, $_CONFIG['locale']['normalize']);
             }
 
             return true;

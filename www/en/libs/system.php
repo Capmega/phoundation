@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.67');
+define('FRAMEWORKCODEVERSION', '2.4.68');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -67,6 +67,8 @@ set_exception_handler('uncaught_exception');
  * Create the core object and load the basic libraries
  */
 $core = new Core();
+
+
 
 /*
  * Check what platform we're in
@@ -206,6 +208,13 @@ class Core{
 
         try{
             /*
+             * Ensure all required PHP modules are available
+             */
+            if(!extension_loaded('intl')){
+                throw new BException(tr('startup(): php module "intl" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-intl; sudo php5enmod intl" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-intl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'intl');
+            }
+
+            /*
              * Detect platform and execute specific platform startup sequence
              */
             switch(PLATFORM){
@@ -271,6 +280,9 @@ class Core{
                 }
             }
 
+        }catch(Error $e){
+            throw new BException(tr('core::startup(): Failed with PHP error'), $e);
+
         }catch(Exception $e){
             if(headers_sent($file, $line)){
                 if(preg_match('/debug-.+\.php$/', $file)){
@@ -283,6 +295,7 @@ class Core{
             throw new BException(tr('core::startup(): Failed'), $e);
         }
     }
+
 
 
     /*
@@ -5352,7 +5365,7 @@ function shutdown(){
          */
         $level = mt_rand(0, 100);
 
-        if($_CONFIG['shutdown']){
+        if(!empty($_CONFIG['shutdown'])){
             if(!is_array($_CONFIG['shutdown'])){
                 throw new BException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
             }
