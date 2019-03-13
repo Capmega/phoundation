@@ -677,6 +677,10 @@ function git_status($path = ROOT, $filters = null){
                     $status = 'deleted';
                     break;
 
+                case ' T':
+                    $status = 'typechange';
+                    break;
+
                 case ' D':
                     $status = 'deleted';
                     break;
