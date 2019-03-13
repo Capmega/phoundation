@@ -498,7 +498,8 @@ if($noversion){
 
     file_put_contents(ROOT.'config/project.php', $data);
 
-    exec('cd '.ROOT.'; git add config/project.php; git commit -m "Upgraded project \"'.PROJECT.'\" version to \"'.$newversion.'\""');
+    git_add(ROOT.'config/project.php');
+    git_commit('Upgraded project "'.PROJECT.'" version to "'.$newversion.'"');
 
     init_hook('deploy_post_version', $nohooks, array('oldversion' => $oldversion,
                                                      'newversion' => $newversion));
@@ -597,7 +598,6 @@ if($nocompress){
         git_commit('Deploy commit: compressed files changed');
 
         if(!$nopush){
-            git_commit('Git pushing changes');
             git_push();
         }
     }
