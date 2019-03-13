@@ -390,41 +390,6 @@ function services_clear($server){
 
 
 /*
- * Add the specified service for the specified server
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package services
- *
- * @param params $server
- * @param array $services
- * @return natural The database table insert id for the specified server / service record
- */
-function services_insert($server, $services){
-    try{
-        $count  = 0;
-        $server = servers_get($server);
-        $insert = sql_prepare('INSERT INTO `services_servers` ()
-                               VALUES                         ()');
-
-        foreach($services as $service){
-            $count++;
-            $insert->execute(array('' => $server['id'],
-                                   '' => $service['']));
-        }
-
-        return $count;
-
-    }catch(Exception $e){
-        throw new BException('services_insert(): Failed', $e);
-    }
-}
-
-
-
-/*
  * Return HTML for a services select box
  *
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available services

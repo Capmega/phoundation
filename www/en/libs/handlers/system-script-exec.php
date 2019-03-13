@@ -36,7 +36,8 @@ try{
      /*
       * Execute the script using safe_exec
       */
-    return safe_exec(array('ok_exitcodes' => $ok_exitcodes,
+    return safe_exec(array('timeout'      => $timeout,
+                           'ok_exitcodes' => $ok_exitcodes,
                            'function'     => ($function ? $function : 'passthru'),
                            'commands'     => array($script_file, $arguments)));
 

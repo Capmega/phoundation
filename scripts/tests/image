@@ -3,22 +3,7 @@
 /*
  * This is an empty test script template
  */
-$quiet=true;
 require_once(dirname(__FILE__).'/../../libs/startup.php');
-
-try{
-    cli_only();
-    load_libs('test,image');
-
-    foreach($argv as $arg){
-        switch($arg){
-            case 'all':
-// :TODO: Implement
-                break;
-        }
-    }
-
-}catch(Exception $e){
-    throw new BException('scripts/tests/image: Failed', $e);
-}
+cli_only(true);
+load_libs('test,image');
 ?>

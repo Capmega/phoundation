@@ -76,13 +76,14 @@ if(cli_argument('--no-unzip')){
     log_console(tr('Unzipping geoip'), 'white');
 
     try{
-        safe_exec('cd '.$tmpdir.'; unzip '.$tmpdir.'GeoLiteCity-latest.zip');
+        safe_exec(array('commands' => array('cd'   , array($tmpdir),
+                                            'unzip', array($tmpdir.'GeoLiteCity-latest.zip'))));
 
     }catch(BException $e){
         /*
          * Unzip failed. Does the unzip program exist?
          */
-        if(!cli_command_exists('unzip')){
+        if(!cli_which('unzip')){
             throw new BException(tr('The unzip command is not available. Please install it in order to continue. On Ubuntu like systems, use "apt install unzip", on Redhat like systems, use "yum install unzip"'), 'not-exists');
         }
 
@@ -95,8 +96,12 @@ if(cli_argument('--no-encoding')){
 
 }else{
     log_console(tr('Converting encoding of GEOIP'), 'white');
-    safe_exec('cd '.$tmpdir.'GeoLiteCity_*/;iconv -t UTF-8 -f "ISO-8859-1" GeoLiteCity-Blocks.csv -o ../geoip_blocks.csv >> '.ROOT.'data/log/mysqlimport 2>&1');
-    safe_exec('cd '.$tmpdir.'GeoLiteCity_*/;iconv -t UTF-8 -f "ISO-8859-1" GeoLiteCity-Location.csv -o ../geoip_location.csv >> '.ROOT.'data/log/mysqlimport 2>&1');
+
+    safe_exec(array('commands' => array('cd'   , array($tmpdir.'GeoLiteCity_*/'),
+                                        'iconv', array('-t', 'UTF-8', '-f', 'ISO-8859-1', 'GeoLiteCity-Blocks.csv', '-o', '../geoip_blocks.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport'))));
+
+    safe_exec(array('commands' => array('cd'   , array($tmpdir.'GeoLiteCity_*/'),
+                                        'iconv', array('-t', 'UTF-8', '-f', 'ISO-8859-1', 'GeoLiteCity-Location.csv', '-o', '../geoip_location.csv', 'redirect' => ' >> '.ROOT.'data/log/mysqlimport'))));
 }
 
 
@@ -136,11 +141,11 @@ if(cli_argument('--no-import')){
 
     log_console(tr('Importing GEOIP blocks'), 'white');
     sql_query('TRUNCATE `geoip_blocks`');
-    safe_exec('mysqlimport --fields-terminated-by="," --fields-optionally-enclosed-by="\"" --lines-terminated-by="\n" --local --user='.$_CONFIG['db']['core']['user'].' --password=\''.$_CONFIG['db']['core']['pass'].'\' '.$_CONFIG['db']['core']['db'].' '.$tmpdir.'geoip_blocks.csv>> '.ROOT.'data/log/mysqlimport 2>&1');
+    safe_exec(array('commands' => array('mysqlimport', array('--fields-terminated-by=","', '--fields-optionally-enclosed-by="\""', '--lines-terminated-by="\n"', '--local', '--user='.$_CONFIG['db']['core']['user'], '--password=\''.$_CONFIG['db']['core']['pass'].'\'', $_CONFIG['db']['core']['db'], $tmpdir.'geoip_blocks.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport'))));
 
     log_console(tr('Importing GEOIP locations'));
     sql_query('TRUNCATE `geoip_location`');
-    safe_exec('mysqlimport --fields-terminated-by="," --fields-optionally-enclosed-by="\"" --lines-terminated-by="\n" --local --user='.$_CONFIG['db']['core']['user'].' --password=\''.$_CONFIG['db']['core']['pass'].'\' '.$_CONFIG['db']['core']['db'].' '.$tmpdir.'geoip_location.csv >> '.ROOT.'data/log/mysqlimport 2>&1');
+    safe_exec(array('commands' => array('mysqlimport', array('--fields-terminated-by=","', '--fields-optionally-enclosed-by="\""', '--lines-terminated-by="\n"', '--local', '--user='.$_CONFIG['db']['core']['user'], '--password=\''.$_CONFIG['db']['core']['pass'].'\'', $_CONFIG['db']['core']['db'], $tmpdir.'geoip_location.csv', 'redirect' => '>> '.ROOT.'data/log/mysqlimport 2>&1'))));
 }
 
 if(cli_argument('--not-local')){

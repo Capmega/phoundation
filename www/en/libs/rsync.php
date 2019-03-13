@@ -55,27 +55,31 @@ function rsync($params){
         array_default($params, 'append'             , false);
         array_default($params, 'append_verify'      , false);
         array_default($params, 'archive'            , true);
-        array_default($params, 'function'           , (PLATFORM_CLI ? 'passthru' : null));
+        array_default($params, 'background'         , false);
         array_default($params, 'checksum'           , true);
         array_default($params, 'compression'        , true);
-        array_default($params, 'delete'             , true);
+        array_default($params, 'delete'             , false);
+        array_default($params, 'exclude'            , null);
+        array_default($params, 'exitcodes'          , null);
         array_default($params, 'force'              , true);
+        array_default($params, 'function'           , (PLATFORM_CLI ? 'passthru' : null));
         array_default($params, 'group'              , true);
-        array_default($params, 'links'              , true);
-        array_default($params, 'owner'              , true);
-        array_default($params, 'permissions'        , true);
-        array_default($params, 'progress'           , true);
-        array_default($params, 'recursive'          , true);
-        array_default($params, 'super'              , false);
-        array_default($params, 'time'               , true);
         array_default($params, 'inplace'            , true);
-        array_default($params, 'remove_source_files', true);
-        array_default($params, 'port'               , null);
-        array_default($params, 'ssh_options'        , null);
-        array_default($params, 'verbose'            , true);
-        array_default($params, 'remote_rsync'       , false);
+        array_default($params, 'links'              , true);
         array_default($params, 'monitor_pid'        , false);
         array_default($params, 'monitor_task'       , false);
+        array_default($params, 'owner'              , true);
+        array_default($params, 'permissions'        , true);
+        array_default($params, 'port'               , null);
+        array_default($params, 'progress'           , true);
+        array_default($params, 'recursive'          , true);
+        array_default($params, 'remote_rsync'       , false);
+        array_default($params, 'remove_source_files', true);
+        array_default($params, 'ssh_options'        , null);
+        array_default($params, 'super'              , false);
+        array_default($params, 'time'               , true);
+        array_default($params, 'usleep'             , 1000000);
+        array_default($params, 'verbose'            , true);
 
         /*
          * Required parameters
@@ -118,7 +122,8 @@ function rsync($params){
                             /*
                              * Yay, we know the server, set the parameters!
                              */
-                            $ssh           = ssh_build_command($server, 'ssh', true);
+                            $ssh = ssh_build_command($server, array('ssh_command'    => 'ssh',
+                                                                    'no_user_server' => true));
                             $params[$item] = $server['username'].'@'.$params[$item];
                         }
                     }
@@ -211,6 +216,17 @@ function rsync($params){
             $arguments[] = '--delete';
         }
 
+        if($params['exclude']){
+            if(!is_array($params['exclude'])){
+                $params['exclude'] = array($params['exclude']);
+            }
+
+            foreach($params['exclude'] as $exclude){
+                $arguments[] = '--exclude';
+                $arguments[] = $exclude;
+            }
+        }
+
         if($params['force']){
             $arguments[] = '--force';
         }
@@ -272,7 +288,7 @@ function rsync($params){
             $results = safe_exec(array('function'     => $params['function'],
                                        'background'   => $params['background'],
                                        'ok_exitcodes' => $params['exitcodes'],
-                                       'commands'     => array('rsync' => $arguments)));
+                                       'commands'     => array('rsync', $arguments)));
 
             if(!empty($break)){
                 /*
@@ -287,6 +303,10 @@ function rsync($params){
                  * it is running, we do not stop either.
                  */
                 load_libs('tasks');
+
+                if(!is_natural($params['monitor_task'])){
+                    throw new BException(tr('rsync(): Specified monitor task ":task" is invalid', array(':task' => $params['monitor_task'])), 'invalid');
+                }
 
                 if(tasks_check_pid($params['monitor_task'])){
                     log_console(tr('Task ":task" still running, continuing rsync cycle', array(':task' => $params['monitor_task'])), 'VERBOSE/cyan');
@@ -305,6 +325,10 @@ function rsync($params){
                  * Monitor the specified process to see if it is still running.
                  * While it is running, we do not stop either.
                  */
+                if(!is_natural($params['monitor_pid'])){
+                    throw new BException(tr('rsync(): Specified process id ":pid" is invalid', array(':pid' => $params['monitor_pid'])), 'invalid');
+                }
+
                 if(cli_pid($params['monitor_pid'])){
                     log_console(tr('Process":pid" still running, continuing rsync cycle', array(':pid' => $params['monitor_pid'])), 'VERBOSE/cyan');
 
@@ -317,7 +341,7 @@ function rsync($params){
                 }
             }
 
-            usleep(100000);
+            usleep($params['usleep']);
         }
 
     }catch(Exception $e){

@@ -84,7 +84,9 @@ try{
             while($domain = sql_fetch($domains, true)){
                 log_console(tr('Scanning domain ":domain"', array()));
 
-                $results = safe_exec('whois '.$domain.' | grep "Name Server"', 1);
+                $results = safe_exec(array('ok_exitcodes' => '1',
+                                           'commands'     => array('whois', array($domain, 'connector' => '|'),
+                                                                   'grep' , array('Name Server'))));
                 $ns      = array();
                 $errors  = array();
 

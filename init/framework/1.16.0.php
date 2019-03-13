@@ -1,5 +1,32 @@
 <?php
 /*
+ * Add projects table
+ */
+sql_query('DROP TABLE IF EXISTS `projects`');
+
+sql_query('CREATE TABLE `projects` (`id`         INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                                    `createdon`  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    `createdby`  INT(11)         NULL,
+                                    `modifiedon` TIMESTAMP       NULL,
+                                    `modifiedby` INT(11)         NULL,
+                                    `status`     VARCHAR(16)     NULL,
+                                    `name`       VARCHAR(64)     NULL,
+                                    `api_key`    VARCHAR(16)     NULL,
+                                    `last_login` TIMESTAMP       NULL,
+
+                                    INDEX (`createdon`),
+                                    INDEX (`createdby`),
+                                    INDEX (`modifiedon`),
+                                    INDEX (`modifiedby`),
+
+                                    UNIQUE(`name`),
+
+                                    CONSTRAINT `fk_projects_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`  (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_projects_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`  (`id`) ON DELETE RESTRICT
+                                    ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
+
+
+/*
  * (Re?) add projects table, if needed
  * Add tables for new categories library
  * Add tables for new projects library
@@ -113,6 +140,28 @@ sql_query('CREATE TABLE `categories` (`id`          INT(11)       NOT NULL AUTO_
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 
+sql_column_exists('projects', 'seoname', '!ALTER TABLE `projects` ADD COLUMN `seoname` VARCHAR(64) AFTER `name`');
+
+sql_column_exists('projects', 'seoname', '!ALTER TABLE `projects` ADD COLUMN `seoname` VARCHAR(64) AFTER `name`');
+sql_query('ALTER TABLE `projects` CHANGE COLUMN `api_key` `api_key` VARCHAR(64)');
+
+sql_column_exists('projects', 'code', '!ALTER TABLE `projects` ADD COLUMN `code` VARCHAR(32) NULL DEFAULT NULL AFTER `seoname`');
+sql_index_exists ('projects', 'code', '!ALTER TABLE `projects` ADD UNIQUE KEY `code` (`code`)');
+
+sql_column_exists('projects', 'customers_id', '!ALTER TABLE `projects` ADD COLUMN `customers_id` INT(11) NULL DEFAULT NULL AFTER `status`');
+sql_index_exists ('projects', 'customers_id', '!ALTER TABLE `projects` ADD KEY `customers_id` (`customers_id`)');
+
+sql_column_exists('projects', 'modifiedon',  'ALTER TABLE `projects` DROP COLUMN `modifiedon`');
+
+sql_foreignkey_exists('projects', 'fk_projects_modifiedby', 'ALTER TABLE `projects` DROP FOREIGN KEY `fk_projects_modifiedby`');
+sql_index_exists ('projects', 'modifiedby',  'ALTER TABLE `projects` DROP INDEX  `modifiedby`');
+sql_column_exists('projects', 'modifiedby',  'ALTER TABLE `projects` DROP COLUMN `modifiedby`');
+
+sql_column_exists('projects', 'meta_id', '!ALTER TABLE `projects` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `createdby`');
+sql_index_exists ('projects', 'meta_id', '!ALTER TABLE `projects` ADD KEY    `meta_id` (`meta_id`)');
+sql_foreignkey_exists('projects', 'fk_projects_meta_id', '!ALTER TABLE `projects` ADD CONSTRAINT `fk_projects_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE;');
+
+sql_column_exists('projects', 'fcm_apikey', '!ALTER TABLE `projects` ADD COLUMN `fcm_apikey` VARCHAR(511) NULL');
 
 sql_query('CREATE TABLE `progress_processes` (`id`            INT(11)       NOT NULL AUTO_INCREMENT,
                                               `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,

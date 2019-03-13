@@ -144,7 +144,7 @@ Copyright Sven Oostenbrink <support@capmega.com>, Johan Geuze";
 require_once(__DIR__.'/../../libs/startup.php');
 
 cli_only(true);
-load_libs('init,deploy');
+load_libs('init,deploy,git');
 
 
 
@@ -377,14 +377,14 @@ if(!$targets){
  * Check if we dont have any changes that should be committed first
  */
 if(!$ignore){
-    if(!trim(shell_exec('git status | grep "nothing to commit" | wc -l'))) {
+    if(git_status()){
         if(!FORCE){
             if(!$stash){
                 throw new BException('Git commit pending', 'warning/validation');
             }
 
             log_console(tr('Changes detected, git stashing changes before comming'), 'yellow');
-            safe_exec('git stash');
+            git_stash();
         }
 
     }else{
@@ -539,7 +539,7 @@ if($nopush){
     /*
      * Get current branch
      */
-    $branch = trim(shell_exec('git rev-parse --abbrev-ref HEAD'));
+    $branch = git_branch();
 
     passthru('cd '.ROOT.'; git push origin '.$branch.' && git push origin '.$branch.' --tags', $exitcode);
 
@@ -585,24 +585,20 @@ if($nocompress){
         $option = ' --force-compress';
     }
 
-    try{
-        script_exec('base/compress', $option);
-
-    }catch(Exception $e){
-        throw new BException('script_exec(): Failed to execute "'.str_log('base/compress').'"', $e);
-    }
+    script_exec('base/compress', $option);
 
     /*
      * Compress script generates files that aren't git commited
      * so we must do a git commit for those files.
      */
-    if(!trim(shell_exec('git status | grep "nothing to commit" | wc -l'))){
+    if(git_status()){
         log_console(tr('Changes detected from the compression script script, committing to git'), 'white');
-        safe_exec('cd '.ROOT.'; git add . ');
-        safe_exec('git commit -m "Deploy commit: compressed files changed"');
+        git_add();
+        git_commit('Deploy commit: compressed files changed');
 
         if(!$nopush){
-            passthru('cd '.ROOT.'; git push && git push --tags', $exitcode);
+            git_commit('Git pushing changes');
+            git_push();
         }
     }
 }
@@ -890,11 +886,14 @@ foreach($targets as $target_environment){
             /*
              * Search for existing copies
              */
-            if(count(safe_exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.'ls '.($deploy_config['target_dir']).'~'.$continuersync.' 2> /dev/null \'', 2)) < 2){
+            $results = safe_exec(array('ok_exitcodes' => '2',
+                                       'commands'     => array('ssh', array('-t', '-p', $target_port, $deploy_config['target_user'].'@'.$deploy_config['target_server'], $sudo.'ls '.($deploy_config['target_dir']).'~'.$continuersync.' 2> /dev/null'))));
+
+            if(count($results) < 2){
                 /*
                  * Does not exist
                  */
-                throw new BException(tr('The specified continuesync path "'.str_log(($deploy_config['target_dir']).'~'.$continuersync).'" on the target environment "'.str_log($target_environment).'" does not exist'), 'warning/not-exist');
+                throw new BException(tr('The specified continuesync path ":path" on the target environment ":env" does not exist', array(':path' => ($deploy_config['target_dir']).'~'.$continuersync, ':env' => $target_environment)), 'warning/not-exist');
             }
 
             $tilde = '~'.$continuersync;
@@ -915,7 +914,7 @@ foreach($targets as $target_environment){
                 passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.'mkdir '.$deploy_config['target_dir'].'\'', $exitcode);
             }
 
-            safe_exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].'@'.$deploy_config['target_server'].' \''.$sudo.'rm '.$deploy_config['target_dir'].$tilde.' -rf; '.$sudo.'cp '.($deploy_config['preserve_owner_group'] ? '-a' : '--no-dereference --recursive --preserve=mode,links,xattr').' '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde.'\'');
+            safe_exec(array('commands' => array('ssh', array('-t', '-p', $target_port, $deploy_config['target_user'].'@'.$deploy_config['target_server'], $sudo.'rm '.$deploy_config['target_dir'].$tilde.' -rf; '.$sudo.'cp '.($deploy_config['preserve_owner_group'] ? '-a' : '--no-dereference --recursive --preserve=mode,links,xattr').' '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde))));
         }
 
         $deploy_config['target_dir'] .= $tilde;
@@ -1173,7 +1172,7 @@ foreach($targets as $target_environment){
 
     if($stash){
         log_console(tr('Git stashed changes detected, unstashing'), 'yellow');
-        safe_exec('git stash pop');
+        git_stash_pop();
     }
 
 

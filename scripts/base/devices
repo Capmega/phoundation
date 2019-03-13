@@ -24,9 +24,18 @@ METHODS
 
 supported                       - Prints a list of the supported device types
 
+
+
 list                            - List the available devices
 
+    [--t, --type TYPE]          - Filter by the specified type. See method
+                                  "supported" to get a list of supported types
+
+
+
 show DEVICE                     - Show the specified device
+
+
 
 scan [TYPES] [SERVERS]          - Scan the specified servers for the specified
                                   device types. If no device type was specified,
@@ -62,6 +71,8 @@ scan [TYPES] [SERVERS]          - Scan the specified servers for the specified
     [--inventory INVENTORY_CODE]  Assign the found devices to the specified
                                   inventory code
 
+
+
 modify [ID]                     - Update the specified device
 
     [--category CATEGORY]         Assign the specified device to the specified
@@ -88,31 +99,45 @@ modify [ID]                     - Update the specified device
     [--inventory INVENTORY_CODE]  Assign the specified device to the specified
                                   inventory code
 
+
+
 disable DEVICES                 - Disable the specified devices. After this, the
                                   devices will have status "disabled", will show
                                   up by default with the "list" method, but can
                                   not be used by the system
+
+
 
 enable DEVICES                  - Disable the specified devices. After this, the
                                   devices will have status "NULL", will show
                                   up by default with the "list" method, and can
                                   be used by the system
 
+
+
 delete DEVICES                  - Disable the specified devices. After this, the
                                   devices will have status "deleted", will show
                                   up by default with the "list" method, but can
                                   not be used by the system
+
+
 
 undelete DEVICES                - Disable the specified devices. After this, the
                                   devices will have status "NULL", will show
                                   up by default with the "list" method, and can
                                   be used by the system
 
+
+
 erase DEVICES                   - Erase the specified devices
+
+
 
 clear [TYPE]                    - Erase the specified TYPE type devices from the
                                   database. If no TYPE was specified, all
                                   devices will be erased
+
+
 
 setup DEVICE                    - Setup the specified device by automatically
                                   installing the required drivers (EXPERIMENTAL)';
@@ -122,7 +147,21 @@ load_libs('devices');
 
 switch(cli_method()){
     case 'list':
+        $type = cli_argument('-t,--type', true);
         cli_no_arguments_left();
+
+        if($type){
+            $type  = devices_validate_types($type);
+            $where = ' WHERE (`devices`.`status` IS NULL OR `devices`.`status` != "_new")
+                       AND    `devices`.`type` = :type';
+
+            $execute[':type'] = $type;
+
+        }else{
+            $execute = null;
+            $where   = ' WHERE `devices`.`status` IS NULL
+                         OR    `devices`.`status` != "_new"';
+        }
 
         $devices = sql_query('SELECT    `devices`.`id`,
                                         `devices`.`status`,
@@ -140,6 +179,7 @@ switch(cli_method()){
                                         `devices`.`string`,
                                         `devices`.`default`,
                                         `devices`.`description`,
+                                        `devices`.`name`,
 
                                         `servers`.`domain`,
                                         `servers`.`seodomain`
@@ -149,22 +189,23 @@ switch(cli_method()){
                               LEFT JOIN `servers`
                               ON        `servers`.`id` = `devices`.`servers_id`
 
-                              WHERE     `devices`.`status` IS NULL
-                              OR        `devices`.`status` != "_new"
+                              '.$where.'
 
                               ORDER BY  `servers`.`domain` ASC, `devices`.`type` ASC
 
-                              '.sql_limit());
+                              '.sql_limit(),
+
+                              $execute);
 
         if(!$devices->rowCount()){
             log_console(tr('There are currently no devices available'), 'QUIET/yellow');
 
         }else{
             log_console(tr('Showing currently available devices'), 'QUIET/white');
-            log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 12).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.str_size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
+            log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Name'), 20).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 12).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.str_size(tr('Description'), 32).' '.tr('Device string'), 'QUIET/cyan');
 
             while($device = sql_fetch($devices)){
-                log_console(str_size($device['id'], 6, ' ', true).' '.str_size($device['type'], 20).' '.str_size(not_empty($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
+                log_console(str_size($device['id'], 6, ' ', true).' '.str_size(not_empty($device['name'], '-'), 20).' '.str_size($device['type'], 20).' '.str_size(not_empty($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 12).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.str_size($device['description'], 32).' '.$device['string']);
             }
         }
 
@@ -176,7 +217,17 @@ switch(cli_method()){
 
         cli_no_arguments_left();
 
-        $device = devices_get($id, $server);
+        try{
+            $device = devices_get($id, $server);
+
+        }catch(Exception $e){
+            switch($e->getRealCode()){
+                case 'invalid':
+                    // FALLTHROUGH
+                case 'not-specified':
+                    throw $e->makeWarning(true);
+            }
+        }
 
         if(!$device){
             throw new BException(tr('The specified device id ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
@@ -354,6 +405,7 @@ switch(cli_method()){
             $assign_customer   = cli_argument('--customer'  , true);
             $assign_provider   = cli_argument('--provider'  , true);
             $assign_inventory  = cli_argument('--inventory' , true);
+            $sudo              = cli_argument('--sudo');
             $types             = cli_argument(1);
             $servers           = cli_argument(2);
             $count             = 0;
@@ -446,7 +498,7 @@ switch(cli_method()){
 
             devices_set_status('not-found');
 
-            $servers_devices = devices_scan($types, $servers);
+            $servers_devices = devices_scan($types, $servers, $sudo);
 
             foreach($servers_devices as $servers_id => $devices){
                 foreach($devices as $device){

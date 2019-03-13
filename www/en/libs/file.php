@@ -674,7 +674,49 @@ function file_delete_tree($directory){
 
 
 /*
- * Returns the files mimetype
+ * Return the absolute path for the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added function and documentation
+ *
+ * @param string $path
+ * @return string The absolute path
+ */
+function file_absolute_path($path){
+    try{
+        if(!$path){
+            return getcwd();
+        }
+
+        if($path[0] === '/'){
+            return $path;
+        }
+
+        return slash(getcwd()).unslash($path);
+
+    }catch(Exception $e){
+        throw new BException('file_absolute_path(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns the mimetype data for the specified file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added documentation
+ *
+ * @param string $file to be tested
+ * @return string The mimetype data for the specified file
  */
 function file_mimetype($file){
     static $finfo = false;
@@ -686,6 +728,10 @@ function file_mimetype($file){
         if(!is_file($file)){
             if(!file_exists($file)){
                 throw new BException(tr('file_mimetype(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            }
+
+            if(is_dir($file)){
+                throw new BException(tr('file_mimetype(): Specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
             }
 
             throw new BException(tr('file_mimetype(): Specified file ":file" is not a file', array(':file' => $file)), 'invalid');
@@ -706,6 +752,16 @@ function file_mimetype($file){
 
 /*
  * Returns true or false if file is ASCII or not
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added documentation
+ *
+ * @param string $file to be tested
+ * @return bolean True if the file is a text file, false if not
  */
 function file_is_text($file){
     try{
@@ -722,7 +778,17 @@ function file_is_text($file){
 
 
 /*
- * Returns if the specified file exists and is a file
+ * Returns true if the specified file exists and is a file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added documentation
+ *
+ * @param string $file The file to be tested
+ * @return bolean True if the file exists and is a file
  */
 function file_check($file){
     if(!file_exists($file)){
@@ -737,40 +803,84 @@ function file_check($file){
 
 
 /*
- * Return all files in a directory
+ * Return all files in a directory that match the specified pattern with optional recursion.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4.40: Added documentation, upgraded function
+ *
+ * @param string $path The path from which
+ * @param string $pattern
+ * @param boolean $recursive If set to true, return all files below the specified path, including in sub directories
+ * @return array The matched files
  */
-function file_list_tree($path = '.', $recursive = true){
+function file_list_tree($path, $pattern = null, $recursive = true){
     try{
+        /*
+         * Validate path
+         */
         if(!is_dir($path)){
             if(!is_file($path)){
-                throw new BException(tr('file_list_tree(): Specified path ":path" is not a directory', array(':path' => $path)), 'path');
+                if(!file_exists($path)){
+                    throw new BException(tr('file_list_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+                }
+
+                throw new BException(tr('file_list_tree(): Specified path ":path" is not a directory or a file', array(':path' => $path)), 'invalid');
             }
 
             return array($path);
         }
 
-        $files = array();
+        $retval = array();
         $fh    = opendir($path);
 
-        while (($file = readdir($fh)) !== false){
-            # loop through the files, skipping . and .., and recursing if necessary
-            if(($file == '.') or ($file == '..')){
+        /*
+         * Go over all files
+         */
+        while(($filename = readdir($fh)) !== false){
+            /*
+             * Loop through the files, skipping . and .. and recursing if necessary
+             */
+            if(($filename == '.') or ($filename == '..')){
                 continue;
             }
 
-            $filepath = slash($path).$file;
+            /*
+             * Does the file match the specified pattern?
+             */
+            if($pattern){
+                $match = preg_match($pattern, $filename);
 
-            if( is_dir($filepath) and $recursive){
-                $files = array_merge($files, file_list_tree($filepath));
+                if(!$match){
+                    continue;
+                }
+            }
 
-            }else {
-                array_push($files, $filepath);
+            /*
+             * Get the complete file path
+             */
+            $file = slash($path).$filename;
+
+            /*
+             * Add the file to the list. If the file is a directory, then
+             * recurse instead.
+             *
+             * Do NOT add the directory itself, only files!
+             */
+            if(is_dir($file) and $recursive){
+                $retval = array_merge($retval, file_list_tree($file));
+
+            }else{
+                $retval[] = $file;
             }
         }
 
         closedir($fh);
 
-        return $files;
+        return $retval;
 
     }catch(Exception $e){
         throw new BException(tr('file_list_tree(): Failed for ":path"', array(':path' => $path)), $e);
@@ -790,7 +900,7 @@ function file_delete($patterns, $clean_path = false, $sudo = false){
         }
 
         foreach(array_force($patterns) as $pattern){
-            safe_exec(($sudo ? 'sudo ' : '').'rm -rf '.$pattern);
+            safe_exec(array('commands' => array('rm', array('sudo' => $sudo, '-rf', $pattern))));
 
             if($clean_path){
                 file_clear_path(dirname($patterns));
@@ -2015,7 +2125,7 @@ function file_tree_execute($params){
                         switch($type){
                             case 'link':
                                 if(!$params['follow_symlinks']){
-                                    continue;
+                                    continue 2;
                                 }
 
                                 $file = readlink($file);
@@ -2390,7 +2500,7 @@ function file_chown($file, $user = null, $group = null){
             throw new BException(tr('file_chown(): Specified file ":file" is not in the projects ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
         }
 
-        safe_exec('sudo chown '.$user.':'.$group.' '.$file);
+        safe_exec(array('commands' => array('chown', array('sudo' => true, $user.':'.$group, $file))));
 
     }catch(Exception $e){
         throw new BException(tr('file_chown(): Failed'), $e);
@@ -2586,8 +2696,6 @@ function file_cat($params){
         if(!empty($params['sudo'])){
             $arguments['sudo'] = $params['sudo'];
         }
-
-
 
         safe_exec(array('domain'       => $params['domain'],
                         'background'   => $params['background'],

@@ -25,7 +25,7 @@
  */
 function dig_library_init(){
     try{
-        if(!safe_exec('which dig')){
+        if(!cli_which('dig')){
             throw new BException(tr('dig_library_init(): The "dig" command was not found. To install "dig" on ubuntu, please execute "sudo apt-get install dnsutils"'), 'not-exists');
         }
 
@@ -104,7 +104,7 @@ function dig_clean_line($line){
  */
 function dig($hostname, $command, $dns_server = null){
     try{
-        $results = safe_exec('dig '.$command.($dns_server ? ' @'.$dns_server : '').' '.$hostname);
+        $results = safe_exec(array('commands' => array('dig', array($command, ($dns_server ? '@'.$dns_server : ''), $hostname))));
         $start   = false;
         $stop    = false;
         $retval  = array();

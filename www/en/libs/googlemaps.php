@@ -23,7 +23,7 @@
  */
 function googlemaps_library_init(){
     try{
-        load_config('google_maps');
+        load_config('googlemaps');
 
     }catch(Exception $e){
         throw new BException('googlemaps_library_init(): Failed', $e);

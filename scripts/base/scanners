@@ -3,12 +3,12 @@
 /*
  * This is the scanner manager script
  */
-$usage = './scripts/base/scanner
-./scripts/base/scanner list
-./scripts/base/scanner kill ID
-./scripts/base/scanner scan [option]';
+$usage = './scripts/base/scanners
+./scripts/base/scanners list
+./scripts/base/scanners kill ID
+./scripts/base/scanners scan [option]';
 
-$help  = 'This is the scanner manager script
+$help  = 'This is the scanners management script
 
 This script can manage connected scanners (USB or network)
 
@@ -105,10 +105,10 @@ switch(cli_method()){
 
         }else{
             log_console(tr('Showing currently available devices'), 'QUIET/white');
-            log_console(str_size(tr('#id'), 6).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 16).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
+            log_console(str_size(tr('#id'), 6).' '.str_size(tr('Name'), 20).' '.str_size(tr('Type'), 20).' '.str_size(tr('Domain'), 20).' '.str_size(tr('Status'), 16).' '.str_size(tr('Vendor'), 16).' '.str_size(tr('Manufacturer'), 16).' '.str_size(tr('Model'), 16).' '.str_size(tr('Bus'), 3).' '.str_size(tr('Device'), 3).' '.tr('Description'), 'QUIET/cyan');
 
             while($device = sql_fetch($devices)){
-                log_console(str_size($device['id'], 6).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 16).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.$device['description']);
+                log_console(str_size($device['id'], 6).' '.str_size(not_empty($device['name'], '-'), 20).' '.str_size($device['type'], 20).' '.str_size(isset_get($device['domain'], '-'), 20).' '.str_size(cli_status_color($device['status']), 16).' '.str_size($device['vendor_string'], 16).' '.str_size($device['manufacturer'], 16).' '.str_size($device['model'], 16).' '.str_size($device['bus'], 3).' '.str_size($device['device'], 3).' '.$device['description']);
             }
         }
 
@@ -152,6 +152,7 @@ switch(cli_method()){
 
     case 'scan':
         $show   = cli_argument('-s,--show');
+        $sudo   = cli_argument('--sudo');
         $domain = cli_argument('--server', true);
         $device = cli_argument('--device', true);
         $device = scanimage_get($device, $domain);
@@ -232,6 +233,7 @@ switch(cli_method()){
          * Check target file / path arguments
          */
         $scanimage['file'] = cli_argument();
+        $scanimage['sudo'] = $sudo;
 
         cli_no_arguments_left();
 
@@ -241,7 +243,7 @@ switch(cli_method()){
          * Scan!
          */
         try{
-            scanimage($scanimage);
+            $scanimage = scanimage($scanimage);
 
             if(!file_exists($scanimage['file'])){
                 if(!$scanimage['batch']){
@@ -271,7 +273,24 @@ switch(cli_method()){
          */
         if($show){
             load_libs('view');
-            view($scanimage['file']);
+
+            if($scanimage['batch']){
+                $scanimage['file'] = str_replace('%d', '\d+', $scanimage['file']);
+                $scanimage['file'] = '/'.$scanimage['file'].'/';
+
+                $files = file_list_tree($scanimage['result'], $scanimage['file']);
+
+                if(!$files){
+                    throw new BException(tr('No scanned target files found in ":path"', array(':path' => $scanimage['result'])), 'not-exist');
+                }
+
+                foreach($files as $file){
+                    view($file);
+                }
+
+            }else{
+                view($scanimage['file']);
+            }
         }
 
         break;

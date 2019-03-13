@@ -65,7 +65,7 @@ function api_validate_account($account){
         $v->isNotEmpty ($account['customer']    , tr('Please specify a customer'));
         $v->isNotEmpty ($account['server']      , tr('Please specify a server'));
 
-        $account['servers_id']   = sql_get('SELECT `id` FROM `servers`   WHERE `seohostname` = :seohostname AND `status` IS NULL', true, array(':seohostname' => $account['server']));
+        $account['servers_id']   = sql_get('SELECT `id` FROM `servers`   WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $account['server']));
         $account['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname`     = :seoname     AND `status` IS NULL', true, array(':seoname'     => $account['customer']));
 
         if(!$account['servers_id']){
@@ -408,7 +408,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
         /*
          * Get account information
          */
-        $account_data = sql_get('SELECT `id`, `baseurl`, `apikey` FROM `api_accounts` WHERE `seoname` = :seoname', array(':seoname' => $account));
+        $account_data = sql_get('SELECT `id`, `baseurl`, `apikey`, `verify_ssl` FROM `api_accounts` WHERE `seoname` = :seoname', array(':seoname' => $account));
 
         if(!$account_data){
             throw new BException(tr('api_call_base(): Specified API account ":account" does not exist', array(':account' => $account)), 'not-exists');

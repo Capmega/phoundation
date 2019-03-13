@@ -29,7 +29,7 @@ add TASK JSON_DATA              - Add a new task. TASK is the name of the
                                   Must be one of \"normal\" (default),
                                   \"internal\", or \"background\"
 
-    --time_limit LIMIT          - Max amount of time that can be spent on
+    --timeout TIMEOUT           - Max amount of time that can be spent on
                                   executing this task (does not count for
                                   background tasks). Must be between 1 and 600,
                                   defaults to 30
@@ -42,6 +42,11 @@ execute                         - Try to execute all tasks that have status
 
 
 delete ID                       - Delete the task with the specified ID
+
+
+
+reset ID                        - Reset the task with the specified ID so it may
+                                  be executed again
 
 
 
@@ -245,7 +250,7 @@ under_construction('add');
 
         }else{
             if(!QUIET){
-                log_console(str_size('#id', 6).' '.str_size('Meta id', 7).' '.str_size('User', 22).' '.str_size('Parent task id', 14).' '.str_size('Command', 32).' '.str_size('Status', 16).' '.str_size('Description', 48).' '.str_size('Execution method', 20).' '.str_size('Time limit', 4).' '.str_size('Time spent', 10), 'cyan');
+                log_console(str_size('#id', 6).' '.str_size('Meta id', 7).' '.str_size('User', 22).' '.str_size('Parent task id', 14).' '.str_size('Command', 32).' '.str_size('Status', 16).' '.str_size('Description', 48).' '.str_size('Execution method', 20).' '.str_size('Timeout', 4).' '.str_size('Time spent', 10), 'cyan');
             }
 
             while($task = sql_fetch($tasks)){
@@ -263,7 +268,7 @@ under_construction('add');
                         break;
                 }
 
-                log_console(str_size($task['id'], 6).' '.str_size($task['meta_id'], 7, ' ', true).' '.str_size(name($task), 22).' '.str_size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.str_size($task['command'], 32).' '.str_size($task['status'], 16).' '.str_size($task['description'], 48).' '.str_size($task['method'], 20).' '.str_size(($task['time_limit'] ? $task['time_limit'] : '-'), 4, ' ', true).' '.str_size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
+                log_console(str_size($task['id'], 6).' '.str_size($task['meta_id'], 7, ' ', true).' '.str_size(name($task), 22).' '.str_size(not_empty($task['parents_id'], '-'), 14, ' ', true).' '.str_size($task['command'], 32).' '.str_size($task['status'], 16).' '.str_size($task['description'], 48).' '.str_size($task['method'], 20).' '.str_size(($task['timeout'] ? $task['timeout'] : '-'), 4, ' ', true).' '.str_size($task['time_spent'] ? $task['time_spent'] : '-', 10, ' ', true));
             }
         }
 
@@ -338,7 +343,9 @@ under_construction('add');
                     log_console(tr('This task has no results'), 'yellow');
 
                 }else{
-                    print_r(stripslashes(print_r($results, true)))."\n";
+                    foreach($results as $result){
+                        log_console(stripslashes($result));
+                    }
                 }
         }
 
@@ -464,13 +471,14 @@ under_construction('add');
                 $task['data']    = json_decode_custom($task['data']);
                 $task['data'][]  = '--no-color';
 
-                if($task['time_limit']){
-                    set_time_limit($task['time_limit']);
+                if($task['timeout']){
+                    set_time_limit($task['timeout']);
                 }
 
-                $start   = microtime(true);
-                $command = $task['command'];
-                $options = '';
+                $start     = microtime(true);
+                $command   = $task['command'];
+                $options   = '';
+                $arguments = array();
 
                 if(!empty($task['data']['method'])){
                     $options .= ' '.$task['data']['method'];
@@ -493,10 +501,13 @@ under_construction('add');
                     if(empty($value)) continue;
 
                     if(is_integer($key)){
-                        $options .= ' "'.$value.'"';
+                        $options    .= ' "'.$value.'"';
+                        $arguments[] = $value;
 
                     }else{
-                        $options .= ' '.$key.' "'.$value.'"';
+                        $options    .= ' '.$key.' "'.$value.'"';
+                        $arguments[] = $key;
+                        $arguments[] = $value;
                     }
                 }
 
@@ -521,7 +532,10 @@ under_construction('add');
                         /*
                          * Execute this task as a normal task
                          */
-                        $task['results'] = safe_exec(ROOT.'scripts/'.$command.' '.$options);
+                        $task['results'] = safe_exec(array('ok_exitcodes' => '0',
+                                                           'function'     => null,
+                                                           'timeout'      => $task['timeout'],
+                                                           'commands'     => array(ROOT.'scripts/'.$command, $arguments)));
                         break;
 
                     case 'function':
@@ -560,14 +574,32 @@ under_construction('add');
                 log_console(tr('Task ":task" executed successfully in ":time"', array(':task' => $task['id'], ':time' => time_difference($start, $end, 'auto', 5))), 'green');
 
             }catch(Exception $e){
-                $end = microtime(true);
+                $end  = microtime(true);
+                $data = $e->getData();
+
+                if($e->isWarning()){
+                    $color = 'yellow';
+
+                }else{
+                    $color = 'red';
+                }
+
                 task_test_mysql();
 
                 try{
-                    log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), 'red');
+                    log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), $color);
+
+                    if($data){
+                        log_console(tr('Failed task ":task" exitcode: :code', array(':code' => $e->getRealCode())), $color);
+                        log_console(tr('Failed task ":task" output:', array(':task' => $task['id'])), $color);
+                        log_console($data, 'red');
+
+                        $task['results'] = $e->getMessages();
+                    }else{
+                        $task['results'] = array_merge($e->getMessages(), array(' '), array_force($e->getData()));
+                    }
 
                     $task['status']     = 'failed';
-                    $task['results']    = array_merge($e->getMessages(), array(' '), $e->getData());
                     $task['time_spent'] = microtime(true) - $start;
 
                     array_unshift($task['results'], tr('Task executed command ":command"'   , array(':command' => $command.' '.$options))."\n");
@@ -575,9 +607,9 @@ under_construction('add');
                     tasks_update($task);
                     tasks_failed($task['id']);
 
-                }catch(Exception $e){
-                    notify($e);
-                    log_console(tr('Exception handling for task ":task" failed with ":e"', array(':task' => $task['id'], ':e' => $e)), 'red');
+                }catch(Exception $f){
+                    notify($f);
+                    log_console(tr('Exception handling for task ":task" failed with ":e"', array(':task' => $task['id'], ':e' => $f)), 'red');
                 }
             }
         }

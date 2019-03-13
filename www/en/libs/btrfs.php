@@ -57,7 +57,8 @@ function btrfs_library_init(){
  */
 function btrfs_install($params){
     try{
-        safe_exec('sudo apt -y install btrfs-tools');
+        load_libs('apt');
+        apt_install('btrfs-tools');
 
     }catch(Exception $e){
         throw new BException('btrfs_install(): Failed', $e);
@@ -96,7 +97,7 @@ function btrfs_defragment($params){
             $verbose = '';
         }
 
-        $results = servers_exec($params['server'], 'btrfs filesystem defragment '.$version.' "'.$params['path'].'"');
+        $results = servers_exec($params['server'], array('commands' => array('btrfs', array('filesystem', 'defragment', $version, $params['path']))));
         return $results;
 
     }catch(Exception $e){

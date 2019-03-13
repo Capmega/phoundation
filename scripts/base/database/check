@@ -19,7 +19,7 @@ try{
 
     log_console('Executing mysqlcheck on all database tables, this may take a minute');
 
-    $results = safe_exec('mysqlcheck -A -p'.$password.' 2>&1');
+    $results = safe_exec(array('commands' => array('mysqlcheck', array('-A', '-p'.$password))));
 
     log_console('MySQL check finished, parsing results');
 
@@ -56,10 +56,10 @@ try{
             $database = str_until($name, '.');
             $table    = str_from ($name, '.');
 
-            script_exec('baes/database/dropload', array('username' => $username,
-                                                        'password' => $password,
-                                                        'database' => $database,
-                                                        'table'    => $table));
+            script_exec(array('commands' => array('base/database/dropload', array('username' => $username,
+                                                                                  'password' => $password,
+                                                                                  'database' => $database,
+                                                                                  'table'    => $table))));
 
         }catch(Exception $e){
             log_console($e);

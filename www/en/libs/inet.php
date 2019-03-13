@@ -125,7 +125,7 @@ function inet_test_host_port($host, $port, $server = null, $timeout = 5, $except
         }
 
         try{
-            servers_exec($server, 'nc -zv '.$host.' '.$port.' -w '.$timeout);
+            servers_exec($server, array('commands' => array('nc', array('-zv', $host, $port, '-w', $timeout))));
             return true;
 
         }catch(Exception $e){
@@ -339,10 +339,12 @@ function url_remove_keys($url, $keys){
 // :TODO: OBSOLETE, SEE DIG LIBRARY FOR NEW FUNCTIONS
 function inet_dig($domain, $section = false){
     try{
-        $data   = str_from(shell_exec('dig '.cfm($domain).' ANY'), 'ANSWER: ');
+        $data = safe_exec(array('commands' => array('dig', array(cfm($domain), 'ANY'))));
+        $data = implode("\n", $data);
+        $data = str_from($data, 'ANSWER: ');
 
         if(str_until($data, ',') == '0'){
-            throw new BException('inet_dig(): Specified domain "'.str_log($domain).'" was not found', 'not-found');
+            throw new BException(tr('inet_dig(): Specified domain ":domain" was not found', array(':domain' => $domain)), 'not-found');
         }
 
         $data   = str_cut($data, "ANSWER SECTION:\n", "\n;;");
@@ -353,7 +355,8 @@ function inet_dig($domain, $section = false){
              * If specific sections were requested,
              * then store those lowercased in an array for easy lookup
              */
-            $section = array_flip(array_force(strtolower(str_force($section))));
+            $section = strtolower(str_force($section));
+            $section = array_flip(array_force($section));
         }
 
         /*
@@ -599,10 +602,14 @@ function inet_validate_ip($ip, $allow_all = true){
  * @return
  */
 function inet_port_available($port, $ip = '0.0.0.0', $server = null){
+    load_libs('servers');
+
     try{
         $ip      = inet_validate_ip($ip);
         $port    = inet_validate_port($port);
-        $results = servers_exec($server, 'sudo netstat -peanut | grep :'.$port, false, null, '0,1');
+        $results = servers_exec($server, array('ok_exitcodes' => '1',
+                                               'commands'     => array('netstat', array('sudo' => true, '-peanut', 'connector' => '|'),
+                                                                       'grep'   , array(':'.$port))));
 
         foreach($results as $result){
             preg_match_all('/ (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):(\d{1,5}) /', $result, $matches);

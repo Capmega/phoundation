@@ -102,53 +102,103 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
 /*
  * Returns a random IP from the pool of all IP's available on this computer
  * 127.0.0.1 will NOT be returned, all other IP's will
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package curl
+ * @todo Implement IPv6 support! The variable is there, but
+ * @see curl_get_random_ip()
+ * @version 2.4.60 Added function and documentation
+ *
+ * @param boolean $ipv4 If set to true, IPv4 addresses are also returned
+ * @param boolean $ipv6 If set to true, IPv6 addresses are also returned
+ * @param boolean $localhost If set to true, the localhost ip 127.0.0.1 is also returned
+ * @return array All IP addresses available on this server
  */
-// :TODO: ADD IPV6 SUPPORT!
-function curl_get_random_ip($allowipv6 = false) {
+function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
     global $col;
 
     try{
         try{
-            $result = implode("\n", safe_exec('/sbin/ifconfig'));
+            $results = safe_exec(array('commands' => array('/sbin/ifconfig', array('connector' => '|'),
+                                                           'egrep'         , array('-i', 'addr|inet'))));
+            $results = implode($results, "\n");
 
         }catch(Exception $e){
-            throw new BException(tr('curl_get_random_ip(): Failed to execute ifconfig, it probably is not installed. On Ubuntu install it by executing "sudo apt install net-toolks"'), $e);
+            throw new BException(tr('curl_list_ips(): Failed to execute ifconfig, it probably is not installed. On Ubuntu install it by executing "sudo apt install net-toolks"'), $e);
         }
 
-        if(!preg_match_all('/(?:addr|inet)(?:\:| )(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) /', $result, $matches)){
-            throw new BException('curl_get_random_ip(): ifconfig returned no IPs', 'not-found');
+        if(!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)){
+            throw new BException('curl_list_ips(): ifconfig returned no IPs', 'not-found');
         }
 
         if(!$matches or empty($matches[1])) {
-            throw new BException('curl_get_random_ip(): No IP data found', 'not-found');
+            throw new BException('curl_list_ips(): No IP data found', 'not-found');
+        }
+
+        $flags   = FILTER_VALIDATE_IP;
+        $options = null;
+        $ips     = array();
+
+        if(!$ipv4){
+            if(!$ipv6){
+                throw new BException('curl_list_ips(): Both IPv4 and IPv6 IP\'s are specified to be disallowed', 'not-found');
+            }
+
+            $options = FILTER_FLAG_IPV6;
+
+        }elseif(!$ipv6){
+            $options = FILTER_FLAG_IPV4;
         }
 
         foreach($matches[1] as $ip){
-//            if(!preg_match('/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/', $ip)){
-//                if($allowipv6){
-//throw new BException('curl_get_random_ip(): IPv6 support is not yet supported', 'not-supported');
-//                }
-//
-//                continue;
-//            }
-
             if($ip == '127.0.0.1'){
-                /*
-                 * Doh, can't rip over localhost! :)
-                 */
-                continue;
+                if(!$localhost){
+                    continue;
+                }
             }
 
-            $ips[] = $ip;
+            if(filter_var($ip, $flags, $options)){
+                $ips[] = $ip;
+            }
         }
 
-        unset($matches);
+        return $ips;
 
-        if(empty($ips)) {
-            throw new BException('curl_get_random_ip(): No IPs found', 'not-found');
-        }
+    }catch(Exception $e){
+        throw new BException('curl_list_ips(): Failed', $e);
+    }
+}
 
-        return $ips[array_rand($ips)];
+
+
+/*
+ * Returns a random IP from the pool of all IP's available on this computer
+ * 127.0.0.1 will NOT be returned, all other IP's will
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package curl
+ * @see curl_list_ips()
+ * @version 2.4.60 Added function and documentation
+ *
+ * @param boolean $ipv4 If set to true, IPv4 addresses are also returned
+ * @param boolean $ipv6 If set to true, IPv6 addresses are also returned
+ * @param boolean $localhost If set to true, the localhost ip 127.0.0.1 can also be returned
+ * @return string A random IP address available on this server
+ */
+function curl_get_random_ip($ipv4 = true, $ipv6 = false, $localhost = false) {
+    global $col;
+
+    try{
+        $ips = curl_list_ips($ipv4, $ipv6, $localhost);
+        $ip  = $ips[array_rand($ips)];
+
+        return $ip;
 
     }catch(Exception $e){
         throw new BException('curl_get_random_ip(): Failed', $e);
@@ -311,7 +361,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
             curl_setopt($ch, CURLOPT_INTERFACE     ,  curl_get_random_ip());
             curl_setopt($ch, CURLOPT_TIMEOUT       ,  $params['timeout']);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,  $params['connect_timeout']);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, ($params['verify_ssl'] ? 2 : 0));
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,  $params['verify_ssl']);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,  $params['verify_ssl']);
 
             if($params['user_pwd']){

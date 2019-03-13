@@ -1285,21 +1285,21 @@ function sql_connector_name($connector){
  * @param
  * @return
  */
-function sql_is($value, $not = false){
+function sql_is($value, $label, $not = false){
     try{
         if($not){
             if($value === null){
-                return ' IS NOT ';
+                return ' IS NOT NULL ';
             }
 
-            return ' != ';
+            return ' != '.$label.' ';
         }
 
         if($value === null){
-            return ' IS ';
+            return ' IS NULL ';
         }
 
-        return ' = ';
+        return ' = '.$label.' ';
 
     }catch(Exception $e){
         throw new BException('sql_is(): Failed', $e);

@@ -56,8 +56,8 @@ function linux_library_init(){
 function linux_get_ssh_tcp_forwarding($server){
     try{
         $server   = servers_get($server);
-        $commands = 'sshd -T 2> /dev/null | grep -i allowtcpforwarding';
-        $results  = servers_exec($server, $commands);
+        $results  = servers_exec($server, array('commands' => array('sshd', array('-T', 'redirect' => '2> /dev/null', 'connector' => '|'),
+                                                                    'grep', array('-i', 'allowtcpforwarding'))));
         $result   = array_shift($results);
         $result   = strtolower(trim($result));
         $result   = str_cut($result, ' ', ' ');
@@ -103,8 +103,9 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
         }
 
         $enable   = ($enable ? 'yes' : 'no');
-        $commands = 'sudo cp -a /etc/ssh/sshd_config /etc/ssh/sshd_config~'.date_convert(null, 'Ymd-His').' && sudo sed -iE \'s/AllowTcpForwarding \+\(yes\|no\)/AllowTcpForwarding '.$enable.'/gI\' /etc/ssh/sshd_config && sudo service ssh restart';
-        $results  = servers_exec($server, $commands);
+        $results  = servers_exec($server, array('commands' => array('cp'     , array('sudo' => true, '-a', '/etc/ssh/sshd_config /etc/ssh/sshd_config~'.date_convert(null, 'Ymd-His'), 'connect' => '&&'),
+                                                                    'sed'    , array('sudo' => true, '-iE', 's/AllowTcpForwarding \+\(yes\|no\)/AllowTcpForwarding '.$enable.'/gI', '/etc/ssh/sshd_config', 'connect' => '&'),
+                                                                    'service', array('sudo' => true, 'ssh', 'restart'))));
 
         return $enable;
 
@@ -131,7 +132,8 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
 function linux_file_exists($server, $path){
     try{
         $server  = servers_get($server);
-        $results = servers_exec($server, 'ls '.$path, false, null, 2);
+        $results = servers_exec($server, array('ok_exitcodes' => '0,2',
+                                               'commands'     => array('ls', array($path))));
 
         return true;
 
@@ -159,7 +161,7 @@ showdie($e);
 function linux_scandir($server, $path){
     try{
         $server  = servers_get($server);
-        $results = servers_exec($server, 'ls '.$path);
+        $results = servers_exec($server, array('commands' => array('ls', array($path))));
         $result  = array_shift($results);
         $result  = strtolower(trim($result));
 
@@ -198,7 +200,7 @@ function linux_file_delete($server, $patterns, $clean_path = false, $sudo = fals
         $server = servers_get($server);
 
         foreach(array_force($patterns) as $pattern){
-            servers_exec($server, ($sudo ? 'sudo ' : '').'rm -rf '.$pattern);
+            servers_exec($server, array('commands' => array('rm', array_merge(array('sudo' => $sudo, '-rf'), $patterns))));
 
             if($clean_path){
                 linux_file_clear_path(dirname($patterns));
@@ -313,7 +315,8 @@ function linux_file_clear_path($server, $path){
 function linux_is_writable($server, $file){
     try{
         $server  = servers_get($server);
-        $results = servers_exec($server, 'test -w "'.$path.'" && echo "writable"');
+        $results = servers_exec($server, array('commands' => array('test', array('-w', $path, 'connector' => '&&'),
+                                                                   'echo', array('writable'))));
         $result  = array_shift($results);
 
         return $result;
@@ -342,7 +345,8 @@ function linux_is_writable($server, $file){
 function linux_pgrep($server, $name){
     try{
         $server  = servers_get($server);
-        $results = servers_exec($server, 'pgrep '.$name, false, null, 1);
+        $results = servers_exec($server, array('ok_exitcodes' => '0,1',
+                                               'commands'     => array('pgrep', array($name))));
 
         if(count($results) == 1){
             if(!current($results)){
@@ -399,7 +403,8 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
         /*
          * pkill returns 1 if no process name matched, so we can ignore that
          */
-        $results = servers_exec($server, ($sudo ? 'sudo ' : '').'pkill -'.$signal.' '.$process, false, null, 1);
+        $results = servers_exec($server, array('ok_exitcodes' => '0,1',
+                                               'commands'     => array('pkill', array('sudo' => $sudo, '-'.$signal, $process))));
         $results = array_shift($results);
 
         if($results){
@@ -469,22 +474,10 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
 function linux_list_processes($server, $filters){
     try{
         $filters = array_force($filters);
-
-        foreach($filters as &$filter){
-            $filter = trim($filter);
-
-            if($filter[0] == '-'){
-                $filter = '\\\\'.$filter;
-            }
-
-            $filter = '"'.$filter.'"';
-        }
-
-        unset($filter);
-
-        $filters = implode(' | grep --color=never ', $filters);
-        $command = 'ps ax | grep -v "grep" | grep --color=never '.$filters;
-        $results = servers_exec($server, $command, false, null, '0,1');
+        $results = safe_exec(array('ok_exitcodes' => '0,1',
+                                   'commands'     => array('ps'  , array('ax', 'connector' => '|'),
+                                                           'grep', array_merge(array('--color=never', 'connector' => '|'), $filters),
+                                                           'grep', array('--color=never', '-v', 'grep --color=never'))));
         $retval  = array();
 
         foreach($results as $key => $result){
@@ -574,7 +567,9 @@ function linux_netstat($server, $options){
  */
 function linux_which($server, $command, $whereis = false){
     try{
-        $result = servers_exec($server, ($whereis ? 'whereis' : 'which').' "'.$command.'"', false, null, '0,1');
+        $result = servers_exec($server, array('ok_exitcodes' => '0,1',
+                                              'commands'     => array(($whereis ? 'whereis' : 'which'), array($command))));
+
         $result = array_shift($result);
 
         return get_null($result);
@@ -649,11 +644,25 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
                 }
         }
 
-        if($clear){
-            servers_exec($server, 'rm "'.$path.'" -rf; mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
+        /*
+         * Set mode if required so
+         */
+        if($mode){
+            $arguments = array('-p', $path);
 
         }else{
-            servers_exec($server, 'mkdir '.($mode ? ' -m "'.$mode.'"' : '').' -p "'.$path.'"');
+            $arguments = array('-m', $mode, '-p', $path);
+        }
+
+        /*
+         * Ensure that the specified path is cleared if specified so
+         */
+        if($clear){
+            servers_exec($server, array('commands' => array('rm'   , array($path, '-rf'),
+                                                            'mkdir', $arguments)));
+
+        }else{
+            servers_exec($server, array('commands' => array('mkdir', $arguments)));
         }
 
         return $path;
@@ -766,6 +775,7 @@ notify('UNDER CONSTRUCTION! linux_delete() does not yet have support for $clean_
  */
 function linux_unzip($server, $file, $remove = true){
     try{
+under_construction('Move this to compress_unzip()');
         $filename = filename($file);
         $filename = str_runtil($file, '.');
         $path     = TMP.$filename.'/';
@@ -782,7 +792,8 @@ function linux_unzip($server, $file, $remove = true){
         /*
          * Unzip and
          */
-        servers_exec($server, 'cd '.$path.'; gunzip "'.$filename.'"');
+        servers_exec($server, array('commands' => array('cd'    , array($path),
+                                                        'gunzip'. array($filename))));
         linux_delete($server, $path.$filename);
 
         return $path;
@@ -834,9 +845,12 @@ function linux_download($server, $url, $section = false, $callback = null){
             $file = TMP.$file;
         }
 
-        load_libs('linux');
+        load_libs('wget');
         linux_ensure_path(TMP.$section, 0770, true);
-        safe_exec('wget -q -O '.$file.' - "'.$url.'"');
+
+        wget(array('domain' => $server,
+                   'url'    => $url,
+                   'file'   => $file));
 
         if(!$section){
             /*
@@ -944,7 +958,8 @@ function linux_install_package($server, $package){
  */
 function linux_detect_os($server){
     try{
-        $results = server_exec($server, 'cat /etc/issue; echo; uname -a');
+        $results = server_exec($server, array('commands' => array('cat'  , array('/etc/issue'),
+                                                                  'uname', array('-a'))));
 showdie($results);
 
     }catch(Exception $e){
@@ -971,29 +986,10 @@ showdie($results);
  */
 function linux_realpath($server, $path){
     try{
-        $server  = servers_get($server);
-        $results = servers_exec($server, 'cd "'.$path.'"; pwd');
-        $result  = array_shift($results);
+        $results = servers_exec($server, array('commands' => array('realpath', array($path))));
+        $results = array_shift($results);
 
-        if(count($results)){
-            $error = array_shift($results);
-            $error = str_from($error, 'bash: line 0: cd: ');
-            $error = str_from($error, ' ');
-            $error = strtolower(trim($error, ' '));
-
-            switch($error){
-                case 'no such file or directory':
-                    throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'not-exists');
-
-                case 'permission denied':
-                    throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'access-denied');
-            }
-
-show($result);
-            throw new BException(tr('linux_realpath(): Failed to get a real path from the specified path ":path" on server ":server", it failed with ":e"', array(':path' => $path, ':server' => $server['domain'], ':e' => $error)), 'failed');
-        }
-
-        return $result;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('linux_realpath(): Failed', $e);

@@ -18,7 +18,7 @@ Some features include:
 
 * Multi lingual with automatic application of translations
 
-* User / Role / Rights management
+* Users / Roles / Rights management
 
 * On the fly CSS / JS bundler
 
@@ -26,13 +26,17 @@ Some features include:
 
 * Auto documentation generator (Currently under construction)
 
-* Multiple database connections easily managed
+* Multiple database connections easily managed and can be automatically tunneled over SSH
+
+* Servers management
+
+* Devices management over multiple servers
 
 * Over 200 libraries with loads of web functionalties but also functionalities like scanner management, fingerprint reader support, crypto currencies support, sms support, etc.
 
-See /doc for documentation
+See /data/doc for documentation
 
-See /doc/features for available features
+See /data/doc/features for available features
 
 This entire project has been released under the GNU Public License, Version 2, see http://opensource.org/licenses/GPL-2.0
 Unless specified differently, all files are copyright Sven Olaf Oostenbrink <sven@capmega.com>

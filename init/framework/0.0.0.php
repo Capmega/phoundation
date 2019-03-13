@@ -80,6 +80,7 @@ if(!sql_get('SELECT CONVERT_TZ("2012-06-07 12:00:00", "GMT", "America/New_York")
     log_console('Please fill in MySQL root password in the following "Enter password:" request', 'white');
     log_console('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages', 'yellow');
 
-    safe_exec('mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -p  -u root mysql');
+    safe_exec(array('commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
+                                        'mysql'              , array('-p', '-u', 'root', 'mysql'))));
 }
 ?>

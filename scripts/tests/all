@@ -1,43 +1,35 @@
 #!/usr/bin/php
 <?php
 /*
- * This is an empty test script template
+ * Execute all test scripts
  */
-$quiet = true;
 require_once(dirname(__FILE__).'/../../libs/startup.php');
+cli_only(true);
+load_libs('test');
 
-try{
-    cli_only();
-    load_libs('test');
+/*
+ * Empty command line arguments so that
+ */
+$path     = ROOT.'scripts/tests/';
+$argv     = array();
+$skiplist = array('.',
+                  '..',
+                  '.test',
+                  'all',
+                  'empty'); // Empty is a template script, dont execute it!
 
-    /*
-     * Empty command line arguments so that
-     */
-    $path     = ROOT.'scripts/tests/';
-    $argv     = array();
-    $skiplist = array('.',
-                      '..',
-                      '.test',
-                      'all',
-                      'empty'); // Empty is a template script, dont execute it!
+foreach(scandir($path) as $file){
+    try{
+        if(in_array($file, $skiplist)) continue;
 
-    foreach(scandir($path) as $file){
-        try{
-            if(in_array($file, $skiplist)) continue;
+        /*
+         * Create temporary test file that does not contain the shell hashbang header
+         */
+        log_console(tr('Executing ":test" tests', array(':test' => $file)), 'white');
+        script_exec('tests/'.$file);
 
-            /*
-             * Create temporary test file that does not contain the shell hashbang header
-             */
-            log_console(tr('Executing test ":test"', array(':test' => $file)), 'white');
-
-            script_exec('tests/'.$file);
-
-        }catch(Exception $e){
-            log_console($e, 'warning/'.$e->getCode());
-        }
+    }catch(Exception $e){
+        log_console($e, 'warning/'.$e->getCode());
     }
-
-}catch(Exception $e){
-    throw new BException('scripts/tests/all: Failed', $e);
 }
 ?>

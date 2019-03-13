@@ -20,7 +20,8 @@ $params = array('commands' => $params);
     array_default($params, 'function'    , 'exec');
     array_default($params, 'ok_exitcodes', 0);
     array_default($params, 'background'  , false);
-    array_default($params, 'output_log'  , (VERYVERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
+    array_default($params, 'log'         , true);
+    array_default($params, 'output_log'  , (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
 
     if($params['domain']){
         /*
@@ -55,7 +56,7 @@ $params = array('commands' => $params);
         $params['commands'] = 'export PATH="'.$_CONFIG['exec']['path'].'"; '.$params['commands'];
     }
 
-    log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), (PLATFORM_HTTP ? 'cyan' : 'VERBOSE/cyan'));
+    log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), (PLATFORM_HTTP ? 'cyan' : ($params['log'] ? '' : 'VERY').'VERBOSE/cyan'));
 
     /*
      * Execute the command
@@ -93,6 +94,7 @@ $params = array('commands' => $params);
             $lastline = '';
 
             passthru($params['commands'], $exitcode);
+            $output = $exitcode;
             break;
 
         case 'system':
@@ -113,7 +115,7 @@ under_construction();
             break;
 
         default:
-            throw new BException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, system, shell_exec, or pcntl_exec', array(':function' => $function)), 'not-specified');
+            throw new BException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, system, shell_exec, or pcntl_exec', array(':function' => $params['function'])), 'not-specified');
             break;
     }
 
@@ -144,6 +146,10 @@ under_construction();
             //    log_file($lasline, 'safe_exec', 'error');
             //}
 
+            if($exitcode === 124){
+                throw new BException(tr('safe_exec(): Received exitcode 124 from scanner program, which very likely is a timeout'), 124);
+            }
+
             throw new BException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode, $output);
         }
     }
@@ -160,6 +166,10 @@ under_construction();
      */
     $e->setData($output);
 
-    throw new BException('safe_exec(): Failed', $e);
+    if($e->getRealCode() === 124){
+        throw new BException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);
+    }
+
+    throw new BException(tr('safe_exec(): Failed'), $e);
 }
 ?>
