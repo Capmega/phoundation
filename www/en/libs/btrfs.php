@@ -55,10 +55,10 @@ function btrfs_library_init(){
  * @param params $params
  * @return void
  */
-function btrfs_install($params){
+function btrfs_install(){
     try{
-        load_libs('apt');
-        apt_install('btrfs-tools');
+        load_libs('linux');
+        linux_install_package(null, 'btrfs-tools');
 
     }catch(Exception $e){
         throw new BException('btrfs_install(): Failed', $e);

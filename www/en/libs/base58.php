@@ -67,7 +67,7 @@ function base58_install($params){
         /*
          * PHP bcmath extension is missing
          */
-        load_libs('git,apt');
+        load_libs('git,linux');
 
         file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/external/', 0770, function(){
             $path = git_clone('https://github.com/stephen-hill/base58php.git', TMP, true);
@@ -79,7 +79,7 @@ function base58_install($params){
              * PHP bcmath extension is missing
              */
             log_file(tr('PHP bcmath extension missing, installing automatically'), 'base58', 'yellow');
-            apt_install('php-bcmath');
+            linux_install_package(null, 'php-bcmath');
         }
 
     }catch(Exception $e){

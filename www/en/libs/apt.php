@@ -56,12 +56,47 @@ function apt_library_init(){
  * @param string $packages A string delimited list of packages to be installed
  * @return string The output from the apt-get command
  */
-function apt_install($packages, $server = null){
+function apt_install($packages, $auto_update = true, $server = null){
     try{
+        if($auto_update){
+            apt_update($server = null);
+        }
+
         $packages  = array_force($packages);
         $arguments = array_merge(array('sudo' => true, '-y', 'install'), array_force($packages, ' '));
 
         return servers_exec($server, array('commands' => array('apt', $arguments)));
+
+    }catch(Exception $e){
+        throw new BException('apt_install(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Install the specified apt packages on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package apt
+ * @version 2.0.3: Added documentation
+ * @example
+ * code
+ * $result = apt_install('axel,git');
+ * /code
+ *
+ * This would install the git and axel packages
+ *
+ * @param string $packages A string delimited list of packages to be installed
+ * @return string The output from the apt-get command
+ */
+function apt_update($server = null){
+    try{
+        $results = servers_exec($server, array('commands' => array('apt', array('update'))));
+        return $results;
 
     }catch(Exception $e){
         throw new BException('apt_install(): Failed', $e);
