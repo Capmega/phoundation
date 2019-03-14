@@ -38,7 +38,7 @@ function validate_library_init(){
                     linux_install_package(null, 'php-intl');
 
                 }catch(Exception $e){
-                    throw new BException(tr('validate_library_init(): php module "intl" appears not to be installed, and failed to installed automatically. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-intl; sudo php5enmod intl" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-intl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'intl');
+                    throw new BException(tr('validate_library_init(): php module "intl" appears not to be installed, and failed to installed automatically. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-intl; sudo php5enmod intl" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-intl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), $e);
                 }
             }
 
