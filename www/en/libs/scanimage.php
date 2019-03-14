@@ -105,6 +105,7 @@ function scanimage($params){
                     rsync(array('source'              => $server['domain'].':'.$params['path'],
                                 'target'              => $params['local']['batch'],
                                 'monitor_pid'         => $pid,
+                                'exclude'             => '*.part',
                                 'remove_source_files' => true));
 
                     $params['result']  = $params['local']['batch'];

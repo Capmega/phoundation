@@ -1996,7 +1996,7 @@ function blogs_photo_url($media, $size, $section = 'blogs/media'){
                 /*
                  * Valid
                  */
-                return cdn_domain('/blog/'.$media.'-'.$size.'.jpg', $section);
+                return cdn_domain('/'.$media.'-'.$size.'.jpg', $section);
 
             default:
                 throw new BException(tr('blogs_photo_url(): Unknown size ":size" specified', array(':size' => $size)), 'unknown');

@@ -270,7 +270,7 @@ function http_headers($params, $content_length){
             $headers[] = 'X-Powered-By: '.$_CONFIG['security']['expose_php'];
         }
 
-        $headers[] = 'Content-Type: '.$params['mimetype'].'; charset='.$_CONFIG['charset'];
+        $headers[] = 'Content-Type: '.$params['mimetype'].'; charset='.$_CONFIG['encoding']['charset'];
 
         if(defined('LANGUAGE')){
             $headers[] = 'Content-Language: '.LANGUAGE;

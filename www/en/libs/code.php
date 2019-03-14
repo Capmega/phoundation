@@ -137,8 +137,8 @@ function code_locate_toolkit(){
     try{
         if(!$found){
             $paths = array(ROOT.'../toolkit.capmega.com/',
-                           ROOT.'../../toolkit.capmega.com/',
-                           '/var/www/html/toolkit.capmega.com/');
+                           ROOT.'../../capmega/toolkit.capmega.com/',
+                           '/var/www/html/capmega/toolkit.capmega.com/');
 
             $home = getenv('HOME');
 

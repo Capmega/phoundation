@@ -907,9 +907,11 @@ function linux_install_package($server, $package){
         $os['distribution'] = 'ubuntu-server';
 
         switch($os['distribution']){
-            case 'ubuntu-server':
+            case 'debian':
                 // FALLTHROUGH
             case 'ubuntu':
+                // FALLTHROUGH
+            case 'ubuntu-server':
                 // FALLTHROUGH
             case 'kubuntu':
                 // FALLTHROUGH
@@ -919,17 +921,17 @@ function linux_install_package($server, $package){
                 // FALLTHROUGH
             case 'edubuntu':
                 // FALLTHROUGH
-            case 'debian':
-                // FALLTHROUGH
             case 'mint':
-                load_libs('apt');
-                return apt_install($package);
+                load_libs('ubuntu');
+                return ubuntu_install_package($package, $server);
 
             case 'redhat':
                 // FALLTHROUGH
             case 'centos':
                 // FALLTHROUGH
             case 'fedora':
+                load_libs('redhat');
+                return redhat_install_package($package, $server);
                 break;
 
             default:

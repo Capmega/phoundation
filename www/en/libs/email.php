@@ -149,9 +149,9 @@ function email_poll($params){
          */
         execute_callback(isset_get($params['callbacks']['start']));
 
-        $imap     = email_connect($userdata, $params['mail_box']);
-        $mails    = imap_search($imap, $params['criteria'], SE_FREE, $params['character_set']);
-        $retval   = array();
+        $imap   = email_connect($userdata, $params['mail_box']);
+        $mails  = imap_search($imap, $params['criteria'], SE_FREE, $params['character_set']);
+        $retval = array();
 
         /*
          * Post IMAP Fetch
@@ -1146,6 +1146,8 @@ function email_load_phpmailer(){
  * Validates the specified email array and returns correct email data
  */
 function email_validate($email){
+    global $_CONFIG;
+
     try{
         load_libs('validate');
         array_default($email, 'validate_sender', false);
@@ -1154,8 +1156,15 @@ function email_validate($email){
 
         $v->isNotEmpty($email['to']     , tr('Please specify an email destination'));
         $v->isNotEmpty($email['from']   , tr('Please specify an email source'));
+
+        /*
+         * verify if subject it's in template $config
+         */
+        if(isset($email['template']) AND isset($_CONFIG['email']['templates'][$email['template']]['subject'])){
+            $email['subject'] = $_CONFIG['email']['templates'][$email['template']]['subject'];
+        }
+
         $v->isNotEmpty($email['subject'], tr('Please specify an email subject'));
-        $v->isNotEmpty($email['subject'], tr('Please write something in the email'));
 
         if(!email_from_exists($email['from'])){
             $v->setError(tr('Specified source email ":email" does not exist', array(':email' => $email['from'])));
@@ -1176,7 +1185,15 @@ function email_validate($email){
                 break;
 
             default:
-                $v->setError(tr('Unkown format ":format" specified', array(':format' => $params['format'])));
+                $v->setError(tr('Unkown format ":format" specified', array(':format' => $email['format'])));
+        }
+
+        if(!isset($email['template'])){
+             throw new BException(tr('email_prepare(): You need to specify a template'), 'not-exists');
+        }
+
+        if(!isset($_CONFIG['email']['templates'][$email['template']])){
+            throw new BException(tr('email_prepare(): specified template ":template" does not exists', array(':template' => $email['template'])), 'not-exists');
         }
 
         $v->isValid();
@@ -1202,107 +1219,48 @@ function email_prepare($email){
         array_default($email, 'footer'  , isset_get($_CONFIG['email']['footer']));
         array_default($email, 'template', '');
 
+        if(!isset($email['template'])){
+            throw new BException(tr('email_prepare(): You need to set template for email'), 'not-exists');
+        }
+
+        $design = '';
         /*
-         * Which format are we using?
+         * check if design was specified in params
          */
-        if(!empty($params['template'])){
+
+        if(!isset($email['design'])){
             /*
-             * Ensure that the specified type exists on configuration
+             * Check if desing was specified template config
              */
-            if(empty($_CONFIG['email']['templates'][$params['template']])){
-                throw new BException(tr('email_prepare(): Unkown template ":template"', array(':template' => $params['template'])), 'unkown');
+            if(!isset($_CONFIG['email']['templates'][$email['template']]['design'])){
+                /*
+                 * Check if desing was specified Global config
+                 */
+                if(!isset($_CONFIG['email']['templates']['design'])){
+                    throw new BException(tr('email_prepare(): You need to specify a desing'), 'not-exists');
+                }
+
+                $design = $_CONFIG['email']['templates']['design'];
+
+            }else{
+                $design = $_CONFIG['email']['templates'][$email['template']]['design'];
             }
 
-            $replace = array(':body' => $email['body']);
-
-            $email['body'] = load_content($_CONFIG['email']['templates'][$email['template']]['file'], $replace, LANGUAGE);
-
         }else{
-            $params['template'] = null;
+            $design = $email['design'];
         }
 
-// :DELETE: I'm not even going to pretend I understand why this is needed, or what it is supposed to be used for...
-        ///*
-        // * Get user info
-        // */
-        //$user = sql_get('SELECT `id`,
-        //                        `name`,
-        //                        `username`,
-        //                        `email`
-        //
-        //                 FROM   `users`
-        //
-        //                 WHERE  `email` = :email',
-        //
-        //                 array(':email' => $params['to']));
-        //
-        //if(!$user){
-        //    if($params['require_user']){
-        //        throw new BException(tr('email_delay(): Specified user ":user" does not exist', array(':user' => $params['to'])), 'not-exists');
-        //    }
-        //
-        //    $user = array('id' => null);
-        //}
+        $template = load_content('/emails/'.$email['template']);
+        $design   = load_content('/emails/'.$design);
 
-        $email['date'] = date('Y-m-d H:i:s');
-
-        /*
-         * Add header / footer
-         */
-        if($email['header']){
-            $email['text'] = $_CONFIG['email']['header'].$email['text'];
-            $email['html'] = $_CONFIG['email']['header'].$email['html'];
-        }
-
-        if($email['footer']){
-            $email['text'] = $email['text'].$_CONFIG['email']['footer'];
-            $email['html'] = $email['html'].$_CONFIG['email']['footer'];
-        }
-
-
-
-        /*
-         *
-         */
-        if(strpos($email['to'], '<') !== false){
-            $email['to_name'] = trim(str_until($email['to'], '<'));
-            $email['to']      = trim(str_cut($email['to'], '<', '>'));
-
-        }else{
-            $email['to_name'] = '';
-        }
-
-        if(strpos($email['from'], '<') !== false){
-            $email['from_name'] = trim(str_until($email['from'], '<'));
-            $email['from']      = trim(str_cut($email['from'], '<', '>'));
-
-        }else{
-            $email['from_name'] = '';
-        }
-
-
-
-        /*
-         * Do search / replace over the email body
-         */
-        if($email['replace']){
-            load_libs('user');
-
-            switch(gettype($email['replace'])){
-                case 'boolean':
-                    $email['replace'] = array(//':toname' => (empty($email['user_name']) ? $email['user_username'] : $email['user_name']),
-                                              ':user'   => name($_SESSION['user']),
-                                              ':email'  => isset_get($_SESSION['user']['email']),
-                                              ':domain' => domain());
-                case 'array':
-                    break;
-
-                default:
-                    throw new BException(tr('email_prepare(): Invalid "replace" specified, is a ":type" but should be either true, false, or an array containing the from => to values', array(':type' => gettype($email['replace']))), 'invalid');
+        if (isset($email['keywords'])) {
+            foreach($email['keywords'] as $key => $keyword){
+                $template = str_replace($key, $keyword, $template);
+                $design   = str_replace($key, $keyword, $design);
             }
-
-            $email['text'] = str_replace(array_keys($email['replace']), array_values($email['replace']), $email['text']);
         }
+
+        $email['html'] = str_replace(':body', $template, $design);
 
         return $email;
 

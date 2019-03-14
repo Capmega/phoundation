@@ -72,16 +72,16 @@ function devices_insert($device, $server = null){
 
             switch($exists['status']){
                 case 'not-found':
-                    log_console(tr('Not inserting ":device" on server ":server", it is already registered. Enabling existing device instead.', array(':device' => $exists, ':server' => $exists['domain'])), 'VERBOSE/yellow');
+                    log_console(tr('Not inserting ":device" on server ":server", it is already registered with id ":id". Enabling existing device instead.', array(':device' => $exists['description'], ':server' => $exists['domain'], ':id' => $exists['id'])), 'VERBOSE/yellow');
                     devices_set_status(null, $exists['id']);
                     return $exists;
 
                 case null:
-                    log_console(tr('Not inserting ":device" on server ":server", it is already registered.', array(':device' => $exists, ':server' => $exists['domain'])), 'VERBOSE/yellow');
+                    log_console(tr('Not inserting ":device" on server ":server", it is already registered.', array(':device' => $exists['description'], ':server' => $exists['domain'])), 'VERBOSE/yellow');
                     return $exists;
 
                 default:
-                    log_console(tr('Not inserting ":device" on server ":server", it is already registered, though with status ":status".', array(':device' => $exists, ':server' => $exists['domain'], ':status' => $exists['status'])), 'VERBOSE/yellow');
+                    log_console(tr('Not inserting ":device" on server ":server", it is already registered, though with status ":status".', array(':device' => $exists['description'], ':server' => $exists['domain'], ':status' => $exists['status'])), 'VERBOSE/yellow');
                     return $exists;
             }
         }
@@ -921,7 +921,11 @@ function devices_list($type, $all = false, $default_only = false){
  */
 function devices_get($device, $server = null){
     try{
-        if(is_natural($device)){
+        if(is_numeric($device)){
+            if(!is_natural($device)){
+                throw new BException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
+            }
+
             $where = ' WHERE `devices`.`id` = :id ';
             $execute[':id'] = $device;
 
@@ -935,6 +939,10 @@ function devices_get($device, $server = null){
             $execute[':servers_id'] = $server['id'];
 
         }else{
+            if(!$device){
+                throw new BException(tr('devices_get(): No device specified'), 'not-specified');
+            }
+
             throw new BException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
         }
 

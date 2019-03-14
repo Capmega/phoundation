@@ -68,6 +68,8 @@ set_exception_handler('uncaught_exception');
  */
 $core = new Core();
 
+
+
 /*
  * Check what platform we're in
  */
@@ -271,6 +273,9 @@ class Core{
                 }
             }
 
+        }catch(Error $e){
+            throw new BException(tr('core::startup(): Failed with PHP error'), $e);
+
         }catch(Exception $e){
             if(headers_sent($file, $line)){
                 if(preg_match('/debug-.+\.php$/', $file)){
@@ -283,6 +288,7 @@ class Core{
             throw new BException(tr('core::startup(): Failed'), $e);
         }
     }
+
 
 
     /*
@@ -914,6 +920,7 @@ function load_external($files){
  */
 function load_libs($libraries){
     global $_CONFIG, $core;
+    static $loaded = array();
 
     try{
         if(defined('LIBS')){
@@ -934,6 +941,13 @@ function load_libs($libraries){
                 throw new BException('load_libs(): Empty library specified', 'emptyspecified');
             }
 
+            if(isset($loaded[$library])){
+                /*
+                 * This library has already been loaded, skip
+                 */
+                continue;
+            }
+
             if($core->register['ready'] and str_exists('http,strings,array,sql,mb,meta,file,json', $library)){
                 /*
                  * These are system libraries that are always loaded. Do not
@@ -943,7 +957,8 @@ function load_libs($libraries){
             }
 
             include_once($libs.$library.'.php');
-            $function = str_replace('-', '_', $library).'_library_init';
+            $function         = str_replace('-', '_', $library).'_library_init';
+            $loaded[$library] = true;
 
             if(is_callable($function)){
                 /*
@@ -1064,6 +1079,7 @@ function load_config($files = ''){
  * @category Function reference
  * @package system
  * @version 2.0.7: Fixed loading bugs, improved error handling
+ * @version 2.4.62: Fixed bug with "deploy" config
  *
  * @param string $file
  * @param string $environment
@@ -1077,30 +1093,30 @@ function read_config($file = null, $environment = null){
 
         if($file === 'deploy'){
             include(ROOT.'config/deploy.php');
+            return $_CONFIG;
+        }
+
+        if($file){
+            if(file_exists(ROOT.'config/base/'.$file.'.php')){
+                $loaded = true;
+                include(ROOT.'config/base/'.$file.'.php');
+            }
+
+            $file = '_'.$file;
 
         }else{
-            if($file){
-                if(file_exists(ROOT.'config/base/'.$file.'.php')){
-                    $loaded = true;
-                    include(ROOT.'config/base/'.$file.'.php');
-                }
+            $loaded = true;
+            include(ROOT.'config/base/default.php');
+        }
 
-                $file = '_'.$file;
+        if(file_exists(ROOT.'config/production'.$file.'.php')){
+            $loaded = true;
+            include(ROOT.'config/production'.$file.'.php');
+        }
 
-            }else{
-                $loaded = true;
-                include(ROOT.'config/base/default.php');
-            }
-
-            if(file_exists(ROOT.'config/production'.$file.'.php')){
-                $loaded = true;
-                include(ROOT.'config/production'.$file.'.php');
-            }
-
-            if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
-                $loaded = true;
-                include(ROOT.'config/'.$environment.$file.'.php');
-            }
+        if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
+            $loaded = true;
+            include(ROOT.'config/'.$environment.$file.'.php');
         }
 
         if(empty($loaded)){
@@ -3455,7 +3471,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
          */
         if($delete){
             foreach($files as $url => $file){
-                file_delete($file, true);
+                // file_delete($file, true);
             }
         }
 
@@ -5351,7 +5367,7 @@ function shutdown(){
          */
         $level = mt_rand(0, 100);
 
-        if($_CONFIG['shutdown']){
+        if(!empty($_CONFIG['shutdown'])){
             if(!is_array($_CONFIG['shutdown'])){
                 throw new BException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
             }

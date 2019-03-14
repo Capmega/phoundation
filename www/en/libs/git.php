@@ -574,13 +574,16 @@ function git_push($path = ROOT, $remote = null, $branch = null, $tags = true){
         $push = safe_exec(array('commands' => array('cd' , array($path),
                                                       'git', array('push', $remote, $branch))));
 
-        $tags = safe_exec(array('commands' => array('cd' , array($path),
-                                                    'git', array('push', '--tags', $remote, $branch))));
+        if($tags){
+            $tags = safe_exec(array('commands' => array('cd' , array($path),
+                                                        'git', array('push', '--tags', $remote, $branch))));
+            $push = array_merge($push, $tags);
+        }
 
-        return array_merge($push, $tags);
+        return $push;
 
     }catch(Exception $e){
-        throw new BException('git_pull(): Failed', $e);
+        throw new BException('git_push(): Failed', $e);
     }
 }
 
@@ -675,6 +678,10 @@ function git_status($path = ROOT, $filters = null){
             switch($status){
                 case 'D ':
                     $status = 'deleted';
+                    break;
+
+                case ' T':
+                    $status = 'typechange';
                     break;
 
                 case ' D':
