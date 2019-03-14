@@ -67,7 +67,7 @@ function apt_install($packages, $auto_update = true, $server = null){
         $arguments = array_merge(array('sudo' => true, '-y', 'install'), array_force($packages, ' '));
 
         return servers_exec($server, array('timeout'  => 120,
-                                           'function' => 'passthru',
+                                           'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                            'commands' => array('apt-get', $arguments)));
 
     }catch(Exception $e){
@@ -99,7 +99,7 @@ function apt_install($packages, $auto_update = true, $server = null){
 function apt_update($server = null){
     try{
         $results = servers_exec($server, array('timeout'  => 120,
-                                               'function' => 'passthru',
+                                               'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                                'commands' => array('apt', array('update'))));
         return $results;
 
@@ -132,7 +132,7 @@ function apt_update($server = null){
 function apt_fix($server = null){
     try{
         $results = servers_exec($server, array('timeout'  => 120,
-                                               'function' => 'passthru',
+                                               'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                                'commands' => array('dpkg'   , array('sudo' => true, '--configure', '-a', 'connector' => '&&'),
                                                                    'apt-get', array('sudo' => true, 'install', '-f'))));
         return $results;
