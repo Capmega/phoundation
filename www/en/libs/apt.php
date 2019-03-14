@@ -65,7 +65,8 @@ function apt_install($packages, $auto_update = true, $server = null){
         $packages  = array_force($packages);
         $arguments = array_merge(array('sudo' => true, '-y', 'install'), array_force($packages, ' '));
 
-        return servers_exec($server, array('commands' => array('apt', $arguments)));
+        return servers_exec($server, array('timeout'  => 120,
+                                           'commands' => array('apt', $arguments)));
 
     }catch(Exception $e){
         throw new BException('apt_install(): Failed', $e);
