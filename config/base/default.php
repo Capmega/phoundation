@@ -89,7 +89,7 @@ $_CONFIG['cdn']                = array('min'                                => t
 
 // Characterset
 $_CONFIG['encoding']           = array('charset'                            => 'UTF-8',                                                 // The default character set for this website (Will be used in meta charset tag)
-                                       'normalize'                          => Normalizer::FORM_C);                                     // Normalize UTF8 strings with the specified form. Possible values are Normalizer::FORM_C | Normalizer::FORM_D | Normalizer::FORMKC | Normalizer::FORMKD Normalizer::NONE | Normalizer::OPTION_DEFAULT
+                                       'normalize'                          => null);                                                   // Normalize UTF8 strings with the specified form. Possible values are Normalizer::FORM_C | Normalizer::FORM_D | Normalizer::FORMKC | Normalizer::FORMKD Normalizer::NONE | Normalizer::OPTION_DEFAULT | null for default FORM_C
 
 // Check disk configuration
 $_CONFIG['check_disk']         = array('percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %

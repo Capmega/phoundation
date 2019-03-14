@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.68');
+define('FRAMEWORKCODEVERSION', '2.4.69');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -207,13 +207,6 @@ class Core{
         global $_CONFIG, $core;
 
         try{
-            /*
-             * Ensure all required PHP modules are available
-             */
-            if(!extension_loaded('intl')){
-                throw new BException(tr('startup(): php module "intl" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-intl; sudo php5enmod intl" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-intl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'intl');
-            }
-
             /*
              * Detect platform and execute specific platform startup sequence
              */
