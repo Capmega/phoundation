@@ -176,7 +176,7 @@ function chat_update_user($user){
                               ':user_email' => $user['email'],
                               ':user_rank'  => $rank),
 
-                        null, 'chat');
+                         'chat');
 
         if(!$r->rowCount()){
             /*
