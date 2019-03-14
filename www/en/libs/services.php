@@ -320,7 +320,7 @@ function services_get($service, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `services`.`status` '.sql_is($status).' :status';
+            $where[] = ' `services`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -425,7 +425,7 @@ function services_select($params = null){
         array_default($params, 'orderby' , '`name`');
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 

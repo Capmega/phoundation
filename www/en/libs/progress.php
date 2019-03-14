@@ -204,7 +204,7 @@ function progress_get_process($process, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `progress_processes`.`status` '.sql_is($status).' :status';
+            $where[] = ' `progress_processes`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -280,7 +280,7 @@ function progress_get_step($processes_id, $step, $column = null, $status = null)
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `progress_steps`.`status` '.sql_is($status).' :status';
+            $where[] = ' `progress_steps`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where);
@@ -343,7 +343,7 @@ function progress_get_steps($processes_id, $columns = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[]            = ' `progress_steps`.`status` '.sql_is($status).' :status ';
+            $where[]            = ' `progress_steps`.`status` '.sql_is($status, ':status');
         }
 
         $where = ' WHERE '.implode(' AND ', $where);
@@ -493,7 +493,7 @@ function progress_processes_select($params = null){
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 

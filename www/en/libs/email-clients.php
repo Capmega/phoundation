@@ -246,7 +246,7 @@ function email_servers_select($params = null){
         array_default($params, 'orderby' , '`domain`');
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -298,7 +298,7 @@ function email_servers_get($email_server, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `email_servers`.`status` '.sql_is($status).' :status';
+            $where[] = ' `email_servers`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
