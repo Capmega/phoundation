@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.70');
+define('FRAMEWORKCODEVERSION', '2.4.71');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -920,6 +920,7 @@ function load_external($files){
  */
 function load_libs($libraries){
     global $_CONFIG, $core;
+    static $loaded = array();
 
     try{
         if(defined('LIBS')){
@@ -940,6 +941,13 @@ function load_libs($libraries){
                 throw new BException('load_libs(): Empty library specified', 'emptyspecified');
             }
 
+            if(isset($loaded[$library])){
+                /*
+                 * This library has already been loaded, skip
+                 */
+                continue;
+            }
+
             if($core->register['ready'] and str_exists('http,strings,array,sql,mb,meta,file,json', $library)){
                 /*
                  * These are system libraries that are always loaded. Do not
@@ -949,7 +957,8 @@ function load_libs($libraries){
             }
 
             include_once($libs.$library.'.php');
-            $function = str_replace('-', '_', $library).'_library_init';
+            $function         = str_replace('-', '_', $library).'_library_init';
+            $loaded[$library] = true;
 
             if(is_callable($function)){
                 /*
