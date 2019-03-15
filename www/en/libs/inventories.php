@@ -337,7 +337,7 @@ function inventories_select($params){
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -442,7 +442,7 @@ function inventories_get($entry, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `inventories`.`status` '.sql_is($status).' :status';
+            $where[] = ' `inventories`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -730,7 +730,7 @@ function inventories_select_item($params = null){
             $execute[':categories_id'] = $params['categories_id'];
 
             if($params['status'] !== false){
-                $where[] = ' `status` '.sql_is($params['status']).' :status ';
+                $where[] = ' `status` '.sql_is($params['status'], ':status');
                 $execute[':status'] = $params['status'];
             }
 
@@ -803,7 +803,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
          */
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `inventories_items`.`status` '.sql_is($status).' :status';
+            $where[] = ' `inventories_items`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';

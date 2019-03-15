@@ -781,7 +781,7 @@ function html_header($params = null, $meta = array()){
         $retval =  $params['doctype'].
                    $params['html'].'
                    <head>'.
-                  '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['charset'].'">'.
+                  '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
                   '<title>'.$title.'</title>';
 
         unset($meta['title']);

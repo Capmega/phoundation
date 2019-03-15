@@ -55,7 +55,7 @@ function template_library_init(){
  * @param
  * @return
  */
-function template_install($params){
+function template_install(){
     try{
         load_libs('apt');
         apt_install('template');

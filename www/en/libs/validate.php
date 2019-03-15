@@ -1,76 +1,100 @@
 <?php
 /*
- * Form data verification library
+ * Validate library
  *
- * Written by Sven Oostenbrink
- * examples :
+ * This library contains all user data validation functions
  *
-
-$vj = new ValidateJquery();
-
-$vj->validate('email'    , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('This field is required'));
-$vj->validate('email'    , 'email'    , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('This is not a valid email address'));
-$vj->validate('email'    , 'remote'   , '/ajax/signup_check.php', '<span class="FcbErrorTail"></span>'.tr('This email address is already in use'));
-$vj->validate('name'     , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('Please enter your name'));
-$vj->validate('terms'    , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('You are required to accept the terms and conditions'));
-$vj->validate('password' , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('Please enter a password'));
-$vj->validate('password' , 'minlength', '8'                     , '<span class="FcbErrorTail"></span>'.tr('Your password needs to have at least 8 characters'));
-$vj->validate('password2', 'equalTo'  , '#password'             , '<span class="FcbErrorTail"></span>'.tr('The password fields need to be equal'));
-$vj->validate('terms'    , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('You have to accept the terms and privacy policy'));
-$vj->validate('tel'      , 'regex'    , '^[^a-z]*$'             , '<span class="FcbErrorTail"></span>'.tr('Please specify a valid phone number'));
-
-$params = array('id'           => 'FcbSignup',
-
-                'quickhandler' => array('target' => '/ajax/signup.php',
-                                        'fail'   => 'alert("FAIL"); alert(textStatus);'));
-
-$html .= $vj->outputValidation($params);
-
-*/
-
-
-
-/*
- * Basic validation defines
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package validate
  */
-define('VALIDATE_NOT'                   ,          1); // Validate in reverse. isNotEmpty would fail it source is not empty. isAlpha would fail if source contains alpha, etc.
-define('VALIDATE_ALLOW_EMPTY_NULL'      ,          2); // Empty values are allowed, and will be converted to null
-define('VALIDATE_ALLOW_EMPTY_INTEGER'   ,          4); // Empty values are allowed, and will be converted to 0
-define('VALIDATE_ALLOW_EMPTY_BOOLEAN'   ,          8); // Empty values are allowed, and will be converted to false
-define('VALIDATE_ALLOW_EMPTY_STRING'    ,         16); // Empty values are allowed, and will be converted to ""
-define('VALIDATE_IGNORE_HTML'           ,         32); // Beyond the normal validation, the source may contain HTML
-define('VALIDATE_IGNORE_DOT'            ,         64); // Beyond the normal validation, the source may contain the . character
-define('VALIDATE_IGNORE_COMMA'          ,        128); // Beyond the normal validation, the source may contain the , character
-define('VALIDATE_IGNORE_DASH'           ,        256); // Beyond the normal validation, the source may contain the - character
-define('VALIDATE_IGNORE_UNDERSCORE'     ,        512); // Beyond the normal validation, the source may contain the _ character
-define('VALIDATE_IGNORE_SLASH'          ,       1024); // Beyond the normal validation, the source may contain the / or \ character
-define('VALIDATE_IGNORE_CARET'          ,       2048); // Beyond the normal validation, the source may contain the ^ character
-define('VALIDATE_IGNORE_COLON'          ,       4096); // Beyond the normal validation, the source may contain the : character
-define('VALIDATE_IGNORE_SEMICOLON'      ,       8192); // Beyond the normal validation, the source may contain the ; character
-define('VALIDATE_IGNORE_QUESTIONMARK'   ,      16384); // Beyond the normal validation, the source may contain the ? character
-define('VALIDATE_IGNORE_EXCLAMATIONMARK',      32768); // Beyond the normal validation, the source may contain the ! character
-define('VALIDATE_IGNORE_AT'             ,      65536); // Beyond the normal validation, the source may contain the @ character
-define('VALIDATE_IGNORE_POUND'          ,     131072); // Beyond the normal validation, the source may contain the # character
-define('VALIDATE_IGNORE_PERCENT'        ,     262144); // Beyond the normal validation, the source may contain the % character
-define('VALIDATE_IGNORE_DOLLAR'         ,     524288); // Beyond the normal validation, the source may contain the $ character
-define('VALIDATE_IGNORE_AMPERSANT'      ,    1048576); // Beyond the normal validation, the source may contain the & character
-define('VALIDATE_IGNORE_ASTERISK'       ,    2097152); // Beyond the normal validation, the source may contain the * character
-define('VALIDATE_IGNORE_PLUS'           ,    4194304); // Beyond the normal validation, the source may contain the + character
-define('VALIDATE_IGNORE_EQUALSIGN'      ,    8388608); // Beyond the normal validation, the source may contain the = character
-define('VALIDATE_IGNORE_PIPE'           ,   16777216); // Beyond the normal validation, the source may contain the | character
-define('VALIDATE_IGNORE_TILDE'          ,   33554432); // Beyond the normal validation, the source may contain the ~ character
-define('VALIDATE_IGNORE_SQUAREBRACKETS' ,   67108864); // Beyond the normal validation, the source may contain the [] characters
-define('VALIDATE_IGNORE_CURLYBRACKETS'  ,  134217728); // Beyond the normal validation, the source may contain the {} characters
-define('VALIDATE_IGNORE_PARENTHESES'    ,  268435456); // Beyond the normal validation, the source may contain the () characters
-define('VALIDATE_IGNORE_SINGLEQUOTES'   ,  536870912); // Beyond the normal validation, the source may contain the ' character
-define('VALIDATE_IGNORE_DOUBLEQUOTES'   , 1073741824); // Beyond the normal validation, the source may contain the " character
-define('VALIDATE_IGNORE_SPACE'          , 2147483648); // Beyond the normal validation, the source may contain the " " character
-define('VALIDATE_IGNORE_ALL'            , 4294967232); // Ignore all special characters, except HTML
 
 
 
 /*
+ * Initialize the library, automatically executed by libs_load()
  *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package validate
+ * @version 2.4.11: Added function and documentation
+ *
+ * @return void
+ */
+function validate_library_init(){
+    try{
+            /*
+             * Ensure all required PHP modules are available
+             */
+            if(!extension_loaded('intl')){
+                try{
+                    load_libs('linux');
+                    linux_install_package(null, 'php-intl');
+
+                }catch(Exception $e){
+                    throw new BException(tr('validate_library_init(): php module "intl" appears not to be installed, and failed to installed automatically. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-intl; sudo php5enmod intl" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-intl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), $e);
+                }
+            }
+
+            /*
+             * Basic validation defines
+             */
+            define('VALIDATE_NOT'                   ,          1); // Validate in reverse. isNotEmpty would fail it source is not empty. isAlpha would fail if source contains alpha, etc.
+            define('VALIDATE_ALLOW_EMPTY_NULL'      ,          2); // Empty values are allowed, and will be converted to null
+            define('VALIDATE_ALLOW_EMPTY_INTEGER'   ,          4); // Empty values are allowed, and will be converted to 0
+            define('VALIDATE_ALLOW_EMPTY_BOOLEAN'   ,          8); // Empty values are allowed, and will be converted to false
+            define('VALIDATE_ALLOW_EMPTY_STRING'    ,         16); // Empty values are allowed, and will be converted to ""
+            define('VALIDATE_IGNORE_HTML'           ,         32); // Beyond the normal validation, the source may contain HTML
+            define('VALIDATE_IGNORE_DOT'            ,         64); // Beyond the normal validation, the source may contain the . character
+            define('VALIDATE_IGNORE_COMMA'          ,        128); // Beyond the normal validation, the source may contain the , character
+            define('VALIDATE_IGNORE_DASH'           ,        256); // Beyond the normal validation, the source may contain the - character
+            define('VALIDATE_IGNORE_UNDERSCORE'     ,        512); // Beyond the normal validation, the source may contain the _ character
+            define('VALIDATE_IGNORE_SLASH'          ,       1024); // Beyond the normal validation, the source may contain the / or \ character
+            define('VALIDATE_IGNORE_CARET'          ,       2048); // Beyond the normal validation, the source may contain the ^ character
+            define('VALIDATE_IGNORE_COLON'          ,       4096); // Beyond the normal validation, the source may contain the : character
+            define('VALIDATE_IGNORE_SEMICOLON'      ,       8192); // Beyond the normal validation, the source may contain the ; character
+            define('VALIDATE_IGNORE_QUESTIONMARK'   ,      16384); // Beyond the normal validation, the source may contain the ? character
+            define('VALIDATE_IGNORE_EXCLAMATIONMARK',      32768); // Beyond the normal validation, the source may contain the ! character
+            define('VALIDATE_IGNORE_AT'             ,      65536); // Beyond the normal validation, the source may contain the @ character
+            define('VALIDATE_IGNORE_POUND'          ,     131072); // Beyond the normal validation, the source may contain the # character
+            define('VALIDATE_IGNORE_PERCENT'        ,     262144); // Beyond the normal validation, the source may contain the % character
+            define('VALIDATE_IGNORE_DOLLAR'         ,     524288); // Beyond the normal validation, the source may contain the $ character
+            define('VALIDATE_IGNORE_AMPERSANT'      ,    1048576); // Beyond the normal validation, the source may contain the & character
+            define('VALIDATE_IGNORE_ASTERISK'       ,    2097152); // Beyond the normal validation, the source may contain the * character
+            define('VALIDATE_IGNORE_PLUS'           ,    4194304); // Beyond the normal validation, the source may contain the + character
+            define('VALIDATE_IGNORE_EQUALSIGN'      ,    8388608); // Beyond the normal validation, the source may contain the = character
+            define('VALIDATE_IGNORE_PIPE'           ,   16777216); // Beyond the normal validation, the source may contain the | character
+            define('VALIDATE_IGNORE_TILDE'          ,   33554432); // Beyond the normal validation, the source may contain the ~ character
+            define('VALIDATE_IGNORE_SQUAREBRACKETS' ,   67108864); // Beyond the normal validation, the source may contain the [] characters
+            define('VALIDATE_IGNORE_CURLYBRACKETS'  ,  134217728); // Beyond the normal validation, the source may contain the {} characters
+            define('VALIDATE_IGNORE_PARENTHESES'    ,  268435456); // Beyond the normal validation, the source may contain the () characters
+            define('VALIDATE_IGNORE_SINGLEQUOTES'   ,  536870912); // Beyond the normal validation, the source may contain the ' character
+            define('VALIDATE_IGNORE_DOUBLEQUOTES'   , 1073741824); // Beyond the normal validation, the source may contain the " character
+            define('VALIDATE_IGNORE_SPACE'          , 2147483648); // Beyond the normal validation, the source may contain the " " character
+            define('VALIDATE_IGNORE_ALL'            , 4294967232); // Ignore all special characters, except HTML
+
+    }catch(Exception $e){
+        throw new BException('validate_library_init(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Build and return javascript validation code
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package validate
+ * @version 2.4.69: Added documentation
  */
 function verify_js($params){
     try{
@@ -116,6 +140,38 @@ function verify_js($params){
 
 
 
+/*
+ * Build and return javascript validation code
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package validate
+ * @version 2.4.69: Added documentation
+ * @example [Title]
+ * code
+ * $vj = new ValidateJquery();
+ *
+ * $vj->validate('email'    , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('This field is required'));
+ * $vj->validate('email'    , 'email'    , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('This is not a valid email address'));
+ * $vj->validate('email'    , 'remote'   , '/ajax/signup_check.php', '<span class="FcbErrorTail"></span>'.tr('This email address is already in use'));
+ * $vj->validate('name'     , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('Please enter your name'));
+ * $vj->validate('terms'    , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('You are required to accept the terms and conditions'));
+ * $vj->validate('password' , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('Please enter a password'));
+ * $vj->validate('password' , 'minlength', '8'                     , '<span class="FcbErrorTail"></span>'.tr('Your password needs to have at least 8 characters'));
+ * $vj->validate('password2', 'equalTo'  , '#password'             , '<span class="FcbErrorTail"></span>'.tr('The password fields need to be equal'));
+ * $vj->validate('terms'    , 'required' , 'true'                  , '<span class="FcbErrorTail"></span>'.tr('You have to accept the terms and privacy policy'));
+ * $vj->validate('tel'      , 'regex'    , '^[^a-z]*$'             , '<span class="FcbErrorTail"></span>'.tr('Please specify a valid phone number'));
+ *
+ * $params = array('id'           => 'FcbSignup',
+ *
+ *                 'quickhandler' => array('target' => '/ajax/signup.php',
+ *                                         'fail'   => 'alert("FAIL"); alert(textStatus);'));
+ *
+ * $html .= $vj->outputValidation($params);
+ * /code
+ */
 class ValidateJquery {
     var $validations = array();
 
@@ -638,6 +694,8 @@ class ValidateForm {
      *
      */
     function isScalar(&$value, $message = null, $flags = null){
+        global $_CONFIG;
+
         try{
             if(!$this->parseFlags($value, $message, $flags)){
                 return true;
@@ -645,6 +703,10 @@ class ValidateForm {
 
             if($this->not xor !is_scalar($value)){
                 return $this->setError($message);
+            }
+
+            if(is_string($value)){
+                $value = normalizer_normalize($value, isset_get($_CONFIG['locale']['normalize'], Normalizer::FORM_C));
             }
 
             return true;

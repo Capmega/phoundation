@@ -1289,14 +1289,14 @@ function sql_is($value, $label, $not = false){
     try{
         if($not){
             if($value === null){
-                return ' IS NOT NULL ';
+                return ' IS NOT '.$label.' ';
             }
 
             return ' != '.$label.' ';
         }
 
         if($value === null){
-            return ' IS NULL ';
+            return ' IS '.$label.' ';
         }
 
         return ' = '.$label.' ';

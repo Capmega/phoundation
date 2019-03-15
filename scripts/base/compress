@@ -40,7 +40,7 @@ if(!$js and !$css){
 
 if(TEST){
     if(!$path){
-        throw new bException('No test path specified.', 'not_specified');
+        throw new bException('No test path specified.', 'not-specified');
     }
 
     log_console(tr('Running compression test'), 'white');
@@ -49,13 +49,13 @@ if(TEST){
 
 }else{
     if($css or $all){
-        log_console(tr('Compressing only CSS files'), 'white');
+        log_console(tr('Compressing CSS files'), 'white');
         uglify_css(null, $force);
         log_console(tr('Finished compressing CSS files'), 'green');
     }
 
     if($js or $all){
-        log_console(tr('Compressing only javascript files'), 'white');
+        log_console(tr('Compressing javascript files'), 'white');
         uglify_js(null, $force);
         log_console(tr('Finished compressing javascript files'), 'green');
     }

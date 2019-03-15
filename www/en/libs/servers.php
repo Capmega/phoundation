@@ -504,7 +504,7 @@ function servers_select($params = null){
         array_default($params, 'orderby' , '`domain`');
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -857,7 +857,9 @@ function servers_exec_on_all($params){
                           LEFT JOIN `ssh_accounts`
                           ON        `ssh_accounts`.`id`              = `servers`.`ssh_accounts_id`
 
-                          WHERE `servers`.`status` '.sql_is($params['status']).' '.$params['status']);
+                          WHERE `servers`.`status` '.sql_is($params['status'], ':status'),
+
+                          array(':status' => $params['status']));
 
         while($server = sql_fetch($servers)){
             $params['callback']($server);

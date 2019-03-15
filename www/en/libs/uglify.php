@@ -111,11 +111,9 @@ function uglify_css($paths = null, $force = false){
     try{
         if(empty($check)){
             $check = true;
-            uglify_css_check($npm);
 
-            if(VERBOSE){
-                log_console('uglify_css(): Compressing all CSS files using uglifycss');
-            }
+            uglify_css_check($npm);
+            log_console('uglify_css(): Compressing all CSS files using uglifycss', 'VERBOSE');
         }
 
         if(empty($paths)){
@@ -128,27 +126,19 @@ function uglify_css($paths = null, $force = false){
         foreach(array_force($paths) as $path){
             if(!file_exists($path)) continue;
 
-            log_console(tr('uglify_css(): Compressing all CSS files in ":path"', array(':path' => $path)));
+            log_console(tr('uglify_css(): Compressing all CSS files in ":path"', array(':path' => $path)), 'DOT');
 
             if(is_dir($path)){
                 $path = slash($path);
 
-                if(VERBOSE){
-                    log_console('uglify_css(): Compressing all CSS files in directory "'.str_log($path).'"');
-                }
-
+                log_console(tr('uglify_css(): Compressing all CSS files in directory ":path"', array(':path' => $path)), 'DOT');
                 file_check_dir($path);
 
             }elseif(is_file($path)){
-                if(VERBOSE){
-                    log_console('uglify_css(): Compressing CSS file "'.str_log($path).'"');
-
-                }else{
-                    cli_dot();
-                }
+                log_console(tr('uglify_css(): Compressing CSS file ":path"', array(':path' => $path)), 'DOT');
 
             }else{
-                throw new BException('uglify_css(): Specified file "'.str_log($path).'" is neither a file or a directory', 'unknow_file_type');
+                throw new BException(tr('uglify_css(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
             }
 
              /*
@@ -381,7 +371,12 @@ function uglify_css($paths = null, $force = false){
                     file_delete(substr($file, 0, -4).'.min.css');
 
                     try{
-                        safe_exec(array('commands' => array($node, array($node_modules.'uglifycss/uglifycss', $file, 'redirect' => substr($file, 0, -4).'.min.css'))));
+                        if(filesize($file)){
+                            safe_exec(array('commands' => array($node, array($node_modules.'uglifycss/uglifycss', $file, 'redirect' => substr($file, 0, -4).'.min.css'))));
+
+                        }else{
+                            touch(substr($file, 0, -4).'.min.css');
+                        }
 
                     }catch(Exception $e){
                         /*
@@ -498,11 +493,9 @@ function uglify_js($paths = null, $force = false){
     try{
         if(empty($check)){
             $check = true;
-            uglify_js_check($npm);
 
-            if(VERBOSE){
-                log_console('uglify_js(): Compressing all javascript files using uglifyjs');
-            }
+            uglify_js_check($npm);
+            log_console('uglify_js(): Compressing all javascript files using uglifyjs', 'VERBOSE');
         }
 
         if(empty($paths)){
@@ -515,26 +508,19 @@ function uglify_js($paths = null, $force = false){
         foreach(array_force($paths) as $path){
             if(!file_exists($path)) continue;
 
-            log_console(tr('uglify_js(): Compressing all javascript files in ":path"', array(':path' => $path)));
+            log_console(tr('uglify_js(): Compressing all javascript files in ":path"', array(':path' => $path)), 'DOT');
 
             if(is_dir($path)){
                 $path = slash($path);
-                if(VERBOSE){
-                    log_console('uglify_js(): Compressing all javascript files in directory "'.str_log($path).'"');
-                }
 
+                log_console(tr('uglify_js(): Compressing all javascript files in directory ":path"', array(':path' => $path)), 'DOT');
                 file_check_dir($path);
 
             }elseif(is_file($path)){
-                if(VERBOSE){
-                    log_console('uglify_js(): Compressing javascript file "'.str_log($path).'"');
-
-                }else{
-                    cli_dot();
-                }
+                log_console(tr('uglify_js(): Compressing javascript file ":path"', array(':path' => $path)), 'DOT');
 
             }else{
-                throw new BException('uglify_js(): Specified file "'.str_log($path).'" is neither a file or a directory', 'unknow_file_type');
+                throw new BException(tr('uglify_js(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
             }
 
             /*
@@ -760,7 +746,12 @@ function uglify_js($paths = null, $force = false){
                     file_delete(substr($file, 0, -3).'.min.js');
 
                     try{
-                        safe_exec(array('commands' => array($node, array($node_modules.'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
+                        if(filesize($file)){
+                            safe_exec(array('commands' => array($node, array($node_modules.'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
+
+                        }else{
+                            touch(substr($file, 0, -4).'.min.js');
+                        }
 
                     }catch(Exception $e){
                         /*

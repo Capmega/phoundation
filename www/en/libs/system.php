@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.64');
+define('FRAMEWORKCODEVERSION', '2.4.74');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -67,6 +67,8 @@ set_exception_handler('uncaught_exception');
  * Create the core object and load the basic libraries
  */
 $core = new Core();
+
+
 
 /*
  * Check what platform we're in
@@ -271,6 +273,9 @@ class Core{
                 }
             }
 
+        }catch(Error $e){
+            throw new BException(tr('core::startup(): Failed with PHP error'), $e);
+
         }catch(Exception $e){
             if(headers_sent($file, $line)){
                 if(preg_match('/debug-.+\.php$/', $file)){
@@ -283,6 +288,7 @@ class Core{
             throw new BException(tr('core::startup(): Failed'), $e);
         }
     }
+
 
 
     /*
@@ -914,6 +920,7 @@ function load_external($files){
  */
 function load_libs($libraries){
     global $_CONFIG, $core;
+    static $loaded = array();
 
     try{
         if(defined('LIBS')){
@@ -934,6 +941,13 @@ function load_libs($libraries){
                 throw new BException('load_libs(): Empty library specified', 'emptyspecified');
             }
 
+            if(isset($loaded[$library])){
+                /*
+                 * This library has already been loaded, skip
+                 */
+                continue;
+            }
+
             if($core->register['ready'] and str_exists('http,strings,array,sql,mb,meta,file,json', $library)){
                 /*
                  * These are system libraries that are always loaded. Do not
@@ -943,7 +957,8 @@ function load_libs($libraries){
             }
 
             include_once($libs.$library.'.php');
-            $function = str_replace('-', '_', $library).'_library_init';
+            $function         = str_replace('-', '_', $library).'_library_init';
+            $loaded[$library] = true;
 
             if(is_callable($function)){
                 /*
@@ -5352,7 +5367,7 @@ function shutdown(){
          */
         $level = mt_rand(0, 100);
 
-        if($_CONFIG['shutdown']){
+        if(!empty($_CONFIG['shutdown'])){
             if(!is_array($_CONFIG['shutdown'])){
                 throw new BException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
             }
