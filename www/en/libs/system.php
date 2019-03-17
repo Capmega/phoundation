@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.0');
+define('FRAMEWORKCODEVERSION', '2.5.1');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -843,17 +843,27 @@ function debug($enabled = null){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
- * @see notifications_send()
+ * @see notifications()
+ * @version 2.5.0: Updated to now call notifications()
+ * @example
+ * code
+ * notify(array('code'    => 'test',
+ *              'title'   => 'This is a test!',
+ *              'message' => 'This is just a message to test the notification system'));
+ * showdie($result);
+ * /code
  *
- * @param mixed $params['classes']
- * @param string $params['title']
- * @param string $params['description']
+ * @param params BException $params The notification parameters, or an BException object
+ * @param mixed $notification[code]
+ * @param null string $notification[title]
+ * @param null string $notification[message]
+ * @param null midex $notification[groups]
  * @return void
  */
-function notify($params){
+function notify($notification){
     try{
         load_libs('notifications');
-        return notifications_send($params);
+        return notifications($notification);
 
     }catch(Exception $e){
         /*
