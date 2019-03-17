@@ -319,12 +319,12 @@ function customers_select($params = null){
         }
 
         if($params['categories_id'] !== false){
-            $where[] = ' `categories_id` '.sql_is($params['categories_id']).' :categories_id ';
+            $where[] = ' `categories_id` '.sql_is($params['categories_id'], ':categories_id');
             $execute[':categories_id'] = $params['categories_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -378,12 +378,12 @@ function customers_get($customer, $column = null, $status = null, $categories_id
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `customers`.`status` '.sql_is($status).' :status';
+            $where[] = ' `customers`.`status` '.sql_is($status, ':status');
         }
 
         if($categories_id !== false){
             $execute[':categories_id'] = $categories_id;
-            $where[] = ' `customers`.`categories_id` '.sql_is($categories_id).' :categories_id';
+            $where[] = ' `customers`.`categories_id` '.sql_is($categories_id, ':categories_id');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';

@@ -426,7 +426,7 @@ function git_fetch($path = ROOT, $params = null){
         array_params($params, 'tags,all');
         git_check_path($path);
 
-        $arguments = array('show');
+        $arguments = array('fetch');
 
         if($params['all']){
             $arguments[] = '--all';

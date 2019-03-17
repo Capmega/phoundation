@@ -111,7 +111,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
             }else{
                 $where   = ' WHERE  `sections_id` = :sections_id
                              AND    `id`          = :id
-                             AND    `storage_documents`.`status` '.sql_is($status).' :status ';
+                             AND    `storage_documents`.`status` '.sql_is($status, ':status');
 
                 $execute = array(':status'      => $status,
                                  ':sections_id' => $section['id'],

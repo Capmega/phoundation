@@ -210,10 +210,10 @@ function code_locate_toolkit(){
  */
 function code_phoundation_fetch($params = null){
     try{
-        $path   = code_locate_phoundation();
-        $branch = git_fetch($path, $params);
+        $path    = code_locate_phoundation();
+        $results = git_fetch($path, $params);
 
-        return $branch;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('code_phoundation_fetch(): Failed', $e);
@@ -612,6 +612,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null){
         }
 
         foreach($tags as $tag){
+            $tag     = strtolower($tag);
             $version = str_from($tag, 'v');
 
             if(str_is_version($version)){

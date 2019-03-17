@@ -1053,12 +1053,12 @@ function devices_select($product, $category = null){
         }
 
         if($params['type'] !== false){
-            $where[] = ' `type` '.sql_is($params['type']).' :type ';
+            $where[] = ' `type` '.sql_is($params['type'], ':type');
             $execute[':type'] = $params['type'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 

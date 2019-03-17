@@ -270,12 +270,12 @@ function projects_select($params = null){
         }
 
         if($params['customers_id'] !== false){
-            $where[] = ' `customers_id` '.sql_is($params['customers_id']).' :customers_id ';
+            $where[] = ' `customers_id` '.sql_is($params['customers_id'], ':customers_id');
             $execute[':customers_id'] = $params['customers_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -327,7 +327,7 @@ function projects_get($project, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `projects`.`status` '.sql_is($status).' :status';
+            $where[] = ' `projects`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';

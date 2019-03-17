@@ -92,7 +92,7 @@ function companies_validate($company){
         /*
          * Does the company already exist within the specified categories_id?
          */
-        $exists = sql_get('SELECT `id` FROM `companies` WHERE `categories_id` '.sql_is(isset_get($company['categories_id'])).' :categories_id AND `name` = :name AND `id` '.sql_is(isset_get($company['id']), true).' :id', true, array(':name' => $company['name'], ':id' => isset_get($company['id']), ':categories_id' => isset_get($company['categories_id'])));
+        $exists = sql_get('SELECT `id` FROM `companies` WHERE `categories_id` '.sql_is(isset_get($company['categories_id']), ':categories_id').' AND `name` = :name AND `id` '.sql_is(isset_get($company['id']), ':id', true), true, array(':name' => $company['name'], ':id' => isset_get($company['id']), ':categories_id' => isset_get($company['categories_id'])));
 
         if($exists){
             if($company['categories_id']){
@@ -185,12 +185,12 @@ function companies_select($params = null){
         $execute = array();
 
         if($params['categories_id'] !== false){
-            $where[] = ' `categories_id` '.sql_is($params['categories_id']).' :categories_id ';
+            $where[] = ' `categories_id` '.sql_is($params['categories_id'], ':categories_id');
             $execute[':categories_id'] = $params['categories_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -242,7 +242,7 @@ function companies_get($company, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `companies`.`status` '.sql_is($status).' :status';
+            $where[] = ' `companies`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -339,7 +339,7 @@ function companies_validate_branch($branch, $reload_only = false){
         /*
          * Does the branch already exist within the specified companies_id?
          */
-        $exists = sql_get('SELECT `id` FROM `branches` WHERE `companies_id` '.sql_is(isset_get($branch['companies_id'])).' :companies_id AND `name` = :name AND `id` '.sql_is(isset_get($branch['id']), true).' :id', true, array(':name' => $branch['name'], ':id' => isset_get($branch['id']), ':companies_id' => isset_get($branch['companies_id'])));
+        $exists = sql_get('SELECT `id` FROM `branches` WHERE `companies_id` '.sql_is(isset_get($branch['companies_id']), ':companies_id').' AND `name` = :name AND `id` '.sql_is(isset_get($branch['id']), ':id', true), true, array(':name' => $branch['name'], ':id' => isset_get($branch['id']), ':companies_id' => isset_get($branch['companies_id'])));
 
         if($exists){
             $v->setError(tr('The branch name ":branch" already exists', array(':branch' => $branch['name'])));
@@ -433,7 +433,7 @@ function companies_select_branch($params = null){
             $execute[':companies_id'] = $params['companies_id'];
 
             if($params['status'] !== false){
-                $where[] = ' `status` '.sql_is($params['status']).' :status ';
+                $where[] = ' `status` '.sql_is($params['status'], ':status');
                 $execute[':status'] = $params['status'];
             }
 
@@ -510,7 +510,7 @@ function companies_get_branch($company, $branch, $column = null, $status = null)
          */
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `branches`.`status` '.sql_is($status).' :status';
+            $where[] = ' `branches`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -636,7 +636,7 @@ function companies_validate_department($department, $reload_only = false){
         /*
          * Does the department already exist within the specified companies_id?
          */
-        $exists = sql_get('SELECT `id` FROM `departments` WHERE `companies_id` '.sql_is(isset_get($department['companies_id'])).' :companies_id AND `branches_id` '.sql_is(isset_get($department['branches_id'])).' :branches_id AND `name` = :name AND `id` '.sql_is(isset_get($department['id']), true).' :id', true, array(':name' => $department['name'], ':id' => isset_get($department['id']), ':companies_id' => isset_get($department['companies_id']), ':branches_id' => isset_get($department['branches_id'])));
+        $exists = sql_get('SELECT `id` FROM `departments` WHERE `companies_id` '.sql_is(isset_get($department['companies_id']), ':companies_id').' AND `branches_id` '.sql_is(isset_get($department['branches_id']), ':branches_id').' AND `name` = :name AND `id` '.sql_is(isset_get($department['id']), ':id', true), true, array(':name' => $department['name'], ':id' => isset_get($department['id']), ':companies_id' => isset_get($department['companies_id']), ':branches_id' => isset_get($department['branches_id'])));
 
         if($exists){
             $v->setError(tr('The department name ":department" already exists', array(':department' => $department['name'])));
@@ -733,17 +733,17 @@ function companies_select_department($params = null){
         $execute = array();
 
         if($params['companies_id'] !== false){
-            $where[] = ' `companies_id` '.sql_is($params['companies_id']).' :companies_id ';
+            $where[] = ' `companies_id` '.sql_is($params['companies_id'], ':companies_id');
             $execute[':companies_id'] = $params['companies_id'];
         }
 
         if($params['branches_id'] !== false){
-            $where[] = ' `branches_id` '.sql_is($params['branches_id']).' :branches_id ';
+            $where[] = ' `branches_id` '.sql_is($params['branches_id'], ':branches_id');
             $execute[':branches_id'] = $params['branches_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -835,7 +835,7 @@ function companies_get_department($company, $branch, $department, $column = null
          */
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `departments`.`status` '.sql_is($status).' :status';
+            $where[] = ' `departments`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -1007,7 +1007,7 @@ function companies_validate_employee($employee, $reload_only = false){
         /*
          * Does the employee already exist within the specified companies_id?
          */
-        $exists = sql_get('SELECT `id` FROM `employees` WHERE `companies_id` '.sql_is(isset_get($employee['companies_id'])).' :companies_id AND `branches_id` '.sql_is(isset_get($employee['branches_id'])).' :branches_id AND `departments_id` '.sql_is(isset_get($employee['departments_id'])).' :departments_id AND `name` = :name AND `id` '.sql_is(isset_get($employee['id']), true).' :id', true, array(':name' => $employee['name'], ':id' => isset_get($employee['id']), ':companies_id' => isset_get($employee['companies_id']), ':branches_id' => isset_get($employee['branches_id']), ':departments_id' => isset_get($employee['departments_id'])));
+        $exists = sql_get('SELECT `id` FROM `employees` WHERE `companies_id` '.sql_is(isset_get($employee['companies_id']), ':companies_id').' AND `branches_id` '.sql_is(isset_get($employee['branches_id']), ':branches_id').' AND `departments_id` '.sql_is(isset_get($employee['departments_id']), ':departments_id').' AND `name` = :name AND `id` '.sql_is(isset_get($employee['id']), ':id', true), true, array(':name' => $employee['name'], ':id' => isset_get($employee['id']), ':companies_id' => isset_get($employee['companies_id']), ':branches_id' => isset_get($employee['branches_id']), ':departments_id' => isset_get($employee['departments_id'])));
 
         if($exists){
             $v->setError(tr('The employee name ":employee" already exists', array(':employee' => $employee['name'])));
@@ -1113,22 +1113,22 @@ function companies_select_employee($params = null){
         $execute = array();
 
         if($params['companies_id'] !== false){
-            $where[] = ' `companies_id` '.sql_is($params['companies_id']).' :companies_id ';
+            $where[] = ' `companies_id` '.sql_is($params['companies_id'], ':companies_id');
             $execute[':companies_id'] = $params['companies_id'];
         }
 
         if($params['branches_id'] !== false){
-            $where[] = ' `branches_id` '.sql_is($params['branches_id']).' :branches_id ';
+            $where[] = ' `branches_id` '.sql_is($params['branches_id'], ':branches_id');
             $execute[':branches_id'] = $params['branches_id'];
         }
 
         if($params['departments_id'] !== false){
-            $where[] = ' `departments_id` '.sql_is($params['departments_id']).' :departments_id ';
+            $where[] = ' `departments_id` '.sql_is($params['departments_id'], ':departments_id');
             $execute[':departments_id'] = $params['departments_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -1237,7 +1237,7 @@ function companies_get_employee($company, $branch, $department, $employee, $colu
          */
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `employees`.`status` '.sql_is($status).' :status';
+            $where[] = ' `employees`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';

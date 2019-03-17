@@ -87,7 +87,7 @@ function categories_validate($category){
         /*
          * Does the category already exist within the specified parents_id?
          */
-        $exists = sql_get('SELECT `id` FROM `categories` WHERE `parents_id` '.sql_is(isset_get($category['parents_id'])).' :parents_id AND `name` = :name AND `id` '.sql_is(isset_get($category['id']), true).' :id', true, array(':name' => $category['name'], ':id' => isset_get($category['id']), ':parents_id' => isset_get($category['parents_id'])));
+        $exists = sql_get('SELECT `id` FROM `categories` WHERE `parents_id` '.sql_is(isset_get($category['parents_id']), ':parents_id').' AND `name` = :name AND `id` '.sql_is(isset_get($category['id']), ':id', true), true, array(':name' => $category['name'], ':id' => isset_get($category['id']), ':parents_id' => isset_get($category['parents_id'])));
 
         if($exists){
             if($category['parents_id']){
@@ -240,9 +240,8 @@ function categories_select($params = null){
             $where[] = ' `parents_id` IS NULL ';
         }
 
-
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -296,7 +295,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `categories`.`status` '.sql_is($status).' :status';
+            $where[] = ' `categories`.`status` '.sql_is($status, ':status');
         }
 
         if($parent){
