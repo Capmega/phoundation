@@ -2601,4 +2601,58 @@ function html_set_js_cdn_url(){
         throw new BException(tr('html_set_js_cdn_url(): Failed'), $e);
     }
 }
+
+
+
+/*
+ * Filter the specified tags from the specified HTML
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @version 2.5.0: Added function and documentation
+
+ * @param string $html
+ * @param string array $tags
+ * @param boolean $exception
+ * @return string The result
+ */
+function html_filter_tags($html, $tags, $exception = false){
+    try{
+        $list = array();
+        $tags = array_force($tags);
+        $dom  = new DOMDocument();
+
+        $dom->loadHTML($html);
+
+        foreach($tags as $tag){
+            $elements = $dom->getElementsByTagName($tag);
+
+            /*
+             * Generate a list of elements that must be removed
+             */
+            foreach($elements as $element){
+                $list[] = $element;
+            }
+        }
+
+        if($list){
+            if($exception){
+                throw new BException('html_filter_tags(): Found HTML tags ":tags" which are forbidden', array(':tags', implode(', ', $list)), 'forbidden');
+            }
+
+            foreach($list as $item){
+                $item->parentNode->removeChild($item);
+            }
+        }
+
+        $html = $dom->saveHTML();
+        return $html;
+
+    }catch(Exception $e){
+        throw new BException('html_filter_tags(): Failed', $e);
+    }
+}
 ?>
