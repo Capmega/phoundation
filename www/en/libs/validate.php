@@ -1689,6 +1689,30 @@ class ValidateForm {
 
 
     /*
+     * Check if the specified $value contains any HTML or not
+     */
+    function hasNoHTML(&$value, $message = null, $flags = null){
+        try{
+            if(!$this->parseFlags($value, $message, $flags)){
+                return true;
+            }
+
+            $clean = strip_tags($value);
+
+            if($clean === $value){
+                return true;
+            }
+
+            return $this->setError($message);
+
+        }catch(Exception $e){
+            throw new BException('ValidateForm::hasNoHTML(): Failed', $e);
+        }
+    }
+
+
+
+    /*
      * Ensure that the specified value is in the specified array values
      * Basically this is an enum check
      */
