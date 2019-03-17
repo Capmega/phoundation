@@ -175,6 +175,7 @@ switch(cli_method()){
                                        'proxies'        => false,
                                        'getheaders'     => false,
                                        'posturlencoded' => true,
+                                       'timeout'        => 60,
                                        'post'           => array('method' => 'test'),
                                        'httpheaders'    => false));
 
@@ -376,6 +377,7 @@ switch(cli_method()){
                                            'proxies'        => false,
                                            'getheaders'     => false,
                                            'posturlencoded' => true,
+                                           'timeout'        => 60,
                                            'post'           => array('project'      => PROJECT,
                                                                      'api_key'      => $_CONFIG['translate']['api_key'],
                                                                      'method'       => 'post',
@@ -442,6 +444,7 @@ switch(cli_method()){
                                            'proxies'        => false,
                                            'getheaders'     => false,
                                            'posturlencoded' => true,
+                                           'timeout'        => 60,
                                            'post'           => array('project'         => PROJECT,
                                                                      'api_key'         => $_CONFIG['translate']['api_key'],
                                                                      'target_language' => $language,
