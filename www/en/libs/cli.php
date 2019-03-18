@@ -1932,6 +1932,37 @@ function cli_build_commands_string(&$params){
 
 
 /*
+ * Return the current working directory (CWD) for the specified process id (PID)
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.5.2: Added function and documentation
+ *
+ * @param natural The PID for which the CWD is required
+ * @return string The CWD for the specified PID if it exist
+ */
+function cli_get_cwd($pid){
+    try{
+        if(!is_natural($pid) or ($pid > 65535)){
+            throw new BException(tr('cli_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
+        }
+
+        $results = safe_exec(array('commands' => array('readlink', array('sudo' => true, '-e', '/proc/'.$pid.'/cwd'))));
+        $results = array_pop($results);
+
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException('cli_get_cwd(): Failed', $e);
+    }
+}
+
+
+
+/*
  * WARNING! BELOW HERE BE OBSOLETE FUNCTIONS AND OBSOLETE-BUT-WE-WANT-TO-BE-BACKWARD-COMPATIBLE WRAPPERS
  */
 function this_script_already_runs($action = 'exception', $force = false){
