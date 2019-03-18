@@ -39,153 +39,59 @@ function git_library_init(){
 
 
 /*
+ * Returns true if the specified path is part of a git repository, false if not
  *
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package git
- *
- * @param string $file
- * @param string $patch_file
- * @return
- */
-function git_am($file, $patch_file){
-    try{
-        $path = dirname($file);
-        git_check_path($path);
-
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('am', basename($file), '<'))));
-
-        return $results;
-
-    }catch(Exception $e){
-        throw new BException('git_am(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Apply a git patch file
+ * A path is part of a git repository if one if its parent directories contains a .git directory
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package git
+ * @version 2.0.6: Added function and documentation
  *
- * @param string $file
- * @return
+ * @param string $path The path to be checked
+ * @return boolean True if the specified path is part of a git repository, false if not
  */
-function git_apply($file){
-    try{
-        $path = dirname($file);
-        git_check_path($path);
-
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('apply', basename($file)))));
-
-        return $results;
-
-    }catch(Exception $e){
-        $data = array_force($e->getData());
-        $data = array_pop($data);
-
-        if(strstr($data, 'patch does not apply')){
-            throw new BException(tr('git_apply(): Failed to apply patch ":file"', array(':file' => $file)), 'failed');
-        }
-
-        throw new BException('git_apply(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Get or set the current GIT branch
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package git
- *
- * @param string $branch
- * @param string $path
- * @return
- */
-function git_branch($branch = null, $path = ROOT){
+function git_is_repository($path = ROOT){
     try{
         git_check_path($path);
 
-        if($branch){
-            /*
-             * Set the branch
-             */
-            safe_exec(array('commands' => array('cd' , array($path),
-                                                'git', array('branch', $branch))));
-        }
-
-        /*
-         * Get and return the branch
-         */
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('branch'))));
-
-        foreach($results as $branch){
-            if(substr(trim($branch), 0, 1) == '*'){
-                return trim(substr(trim($branch), 1));
+        while($path){
+            if(file_exists(slash($path).'.git')){
+                return true;
             }
+
+            $path = str_runtil($path, '/');
         }
 
-        throw new BException(tr('git_branch(): Could not find current branch for ":path"', array(':path' => $path)), 'not-exists');
+        return false;
 
     }catch(Exception $e){
-        throw new BException('git_branch(): Failed', $e);
+        throw new BException('git_commit(): Failed', $e);
     }
 }
 
 
 
 /*
- * Get and return the available GIT branches for the specified git repository path
+ * Returns true if the git command is available, false if not
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package git
+ * @version 2.0.6: Added function and documentation
  *
- * @param string $path
- * @param boolean $all If set to true, list both remote-tracking branches and local branches.
- * @return array All available branches on the specified git project path
+ * @return boolean True if the git command is available, false if not
  */
-function git_list_branches($path = ROOT, $all = false){
+function git_is_available(){
     try{
-        git_check_path($path);
-
-        /*
-         * Get and return the branch
-         */
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('branch', '-a', '-q'))));
-
-        foreach($results as $branch){
-            $branch = str_until($branch, '->');
-            $branch = trim($branch);
-            $branch = str_rfrom($branch, '/');
-
-            $retval [] = $branch;
-        }
-
-        $retval = array_unique($retval);
-        return $retval;
+        return (boolean) cli_which('git');
 
     }catch(Exception $e){
-        throw new BException('git_list_branches(): Failed', $e);
+        throw new BException('git_is_available(): Failed', $e);
     }
 }
 
@@ -234,6 +140,214 @@ function git_check_path(&$path){
 
 
 /*
+ * Execute the specified git method with the specified arguments
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string
+ * @param string $patch_file
+ * @param null array $arguments
+ * @return
+ */
+function git_exec($path, $arguments, $check_path = true){
+    try{
+        if($check_path){
+            git_check_path($path);
+        }
+
+        $pid = cli_pgrep('git');
+
+        while($pid){
+            /*
+             * Git is already running somewhere. Check if its not running on our
+             * current target path
+             */
+            $git_path = cli_get_cwd($pid);
+            $exists   = (str_exists($git_path, $path) or str_exists($path, $git_path));
+
+            if($exists){
+                /*
+                 * Git is already being used on our target path! Wait up to the
+                 * one second and retry the configured amount of times
+                 */
+                if(!isset($retry)){
+                    $retry = $_CONFIG['git']['retries'];
+                }
+
+                if($retry <= 0){
+                    throw new BException(tr('git_exec(): The target path ":path" is occupied by the process ":pid", and the waiting period timed out after ":tries" tries', array(':path' => $path, ':pid' => $pid, ':tries' => $_CONFIG['git']['retries'])), 'busy');
+                }
+
+                log_console(tr('Found git process already working on target path ":path", retrying ":tries" times in 1 second.', array(':path' => $path, ':tries' => $retry)), 'yellow');
+                sleep(1);
+                $retry--;
+
+            }else{
+                $pid = null;
+            }
+        }
+
+        $results = safe_exec(array('commands' => array('cd' , array($path),
+                                                       'git', $arguments)));
+
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException('git_exec(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $file
+ * @param string $patch_file
+ * @return
+ */
+function git_am($file, $patch_file){
+    try{
+        $path    = dirname($patch_file);
+        $results = git_exec($path, array('am', basename($patch_file), '<'));
+
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException('git_am(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Apply a git patch file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $file
+ * @return
+ */
+function git_apply($file){
+    try{
+        $path    = dirname($file);
+        $results = git_exec($path, array('apply', basename($file)));
+
+        return $results;
+
+    }catch(Exception $e){
+        $data = array_force($e->getData());
+        $data = array_pop($data);
+
+        if(strstr($data, 'patch does not apply')){
+            throw new BException(tr('git_apply(): Failed to apply patch ":file"', array(':file' => $file)), 'failed');
+        }
+
+        throw new BException('git_apply(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get or set the current GIT branch
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $branch
+ * @param string $path
+ * @return
+ */
+function git_branch($branch = null, $path = ROOT){
+    try{
+        git_check_path($path);
+
+        if($branch){
+            /*
+             * Set the branch
+             */
+            git_exec($path, array('branch', $branch));
+        }
+
+        /*
+         * Get and return the branch
+         */
+        $results = git_exec($path, array('branch'));
+
+        foreach($results as $branch){
+            if(substr(trim($branch), 0, 1) == '*'){
+                return trim(substr(trim($branch), 1));
+            }
+        }
+
+        throw new BException(tr('git_branch(): Could not find current branch for ":path"', array(':path' => $path)), 'not-exists');
+
+    }catch(Exception $e){
+        throw new BException('git_branch(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get and return the available GIT branches for the specified git repository path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ *
+ * @param string $path
+ * @param boolean $all If set to true, list both remote-tracking branches and local branches.
+ * @return array All available branches on the specified git project path
+ */
+function git_list_branches($path = ROOT, $all = false){
+    try{
+        git_check_path($path);
+
+        /*
+         * Get and return the branch
+         */
+        $results = git_exec($path, array('branch', '-a', '-q'));
+
+        foreach($results as $branch){
+            $branch = str_until($branch, '->');
+            $branch = trim($branch);
+            $branch = str_rfrom($branch, '/');
+
+            $retval [] = $branch;
+        }
+
+        $retval = array_unique($retval);
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('git_list_branches(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Checkout the specified file, resetting its changes
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -250,24 +364,20 @@ function git_check_path(&$path){
 function git_checkout($branch = null, $path = ROOT, $create = false){
     try{
         if($branch){
-            safe_exec(array('commands' => array('cd' , array($path),
-                                                'git', array('checkout', ($create ? ' -B ' : ''), $branch))));
+            $results = git_exec($path, array('checkout', ($create ? ' -B ' : ''), $branch));
 
         }else{
             if(is_dir($path)){
-                git_check_path($path);
-                safe_exec(array('commands' => array('cd' , array($path),
-                                                    'git', array('checkout', '--', $path))));
+                $results = git_exec($path, array('checkout', '--', $path));
 
             }else{
-                $file = basename($path);
-                $path = dirname($path);
-
-                git_check_path($path);
-                safe_exec(array('commands' => array('cd' , array($path),
-                                                    'git', array('checkout', '--', $file))));
+                $file    = basename($path);
+                $path    = dirname($path);
+                $results = git_exec($path, array('checkout', '--', $file));
             }
         }
+
+        return $results;
 
     }catch(Exception $e){
         throw new BException('git_checkout(): Failed', $e);
@@ -292,8 +402,8 @@ function git_checkout($branch = null, $path = ROOT, $create = false){
  */
 function git_clean($path = ROOT, $directories = false, $force = false){
     try{
-        safe_exec(array('commands' => array('cd' , array($path),
-                                            'git', array('clean', ($directories ? ' -d' : ''), ($force ? ' -f' : '')))));
+        $results = git_exec($path, array('clean', ($directories ? ' -d' : ''), ($force ? ' -f' : '')));
+        return $results;
 
     }catch(Exception $e){
         throw new BException('git_clean(): Failed', $e);
@@ -321,8 +431,7 @@ function git_clone($repository, $path, $clean = false){
         /*
          * Clone the repository
          */
-        safe_exec(array('commands' => array('cd' , array($path),
-                                            'git', array('clone', $repository))));
+        $results = git_exec($path, array('clone', $repository), false);
 
         if($clean){
             /*
@@ -355,11 +464,8 @@ function git_clone($repository, $path, $clean = false){
  */
 function git_diff($file, $color = false){
     try{
-        $path = dirname($file);
-        git_check_path($path);
-
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('diff', ($color ? '' : '--no-color '), '--', basename($file)))));
+        $path    = dirname($file);
+        $results = git_exec($path, array('diff', ($color ? '' : '--no-color '), '--', basename($file)));
 
         return $results;
 
@@ -396,9 +502,7 @@ function git_show($commit, $path = ROOT, $params = null){
 
         $arguments[] = $commit;
         $arguments[] = '--';
-
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', $arguments)));
+        $results     = git_exec($path, $arguments);
 
         return $results;
 
@@ -439,8 +543,7 @@ function git_fetch($path = ROOT, $params = null){
         /*
          * Execute a git fetch
          */
-        $retval = safe_exec(array('commands' => array('cd' , array($path),
-                                                      'git', $arguments)));
+        $results = git_exec($path, $arguments);
 
         return $retval;
 
@@ -465,12 +568,9 @@ function git_fetch($path = ROOT, $params = null){
  */
 function git_format_patch($file){
     try{
-        $path = dirname($file);
-        git_check_path($path);
 under_construction();
-
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('format-patch', $file))));
+        $path    = dirname($file);
+        $results = git_exec($path, array('format-patch', $file));
 
         return $results;
 
@@ -496,10 +596,7 @@ under_construction();
 // :DELETE: This is a duplicate of git_branch() ???
 function git_get_branch($branch = null){
     try{
-        git_check_path($path);
-
-        $retval = safe_exec(array('commands' => array('cd' , array($path),
-                                                      'git', array('branch', '--no-color'))));
+        $results = git_exec($path, array('branch', '--no-color'));
 
         foreach($retval as $line){
             $current = trim(substr($line, 0, 2));
@@ -534,12 +631,9 @@ function git_get_branch($branch = null){
  */
 function git_pull($path = ROOT, $remote, $branch){
     try{
-        git_check_path($path);
+        $results = git_exec($path, array('pull', $remote, $branch));
 
-        $retval = safe_exec(array('commands' => array('cd' , array($path),
-                                                      'git', array('pull', $remote, $branch))));
-
-        return $retval;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('git_pull(): Failed', $e);
@@ -565,22 +659,18 @@ function git_pull($path = ROOT, $remote, $branch){
  */
 function git_push($path = ROOT, $remote = null, $branch = null, $tags = true){
     try{
-        git_check_path($path);
-
         if($branch and !$remote){
             throw new BException(tr('git_push(): Branch ":branch" was specified without remote', array(':branch' => $branch)), 'invalid');
         }
 
-        $push = safe_exec(array('commands' => array('cd' , array($path),
-                                                      'git', array('push', $remote, $branch))));
+        $results = git_exec($path, array('push', $remote, $branch));
 
         if($tags){
-            $tags = safe_exec(array('commands' => array('cd' , array($path),
-                                                        'git', array('push', '--tags', $remote, $branch))));
-            $push = array_merge($push, $tags);
+            $tags    = git_exec($path, array('push', '--tags', $remote, $branch));
+            $results = array_merge($results, $tags);
         }
 
-        return $push;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('git_push(): Failed', $e);
@@ -610,8 +700,6 @@ function git_reset($commit = 'HEAD', $path = ROOT, $params = null){
             $path = dirname($file);
         }
 
-        git_check_path($path);
-
         array_ensure($params, 'hard');
         $options = '';
 
@@ -619,10 +707,9 @@ function git_reset($commit = 'HEAD', $path = ROOT, $params = null){
             $options .= ' --hard ';
         }
 
-        $retval = safe_exec(array('commands' => array('cd' , array($path),
-                                                      'git', array('reset', ($commit ? $commit.' ' : ''), $file))));
+        $results = git_exec($path, array('reset', ($commit ? $commit.' ' : ''), $file));
 
-        return $retval;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('git_reset(): Failed', $e);
@@ -652,8 +739,7 @@ function git_status($path = ROOT, $filters = null){
          * Check if we dont have any changes that should be committed first
          */
         $retval  = array();
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('status', '--porcelain'))));
+        $results = git_exec($path, array('status', '--porcelain'));
 
         foreach($results as $line){
             if(!$line) continue;
@@ -750,13 +836,10 @@ function git_status($path = ROOT, $filters = null){
  */
 function git_list_tags($path = ROOT){
     try{
-        git_check_path($path);
-
         /*
          * Check if we dont have any changes that should be committed first
          */
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('tag', '--list'))));
+        $results = git_exec($path, array('tag', '--list'));
 
         return $results;
 
@@ -781,11 +864,9 @@ function git_list_tags($path = ROOT){
  */
 function git_stash($path = ROOT){
     try{
-        git_check_path($path);
-
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('add', '.'),
-                                                       'git', array('stash'))));
+        $results_add   = git_exec($path, array('add', '.'));
+        $results_stash = git_exec($path, array('stash'));
+        $results       = array_merge($results_pop, $results_reset);
 
         return $results;
 
@@ -810,10 +891,9 @@ function git_stash($path = ROOT){
  */
 function git_stash_pop($path = ROOT){
     try{
-        git_check_path($path);
-
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('stash', 'pop'))));
+        $results_pop   = git_exec($path, array('stash', 'pop'));
+        $results_reset = git_exec($path, array('reset', 'HEAD'));
+        $results       = array_merge($results_pop, $results_reset);
 
         return $results;
 
@@ -838,15 +918,11 @@ function git_stash_pop($path = ROOT){
  */
 function git_add($path = ROOT){
     try{
-        git_check_path($path);
-
         if(is_dir($path)){
-            $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                           'git', array('add', $path))));
+            $results = git_exec($path, array('add', $path));
 
         }else{
-            $results = safe_exec(array('commands' => array('cd' , array(dirname($path)),
-                                                           'git', array('add', $path))));
+            $results = git_exec(dirname($path), array('add', $path));
         }
 
         return $results;
@@ -872,74 +948,12 @@ function git_add($path = ROOT){
  */
 function git_commit($message, $path = ROOT){
     try{
-        git_check_path($path);
-
-        $results = safe_exec(array('commands' => array('cd' , array($path),
-                                                       'git', array('commit', '-m', $message))));
+        $results = git_exec(dirname($path), array('commit', '-m', $message));
 
         return $results;
 
     }catch(Exception $e){
         throw new BException('git_commit(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Returns true if the specified path is part of a git repository, false if not
- *
- * A path is part of a git repository if one if its parent directories contains a .git directory
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package git
- * @version 2.0.6: Added function and documentation
- *
- * @param string $path The path to be checked
- * @return boolean True if the specified path is part of a git repository, false if not
- */
-function git_is_repository($path = ROOT){
-    try{
-        git_check_path($path);
-
-        while($path){
-            if(file_exists(slash($path).'.git')){
-                return true;
-            }
-
-            $path = str_runtil($path, '/');
-        }
-
-        return false;
-
-    }catch(Exception $e){
-        throw new BException('git_commit(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Returns true if the git command is available, false if not
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package git
- * @version 2.0.6: Added function and documentation
- *
- * @return boolean True if the git command is available, false if not
- */
-function git_is_available(){
-    try{
-        return (boolean) cli_which('git');
-
-    }catch(Exception $e){
-        throw new BException('git_is_available(): Failed', $e);
     }
 }
 ?>
