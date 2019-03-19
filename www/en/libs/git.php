@@ -950,7 +950,7 @@ function git_add($path = ROOT){
  */
 function git_commit($message, $path = ROOT){
     try{
-        $results = git_exec(dirname($path), array('commit', '-m', $message));
+        $results = git_exec($path, array('commit', '-m', $message));
 
         return $results;
 
