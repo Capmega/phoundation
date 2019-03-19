@@ -29,6 +29,7 @@ try{
      *
      * Ensure that all arguments contain the environment specification
      */
+    $count = 0;
     foreach($params['commands'] as &$item){
         if(fmod(++$count, 2)){
             /*
