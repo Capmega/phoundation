@@ -168,16 +168,18 @@ switch(cli_method()){
 
     case 'test':
         cli_no_arguments_left();
+        log_console(tr('Testing connection to translation server ":server"', array(':server' => $_CONFIG['translate']['url'])), 'cyan');
 
         try{
-            $response = curl_get(array('url'            => url_add_query($_CONFIG['translate']['url'], 'test=1'),
-                                       'getdata'        => true,
-                                       'proxies'        => false,
-                                       'getheaders'     => false,
-                                       'posturlencoded' => true,
-                                       'timeout'        => 300,
-                                       'post'           => array('method' => 'test'),
-                                       'httpheaders'    => false));
+            $response = curl_get(array('url'             => url_add_query($_CONFIG['translate']['url'], 'test=1'),
+                                       'getdata'         => true,
+                                       'proxies'         => false,
+                                       'getheaders'      => false,
+                                       'posturlencoded'  => true,
+                                       'timeout'         => 300,
+                                       'connect_timeout' => 300,
+                                       'post'            => array('method' => 'test'),
+                                       'httpheaders'     => false));
 
             if(TEST){
                 show($response);
@@ -369,21 +371,22 @@ switch(cli_method()){
          */
         if(cli_method() == 'scan'){
             log_console(tr('Found ":count" strings in ":files" files', array(':count' => number_format($results['count']), ':files' => number_format(count($results['translations'])))), 'green');
-            log_console(tr('Sending translatable strings to server ":server"', array(':server' => $_CONFIG['translate']['url'])), 'cyan');
+            log_console(tr('Sending translatable strings to server ":server" (This might take a little bit)', array(':server' => $_CONFIG['translate']['url'])), 'cyan');
 
             try{
-                $response = curl_get(array('url'            => $_CONFIG['translate']['url'],
-                                           'getdata'        => true,
-                                           'proxies'        => false,
-                                           'getheaders'     => false,
-                                           'posturlencoded' => true,
-                                           'timeout'        => 300,
-                                           'post'           => array('project'      => PROJECT,
-                                                                     'api_key'      => $_CONFIG['translate']['api_key'],
-                                                                     'method'       => 'post',
-                                                                     'options'      => array('mode' => $mode),
-                                                                     'translations' => json_encode_custom($results['translations'])),
-                                           'httpheaders'    => false));
+                $response = curl_get(array('url'             => $_CONFIG['translate']['url'],
+                                           'getdata'         => true,
+                                           'proxies'         => false,
+                                           'getheaders'      => false,
+                                           'posturlencoded'  => true,
+                                           'timeout'         => 300,
+                                           'connect_timeout' => 300,
+                                           'post'            => array('project'      => PROJECT,
+                                                                      'api_key'      => $_CONFIG['translate']['api_key'],
+                                                                      'method'       => 'post',
+                                                                      'options'      => array('mode' => $mode),
+                                                                      'translations' => json_encode_custom($results['translations'])),
+                                           'httpheaders'     => false));
 
             }catch(Exception $e){
                 if(substr($e->getCode(), 0, 4) == 'HTTP'){
@@ -436,22 +439,23 @@ switch(cli_method()){
             $target_dir = ROOT.'www/'.$language;
 
             log_console(tr('Translating language ":language"', array(':language' => $language)), 'white');
-            log_console(tr('Requesting translations from server url":url"', array(':url' => $_CONFIG['translate']['url'])));
+            log_console(tr('Requesting translations from server url":url" (This might take a little bit)', array(':url' => $_CONFIG['translate']['url'])), 'cyan');
 
             try{
-                $response = curl_get(array('url'            => $_CONFIG['translate']['url'],
-                                           'getdata'        => true,
-                                           'proxies'        => false,
-                                           'getheaders'     => false,
-                                           'posturlencoded' => true,
-                                           'timeout'        => 300,
-                                           'post'           => array('project'         => PROJECT,
-                                                                     'api_key'         => $_CONFIG['translate']['api_key'],
-                                                                     'target_language' => $language,
-                                                                     'method'          => 'get',
-                                                                     'options'         => array('mode' => $mode),
-                                                                     'translations'    => json_encode_custom($results['translations'])),
-                                           'httpheaders'    => false));
+                $response = curl_get(array('url'             => $_CONFIG['translate']['url'],
+                                           'getdata'         => true,
+                                           'proxies'         => false,
+                                           'getheaders'      => false,
+                                           'posturlencoded'  => true,
+                                           'timeout'         => 300,
+                                           'connect_timeout' => 300,
+                                           'post'            => array('project'         => PROJECT,
+                                                                      'api_key'         => $_CONFIG['translate']['api_key'],
+                                                                      'target_language' => $language,
+                                                                      'method'          => 'get',
+                                                                      'options'         => array('mode' => $mode),
+                                                                      'translations'    => json_encode_custom($results['translations'])),
+                                           'httpheaders'     => false));
 
             }catch(Exception $e){
                 if(substr($e->getCode(), 0, 4) == 'HTTP'){
