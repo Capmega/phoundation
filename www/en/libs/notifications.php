@@ -78,7 +78,7 @@ function notifications($notification){
              * Exception in non production environments, don't send
              * notifications since we're working on this project!
              */
-            $code = $notification['description']->getCode();
+            $code = $notification['message']->getCode();
 
             if(str_until($code, '/') === 'warning'){
                 /*
@@ -442,7 +442,7 @@ function notifications_validate($notification){
                                    'message'   => $notification->getMessage(),
                                    'code'      => 'error');
 
-            log_file($notification['title'].' '.$notification['description'], 'notification-'.strtolower($notification['title']));
+            log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['title']));
 
         }elseif(is_object($notification) and ($notification instanceof Exception)){
             if(is_object($notification) and ($notification instanceof BException)){
@@ -454,7 +454,7 @@ function notifications_validate($notification){
                                        'message'   => $notification->getMessages(),
                                        'code'      => 'BException');
 
-                log_file($notification['title'].' '.$notification['description'], 'notification-'.strtolower($notification['title']));
+                log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['title']));
 
             }else{
                 /*
@@ -465,7 +465,7 @@ function notifications_validate($notification){
                                        'message'   => $notification->getMessage(),
                                        'code'      => 'exception');
 
-                log_file($notification['title'].' '.$notification['description'], 'notification-'.strtolower($notification['title']));
+                log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['title']));
             }
 
         }else{
@@ -476,7 +476,7 @@ function notifications_validate($notification){
 
             $notification['exception'] = false;
 
-            log_file(isset_get($notification['title'].' '.$notification['description'], tr('No description specified')), 'notification-'.isset_get($notification['title'], tr('without-title')), 'yellow');
+            log_file(not_empty($notification['title'].' '.$notification['message'], tr('No message specified')), 'notification-'.not_empty($notification['title'], tr('without-title')), 'yellow');
         }
 
         $v = new ValidateForm($notification, 'code,title,groups,message');
