@@ -1740,6 +1740,30 @@ class ValidateForm {
 
 
     /*
+     * Validate a string is a city
+     *
+     * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package validate
+     * @version 2.5.13: Added documentation, removed default message
+     *
+     * @param string $city
+     * @param string $message
+     * @return boolean
+     */
+    public function isCity(string $city, string $message){
+        try{
+// :TODO: add this validate
+        }catch(Exception $e){
+            throw new BException('ValidateForm::isCity(): Failed', $e);
+        }
+    }
+
+
+
+    /*
      *
      */
     function setError($message){
@@ -1783,7 +1807,7 @@ class ValidateForm {
     /*
      *
      */
-    function getErrors($separator = null){
+    function listErrors($separator = null){
         try{
             if(!count($this->errors)){
                 return null;
@@ -1811,28 +1835,21 @@ class ValidateForm {
             return $this->errors;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::getErrors(): Failed', $e);
+            throw new BException('ValidateForm::listErrors(): Failed', $e);
         }
     }
 
 
 
     /*
-     * Validate a string is a city
-     *
-     * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package validate
-     *
-     * @return boolean
+     * HERE BE OBSOLETE METHODS!
      */
-    public function isCity(string $city, string $message = "this is not a valid city"){
+    function getErrors($separator = null){
         try{
-            // :TODO: add this validate
+            return $this->listErrors($separator);
+
         }catch(Exception $e){
-            throw new BException('ValidateForm::isCity(): Failed', $e);
+            throw new BException('ValidateForm::getErrors(): Failed', $e);
         }
     }
 }
