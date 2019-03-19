@@ -165,7 +165,7 @@ function html_bundler($type){
              * the 0 bytes bundle files remain, leaving the site without CSS or
              * JS
              */
-            if(filesize($bundle_file)){
+            if(!filesize($bundle_file)){
                 file_delete($bundle_file);
                 return html_bundler($type);
             }
@@ -781,7 +781,7 @@ function html_header($params = null, $meta = array()){
         $retval =  $params['doctype'].
                    $params['html'].'
                    <head>'.
-                  '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['charset'].'">'.
+                  '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
                   '<title>'.$title.'</title>';
 
         unset($meta['title']);
@@ -865,16 +865,36 @@ function html_header($params = null, $meta = array()){
 
 /*
  * Generate and return the HTML footer
+ *
+ * This function generates and returns the HTML footer. Any data stored in $core->register[footer] will be added, and if the debug bar is enabled, it will be attached as well
+ *
+ * This function should be called in your c_page() function
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_header()
+ * @version 2.5.9: Added documentation, added debug bar support
+ *
+ * @return string The footer HTML
  */
 function html_footer(){
     global $_CONFIG, $core;
 
     try{
-        if($core->register['footer']){
-            return $core->register['footer'].'</body></html>';
+        $html = '';
+
+        if(debug()){
+            $html .= debug_bar();
         }
 
-        return '</body></html>';
+        if($core->register['footer']){
+            $html .= $core->register['footer'];
+        }
+
+        return $html.'</body></html>';
 
     }catch(Exception $e){
         throw new BException('html_footer(): Failed', $e);
@@ -1131,7 +1151,7 @@ function html_flash($class = null){
  * @return string The HTML containing all flash messages that matched
  */
 function html_flash_set($params, $type = 'info', $class = null){
-    global $_CONFIG;
+    global $_CONFIG, $core;
 
     try{
         if(!PLATFORM_HTTP){
@@ -1171,11 +1191,26 @@ function html_flash_set($params, $type = 'info', $class = null){
          */
         if(empty($params['html']) and empty($params['text']) and empty($params['title'])){
             if($_CONFIG['production']){
-                throw new BException(tr('Invalid html_flash_set() call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
+                notify('invalid html flash set', $params, 'developers');
+                return html_flash_set(implode(',', $params), $type, $class);
             }
 
-            notify('invalid html flash set', $params, 'developers');
-            return html_flash_set(implode(',', $params), $type, $class);
+            throw new BException(tr('Invalid html_flash_set() call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
+        }
+
+        switch(strtolower($params['type'])){
+            case 'success':
+                $color = 'green';
+                break;
+
+            case 'exception':
+                // FALLTHROUGH
+            case 'error':
+                $color = 'green';
+                break;
+
+            default:
+                $color = 'yellow';
         }
 
         if(empty($params['title'])){
@@ -1183,6 +1218,8 @@ function html_flash_set($params, $type = 'info', $class = null){
         }
 
         $_SESSION['flash'][] = $params;
+
+        log_file(strip_tags($params['html']), $core->register['script'], $color);
 
     }catch(Exception $e){
         if(debug() and (substr(str_from($e->getCode(), '/'), 0, 1) == '_')){
@@ -1442,8 +1479,8 @@ function html_select($params){
         array_default($params, 'id'          , $params['name']);
         array_default($params, 'none'        , tr('None selected'));
         array_default($params, 'empty'       , tr('None available'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
+        array_default($params, 'tabindex'    , html_tabindex());
+        array_default($params, 'extra'       , '');
         array_default($params, 'selected'    , null);
         array_default($params, 'bodyonly'    , false);
         array_default($params, 'autosubmit'  , false);
@@ -1451,6 +1488,10 @@ function html_select($params){
         array_default($params, 'hide_empty'  , false);
         array_default($params, 'autofocus'   , false);
         array_default($params, 'multiple'    , false);
+
+        if(!$params['tabindex']){
+            $params['tabindex'] = html_tabindex();
+        }
 
         if(!$params['name']){
             throw new BException(tr('html_select(): No name specified'), 'not-specified');
@@ -2064,12 +2105,15 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
 
             }else{
                 try{
+                    /*
+                     *
+                     */
                     $url      = str_exists($src, '://');
                     $file_src = $src;
 
-                    if(str_exists($file_src, domain(''))){
+                    if(str_exists($file_src, cdn_domain(''))){
                         $url      = false;
-                        $file_src = str_from($file_src, domain(''));
+                        $file_src = str_from($file_src, cdn_domain(''));
                         $src      = $file_src;
                     }
 
@@ -2310,20 +2354,22 @@ function html_autosuggest($params){
 
     try{
         array_params($params);
-        array_default($params, 'class'            , '');
-        array_default($params, 'input_class'      , '');
-        array_default($params, 'name'             , '');
-        array_default($params, 'id'               , $params['name']);
-        array_default($params, 'placeholder'      , '');
-        array_default($params, 'required'         , false);
-        array_default($params, 'value'            , '');
-        array_default($params, 'source'           , '');
-        array_default($params, 'maxlength'        , '');
-        array_default($params, 'filter_selector'  , '');
-        array_default($params, 'selector'         , 'form.autosuggest');
+        array_default($params, 'class'          , '');
+        array_default($params, 'input_class'    , 'form-control');
+        array_default($params, 'name'           , '');
+        array_default($params, 'id'             , $params['name']);
+        array_default($params, 'placeholder'    , '');
+        array_default($params, 'required'       , false);
+        array_default($params, 'tabindex'       , html_tabindex());
+        array_default($params, 'extra'          , '');
+        array_default($params, 'value'          , '');
+        array_default($params, 'source'         , '');
+        array_default($params, 'maxlength'      , '');
+        array_default($params, 'filter_selector', '');
+        array_default($params, 'selector'       , 'form.autosuggest');
 
         $retval = ' <div class="autosuggest'.($params['class'] ? ' '.$params['class'] : '').'">
-                        <input autocomplete="new_password" spellcheck="false" role="combobox" dir="ltr" '.($params['input_class'] ? 'class="'.$params['input_class'].'" ' : '').'type="text" name="'.$params['name'].'" id="'.$params['id'].'" placeholder="'.$params['placeholder'].'" data-source="'.$params['source'].'" value="'.$params['value'].'"'.($params['filter_selector'] ? ' data-filter-selector="'.$params['filter_selector'].'"' : '').($params['maxlength'] ? ' maxlength="'.$params['maxlength'].'"' : '').($params['required'] ? ' required' : '').'>
+                        <input autocomplete="new_password" spellcheck="false" role="combobox" dir="ltr" '.($params['input_class'] ? 'class="'.$params['input_class'].'" ' : '').'type="text" name="'.$params['name'].'" id="'.$params['id'].'" placeholder="'.$params['placeholder'].'" data-source="'.$params['source'].'" value="'.$params['value'].'"'.($params['filter_selector'] ? ' data-filter-selector="'.$params['filter_selector'].'"' : '').($params['maxlength'] ? ' maxlength="'.$params['maxlength'].'"' : '').($params['extra'] ? ' '.$params['extra'] : '').($params['required'] ? ' required' : '').'>
                         <ul>
                         </ul>
                     </div>';
@@ -2505,6 +2551,54 @@ function html_form($method = 'post', $action = null, $name = 'form', $class = 'f
 
     }catch(Exception $e){
         throw new BException(tr('html_form(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Returns the current global tabindex and automatically increases it
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ *
+ * @return natural The current tab index
+ */
+function html_tabindex(){
+    global $core;
+
+    try{
+        return ++$core->register['tabindex'];
+
+    }catch(Exception $e){
+        throw new BException(tr('html_tabindex(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Set the base URL for CDN requests from javascript
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ *
+ * @return void()
+ */
+function html_set_js_cdn_url(){
+    global $_CONFIG, $core;
+
+    try{
+        $core->register['header'] = html_script('var cdnprefix="'.cdn_domain().'";', false);
+
+    }catch(Exception $e){
+        throw new BException(tr('html_set_js_cdn_url(): Failed'), $e);
     }
 }
 ?>

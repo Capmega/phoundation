@@ -1,11 +1,14 @@
 <?php
 /*
- * Limits the specified number between specified values
+ * Numbers library
  *
- * These functions do not have a prefix
+ * This library contains various functions to manage numbers
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package system
  */
 
 
@@ -289,6 +292,94 @@ function human_readable($number, $thousand = 1000, $decimals = 0){
 
     }catch(Exception $e){
         throw new BException('human_readable(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the "step" for use in HTML <input type="number"> tags from the specified list of numbers
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package numbers
+ * @version 2.2.7: Added function and documentation
+ * @example
+ * code
+ * $result = numbers_get_step(1, 15, .1, 0.009);
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * 0.001
+ * /code
+ *
+ * @param numeric One or multiple float numbers
+ * @return string The step that can be used in the html <input type="number">
+ */
+function numbers_get_step(){
+    try{
+        /*
+         * Remove the $count argument from the list
+         * Get default value from the list
+         */
+        $args   = func_get_args();
+        $retval = 0;
+
+        foreach($args as $key => $value){
+            /*
+             * Validate we have numeric values
+             */
+            if(!is_numeric($value)){
+                if(!is_scalar($value)){
+                    throw new BException(tr('numbers_get_step(): Variable ":key" is not a numeric scalar value, it is an ":type"', array(':key' => $key, ':type' => gettype($value))), 'invalid');
+                }
+
+                throw new BException(tr('numbers_get_step(): Variable ":key" has value ":value" which is not numeric', array(':key' => $key, ':value' => $value)), 'invalid');
+            }
+
+            /*
+             * Cleanup the number
+             */
+            if($value){
+                $value = str_replace(',', '.', $value);
+                $value = number_format($value, 10, '.', '');
+                $value = abs($value);
+                $value = trim($value, '0');
+
+            }else{
+                $value = '0';
+            }
+
+            /*
+             * Get the amount of decimals behind the .
+             */
+            $decimals = substr(strrchr($value, '.'), 1);
+            $decimals = strlen($decimals);
+
+            /*
+             * Remember the highest amount of decimals
+             */
+            if($decimals > $retval){
+                $retval = $decimals;
+            }
+        }
+
+        /*
+         * Return the found step
+         */
+        if($retval){
+            return '0.'.str_repeat('0', $retval - 1).'1';
+        }
+
+        return '1';
+
+
+    }catch(Exception $e){
+        throw new BException('numbers_get_step(): Failed', $e);
     }
 }
 ?>

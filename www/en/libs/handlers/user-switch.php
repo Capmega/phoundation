@@ -12,7 +12,7 @@ try{
      * Does the specified user exist?
      */
     if(!$user = sql_get('SELECT *, `email` FROM `users` WHERE `id` = :id', array(':id' => $users_id))){
-        throw new BException(tr('user_switch(): The specified user ":id" does not exist', array(':id' => $users_id)), 'not-exist');
+        throw new BException(tr('user_switch(): The specified user ":id" does not exist', array(':id' => $users_id)), 'not-exists');
     }
 
     /*

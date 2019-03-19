@@ -65,7 +65,7 @@ function api_validate_account($account){
         $v->isNotEmpty ($account['customer']    , tr('Please specify a customer'));
         $v->isNotEmpty ($account['server']      , tr('Please specify a server'));
 
-        $account['servers_id']   = sql_get('SELECT `id` FROM `servers`   WHERE `seohostname` = :seohostname AND `status` IS NULL', true, array(':seohostname' => $account['server']));
+        $account['servers_id']   = sql_get('SELECT `id` FROM `servers`   WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $account['server']));
         $account['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname`     = :seoname     AND `status` IS NULL', true, array(':seoname'     => $account['customer']));
 
         if(!$account['servers_id']){
@@ -193,7 +193,7 @@ function api_authenticate($apikey){
              * This is a production platform, only allow JSON API key
              * authentications over a secure connection
              */
-            if(($_CONFIG['protocol'] !== 'https://') and !empty($_CONFIG['production'])){
+            if((PROTOCOL !== 'https://') and !empty($_CONFIG['production'])){
                 throw new BException(tr('api_authenticate(): No API key authentication allowed on unsecure connections over non HTTPS connections'), 'ssl-required');
             }
         }
@@ -408,10 +408,10 @@ function api_call_base($account, $call, $data = array(), $files = null){
         /*
          * Get account information
          */
-        $account_data = sql_get('SELECT `id`, `baseurl`, `apikey` FROM `api_accounts` WHERE `seoname` = :seoname', array(':seoname' => $account));
+        $account_data = sql_get('SELECT `id`, `baseurl`, `apikey`, `verify_ssl` FROM `api_accounts` WHERE `seoname` = :seoname', array(':seoname' => $account));
 
         if(!$account_data){
-            throw new BException(tr('api_call_base(): Specified API account ":account" does not exist', array(':account' => $account)), 'not-exist');
+            throw new BException(tr('api_call_base(): Specified API account ":account" does not exist', array(':account' => $account)), 'not-exists');
         }
 
         /*
@@ -429,7 +429,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
                                        'post'           => array('PHPSESSID' => $account_data['apikey'])));
 
                 if(!$json){
-                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'not-exist');
+                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'not-exists');
                 }
 
                 $result = json_decode_custom($json['data']);

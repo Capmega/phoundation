@@ -399,21 +399,44 @@ function servers_update($server){
  */
 function servers_like($domain){
     try{
+        if(!$domain){
+            if(($domain === '') or ($domain === null)){
+                /*
+                 * "" server is the localdomain server
+                 * null means no server
+                 */
+                return $domain;
+            }
+        }
+
         if(is_array($domain)){
             return $domain;
         }
 
-        $server = sql_get('SELECT `domain`
+        if(is_numeric($domain)){
+            $server = sql_get('SELECT `domain`
 
-                           FROM   `servers`
+                               FROM   `servers`
 
-                           WHERE  `domain`    LIKE :domain
-                           OR     `seodomain` LIKE :seodomain',
+                               WHERE  `id` = :id',
 
-                           true, array(':domain'    => '%'.$domain.'%',
-                                       ':seodomain' => '%'.$domain.'%'));
+                               true, array(':id' => $domain));
 
-        if(!$server){
+        }else{
+            $server = sql_get('SELECT `domain`
+
+                               FROM   `servers`
+
+                               WHERE  `ipv4`      LIKE :ipv4
+                               OR     `domain`    LIKE :domain
+                               OR     `seodomain` LIKE :seodomain',
+
+                               true, array(':ipv4'      => '%'.$domain.'%',
+                                           ':domain'    => '%'.$domain.'%',
+                                           ':seodomain' => '%'.$domain.'%'));
+        }
+
+        if($server === null){
             /*
              * Specified server not found in the default servers list, try domains list
              */
@@ -432,7 +455,7 @@ function servers_like($domain){
                                            ':seodomain' => '%'.$domain.'%'));
 
             if(!$server){
-                throw new BException(tr('servers_like(): Specified server ":server" does not exist', array(':server' => $domain)), 'not-exist');
+                throw new BException(tr('servers_like(): Specified server ":server" does not exist', array(':server' => $domain)), 'not-exists');
             }
         }
 
@@ -461,8 +484,6 @@ function servers_like($domain){
  * @param string $params[name]
  * @param class
  * @param extra
- * @param tabindex
- * @param empty
  * @param none
  * @param selected
  * @param parents_id
@@ -480,12 +501,10 @@ function servers_select($params = null){
         array_default($params, 'status'  , null);
         array_default($params, 'empty'   , tr('No servers available'));
         array_default($params, 'none'    , tr('Select a server'));
-        array_default($params, 'tabindex', 0);
-        array_default($params, 'extra'   , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby' , '`domain`');
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -712,48 +731,43 @@ function servers_list_domains($server){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package servers
+ * @see ssh_exec()
+ * @see safe_exec()
  *
- * @param mixed $server
- * @param mixed $commands
- * @param boolean $background
- * @param string $function
- * @param mixed $ok_exitcodes
+ * @param mixed  $server
+ * @param mixed  $params[commands]
+ * @param string $server[function]
+ * @param mixed  $server[ok_exitcodes]
+ * @param string $server[timeout]
  * @return array The results of the executed SSH commands in an array, each entry containing one line of the output
  * @see ssh_exec()
  */
-function servers_exec($server, $commands = null, $background = false, $function = null, $ok_exitcodes = 0){
+function servers_exec($server, $params){
     try{
-        array_params($server, 'domain');
-        array_default($server, 'hostkey_check', true);
-        array_default($server, 'background'   , $background);
-        array_default($server, 'commands'     , $commands);
-
+        $server = servers_like($server);
         $server = servers_get($server);
 
         if(!empty($server['domain'])){
+            array_default($server, 'hostkey_check', true);
+
             if(empty($server['identity_file'])){
                 if(empty($server['ssh_key'])){
                     if(empty($server['password'])){
                         throw new BException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server['domain'])), 'missing-data');
                     }
-
-
                 }
 
                 /*
                  * Copy the ssh_key to a temporal identity_file
                  */
-                $identity_file           = servers_create_identity_file($server['ssh_key']);
-                $server['identity_file'] = ROOT.'data/ssh/keys/'.$identity_file;
-                servers_clear_key($server);
+                $server['identity_file'] = servers_create_identity_file($server);
             }
         }
 
         /*
          * Execute command on remote server
          */
-        $results = ssh_exec($server, $commands, $server['background'], $function, $ok_exitcodes);
-        return $results;
+        return ssh_exec($server, $params);
 
     }catch(Exception $e){
         /*
@@ -843,7 +857,9 @@ function servers_exec_on_all($params){
                           LEFT JOIN `ssh_accounts`
                           ON        `ssh_accounts`.`id`              = `servers`.`ssh_accounts_id`
 
-                          WHERE `servers`.`status` '.sql_is($params['status']).' '.$params['status']);
+                          WHERE `servers`.`status` '.sql_is($params['status'], ':status'),
+
+                          array(':status' => $params['status']));
 
         while($server = sql_fetch($servers)){
             $params['callback']($server);
@@ -872,7 +888,7 @@ function servers_exec_on_all($params){
  */
 function servers_register_host($server){
     try{
-        $server    = servers_get($server);
+        $server  = servers_get($server);
         $domains = servers_list_domains($server);
 
         foreach($domains as $domain){
@@ -930,6 +946,48 @@ function servers_unregister_host($server){
 
 
 /*
+ * List all registered servers that are available
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package servers
+ * @see servers_get()
+ * @version 2.4.0: Added function and documentation
+ *
+ * @return array The currently registered servers that are available
+ */
+function servers_list($as_resource = false){
+    try{
+        $query = 'SELECT   `id`,
+                           `domain`,
+                           `seodomain`
+
+                  FROM     `servers`
+
+                  WHERE    `status` IS NULL
+
+                  ORDER BY `domain` = "" DESC,
+                           `createdon`   ASC';
+
+        if($as_resource){
+            $retval = sql_query($query);
+
+        }else{
+            $retval = sql_list($query);
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('servers_list(): Failed', $e);
+    }
+}
+
+
+
+/*
  *
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -946,7 +1004,7 @@ function servers_unregister_host($server){
  */
 function servers_get($server, $database = false, $return_proxies = true, $limited_columns = false){
     try{
-        if(!$server){
+        if($server === null){
             /*
              * This means local server, no network connection needed
              */
@@ -1093,7 +1151,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
         $dbserver = sql_get($query.$from.$where.' GROUP BY `servers`.`id`', null, $execute, 'core');
 
         if(!$dbserver){
-            throw new BException(tr('servers_get(): Specified server ":server" does not exist', array(':server' => (is_array($server) ? $server['domain'] : $server))), 'not-exist');
+            throw new BException(tr('servers_get(): Specified server ":server" does not exist', array(':server' => (is_array($server) ? $server['domain'] : $server))), 'not-exists');
         }
 
         if($return_proxies){
@@ -1157,7 +1215,7 @@ function servers_test($domain){
     try{
         sql_query('UPDATE `servers` SET `status` = "testing" WHERE `domain` = :domain', array(':domain' => $domain), 'core');
 
-        $result = servers_exec($domain, 'echo 1');
+        $result = servers_exec($domain, array('commands' => array('echo', array('1'))));
         $result = array_pop($result);
 
         if($result != '1'){
@@ -1244,10 +1302,14 @@ function servers_clear_key(&$server){
  * @param string $ssh_key The SSH key that must be placed in a keyfile
  * return string $identity_file The created keyfile
  */
-function servers_create_identity_file($ssh_key){
+function servers_create_identity_file($server){
     global $core;
 
     try{
+        if(empty($server['ssh_key'])){
+            throw new BException(tr('servers_create_identity_file(): Specified server does not contain an ssh_key'), 'not-specified');
+        }
+
         /*
          * Ensure that ssh/keys directory exists and that its safe
          */
@@ -1261,12 +1323,13 @@ function servers_create_identity_file($ssh_key){
 
         touch($identity_file);
         chmod($identity_file, 0600);
-        file_put_contents($identity_file, $ssh_key, FILE_APPEND);
+        file_put_contents($identity_file, $server['ssh_key'], FILE_APPEND);
         chmod($identity_file, 0400);
+        servers_clear_key($server);
 
         $core->register('shutdown_servers_remove_identity_file', array($identity_file));
 
-        return substr($identity_file, -8, 8);
+        return ROOT.'data/ssh/keys/'.substr($identity_file, -8, 8);
 
     }catch(Exception $e){
         throw new BException('servers_create_identity_file(): Failed', $e);
@@ -1297,7 +1360,10 @@ function servers_remove_identity_file($identity_file, $background = false){
 
         if(file_exists($identity_file)){
             if($background){
-                safe_exec('{ sleep 5; sudo chmod 0660 '.$identity_file.' ; sudo rm -rf '.$identity_file.' ; } &');
+                safe_exec(array('background' => true,
+                                'commands'   => array('sleep', array('5'),
+                                                      'chmod', array('sudo' => true, '0660', $identity_file),
+                                                      'rm'   , array('sudo' => true, '-rf' , $identity_file))));
 
             }else{
                 chmod($identity_file, 0600);
@@ -1332,7 +1398,7 @@ function servers_detect_os($domain){
         /*
          * Getting complete operating system distribution
          */
-        $output_version = servers_exec($domain, 'cat /proc/version');
+        $output_version = servers_exec($domain, array('commands' => array('cat', array('proc/version'))));
 
         if(empty($output_version)){
             throw new BException(tr('servers_detect_os(): No operating system found on /proc/version for domain ":domain"', array(':domain' => $domain)), 'unknown');
@@ -1351,16 +1417,16 @@ function servers_detect_os($domain){
 
         switch($group){
             case 'debian':
-                $release = servers_exec($domain, 'cat /etc/issue');
+                $release = servers_exec($domain, array('commands' => array('cat', array('/etc/issue'))));
                 break;
 
             case 'ubuntu':
-                $release = servers_exec($domain, 'cat /etc/issue');
+                $release = servers_exec($domain, array('commands' => array('cat', array('/etc/issue'))));
                 break;
 
             case 'red hat':
                 $group   = 'redhat';
-                $release = servers_exec($domain, 'cat /etc/redhat-release');
+                $release = servers_exec($domain, array('commands' => array('cat', array('/etc/redhat-release'))));
                 break;
 
             default:
@@ -1368,7 +1434,7 @@ function servers_detect_os($domain){
         }
 
         if(empty($release)){
-            throw new BException(tr('servers_detect_os(): No data found on for os group ":group"', array(':group' => $matches[0])), 'not-exist');
+            throw new BException(tr('servers_detect_os(): No data found on for os group ":group"', array(':group' => $matches[0])), 'not-exists');
         }
 
         $server_os['type']  = 'linux';
@@ -1380,7 +1446,7 @@ function servers_detect_os($domain){
         preg_match('/((:?[kxl]|edu)?ubuntu|mint|debian|red hat enterprise|fedora|centos)/i', $release, $matches);
 
         if(!isset($matches[0])){
-            throw new BException(tr('servers_detect_os(): No name found for os group ":group"', array(':group' => $matches[0])), 'not-exist');
+            throw new BException(tr('servers_detect_os(): No name found for os group ":group"', array(':group' => $matches[0])), 'not-exists');
         }
 
         $server_os['name'] = strtolower($matches[0]);
@@ -1391,7 +1457,7 @@ function servers_detect_os($domain){
         preg_match('/\d*\.?\d+/', $release, $version);
 
         if(!isset($version[0])){
-            throw new BException(tr('servers_detect_os(): No version found for os ":os"', array(':os' => $server_os['name'])), 'not-exist');
+            throw new BException(tr('servers_detect_os(): No version found for os ":os"', array(':os' => $server_os['name'])), 'not-exists');
         }
 
         $server_os['version'] = $version[0];
@@ -1419,7 +1485,7 @@ function servers_detect_os($domain){
  */
 function servers_get_public_ip($domain){
     try{
-        $ip = servers_exec($domain, 'dig +short myip.opendns.com @resolver1.opendns.com');
+        $ip = servers_exec($domain, array('commands' => array('dig', array('+short', 'myip.opendns.com', '@resolver1.opendns.com'))));
 
         if(is_array($ip)){
             $ip = $ip[0];
@@ -1741,16 +1807,16 @@ function servers_check_ssh_access($server, $account, $password = null){
 
         if($password){
             $server['password'] = $password;
-            $results = servers_exec($server);
+            $results = servers_exec($server, array('commands' => array('echo', array('1'))));
 
         }else{
             $account = ssh_get_account($account);
 
             if(!$account){
-                throw new BException(tr('servers_check_ssh_access(): The specified account "" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exist');
+                throw new BException(tr('servers_check_ssh_access(): The specified account ":account" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exists');
             }
 
-            $results = servers_exec($server);
+            $results = servers_exec($server, array('commands' => array('echo', array('1'))));
         }
 
 showdie($results);

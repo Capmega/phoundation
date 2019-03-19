@@ -80,13 +80,13 @@ function chat_start($user){
             /*
              * This user doesnt exist yet
              */
-            throw new BException(tr('chat_start(): Specified user ":user" doesn\'t exist in the chat database', array(':user' => $user['id'])), 'not-exist');
+            throw new BException(tr('chat_start(): Specified user ":user" doesn\'t exist in the chat database', array(':user' => $user['id'])), 'not-exists');
         }
 
         setcookie('username', $user['user_name']    , time() + 86400, '/', ''.str_starts($_SESSION['domain'], '.'));
         setcookie('password', $user['user_password'], time() + 86400, '/', ''.str_starts($_SESSION['domain'], '.'));
 
-        return '<iframe src="'.$_CONFIG['protocol'].'chat.'.$_CONFIG['domain'].'" frameborder="0" class="chat"></iframe>';
+        return '<iframe src="'.PROTOCOL.'chat.'.$_CONFIG['domain'].'" frameborder="0" class="chat"></iframe>';
 
     }catch(Exception $e){
         throw new BException(tr('chat_start(): Failed'), $e);
@@ -133,7 +133,7 @@ function chat_add_user($user){
                          'user_ip'        => isset_get($_SERVER['REMOTE_ADDR'], '127.0.0.1'),
                          ':user_password' => unique_code()),
 
-                   null, 'chat');
+                   'chat');
 
         return sql_insert_id('chat');
 
@@ -176,7 +176,7 @@ function chat_update_user($user){
                               ':user_email' => $user['email'],
                               ':user_rank'  => $rank),
 
-                        null, 'chat');
+                         'chat');
 
         if(!$r->rowCount()){
             /*
@@ -241,7 +241,7 @@ function chat_update_rank($user){
              */
             if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']))){
                 load_libs('user');
-                throw new BException(tr('chat_update_rank(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exist');
+                throw new BException(tr('chat_update_rank(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exists');
             }
         }
 
@@ -301,7 +301,7 @@ function chat_update_avatar($user, $avatar){
 
                         array(':user_id'     => $user['id'],
                               ':avatar'      => $avatar,
-                              ':user_avatar' => $avatar), null, 'chat');
+                              ':user_avatar' => $avatar), 'chat');
 
     }catch(Exception $e){
         throw new BException(tr('chat_update_avatar(): Failed'), $e);

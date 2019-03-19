@@ -40,7 +40,7 @@ function rights_give($users, $rights){
                     /*
                      * This user does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified user ":user" does not exist', array(':user' => $value)), 'not-exist');
+                    throw new BException(tr('rights_give(): The specified user ":user" does not exist', array(':user' => $value)), 'not-exists');
                 }
 
             }else{
@@ -48,7 +48,7 @@ function rights_give($users, $rights){
                     /*
                      * This user does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified users id ":users_id" does not exist', array(':users_id' => $value)), 'not-exist');
+                    throw new BException(tr('rights_give(): The specified users id ":users_id" does not exist', array(':users_id' => $value)), 'not-exists');
                 }
             }
         }
@@ -62,7 +62,7 @@ function rights_give($users, $rights){
                     /*
                      * This right does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified right ":right" does not exist', array(':right' => $value)), 'not-exist');
+                    throw new BException(tr('rights_give(): The specified right ":right" does not exist', array(':right' => $value)), 'not-exists');
                 }
 
             }else{
@@ -70,7 +70,7 @@ function rights_give($users, $rights){
                     /*
                      * This right does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified rights id ":rights_id" does not exist', array(':rights_id' => $value)), 'not-exist');
+                    throw new BException(tr('rights_give(): The specified rights id ":rights_id" does not exist', array(':rights_id' => $value)), 'not-exists');
                 }
             }
         }
@@ -137,7 +137,7 @@ function rights_take($users, $rights){
                     /*
                      * This user does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified user ":user" does not exist', array(':users_id' => $value)), 'not-exist');
+                    throw new BException(tr('rights_give(): The specified user ":user" does not exist', array(':users_id' => $value)), 'not-exists');
                 }
 
             }else{
@@ -145,7 +145,7 @@ function rights_take($users, $rights){
                     /*
                      * This user does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified users id ":users_id" does not exist', array(':users_id' => $value)), 'not-exist');
+                    throw new BException(tr('rights_give(): The specified users id ":users_id" does not exist', array(':users_id' => $value)), 'not-exists');
                 }
             }
         }
@@ -159,7 +159,7 @@ function rights_take($users, $rights){
                     /*
                      * This right does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified right ":right" does not exist', array(':right' => $value)), 'not-exist');
+                    throw new BException(tr('rights_give(): The specified right ":right" does not exist', array(':right' => $value)), 'not-exists');
                 }
 
             }else{
@@ -167,7 +167,7 @@ function rights_take($users, $rights){
                     /*
                      * This right does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified rights id ":rights_id" does not exist', array(':rights_id' => $value)), 'not-exist');
+                    throw new BException(tr('rights_give(): The specified rights id ":rights_id" does not exist', array(':rights_id' => $value)), 'not-exists');
                 }
             }
         }
@@ -284,7 +284,7 @@ function rights_has($user, $right){
         }
 
         if(!$target = sql_get('SELECT `id` FROM `users` WHERE `id` = :id OR `name` = :name OR `email` = :email', array(':name' => $user, ':email' => $user, ':id' => $user), 'id')){
-            throw new BException(tr('rights_has(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exist');
+            throw new BException(tr('rights_has(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
         }
 
         $rights = sql_list('SELECT `users_id`,

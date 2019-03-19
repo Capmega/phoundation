@@ -87,7 +87,7 @@ function categories_validate($category){
         /*
          * Does the category already exist within the specified parents_id?
          */
-        $exists = sql_get('SELECT `id` FROM `categories` WHERE `parents_id` '.sql_is(isset_get($category['parents_id'])).' :parents_id AND `name` = :name AND `id` '.sql_is(isset_get($category['id']), true).' :id', true, array(':name' => $category['name'], ':id' => isset_get($category['id']), ':parents_id' => isset_get($category['parents_id'])));
+        $exists = sql_get('SELECT `id` FROM `categories` WHERE `parents_id` '.sql_is(isset_get($category['parents_id']), ':parents_id').' AND `name` = :name AND `id` '.sql_is(isset_get($category['id']), ':id', true), true, array(':name' => $category['name'], ':id' => isset_get($category['id']), ':parents_id' => isset_get($category['parents_id'])));
 
         if($exists){
             if($category['parents_id']){
@@ -144,8 +144,6 @@ function categories_validate($category){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -158,19 +156,17 @@ function categories_validate($category){
 function categories_select($params = null){
     try{
         array_ensure($params);
-        array_default($params, 'name'        , 'seocategory');
-        array_default($params, 'class'       , 'form-control');
-        array_default($params, 'selected'    , null);
-        array_default($params, 'seoparent'    , null);
-        array_default($params, 'autosubmit'  , true);
-        array_default($params, 'parents_id'  , null);
-        array_default($params, 'status'      , null);
-        array_default($params, 'remove'      , null);
-        array_default($params, 'empty'       , tr('No categories available'));
-        array_default($params, 'none'        , tr('Select a category'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
-        array_default($params, 'orderby'     , '`name`');
+        array_default($params, 'name'      , 'seocategory');
+        array_default($params, 'class'     , 'form-control');
+        array_default($params, 'selected'  , null);
+        array_default($params, 'seoparent' , null);
+        array_default($params, 'autosubmit', true);
+        array_default($params, 'parents_id', null);
+        array_default($params, 'status'    , null);
+        array_default($params, 'remove'    , null);
+        array_default($params, 'empty'     , tr('No categories available'));
+        array_default($params, 'none'      , tr('Select a category'));
+        array_default($params, 'orderby'   , '`name`');
 
         if($params['seoparent']){
             /*
@@ -244,9 +240,8 @@ function categories_select($params = null){
             $where[] = ' `parents_id` IS NULL ';
         }
 
-
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -300,7 +295,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `categories`.`status` '.sql_is($status).' :status';
+            $where[] = ' `categories`.`status` '.sql_is($status, ':status');
         }
 
         if($parent){

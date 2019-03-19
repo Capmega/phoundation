@@ -51,10 +51,10 @@ function smart_library_init(){
  * @param
  * @return
  */
-function smart_install($params){
+function smart_install(){
     try{
-        load_libs('apt');
-        apt_install('smartmontools');
+        load_libs('linux');
+        linux_install_package(null, 'smartmontools');
 
     }catch(Exception $e){
         throw new BException('smart_install(): Failed', $e);

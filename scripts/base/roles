@@ -14,7 +14,7 @@ $help  = "This is the roles management script";
 
 require_once(__DIR__.'/../../libs/startup.php');
 
-load_libs('user,roles');
+load_libs('user,roles,paging');
 
 switch(cli_method()){
     case 'list':
@@ -31,7 +31,7 @@ switch(cli_method()){
                                 FROM   `roles`
 
                                 WHERE  `status` IS NULL
-                                OR     `status` != "_new" '.(LIMIT ? ' LIMIT '.LIMIT : ''));
+                                OR     `status` != "_new" '.sql_limit());
 
             log_console(str_size('#id', 6).' '.str_size('Name', 20).' '.str_size('Status', 16).' Rights', 'QUIET/cyan');
 
@@ -62,7 +62,7 @@ switch(cli_method()){
                                 FROM   `roles`
 
                                 WHERE  `status` IS NULL
-                                OR     `status` != "_new" '.(LIMIT ? ' LIMIT '.LIMIT : ''));
+                                OR     `status` != "_new" '.sql_limit());
 
             log_console(str_size('#id', 6).' '.str_size('Name', 20).' '.str_size('Status', 16).' Description', 'QUIET/cyan');
 

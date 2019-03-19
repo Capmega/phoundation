@@ -1,0 +1,25 @@
+#!/usr/bin/php
+<?php
+/*
+ * This is an empty test script template
+ */
+$usage = './scripts/base/view file';
+
+$help  = 'Simple file viewer. Can view images, videos, and pdf files.
+
+
+ARGUMENTS
+
+FILE                            - The file to view';
+
+require_once(__DIR__.'/../../libs/startup.php');
+cli_only();
+load_libs('view');
+$file = cli_argument(0);
+
+if(!$file){
+    throw new BException(tr('No file specified'), 'warning/not-specified');
+}
+
+view($file);
+?>

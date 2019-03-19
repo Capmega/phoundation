@@ -126,7 +126,7 @@ $path = cli_argument('path', true, ROOT);
 log_console(tr('Searching ":path" for PHP files with BOM signatures', array(':path' => $path)), 'white');
 
 if(!file_exists($path)){
-    throw new bException(tr('The specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+    throw new bException(tr('The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
 }
 
 $count = clear_files($path);

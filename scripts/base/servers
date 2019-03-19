@@ -207,9 +207,19 @@ try{
 
             break;
 
+        case 'disable':
+            $start  = 0;
+            $status = 'disabled';
+            // FALLTHROUH
+
         case 'delete':
             $start  = 0;
-            $status = 'deleted';
+            $status = isset_get($status, 'deleted');
+            // FALLTHROUH
+
+        case 'enable':
+            $start  = 0;
+            $status = isset_get($status, null);
             // FALLTHROUH
 
         case 'undelete':
@@ -232,10 +242,11 @@ try{
              * Get a list of all servers so we can delete them in an atomic action
              */
             foreach($list as $requested){
-                $server = servers_get($requested, false, false, 'id');
+                $server = servers_like($requested);
+                $server = servers_get($server, false, false, 'id');
 
                 if(!$server){
-                    throw new BException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exist');
+                    throw new BException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exists');
                 }
 
                 $servers[] = $server['id'];
@@ -268,7 +279,7 @@ try{
                 $server = servers_get($requested);
 
                 if(!$server){
-                    throw new BException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exist');
+                    throw new BException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exists');
                 }
 
                 $servers[] = $server;
@@ -294,7 +305,7 @@ try{
             if(DELETED){
                 $where[] = ' `status` = "deleted" ';
 
-            }elseif(!ALL){
+            }elseif(!$core->register['all']){
                 $where[] = ' (`status` IS NULL OR `status` = "testing") ';
             }
 
@@ -315,7 +326,7 @@ try{
             }
 
             $order   = ' ORDER BY `status` IS NOT NULL DESC, `name` ASC ';
-            $servers = sql_query($query.$where.$order.(LIMIT ? ' LIMIT '.LIMIT : ''));
+            $servers = sql_query($query.$where.$order.sql_limit());
 
             if(!$servers->rowCount()){
                     log_console(tr('There are currently no SSH accounts registered'), 'QUIET/yellow');
@@ -342,13 +353,13 @@ try{
             if(DELETED){
                 $where[] = ' `servers`.`status` = "deleted" ';
 
-            }elseif(!ALL){
+            }elseif(!$core->register['all']){
                 $where[] = ' `servers`.`status` IS NULL OR `servers`.`status` = "testing" ';
             }
 
             if(STATUS){
-                $execute = array_merge($execute, sql_in(ALL));
-                $where[] = ' `servers`.`status` IN ('.implode(', ', array_keys(ALL)).') ';
+                $execute = array_merge($execute, sql_in(array_force(STATUS)));
+                $where[] = ' `servers`.`status` IN ('.implode(', ', array_keys(array_force(STATUS))).') ';
             }
 
             if($customer){
@@ -376,6 +387,7 @@ try{
             }
 
             $query   = 'SELECT    `servers`.`id`,
+                                  `servers`.`ipv4`,
                                   `servers`.`domain`,
                                   `servers`.`seodomain`,
                                   `servers`.`status`,
@@ -409,8 +421,8 @@ try{
                 $where = ' WHERE '.implode(' AND ', $where);
             }
 
-            $order   = ' ORDER BY `servers`.`status` IS NOT NULL DESC ';
-            $servers = sql_query($query.$where.$order.(LIMIT ? ' LIMIT '.LIMIT : ''), $execute);
+            $order   = ' ORDER BY `servers`.`status` IS NOT NULL DESC, `servers`.`domain` ASC ';
+            $servers = sql_query($query.$where.$order.sql_limit(), $execute);
 
             if(!$servers->rowCount()){
                     log_console(tr('There are currently no servers registered'), 'QUIET/yellow');
@@ -424,10 +436,15 @@ try{
                     }
 
                 }else{
-                    log_console(str_size(tr('#id'), 7).str_size(tr('Customer'), 25).str_size(tr('Provider'), 25).str_size(tr('Hostname'), 33).str_size(tr('Status'), 13).str_size(tr('Created by'), 32), 'QUIET/cyan');
+                    log_console(str_size(tr('#id'), 6, ' ', true).' '.str_size(tr('Customer'), 24).' '.str_size(tr('Provider'), 24).' '.str_size(tr('ipv4'), 15).' '.str_size(tr('Hostname'), 33).str_size(tr('Status'), 13).str_size(tr('Created by'), 32), 'QUIET/cyan');
 
                     while($server = sql_fetch($servers)){
-                        log_console(str_size($server['id'], 6, ' ', true).' '.str_size($server['customer'], 24).' '.str_size($server['provider'], 24).' '.str_size($server['domain'], 32).' '.cli_status_color(str_size($server['status'], 12)).' '.name($server, 'user'));
+                        if(!$server['domain']){
+                            $server['domain'] = '*'.tr('This server').'*';
+                            $server['ipv4']   = '-';
+                        }
+
+                        log_console(str_size($server['id'], 6, ' ', true).' '.str_size($server['customer'], 24).' '.str_size($server['provider'], 24).' '.str_size($server['ipv4'], 15).' '.str_size($server['domain'], 32).' '.cli_status_color(str_size(status($server['status']), 12)).' '.name($server, 'user'));
                     }
                 }
             }
@@ -495,9 +512,10 @@ try{
             break;
 
         case 'show':
-            $server = cli_argument();
-            $server = servers_like($server);
-            $server = servers_get($server, true);
+            $server            = cli_argument();
+            $server            = servers_like($server);
+            $server            = servers_get($server, true, true);
+            $server['domains'] = servers_list_domains($server);
 
             if(empty($server['ssh_accounts_id'])){
                 $server['allow_tcp_forward'] = 'N/A';
@@ -610,7 +628,7 @@ try{
 
                     case 'not-specified':
                         // FALLTHROUGH
-                    case 'not-exist':
+                    case 'not-exists':
                         // FALLTHROUGH
                     case 'connect-failure':
                         // FALLTHROUGH
@@ -632,7 +650,7 @@ try{
 
 }catch(Exception $e){
     switch($e->getRealCode()){
-        case 'not-exist':
+        case 'not-exists':
             // FALLTHROUGH
         case 'multiple':
             // FALLTHROUGH

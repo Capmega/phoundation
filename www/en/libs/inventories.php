@@ -1,11 +1,14 @@
 <?php
 /*
- * inventories library
+ * Inventories library
  *
  * This library contains functions for the inventory system
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package template
  */
 
 
@@ -41,7 +44,7 @@ function inventories_library_init(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package companies
+ * @package inventories
  *
  * @param array $item The inventory entry to validate
  * @return array The validated and cleaned $item array
@@ -288,27 +291,26 @@ function inventories_validate($item, $reload_only = false){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package companies
+ * @package inventories
  *
  * @param array $params The parameters required
- * @param $params name
- * @param $params class
- * @param $params extra
- * @param $params tabindex
- * @param $params empty
- * @param $params none
- * @param $params selected
- * @param $params categories_id
- * @param $params status
- * @param $params orderby
- * @param $params resource
+ * @param $params[name]
+ * @param $params[class]
+ * @param $params[extra]
+ * @param $params[tabindex]
+ * @param $params[empty]
+ * @param $params[none]
+ * @param $params[selected]
+ * @param $params[categories_id]
+ * @param $params[status]
+ * @param $params[orderby]
+ * @param $params[resource]
  * @return string HTML for a companies select box within the specified parameters
  */
-function inventories_select($params = null){
+function inventories_select($params){
     try{
         array_ensure($params);
         array_default($params, 'name'         , 'seocompany');
-        array_default($params, 'class'        , 'form-control');
         array_default($params, 'selected'     , null);
         array_default($params, 'category'     , null);
         array_default($params, 'categories_id', null);
@@ -316,8 +318,6 @@ function inventories_select($params = null){
         array_default($params, 'remove'       , null);
         array_default($params, 'empty'        , tr('No companies available'));
         array_default($params, 'none'         , tr('Select a company'));
-        array_default($params, 'tabindex'     , 0);
-        array_default($params, 'extra'        , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'      , '`name`');
 
         if($params['category']){
@@ -337,7 +337,7 @@ function inventories_select($params = null){
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -362,6 +362,56 @@ function inventories_select($params = null){
 
 
 /*
+ * Return HTML for an inventories auto suggest
+ *
+ * This function will generate HTML for an HTML auto suggest <input>
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package inventories
+ *
+ * @param array $params The parameters required
+ * @param $params[name]
+ * @param $params[class]
+ * @param $params[extra]
+ * @param $params[tabindex]
+ * @param $params[empty]
+ * @param $params[none]
+ * @param $params[selected]
+ * @param $params[categories_id]
+ * @param $params[status]
+ * @param $params[orderby]
+ * @param $params[resource]
+ * @return string HTML for a companies select box within the specified parameters
+ */
+function inventories_autosuggest($params){
+    try{
+        array_ensure($params);
+        array_default($params, 'name'         , 'seocompany');
+        array_default($params, 'class'        , 'form-control');
+        array_default($params, 'selected'     , null);
+        array_default($params, 'category'     , null);
+        array_default($params, 'categories_id', null);
+        array_default($params, 'status'       , null);
+        array_default($params, 'remove'       , null);
+        array_default($params, 'empty'        , tr('No companies available'));
+        array_default($params, 'none'         , tr('Select a company'));
+        array_default($params, 'tabindex'     , 0);
+        array_default($params, 'extra'        , 'tabindex="'.$params['tabindex'].'"');
+        array_default($params, 'orderby'      , '`name`');
+
+        return html_autosuggest($params);
+
+    }catch(Exception $e){
+        throw new BException('inventories_autosuggest(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Return data for the specified company
  *
  * This function returns information for the specified company. The company can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
@@ -370,7 +420,7 @@ function inventories_select($params = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package companies
+ * @package inventories
  *
  * @param mixed $item The required company. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
@@ -378,16 +428,21 @@ function inventories_select($params = null){
  */
 function inventories_get($entry, $column = null, $status = null){
     try{
-        if(!is_numeric($entry)){
-            throw new BException(tr('inventories_get(): Specified entry ":entry" is invalid, it should be numeric', array(':entry' => $entry)), 'invalid');
-        }
+        if(is_natural($entry)){
+            $where[] = ' `inventories`.`id` = :id ';
+            $execute[':id'] = $entry;
 
-        $where[] = ' `inventories`.`id` = :id ';
-        $execute[':id'] = $entry;
+        }elseif(is_string($entry)){
+            $where[] = ' `inventories`.`code` = :code ';
+            $execute[':code'] = $entry;
+
+        }else{
+            throw new BException(tr('inventories_get(): Specified entry ":entry" is invalid, it should be natural or string', array(':entry' => $entry)), 'invalid');
+        }
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `inventories`.`status` '.sql_is($status).' :status';
+            $where[] = ' `inventories`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -492,7 +547,7 @@ function inventories_get($entry, $column = null, $status = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package companies
+ * @package inventories
  *
  * @param array $branch The branch to validate
  * @return array The validated and cleaned $branch array
@@ -625,7 +680,7 @@ function inventories_validate_item($item, $reload_only = false){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package companies
+ * @package inventories
  *
  * @param array $params The parameters required
  * @param $params name
@@ -661,7 +716,7 @@ function inventories_select_item($params = null){
             $params['categories_id'] = inventories_get($params['seocategory'], 'id');
 
             if(!$params['categories_id']){
-                throw new BException(tr('inventories_select_items(): The specified category ":category" does not exist or is not available', array(':category' => $params['category'])), 'not-exist');
+                throw new BException(tr('inventories_select_items(): The specified category ":category" does not exist or is not available', array(':category' => $params['category'])), 'not-exists');
             }
         }
 
@@ -675,7 +730,7 @@ function inventories_select_item($params = null){
             $execute[':categories_id'] = $params['categories_id'];
 
             if($params['status'] !== false){
-                $where[] = ' `status` '.sql_is($params['status']).' :status ';
+                $where[] = ' `status` '.sql_is($params['status'], ':status');
                 $execute[':status'] = $params['status'];
             }
 
@@ -710,7 +765,7 @@ function inventories_select_item($params = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package companies
+ * @package inventories
  *
  * @param mixed $branch The required item. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
@@ -736,7 +791,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
             $categories_id = categories_get($category, 'id');
 
             if(!$categories_id){
-                throw new BException(tr('Specified category ":category" does not exist', array(':category' => $category)), 'not-exist');
+                throw new BException(tr('Specified category ":category" does not exist', array(':category' => $category)), 'not-exists');
             }
 
             $where[] = ' `inventories_items`.`categories_id` = :categories_id ';
@@ -748,7 +803,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
          */
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `inventories_items`.`status` '.sql_is($status).' :status';
+            $where[] = ' `inventories_items`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -806,7 +861,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package companies
+ * @package inventories
  *
  * @param numeric $items_id
  * @return string
@@ -816,7 +871,7 @@ function inventories_get_default_code($items_id, $companies_id){
         $item = sql_get('SELECT `id`, `code` FROM `inventories_items` WHERE `id` = :id', array(':id' => $items_id));
 
         if(!$item){
-            throw new BException(tr('inventories_get_default_code(): The specified item ":id" does not exist', array(':id' => $items_id)), 'not-exist');
+            throw new BException(tr('inventories_get_default_code(): The specified item ":id" does not exist', array(':id' => $items_id)), 'not-exists');
         }
 
         if(!$item['code']){

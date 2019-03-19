@@ -133,7 +133,7 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
             }
 
             if(!$blogs_id){
-                throw new BException(tr('blogs_post_get(): Specified blog ":blog" does not exist, or is not available because of its status', array(':blog' => $blog)), 'not-exist');
+                throw new BException(tr('blogs_post_get(): Specified blog ":blog" does not exist, or is not available because of its status', array(':blog' => $blog)), 'not-exists');
             }
         }
 
@@ -1198,7 +1198,7 @@ function blogs_validate_category($category, $blog){
                 /*
                  * Specified parent does not exist at all
                  */
-                throw new BException(tr('The specified parent category ":parent" does not exist', array(':parent' => $category['parent'])), 'not-exist');
+                throw new BException(tr('The specified parent category ":parent" does not exist', array(':parent' => $category['parent'])), 'not-exists');
             }
 
 // :DELETE: parents_id can be blog post from any blog
@@ -1206,7 +1206,7 @@ function blogs_validate_category($category, $blog){
             //    /*
             //     * Specified parent does not exist inside this blog
             //     */
-            //    throw new BException('The specified parent category does not exist in this blog', 'not-exist');
+            //    throw new BException('The specified parent category does not exist in this blog', 'not-exists');
             //}
 
             $category['parents_id'] = $parent['id'];
@@ -1348,7 +1348,7 @@ function blogs_validate_post($post, $params = null){
             /*
              * This blog post does not exist
              */
-            throw new BException(tr('Can not update blog ":blog" post ":name", it does not exist', array(':blog' => $post['blogs_id'], ':name' => $post['name'])), 'not-exist');
+            throw new BException(tr('Can not update blog ":blog" post ":name", it does not exist', array(':blog' => $post['blogs_id'], ':name' => $post['name'])), 'not-exists');
         }
 
         if(empty($params['allow_duplicate_name'])){
@@ -1996,7 +1996,7 @@ function blogs_photo_url($media, $size, $section = 'blogs/media'){
                 /*
                  * Valid
                  */
-                return cdn_domain('/blog/'.$media.'-'.$size.'.jpg', $section);
+                return cdn_domain('/'.$media.'-'.$size.'.jpg', $section);
 
             default:
                 throw new BException(tr('blogs_photo_url(): Unknown size ":size" specified', array(':size' => $size)), 'unknown');
@@ -2064,7 +2064,7 @@ function blogs_level($level){
 function blogblogs_validate_category($category, $blogs_id){
     try{
         if(!$category){
-            throw new BException(tr('blogblogs_validate_category(): No category specified'), 'not-exist');
+            throw new BException(tr('blogblogs_validate_category(): No category specified'), 'not-exists');
         }
 
         if(!$retval = sql_get('SELECT `id`, `blogs_id`, `name`, `seoname` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `seoname` = :seoname', array(':blogs_id' => $blogs_id, ':seoname' => $category))){
@@ -2074,7 +2074,7 @@ function blogblogs_validate_category($category, $blogs_id){
             /*
              * The specified category does not exist
              */
-            throw new BException(tr('blogblogs_validate_category(): The specified category ":category" does not exists in blog ":blogs_id"', array(':blogs_id' => $blogs_id, ':category' => $category)), 'not-exist');
+            throw new BException(tr('blogblogs_validate_category(): The specified category ":category" does not exists in blog ":blogs_id"', array(':blogs_id' => $blogs_id, ':category' => $category)), 'not-exists');
         }
 
 // :DELETE: This check is no longer needed since the query now filters on blogs_id
@@ -2778,7 +2778,7 @@ function blogs_post_get_img($photo, $params, $tabindex){
                 $is_video  = true;
 
             }else{
-                throw new BException(tr('blogs_post_get_img(): Media file ":file" does not exists', array(':file' => $photo['file'])), 'not-exist');
+                throw new BException(tr('blogs_post_get_img(): Media file ":file" does not exists', array(':file' => $photo['file'])), 'not-exists');
             }
 
         }catch(Exception $e){

@@ -69,7 +69,7 @@ function twilio_install(){
          * Get library zip, unzip it to target, and cleanup
          */
         copy('https://github.com/twilio/twilio-php/archive/master.zip', TMP.'twilio_install.zip');
-        safe_exec('unzip '.TMP.'twilio_install.zip -d '.ROOT.'libs/external');
+        cli_unzip(TMP.'twilio_install.zip', ROOT.'libs/external');
         rename(ROOT.'libs/external/twilio-php-master', ROOT.'libs/external/twilio');
         unlink(TMP.'twilio_install.zip');
 
@@ -132,7 +132,7 @@ function twilio_load($source, $auto_install = true){
         $account = twilio_get_account_by_phone_number($source);
 
         if(!$account){
-            throw new BException(tr('twilio_load(): No Twilio account found for source ":source"', array(':source' => $source)), 'not-exist');
+            throw new BException(tr('twilio_load(): No Twilio account found for source ":source"', array(':source' => $source)), 'not-exists');
         }
 
         return new Client($account['account_id'], $account['account_token']);
@@ -1055,7 +1055,7 @@ function twilio_select_number($params){
             $accounts_id = twilio_get_account($params['account']);
 
             if(!$accounts_id){
-                throw new BException(tr('twilio_select_number(): Specified Twilio account ":account" does not exist', array(':account' => $params['account'])), 'not-exist');
+                throw new BException(tr('twilio_select_number(): Specified Twilio account ":account" does not exist', array(':account' => $params['account'])), 'not-exists');
             }
 
             $where   = 'WHERE    `accounts_id` = :accounts_id

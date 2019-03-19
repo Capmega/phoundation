@@ -177,7 +177,7 @@ function sodium_decrypt($cipher_data, $key){
         $nonce = base64_decode($nonce);
 
         if(!$nonce){
-            throw new BException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exist');
+            throw new BException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
         $cipher_data = str_from($cipher_data, '$');
@@ -185,7 +185,7 @@ function sodium_decrypt($cipher_data, $key){
         $data        = sodium_crypto_secretbox_open($cipher_data, $nonce, $key);
 
         if($data === false){
-            throw new BException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exist');
+            throw new BException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
         sodium_memzero($key);
@@ -252,7 +252,7 @@ function sodium_verify_mac($data, $key){
         $mac = str_from($data, '$');
 
         if(!$mac){
-            throw new BException(tr('sodium_verify_mac(): Specified string does not contain a mac prefix'), 'not-exist');
+            throw new BException(tr('sodium_verify_mac(): Specified string does not contain a mac prefix'), 'not-exists');
         }
 
         $data = str_from($data, '$');

@@ -57,7 +57,8 @@ function cli_library_init(){
  */
 function cli_install($params){
     try{
-        safe_exec('sudo phpenmod posix');
+        load_libs('php');
+        php_enmod('posix');
 
     }catch(Exception $e){
         throw new BException('cli_install(): Failed', $e);
@@ -336,7 +337,8 @@ function cli_run_once_local($close = false){
                 log_console(tr('cli_run_once_local(): The run file ":file" contains invalid information, ignoring', array(':file' => $run_dir.$script)), 'yellow');
 
             }else{
-                $name = safe_exec('ps -p '.$pid.' | tail -n 1');
+                $name = safe_exec(array('commands' => array('ps'  , array('-p', $pid, 'connector' => '|'),
+                                                            'tail', array('-n', 1))));
                 $name = array_pop($name);
 
                 if($name){
@@ -425,7 +427,8 @@ under_construction();
                 log_console(tr('cli_run_max_local(): The run file ":file" contains invalid information, ignoring', array(':file' => $run_dir.$script)), 'yellow');
 
             }else{
-                $name = safe_exec('ps -p '.$pid.' | tail -n 1');
+                $name = safe_exec(array('commands' => array('ps'  , array('-p', $pid, 'connector' => '|'),
+                                                            'tail', array('-n', 1))));
                 $name = array_pop($name);
 
                 if($name){
@@ -661,7 +664,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                 return isset_get($retval);
             }
 
-            if(!empty($argv[$keys++])){
+            if(isset($argv[$keys++])){
                 $argument = $argv[$keys - 1];
                 unset($argv[$keys - 1]);
                 return $argument;
@@ -946,14 +949,22 @@ function cli_show_usage($usage, $color){
  * @category Function reference
  * @package cli
  *
- * @param boolean $auto_switch If set to true, the script
+ * @param boolean $auto_switch If set to true, the script will automatically restart with the correct user, instead of causing an exception
+ * @param boolean $permit_root If set to true, and the script was run by root, it will be authorized anyway
  * @return void
  */
-function cli_process_uid_matches($auto_switch = false){
+function cli_process_uid_matches($auto_switch = false, $permit_root = true){
     global $core;
 
     try{
         if(cli_get_process_uid() !== getmyuid()){
+            if(!cli_get_process_uid() and $permit_root){
+                /*
+                 * Root is authorized!
+                 */
+                return;
+            }
+
             if(!$auto_switch){
                 throw new BException(tr('cli_process_uid_matches(): The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', array(':puser' => get_current_user(), ':fuser' => cli_get_process_user())), 'not-authorized');
             }
@@ -961,7 +972,7 @@ function cli_process_uid_matches($auto_switch = false){
             /*
              * Re-execute this command as the specified user
              */
-            log_console(tr('Current user ":user" is not authorized to execute this script, reexecuting script as user ":reuser"', array(':user' => cli_get_process_uid(), ':reuser' => cli_get_process_user())), 'yellow', true, false, false);
+            log_console(tr('Current user ":user" is not authorized to execute this script, reexecuting script as user ":reuser"', array(':user' => cli_get_process_uid(), ':reuser' => getmyuid())), 'yellow', true, false, false);
             passthru(cli_sudo('sudo -Eu "'.get_current_user().'" '.ROOT.'scripts/'.str_rfrom($core->register['script_command'], 'scripts/')));
             die();
         }
@@ -984,14 +995,11 @@ function cli_process_uid_matches($auto_switch = false){
  */
 function cli_process_user_has_free_sudo(){
     try{
-        $result = safe_exec('timeout 0.1 sudo -v');
-        $result = array_pop($result);
+        $results = safe_exec(array('timeout'  => '0.1',
+                                   'commands' => array('sudo', array('-v'))));
+        $results = array_pop($results);
 
-        if($result){
-            return false;
-        }
-
-        return true;
+        return !$results;
 
     }catch(Exception $e){
         throw new BException('cli_process_user_has_free_sudo(): Failed', $e);
@@ -1017,10 +1025,10 @@ function cli_get_process_uid(){
             return posix_getuid();
         }
 
-        $result = safe_exec('id -u');
-        $result = array_pop($result);
+        $results = safe_exec(array('commands' => array('id', array('-u'))));
+        $results = array_pop($results);
 
-        return $result;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('cli_get_process_uid(): Failed', $e);
@@ -1046,10 +1054,10 @@ function cli_get_process_user(){
             return posix_getpwuid(posix_geteuid())['name'];;
         }
 
-        $result = safe_exec('id -un');
-        $result = array_pop($result);
+        $results = safe_exec(array('commands' => array('id', array('-un'))));
+        $results = array_pop($results);
 
-        return $result;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('cli_get_process_user(): Failed', $e);
@@ -1219,7 +1227,8 @@ function cli_done(){
  */
 function cli_pgrep($name){
     try{
-        return safe_exec('pgrep '.$name, 1);
+        return safe_exec(array('ok_exitcodes' => '0,1',
+                               'commands'     => array('pgrep', array($name))));
 
     }catch(Exception $e){
         throw new BException('cli_pgrep(): Failed', $e);
@@ -1233,7 +1242,9 @@ function cli_pgrep($name){
  */
 function cli_pidgrep($pid){
     try{
-        $results = safe_exec('ps '.$pid.' | grep -v "PID TTY      STAT   TIME COMMAND"', '0,1');
+        $results = safe_exec(array('ok_exitcodes' => '0,1',
+                                   'commands'     => array('ps'  , array($pid, 'connector' => '|'),
+                                                           'grep', array('-v', 'PID TTY      STAT   TIME COMMAND'))));
         $result  = array_pop($results);
         $result  = substr($result, 27);
 
@@ -1268,7 +1279,9 @@ function cli_kill($pid, $signal = 15, $verify = -20, $sudo = false){
          * pkill returns 1 if process wasn't found, we can ignore that
          */
         log_console(tr('Killing PID ":pid" with signal ":signal"', array(':pid' => $pid, ':signal' => $signal)), 'VERBOSE/cyan');
-        safe_exec(($sudo ? 'sudo ' : '').'kill -'.$signal.' '.$pid, 1);
+
+        $results = safe_exec(array('ok_exitcodes' => '0,1',
+                                   'commands'     => array('kill', array('sudo' => $sudo, '-'.$signal, $pid))));
 
         if($verify){
             $sigkill = ($verify < 0);
@@ -1327,7 +1340,8 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
         /*
          * pkill returns 1 if process wasn't found, we can ignore that
          */
-        safe_exec(($sudo ? 'sudo ' : '').'pkill -'.$signal.' '.$process, 1);
+        $results = safe_exec(array('ok_exitcodes' => '0,1',
+                                   'commands'     => array('pkill', array('sudo' => $sudo, '-'.$signal, $process))));
 
         if($verify){
             while(--$verify >= 0){
@@ -1469,6 +1483,15 @@ function cli_status_color($status){
             case 'failed':
                 return cli_color($status, 'red');
 
+            case 'disabled':
+                return cli_color($status, 'yellow');
+
+            case 'not found':
+                return cli_color($status, 'yellow');
+
+            case 'not exists':
+                return cli_color($status, 'yellow');
+
             case 'deleted':
                 return cli_color($status, 'yellow');
 
@@ -1476,7 +1499,7 @@ function cli_status_color($status){
 
         }
 
-        return $status;
+        return cli_color($status, 'purple');
 
     }catch(Exception $e){
         throw new BException('cli_status_color(): Failed', $e);
@@ -1509,29 +1532,6 @@ function cli_pid($pid){
 
 
 /*
- * Check if the specified CLI command exists or not
- *
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package cli
- *
- * @param string $command the CLI command to be tested
- * @return boolean true if the specified command exists, false if not.
- */
-function cli_command_exists($command){
-    try{
-        $exists = safe_exec('which "'.$command.'"');
-        return (boolean) $exists;
-
-    }catch(Exception $e){
-        throw new BException(tr('cli_command_exists(): Failed'), $e);
-    }
-}
-
-
-
-/*
  * Return all system processes that match the specified filters
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1540,39 +1540,31 @@ function cli_command_exists($command){
  * @category Function reference
  * @package cli
  *
- * @param numeric $source_port
- * @param numeric $hostname
- * @param numeric $target_port
- * @param numeric $target_hostname
- * @return numeric PID of the found tunnel with the specified parameters, null if no tunnel was found
+ * @param mixed $filters
+ * @return
  */
 function cli_list_processes($filters){
     try{
+        //foreach($filters as &$filter){
+        //    $filter = trim($filter);
+        //
+        //    if($filter[0] == '-'){
+        //        $filter = '\\\\'.$filter;
+        //    }
+        //
+        //    $filter = $filter;
+        //}
+        //
+        //unset($filter);
+
         $filters = array_force($filters);
-
-        foreach($filters as &$filter){
-            $filter = trim($filter);
-
-            if($filter[0] == '-'){
-                $filter = '\\\\'.$filter;
-            }
-
-            $filter = '"'.$filter.'"';
-        }
-
-        unset($filter);
-
-        $filters = implode(' | grep --color=never ', $filters);
-        $command = 'ps ax | grep --color=never '.$filters;
-        $results = safe_exec($command, '0,1');
+        $results = safe_exec(array('ok_exitcodes' => '0,1',
+                                   'commands'     => array('ps'  , array('ax', 'connector' => '|'),
+                                                           'grep', array_merge(array('--color=never', 'connector' => '|'), $filters),
+                                                           'grep', array('--color=never', '-v', 'grep --color=never'))));
         $retval  = array();
 
         foreach($results as $key => $result){
-            if(strstr($result, $command)){
-                unset($results[$key]);
-                continue;
-            }
-
             $result       = trim($result);
             $pid          = str_until($result, ' ');
             $retval[$pid] = substr($result, 27);
@@ -1598,15 +1590,39 @@ function cli_list_processes($filters){
  * @version 2.0.5: Added function and documentation
  *
  * @param string $file The file to be unzipped
+ * @param null string $target_path If specified, unzip the files to the specified target directory
+ * @param boolean $remove If set to true, the specified zip file will be removed after the unzip action
  * @return string The path of the specified file
  */
-function cli_unzip($file){
+function cli_unzip($file, $target_path = null, $remove = true){
     try{
-        $path = dirname($file);
-        safe_exec('cd '.$path.'; unzip "'.$file.'"');
+        $filename = filename($file);
+        $filename = str_runtil($file, '.');
+        $path     = TMP.$filename.'/';
 
-// :TODO: ENSURE THAT $PATH HAS A TERMINATING SLASH!
-showdie($path);
+        file_ensure_path($path);
+
+        if($move){
+            rename($file, $path.$filename);
+
+        }else{
+            copy($file, $path.$filename);
+        }
+
+        /*
+         * Unzip and
+         */
+        $arguments = array($filename);
+
+        if($target_path){
+            $arguments[] = '-d';
+            $arguments[] = $target_path;
+        }
+
+        safe_exec(array('commands' => array('cd'   , array($path),
+                                            'unzip', $arguments)));
+
+        file_delete($path.$filename);
         return $path;
 
     }catch(Exception $e){
@@ -1629,19 +1645,287 @@ showdie($path);
  * @category Function reference
  * @package cli
  * @version 2.0.5: Added function and documentation
+ * @version 2.4.16: Added $whereis support
  *
- * @param string $file The file to be unzipped
+ * @param string $command The command searched for
+ * @param boolean $whereis If set to true, instead of "which", "whereis" will be used
  * @return string The path of the specified file
  */
-function cli_which($file){
+function cli_which($command, $whereis = false){
     try{
-        $result = safe_exec('which "'.$file.'"', '0,1');
+        $result = safe_exec(array('ok_exitcodes' => '0,1',
+                                  'commands'     => array(($whereis ? 'whereis' : 'which'), array($command))));
+
         $result = array_shift($result);
 
         return get_null($result);
 
     }catch(Exception $e){
         throw new BException('cli_which(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns true if the specified command is builtin in bash or not
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4: Added function and documentation
+ *
+ * @param string $command The command to test
+ * @return boolean True if the specified command is built in, false if not
+ */
+function cli_is_builtin($command){
+    try{
+        $results = safe_exec(array('commands' => array('type', array($command))));
+        $results = array_shift($results);
+
+        return (substr($results, -7, 7) === 'builtin');
+
+    }catch(Exception $e){
+        switch($e->getRealCode()){
+            case '127':
+                throw new BException('cli_is_builtin(): The specified command ":command" does not exist', array(':command' => $command), $e);
+        }
+
+        throw new BException('cli_is_builtin(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Build a command string from the specified commands array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @version 2.4.22: Added function and documentation
+ * @note This function typically would only have to be called by safe_exec() or ssh_exec() to build command line strings from the command arrays they receive
+ *
+ * @param array $params The commands array from which the commands string must be built
+ * @return string The command string
+ */
+function cli_build_commands_string(&$params){
+    global $_CONFIG;
+
+    try{
+        $retval = '';
+
+        array_default($params, 'timeout'     , $_CONFIG['exec']['timeout']);
+        array_default($params, 'route_errors', true);
+        array_default($params, 'background'  , false);
+
+        if(!is_array($params['commands'])){
+            throw new BException(tr('cli_build_commands_string(): Specified commands is not an array'), 'invalid');
+        }
+
+        /*
+         * Set global background
+         */
+        $background = $params['background'];
+
+        /*
+         * Build the commands together
+         * Escape all commands and arguments first
+         */
+        foreach($params['commands'] as $key => $value){
+            if(!is_numeric($key)){
+                throw new BException(tr('cli_build_commands_string(): Specified command structure ":commands" is invalid. It should be a numerical array with a list of "command, argurments_array, command, argurments_array, etc.."', array(':commands' => $params['commands'])), 'invalid');
+            }
+
+            if(!($key % 2)){
+                /*
+                 * This value should contain a command
+                 */
+                if(!$value){
+                    throw new BException(tr('cli_build_commands_string(): No command specified'), 'invalid');
+                }
+
+                if(!is_string($value)){
+                    throw new BException(tr('cli_build_commands_string(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
+                }
+
+                /*
+                 * Set default values
+                 */
+                $command   = escapeshellcmd(mb_trim($value));
+                $sudo      = false;
+                $redirect  = '';
+                $nice      = '';
+                $connector = ';';
+                $builtin   = false;
+
+                /*
+                 * Check if command is built in
+                 */
+                switch($value){
+                    case 'type':
+                        $builtin       = true;
+                        $params['log'] = false;
+                        break;
+
+                    default:
+                        if(cli_is_builtin($value)){
+                            /*
+                             * timeout does NOT work with builtin bash commands!
+                             * timeout does NOT work with SSH either for some reason
+                             */
+                            $builtin = true;
+                        }
+                }
+
+                if($params['route_errors']){
+                    $route = ' 2>&1 ';
+
+                }else{
+                    $route = '';
+                }
+
+                continue;
+            }
+
+            /*
+             * This value should contain arguments and with these we can finish the
+             * command
+             */
+            $params['background'] = false;
+
+            if($value){
+                if(!is_array($value)){
+                    if(empty($command)){
+                        /*
+                         * No command was set yet, probably commands / arguments out of order?
+                         */
+                        throw new BException(tr('cli_build_commands_string(): Encountered (arguments?) array before command. Please check the commands parameter ":commands"', array(':commands' => $params['commands'])), 'invalid');
+                    }
+
+                    throw new BException(tr('cli_build_commands_string(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['commands']))), 'invalid');
+                }
+
+                foreach($value as $special => &$argument){
+                    if($params['timeout']){
+                        $timeout  = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
+
+                    }else{
+                        $timeout  = '';
+                    }
+
+                    if(!$argument){
+                        /*
+                         * Skip empty arguments
+                         */
+                        unset($value[$special]);
+                        continue;
+                    }
+
+                    if(!is_scalar($argument)){
+                        throw new BException(tr('cli_build_commands_string(): Specified arguments ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
+                    }
+
+                    if(is_numeric($special)){
+                        /*
+                         * This is a normal argument
+                         */
+                        $argument = escapeshellarg(mb_trim($argument));
+
+                    }else{
+                        /*
+                         * This is a special argument
+                         */
+                        switch($special){
+                            case 'background':
+                                $params['background'] = $argument;
+
+                                if($params['route_errors']){
+                                    $route = ' > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
+
+                                }else{
+                                    $route = ' > '.$params['output_log'].' & echo $!';
+                                }
+
+                                unset($value[$special]);
+                                break;
+
+                            case 'timeout':
+                                $timeout = 'timeout --foreground '.escapeshellarg($argument).' ';
+
+                                unset($value[$special]);
+                                break;
+
+                            case 'sudo':
+                                if($argument){
+                                    $sudo = 'sudo ';
+                                }
+
+                                unset($value[$special]);
+                                break;
+
+                            case 'connector':
+                                $connector = $argument;
+
+                                unset($value[$special]);
+                                break;
+
+                            case 'nice':
+                                $nice = 'nice -n '.escapeshellarg($argument).' ';
+
+                                unset($value[$special]);
+                                break;
+
+                            case 'redirect':
+                                $redirect = ' '.$argument;
+
+                                unset($value[$special]);
+                                break;
+
+                            default:
+                                switch($special){
+                                    case 'connect':
+                                        throw new BException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified, maybe should be "connector" ?', array(':argument' => $special)), 'invalid');
+                                }
+                                throw new BException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified', array(':argument' => $special)), 'invalid');
+                        }
+                    }
+                }
+
+                unset($argument);
+
+                $command .= ' '.implode(' ', $value);
+                $command .= $route;
+            }
+
+            if(!$builtin and !$background){
+                $command  = $timeout.$command;
+            }
+
+            $command  = $nice.$command;
+            $command  = $sudo.$command;
+            $command .= $redirect;
+            $retval  .= $command.' '.$connector.' ';
+
+            unset($command);
+        }
+
+        if($background){
+            /*
+             * Put the entire command in the background
+             */
+            $params['background'] = $background;
+            $retval = '{ '.$retval.' } > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('cli_build_commands_string(): Failed', $e);
     }
 }
 

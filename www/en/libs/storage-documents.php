@@ -4,10 +4,11 @@
  *
  * This library manages storage documents, see storage library
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
- * @package storage-documents
+ * @package storage
  */
 
 
@@ -110,7 +111,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
             }else{
                 $where   = ' WHERE  `sections_id` = :sections_id
                              AND    `id`          = :id
-                             AND    `storage_documents`.`status` '.sql_is($status).' :status ';
+                             AND    `storage_documents`.`status` '.sql_is($status, ':status');
 
                 $execute = array(':status'      => $status,
                                  ':sections_id' => $section['id'],
@@ -169,6 +170,62 @@ function storage_documents_get($section, $document = null, $auto_create = false,
 
     }catch(Exception $e){
         throw new BException('storage_documents_get(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a list of the available documents
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package storage
+ * @see storage_document_get()
+ * @version 2.4.8: Added function and documentation
+ *
+ * @params null string $status
+ * @params boolean $pdo_statement If set to true, the function will not return an array list but a PDO statement
+ * @return null array a list of the available documents
+ */
+function storage_documents_list($status = null, $section = null, $pdo_statement = true){
+    try{
+        if($section){
+            $dbsection = storage_sections_get($section);
+
+            if(!$dbsection){
+                throw new BException(tr('storage_documents_list(): The specified section ":section" does not exist', array(':section' => $section)), 'not-exists');
+            }
+
+            $where   = ' AND `sections_id` = :sections_id ';
+            $execute = array(':sections_id' => $dbsection['id']);
+        }
+
+        $documents = sql_query('SELECT    `storage_documents`.`id`,
+                                          `storage_documents`.`status`,
+                                          `storage_documents`.`assigned_to_id`,
+
+                                          `storage_sections`.`name`    AS `section`,
+                                          `storage_sections`.`seoname` AS `seosection`,
+
+                                          COUNT(`storage_pages`.`id`) AS `page_count`
+
+                                FROM      `storage_documents`
+
+                                LEFT JOIN `storage_sections`
+                                ON        `storage_sections`.`id` = `storage_documents`.`sections_id`
+
+                                LEFT JOIN `storage_pages`
+                                ON        `storage_pages`.`documents_id` = `storage_documents`.`id`'.sql_simple_where('storage_documents.status', $status, false, isset_get($extra)).sql_limit(),
+
+                                sql_simple_execute(':status', $status, isset_get($execute)));
+
+        return $documents;
+
+    }catch(Exception $e){
+        throw new BException('storage_documents_list(): Failed', $e);
     }
 }
 

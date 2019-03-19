@@ -30,6 +30,7 @@ function mysqlr_library_init(){
 
     try{
         load_config('mysqlr');
+        load_libs('linux,cli,rsync');
 
     }catch(Exception $e){
         throw new BException('mysqlr_library_init(): Failed', $e);
@@ -223,24 +224,31 @@ function mysqlr_master_replication_setup($params){
         /*
          * Get MySQL configuration path
          */
-        load_libs('ssh,servers');
         $mysql_cnf_path = mysqlr_check_configuration_path($database['domain']);
 
         /*
          * MySQL SETUP
          */
         log_console(tr('Making master setup for MySQL configuration file'), 'DOT');
-        servers_exec($database['domain'], 'sudo sed -i \"s/#server-id[[:space:]]*=[[:space:]]*1/server-id = '.$database['id'].'/\" '.$mysql_cnf_path);
-        servers_exec($database['domain'], 'sudo sed -i \"s/#log_bin/log_bin/\" '.$mysql_cnf_path);
+
+        file_sed(array('domain' => $database['domain'],
+                       'regex'  => 's/#server-id[[:space:]]*=[[:space:]]*1/server-id = '.$database['id'].'/',
+                       'source' => $mysql_cnf_path));
+
+        file_sed(array('domain' => $database['domain'],
+                       'regex'  => 's/#log_bin/log_bin/',
+                       'source' => $mysql_cnf_path));
 
         /*
          * The next line just have to be added one time!
          * Check if it exists, if not append
          */
-        servers_exec($database['domain'], 'grep -q -F \'binlog_do_db = '.$database['database_name'].'\' '.$mysql_cnf_path.' || sudo sed -i \"/max_binlog_size[[:space:]]*=[[:space:]]*100M/a binlog_do_db = '.$database['database_name'].'\" '.$mysql_cnf_path);
+        safe_exec(array('domain'   => $database['domain'],
+                        'commands' => array('grep', array('-q', '-F', 'binlog_do_db="'.$database['database_name'].'"', $mysql_cnf_path, 'connect' => '||'),
+                                            'sed' , array('sudo' => true, '-i', '"/max_binlog_size[[:space:]]*=[[:space:]]*100M/a binlog_do_db = '.$database['database_name'].'"', $mysql_cnf_path))));
 
         log_console(tr('Restarting remote MySQL service'), 'DOT');
-        servers_exec($database['domain'], 'sudo service mysql restart');
+        linux_service($database['domain'], 'mysql', 'restart');
 
         /*
          * LOCK MySQL database
@@ -250,39 +258,40 @@ function mysqlr_master_replication_setup($params){
         log_console(tr('Making grant replication on remote server and locking tables'), 'DOT');
 // :FIX: There is an issue with mysql exec not executing as root
         //$ssh_mysql_pid = mysql_exec($database['domain'], 'GRANT REPLICATION SLAVE ON *.* TO "'.$database['replication_db_user'].'"@"localhost" IDENTIFIED BY "'.$database['replication_db_password'].'"; FLUSH PRIVILEGES; USE '.$database['database'].'; FLUSH TABLES WITH READ LOCK; DO SLEEP(1000000);', true);
-        $ssh_mysql_pid = servers_exec($database['domain'], 'mysql \"-u'.$database['root_db_user'].'\" \"-p'.$database['root_db_password'].'\" -e \"GRANT REPLICATION SLAVE ON *.* TO \''.$database['replication_db_user'].'\'@\'localhost\' IDENTIFIED BY \''.$database['replication_db_password'].'\'; FLUSH PRIVILEGES; USE '.$database['database_name'].'; FLUSH TABLES WITH READ LOCK; DO SLEEP(1000000); \"', true);
+        $ssh_mysql_pid = servers_exec($database['domain'], array('commands' => array('mysql', array('-u'.$database['root_db_user'], '-p'.$database['root_db_password'], '-e "GRANT REPLICATION SLAVE ON *.* TO \''.$database['replication_db_user'].'\'@\'localhost\' IDENTIFIED BY \''.$database['replication_db_password'].'\'; FLUSH PRIVILEGES; USE '.$database['database_name'].'; FLUSH TABLES WITH READ LOCK; DO SLEEP(1000000); "', 'background' => true))));
 
         /*
          * Dump database
          */
         log_console(tr('Making dump of remote database'), 'DOT');
-        servers_exec($database['domain'], 'sudo rm /tmp/'.$database['database_name'].'.sql.gz -f;');
-        servers_exec($database['domain'], 'sudo mysqldump \"-u'.$database['root_db_user'].'\" \"-p'.$database['root_db_password'].'\" -K -R -n -e --dump-date --comments -B '.$database['database_name'].' | gzip | sudo tee /tmp/'.$database['database_name'].'.sql.gz');
+        linux_delete($database['domain'], '/tmp/'.$database['database_name'].'.sql.gz', true);
+        servers_exec($database['domain'], array('commands' => array('mysqldump', array('sudo' => true, '-u'.$database['root_db_user'], '-p'.$database['root_db_password'], '-K', '-R', '-n', '-e', '--dump-date', '--comments', '-B', $database['database_name'], 'connector' => '|'),
+                                                                    'gzip'     , array('connector' => '|'),
+                                                                    'tee'      , array('sudo' => true, '/tmp/'.$database['database_name'].'.sql.gz'))));
 
         /*
-         * KILL LOCAL SSH process
-         * to drop the hanged connection
+         * Kill local SSH process to drop the hung connection
          */
         log_console(tr('Dump finished, killing background process mysql shell session'), 'DOT');
-        shell_exec('kill -9 '.$ssh_mysql_pid[0]);
+        cli_kill($ssh_mysql_pid[0], 9);
 
         log_console(tr('Restarting remote MySQL service'), 'DOT');
-        servers_exec($database['domain'], 'sudo service mysql restart');
+        linux_service($database['domain'], 'mysql', 'restart');
 
         /*
          * Delete posible LOCAL backup
          * SCP dump from master server to local
          */
         log_console(tr('Copying remote dump to SLAVE'), 'DOT');
-        safe_exec('rm /tmp/'.$database['database_name'].'.sql.gz -f');
+        file_delete('/tmp/'.$database['database_name'].'.sql.gz');
         mysqlr_scp_database($database, '/tmp/'.$database['database_name'].'.sql.gz', '/tmp/', true);
 
         /*
          * Copy from local to slave server
          */
-        servers_exec($slave, 'rm /tmp/'.$database['database_name'].'.sql.gz -f');
+        linux_delete($slave, '/tmp/'.$database['database_name'].'.sql.gz', true);
         mysqlr_scp_database(array('domain' => $slave), '/tmp/'.$database['database_name'].'.sql.gz', '/tmp/');
-        safe_exec('rm /tmp/'.$database['database_name'].'.sql.gz -f');
+        file_delete('/tmp/'.$database['database_name'].'.sql.gz');
 
         /*
          * Get the log_file and log_pos
@@ -345,15 +354,22 @@ function mysqlr_slave_replication_setup($params){
         /*
          * Get MySQL configuration path
          */
-        load_libs('ssh,servers');
         $mysql_cnf_path = mysqlr_check_configuration_path($slave);
 
         /*
          * MySQL SETUP
          */
         log_console(tr('Making slave setup for MySQL configuration file'), 'DOT');
-        servers_exec($slave, 'sudo sed -i \'s/#server-id[[:space:]]*=[[:space:]]*1/server-id = '.$database['id'].'/\' '.$mysql_cnf_path);
-        servers_exec($slave, 'sudo sed -i \'s/#log_bin/log_bin/\' '.$mysql_cnf_path);
+
+        file_sed(array('domain' => $slave,
+                       'sudo'   => true,
+                       'regex'  => 's/#server-id[[:space:]]*=[[:space:]]*1/server-id = '.$database['id'].'/',
+                       'source' => $mysql_cnf_path));
+
+        file_sed(array('domain' => $slave,
+                       'sudo'   => true,
+                       'regex'  => 's/#log_bin/log_bin/',
+                       'source' => $mysql_cnf_path));
 
         /*
          * The next lines just have to be added one time!
@@ -368,18 +384,19 @@ function mysqlr_slave_replication_setup($params){
          * Close PDO connection before restarting MySQL
          */
         log_console(tr('Restarting Slave MySQL service'), 'DOT');
-        servers_exec($slave, 'sudo service mysql restart');
+        linux_service($slave, 'mysql', 'restart');
         sleep(2);
 
         /*
          * Import LOCAL db
          */
-        mysql_exec($slave, 'DROP   DATABASE IF EXISTS '.$database['database_name']);
-        mysql_exec($slave, 'CREATE DATABASE '.$database['database_name']);
-        servers_exec($slave, 'sudo rm /tmp/'.$database['database_name'].'.sql -f');
-        servers_exec($slave, 'gzip -d /tmp/'.$database['database_name'].'.sql.gz');
-        servers_exec($slave, 'sudo mysql "-u'.$database['root_db_user'].'" "-p'.$database['root_db_password'].'" -B '.$database['database_name'].' < /tmp/'.$database['database_name'].'.sql');
-        servers_exec($slave, 'sudo rm /tmp/'.$database['database_name'].'.sql -f');
+        mysql_exec    ($slave, 'DROP   DATABASE IF EXISTS '.$database['database_name']);
+        mysql_exec    ($slave, 'CREATE DATABASE '.$database['database_name']);
+        linux_delete  ($slave, '/tmp/'.$database['database_name'].'.sql', true);
+        compress_unzip(array('domain' => $slave,
+                             'source' => '/tmp/'.$database['database_name'].'.sql.gz'));
+        servers_exec  ($slave, 'sudo mysql "-u'.$database['root_db_user'].'" "-p'.$database['root_db_password'].'" -B '.$database['database_name'].' < /tmp/'.$database['database_name'].'.sql');
+        linux_delete  ($slave, '/tmp/'.$database['database_name'].'.sql', true);
 
         /*
          * Check if this server was already replicating
@@ -467,7 +484,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
         $database = mysql_get_database($db);
 
         if(empty($database)){
-            throw new BException(tr('mysqlr_pause_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exist');
+            throw new BException(tr('mysqlr_pause_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
         }
 
         mysqlr_update_replication_status($database, 'pausing');
@@ -475,7 +492,6 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
         /*
          * Get MySQL configuration path
          */
-        load_libs('ssh,servers');
         $mysql_cnf_path = mysqlr_check_configuration_path($slave);
 
         /*
@@ -488,7 +504,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
          */
         if($restart_mysql){
             log_console(tr('Restarting Slave MySQL service'), 'DOT');
-            servers_exec($slave, 'sudo service mysql restart');
+            linux_service($slave, 'mysql', 'restart');
         }
 
         mysqlr_update_replication_status($database, 'paused');
@@ -535,25 +551,27 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
         $database = mysql_get_database($db);
 
         if(empty($database)){
-            throw new BException(tr('mysqlr_resume_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exist');
+            throw new BException(tr('mysqlr_resume_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
         }
 
         mysqlr_update_replication_status($database, 'resuming');
 
-        load_libs('ssh,servers');
         $mysql_cnf_path = mysqlr_check_configuration_path($slave);
 
         /*
          * Comment the database for replication
          */
-        servers_exec($slave, 'sudo sed -i "s/replicate-ignore-db='.$database['database_name'].'//" '.$mysql_cnf_path);
+        file_sed(array('domain' => $slave,
+                       'sudo'   => true,
+                       'regex'  => 's/replicate-ignore-db='.$database['database_name'].'//',
+                       'source' => $mysql_cnf_path));
 
         /*
          * Close PDO connection before restarting MySQL
          */
         if($restart_mysql){
             log_console(tr('Restarting Slave MySQL service'), 'DOT');
-            servers_exec($slave, 'sudo service mysql restart');
+            linux_service($slave, 'mysql', 'restart');
         }
 
         mysqlr_update_replication_status($database, 'enabled');
@@ -581,7 +599,6 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
  */
 function mysqlr_check_configuration_path($server_target){
     try{
-        load_libs('ssh,servers');
         $mysql_cnf_path = '/etc/mysql/mysql.conf.d/mysqld.cnf';
 
         /*
@@ -601,7 +618,7 @@ function mysqlr_check_configuration_path($server_target){
             $mysql_cnf      = servers_exec($server_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
 
             if(!$mysql_cnf[0]){
-                throw new BException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_target)), 'not-exist');
+                throw new BException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_target)), 'not-exists');
             }
         }
 
@@ -656,7 +673,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
                                  WHERE     `servers`.`domain` = :domain', array(':domain' => $server['domain']));
 
             if(!$dbserver){
-                throw new BException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exist');
+                throw new BException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
             }
 
             $server = sql_merge($server, $dbserver);
@@ -758,7 +775,6 @@ function mysqlr_full_backup(){
         /*
          * Make a directory on the replication server
          */
-        load_libs('ssh,servers');
         $backup_path = '/data/backups/databases';
         servers_exec($slave, 'sudo mkdir -p '.$backup_path);
 
@@ -797,7 +813,7 @@ function mysqlr_full_backup(){
             /*
              * Restart mysql service on slave to disable replication on selected databases
              */
-            servers_exec($slave, 'sudo service mysql restart');
+            linux_service($slave, 'mysql', 'restart');
 
             /*
              * Create a directory for the current server inside the backup directory
@@ -828,19 +844,18 @@ function mysqlr_full_backup(){
             /*
              * Restart mysql service on slave to enable replication again on selected databases
              */
-            servers_exec($slave, 'sudo service mysql restart');
+            linux_service($slave, 'mysql', 'restart');
         }
 
         /*
          * rsync to backup server
          */
-        servers_exec($slave, 'rsync -avze \"ssh -p '.$_CONFIG['mysqlr']['backup']['port'].'\" '.$backup_path.'/*'.' '.$_CONFIG['mysqlr']['backup']['domain'].':'.$_CONFIG['mysqlr']['backup']['path']);
+        rsync(array($slave, 'rsync -avze \"ssh -p '.$_CONFIG['mysqlr']['backup']['port'].'\" '.$backup_path.'/*'.' '.$_CONFIG['mysqlr']['backup']['domain'].':'.$_CONFIG['mysqlr']['backup']['path']);
 
         /*
-         * delete replicate backup for today
+         * Delete replicate backup for today
          */
-        servers_exec($slave, 'sudo rm -rf '.$backup_path);
-
+        linux_delete($slave, $backup_path, true);
         log_console(tr('mysqlr_full_backup(): Finished backups'), 'DOT');
 
     }catch(Exception $e){
@@ -865,6 +880,7 @@ function mysqlr_full_backup(){
  */
 function mysqlr_scp_database($server, $source, $destnation, $from_server = false){
     try{
+obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USING THE NEW AVAILABLE FUNCTIONS');
         array_params($server);
         array_default($server, 'server'       , '');
         array_default($server, 'domain'       , '');
@@ -894,7 +910,7 @@ function mysqlr_scp_database($server, $source, $destnation, $from_server = false
                                  array(':domain' => $server['domain']));
 
             if(!$dbserver){
-                throw new BException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exist');
+                throw new BException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
             }
 
             $server = sql_merge($server, $dbserver);
@@ -930,7 +946,7 @@ function mysqlr_scp_database($server, $source, $destnation, $from_server = false
         /*
          * Execute command
          */
-        $result = safe_exec('scp '.$server['arguments'].' -P '.$server['port'].' -i '.$keyfile.' '.$command.'');
+        $result = safe_exec(array('commands' => array('scp', array($server['arguments'], '-P', $server['port'], '-i', $keyfile, $command))));
         chmod($keyfile, 0600);
         file_delete($keyfile);
 
@@ -939,12 +955,12 @@ function mysqlr_scp_database($server, $source, $destnation, $from_server = false
     }catch(Exception $e){
         notify(tr('mysqlr_scp_database() exception'), $e, 'developers');
 
-                /*
+        /*
          * Try deleting the keyfile anyway!
          */
         try{
             if(!empty($keyfile)){
-                safe_exec(chmod($keyfile, 0600));
+                chmod($keyfile, 0600);
                 file_delete($keyfile);
             }
 
@@ -1176,7 +1192,8 @@ function mysqlr_monitor_database($database){
          * Check if MySQL configuration still has this database
          */
         $mysql_cnf_path = mysqlr_check_configuration_path($database['domain']);
-        $result         = servers_exec($database['domain'], 'grep -q -F \'binlog_do_db = '.$database['database_name'].'\' '.$mysql_cnf_path.' && echo "1" || echo "0"');
+        $result         = servers_exec(array('domain'   => $database['domain'],
+                                             'commands' => array('grep', array('-q', '-F', 'binlog_do_db = '.$database['database_name'], $mysql_cnf_path, 'connector' => ' && echo "1" || echo "0"'))));
 
         if(!$result[0]){
             /*
@@ -1185,6 +1202,7 @@ function mysqlr_monitor_database($database){
             mysqlr_add_log(array('databases_id' => $database['id'],
                                  'type'         => 'misconfiguration',
                                  'message'      => tr('mysqlr_monitor_database(): The mysql configuration file does not contain this database, meaning that this database is not replicating')));
+
             mysqlr_update_replication_status($database, 'disabled');
             return false;
         }
@@ -1220,7 +1238,7 @@ function mysqlr_monitor_database($database){
                     load_libs('tasks');
                     log_console(tr('Replication add master for database :database of server :server', array(':database' => $database['database_name'], ':server' => $database['domain'])), 'white');
                     mysqlr_update_replication_status($database, 'preparing');
-                    $task = tasks_add(array('command'     => 'base/mysql',
+                    $task = tasks_insert(array('command'     => 'base/mysql',
                                             'time_limit'  => 1200,
                                             'status'      => 'new',
                                             'description' => tr('Add replication master of database ":database" on server ":server"', array(':database' => $database['database_name'], ':server' => $database['domain'])),
@@ -1259,7 +1277,7 @@ function mysqlr_monitor_database($database){
                     load_libs('tasks');
                     log_console(tr('Replication add master for database :database of server :server', array(':database' => $database['database_name'], ':server' => $database['domain'])), 'white');
                     mysqlr_update_replication_status($database, 'preparing');
-                    $task = tasks_add(array('command'     => 'base/mysql',
+                    $task = tasks_insert(array('command'     => 'base/mysql',
                                             'time_limit'  => 1200,
                                             'status'      => 'new',
                                             'description' => tr('Add replication master of database ":database" on server ":server"', array(':database' => $database['database_name'], ':server' => $database['domain'])),
@@ -1290,7 +1308,7 @@ function mysqlr_monitor_database($database){
                  * The Slave is not running on this channel
                  * Just try restarting the mysql server
                  */
-                servers_exec($slave, 'sudo service mysql restart');
+                linux_service($slave, 'mysql', 'restart');
             }
 
             /*

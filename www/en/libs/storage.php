@@ -1,8 +1,8 @@
 <?php
 /*
- * New storage library
+ * Storage library
  *
- * This is the new storage library, progrenitor to the old blog library
+ * This is the main storage library file
  *
  * Tables:
  *
@@ -18,8 +18,11 @@
  * storage_file_types :
  * storage_files : The files linked to each document. If file_types_id is NULL, then the file can be of any type. This is why this table will have its independant type, mime1, and mime2 columns
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package storage
  */
 
 

@@ -47,46 +47,45 @@ function tasks_library_init(){
  * @param params $task The task to be added to the database
  * @return params The added task, validated and with the tasks id added
  */
-function tasks_add($task){
+function tasks_insert($task){
     try{
         array_params($task);
         array_default($task, 'status'      , 'new');
         array_default($task, 'method'      , 'normal');
-        array_default($task, 'time_limit'  , 30);
+        array_default($task, 'timeout'     , 30);
         array_default($task, 'auto_execute', true);
 
         $task = tasks_validate($task);
 
-        sql_query('INSERT INTO `tasks` (`createdby`, `meta_id`, `after`, `status`, `command`, `method`, `time_limit`, `verbose`, `parents_id`, `parrallel`, `data`, `description`)
-                   VALUES              (:createdby , :meta_id , :after , :status , :command , :method , :time_limit , :verbose , :parents_id , :parrallel , :data , :description )',
+        sql_query('INSERT INTO `tasks` (`createdby`, `meta_id`, `after`, `status`, `command`, `method`, `timeout`, `verbose`, `parents_id`, `parrallel`, `data`, `description`)
+                   VALUES              (:createdby , :meta_id , :after , :status , :command , :method , :timeout , :verbose , :parents_id , :parrallel , :data , :description )',
 
-                   array(':createdby'   => get_null(isset_get($_SESSION['user']['id'])),
+                   array(':createdby'   => isset_get($_SESSION['user']['id']),
                          ':meta_id'     => meta_action(),
-                         ':status'      => cfm($task['status']),
-                         ':command'     => cfm($task['command']),
-                         ':parents_id'  => get_null($task['parents_id']),
-                         ':parrallel'   => (boolean) $task['parrallel'],
-                         ':method'      => cfm($task['method']),
-                         ':time_limit'  => cfm($task['time_limit']),
+                         ':status'      => $task['status'],
+                         ':command'     => $task['command'],
+                         ':parents_id'  => $task['parents_id'],
+                         ':parrallel'   => $task['parrallel'],
+                         ':method'      => $task['method'],
+                         ':timeout'     => $task['timeout'],
                          ':verbose'     => $task['verbose'],
-                         ':after'       => ($task['after'] ? date_convert($task['after'], 'mysql') : null),
-                         ':data'        => json_encode_custom($task['data']),
+                         ':after'       => $task['after'],
+                         ':data'        => $task['data'],
                          ':description' => $task['description']));
 
         $task['id'] = sql_insert_id();
 
-        if($task['auto_execute']){
-            log_file(tr('Added new auto executing task ":description" with id ":id"', array(':description' => $task['description'], ':id' => $task['id'])), 'tasks');
-            run_background('base/tasks execute --env '.ENVIRONMENT, true, false);
+        log_console(tr('Added new task ":description" with id ":id"', array(':description' => $task['description'], ':id' => $task['id'])), 'green');
 
-        }else{
-            log_file(tr('Added new task ":description" with id ":id"', array(':description' => $task['description'], ':id' => $task['id'])), 'tasks');
+        if($task['auto_execute']){
+            log_console(tr('Auto starting tasks manager in background'), 'cyan');
+            run_background('base/tasks execute --env '.ENVIRONMENT.(VERBOSE ? (VERYVERBOSE ? ' --very-verbose' : ' --verbose') : ''), true, false);
         }
 
         return $task;
 
     }catch(Exception $e){
-        throw new BException('tasks_add(): Failed', $e);
+        throw new BException('tasks_insert(): Failed', $e);
     }
 }
 
@@ -111,13 +110,13 @@ function tasks_update($task, $executed = false){
 
         meta_action($task['meta_id'], 'update');
 
-        $execute = array(':id'         => $task['id'],
-                         ':after'      => $task['after'],
-                         ':status'     => $task['status'],
-                         ':verbose'    => $task['verbose'],
-                         ':executed'   => get_null($task['executed']),
-                         ':pid'        => get_null($task['pid']),
-                         ':results'    => json_encode_custom($task['results']));
+        $execute = array(':id'       => $task['id'],
+                         ':after'    => $task['after'],
+                         ':status'   => $task['status'],
+                         ':verbose'  => $task['verbose'],
+                         ':executed' => get_null($task['executed']),
+                         ':pid'      => get_null($task['pid']),
+                         ':results'  => $task['results']);
 
         if($executed){
             $execute[':time_spent'] = $task['time_spent'];
@@ -157,7 +156,7 @@ function tasks_update($task, $executed = false){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package scanimage
- * @see tasks_add()
+ * @see tasks_insert()
  * @see tasks_update()
  *
  * @param params $task The task to be validated
@@ -167,7 +166,7 @@ function tasks_update($task, $executed = false){
  * @params string $data
  * @params string $results
  * @params string $method
- * @params natural $time_limit
+ * @params natural $timeout
  * @params datetime $executed
  * @params natural $natural
  * @params natural $parents_id
@@ -181,10 +180,10 @@ function tasks_validate($task){
     try{
         load_libs('validate');
 
-        $v = new ValidateForm($task, 'status,command,after,data,results,method,time_limit,executed,time_spent,parents_id,parrallel,verbose');
+        $v = new ValidateForm($task, 'status,command,after,data,results,method,timeout,executed,time_spent,parents_id,parrallel,verbose');
 
-        if($task['time_limit'] === ''){
-            $task['time_limit'] = $_CONFIG['tasks']['default_time_limit'];
+        if($task['timeout'] === ''){
+            $task['timeout'] = $_CONFIG['tasks']['default_timeout'];
         }
 
         $v->isNotEmpty($task['command'], tr('Please ensure that the task has a command specified'));
@@ -194,8 +193,8 @@ function tasks_validate($task){
         $v->isDateTime($task['after'], tr('Please specify a valid after date / time'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->inArray($task['method'], array('background', 'internal', 'normal', 'function'), tr('Please specify a valid method'));
         $v->inArray($task['status'], array('new', 'waiting_parent', 'processing', 'completed', 'failed', 'timeout', 'deleted'), tr('Please specify a valid status'), VALIDATE_ALLOW_EMPTY_NULL);
-        $v->isNatural($task['time_limit'], 0, tr('Please specify a valid time limit'), VALIDATE_ALLOW_EMPTY_NULL);
-        $v->isBetween($task['time_limit'], 0, 1800, tr('Please specify a valid time limit (between 0 and 1800 seconds)'), VALIDATE_ALLOW_EMPTY_NULL);
+        $v->isNatural($task['timeout'], 0, tr('Please specify a valid time limit'), VALIDATE_ALLOW_EMPTY_NULL);
+        $v->isBetween($task['timeout'], 0, 1800, tr('Please specify a valid time limit (between 0 and 1800 seconds)'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->isNumeric($task['time_spent'], tr('Please specify a valid time spent'), VALIDATE_ALLOW_EMPTY_INTEGER);
         $v->isNatural($task['parents_id'], 1, tr('Please specify a valid parents id'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->hasMinChars($task['description'], 8, tr('Please use more than 8 characters for the description'), VALIDATE_ALLOW_EMPTY_NULL);
@@ -215,14 +214,15 @@ function tasks_validate($task){
             }
 
         }else{
+            $task['parents_id'] = null;
+
             if($task['parrallel']){
                 $v->setError(tr('Parrallel was specified without parents_id'));
             }
         }
 
-        $task['verbose']   = (boolean) $task['verbose'];
-        $task['parrallel'] = (boolean) $task['parrallel'];
-
+        $task['verbose']   = (integer) (boolean) $task['verbose'];
+        $task['parrallel'] = (integer) (boolean) $task['parrallel'];
 
         if(is_object($task['data'])){
             $v->setError(tr('Specified task data is an object data type, which is not supported'));
@@ -233,6 +233,10 @@ function tasks_validate($task){
         }
 
         $v->isValid();
+
+        $task['data']    = json_encode_custom($task['data']);
+        $task['results'] = json_encode_custom($task['results']);
+        $task['after']   = ($task['after'] ? date_convert($task['after'], 'mysql') : null);
 
         return $task;
 
@@ -311,7 +315,7 @@ function tasks_get($filters, $set_status = false, $min_id = null){
                                    `tasks`.`data`,
                                    `tasks`.`verbose`,
                                    `tasks`.`results`,
-                                   `tasks`.`time_limit`,
+                                   `tasks`.`timeout`,
                                    `tasks`.`time_spent`,
                                    `tasks`.`executed`,
                                    `tasks`.`description`,
@@ -355,7 +359,7 @@ function tasks_get($filters, $set_status = false, $min_id = null){
 /*
  * List all tasts with the specified status
  */
-function tasks_list($status, $limit = 10){
+function tasks_list($status){
     try{
         if($status){
             $status = array_force($status);
@@ -389,7 +393,7 @@ function tasks_list($status, $limit = 10){
                                      `tasks`.`after`,
                                      `tasks`.`method`,
                                      `tasks`.`verbose`,
-                                     `tasks`.`time_limit`,
+                                     `tasks`.`timeout`,
                                      `tasks`.`time_spent`,
                                      `tasks`.`executed`,
                                      `tasks`.`description`,
@@ -406,9 +410,7 @@ function tasks_list($status, $limit = 10){
 
                            '.$where.'
 
-                           ORDER BY  `tasks`.`createdon` ASC
-
-                           LIMIT     '.$limit,
+                           ORDER BY  `tasks`.`createdon` DESC'.sql_limit(),
 
                            $status);
 
@@ -512,7 +514,7 @@ function tasks_check_pid($tasks_id){
         $task = sql_get('SELECT `id`, `pid` FROM `tasks` WHERE `id` = :id', array(':id' => $tasks_id));
 
         if(!$task){
-            throw new BException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exist');
+            throw new BException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exists');
         }
 
         if(!$task['pid']){

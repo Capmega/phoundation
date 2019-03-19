@@ -239,8 +239,6 @@ function projects_validate($project, $reload_only = false){
  * @param $params name
  * @param $params class
  * @param $params extra
- * @param $params tabindex
- * @param $params empty
  * @param $params none
  * @param $params selected
  * @param $params parents_id
@@ -260,8 +258,6 @@ function projects_select($params = null){
         array_default($params, 'customers_id', null);
         array_default($params, 'empty'       , tr('No projects available'));
         array_default($params, 'none'        , tr('Select a project'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'     , '`name`');
 
         if($params['seocustomer']){
@@ -274,12 +270,12 @@ function projects_select($params = null){
         }
 
         if($params['customers_id'] !== false){
-            $where[] = ' `customers_id` '.sql_is($params['customers_id']).' :customers_id ';
+            $where[] = ' `customers_id` '.sql_is($params['customers_id'], ':customers_id');
             $execute[':customers_id'] = $params['customers_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -331,7 +327,7 @@ function projects_get($project, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `projects`.`status` '.sql_is($status).' :status';
+            $where[] = ' `projects`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';

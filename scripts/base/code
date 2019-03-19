@@ -61,6 +61,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('git,code');
 
+$code_bump       = true;
 $path            = cli_argument('--path'  , true, ROOT);
 $filter          = cli_argument('--filter', true, '/.+\.(php|html)/');
 $follow_symlinks = cli_argument('--follow-symlinks');
@@ -162,7 +163,16 @@ switch(cli_method()){
 
         switch(version_compare(FRAMEWORKCODEVERSION, $phoundation_version)){
             case 1:
-                throw new BException(tr('The Phoundation version line ":versionline" is at version ":version" which is behind this projects framework version ":frameworkversion"', array(':versionline' => $current_version_line, ':version' => $phoundation_version, ':frameworkversion' => FRAMEWORKCODEVERSION)), 'invalid');
+                /*
+                 * The phoundation version is behind the current code version
+                 * which could be because to system library framework version
+                 * was updated manually when init files were added.
+                 *
+                 * This should not be a problem, but auto code bumping should
+                 * now NOT be done.
+                 */
+                $code_bump = false;
+                break;
 
             case 0:
                 /*
@@ -517,6 +527,13 @@ switch(cli_method()){
             log_console(tr('No phoundation or toolkit files with changes were found!'), 'QUIET/green');
         }
 
+        if(empty($sections['phoundation'])){
+            /*
+             * No phoundation updates, no auto code bump
+             */
+            $code_bump = false;
+        }
+
         foreach($sections as $section => &$list){
             switch(cli_method()){
                 case 'status':
@@ -690,8 +707,10 @@ switch(cli_method()){
         /*
          * Bump the Phoundation framework version
          */
-        $version = code_bump_phoundation_framework_version();
-        log_console(tr('Bumped phoundation framework version to ":version"', array(':version' => $version)), 'green');
+        if($code_bump){
+            $version = code_bump_phoundation_framework_version();
+            log_console(tr('Bumped phoundation framework version to ":version"', array(':version' => $version)), 'green');
+        }
 
         break;
 

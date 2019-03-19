@@ -39,26 +39,13 @@ function customers_library_init(){
  *
  * This function will validate all relevant fields in the specified $customer array
  *
- * This function will generate HTML for an HTML select box using html_select() and fill it with the available categories
- *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package categories
  *
- * @param array $params The parameters required
- * @param $params name
- * @param $params class
- * @param $params extra
- * @param $params tabindex
- * @param $params empty
- * @param $params none
- * @param $params selected
- * @param $params parents_id
- * @param $params status
- * @param $params orderby
- * @param $params resource
+ * @param array $customer
  * @return string HTML for a categories select box within the specified parameters
  */
 function customers_validate($customer){
@@ -320,8 +307,6 @@ function customers_select($params = null){
         array_default($params, 'status'       , null);
         array_default($params, 'empty'        , tr('No customers available'));
         array_default($params, 'none'         , tr('Select a customer'));
-        array_default($params, 'tabindex'     , 0);
-        array_default($params, 'extra'        , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'      , '`name`');
 
         if($params['seocategory']){
@@ -334,12 +319,12 @@ function customers_select($params = null){
         }
 
         if($params['categories_id'] !== false){
-            $where[] = ' `categories_id` '.sql_is($params['categories_id']).' :categories_id ';
+            $where[] = ' `categories_id` '.sql_is($params['categories_id'], ':categories_id');
             $execute[':categories_id'] = $params['categories_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -393,12 +378,12 @@ function customers_get($customer, $column = null, $status = null, $categories_id
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `customers`.`status` '.sql_is($status).' :status';
+            $where[] = ' `customers`.`status` '.sql_is($status, ':status');
         }
 
         if($categories_id !== false){
             $execute[':categories_id'] = $categories_id;
-            $where[] = ' `customers`.`categories_id` '.sql_is($categories_id).' :categories_id';
+            $where[] = ' `customers`.`categories_id` '.sql_is($categories_id, ':categories_id');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';

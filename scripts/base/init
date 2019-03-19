@@ -119,7 +119,7 @@ if($section){
         init_section($section, $version);
 
     }catch(Exception $e){
-        if($e->getRealCode() == 'not-exist'){
+        if($e->getRealCode() == 'not-exists'){
             $e->makeWarning(true);
         }
 

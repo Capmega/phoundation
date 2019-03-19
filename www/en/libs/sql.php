@@ -383,7 +383,7 @@ function sql_init($connector = null){
         }
 
         if(empty($_CONFIG['db'][$connector])){
-            throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exist');
+            throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exists');
         }
 
         $db = $_CONFIG['db'][$connector];
@@ -566,7 +566,7 @@ function sql_connect($connector, $use_database = true){
                 $connect_string = $connector['driver'].':host='.$connector['host'].(empty($connector['port']) ? '' : ';port='.$connector['port']).((empty($connector['db']) or !$use_database) ? '' : ';dbname='.$connector['db']);
                 $pdo            = new PDO($connect_string, $connector['user'], $connector['pass'], $connector['pdo_attributes']);
 
-                log_console(tr('Connected with PDO connect string ":string"', array(':string' => $connect_string)), 'VERYVERBOSE');
+                log_console(tr('Connected with PDO connect string ":string"', array(':string' => $connect_string)), 'VERYVERBOSE/green');
                 break;
 
             }catch(Exception $e){
@@ -656,7 +656,7 @@ function sql_import($file, $connector = null){
         $connector = sql_connector_name($connector);
 
         if(!file_exists($file)){
-            throw new BException(tr('sql_import(): Specified file ":file" does not exist', array(':file' =>$file)), 'not-exist');
+            throw new BException(tr('sql_import(): Specified file ":file" does not exist', array(':file' =>$file)), 'not-exists');
         }
 
         $tel    = 0;
@@ -995,16 +995,16 @@ function sql_filters($params, $columns, $table = ''){
  * @param
  * @return
  */
-function sql_in($source, $column = ':value'){
+function sql_in($source, $column = ':value', $filter_null = false, $null_string = false){
     try{
         if(empty($source)){
-            throw new BException('sql_in(): Specified source is empty', 'empty');
+            throw new BException(tr('sql_in(): Specified source is empty'), 'not-specified');
         }
 
         $column = str_starts($column, ':');
+        $source = array_force($source);
 
-        load_libs('array');
-        return array_sequential_keys(array_force($source), $column);
+        return array_sequential_keys($source, $column, $filter_null, $null_string);
 
     }catch(BException $e){
         throw new BException('sql_in(): Failed', $e);
@@ -1038,76 +1038,12 @@ function sql_in_columns($in, $column_starts_with = null){
             }
         }
 
-        return implode(',', array_keys($in));
+        return implode(', ', array_keys($in));
 
     }catch(Exception $e){
         throw new BException('sql_in_columns(): Failed', $e);
     }
 }
-
-
-/*
- *
- *
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package sql
- *
- * @param
- * @return
- */
-function sql_where($query, $required = true){
-    try{
-        if(!$query){
-            if($required){
-                throw new BException('sql_where(): No filter query specified, but it is required', 'required');
-            }
-
-            return ' ';
-        }
-
-        return ' WHERE '.$query;
-
-    }catch(BException $e){
-        throw new BException('sql_filters(): Failed', $e);
-    }
-}
-
-
-
-/*
- *
- *
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package sql
- *
- * @param
- * @return
- */
-function sql_where_null($value, $not = false){
-    try{
-        if($value === null){
-            if($not){
-                return ' IS NOT NULL ';
-            }
-
-            return ' IS NULL ';
-        }
-
-        if($not){
-            return ' != '.quote($value);
-        }
-
-        return ' = '.quote($value);
-
-    }catch(BException $e){
-        throw new BException('sql_where_null(): Failed', $e);
-    }
-}
-
 
 
 /*
@@ -1195,37 +1131,6 @@ function sql_list_cached($key, $query, $execute = false, $numerical_array = fals
 
     }catch(BException $e){
         throw new BException('sql_list_cached(): Failed', $e);
-    }
-}
-
-
-
-/*
- *
- *
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package sql
- *
- * @param
- * @return
- */
-function sql_valid_limit($limit, $connector = null){
-    global $_CONFIG;
-
-    try{
-        $connector = sql_connector_name($connector);
-        $limit     = force_natural($limit);
-
-        if($limit > $_CONFIG['db'][$connector]['limit_max']){
-            return $_CONFIG['db'][$connector]['limit_max'];
-        }
-
-        return $limit;
-
-    }catch(Exception $e){
-        throw new BException('sql_valid_limit(): Failed', $e);
     }
 }
 
@@ -1380,21 +1285,21 @@ function sql_connector_name($connector){
  * @param
  * @return
  */
-function sql_is($value, $not = false){
+function sql_is($value, $label, $not = false){
     try{
         if($not){
             if($value === null){
-                return ' IS NOT ';
+                return ' IS NOT '.$label.' ';
             }
 
-            return ' != ';
+            return ' != '.$label.' ';
         }
 
         if($value === null){
-            return ' IS ';
+            return ' IS '.$label.' ';
         }
 
-        return ' = ';
+        return ' = '.$label.' ';
 
     }catch(Exception $e){
         throw new BException('sql_is(): Failed', $e);
@@ -1692,7 +1597,7 @@ function sql_get_database($db_name){
                              array(':name' => $db_name));
 
         if(!$database){
-            throw new BException(log_database(tr('Specified database ":database" does not exist', array(':database' => $_GET['database'])), 'not-exist'));
+            throw new BException(log_database(tr('Specified database ":database" does not exist', array(':database' => $_GET['database'])), 'not-exists'));
         }
 
         return $database;
@@ -1882,7 +1787,7 @@ function sql_test_tunnel($server){
         $server         = servers_get($server, true);
 
         if(!$server['database_accounts_id']){
-            throw new BException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exist');
+            throw new BException(tr('sql_test_tunnel(): Cannot test SQL over SSH tunnel, server ":server" has no database account linked', array(':server' => $server['domain'])), 'not-exists');
         }
 
         sql_make_connector($connector_name, array('port'       => $port,
@@ -1922,12 +1827,251 @@ function sql_error($e, $query, $execute, $sql){
 
 
 /*
+ *
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ *
+ * @param
+ * @return
+ */
+function sql_valid_limit($limit, $connector = null){
+    global $_CONFIG;
+
+    try{
+        $connector = sql_connector_name($connector);
+        $limit     = force_natural($limit);
+
+        if($limit > $_CONFIG['db'][$connector]['limit_max']){
+            return $_CONFIG['db'][$connector]['limit_max'];
+        }
+
+        return $limit;
+
+    }catch(Exception $e){
+        throw new BException('sql_valid_limit(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a valid " LIMIT X, Y " string built from the specified parameters
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ * @version 2.4.8: Added function and documentation
+ *
+ * @param natural $limit
+ * @param natural $limit
+ * @return string The SQL " LIMIT X, Y " string
+ */
+function sql_limit($limit = null, $page = null){
+    try{
+        load_libs('paging');
+
+        if(!$limit){
+            $limit = paging_limit();
+        }
+
+        if(!$limit){
+            /*
+             * No limits, so show all
+             */
+            return '';
+        }
+
+        return ' LIMIT '.((paging_page($page) - 1) * $limit).', '.$limit;
+
+    }catch(Exception $e){
+        throw new BException(tr('sql_limit(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ *
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ *
+ * @param
+ * @return
+ */
+function sql_where_null($value, $not = false){
+    try{
+        if($value === null){
+            if($not){
+                return ' IS NOT NULL ';
+            }
+
+            return ' IS NULL ';
+        }
+
+        if($not){
+            return ' != '.quote($value);
+        }
+
+        return ' = '.quote($value);
+
+    }catch(BException $e){
+        throw new BException('sql_where_null(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a valid " WHERE `column` = :value ", " WHERE `column` IS NULL ", or " WHERE `column` IN (:values) " string built from the specified parameters
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ * @version 2.4.8: Added function and documentation
+ *
+ * @param string $column
+ * @param mixed $values
+ * @param booealn $not
+ * @return string The SQL " WHERE.... " string
+ */
+function sql_simple_where($column, $values, $not = false, $extra = null){
+    try{
+        $extra  = '';
+        $table  = str_until($column, '.', 0, 0, true);
+        $column = str_from ($column, '.');
+
+        if(!$values){
+            return $extra;
+        }
+
+        if(is_scalar($values)){
+            if($not){
+                return ' WHERE '.($table ? '`'.$table.'`.' : '').'`'.$column.'` != :'.$column.' '.$extra.' ';
+            }
+
+            return ' WHERE '.($table ? '`'.$table.'`.' : '').'`'.$column.'` = :'.$column.' '.$extra.' ';
+        }
+
+        $not = ($not ? 'NOT' : '');
+
+        if(($values === null) or ($values === 'null') or ($values === 'NULL')){
+            return ' WHERE '.($table ? '`'.$table.'`.' : '').'`'.$column.'` IS '.$not.' NULL '.$extra.' ';
+        }
+
+        if(is_array($values)){
+            $values = sql_in($values);
+
+            foreach($values as $key => $value){
+                if(($value === null) or ($value === 'null') or ($value === 'NULL')){
+                    unset($values[$key]);
+                    $extra = ' OR '.($table ? '`'.$table.'`.' : '').'`'.$column.'` IS '.$not.' NULL ';
+                    break;
+                }
+            }
+
+            return ' WHERE ('.($table ? '`'.$table.'`.' : '').'`'.$column.'` '.$not.' IN ('.sql_in_columns($values).')'.$extra.') '.$extra.' ';
+        }
+
+        throw new BException(tr('sql_simple_where(): Specified values ":values" is neither NULL nor scalar nor an array', array(':values' => $values)), 'invalid');
+
+    }catch(Exception $e){
+        throw new BException(tr('sql_simple_where(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return a valid PDO execute array
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ * @version 2.4.8: Added function and documentation
+ *
+ * @param string $column
+ * @param mixed $values
+ * @return params The execute array corrected
+ */
+function sql_simple_execute($column, $values, $extra = null){
+    try{
+        if(!$values){
+            return $extra;
+        }
+
+        if(is_scalar($values) or ($values === null)){
+            $values = array(str_starts($column, ':') => $values);
+
+        }elseif(is_array($values)){
+            $values = sql_in($values, ':value', true, true);
+
+        }else{
+            throw new BException(tr('sql_simple_execute(): Specified values ":values" is neither NULL nor scalar nor an array', array(':values' => $values)), 'invalid');
+        }
+
+        if($extra){
+            $values = array_merge($values, $extra);
+        }
+
+        return $values;
+
+    }catch(Exception $e){
+        throw new BException(tr('sql_simple_execute(): Failed'), $e);
+    }
+}
+
+
+
+/*
  * OBSOLETE / COMPATIBILITY FUNCTIONS
  *
  * These functions below exist only for compatibility between pdo.php and mysqli.php
  *
  * Return affected rows
  */
+
+
+
+/*
+ *
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ * @obsolete
+ *
+ * @param
+ * @return
+ */
+function sql_where($query, $required = true){
+    try{
+        if(!$query){
+            if($required){
+                throw new BException('sql_where(): No filter query specified, but it is required', 'required');
+            }
+
+            return ' ';
+        }
+
+        return ' WHERE '.$query;
+
+    }catch(BException $e){
+        throw new BException('sql_where(): Failed', $e);
+    }
+}
+
+
+
 function sql_affected_rows($r){
     return $r->rowCount();
 }

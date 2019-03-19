@@ -4,18 +4,57 @@
  *
  * This library is a frontend to lsusb
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package empty
  */
 
 
 
 /*
- * List all available USB devices
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package empty
+ *
+ * @return void
  */
-function usb_list($libusb = null){
+function usb_library_init(){
     try{
-        $results = safe_exec('lsusb');
+        load_libs('servers');
+
+    }catch(Exception $e){
+        throw new BException('usb_library_init(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * List all available USB devices
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package usb
+ * @see usb_scan()
+ * @version 2.4.10: Added documentation, added multi server support
+ *
+ * @params null string $libusb
+ * @params null mixed $server
+ * @return array
+ */
+function usb_list($libusb = null, $server = null){
+    try{
+        $results = servers_exec(array('commands' => array('lsusb')));
         $devices = array();
 
         foreach($results as $result){
@@ -51,6 +90,73 @@ function usb_list($libusb = null){
 
     }catch(Exception $e){
         throw new BException('usb_list(): Failed', $e);
+    }
+}
+
+
+
+
+
+/*
+ * Scan the USB bus for the specified filter
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package usb
+ * @see usb_list()
+ * @see devices_scan()
+ * @version 2.4.10: Added function and documentation
+ *
+ * @param string $filter The regular expression filter with which the device will be found
+ * @params null mixed $server
+ * @return array
+ */
+function usb_scan($regex_filter, $server = null){
+    try{
+        $results = safe_exec(array('commands' => array('lsusb', array('-v'))));
+        $devices = array();
+        $retval  = array();
+        $device  = '';
+
+        /*
+         * Divide the result lines into USB devices
+         */
+        foreach($results as $result){
+            $result = trim($result);
+
+            if($result){
+                $device .= $result."\n";
+
+            }else{
+                if(!$device){
+                    /*
+                     * We have no device data yet, probably an empty line at the
+                     * top of the file or a double empty line. Ignore and
+                     * continue;
+                     */
+                    continue;
+                }
+
+                $devices[] = $device;
+                $device    = '';
+            }
+        }
+
+        foreach($devices as $devices){
+            //Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+            $found = preg_match($regex_filter, $devices, $matches);
+
+            if($found){
+                $retval[] = $device;
+            }
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('usb_scan(): Failed', $e);
     }
 }
 ?>

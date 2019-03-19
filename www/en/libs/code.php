@@ -137,8 +137,8 @@ function code_locate_toolkit(){
     try{
         if(!$found){
             $paths = array(ROOT.'../toolkit.capmega.com/',
-                           ROOT.'../../toolkit.capmega.com/',
-                           '/var/www/html/toolkit.capmega.com/');
+                           ROOT.'../../capmega/toolkit.capmega.com/',
+                           '/var/www/html/capmega/toolkit.capmega.com/');
 
             $home = getenv('HOME');
 
@@ -210,10 +210,10 @@ function code_locate_toolkit(){
  */
 function code_phoundation_fetch($params = null){
     try{
-        $path   = code_locate_phoundation();
-        $branch = git_fetch($path, $params);
+        $path    = code_locate_phoundation();
+        $results = git_fetch($path, $params);
 
-        return $branch;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('code_phoundation_fetch(): Failed', $e);
@@ -612,6 +612,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null){
         }
 
         foreach($tags as $tag){
+            $tag     = strtolower($tag);
             $version = str_from($tag, 'v');
 
             if(str_is_version($version)){
@@ -812,7 +813,7 @@ function code_file_exists_in_toolkit($file){
  */
 function code_diff($file, $file2){
     try{
-        return safe_exec('diff '.$file.' '.$file2);
+        return safe_exec(array('commands' => array('diff', array($file, $file2))));
 
     }catch(Exception $e){
         throw new BException('code_diff(): Failed', $e);

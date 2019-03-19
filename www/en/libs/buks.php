@@ -154,7 +154,7 @@ function buks_encrypt($data, $section, $password, $user = null){
             $users_id = sql_query('SELECT `id` FROM `users` WHERE `username` = :username', array(':username' => $user));
 
             if(!$users_id){
-                throw new BException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exist');
+                throw new BException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exists');
             }
 
             $password = $_CONFIG['buks']['users'][$user];
@@ -166,7 +166,7 @@ function buks_encrypt($data, $section, $password, $user = null){
         $key = buks_get_key($section, $users_id, $password);
 
         if($key){
-            throw new BException(tr('buks_encrypt(): User id ":user" does not have the ":key" key', array(':user' => $user, ':key' => $section)), 'not-exist');
+            throw new BException(tr('buks_encrypt(): User id ":user" does not have the ":key" key', array(':user' => $user, ':key' => $section)), 'not-exists');
         }
 
         return openssl_simple_encrypt($key, $data);
@@ -204,7 +204,7 @@ function buks_decrypt($data, $section, $password, $user = null){
             $users_id = sql_query('SELECT `id` FROM `users` WHERE `username` = :username', array(':username' => $user));
 
             if(!$users_id){
-                throw new BException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exist');
+                throw new BException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exists');
             }
 
             $password = $_CONFIG['buks']['users'][$user];

@@ -14,30 +14,6 @@
 
 
 /*
- * Initialize the library, automatically executed by libs_load()
- *
- * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package cdn
- *
- * @return void
- */
-function cdn_library_init(){
-    try{
-        load_config('cdn');
-
-    }catch(Exception $e){
-        throw new BException('cdn_library_init(): Failed', $e);
-    }
-}
-
-
-
-/*
  * Send the specified file to the specified CDN server
  */
 function cdn_send_files($files, $server, $section, $group = null){
@@ -383,7 +359,7 @@ function cdn_get_api_account($server){
                                 true, array(':seoname' => $server));
 
         if(!$api_account){
-            throw new BException(tr('cdn_validate_project(): Specified server ":server" does not exist', array(':server' => $server)), 'not-exist');
+            throw new BException(tr('cdn_validate_project(): Specified server ":server" does not exist', array(':server' => $server)), 'not-exists');
         }
 
         return $api_account;

@@ -5,36 +5,6 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>, Johan Geuze
  */
-//putenv('VERBOSE=1');
-//putenv('VERYVERBOSE=1');
-
-
-
-/*
- * Check what environment we're in
- */
-$env = getenv(PROJECT.'_ENVIRONMENT');
-
-if(empty($env)){
-    /*
-     * No environment set in ENV, maybe given by parameter?
-     */
-    die('startup: Required environment not specified for project "'.PROJECT.'"');
-}
-
-if(strstr($env, '_')){
-    die('startup: Specified environment "'.$env.'" is invalid, environment names cannot contain the underscore character');
-}
-
-define('ENVIRONMENT', $env);
-
-
-
-/*
- * Load basic configuration for the current environment
- * Load cache libraries (done until here since these need configuration @ load time)
- */
-load_config(' ');
 
 
 
@@ -84,7 +54,7 @@ umask($_CONFIG['security']['umask']);
 /*
  * Setup locale and character encoding
  */
-ini_set('default_charset', $_CONFIG['charset']);
+ini_set('default_charset', $_CONFIG['encoding']['charset']);
 
 foreach($_CONFIG['locale'] as $key => $value){
     if($value){
@@ -97,7 +67,7 @@ foreach($_CONFIG['locale'] as $key => $value){
 /*
  * Prepare for unicode usage
  */
-if($_CONFIG['charset'] = 'UTF-8'){
+if($_CONFIG['encoding']['charset'] = 'UTF-8'){
     mb_init(not_empty($_CONFIG['locale'][LC_CTYPE], $_CONFIG['locale'][LC_ALL]));
 
     if(function_exists('mb_internal_encoding')){
@@ -196,24 +166,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 
 
-// :TODO: What to do with this?
-//$_CONFIG['cdn']['prefix'] = slash($_CONFIG['cdn']['prefix']);
-//
-//if($_CONFIG['cdn']['prefix'] != '/pub/'){
-//    if($_CONFIG['cdn']['enabled']){
-//        load_libs('cdn');
-//        $core->register['header'] = html_script('var cdnprefix="'.cdn_domain($_CONFIG['cdn']['prefix']).'";', false);
-//
-//    }else{
-//        $core->register['header'] = html_script('var cdnprefix="'.$_CONFIG['cdn']['prefix'].'";', false);
-//    }
-//}
+/*
+ * Load custom library, if available
+ * Set the CDN url for javascript
+ * Validate HTTP GET
+ */
+load_libs('custom');
+html_set_js_cdn_url();
+http_validate_get();
 
 
 
 /*
- * Load custom library, if available
+ * Did the startup sequence encounter reasons for us to actually show another
+ * page?
  */
-load_libs('custom');
-http_validate_get();
+if(isset($core->register['page_show'])){
+    page_show($core->register['page_show']);
+}
 ?>

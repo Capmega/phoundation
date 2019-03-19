@@ -84,7 +84,9 @@ try{
             while($domain = sql_fetch($domains, true)){
                 log_console(tr('Scanning domain ":domain"', array()));
 
-                $results = safe_exec('whois '.$domain.' | grep "Name Server"', 1);
+                $results = safe_exec(array('ok_exitcodes' => '1',
+                                           'commands'     => array('whois', array($domain, 'connector' => '|'),
+                                                                   'grep' , array('Name Server'))));
                 $ns      = array();
                 $errors  = array();
 
@@ -259,13 +261,13 @@ try{
             if(DELETED){
                 $where[] = ' `domains`.`status` = "deleted" ';
 
-            }elseif(!ALL){
+            }elseif(!$core->register['all']){
                 $where[] = ' `domains`.`status` IS NULL OR `domains`.`status` = "testing" ';
             }
 
             if(STATUS){
-                $execute = array_merge($execute, sql_in(ALL));
-                $where[] = ' `domains`.`status` IN ('.implode(', ', array_keys(ALL)).') ';
+                $execute = array_merge($execute, sql_in(STATUS));
+                $where[] = ' `domains`.`status` IN ('.implode(', ', array_keys(STATUS)).') ';
             }
 
             if($customer){
@@ -327,7 +329,7 @@ try{
             }
 
             $order   = ' ORDER BY `domains`.`status` IS NOT NULL DESC ';
-            $servers = sql_query($query.$where.$order.(LIMIT ? ' LIMIT '.LIMIT : ''), $execute);
+            $servers = sql_query($query.$where.$order.sql_limit(), $execute);
 
             if(!$servers->rowCount()){
                     log_console(tr('There are currently no servers registered'), 'QUIET/yellow');
@@ -360,7 +362,7 @@ try{
 
 }catch(Exception $e){
     switch($e->getRealCode()){
-        case 'not-exist':
+        case 'not-exists':
             // FALLTHROUGH
         case 'multiple':
             // FALLTHROUGH

@@ -15,15 +15,14 @@
  */
 function node_check(){
     try{
-        log_console('node_check(): Checking NodeJS availability', 'white');
-
         try{
-            $result = safe_exec('which nodejs');
-            $result = array_shift($result);
+            $result = cli_which('nodejs');
 
         }catch(Exception $e){
-            $result = safe_exec('which node');
-            $result = array_shift($result);
+            /*
+             * No "nodejs"? Maybe just "node" ?
+             */
+            $result = cli_which('node');
         }
 
         log_console(tr('node_check(): Using NodeJS ":result"', array(':result' => $result)), 'green');
@@ -105,13 +104,8 @@ function node_check_modules(){
  */
 function node_check_npm(){
     try{
-        log_console('node_check_npm(): Checking NodeJS npm availability', 'white');
-
-        $result = safe_exec('which npm');
-        $result = array_shift($result);
-
+        $result = cli_which('npm');
         log_console(tr('node_check_npm(): Using npm ":result"', array(':result' => $result)), 'green');
-
         return $result;
 
     }catch(Exception $e){

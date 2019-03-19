@@ -88,24 +88,21 @@ $_CONFIG['cdn']                = array('min'                                => t
 
 
 // Characterset
-$_CONFIG['charset']            = 'UTF-8';                                                                                               // The default character set for this website (Will be used in meta charset tag)
+$_CONFIG['encoding']           = array('charset'                            => 'UTF-8',                                                 // The default character set for this website (Will be used in meta charset tag)
+                                       'normalize'                          => null);                                                   // Normalize UTF8 strings with the specified form. Possible values are Normalizer::FORM_C | Normalizer::FORM_D | Normalizer::FORMKC | Normalizer::FORMKD Normalizer::NONE | Normalizer::OPTION_DEFAULT | null for default FORM_C
 
-// Client configuration
-$_CONFIG['check_disk']         = array('http_interval'                      => 10,                                                      // The % chance that the check_disk will automatically execute on HTTP shutdown
-                                       'percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %
+// Check disk configuration
+$_CONFIG['check_disk']         = array('percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %
                                        'bytes'                              => 0);                                                      // The default minimum required available disk space for the filesystem for ROOT in bytes
 
 // Client configuration
 $_CONFIG['client']             = array('detect'                             => false);                                                  // If client detection should be performed. false if not, one of "full", "normal" or "lite" if detection should happen, and what type of detection
 
-// PHP composer configuration
-$_CONFIG['composer']           = array('global'                             => false);
-
 // Content configuration
 $_CONFIG['content']            = array('autocreate'                         => false);                                                  // When using load_content(), if content is missing should it be created automatically? Normally, use "true" on development and test machines, "false" on production
 
 //
-$_CONFIG['copyright']          = array('name'                               => 'Ingiga',                                                // Name to be displayed for the copyright
+$_CONFIG['copyright']          = array('name'                               => 'Capmega',                                                // Name to be displayed for the copyright
                                        'url'                                => 'https://capmega.com/copyright.html');                    // URL used for the copyright
 
 // Access-Control-Allow-Origin configuration. comma delimeted list of sites to allow with CORS
@@ -142,23 +139,15 @@ $_CONFIG['db']                 = array('default'                            => '
                                                                                      //                            PDO::ATTR_STRINGIFY_FETCHES => false, ),
                                                                                      'timezone'         => 'UTC'));                         // Default timezone to use
 
-//domain
+// Domain configuration
 $_CONFIG['domain']             = 'auto';                                                                                                    // The base domain of this website. for example, "mywebsite.com",  "thisismine.com.mx", etc. If set to "auto" it will use $_SERVER[SERVER_NAME]
 
-// Editors configuration, tinymce jbimages plugin configuration
-$_CONFIG['editors']            = array('imageupload'                        => 'session',                                                   // "all" or "session" or "admin",
-
-                                       'images'                             => array('url'                => '/images',                     // Base URL that jbimiages will give to tinymce for all images inserted into the document
-                                                                                     'allowed_types'      => 'gif|jpg|png',                 // What file extensions will be recognized by jbimages as being an image
-                                                                                     'max_size'           => 0,                             //
-                                                                                     'max_width'          => 0,                             //
-                                                                                     'max_height'         => 0,                             //
-                                                                                     'allow_resize'       => false,                         //
-                                                                                     'overwrite'          => false,                         // If set to true, if images names already exist when a new images is being uploaded, it will be overwritten. If set to false, the new image will be assigned a number behind the basename (before the extension) to make it unique
-                                                                                     'encrypt_name'       => false));                       // Should filenames retain their original name (false) or should jbimages give it a random character name (true)?
+// Exec configuration
+$_CONFIG['exec']               = array('path'                               => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',  // The path used by safe_exec()
+                                       'timeout'                            => 10);
 
 // Feedback configuration
-$_CONFIG['feedback']           = array('emails'                             => array('Ingiga Support' => 'support@capmega.com'));
+$_CONFIG['feedback']           = array('emails'                             => array('Capmega Support' => 'support@capmega.com'));
 
 // Flash alert configuration
 $_CONFIG['flash']              = array('type'                               => 'html',                                                      // The type of HTML flash message to use. Either "html" or "sweetalert"
@@ -177,9 +166,6 @@ $_CONFIG['formats']            = array('force1224'                          => '
 $_CONFIG['fs']                 = array('dir_mode'                           => 0770,                                                        // When the system creates directory, this sets what file mode it will have (Google unix file modes for more information)
                                        'file_mode'                          => 0660,                                                        // When the system creates a file, this sets what file mode it will have (Google unix file modes for more information)
                                        'target_path_size'                   => 4);                                                          // When creating
-
-// google api
-$_CONFIG['google-map-api-key'] = '';                                                                                                        // The google maps API key
 
 // Init configuration
 $_CONFIG['init']               = array('cli'                                => true,                                                        // Sets if system init can be executed by shell
@@ -212,10 +198,6 @@ $_CONFIG['location']           = array('detect'                             => f
 
 //Log configuration
 $_CONFIG['log']                = array('single'                             => true);                                                       // All file logs will go to one and the same file
-
-// Mailer configuration
-$_CONFIG['mailer']             = array('sender'                             => array('wait'               => 5,
-                                                                                     'count'              => 100));
 
 // Mail configuration
 $_CONFIG['mail']               = array('developers'                         => array());
@@ -261,22 +243,6 @@ $_CONFIG['paging']             = array('limit'                              => 5
                                                                                       500 => tr('Show 500 entries'),
                                                                                      null => tr('Show all entries')));
 
-//Paypal configuration
-$_CONFIG['paypal']             = array('version'                            => 'sandbox',                                                   //
-
-                                       'live'                               => array('email'              => '',
-                                                                                     'api-username'       => '',
-                                                                                     'api-password'       => '',
-                                                                                     'api-signature'      => ''),
-
-                                       'sandbox'                            => array('email'              => '',
-                                                                                     'api-username'       => '',
-                                                                                     'api-password'       => '',
-                                                                                     'api-signature'      => ''));
-
-$_CONFIG['plans']              = array('silver'                             => null,
-                                       'gold'                               => null);
-
 // Prefetch
 $_CONFIG['prefetch']           = array('dns'                                => array('facebook.com',
                                                                                      'twitter.com'),
@@ -285,9 +251,6 @@ $_CONFIG['prefetch']           = array('dns'                                => a
 
 // Is this a production environment?
 $_CONFIG['production']         = true;
-
-//domain
-$_CONFIG['protocol']           = 'https://';                                                                                                // The base protocol of this website. Basically either "http://",  or "https://".
 
 // Redirects configuration (This ususally would not require changes unless you want to have other file names for certain actions like signin, etc)
 $_CONFIG['redirects']          = array('auto'                               => 'get',                                                       // Auto redirects (usually because of user or right required) done by "session" or "get"
@@ -301,9 +264,6 @@ $_CONFIG['redirects']          = array('auto'                               => '
 
 // Root URL of the website
 $_CONFIG['url_prefix']         = '';                                                                                                        //
-
-// Share buttons
-$_CONFIG['share']              = array('provider'                           => false);                                                      // Share button provider
 
 // Security configuration
 $_CONFIG['security']           = array('signin'                             => array('save_password'    => true,                            // Allow the browser client to save the passwords. If set to false, different form names will be used to stop browsers from saving passwords
@@ -322,11 +282,17 @@ $_CONFIG['security']           = array('signin'                             => a
                                                                                      'unique_updates'   => 3,                               // Passwords cannot be updated to the same password for minimum N times
                                                                                      'unique_days'      => 30),                             // Passwords cannot be updated to the same password for minimum N days
 
+                                       'url_cloaking'                       => array('enabled'          => false,                           // Enable the URL cloaking system if set to true
+                                                                                     'strict'           => true,                            // If set to true, each cloaked URL can only be used by the user that created it
+                                                                                     'interval'         => 1,                               // The chance in % that the url_cloaking table will be cleaned at a page load
+                                                                                     'expires'          => 86400),                          // The time until a cloaked URL will be removed from the URL cloaking table and no longer available
+
                                        'user'                               => 'apache',                                                    //
                                        'group'                              => 'apache',                                                    //
                                        'umask'                              =>  0007,                                                       //
                                        'expose_php'                         => false,                                                       // If false, will hide the X-Powered-By PHP header. If true, will leave the header as is. If set to any other value, will send that value as X-Powered-By value
                                        'seed'                               => '%T"$#HET&UJHRT87',                                          // SEED for generating codes
+                                       'signature'                          => true,                                                        // If set to true, add a phoundation signature in HTTP headers and on certain pages.
 
                                        'csrf'                               => array('enabled'          => 'force',                         // CSRF detection configuration. true | false | "force". Force will forcibly check every POST on CSRF
                                                                                      'buffer_size'      => 10,                              // The amount of server side CSRF keys that are being kept. With more keys, more pages can be run in parrallel
@@ -356,11 +322,14 @@ $_CONFIG['sessions']           = array('enabled'                            => t
                                                                                      'allow_next'    => true,                               //
                                                                                      'redirect'      => 'index.php'));                      //
 
-// Social website integration configuration
-$_CONFIG['social']             = array('links'                              => array('facebook'       => '',                                //
-                                                                                     'twitter'        => '',                                //
-                                                                                     'youtube'        => '',                                //
-                                                                                     'target'         => '_blank'));                        //
+// Shutdown configuration
+$_CONFIG['shutdown']           = array('check-disk' => array('interval' => 10,                                                              // Execute this function every INTERVAL / 100 times
+                                                             'library'  => 'check-disk',                                                    // To execute the function, load this library
+                                                             'function' => 'check_disk'),                                                   // The function to execute
+
+                                       'log-rotate' => array('interval' => 2,
+                                                             'library'  => 'log',
+                                                             'function' => 'log_rotate'));
 
 // Sync configuration.
 $_CONFIG['sync']               = array();                                                                                                   //
@@ -375,9 +344,6 @@ $_CONFIG['timezone']           = array('display'                            => '
 // Default title configuration
 $_CONFIG['title']              = 'Base';                                                                                                    //
 
-// Temporary path location, either "local" (ROOT/tmp/) or "global" (/tmp/)
-$_CONFIG['tmp']                = 'local';                                                                                                   // Either "local" or "global". "local" will save all temporary files in ROOT/tmp, "global" will save all temporary files in /tmp/PROJECT/
-
 // What webservice this is.
 $_CONFIG['type']               = 'core';                                                                                                    // core, api, cdn
 
@@ -386,9 +352,6 @@ $_CONFIG['users']              = array('type_filter'                        => n
                                        'unique_nicknames'                   => true,
                                        'password_minumum_strength'          => 4,
                                        'duplicate_reference_codes'          => false);
-
-//Xapian search
-$_CONFIG['xapian']             = array('dir'                                => ROOT.'data/xapian/');                                        // Base path for Xapian databases
 
 $_CONFIG['whitelabels']        = false;                                                                                                     // Either false (No whitelabel domains, only the normal site FQDN allowed), "list" (only default and registered FQDNs allowed), "sub" (only default FQDN and its sub domains allowed), "all" (All domains allowed), or the specific FQDN that is allowed
 ?>

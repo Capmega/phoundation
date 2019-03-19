@@ -19,7 +19,7 @@ function file_append($target, $data){
          * Open target
          */
         if(!file_exists(dirname($target))){
-            throw new BException(tr('file_append(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exist');
+            throw new BException(tr('file_append(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exists');
         }
 
         $target_h = fopen($target, 'a');
@@ -27,7 +27,7 @@ function file_append($target, $data){
         fclose($target_h);
 
     }catch(Exception $e){
-        throw new BException('file_append(): Failed', $e);
+        throw new BException(tr('file_append(): Failed'), $e);
     }
 }
 
@@ -48,7 +48,7 @@ function file_concat($target, $sources){
          * Open target
          */
         if(!file_exists(dirname($target))){
-            throw new BException(tr('file_concat(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exist');
+            throw new BException(tr('file_concat(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exists');
         }
 
         $target_h = fopen($target, 'a');
@@ -67,7 +67,7 @@ function file_concat($target, $sources){
         fclose($target_h);
 
     }catch(Exception $e){
-        throw new BException('file_concat(): Failed', $e);
+        throw new BException(tr('file_concat(): Failed'), $e);
     }
 }
 
@@ -87,7 +87,7 @@ function file_get_uploaded($source){
              * Asume this is a PHP file upload array entry
              */
             if(empty($source['tmp_name'])){
-                throw new BException('file_move_uploaded(): Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry', 'invalid');
+                throw new BException(tr('file_move_uploaded(): Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'), 'invalid');
             }
 
             $real   = $source['name'];
@@ -109,7 +109,7 @@ function file_get_uploaded($source){
         }
 
         if(!move_uploaded_file($source, $destination.$real)){
-            throw new BException('file_move_uploaded(): Faield to move file "'.str_log($source).'" to destination "'.str_log($destination).'"', 'move');
+            throw new BException(tr('file_move_uploaded(): Faield to move file ":source" to destination ":destination"', array(':source' => $source, ':destination' => $destination)), 'move');
         }
 
         /*
@@ -118,7 +118,7 @@ function file_get_uploaded($source){
         return $destination.$real;
 
     }catch(Exception $e){
-        throw new BException('file_move_uploaded(): Failed', $e);
+        throw new BException(tr('file_move_uploaded(): Failed'), $e);
     }
 }
 
@@ -132,7 +132,7 @@ function file_assign_target($path, $extension = false, $singledir = false, $leng
         return file_move_to_target('', $path, $extension, $singledir, $length);
 
     }catch(Exception $e){
-        throw new BException('file_assign_target(): Failed', $e);
+        throw new BException(tr('file_assign_target(): Failed'), $e);
     }
 }
 
@@ -146,7 +146,7 @@ function file_assign_target_clean($path, $extension = false, $singledir = false,
         return str_replace($extension, '', file_move_to_target('', $path, $extension, $singledir, $length));
 
     }catch(Exception $e){
-        throw new BException('file_assign_target_clean(): Failed', $e);
+        throw new BException(tr('file_assign_target_clean(): Failed'), $e);
     }
 }
 
@@ -164,7 +164,7 @@ function file_copy_to_target($file, $path, $extension = false, $singledir = fals
         return file_move_to_target($file, $path, $extension, $singledir, $length, true);
 
     }catch(Exception $e){
-        throw new BException('file_copy_to_target(): Failed', $e);
+        throw new BException(tr('file_copy_to_target(): Failed'), $e);
     }
 }
 
@@ -291,7 +291,7 @@ function file_move_to_target($file, $path, $extension = false, $singledir = fals
         return str_from($target, $path);
 
     }catch(Exception $e){
-        throw new BException('file_move_to_target(): Failed', $e);
+        throw new BException(tr('file_move_to_target(): Failed'), $e);
     }
 }
 
@@ -328,7 +328,7 @@ function file_create_target_path($path, $singledir = false, $length = false){
         return slash(file_ensure_path($path));
 
     }catch(Exception $e){
-        throw new BException('file_create_target_path(): Failed', $e);
+        throw new BException(tr('file_create_target_path(): Failed'), $e);
     }
 }
 
@@ -336,37 +336,67 @@ function file_create_target_path($path, $singledir = false, $length = false){
 
 /*
  * Ensure that the specified file exists in the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @note Will log to the console in case the file was created
+ * @version 2.4.16: Added documentation, improved log output
+ *
+ * @param string $file The file that must exist
+ * @param null octal $mode If the specified $file does not exist, it will be created with this file mode. Defaults to $_CONFIG[fs][file_mode]
+ * @param null octal $path_mode If parts of the path for the file do not exist, these will be created as well with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+ * @return string The specified file
  */
 function file_ensure_file($file, $mode = null, $path_mode = null){
+    global $_CONFIG;
+
     try{
+        if(!$mode){
+            $mode = $_CONFIG['fs']['file_mode'];
+        }
+
         file_ensure_path(dirname($file), $path_mode);
 
         if(!file_exists($file)){
             /*
              * Create the file
              */
-            if(VERBOSE and PLATFORM_CLI){
-                log_console('file_ensure_file(): Warning: file "'.str_log($file).'" did not existed and was created empty to ensure system stability, but information may be missing', 'yellow');
-            }
+            file_execute_mode(dirname($file), 0770, function() use ($file, $mode){
+                log_console(tr('file_ensure_file(): Warning: file ":file" did not exist and was created empty to ensure system stability, but information may be missing', array(':file' => $file)), 'VERBOSE/yellow');
+                touch($file);
 
-            touch($file);
-
-            if($mode){
-                chmod($file, $mode);
-            }
+                if($mode){
+                    chmod($file, $mode);
+                }
+            });
         }
 
         return $file;
 
     }catch(Exception $e){
-        throw new BException('file_ensure_file(): Failed', $e);
+        throw new BException(tr('file_ensure_file(): Failed'), $e);
     }
 }
 
 
 
 /*
- * Ensures existence of specified path
+ * Ensures existence of the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4.16: Added documentation
+ *
+ * @param string $path The path that must exist
+ * @param null octal $mode If the specified $path does not exist, it will be created with this directory mode. Defaults to $_CONFIG[fs][dir_mode]
+ * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
+ * @return string The specified file
  */
 function file_ensure_path($path, $mode = null, $clear = false){
     global $_CONFIG;
@@ -537,7 +567,7 @@ function file_clear_path($path){
         file_clear_path($path);
 
     }catch(Exception $e){
-        throw new BException('file_clear_path(): Failed', $e);
+        throw new BException(tr('file_clear_path(): Failed'), $e);
     }
 }
 
@@ -551,7 +581,7 @@ function file_get_extension($filename){
         return str_rfrom($filename, '.');
 
     }catch(Exception $e){
-        throw new BException('file_get_extension(): Failed', $e);
+        throw new BException(tr('file_get_extension(): Failed'), $e);
     }
 }
 
@@ -577,7 +607,7 @@ function file_temp($create = true, $name = null){
         return TMP.$name;
 
     }catch(Exception $e){
-        throw new BException('file_temp(): Failed', $e);
+        throw new BException(tr('file_temp(): Failed'), $e);
     }
 }
 
@@ -637,14 +667,56 @@ function file_delete_tree($directory){
         file_delete($directory);
 
     }catch(Exception $e){
-        throw new BException('file_delete_tree(): Failed', $e);
+        throw new BException(tr('file_delete_tree(): Failed'), $e);
     }
 }
 
 
 
 /*
- * Returns the files mimetype
+ * Return the absolute path for the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added function and documentation
+ *
+ * @param string $path
+ * @return string The absolute path
+ */
+function file_absolute_path($path){
+    try{
+        if(!$path){
+            return getcwd();
+        }
+
+        if($path[0] === '/'){
+            return $path;
+        }
+
+        return slash(getcwd()).unslash($path);
+
+    }catch(Exception $e){
+        throw new BException('file_absolute_path(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns the mimetype data for the specified file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added documentation
+ *
+ * @param string $file to be tested
+ * @return string The mimetype data for the specified file
  */
 function file_mimetype($file){
     static $finfo = false;
@@ -654,7 +726,15 @@ function file_mimetype($file){
          * Check the source file
          */
         if(!is_file($file)){
-            throw new BException(tr('file_mimetype(): Specified path ":path" is not a file', array(':path' => $file)), 'not-file');
+            if(!file_exists($file)){
+                throw new BException(tr('file_mimetype(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            }
+
+            if(is_dir($file)){
+                throw new BException(tr('file_mimetype(): Specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
+            }
+
+            throw new BException(tr('file_mimetype(): Specified file ":file" is not a file', array(':file' => $file)), 'invalid');
         }
 
         if(!$finfo){
@@ -664,7 +744,7 @@ function file_mimetype($file){
         return finfo_file($finfo, $file);
 
     }catch(Exception $e){
-        throw new BException('file_mimetype(): Failed', $e);
+        throw new BException(tr('file_mimetype(): Failed'), $e);
     }
 }
 
@@ -672,6 +752,16 @@ function file_mimetype($file){
 
 /*
  * Returns true or false if file is ASCII or not
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added documentation
+ *
+ * @param string $file to be tested
+ * @return bolean True if the file is a text file, false if not
  */
 function file_is_text($file){
     try{
@@ -681,65 +771,119 @@ function file_is_text($file){
         return false;
 
     }catch(Exception $e){
-        throw new BException('file_is_text(): Failed', $e);
+        throw new BException(tr('file_is_text(): Failed'), $e);
     }
 }
 
 
 
 /*
- * Returns if the specified file exists and is a file
+ * Returns true if the specified file exists and is a file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4: Added documentation
+ *
+ * @param string $file The file to be tested
+ * @return bolean True if the file exists and is a file
  */
 function file_check($file){
     if(!file_exists($file)){
-        throw new BException('file_check(): Specified file "'.str_log($file).'" does not exist', 'not-exist');
+        throw new BException(tr('file_check(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
     }
 
     if(!is_file($file)){
-        throw new BException('file_check(): Specified file "'.str_log($file).'" is not a file' , 'notafile');
+        throw new BException(tr('file_check(): Specified file ":file" is not a file', array(':file' => $file)), 'notafile');
     }
 }
 
 
 
 /*
- * Return all files in a directory
+ * Return all files in a directory that match the specified pattern with optional recursion.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4.40: Added documentation, upgraded function
+ *
+ * @param string $path The path from which
+ * @param string $pattern
+ * @param boolean $recursive If set to true, return all files below the specified path, including in sub directories
+ * @return array The matched files
  */
-function file_list_tree($path = '.', $recursive = true){
+function file_list_tree($path, $pattern = null, $recursive = true){
     try{
+        /*
+         * Validate path
+         */
         if(!is_dir($path)){
             if(!is_file($path)){
-                throw new BException('file_list_tree(): Specified path "'.str_log($path).'" is not a directory', 'path');
+                if(!file_exists($path)){
+                    throw new BException(tr('file_list_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+                }
+
+                throw new BException(tr('file_list_tree(): Specified path ":path" is not a directory or a file', array(':path' => $path)), 'invalid');
             }
 
             return array($path);
         }
 
-        $files = array();
+        $retval = array();
         $fh    = opendir($path);
 
-        while (($file = readdir($fh)) !== false){
-            # loop through the files, skipping . and .., and recursing if necessary
-            if(($file == '.') or ($file == '..')){
+        /*
+         * Go over all files
+         */
+        while(($filename = readdir($fh)) !== false){
+            /*
+             * Loop through the files, skipping . and .. and recursing if necessary
+             */
+            if(($filename == '.') or ($filename == '..')){
                 continue;
             }
 
-            $filepath = slash($path).$file;
+            /*
+             * Does the file match the specified pattern?
+             */
+            if($pattern){
+                $match = preg_match($pattern, $filename);
 
-            if( is_dir($filepath) and $recursive){
-                $files = array_merge($files, file_list_tree($filepath));
+                if(!$match){
+                    continue;
+                }
+            }
 
-            }else {
-                array_push($files, $filepath);
+            /*
+             * Get the complete file path
+             */
+            $file = slash($path).$filename;
+
+            /*
+             * Add the file to the list. If the file is a directory, then
+             * recurse instead.
+             *
+             * Do NOT add the directory itself, only files!
+             */
+            if(is_dir($file) and $recursive){
+                $retval = array_merge($retval, file_list_tree($file));
+
+            }else{
+                $retval[] = $file;
             }
         }
 
         closedir($fh);
 
-        return $files;
+        return $retval;
 
     }catch(Exception $e){
-        throw new BException('file_list_tree(): Failed for "'.str_log($path).'"', $e);
+        throw new BException(tr('file_list_tree(): Failed for ":path"', array(':path' => $path)), $e);
     }
 }
 
@@ -752,11 +896,11 @@ function file_list_tree($path = '.', $recursive = true){
 function file_delete($patterns, $clean_path = false, $sudo = false){
     try{
         if(!$patterns){
-            throw new BException('file_delete(): No files or patterns specified');
+            throw new BException(tr('file_delete(): No files or patterns specified'), 'not-specified');
         }
 
         foreach(array_force($patterns) as $pattern){
-            safe_exec(($sudo ? 'sudo ' : '').'rm -rf '.$pattern);
+            safe_exec(array('commands' => array('rm', array('sudo' => $sudo, '-rf', $pattern))));
 
             if($clean_path){
                 file_clear_path(dirname($patterns));
@@ -764,7 +908,7 @@ function file_delete($patterns, $clean_path = false, $sudo = false){
         }
 
     }catch(Exception $e){
-        throw new BException('file_delete(): Failed', $e);
+        throw new BException(tr('file_delete(): Failed'), $e);
     }
 }
 
@@ -837,23 +981,24 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                 }
 
                 if(count($search) != count($replace)){
-                    throw new BException('file_copy_tree(): The search parameters count "'.count($search).'" and replace parameters count "'.count($destination).'" do not match', 'parameternomatch');
+                    throw new BException(tr('file_copy_tree(): The search parameters count ":search" and replace parameters count ":replace" do not match', array(':search' => count($search), ':replace' => count($replace))), 'parameternomatch');
                 }
             }
 
             if(!file_exists($source)){
-                throw new BException('file_copy_tree(): Specified source "'.str_log($source).'" does not exist', 'not-exist');
+                throw new BException(tr('file_copy_tree(): Specified source ":source" does not exist', array(':source' => $source)), 'not-exists');
             }
 
             $destination = unslash($destination);
 
             if(!file_exists($destination)){
+// :TODO: Check if dirname() here is correct? It somehow does not make sense
                 if(!file_exists(dirname($destination))){
-                    throw new BException('file_copy_tree(): Specified destination "'.str_log(dirname($destination)).'" does not exist', 'not-exist');
+                    throw new BException(tr('file_copy_tree(): Specified destination ":destination" does not exist', array(':destination' => dirname($destination))), 'not-exists');
                 }
 
                 if(!is_dir(dirname($destination))){
-                    throw new BException('file_copy_tree(): Specified destination "'.str_log(dirname($destination)).'" is not a directory', 'not-directory');
+                    throw new BException(tr('file_copy_tree(): Specified destination ":destination" is not a directory', array(':destination' => dirname($destination))), 'not-directory');
                 }
 
                 if(is_dir($source)){
@@ -874,7 +1019,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                  */
                 if(is_dir($source)){
                     if(!is_dir($destination)){
-                        throw new BException('file_copy_tree(): Cannot copy source directory "'.str_log($source).'" into destination file "'.str_log($destination).'"');
+                        throw new BException(tr('file_copy_tree(): Cannot copy source directory ":source" into destination file ":destination"', array(':source' => $source, ':destination' => $destination)), 'failed');
                     }
 
                 }else{
@@ -1048,7 +1193,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                     chmod($destination, $filemode);
 
                 }catch(Exception $e){
-                    throw new BException('file_copy_tree(): Failed to set filemode for "'.$destination.'"', $e);
+                    throw new BException(tr('file_copy_tree(): Failed to set filemode for ":destination"', array(':destination' => $destination)), $e);
                 }
             }
         }
@@ -1056,7 +1201,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
         return $destination;
 
     }catch(Exception $e){
-        throw new BException('file_copy_tree(): Failed', $e);
+        throw new BException(tr('file_copy_tree(): Failed'), $e);
     }
 }
 
@@ -1071,15 +1216,15 @@ function file_rename($source, $destination, $search, $rename){
          * Validations
          */
         if(!file_exists($source)){
-            throw new BException('file_rename(): Specified source "'.str_log($source).'" does not exist', 'sourcenoexist');
+            throw new BException(tr('file_rename(): Specified source ":source" does not exist', array(':source' => $source)), 'exists');
         }
 
         if(!file_exists($destination)){
-            throw new BException('file_rename(): Specified destination "'.str_log($destination).'" does not exist', 'destinationnoexist');
+            throw new BException(tr('file_rename(): Specified destination ":destination" does not exist', array(':destination' => $destination)), 'exists');
         }
 
         if(!is_dir($destination)){
-            throw new BException('file_rename(): Specified destination "'.str_log(dirname($destination)).'" is not a directory', 'destinationnotdirectory');
+            throw new BException(tr('file_rename(): Specified destination ":destination" is not a directory', array(':destination' => $destination)), 'invalid');
         }
 
         if(is_file($source)){
@@ -1096,7 +1241,7 @@ function file_rename($source, $destination, $search, $rename){
 
 
     }catch(Exception $e){
-        throw new BException('file_rename(): Failed', $e);
+        throw new BException(tr('file_rename(): Failed'), $e);
     }
 }
 
@@ -1136,7 +1281,7 @@ function file_temp_dir($prefix = '', $mode = null){
         return slash($path);
 
     }catch(Exception $e){
-        throw new BException('file_tempdir(): Failed', $e);
+        throw new BException(tr('file_tempdir(): Failed'), $e);
     }
 }
 
@@ -1264,7 +1409,7 @@ function file_system_path($type, $path = ''){
             return '/pub/css/'.$path;
 
         default:
-            throw new BException('file_system_path(): Unknown type "'.str_log($type).'" specified', 'unknown');
+            throw new BException(tr('file_system_path(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
     }
 }
 
@@ -1278,11 +1423,11 @@ function file_system_path($type, $path = ''){
 function file_random($path){
     try{
         if(!file_exists($path)){
-            throw new BException('file_random(): The specified path "'.str_log($path).'" does not exist', 'not-exist');
+            throw new BException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         if(!file_exists($path)){
-            throw new BException('file_random(): The specified path "'.str_log($path).'" does not exist', 'not-exist');
+            throw new BException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         $files = scandir($path);
@@ -1291,13 +1436,13 @@ function file_random($path){
         unset($files[array_search('..', $files)]);
 
         if(!$files){
-            throw new BException('file_random(): The specified path "'.str_log($path).'" contains no files', 'not-exist');
+            throw new BException(tr('file_random(): The specified path ":path" contains no files', array(':path' => $path)), 'not-exists');
         }
 
         return slash($path).array_get_random($files);
 
     }catch(Exception $e){
-        throw new BException('file_random(): Failed', $e);
+        throw new BException(tr('file_random(): Failed'), $e);
     }
 }
 
@@ -1339,7 +1484,7 @@ function file_session_store($label, $file = null, $path = TMP){
         return $file;
 
     }catch(Exception $e){
-        throw new BException('file_session_store(): Failed', $e);
+        throw new BException(tr('file_session_store(): Failed'), $e);
     }
 }
 
@@ -1351,19 +1496,19 @@ function file_session_store($label, $file = null, $path = TMP){
 function file_check_dir($path, $writable = false){
     try{
         if(!file_exists($path)){
-            throw new BException('file_check_dir(): The specified path "'.str_log($path).'" does not exist', 'not-exist');
+            throw new BException(tr('file_check_dir(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         if(!is_dir($path)){
-            throw new BException('file_check_dir(): The specified path "'.str_log($path).'" is not a directory', 'notadirectory');
+            throw new BException(tr('file_check_dir(): The specified path ":path" is not a directory', array(':path' => $path)), 'notadirectory');
         }
 
         if($writable and !is_writable($path)){
-            throw new BException('file_check_dir(): The specified path "'.str_log($path).'" is not writable', 'notwritable');
+            throw new BException(tr('file_check_dir(): The specified path ":path" is not writable', array(':path' => $path)), 'notwritable');
         }
 
     }catch(Exception $e){
-        throw new BException('file_check_dir(): Failed', $e);
+        throw new BException(tr('file_check_dir(): Failed'), $e);
     }
 }
 
@@ -1390,19 +1535,19 @@ function file_http_download($file, $stream = false){
 
         if(empty($file)){
             header('HTTP/1.0 400 Bad Request');
-            throw new BException('file_http_download(): No file specified', '');
+            throw new BException(tr('file_http_download(): No file specified'), 'not-specified');
         }
 
         // make sure the file exists
         if(file_exists($file)){
             header('HTTP/1.0 404 Not Found');
-            throw new BException('file_http_download(): Specified file "'.str_log($file).'" does not exist or is not accessible', 'not-exist');
+            throw new BException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible'. array(':file' => $file)), 'not-exists');
         }
 
         // make sure the file can be opened
         if(is_readable($file)){
             header('HTTP/1.0 500 Internal Server Error');
-            throw new BException('file_http_download(): Specified file "'.str_log($file).'" exists but is not readable', 'notreadable');
+            throw new BException(tr('file_http_download(): Specified file ":file" exists but is not readable'. array(':file' => $file)), 'not-readable');
         }
 
         // sanitize the file request, keep just the name and extension
@@ -1416,7 +1561,7 @@ function file_http_download($file, $stream = false){
 
         if(!$file){
             header('HTTP/1.0 500 Internal Server Error');
-            throw new BException('file_http_download(): Specified file "'.str_log($file).'" failed to be opened', 'fileopenfailed');
+            throw new BException(tr('file_http_download(): Specified file ":file" failed to be opened'. array(':file' => $file)), 'failed');
         }
 
         // set the headers, prevent caching
@@ -1460,7 +1605,7 @@ function file_http_download($file, $stream = false){
             }else{
                 $range = '';
                 header('HTTP/1.1 416 Requested Range Not Satisfiable');
-                throw new BException('file_http_download(): Unknown size_unit "'.str_log($size_unit).'" specified, please ensure its "bytes"', 'filenotexist');
+                throw new BException(tr('file_http_download(): Unknown size_unit ":size_unit" specified, please ensure its "bytes"', array(':size_unit' => $size_unit)), 'not-exist');
             }
 
         }else{
@@ -1510,7 +1655,7 @@ function file_http_download($file, $stream = false){
         fclose($file);
 
     }catch(Exception $e){
-        throw new BException('file_http_download(): Failed', $e);
+        throw new BException(tr('file_http_download(): Failed'), $e);
     }
 }
 
@@ -1535,7 +1680,7 @@ function file_copy_progress($source, $target, $callback){
         copy($source, $target, $c);
 
     }catch(Exception $e){
-        throw new BException('file_copy_progress(): Failed', $e);
+        throw new BException(tr('file_copy_progress(): Failed'), $e);
     }
 }
 
@@ -1579,7 +1724,7 @@ function file_mode_readable($mode){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('file_mode_readable(): Failed', $e);
+        throw new BException(tr('file_mode_readable(): Failed'), $e);
     }
 }
 
@@ -1592,7 +1737,7 @@ function file_mode_readable($mode){
 function file_tree($path, $method){
     try{
         if(!file_exists($path)){
-            throw new BException(tr('file_tree(): Specified path "%path%" does not exist', array('%path%' => str_log($path))), 'not-exist');
+            throw new BException(tr('file_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         switch($method){
@@ -1602,7 +1747,7 @@ function file_tree($path, $method){
                 break;
 
             default:
-                throw new BException(tr('file_tree(): Unknown method "%method%" specified', array('%method%' => str_log($method))), 'unknown');
+                throw new BException(tr('file_tree(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
         }
 
         $retval = 0;
@@ -1630,7 +1775,7 @@ function file_tree($path, $method){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('file_tree(): Failed', $e);
+        throw new BException(tr('file_tree(): Failed'), $e);
     }
 }
 
@@ -1662,7 +1807,7 @@ function file_ensure_writable($path){
         return $perms;
 
     }catch(Exception $e){
-        throw new BException('file_ensure_writable(): Failed', $e);
+        throw new BException(tr('file_ensure_writable(): Failed'), $e);
     }
 }
 
@@ -1866,7 +2011,7 @@ function file_get_permissions($file){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('file_get_permissions(): Failed', $e);
+        throw new BException(tr('file_get_permissions(): Failed'), $e);
     }
 }
 
@@ -1907,7 +2052,7 @@ function file_tree_execute($params){
         }
 
         if(!file_exists($params['path'])){
-            throw new BException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exist');
+            throw new BException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
         }
 
         /*
@@ -1972,7 +2117,7 @@ function file_tree_execute($params){
                         $file = $path.$file;
 
                         if(!file_exists($file)){
-                            throw new BException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $file)), 'not-exist');
+                            throw new BException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $file)), 'not-exists');
                         }
 
                         $type = file_type($file);
@@ -1980,7 +2125,7 @@ function file_tree_execute($params){
                         switch($type){
                             case 'link':
                                 if(!$params['follow_symlinks']){
-                                    continue;
+                                    continue 2;
                                 }
 
                                 $file = readlink($file);
@@ -2048,7 +2193,7 @@ function file_tree_execute($params){
                             throw $e;
                         }
 
-                        if($e->getCode() === 'not-exist'){
+                        if($e->getCode() === 'not-exists'){
                             log_console(tr('file_tree_execute(): Skipping file ":file", it does not exist (in case of a symlink, it may be that the target does not exist)', array(':file' => $file)), 'VERBOSE/yellow');
 
                         }else{
@@ -2074,7 +2219,7 @@ function file_tree_execute($params){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('file_tree_execute(): Failed', $e);
+        throw new BException(tr('file_tree_execute(): Failed'), $e);
     }
 }
 
@@ -2097,7 +2242,7 @@ function file_absolute($path, $root = null){
         return $path;
 
     }catch(Exception $e){
-        throw new BException('file_absolute(): Failed', $e);
+        throw new BException(tr('file_absolute(): Failed'), $e);
     }
 }
 
@@ -2116,7 +2261,7 @@ function file_root($path){
         return $path;
 
     }catch(Exception $e){
-        throw new BException('file_root(): Failed', $e);
+        throw new BException(tr('file_root(): Failed'), $e);
     }
 }
 
@@ -2133,7 +2278,7 @@ function file_root($path){
 function file_execute_mode($path, $mode, $callback, $params = null){
     try{
         if(!file_exists($path)){
-            throw new BException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+            throw new BException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         if($mode){
@@ -2169,10 +2314,10 @@ function file_link_exists($file){
     }
 
     if(is_link($file)){
-        throw new BException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'no-target');
+        throw new BException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exists');
     }
 
-    throw new BException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exist');
+    throw new BException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exists');
 }
 
 
@@ -2184,11 +2329,11 @@ function file_link_exists($file){
 function file_search_replace($source, $target, $replaces){
     try{
         if(!file_exists($source)){
-            throw new BException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exist');
+            throw new BException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
         if(!file_exists(dirname($target))){
-            throw new BException(tr('file_search_replace(): Specified target path ":targetg" does not exist', array(':target' => $target)), 'not-exist');
+            throw new BException(tr('file_search_replace(): Specified target path ":targetg" does not exist', array(':target' => $target)), 'not-exists');
         }
 
         if(!is_array($replaces)){
@@ -2221,7 +2366,7 @@ function file_search_replace($source, $target, $replaces){
         fclose($ft);
 
     }catch(Exception $e){
-        throw new BException('file_search_replace(): Failed', $e);
+        throw new BException(tr('file_search_replace(): Failed'), $e);
     }
 }
 
@@ -2233,11 +2378,11 @@ function file_search_replace($source, $target, $replaces){
 function file_line_count($source){
     try{
         if(!file_exists($source)){
-            throw new BException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exist');
+            throw new BException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
     }catch(Exception $e){
-        throw new BException('file_line_count(): Failed', $e);
+        throw new BException(tr('file_line_count(): Failed'), $e);
     }
 }
 
@@ -2249,11 +2394,11 @@ function file_line_count($source){
 function file_word_count($source){
     try{
         if(!file_exists($source)){
-            throw new BException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exist');
+            throw new BException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
     }catch(Exception $e){
-        throw new BException('file_word_count(): Failed', $e);
+        throw new BException(tr('file_word_count(): Failed'), $e);
     }
 }
 
@@ -2267,7 +2412,7 @@ function file_word_count($source){
 function file_scan($path, $file){
     try{
         if(!file_exists($path)){
-            throw new BException(tr('file_scan(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+            throw new BException(tr('file_scan(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         while(strlen($path) > 1){
@@ -2286,7 +2431,7 @@ function file_scan($path, $file){
         return false;
 
     }catch(Exception $e){
-        throw new BException('file_word_count(): Failed', $e);
+        throw new BException(tr('file_word_count(): Failed'), $e);
     }
 }
 
@@ -2324,7 +2469,7 @@ function file_move_to_backup($path){
         return true;
 
     }catch(Exception $e){
-        throw new BException('file_move_to_backup(): Failed', $e);
+        throw new BException(tr('file_move_to_backup(): Failed'), $e);
     }
 }
 
@@ -2348,17 +2493,17 @@ function file_chown($file, $user = null, $group = null){
         $file = realpath($file);
 
         if(!$file){
-            throw new BException(tr('file_chown(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            throw new BException(tr('file_chown(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
         if(!strstr($file, ROOT)){
             throw new BException(tr('file_chown(): Specified file ":file" is not in the projects ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
         }
 
-        safe_exec('sudo chown '.$user.':'.$group.' '.$file);
+        safe_exec(array('commands' => array('chown', array('sudo' => true, $user.':'.$group, $file))));
 
     }catch(Exception $e){
-        throw new BException('file_chown(): Failed', $e);
+        throw new BException(tr('file_chown(): Failed'), $e);
     }
 }
 
@@ -2420,7 +2565,7 @@ function file_path_contains_symlink($path, $prefix = null){
         return false;
 
     }catch(Exception $e){
-        throw new BException('file_path_contains_symlink(): Failed', $e);
+        throw new BException(tr('file_path_contains_symlink(): Failed'), $e);
     }
 }
 
@@ -2454,7 +2599,196 @@ function file_create_stream_context($context){
         return stream_context_create($context);
 
     }catch(Exception $e){
-        throw new BException('file_create_stream_context(): Failed', $e);
+        throw new BException(tr('file_create_stream_context(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Perform a "sed" action on the specified file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @see safe_exec()
+ * @version 2.4.22: Added function and documentation
+ *
+ * @param params $params The parameters for sed
+ * @param null mixed $params[ok_exitcodes]
+ * @param null boolean $params[sudo] If set to true, the sed command will be executed using sudo
+ * @param null mixed $params[function]
+ * @param null mixed $params[background]
+ * @return void()
+ */
+function file_sed($params){
+    try{
+        array_ensure($params, 'ok_exitcodes,function,sudo,background,domain');
+
+        if(empty($params['source'])){
+            throw new BException(tr('file_sed(): No source file specified'), 'not-specified');
+        }
+
+        if(empty($params['regex'])){
+            throw new BException(tr('file_sed(): No regex specified'), 'not-specified');
+        }
+
+        if(empty($params['target'])){
+            $arguments[] = 'i';
+            $arguments[] = $params['regex'];
+            $arguments[] = $params['source'];
+
+        }else{
+            $arguments[] = $params['regex'];
+            $arguments[] = $params['source'];
+            $arguments['redirect'] = '> '.$params['target'];
+        }
+
+        if(!empty($params['sudo'])){
+            $arguments['sudo'] = $params['sudo'];
+        }
+
+        safe_exec(array('domain'       => $params['domain'],
+                        'background'   => $params['background'],
+                        'function'     => $params['function'],
+                        'ok_exitcodes' => $params['ok_exitcodes'],
+                        'commands'     => array('sed' => $arguments)));
+
+    }catch(Exception $e){
+        throw new BException('file_sed(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Cat the output from one file to another
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @see safe_exec()
+ * @version 2.4.22: Added function and documentation
+ *
+ * @param params $params The parameters for sed
+ * @param null mixed $params[ok_exitcodes]
+ * @param null boolean $params[sudo] If set to true, the sed command will be executed using sudo
+ * @param null mixed $params[function]
+ * @param null mixed $params[background]
+ * @return void()
+ */
+function file_cat($params){
+    try{
+        array_ensure($params, 'ok_exitcodes,function,sudo,background,domain');
+
+        if(empty($params['source'])){
+            throw new BException(tr('file_cat(): No source file specified'), 'not-specified');
+        }
+
+        if(empty($params['target'])){
+            throw new BException(tr('file_cat(): No target file specified'), 'not-specified');
+        }
+
+        if(!empty($params['sudo'])){
+            $arguments['sudo'] = $params['sudo'];
+        }
+
+        safe_exec(array('domain'       => $params['domain'],
+                        'background'   => $params['background'],
+                        'function'     => $params['function'],
+                        'ok_exitcodes' => $params['ok_exitcodes'],
+                        'commands'     => array('cat' => $arguments)));
+
+    }catch(Exception $e){
+        throw new BException('file_cat(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Ensure that the specified file is not in restricted zones. This applies to real paths, with their symlinks expaned
+ *
+ * Authorized areas, by default, are the following paths. Any other path will be restricted
+ *
+ * ROOT/data
+ * /tmp/
+ *
+ * If $params is specified as a string, then the function will assume this is a single path and test it
+ *
+ * If $params is specified as an array, then the function will check for the following keys:
+ *
+ * * source
+ * * target
+ * * file
+ * * path
+ *
+ * Any of these will be assumed to be a file path, and tested.
+ *
+ * If $params[unrestricted] is specified, the function will not test anything
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4.24: Added function and documentation
+ *
+ * @param mixed $params The parameters for file_restrict
+ * @param null mixed $params[source]
+ * @param null mixed $params[target]
+ * @param null mixed $params[file]
+ * @param null mixed $params[path]
+ * @return void()
+ */
+function file_restrict($params, $name = null){
+    try{
+        if(is_string($params)){
+            /*
+             * This is a single path. Ensure its not outside of the restricted
+             * zones
+             */
+            $allowed = array(ROOT.'data/', '/tmp/');
+
+            foreach($allowed as $allow){
+                if(substr($params, 0, strlen($allow), $params) === $allow){
+                    /*
+                     * Passed!
+                     */
+                    return true;
+                }
+            }
+
+            throw new BException(tr('file_restrict(): The specified file or path ":path" for key ":key" is outside of the authorized paths', array(':path' => $params, ':key' => $key)), 'access-denied');
+        }
+
+        if(!empty($params['unrestricted'])){
+            /*
+             * No restrictions required
+             */
+            return false;
+        }
+
+        /*
+         * Search for default fields
+         */
+        $keys = array('source', 'target', 'path', 'file');
+
+        foreach($keys as $key){
+            if(isset($params[$key])){
+                /*
+                 * All these must be tested
+                 */
+                file_restrict($value, $key);
+            }
+        }
+
+    }catch(Exception $e){
+        throw new BException('file_restrict(): Failed', $e);
     }
 }
 ?>

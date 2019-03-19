@@ -17,6 +17,7 @@ function notifications_send($params){
     static $count = 0;
     global $_CONFIG, $core;
 
+return false;
     try{
 //        log_file(isset_get($params['message']), 'notifications', 'warning');
 
@@ -45,6 +46,7 @@ function notifications_send($params){
             }
 
         }else{
+show($params);
             array_ensure($params, 'title');
             log_file(isset_get($params['description'], tr('No description specified')), 'notification-'.isset_get($params['title'], tr('without-title')), 'yellow');
         }
@@ -218,13 +220,14 @@ return false;
         return true;
 
     }catch(Exception $e){
+showdie($e);
         log_console(tr('notifications_send(): Notification system failed with ":exception"', array(':exception' => $e->getMessage())), 'error');
 
         if($core->register['script'] != 'init'){
             if(empty($_CONFIG['mail']['developer'])){
-                log_console('[notifications_send() FAILED : '.strtoupper($_SESSION['domain']).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']');
-                log_console(tr("notifications_send() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification $params was: \":params\"", array(':params' => $params)));
-                log_console('WARNING! $_CONFIG[mail][developer] IS NOT SET, NOTIFICATIONS CANNOT BE SENT!');
+                log_console('[notifications_send() FAILED : '.strtoupper($_SESSION['domain']).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', 'error');
+                log_console(tr("notifications_send() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification $params was: \":params\"", array(':params' => $params)), 'error');
+                log_console('WARNING! $_CONFIG[mail][developer] IS NOT SET, NOTIFICATIONS CANNOT BE SENT!', 'error');
 
             }else{
                 mail($_CONFIG['mail']['developer'], '[notifications_send() FAILED : '.strtoupper(isset_get($_SESSION['domain'], $_CONFIG['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', "notifications_send() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification event was:\nEvent: \"".cfm($event)."\"\nMessage: \"".cfm($message)."\"");
@@ -386,17 +389,17 @@ function notifications_prowl($event, $message, $users){
  */
 function notifications_desktop($params){
     try{
-        if($command = safe_exec('which kdialog')){
+        if($command = cli_which('kdialog')){
             /*
              * Welcome to KDE!
              */
 
-        }elseif($command = safe_exec('which notify-send')){
+        }elseif($command = cli_which('notify-send')){
             /*
              * This is gnome
              */
 
-        }elseif($command = safe_exec('which gol')){
+        }elseif($command = cli_which('gol')){
             /*
              * This device has Growl for Linux
              */

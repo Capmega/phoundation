@@ -21,7 +21,7 @@ function process_get_user(){
             $user = $user['name'];
 
         }else{
-            $user = safe_exec('whoami');
+            $user = safe_exec(array('commands' => array('whoami')));
             $user = array_pop($user);
         }
 
@@ -39,8 +39,9 @@ function process_get_user(){
  */
 function process_runs($process_name){
     try{
-        exec('pgrep '.$process_name, $output, $return);
-        return !$return;
+        $results = safe_exec(array('ok_exitcodes' => '1',
+                                   'commands'     => array('pgrep', array($process_name))));
+        return (boolean) count($results);
 
     }catch(Exception $e){
         throw new BException('process_runs(): Failed', $e);

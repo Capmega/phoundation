@@ -255,7 +255,7 @@ function config_update($environment, $keys, $value){
             $CONFIG  = config_read($environment, $basekey);
 
             if(!isset($CONFIG[$basekey])){
-                throw new BException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $basekey)), 'not-exist');
+                throw new BException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $basekey)), 'not-exists');
             }
 
         }else{
@@ -266,7 +266,7 @@ function config_update($environment, $keys, $value){
 
         foreach($keys as $key){
             if(!array_key_exists($key, $config)){
-                throw new BException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $keys)), 'not-exist');
+                throw new BException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $keys)), 'not-exists');
             }
 
             $config = &$config[$key];

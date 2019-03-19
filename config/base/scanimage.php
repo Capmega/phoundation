@@ -2,6 +2,7 @@
 /*
  * scanimage configuration
  */
-$_CONFIG['scanimage'] = array('sudo'                                            => false,       //
-                              'clear_exif'                                      => true);        // true | false
+$_CONFIG['scanimage'] = array('format'                                          => 'tiff',                              //
+                              'sudo'                                            => false,                               //
+                              'clear_exif'                                      => true);                               // true | false
 ?>

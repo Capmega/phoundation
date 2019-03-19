@@ -133,7 +133,7 @@ function crypto_get_transaction($transactions_id){
 
 
         if(empty($transaction)){
-            throw new BException(tr('crypto_get_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transactions_id)), 'not-exist');
+            throw new BException(tr('crypto_get_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transactions_id)), 'not-exists');
         }
 
         return $transaction;
@@ -166,7 +166,7 @@ function crypto_write_transaction($transaction, $provider){
             $dbtransaction = crypto_get_transaction($transaction['id']);
 
             if(empty($dbtransaction)){
-                throw new BException(tr('crypto_write_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transaction['id'])), 'not-exist');
+                throw new BException(tr('crypto_write_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transaction['id'])), 'not-exists');
             }
 
             if(isset($transaction['data'])){

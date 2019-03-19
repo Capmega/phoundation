@@ -154,7 +154,7 @@ function doc_parse_path($project, $path, $root, $recursive = true){
                     continue;
                 }
 
-                throw new BException(tr('doc_parse_path(): Found non existing file ":file"', array(':file' => $path.$file)), 'not-exist');
+                throw new BException(tr('doc_parse_path(): Found non existing file ":file"', array(':file' => $path.$file)), 'not-exists');
             }
 
             if(is_dir($path.$file)){
@@ -1078,7 +1078,7 @@ function doc_generate($project = null){
         $formats     = array('txt', 'html');
 
         if(!$projects_id){
-            throw new BException(tr('Failed to generate documentation for project ":project", it does not exist', array(':project' => $project)), 'not-exist');
+            throw new BException(tr('Failed to generate documentation for project ":project", it does not exist', array(':project' => $project)), 'not-exists');
         }
 
         log_console(tr('Generating documentation for project ":project"', array(':project' => $project)), 'white');

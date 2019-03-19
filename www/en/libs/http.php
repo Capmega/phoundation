@@ -24,19 +24,40 @@
  *
  * @return mixed The value found in $_POST['dosubmit']
  */
-function get_dosubmit(){
+function get_submit(){
+    static $submit;
+
     try{
-        if(empty($_POST['dosubmit'])){
-            return '';
+        if($submit !== null){
+            /*
+             * We have a cached value
+             */
+            return $submit;
         }
 
-        $dosubmit = strtolower(isset_get($_POST['dosubmit'], ''));
-        unset($_POST['dosubmit']);
+        /*
+         * Get submit value
+         */
+        if(empty($_POST['dosubmit'])){
+            if(empty($_POST['multisubmit'])){
+                $submit = '';
 
-        return $dosubmit;
+            }else{
+                $submit = $_POST['multisubmit'];
+                unset($_POST['multisubmit']);
+            }
+
+        }else{
+            $submit = $_POST['dosubmit'];
+            unset($_POST['dosubmit']);
+        }
+
+        $submit = strtolower($submit);
+
+        return $submit;
 
     }catch(Exception $e){
-        throw new BException('get_dosubmit(): Failed', $e);
+        throw new BException('get_submit(): Failed', $e);
     }
 }
 
@@ -249,7 +270,7 @@ function http_headers($params, $content_length){
             $headers[] = 'X-Powered-By: '.$_CONFIG['security']['expose_php'];
         }
 
-        $headers[] = 'Content-Type: '.$params['mimetype'].'; charset='.$_CONFIG['charset'];
+        $headers[] = 'Content-Type: '.$params['mimetype'].'; charset='.$_CONFIG['encoding']['charset'];
 
         if(defined('LANGUAGE')){
             $headers[] = 'Content-Language: '.LANGUAGE;
@@ -334,7 +355,7 @@ function http_headers($params, $content_length){
         http_response_code($params['http_code']);
 
         if($params['http_code'] != 200){
-            log_file(tr('Base sent HTTP:http for URL ":url"', array(':http' => $params['http_code'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'warning');
+            log_file(tr('Phoundation sent HTTP:http for URL ":url"', array(':http' => $params['http_code'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'warning', 'yellow');
         }
 
         foreach($headers as $header){
@@ -575,14 +596,6 @@ function http_done(){
         }
 
         $exit_code = isset_get($core->register['exit_code'], 0);
-
-        /*
-         * Do a filesystem check?
-         */
-        if(mt_rand(0, 100) <= $_CONFIG['check_disk']['http_interval']){
-            log_file(tr('Executing disk check'), 'http-done', 'VERBOSE/cyan');
-            register_shutdown('check_disk', null);
-        }
 
         /*
          * Do we need to run other shutdown functions?

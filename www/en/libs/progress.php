@@ -204,7 +204,7 @@ function progress_get_process($process, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `progress_processes`.`status` '.sql_is($status).' :status';
+            $where[] = ' `progress_processes`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -280,7 +280,7 @@ function progress_get_step($processes_id, $step, $column = null, $status = null)
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `progress_steps`.`status` '.sql_is($status).' :status';
+            $where[] = ' `progress_steps`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where);
@@ -343,7 +343,7 @@ function progress_get_steps($processes_id, $columns = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[]            = ' `progress_steps`.`status` '.sql_is($status).' :status ';
+            $where[]            = ' `progress_steps`.`status` '.sql_is($status, ':status');
         }
 
         $where = ' WHERE '.implode(' AND ', $where);
@@ -493,7 +493,7 @@ function progress_processes_select($params = null){
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -597,7 +597,7 @@ function progress_exec_step($project){
         $step_data = progress_get_step($project['processes_id'], $project['steps_id']);
 
         if(!$step_data){
-            throw new BException(tr('progress_redirect_to_step(): Specified step ":step" for progress ":process" in project ":project" does not exist', array(':project' => $project['id'], ':step' => $project['steps_id'], ':process' => $project['processes_id'])), 'not-exist');
+            throw new BException(tr('progress_redirect_to_step(): Specified step ":step" for progress ":process" in project ":project" does not exist', array(':project' => $project['id'], ':step' => $project['steps_id'], ':process' => $project['processes_id'])), 'not-exists');
         }
 
         if(preg_match('/^[a-z-]+:\/\//', $step_data['url'])){

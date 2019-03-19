@@ -245,7 +245,7 @@ function mysql_get_database($db_name){
                              array(':name' => $db_name));
 
         if(!$database){
-            throw new BException(tr('mysql_get_database(): Specified database ":database" does not exist', array(':database' => $db_name)), 'not-exist');
+            throw new BException(tr('mysql_get_database(): Specified database ":database" does not exist', array(':database' => $db_name)), 'not-exists');
         }
 
         return $database;

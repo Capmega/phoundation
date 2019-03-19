@@ -163,11 +163,13 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
         $dbfile = files_get($file);
 
         if(!$dbfile){
-            throw new BException(tr('files_delete(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            throw new BException(tr('files_delete(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
         sql_query('DELETE FROM `files` WHERE `id` = :id', array(':id' => $dbfile['id']));
         file_delete(slash($base_path).$dbfile['filename']);
+
+        log_console(tr('Deleted files library file ":file"', array(':file' => $dbfile['filename'])), 'green');
 
         return $dbfile;
 
@@ -186,7 +188,7 @@ function files_get_history($file){
         $meta_id = sql_get('SELECT `meta_id` FROM `files` WHERE `name` = :name, `hash` = :hash', true, array(':name' => $file, ':hash' => $file));
 
         if(!$meta_id){
-            throw new BException(rt('files_get_history(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            throw new BException(rt('files_get_history(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
         return meta_history($meta_id);

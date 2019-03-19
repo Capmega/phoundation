@@ -174,7 +174,7 @@ switch(cli_method()){
 
         if($all){
             foreach(array('jpg', 'png') as $extension){
-                $files = safe_exec('find '.ROOT.' -iname "*.'.$extension.'"');
+                $files = safe_exec(array('commands' => array('find', array(ROOT, '-iname', '"*.'.$extension.'"'))));
 
                 foreach($files as $file){
                     if(strtolower(substr($file, -7, 7)) == '@2x.'.$extension){

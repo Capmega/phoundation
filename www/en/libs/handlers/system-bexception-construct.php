@@ -38,7 +38,7 @@ if(is_object($code)){
     if($data){
         $this->data = $data;
 
-    }else{
+    }elseif(method_exists($e, 'getData')){
         $this->data = $e->getData();
     }
 

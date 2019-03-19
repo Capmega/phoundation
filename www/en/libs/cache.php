@@ -146,7 +146,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null){
         }
 
         if(!$key){
-            throw new BException(tr('cache_write(): No cache key specified'), 'not-specified');
+            throw new BException(tr('cache_write(): No cache key specified'), 'warning/not-specified');
         }
 
         switch($_CONFIG['cache']['method']){

@@ -110,7 +110,7 @@ function detect_client(){
                     }
 
                     if(!file_exists($browscap_file)){
-                        throw new BException(tr('detect_client(): Configured browscap file ":file" does not exist', array(':file' => $browscap_file)), 'not-exist');
+                        throw new BException(tr('detect_client(): Configured browscap file ":file" does not exist', array(':file' => $browscap_file)), 'not-exists');
                     }
 
                     $ua = get_browser(null, true);

@@ -55,7 +55,7 @@ function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path =
             /*
              * We need to concat these files together
              */
-            safe_exec('cat '.$file.' '.$path.$box.' > '.$path.$box.'~ ');
+            safe_exec(array('commands' => array('cat', array($file, $path.$box, 'redirect' => ' > '.$path.$box.'~'))));
             file_delete($path.$box);
             rename($path.$box.'~ ', $path.$box);
 
@@ -89,7 +89,7 @@ function mbox_convert_maildir($maildir_path, $box, $mail_path){
     try{
         $path  = mbox_test_access($mail_path);
         $path .= $path.'vhosts/'.$domain.'/'.$user.'/mail/';
-        safe_exec(ROOT.'scripts/md2mb.py '.$path.' ');
+        safe_exec(array('commands' => array(ROOT.'scripts/md2mb.py', array($path))));
 
     }catch(Exception $e){
         throw new BException('mbox_convert_maildir(): Failed', $e);

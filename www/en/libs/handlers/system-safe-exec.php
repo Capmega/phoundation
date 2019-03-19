@@ -1,92 +1,119 @@
 <?php
-global $core;
+global $core, $_CONFIG;
 
 try{
     if(!$core->register['ready']){
-        throw new BException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'invalid');
+        throw new BException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
+// :COMPATIBILITY: Remove the following code after 2019/06
+if(is_string($params)){
+$params = array('commands' => $params);
+}
 
+    if(!is_array($params)){
+        throw new BException(tr('safe_exec(): Specified $params is invalid, should be an array but is an ":type"', array(':type' => gettype($params))), 'invalid');
+    }
+
+    array_default($params, 'path'        , $_CONFIG['exec']['path']);
+    array_default($params, 'domain'      , null);
+    array_default($params, 'function'    , 'exec');
+    array_default($params, 'ok_exitcodes', 0);
+    array_default($params, 'background'  , false);
+    array_default($params, 'log'         , true);
+    array_default($params, 'debug'       , false);
+    array_default($params, 'output_log'  , ((VERBOSE or $params['debug']) ? ROOT.'data/log/syslog' : '/dev/null'));
+
+    if($params['domain']){
+        /*
+         * Execute this command on the specified domain instead
+         */
+        $domain = $params['domain'];
+        unset($params['domain']);
+
+        load_libs('servers');
+        return servers_exec($domain, $params);
+    }
 
     /*
-     * Join all commands together
+     * Validate command structure
      */
-    if(is_array($commands)){
+    if(empty($params['commands'])){
+        throw new BException(tr('safe_exec(): No commands specified'), 'invalid');
+    }
+
+    if(is_array($params['commands'])){
         /*
-         * Auto escape all arguments
+         * Build commands from the specified commands array safely
          */
-        foreach($commands as &$command){
-            if(empty($first)){
-                $first   = true;
-                $command = mb_trim($command);
+        load_libs('cli');
+        $params['commands'] = cli_build_commands_string($params);
+    }
 
-                if($timeout){
-                    $command = 'timeout '.$timeout.' '.$command;
-                }
+    /*
+     * Add $PATH
+     */
+    if(!empty($params['path'])){
+        $params['commands'] = 'export PATH="'.$_CONFIG['exec']['path'].'"; '.$params['commands'];
+    }
 
-                continue;
-            }
-
-            $command = escapeshellarg($command);
-        }
-
-        unset($command);
-        $command = implode(' ', $commands);
+    if($params['debug']){
+        $color = 'cyan';
 
     }else{
-        $command = mb_trim($commands);
+        $color = (PLATFORM_HTTP ? '' : ($params['log'] ? '' : 'VERY')).'VERBOSE/cyan';
     }
 
-
+    log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
 
     /*
-     *
+     * Execute the command
      */
-    log_console(tr('Executing command ":command" using function ":function"', array(':command' => $command, ':function' => $function)), (PLATFORM_HTTP ? 'cyan' : 'VERBOSE/cyan'));
-
-    switch($function){
+    switch($params['function']){
         case 'exec':
-            if(substr($command, -1, 1) == '&'){
-                /*
-                 * Background commands cannot use "exec()" because that one will always wait for the exit code
-                 */
-                $lastline = exec(substr($command, 0, -1).' > /dev/null 2>&1 3>&1 & echo $!', $output, $exitcode);
+            $lastline = exec($params['commands'], $output, $exitcode);
 
-            }else{
-                $lastline = exec($command.($route_errors ? ' 2>&1 3>&1' : ''), $output, $exitcode);
+            if($params['background']){
+                /*
+                 * Last command section was executed as background process,
+                 * return PID
+                 */
+                $output = array_shift($output);
             }
 
             break;
 
         case 'shell_exec':
-            if(substr($command, -1, 1) == '&'){
-                throw new BException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the requested PHP exec function shell_exec()', array(':command' => $command)), 'not-supported');
-
+            if($params['background']){
+                throw new BException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the shell_exec()', array(':command' => $params['commands'])), 'not-supported');
             }
 
             $exitcode = null;
             $lastline = '';
-            $output   = array(shell_exec($command));
+            $output   = array(shell_exec($params['commands']));
             break;
 
         case 'passthru':
+            if($params['background']){
+                throw new BException(tr('safe_exec(): The specified command ":command" requires background execution which is not supported by PHP passthru()', array(':command' => $params['commands'])), 'not-supported');
+            }
+
             $output   = array();
             $lastline = '';
 
-            passthru($command, $exitcode);
+            passthru($params['commands'], $exitcode);
+            $output = $exitcode;
             break;
 
         case 'system':
-            $output = array();
+            $output   = array();
+            $lastline = system($params['commands'], $exitcode);
 
-            if(substr($command, -1, 1) == '&'){
+            if($params['background']){
                 /*
                  * Background commands cannot use "exec()" because that one will always wait for the exit code
                  */
-                $lastline = system(substr($command, 0, -1).' > /dev/null 2>&1 3>&1 & echo $!', $exitcode);
-
-            }else{
-                $lastline = system($command.($route_errors ? ' 2>&1 3>&1' : ''), $exitcode);
+                $output = array_shift($output);
             }
 
             break;
@@ -96,29 +123,24 @@ under_construction();
             break;
 
         default:
-            throw new BException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, or system', array(':function' => $function)), 'not-specified');
+            throw new BException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, system, shell_exec, or pcntl_exec', array(':function' => $params['function'])), 'not-specified');
             break;
     }
 
-
-
     /*
-     *
+     * In VERYVERBOSE we also log the command output
      */
-    if(VERYVERBOSE){
-        foreach($output as $line){
-            log_console($output);
-        }
+    if(VERYVERBOSE or $params['debug']){
+        log_console('Command output:', 'purple');
+        log_console($output);
     }
-
-
 
     /*
      *
      */
     if($exitcode){
-        if(!in_array($exitcode, array_force($ok_exitcodes))){
-            log_file(tr('Command ":command" failed with exit code ":exitcode", see output below for more information', array(':command' => $command, ':exitcode' => $exitcode)), 'safe_exec', 'error');
+        if(!in_array($exitcode, array_force($params['ok_exitcodes']))){
+            log_console(tr('Command ":command" failed with exit code ":exitcode", see output below for more information', array(':command' => $params['commands'], ':exitcode' => $exitcode)), 'VERBOSE/warning');
 
 // :DELETE: Since the exception will already log all the information, there is no need to log it separately
             //if($output){
@@ -132,7 +154,11 @@ under_construction();
             //    log_file($lasline, 'safe_exec', 'error');
             //}
 
-            throw new BException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $command, ':exitcode' => $exitcode)), $exitcode, $output);
+            if($exitcode === 124){
+                throw new BException(tr('safe_exec(): Received exitcode 124 from executed program, which very likely is a timeout'), 124);
+            }
+
+            throw new BException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode, $output);
         }
     }
 
@@ -143,8 +169,15 @@ under_construction();
         $output = '*** COMMAND HAS NOT YET BEEN EXECUTED ***';
     }
 
+    /*
+     * Store the output in the data property of the exception
+     */
     $e->setData($output);
 
-    throw new BException('safe_exec(): Failed', $e);
+    if($e->getRealCode() === 124){
+        throw new BException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);
+    }
+
+    throw new BException(tr('safe_exec(): Failed'), $e);
 }
 ?>

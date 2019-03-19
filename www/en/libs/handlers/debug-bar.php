@@ -143,29 +143,4 @@ try{
 }catch(Exception $e){
     throw new BException(tr('debug_bar(): Failed'), $e);
 }
-
-
-
-/*
- * Order by time, showing the
- */
-function debug_bar_sort($a, $b){
-    try{
-        if($a['time'] > $b['time']){
-            return -1;
-
-        }elseif($a['time'] < $b['time']){
-            return 1;
-
-        }else{
-            /*
-             * They're the same, so ordering doesn't matter
-             */
-            return 0;
-        }
-
-    }catch(Exception $e){
-        throw new BException(tr('debug_bar_sort(): Failed'), $e);
-    }
-}
 ?>

@@ -4,8 +4,11 @@
  *
  * This library contains functions to build the web ui for the storage system
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package storage
  */
 
 
@@ -174,9 +177,32 @@ function storage_ui_process_dosubmit($params, $section, $page){
                 break;
 
             case $params['buttons']['redetect_scanners']:
-                $devices = scanimage_update_devices();
-                html_flash_set(tr('Device detection successful, found ":count" device(s)', array(':count' => count($devices))), 'success', 'documents');
-                redirect(domain(true));
+                try{
+                    load_libs('devices');
+                    $count           = 0;
+                    $servers_devices = devices_scan('document-scanner');
+
+                    foreach($servers_devices as $servers_id => $devices){
+                        foreach($devices as $device){
+                            $count++;
+                            devices_insert($device, $servers_id);
+                        }
+                    }
+
+                    if(count($count)){
+                        log_console(tr('Added / updated ":count" devices', array(':count' => $count)), 'green');
+                        html_flash_set(tr('Scanner device detection successful, found ":count" device(s)', array(':count' => $count)), 'success', 'documents');
+
+                    }else{
+                        html_flash_set(tr('Scanner device detection successful, found no scanner device(s)'), 'success', 'documents');
+                    }
+
+                    redirect(domain(true));
+
+                }catch(Exception $e){
+                    html_flash_set(tr('Failed to detect scanners'), 'warning', 'documents');
+                }
+
                 break;
 
             case $params['buttons']['create']:
@@ -236,7 +262,7 @@ function storage_ui_get_section($params){
         $section = storage_sections_get($_GET['section']);
 
         if(!$section or is_new($section)){
-            html_flash_set(log_database(tr('Specified :labelsection ":section" does not exist', array(':labelsection' => $params['section'], ':section' => $_GET[$params['seosection']])), 'not-exist'), 'error', 404);
+            html_flash_set(log_database(tr('Specified :labelsection ":section" does not exist', array(':labelsection' => $params['section'], ':section' => $_GET[$params['seosection']])), 'not-exists'), 'error', 404);
             page_show(404);
         }
 
@@ -264,7 +290,7 @@ function storage_ui_get_page($params, $section, $object){
             $page = storage_pages_get($section, $_GET[$params['seo'.$object]]);
 
             if(!$page){
-                html_flash_set(log_database(tr('Specified :labeldocument ":document" does not exist', array(':labeldocument' => $params[$object], ':document' => $_GET[$params['seo'.$object]])), 'not-exist'), 'error', 404);
+                html_flash_set(log_database(tr('Specified :labeldocument ":document" does not exist', array(':labeldocument' => $params[$object], ':document' => $_GET[$params['seo'.$object]])), 'not-exists'), 'error', 404);
                 page_show(404);
             }
 
@@ -337,7 +363,7 @@ function storage_ui_icon($file){
 
     }catch(Exception $e){
         switch($e->getCode()){
-            case 'not-exist':
+            case 'not-exists':
                 /*
                  * Show a "not exist" icon
                  */

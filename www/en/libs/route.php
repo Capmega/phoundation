@@ -101,7 +101,7 @@ function route($regex, $target, $flags = null){
             return false;
         }
 
-        log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERYVERBOSE/green');
+        log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERBOSE/green');
 
         $route = $target;
 
@@ -114,7 +114,7 @@ function route($regex, $target, $flags = null){
             foreach(array_shift($variables) as $variable){
                 switch($variable){
                     case 'PROTOCOL':
-                        $route = str_replace(':PROTOCOL', $_CONFIG['protocol'], $route);
+                        $route = str_replace(':PROTOCOL', PROTOCOL, $route);
                         break;
 
                     case 'DOMAIN':
@@ -181,13 +181,61 @@ function route($regex, $target, $flags = null){
          * Apply specified flags. Depending on individual flags we may do
          * different things
          */
-        foreach(array_force($flags) as $flag){
+        $flags = array_force($flags);
+
+        foreach($flags as $flags_id => $flag){
             switch($flag[0]){
                 case 'Q':
                     /*
                      * Let GET request queries pass through
                      */
                     $get = true;
+                    break;
+
+                case 'C':
+                    /*
+                     * URL cloaking was used. See if we have a real URL behind
+                     * the specified cloak
+                     */
+                    load_libs('url');
+
+                    $_SERVER['REQUEST_URI'] = url_decloak($route);
+
+                    if(!$_SERVER['REQUEST_URI']){
+                        log_file(tr('Specified cloaked URL ":cloak" does not exist, cancelling match', array(':cloak' => $route)), 'route', 'VERYVERBOSE');
+                        return false;
+                    }
+
+                    $_SERVER['REQUEST_URI'] = str_from($_SERVER['REQUEST_URI'], '://');
+                    $_SERVER['REQUEST_URI'] = str_from($_SERVER['REQUEST_URI'], '/');
+
+                    log_file(tr('Redirecting cloaked URL ":cloak" internally to ":url"', array(':cloak' => $route, ':url' => $_SERVER['REQUEST_URI'])), 'route', 'VERYVERBOSE');
+
+                    $count = 1;
+                    unset($flags[$flags_id]);
+                    include(current_file(1));
+                    die();
+
+                case 'G':
+                    /*
+                     * MUST be a GET reqest, NO POST data allowed!
+                     */
+                    if(!empty($_POST)){
+                        log_file(tr('Matched route ":route" allows only GET requests, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
+                        return false;
+                    }
+
+                    break;
+
+                case 'P':
+                    /*
+                     * MUST be a POST reqest, NO EMPTY POST data allowed!
+                     */
+                    if(empty($_POST)){
+                        log_file(tr('Matched route ":route" allows only POST requests, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
+                        return false;
+                    }
+
                     break;
 
                 case 'R':
@@ -253,7 +301,7 @@ function route($regex, $target, $flags = null){
                 /*
                  * Page doesn't exist. Maybe a URL section is mapped?
                  */
-                if($core->register['routemap']){
+                if(isset($core->register['routemap'])){
                     /*
                      * Found mapping configuration. Find language match. Assume
                      * that $matches[1] contains the language, unless specified
@@ -323,62 +371,42 @@ function route($regex, $target, $flags = null){
         unregister_shutdown('route_404');
 
         /*
-         * Create $_GET variables
          * Execute the page specified in $target (from here, $route)
+         * Update the current running script name
+         *
+         * Flip the routemap keys <=> values foreach language so that its
+         * now english keys. This way, the routemap can be easily used to
+         * generate foreign language URLs
          */
-        try{
-            /*
-             * Update the current running script name
-             *
-             * Flip the routemap keys <=> values foreach language so that its
-             * now english keys. This way, the routemap can be easily used to
-             * generate foreign language URLs
-             */
-            $core->register['script'] = str_rfrom($page, '/');
+        $core->register['script_path'] = $page;
+        $core->register['script']      = str_rfrom($page, '/');
+        $core->register['real_script'] = $core->register['script'];
 
-            if(isset($core->register['routemap'])){
-                foreach($core->register['routemap'] as $code => &$map){
-                    $map = array_flip($map);
-                }
+        if(isset($core->register['routemap'])){
+            foreach($core->register['routemap'] as $code => &$map){
+                $map = array_flip($map);
             }
-
-            log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
-
-            unset($map);
-            include($page);
-            die();
-
-        }catch(Exception $e){
-            /*
-             * Page execution failed. If the system has already started up and
-             * is ready, the uncaught exception handler will take care of it. If
-             * not, we first need to startup the system ourselves
-             */
-            if(!$core->register['ready']){
-                require_once(__DIR__.'/startup.php');
-            }
-
-            throw $e;
-
-        }catch(Error $e){
-            /*
-             * Page execution failed. If the system has already started up and
-             * is ready, the uncaught exception handler will take care of it. If
-             * not, we first need to startup the system ourselves
-             */
-            if(!$core->register['ready']){
-                require_once(__DIR__.'/startup.php');
-            }
-
-            throw $e;
         }
 
+        log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
+
+        unset($map);
+        include($page);
+        die();
+
     }catch(Exception $e){
+        if(substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():'){
+            /*
+             * A "user" regex failed, give pretty error
+             */
+            throw new BException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
+        }
+
         if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){
             /*
              * A "user" regex failed, give pretty error
              */
-            throw new BException(tr('route(): Failed to process regex ":regex" with error ":e"', array(':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '"')))), 'syntax');
+            throw new BException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
         }
 
         throw new BException('route(): Failed', $e);
@@ -403,14 +431,27 @@ function route($regex, $target, $flags = null){
  * @return void
  */
 function route_404(){
+    global $core;
+
     try{
+        $core->register['script_path'] = 'system/404';
+        $core->register['script']      = 404;
+
         page_show(404);
 
     }catch(Exception $e){
         if($e->getCode() === 'not-exists'){
-            log_file(tr('The 404 page does not exist, showing basic 404 message instead'), 'route_404', 'yellow');
+            log_file(tr('The system/404.php page does not exist, showing basic 404 message instead'), 'route_404', 'yellow');
 
-            echo tr('404 - The requested page does not exist');
+            echo tr('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+                <html><head>
+                <title>'.tr('404 Not Found').'</title>
+                </head><body>
+                <h1>'.tr('Not Found').'</h1>
+                <p>'.tr('The requested URL /wer was not found on this server').'.</p>
+                <hr>
+                '.(!empty($_CONFIG['security']['signature']) ? '<address>Phoundation '.FRAMEWORKCODEVERSION.'</address>' : '').'
+                </body></html>');
             die();
         }
 

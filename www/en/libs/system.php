@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.3.4');
+define('FRAMEWORKCODEVERSION', '2.4.80');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -62,13 +62,26 @@ set_error_handler('php_error_handler');
 set_exception_handler('uncaught_exception');
 
 
+
 /*
  * Create the core object and load the basic libraries
  */
 $core = new Core();
 
-switch(PLATFORM){
+
+
+/*
+ * Check what platform we're in
+ */
+switch(php_sapi_name()){
     case 'cli':
+        define('PLATFORM'     , 'cli');
+        define('PLATFORM_HTTP', false);
+        define('PLATFORM_CLI' , true);
+
+        $core->register['script']      = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+        $core->register['real_script'] = $core->register['script'];
+
         /*
          * Load basic libraries for command line interface
          * All scripts will execute cli_done() automatically once done
@@ -77,14 +90,73 @@ switch(PLATFORM){
         register_shutdown_function('cli_done');
         break;
 
-    case 'http':
+    default:
+        define('PLATFORM'     , 'http');
+        define('PLATFORM_HTTP', true);
+        define('PLATFORM_CLI' , false);
+        define('NOCOLOR'      ,  (getenv('NOCOLOR') ? 'NOCOLOR' : null));
+
+        /*
+         * Define what the current script
+         * Detect requested language
+         */
+        $core->register['http_code']         = 200;
+        $core->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+        $core->register['real_script']       = $core->register['script'];
+        $core->register['accepts']           = accepts();
+        $core->register['accepts_languages'] = accepts_languages();
+
         /*
          * Load basic libraries
          * All scripts will execute http_done() automatically once done
          */
         load_libs('http,strings,array,sql,mb,meta,file,json');
         register_shutdown_function('http_done');
+
+        /*
+         * Check what environment we're in
+         */
+        $env = getenv(PROJECT.'_ENVIRONMENT');
+
+        if(empty($env)){
+            /*
+             * No environment set in ENV, maybe given by parameter?
+             */
+            die('startup: Required environment not specified for project "'.PROJECT.'"');
+        }
+
+        if(strstr($env, '_')){
+            die('startup: Specified environment "'.$env.'" is invalid, environment names cannot contain the underscore character');
+        }
+
+        define('ENVIRONMENT', $env);
+
+        /*
+         * Load basic configuration for the current environment
+         * Load cache libraries (done until here since these need configuration @ load time)
+         */
+        load_config(' ');
+        $core->register['ready'] = true;
+
+        /*
+         * Define VERBOSE / VERYVERBOSE here because we need debug() data
+         */
+        define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
+        define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
+
+        /*
+         * Set protocol
+         */
+        define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
         break;
+}
+
+if($_CONFIG['security']['url_cloaking']['enabled']){
+    /*
+     * URL cloaking enabled. Load the URL library so that the URL cloaking
+     * functions are available
+     */
+    load_libs('url');
 }
 
 
@@ -109,55 +181,14 @@ class Core{
 
     public $sql       = array();
     public $mc        = array();
-    public $register  = array('ready'         => false,
+    public $register  = array('tabindex'      => 0,
+                              'ready'         => false,
                               'js_header'     => array(),
                               'js_footer'     => array(),
                               'css'           => array(),
                               'quiet'         => true,
                               'footer'        => '',
                               'debug_queries' => array());
-
-    /*
-     * The core::startup() method starts the correct call type handler
-     *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @return void
-     */
-    function __construct(){
-        /*
-         * Check what platform we're in
-         */
-        switch(php_sapi_name()){
-            case 'cli':
-                define('PLATFORM'     , 'cli');
-                define('PLATFORM_HTTP', false);
-                define('PLATFORM_CLI' , true);
-
-                $this->register['script'] = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-                break;
-
-            default:
-                define('PLATFORM'     , 'http');
-                define('PLATFORM_HTTP', true);
-                define('PLATFORM_CLI' , false);
-                define('NOCOLOR'      ,  (getenv('NOCOLOR')                                                ? 'NOCOLOR'     : null));
-                define('VERYVERBOSE'  , ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose']))        ? 'VERYVERBOSE' : null));
-                define('VERBOSE'      , ((VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
-
-                /*
-                 * Define what the current script
-                 * Detect requested language
-                 */
-                $this->register['accepts_languages'] = accepts_languages();
-                $this->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-                break;
-        }
-    }
 
 
 
@@ -181,26 +212,38 @@ class Core{
              */
             switch(PLATFORM){
                 case 'http':
-                    $this->register['accepts']   = accepts();
-                    $this->register['http_code'] = 200;
+                    /*
+                     * Determine what our target file is. With direct execution,
+                     * $_SERVER[PHP_SELF] would contain this, with route
+                     * execution, $_SERVER[PHP_SELF] would be route, so we
+                     * cannot use that. Route will store the file being executed
+                     * in $this->register['script_path'] instead
+                     */
+                    if(isset($this->register['script_path'])){
+                        $file = $this->register['script_path'];
+
+                    }else{
+                        $file = $_SERVER['PHP_SELF'];
+                    }
 
                     /*
-                     * Auto detect what http platform we're on
+                     * Auto detect what http call type we're on from the script
+                     * being executed
                      */
-                    if((substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') or (substr($_SERVER['REQUEST_URI'], 3, 7) == '/admin/')){
+                    if(substr($file, 2, 7) == '/admin/'){
                         $this->callType = 'admin';
 
-                    }elseif(strstr($_SERVER['PHP_SELF'], '/ajax/')){
+                    }elseif(strstr($file, '/ajax/')){
                         $this->callType = 'ajax';
 
-                    }elseif(strstr($_SERVER['PHP_SELF'], '/api/')){
+                    }elseif(strstr($file, '/api/')){
                         $this->callType = 'api';
 
                     }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
                         $this->callType = 'amp';
 
-                    }elseif(is_numeric(substr($_SERVER['PHP_SELF'], -7, 3))){
-                        $this->register['http_code'] = substr($_SERVER['PHP_SELF'], -7, 3);
+                    }elseif(is_numeric(substr($file, -3, 3))){
+                        $this->register['http_code'] = substr($file, -3, 3);
                         $this->callType = 'system';
 
                     }else{
@@ -230,6 +273,9 @@ class Core{
                 }
             }
 
+        }catch(Error $e){
+            throw new BException(tr('core::startup(): Failed with PHP error'), $e);
+
         }catch(Exception $e){
             if(headers_sent($file, $line)){
                 if(preg_match('/debug-.+\.php$/', $file)){
@@ -242,6 +288,7 @@ class Core{
             throw new BException(tr('core::startup(): Failed'), $e);
         }
     }
+
 
 
     /*
@@ -350,7 +397,7 @@ class Core{
                     // FALLTHROUGH
                 case 'amp':
                     // FALLTHROUGH
-                case 404:
+                case 'system':
                     break;
 
                 default:
@@ -873,6 +920,7 @@ function load_external($files){
  */
 function load_libs($libraries){
     global $_CONFIG, $core;
+    static $loaded = array();
 
     try{
         if(defined('LIBS')){
@@ -893,6 +941,13 @@ function load_libs($libraries){
                 throw new BException('load_libs(): Empty library specified', 'emptyspecified');
             }
 
+            if(isset($loaded[$library])){
+                /*
+                 * This library has already been loaded, skip
+                 */
+                continue;
+            }
+
             if($core->register['ready'] and str_exists('http,strings,array,sql,mb,meta,file,json', $library)){
                 /*
                  * These are system libraries that are always loaded. Do not
@@ -902,7 +957,8 @@ function load_libs($libraries){
             }
 
             include_once($libs.$library.'.php');
-            $function = str_replace('-', '_', $library).'_library_init';
+            $function         = str_replace('-', '_', $library).'_library_init';
+            $loaded[$library] = true;
 
             if(is_callable($function)){
                 /*
@@ -1023,6 +1079,7 @@ function load_config($files = ''){
  * @category Function reference
  * @package system
  * @version 2.0.7: Fixed loading bugs, improved error handling
+ * @version 2.4.62: Fixed bug with "deploy" config
  *
  * @param string $file
  * @param string $environment
@@ -1036,34 +1093,34 @@ function read_config($file = null, $environment = null){
 
         if($file === 'deploy'){
             include(ROOT.'config/deploy.php');
+            return $_CONFIG;
+        }
+
+        if($file){
+            if(file_exists(ROOT.'config/base/'.$file.'.php')){
+                $loaded = true;
+                include(ROOT.'config/base/'.$file.'.php');
+            }
+
+            $file = '_'.$file;
 
         }else{
-            if($file){
-                if(file_exists(ROOT.'config/base/'.$file.'.php')){
-                    $loaded = true;
-                    include(ROOT.'config/base/'.$file.'.php');
-                }
+            $loaded = true;
+            include(ROOT.'config/base/default.php');
+        }
 
-                $file = '_'.$file;
+        if(file_exists(ROOT.'config/production'.$file.'.php')){
+            $loaded = true;
+            include(ROOT.'config/production'.$file.'.php');
+        }
 
-            }else{
-                $loaded = true;
-                include(ROOT.'config/base/default.php');
-            }
-
-            if(file_exists(ROOT.'config/production'.$file.'.php')){
-                $loaded = true;
-                include(ROOT.'config/production'.$file.'.php');
-            }
-
-            if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
-                $loaded = true;
-                include(ROOT.'config/'.$environment.$file.'.php');
-            }
+        if(file_exists(ROOT.'config/'.$environment.$file.'.php')){
+            $loaded = true;
+            include(ROOT.'config/'.$environment.$file.'.php');
         }
 
         if(empty($loaded)){
-            throw new BException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exist');
+            throw new BException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exists');
         }
 
         return $_CONFIG;
@@ -1088,6 +1145,8 @@ function read_config($file = null, $environment = null){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
+ * @see ssh_exec()
+ * @see servers_exec()
  * @see notifications_send()
  *
  * @param string $commands The commands to be executed
@@ -1096,7 +1155,7 @@ function read_config($file = null, $environment = null){
  * @param (optional, default 'exec') string $function One of 'exec', 'passthru', or 'system'. The function to be used internally by safe_exec(). Each function will have different execution and different output. 'passthru' will send all command output directly to the client (browser or command line), 'exec' will return the complete output of the command, but cannot be used for background commands as it will check the process exit code, 'system' can run background processes.
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
-function safe_exec($commands, $ok_exitcodes = null, $route_errors = true, $function = 'exec', $timeout = 10){
+function safe_exec($params){
     return include(__DIR__.'/handlers/system-safe-exec.php');
 }
 
@@ -1123,7 +1182,7 @@ function safe_exec($commands, $ok_exitcodes = null, $route_errors = true, $funct
  * @param "passthru" mixed $function One of "passthru", "exec", "shell_exec" or "system"
  * @return mixed The output from the command. The exact format of this output depends on the exact function used within safe exec, specified with $function (See description of that parameter)
  */
-function script_exec($script, $arguments = null, $ok_exitcodes = null, $function = 'passthru'){
+function script_exec($script, $arguments = null, $ok_exitcodes = null, $function = null, $timeout = 10){
     return include(__DIR__.'/handlers/system-script-exec.php');
 }
 
@@ -1216,7 +1275,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
         }
 
         if(!$autocreate){
-            throw new BException('load_content(): Specified file "'.str_log($file).'" does not exist for language "'.str_log($language).'"', 'not-exist');
+            throw new BException('load_content(): Specified file "'.str_log($file).'" does not exist for language "'.str_log($language).'"', 'not-exists');
         }
 
         /*
@@ -1473,7 +1532,7 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
          * Always log to file log as well
          */
         if($log_file){
-            log_file($messages, $core->register['script'], $color);
+            log_file($messages, $core->register['real_script'], $color);
         }
 
         if(!PLATFORM_CLI){
@@ -1714,14 +1773,14 @@ function log_file($messages, $class = 'syslog', $color = null){
                     $message = cli_color($message, $color, null, true);
                 }
 
-                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['script'].' '.$class.$key.' => '.$message."\n");
+                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
 
             }else{
                 if(!empty($color)){
                     $message = cli_color($message, $color, null, true);
                 }
 
-                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['script'].' '.$class.$message."\n");
+                fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['real_script'].' '.$class.$message."\n");
             }
         }
 
@@ -1870,7 +1929,7 @@ function get_domain(){
  *
  * @return void
  */
-function domain($url = null, $query = null, $prefix = null, $domain = null, $language = null){
+function domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
     global $_CONFIG;
 
     try{
@@ -1898,10 +1957,6 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
 
         $language = get_language($language);
 
-        if($language){
-            $language .= '/';
-        }
-
         if($prefix === null){
 // :COMPATIBILITY:  Remove "root" support after 2019-04-01
             if(!empty($_CONFIG['url_prefix'])){
@@ -1912,18 +1967,17 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             }
         }
 
+        $prefix = str_starts(str_ends($prefix, '/'), '/');
+        $domain = slash($domain);
+
         if(!$url){
-            $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix;
+            $retval = PROTOCOL.$domain.$language.$prefix;
 
         }elseif($url === true){
-            $retval = $_CONFIG['protocol'].$domain.str_starts($_SERVER['REQUEST_URI'], '/');
+            $retval = PROTOCOL.$domain.str_starts_not($_SERVER['REQUEST_URI'], '/');
 
         }else{
-            if($prefix){
-                $prefix = str_starts_not(str_ends($prefix, '/'), '/');
-            }
-
-            $retval = $_CONFIG['protocol'].slash($domain).$language.$prefix.str_starts_not($url, '/');
+            $retval = PROTOCOL.$domain.$language.$prefix.str_starts_not($url, '/');
         }
 
         if($query){
@@ -1932,6 +1986,13 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
 
         }elseif($query === false){
             $retval = str_until($retval, '?');
+        }
+
+        if($allow_url_cloak and $_CONFIG['security']['url_cloaking']['enabled']){
+            /*
+             * Cloak the URL before returning it
+             */
+            $retval = url_cloak($retval);
         }
 
         return $retval;
@@ -1963,7 +2024,7 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
  * @param string $language
  * @return string The domain from domain() after being mapped
  */
-function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null){
+function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
     global $core;
 
     try{
@@ -1983,7 +2044,7 @@ function mapped_domain($url = null, $query = null, $prefix = null, $domain = nul
             }
         }
 
-        return domain($url, $query, $prefix, $domain, $language);
+        return domain($url, $query, $prefix, $domain, $language, $allow_url_cloak);
 
     }catch(Exception $e){
         throw new BException('mapped_domain(): Failed', $e);
@@ -2037,8 +2098,11 @@ function download($url, $section = false, $callback = null){
             $file = TMP.$file;
         }
 
+        load_libs('wget');
         file_ensure_path(TMP.$section, 0770, true);
-        safe_exec('wget -q -O '.$file.' - "'.$url.'"');
+
+        wget(array('url'  => $url,
+                   'file' => $file));
 
         if(!$section){
             /*
@@ -2539,7 +2603,7 @@ function status($status, $list = null){
             return 'Ok';
         }
 
-        return str_capitalize($status);
+        return str_capitalize(str_replace('-', ' ', $status));
 
     }catch(Exception $e){
         throw new BException(tr('status(): Failed'), $e);
@@ -2864,7 +2928,7 @@ function name($user = null, $key_prefix = '', $default = null){
                  * Fetch user data from DB, then treat it as an array
                  */
                 if(!$user = sql_get('SELECT `nickname`, `name`, `username`, `email` FROM `users` WHERE `id` = :id', array(':id' => $user))){
-                    throw new BException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exist');
+                    throw new BException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exists');
                 }
             }
 
@@ -2935,6 +2999,8 @@ function page_show($pagename, $params = null, $get = null){
             $core->register['http_code'] = $pagename;
         }
 
+        $core->register['real_script'] = $pagename;
+
         switch($core->callType()){
             case 'ajax':
                 $include = ROOT.'www/'.$language.'/ajax/'.$pagename.'.php';
@@ -2986,6 +3052,12 @@ function page_show($pagename, $params = null, $get = null){
                     }
 
                     log_file(tr('Showing ":language" language system page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+
+                    /*
+                     * Wait a small random time to avoid timing attacks on
+                     * system pages
+                     */
+                    usleep(mt_rand(1, 250));
 
                 }else{
                     $include = ROOT.'www/'.$language.'/'.$pagename.'.php';
@@ -3412,7 +3484,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
          */
         if($delete){
             foreach($files as $url => $file){
-                file_delete($file, true);
+                // file_delete($file, true);
             }
         }
 
@@ -3426,18 +3498,33 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
 
 
 /*
+ * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see domain()
+ * @see mapped_domain()
+ * @version 2.4.9: Added documentation
+ *
+ * @params string $file
+ * @params string $section
+ * @params boolean $false_on_not_exist
+ * @params boolean $force_cdn
+ * @return string The result
  */
-function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force_cdn = false){
+function cdn_domain($file = '', $section = 'pub', $false_on_not_exist = false, $force_cdn = false){
     global $_CONFIG;
 
     try{
         if(!$_CONFIG['cdn']['enabled'] and !$force_cdn){
             if($section == 'pub'){
-                $prefix = not_empty($_CONFIG['cdn']['prefix'], '/');
+                $section = not_empty($_CONFIG['cdn']['prefix'], '/');
             }
 
-            return domain($file, null, isset_get($prefix,''), $_CONFIG['cdn']['domain']);
+            return domain($file, null, $section, $_CONFIG['cdn']['domain'], null, false);
         }
 
         if($section == 'pub'){
@@ -3513,7 +3600,7 @@ function cdn_domain($file, $section = 'pub', $false_on_not_exist = false, $force
             return false;
         }
 
-        return domain($file);
+        return domain($file, null, null, null, null, false);
 
 // :TODO: What why where?
         ///*
@@ -3684,7 +3771,7 @@ function str_from($source, $needle, $more = 0, $require = false){
 /*
  * Return the given string from 0 until the specified needle
  */
-function str_until($source, $needle, $more = 0, $start = 0){
+function str_until($source, $needle, $more = 0, $start = 0, $require = false){
     try{
         if(!$needle){
             throw new BException('str_until(): No needle specified', 'not-specified');
@@ -3692,7 +3779,13 @@ function str_until($source, $needle, $more = 0, $start = 0){
 
         $pos = mb_strpos($source, $needle);
 
-        if($pos === false) return $source;
+        if($pos === false){
+            if($require){
+                return '';
+            }
+
+            return $source;
+        }
 
         return mb_substr($source, $start, $pos + $more);
 
@@ -5010,6 +5103,39 @@ function debug_bar(){
 
 
 /*
+ * Used for ordering entries on the debug bar
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ *
+ * @return
+ */
+function debug_bar_sort($a, $b){
+    try{
+        if($a['time'] > $b['time']){
+            return -1;
+
+        }elseif($a['time'] < $b['time']){
+            return 1;
+
+        }else{
+            /*
+             * They're the same, so ordering doesn't matter
+             */
+            return 0;
+        }
+
+    }catch(Exception $e){
+        throw new BException(tr('debug_bar_sort(): Failed'), $e);
+    }
+}
+
+
+
+/*
  *
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -5213,7 +5339,7 @@ function get_yes_no($value){
  * @return string "yes" for boolean true, "no" for boolean false
  */
 function shutdown(){
-    global $core;
+    global $core, $_CONFIG;
 
     try{
         /*
@@ -5235,17 +5361,36 @@ function shutdown(){
                      * Shutdown function value is an array. Execute it for each entry
                      */
                     foreach($value as $entry){
-                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key, ':value' => $entry)), 'VERBOSE/cyan');
+                        log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key.'()', ':value' => $entry)), 'VERBOSE/cyan');
                         $key($entry);
                     }
 
                 }else{
-                    log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key, ':value' => $value)), 'VERBOSE/cyan');
+                    log_console(tr('shutdown(): Executing shutdown function ":function" with value ":value"', array(':function' => $key.'()', ':value' => $value)), 'VERBOSE/cyan');
                     $key($value);
                 }
 
             }catch(Exception $e){
                 notify($e);
+            }
+        }
+
+        /*
+         * Periodically execute the following functions
+         */
+        $level = mt_rand(0, 100);
+
+        if(!empty($_CONFIG['shutdown'])){
+            if(!is_array($_CONFIG['shutdown'])){
+                throw new BException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
+            }
+
+            foreach($_CONFIG['shutdown'] as $name => $parameters){
+                if($level < $parameters['interval']){
+                    log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
+                    load_libs($parameters['library']);
+                    $parameters['function']();
+                }
             }
         }
 
@@ -5314,94 +5459,6 @@ function unregister_shutdown($name){
 
     }catch(Exception $e){
         throw new BException(tr('unregister_shutdown(): Failed'), $e);
-    }
-}
-
-
-
-/*
- * Check the disk full status under the specified path (defaults to this projects) and execute callback if limit is passed
- *
- * This function will check the disk where the specified path is mounted for available and total space and compare those two to the specified limits. If one or multiple limits are passed, the callback function will be executed
- *
- * By default, the callback function will empty the cache, tmp, and log directories
- *
- * Limits can be specified either by an absolute number with or without a KMGTP suffix (e.g. 500000, 100K, 50M, 300G, etc), or a % (e.g. 10%) or a combination of an absolute number and % separated by a comma (e.g. 10%,500M)
- *
- * If a % is specified, and the disk where the specified path is mounted has less than that % available, the callback function will execute
- *
- * If an absolute number is specified, and the disk where the specified path is mounted has less than that number in bytes available, the callback function will execute
- *
- * If both are specified, and either one of them has less than the specified limit, both will execute
- *
- * The callback function signature is $params[callback](integer $total, integer $available, integer $limit_percentage integer $limit_bytes) where $total is the total size for the filesystem on the specified path, $available is the amount of bytes available, $limit_percentage is the caller specified minimum percentage, and $limit_bytes is the caller specified minimum amount of bytes
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- * @version 2.0.6: Added function and documentation
- *
- * @param params $params The function parameters
- * @param $params[path] The directory to check. Defaults to ROOT
- * @param null string $params[bytes] =$_CONFIG[check_disk][bytes] The amount of minimal available bytes limit that should not be crossed. Must be an absolute number in bytes with or without a KMGTP suffix (e.g. 500000, 100K, 50M, 300G, etc)
- * @param null string $params[percentage] =$_CONFIG[check_disk][percentage] The percentage of minimal available bytes limit that should not be crossed. Must be in the form of N% (e.g. 10%)
- * @param function $params[callback] The callback function to execute if disk full limits have been crossed. Defaults to a default function that clears cache, tmp, and log directories
- * @return null mixed If disk usage did not cross the specified limits null, else the output of the callback function
- */
-function check_disk($params = null){
-    global $_CONFIG;
-
-    try{
-        array_ensure($params, 'percentage,bytes');
-        array_default($params, 'bytes'     , $_CONFIG['check_disk']['bytes']);
-        array_default($params, 'percentage', $_CONFIG['check_disk']['percentage']);
-
-        if(empty($params['callback'])){
-            /*
-             * Perform default recovery actions
-             */
-            $params['callback'] = function($total, $available, $limits){
-                file_delete(ROOT.'data/tmp');
-                file_delete(ROOT.'data/cache');
-                file_delete(ROOT.'data/log');
-
-                notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage'])), 'low-diskspace'));
-                notify(new BException(tr('check_disk(): Low diskspace default callback function executing, deleting projects\' tmp, cache, and log directories'), 'low-diskspace'));
-            };
-        }
-
-        if(empty($params['path'])){
-            $params['path'] = ROOT;
-        }
-
-        if(!file_exists($params['path'])){
-            throw new BException(tr('check_disk(): The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
-        }
-
-        $total      = disk_total_space($params['path']);
-        $available  = disk_free_space($params['path']);
-        $bytes      = $total - $available;
-        $percentage = (($available / $total) * 100);
-
-        if($percentage < $params['percentage']){
-            $execute = true;
-        }
-
-        if($bytes < $params['bytes']){
-            $execute = true;
-        }
-
-        if(isset($execute)){
-            notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage'])), 'low-diskspace'));
-            return $params['callback']($total, $available, $params['percentage'], $bytes);
-        }
-
-        return null;
-
-    }catch(Exception $e){
-        throw new BException(tr('check_disk(): Failed'), $e);
     }
 }
 

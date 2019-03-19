@@ -21,7 +21,7 @@ sql_column_exists('blogs', 'small_y' , '!ALTER TABLE `blogs` ADD COLUMN `small_y
  * Rename all images from big > large!
  */
 if(file_exists(ROOT.'data/content/photos')){
-    $files = safe_exec('find '.ROOT.'data/content/photos -name "*_big.jpg"');
+    $files = safe_exec(array('commands' => array('find', array(ROOT.'data/content/photos', '-name', '*_big.jpg'))));
 
     foreach($files as $file){
         rename($file, str_replace('_big.', '_large.', $file));

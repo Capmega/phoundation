@@ -29,10 +29,10 @@ function companies_library_init(){
     try{
         load_config('companies');
 
-        if(empty($_GET['seocompany']) and empty($_POST['seocompany'])){
-            $_GET['seocompany']  = $_CONFIG['companies']['default'];
-            $_POST['seocompany'] = $_CONFIG['companies']['default'];
-        }
+        //if(empty($_GET['seocompany']) and empty($_POST['seocompany'])){
+        //    $_GET['seocompany']  = $_CONFIG['companies']['default'];
+        //    $_POST['seocompany'] = $_CONFIG['companies']['default'];
+        //}
 
     }catch(Exception $e){
         throw new BException('companies_library_init(): Failed', $e);
@@ -92,7 +92,7 @@ function companies_validate($company){
         /*
          * Does the company already exist within the specified categories_id?
          */
-        $exists = sql_get('SELECT `id` FROM `companies` WHERE `categories_id` '.sql_is(isset_get($company['categories_id'])).' :categories_id AND `name` = :name AND `id` '.sql_is(isset_get($company['id']), true).' :id', true, array(':name' => $company['name'], ':id' => isset_get($company['id']), ':categories_id' => isset_get($company['categories_id'])));
+        $exists = sql_get('SELECT `id` FROM `companies` WHERE `categories_id` '.sql_is(isset_get($company['categories_id']), ':categories_id').' AND `name` = :name AND `id` '.sql_is(isset_get($company['id']), ':id', true), true, array(':name' => $company['name'], ':id' => isset_get($company['id']), ':categories_id' => isset_get($company['categories_id'])));
 
         if($exists){
             if($company['categories_id']){
@@ -149,8 +149,6 @@ function companies_validate($company){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -173,8 +171,6 @@ function companies_select($params = null){
         array_default($params, 'autosubmit'   , true);
         array_default($params, 'empty'        , tr('No companies available'));
         array_default($params, 'none'         , tr('Select a company'));
-        array_default($params, 'tabindex'     , 0);
-        array_default($params, 'extra'        , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'      , '`name`');
 
         if($params['seocategory']){
@@ -189,12 +185,12 @@ function companies_select($params = null){
         $execute = array();
 
         if($params['categories_id'] !== false){
-            $where[] = ' `categories_id` '.sql_is($params['categories_id']).' :categories_id ';
+            $where[] = ' `categories_id` '.sql_is($params['categories_id'], ':categories_id');
             $execute[':categories_id'] = $params['categories_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -246,7 +242,7 @@ function companies_get($company, $column = null, $status = null){
 
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `companies`.`status` '.sql_is($status).' :status';
+            $where[] = ' `companies`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -343,7 +339,7 @@ function companies_validate_branch($branch, $reload_only = false){
         /*
          * Does the branch already exist within the specified companies_id?
          */
-        $exists = sql_get('SELECT `id` FROM `branches` WHERE `companies_id` '.sql_is(isset_get($branch['companies_id'])).' :companies_id AND `name` = :name AND `id` '.sql_is(isset_get($branch['id']), true).' :id', true, array(':name' => $branch['name'], ':id' => isset_get($branch['id']), ':companies_id' => isset_get($branch['companies_id'])));
+        $exists = sql_get('SELECT `id` FROM `branches` WHERE `companies_id` '.sql_is(isset_get($branch['companies_id']), ':companies_id').' AND `name` = :name AND `id` '.sql_is(isset_get($branch['id']), ':id', true), true, array(':name' => $branch['name'], ':id' => isset_get($branch['id']), ':companies_id' => isset_get($branch['companies_id'])));
 
         if($exists){
             $v->setError(tr('The branch name ":branch" already exists', array(':branch' => $branch['name'])));
@@ -395,8 +391,6 @@ function companies_validate_branch($branch, $reload_only = false){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -419,15 +413,13 @@ function companies_select_branch($params = null){
         array_default($params, 'autosubmit'  , true);
         array_default($params, 'empty'       , tr('No branches available'));
         array_default($params, 'none'        , tr('Select a branch'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'     , '`name`');
 
         if($params['seocompany']){
             $params['companies_id'] = companies_get($params['seocompany'], 'id');
 
             if(!$params['companies_id']){
-                throw new BException(tr('companies_select_branch(): The specified company ":company" does not exist or is not available', array(':company' => $params['company'])), 'not-exist');
+                throw new BException(tr('companies_select_branch(): The specified company ":company" does not exist or is not available', array(':company' => $params['company'])), 'not-exists');
             }
         }
 
@@ -441,7 +433,7 @@ function companies_select_branch($params = null){
             $execute[':companies_id'] = $params['companies_id'];
 
             if($params['status'] !== false){
-                $where[] = ' `status` '.sql_is($params['status']).' :status ';
+                $where[] = ' `status` '.sql_is($params['status'], ':status');
                 $execute[':status'] = $params['status'];
             }
 
@@ -491,7 +483,7 @@ function companies_get_branch($company, $branch, $column = null, $status = null)
             $companies_id = companies_get($company, 'id');
 
             if(!$companies_id){
-                throw new BException(tr('companies_get_branch(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exist');
+                throw new BException(tr('companies_get_branch(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
             }
 
         }else{
@@ -518,7 +510,7 @@ function companies_get_branch($company, $branch, $column = null, $status = null)
          */
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `branches`.`status` '.sql_is($status).' :status';
+            $where[] = ' `branches`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -644,7 +636,7 @@ function companies_validate_department($department, $reload_only = false){
         /*
          * Does the department already exist within the specified companies_id?
          */
-        $exists = sql_get('SELECT `id` FROM `departments` WHERE `companies_id` '.sql_is(isset_get($department['companies_id'])).' :companies_id AND `branches_id` '.sql_is(isset_get($department['branches_id'])).' :branches_id AND `name` = :name AND `id` '.sql_is(isset_get($department['id']), true).' :id', true, array(':name' => $department['name'], ':id' => isset_get($department['id']), ':companies_id' => isset_get($department['companies_id']), ':branches_id' => isset_get($department['branches_id'])));
+        $exists = sql_get('SELECT `id` FROM `departments` WHERE `companies_id` '.sql_is(isset_get($department['companies_id']), ':companies_id').' AND `branches_id` '.sql_is(isset_get($department['branches_id']), ':branches_id').' AND `name` = :name AND `id` '.sql_is(isset_get($department['id']), ':id', true), true, array(':name' => $department['name'], ':id' => isset_get($department['id']), ':companies_id' => isset_get($department['companies_id']), ':branches_id' => isset_get($department['branches_id'])));
 
         if($exists){
             $v->setError(tr('The department name ":department" already exists', array(':department' => $department['name'])));
@@ -696,8 +688,6 @@ function companies_validate_department($department, $reload_only = false){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -722,8 +712,6 @@ function companies_select_department($params = null){
         array_default($params, 'autosubmit'  , true);
         array_default($params, 'empty'       , tr('No departments available'));
         array_default($params, 'none'        , tr('Select a department'));
-        array_default($params, 'tabindex'    , 0);
-        array_default($params, 'extra'       , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'     , '`name`');
 
         if($params['seocompany']){
@@ -745,17 +733,17 @@ function companies_select_department($params = null){
         $execute = array();
 
         if($params['companies_id'] !== false){
-            $where[] = ' `companies_id` '.sql_is($params['companies_id']).' :companies_id ';
+            $where[] = ' `companies_id` '.sql_is($params['companies_id'], ':companies_id');
             $execute[':companies_id'] = $params['companies_id'];
         }
 
         if($params['branches_id'] !== false){
-            $where[] = ' `branches_id` '.sql_is($params['branches_id']).' :branches_id ';
+            $where[] = ' `branches_id` '.sql_is($params['branches_id'], ':branches_id');
             $execute[':branches_id'] = $params['branches_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -803,7 +791,7 @@ function companies_get_department($company, $branch, $department, $column = null
             $companies_id = companies_get($company, 'id');
 
             if(!$companies_id){
-                throw new BException(tr('companies_get_department(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exist');
+                throw new BException(tr('companies_get_department(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
             }
 
         }else{
@@ -820,7 +808,7 @@ function companies_get_department($company, $branch, $department, $column = null
             $branches_id = companies_get_branch($companies_id, $branch, 'id');
 
             if(!$branches_id){
-                throw new BException(tr('companies_get_department(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exist');
+                throw new BException(tr('companies_get_department(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
             }
 
         }else{
@@ -847,7 +835,7 @@ function companies_get_department($company, $branch, $department, $column = null
          */
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `departments`.`status` '.sql_is($status).' :status';
+            $where[] = ' `departments`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
@@ -1019,7 +1007,7 @@ function companies_validate_employee($employee, $reload_only = false){
         /*
          * Does the employee already exist within the specified companies_id?
          */
-        $exists = sql_get('SELECT `id` FROM `employees` WHERE `companies_id` '.sql_is(isset_get($employee['companies_id'])).' :companies_id AND `branches_id` '.sql_is(isset_get($employee['branches_id'])).' :branches_id AND `departments_id` '.sql_is(isset_get($employee['departments_id'])).' :departments_id AND `name` = :name AND `id` '.sql_is(isset_get($employee['id']), true).' :id', true, array(':name' => $employee['name'], ':id' => isset_get($employee['id']), ':companies_id' => isset_get($employee['companies_id']), ':branches_id' => isset_get($employee['branches_id']), ':departments_id' => isset_get($employee['departments_id'])));
+        $exists = sql_get('SELECT `id` FROM `employees` WHERE `companies_id` '.sql_is(isset_get($employee['companies_id']), ':companies_id').' AND `branches_id` '.sql_is(isset_get($employee['branches_id']), ':branches_id').' AND `departments_id` '.sql_is(isset_get($employee['departments_id']), ':departments_id').' AND `name` = :name AND `id` '.sql_is(isset_get($employee['id']), ':id', true), true, array(':name' => $employee['name'], ':id' => isset_get($employee['id']), ':companies_id' => isset_get($employee['companies_id']), ':branches_id' => isset_get($employee['branches_id']), ':departments_id' => isset_get($employee['departments_id'])));
 
         if($exists){
             $v->setError(tr('The employee name ":employee" already exists', array(':employee' => $employee['name'])));
@@ -1071,8 +1059,6 @@ function companies_validate_employee($employee, $reload_only = false){
  * @param array $params The parameters required
  * @param $params name
  * @param $params class
- * @param $params extra
- * @param $params tabindex
  * @param $params empty
  * @param $params none
  * @param $params selected
@@ -1098,8 +1084,6 @@ function companies_select_employee($params = null){
         array_default($params, 'remove'        , null);
         array_default($params, 'empty'         , tr('No employees available'));
         array_default($params, 'none'          , tr('Select an employee'));
-        array_default($params, 'tabindex'      , 0);
-        array_default($params, 'extra'         , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby'       , '`name`');
 
         if($params['seocompany']){
@@ -1129,22 +1113,22 @@ function companies_select_employee($params = null){
         $execute = array();
 
         if($params['companies_id'] !== false){
-            $where[] = ' `companies_id` '.sql_is($params['companies_id']).' :companies_id ';
+            $where[] = ' `companies_id` '.sql_is($params['companies_id'], ':companies_id');
             $execute[':companies_id'] = $params['companies_id'];
         }
 
         if($params['branches_id'] !== false){
-            $where[] = ' `branches_id` '.sql_is($params['branches_id']).' :branches_id ';
+            $where[] = ' `branches_id` '.sql_is($params['branches_id'], ':branches_id');
             $execute[':branches_id'] = $params['branches_id'];
         }
 
         if($params['departments_id'] !== false){
-            $where[] = ' `departments_id` '.sql_is($params['departments_id']).' :departments_id ';
+            $where[] = ' `departments_id` '.sql_is($params['departments_id'], ':departments_id');
             $execute[':departments_id'] = $params['departments_id'];
         }
 
         if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status']).' :status ';
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
@@ -1192,7 +1176,7 @@ function companies_get_employee($company, $branch, $department, $employee, $colu
             $companies_id = companies_get($company, 'id');
 
             if(!$companies_id){
-                throw new BException(tr('companies_get_employee(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exist');
+                throw new BException(tr('companies_get_employee(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
             }
 
         }else{
@@ -1209,7 +1193,7 @@ function companies_get_employee($company, $branch, $department, $employee, $colu
             $branches_id = companies_get_branch($companies_id, $branch, 'id');
 
             if(!$branches_id){
-                throw new BException(tr('companies_get_employee(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exist');
+                throw new BException(tr('companies_get_employee(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
             }
 
         }else{
@@ -1226,7 +1210,7 @@ function companies_get_employee($company, $branch, $department, $employee, $colu
             $departments_id = companies_get_department($companies_id, $branches_id, $department, 'id');
 
             if(!$departments_id){
-                throw new BException(tr('companies_get_employee(): Specified department ":department" does not exist', array(':department' => $department)), 'not-exist');
+                throw new BException(tr('companies_get_employee(): Specified department ":department" does not exist', array(':department' => $department)), 'not-exists');
             }
 
         }else{
@@ -1253,7 +1237,7 @@ function companies_get_employee($company, $branch, $department, $employee, $colu
          */
         if($status !== false){
             $execute[':status'] = $status;
-            $where[] = ' `employees`.`status` '.sql_is($status).' :status';
+            $where[] = ' `employees`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';

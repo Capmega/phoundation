@@ -212,7 +212,7 @@ try{
         $find_highest            = true;
 
         if(!in_array($current_version_line, $available_version_lines)){
-            throw new BException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
+            throw new BException(tr('Your current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
         }
     }
 
