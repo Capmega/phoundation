@@ -402,7 +402,7 @@ class ValidateForm {
 
             }else{
                 if(!is_natural($flags)){
-                    throw new BException(tr('ValidateForm::parseFlags(): Invalid flags ":flags" specified, it should be a natural number value', array(':flags' => $value)), 'invalid');
+                    throw new BException(tr('ValidateForm::parseFlags(): Invalid flags ":flags" specified, it should be a natural number value', array(':flags' => $flags)), 'invalid');
                 }
 
                 if($flags & VALIDATE_NOT){
