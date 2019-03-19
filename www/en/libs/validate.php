@@ -395,7 +395,7 @@ class ValidateForm {
         try{
             $this->allowEmpty = 'no';
             $this->not        = false;
-            $this->scalar     = isScalar($value);
+            $this->scalar     = is_scalar($value);
 
             if(!$flags){
                 $this->testValue = $value;
@@ -727,7 +727,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -754,7 +754,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -912,7 +912,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -938,7 +938,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -964,7 +964,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -994,7 +994,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1042,11 +1042,11 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
-            if(!isScalar($value2)){
+            if(!is_scalar($value2)){
                 return $this->setError($message);
             }
 
@@ -1075,11 +1075,11 @@ class ValidateForm {
     //            return true;
     //        }
     //
-    //        if(!isScalar($value)){
+    //        if(!is_scalar($value)){
     //            return $this->setError($message);
     //        }
     //
-    //        if(!isScalar($value2)){
+    //        if(!is_scalar($value2)){
     //            return $this->setError($message);
     //        }
     //
@@ -1112,7 +1112,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1138,7 +1138,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1164,7 +1164,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1195,7 +1195,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1223,7 +1223,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1249,7 +1249,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1275,7 +1275,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1305,7 +1305,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1335,7 +1335,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1365,7 +1365,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1395,7 +1395,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1447,7 +1447,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1473,7 +1473,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1538,7 +1538,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1643,7 +1643,7 @@ class ValidateForm {
 
             load_libs('date');
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1671,7 +1671,7 @@ class ValidateForm {
 
             load_libs('user');
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
@@ -1722,7 +1722,7 @@ class ValidateForm {
                 return true;
             }
 
-            if(!isScalar($value)){
+            if(!is_scalar($value)){
                 return $this->setError($message);
             }
 
