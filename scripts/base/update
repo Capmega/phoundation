@@ -14,24 +14,26 @@ $help  = 'The deploy script can pull all the latest PHOUNDATION updates from eit
 
 Possible arguments:
 
--l                            - Update from a local version of the PHOUNDATION
---local                         project update script will search in
+-l, --local                   - Update from a local version of the PHOUNDATION
+                                project update script will search in
                                 /var/www/html/phoundation
 
 --no-init                     - Do not do execute a system init after the update
                                 process has finished
 
--r                            - Do not do execute a system init after the update
---re-update                     process has finished
+-r, --re-update               - Do not do execute a system init after the update
+                                process has finished
 
 --no-commit                   - Do not automatically git commit after the update
                                 process has finished
 
--i                            - Update even though this project has git changes
---ignore-changes
+-i, --ignore-changes          - Update even though this project has git changes
 
--b BRANCH                     - Get the PHOUNDATION updates from branch BRANCH
---branch BRANCH                 instead of the standard production branch';
+    -s, --no-stash            - Used in conjunction with the --ignore-changes
+                                option, will not git stash if specified
+
+-b --branch BRANCH            - Get the PHOUNDATION updates from branch BRANCH
+                                instead of the standard production branch';
 
 require_once(__DIR__.'/../../libs/startup.php');
 cli_only(true);
@@ -43,11 +45,16 @@ try{
     $noinit   = cli_argument('--no-init');
     $nocommit = cli_argument('--no-commit');
     $ignore   = cli_argument('-i,--ignore-changes');
+    $no_stash = cli_argument('-s,--no-stash');
     $local    = cli_argument('-l,--local');
     $no_times = cli_argument('-n,--no-times');
     $reupdate = cli_argument('-r,--re-update');
     $upgrade  = cli_argument('-u,--upgrade', true);
     $branch   = cli_argument('-b,--branch' , true);
+
+    if($no_stash and !$ignore){
+        throw new BException(tr('-s or --no-stash specified without -i or --ignore-changes option'), 'invalid');
+    }
 
     cli_no_arguments_left();
     load_libs('git,code');
@@ -126,9 +133,14 @@ try{
             throw new BException(tr('Git commit(s) pending'), 'warning/validation');
         }
 
-        log_console(tr('Stashing git changes because of --ignore-changes option specified'), 'cyan');
-        git_stash();
-        $stashed = true;
+        if($no_stash){
+            log_console(tr('WARNING: Git changes detected, but not stashing due to -s or --no-stash option'), 'warning');
+
+        }else{
+            log_console(tr('Stashing git changes because of --ignore-changes option specified'), 'cyan');
+            git_stash();
+            $stashed = true;
+        }
     }
 
 
