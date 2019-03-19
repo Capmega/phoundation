@@ -49,7 +49,7 @@ try{
     /*
      * Execute the script using safe_exec
      */
-    return safe_exec($paramss);
+    return safe_exec($params);
 
 }catch(Exception $e){
     throw new bException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $params['script'])), $e);
