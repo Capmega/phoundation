@@ -707,6 +707,20 @@ class ValidateForm {
 
             if(is_string($value)){
                 $value = normalizer_normalize($value, isset_get($_CONFIG['locale']['normalize'], Normalizer::FORM_C));
+
+            }elseif(is_bool($value)){
+                /*
+                 * A rather unpleasant PHP bug may make PDO inserts fail
+                 * silently when using PDO::ATTR_EMULATE_PREPARES and inserting
+                 * boolean values.
+                 *
+                 * To avoid this issue, ensure that all boolean values are
+                 * cast to 0 or 1
+                 *
+                 * See https://bugs.php.net/bug.php?id=38546 for more
+                 * information
+                 */
+                $value = (integer) $value;
             }
 
             return true;
