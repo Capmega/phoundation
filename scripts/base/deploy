@@ -586,7 +586,7 @@ if($nocompress){
         $option = ' --force-compress';
     }
 
-    script_exec('base/compress', $option, null, null, 30);
+    script_exec('base/compress', $option, null, null, 300);
 
     /*
      * Compress script generates files that aren't git commited
