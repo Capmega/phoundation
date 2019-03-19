@@ -47,7 +47,7 @@ try{
             log_console('Warning: Global data path not found. Normally this path should exist either 1 directory up, 2 directories up, in /var/lib/data, /var/www/data, $USER_HOME/projects/data, or $USER_HOME/data', 'yellow');
             log_console('Warning: If you are sure this simply does not exist yet, it can be created now automatically. If it should exist already, then abort this script and check the location!', 'yellow');
 
-            $path = script_exec('base/init_global_data_path');
+            $path = script_exec(array('commands' => array('base/init_global_data_path')));
 
             if(!file_exists($path)){
                 /*

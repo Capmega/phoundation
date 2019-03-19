@@ -525,7 +525,7 @@ under_construction('add');
                         /*
                          * Execute this task as an internal script
                          */
-                        $task['results'] = script_exec($command, $task['data']);
+                        $task['results'] = script_exec(array('commands' => array($command, $task['data'])));
                         break;
 
                     case 'normal':

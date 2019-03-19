@@ -427,7 +427,7 @@ if($nobomcheck){
 
 }else{
     log_console(tr('Executing BOM check'), 'white');
-    script_exec('base/clearbom');
+    script_exec(array('commands' => array('base/clearbom')));
 }
 
 
@@ -586,7 +586,7 @@ if($nocompress){
         $option = ' --force-compress';
     }
 
-    script_exec('base/compress', $option, null, null, 30);
+    script_exec(array('commands' => array('base/compress', array('timeout' => 30, $option))));
 
     /*
      * Compress script generates files that aren't git commited
@@ -615,7 +615,8 @@ if($notranslate){
     if($_CONFIG['language']['supported']){
         log_console(tr('Executing translations'), 'white');
 
-        $options[] = 'translate';
+        $options[]          = 'translate';
+        $options['timeout'] = 90;
 
         if($ignore_php){
             $options[] = '--ignore-php';
@@ -625,8 +626,7 @@ if($notranslate){
             $options[] = '--ignore-html';
         }
 
-// :TODO: Set to 90 seconds for now since translation server keeps HTTP0ing
-        script_exec('base/translate', $options, null, null, 90);
+        script_exec(array('commands' => array('base/translate', $options)));
         init_hook('deploy_post_translation', $nohooks, array('languages' => $_CONFIG['language']['supported']));
 
     }else{

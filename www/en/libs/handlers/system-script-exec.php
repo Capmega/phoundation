@@ -6,42 +6,51 @@
 try{
     global $core;
 
+    array_ensure($command, 'script,arguments,function,ok_exitcodes,background,timeout');
+
     /*
-     * We can only execute script when the system is ready to go
+     * Validate the requested commands, ensure that script_exec() is only used
+     * when the system is ready to go
      */
     if(!$core->register['ready']){
-        throw new BException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
+        throw new BException(tr('script_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
-    $script_file = ROOT.'scripts/'.$script;
+    if(!$command['commands']){
+        throw new BException(tr('script_exec(): No commands specified'), 'not-specified');
+    }
 
-    if(!file_exists($script_file)){
-        throw new bException(tr('script_exec(): Specified script ":script" does not exist', array(':script' => $script)), 'not-exists');
+    if(!is_array($command['commands'])){
+        throw new BException(tr('script_exec(): Invalid commands specified'), 'invalid');
     }
 
     /*
-     * Ensure valid arguments and ensure we have ENVIRONMENT specified
+     * Ensure that all scripts are executed from ROOT/scripts/
+     *
+     * Ensure that all arguments contain the environment specification
      */
-    if(!$arguments){
-        $arguments = array();
+    foreach($command['commands'] as &$item){
+        if(fmod(++$count, 2)){
+            /*
+             * This must be arguments
+             */
+            $item = ROOT.'scripts/'.$item;
+
+        }else{
+            /*
+             * These must be a command
+             */
+            $item[] = '-E';
+            $item[] = ENVIRONMENT;
+        }
     }
 
-    if(!is_array($arguments)){
-        throw new bException(tr('script_exec(): Invalid arguments ":arguments" specified, must be an array or null', array(':arguments' => $arguments)), 'invalid');
-    }
-
-    $arguments[] = '-E';
-    $arguments[] = ENVIRONMENT;
-
-     /*
-      * Execute the script using safe_exec
-      */
-    return safe_exec(array('timeout'      => $timeout,
-                           'ok_exitcodes' => $ok_exitcodes,
-                           'function'     => ($function ? $function : 'passthru'),
-                           'commands'     => array($script_file, $arguments)));
+    /*
+     * Execute the script using safe_exec
+     */
+    return safe_exec($commands);
 
 }catch(Exception $e){
-    throw new bException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $script)), $e);
+    throw new bException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $command['script'])), $e);
 }
 ?>

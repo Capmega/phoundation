@@ -99,7 +99,7 @@ $branches = $argv;
  * Ensure that the target branch is updated
  */
 safe_exec('git co '.$target);
-script_exec('base/update', 'local');
+script_exec(array('commands' => array('base/update', array('local'))));
 
 
 /*
@@ -114,7 +114,7 @@ foreach($branches as $branch){
     safe_exec('git pull origin '.$branch);
 
     log_console(tr('Updating from base'));
-    script_exec('base/update', '-l --no-init');
+    script_exec(array('commands' => array('base/update', array('-l', '--no-init'))));
 
     log_console(tr('Merging from ":branch"', array(':branch' => $branch)));
     safe_exec('git merge '.$target);

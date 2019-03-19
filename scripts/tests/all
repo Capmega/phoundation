@@ -26,7 +26,7 @@ foreach(scandir($path) as $file){
          * Create temporary test file that does not contain the shell hashbang header
          */
         log_console(tr('Executing ":test" tests', array(':test' => $file)), 'white');
-        script_exec('tests/'.$file);
+        script_exec(array('commands' => array('tests/'.$file)));
 
     }catch(Exception $e){
         log_console($e, 'warning/'.$e->getCode());

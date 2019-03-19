@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.6');
+define('FRAMEWORKCODEVERSION', '2.5.7');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1174,10 +1174,6 @@ function safe_exec($params){
 /*
  * Executes the specified base script directly inside the current process
  *
- * Examples:
- * script_exec('base/users list', '-C -Q')
- * script_exec('test')
- *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -1185,6 +1181,9 @@ function safe_exec($params){
  * @package system
  * @see notifications_send()
  * @see safe_exec()
+ * @example
+ * script_exec(array('commands' => array('base/users', array('list', '-C', '-Q');
+ * script_exec(array('commands' => array('test')));
  *
  * @param string $script The commands to be executed
  * @param null string $arguments

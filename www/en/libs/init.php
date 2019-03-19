@@ -439,7 +439,7 @@ function init_hook($hook, $disabled = false, $params = null){
         }
 
         if(!$disabled and file_exists(ROOT.'scripts/hooks/'.$hook)){
-            return script_exec('hooks/'.$hook, $params);
+            return script_exec(array('commands' => array('hooks/'.$hook, $params)));
         }
 
     }catch(Exception $e){
