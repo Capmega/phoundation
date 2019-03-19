@@ -692,4 +692,45 @@ function init_section($section, $version){
         throw new BException('init_section(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Reset the database version back to the current code version in case it is ahead. Any extra entries in the versions table AFTER the current version will be wiped. This option does NOT allow to reset the database version in case the current code version is ahead. For that, a normal init must be executed
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package init
+ * @version 2.5.2: Added function and documentation
+ *
+ * @return natural The amount of entries removed from the `versions` table
+ */
+function init_reset(){
+    try{
+        $versions = sql_query('SELECT `id`, `framework`, `project` FROM `versions`');
+        $erase    = sql_prepare('DELETE FROM `versions` WHERE `id` = :id');
+        $changed  = 0;
+
+        while($version = sql_fetch($versions)){
+            if(version_compare($version['framework'], FRAMEWORKCODEVERSION) > 0){
+                $erase->execute(array(':id' => $version['id']));
+                $changed++;
+                continue;
+            }
+
+            if(version_compare($version['project'], PROJECTCODEVERSION) > 0){
+                $erase->execute(array(':id' => $version['id']));
+                $changed++;
+                continue;
+            }
+        }
+
+        return $changed;
+
+    }catch(Exception $e){
+        throw new BException('init_reset(): Failed', $e);
+    }
+}
 ?>

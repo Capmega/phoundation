@@ -26,7 +26,9 @@ if(is_object($code)){
 
     }else{
         if(!($e instanceof Exception)){
-            throw new BException(tr('BException: Specified exception object for exception ":message" is not valid (either it is not an object or not an exception object)', array(':message' => $messages)), 'invalid');
+            if(!($e instanceof Error)){
+                throw new BException(tr('BException: Specified exception object for exception ":message" is not valid (either it is not an object or not a PHP Exception or PHP Error object)', array(':message' => $messages)), 'invalid');
+            }
         }
 
         $this->messages[] = $e->getMessage();
