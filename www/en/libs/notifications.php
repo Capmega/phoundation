@@ -498,9 +498,9 @@ function notifications_validate($notification){
          * Validate message
          * Messages can NOT have HTML!
          */
-        $v->hasMinChars($notification['message'], 4   , tr('Please ensure that the notification message has more than 4 characters'));
+        $v->hasMinChars($notification['message'], 4, tr('Please ensure that the notification message has more than 4 characters'));
         $v->hasMaxChars($notification['message'], 4090, tr('Please ensure that the notification message has less than 4090 characters'));
-        $v->hasNoHMTL($notification['message'], 4090, tr('Please ensure that the message does not contain any HTML'));
+        $v->hasNoHTML($notification['message'], 4090, tr('Please ensure that the message does not contain any HTML'));
 
         /*
          * Validate the groups
