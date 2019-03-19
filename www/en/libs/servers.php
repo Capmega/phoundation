@@ -777,11 +777,11 @@ function servers_exec($server, $params){
             servers_remove_identity_file(isset_get($identity_file));
             notify($e);
 
-        }catch(Exception $e){
+        }catch(Exception $f){
             /*
              * Cannot be deleted, just ignore and notify
              */
-            notify(tr('servers_exec() cannot delete key'), $e, 'developers');
+            notify($f);
         }
 
         throw new BException('servers_exec(): Failed', $e);

@@ -70,7 +70,11 @@ if($object instanceof BException){
 
             if(preg_match('/^[a-z_]+\(\): /', $params['html']) or preg_match('/PHP ERROR [\d+] /', $params['html'])){
                 $params['html'] = tr('Something went wrong, please try again later');
-                notify('html_flash/BException', tr('html_flash_set(): Received BException ":code" with message trace ":trace"', array(':code' => $params['type'], ':trace' => $params['html'])), 'developers');
+
+                notify(array('code'    => 'exception',
+                             'groups'  => 'developers',
+                             'title'   => tr('html_flash_set() received exception'),
+                             'message' => tr('html_flash_set(): Received BException ":code" with message trace ":trace"', array(':code' => $params['type'], ':trace' => $params['html']))));
 
             }else{
                 /*
@@ -90,7 +94,7 @@ if($object instanceof BException){
         }
     }
 
-}elseif($object instanceof Exception){
+}elseif(($object instanceof Exception) or ($object instanceof Error)){
     if(!$class){
         $class = $type;
     }
@@ -112,14 +116,22 @@ if($object instanceof BException){
              * displayed in production sites
              */
             $params['html'] = tr('Something went wrong, please try again later');
-            notify('html_flash/Exception', tr('html_flash_set(): Received PHP exception class ":class" with code ":code" and message ":message"', array(':class' => get_class($object), ':code' => str_from($object->getCode(), '/'), ':message' => $object->getMessage())), 'developers');
+
+            notify(array('code'    => 'exception',
+                         'groups'  => 'developers',
+                         'title'   => tr('html_flash_set() received exception'),
+                         'message' => tr('html_flash_set(): Received PHP exception class ":class" with code ":code" and message ":message"', array(':class' => get_class($object), ':code' => str_from($object->getCode(), '/'), ':message' => $object->getMessage()))));
         }
     }
 
 }else{
     $params['type'] = 'error';
     $params['html'] = tr('Something went wrong, please try again later');
-    notify('html_flash/object', tr('html_flash_set(): Received PHP object with class ":class" and content ":content"', array(':class' => get_class($object), ':content' => print_r($object->getMessage(), true))), 'developers');
+
+    notify(array('code'    => 'invalid',
+                 'groups'  => 'developers',
+                 'title'   => tr('html_flash_set() received unknown object'),
+                 'message' => tr('html_flash_set(): Received PHP object with class ":class" and content ":content"', array(':class' => get_class($object), ':content' => print_r($object->getMessage(), true)))));
 }
 
 $_SESSION['flash'][] = $params;

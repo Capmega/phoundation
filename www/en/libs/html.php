@@ -194,7 +194,10 @@ function html_bundler($type){
                 $file    = $path.$file.$ext;
 
                 if(!file_exists($file)){
-                    notify('bundler-file/not-exist', tr('The bundler ":extension" file ":file" does not exist', array(':extension' => $extension, ':file' => $file)), 'developers');
+                    notify(array('code'    => 'not-exists',
+                                 'groups'  => 'developers',
+                                 'title'   => tr('Bundler file does not exist'),
+                                 'message' => tr('html_bundler(): The bundler ":extension" file ":file" does not exist', array(':extension' => $extension, ':file' => $file))));
                     continue;
                 }
 
@@ -224,7 +227,11 @@ function html_bundler($type){
                                     $import = str_cut($match, '"', '"');
 
                                     if(!file_exists($path.$import)){
-                                        notify('bundler-file/not-exist', tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file)), 'developers');
+                                        notify(array('code'    => 'not-exists',
+                                                     'groups'  => 'developers',
+                                                     'title'   => tr('Bundler file does not exist'),
+                                                     'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
+
                                         $import = '';
 
                                     }else{
@@ -241,7 +248,11 @@ function html_bundler($type){
                                     $import = slash(dirname($file)).unslash($import);
 
                                     if(!file_exists($import)){
-                                        notify('bundler-file/not-exist', tr('The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file)), 'developers');
+                                        notify(array('code'    => 'not-exists',
+                                                     'groups'  => 'developers',
+                                                     'title'   => tr('Bundler file does not exist'),
+                                                     'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
+
                                         $import = '';
 
                                     }else{
@@ -494,11 +505,18 @@ function html_load_js($files){
                  */
                 if(substr($file, -3, 3) == '.js'){
                     $file = substr($file, 0, -3);
-                    notify(new BException(tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file)), 'invalid'));
+
+                    notify(array('code'    => 'not-exists',
+                                 'groups'  => 'developers',
+                                 'title'   => tr('Bundler file does not exist'),
+                                 'message' => tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file))));
 
                 }elseif(substr($file, -7, 7) == '.min.js'){
                     $file = substr($file, 0, -7);
-                    notify(new BException(tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file)), 'invalid'));
+                    notify(array('code'    => 'not-exists',
+                                 'groups'  => 'developers',
+                                 'title'   => tr('Bundler file does not exist'),
+                                 'message' => tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file))));
                 }
             }
 
@@ -598,7 +616,10 @@ function html_generate_js(){
                     /*
                      * We should never have empty files
                      */
-                    notify(new BException(tr('html_generate_js(): Empty file specified'), 'not-specified'));
+                    notify(array('code'    => 'empty',
+                                 'groups'  => 'developers',
+                                 'title'   => tr('Empty file specified'),
+                                 'message' => tr('html_generate_js(): Empty file specified')));
                     continue;
                 }
 
@@ -989,8 +1010,11 @@ function html_flash($class = null){
              * $_SESSION['flash'] should always be an array. Don't crash on minor detail, just correct and continue
              */
             $_SESSION['flash'] = array();
-// :TODO: MAKE THIS A NOTIFICATION!
-            notify('invalid $_SESSION[flash]', tr('html_flash(): Invalid flash structure in $_SESSION array, it should always be an array but it is a ":type". Be sure to always use html_flash_set() to add new flash messages', array(':type' => gettype($_SESSION['flash']))), 'developers');
+
+            notify(array('code'    => 'invalid',
+                         'groups'  => 'developers',
+                         'title'   => tr('Invalid flash structure specified'),
+                         'message' => tr('html_flash(): Invalid flash structure in $_SESSION array, it should always be an array but it is a ":type". Be sure to always use html_flash_set() to add new flash messages', array(':type' => gettype($_SESSION['flash'])))));
         }
 
         $retval = '';
@@ -1191,11 +1215,16 @@ function html_flash_set($params, $type = 'info', $class = null){
          */
         if(empty($params['html']) and empty($params['text']) and empty($params['title'])){
             if($_CONFIG['production']){
-                notify('invalid html flash set', $params, 'developers');
+                notify(array('code'    => 'invalid',
+                             'groups'  => 'developers',
+                             'title'   => tr('Invalid flash structure specified'),
+                             'message' => tr('html_flash_set(): Invalid html flash structure specified'),
+                             'data'    => $params));
+
                 return html_flash_set(implode(',', $params), $type, $class);
             }
 
-            throw new BException(tr('Invalid html_flash_set() call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
+            throw new BException(tr('html_flash_set(): Invalid call data ":data", should contain at least "text" or "html" or "title"!', array(':data' => $params)), 'invalid');
         }
 
         switch(strtolower($params['type'])){
@@ -2039,7 +2068,10 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                 /*
                  * On production, just notify and ignore
                  */
-                notify('no-image', tr('No src for image with alt text ":alt"', array(':alt' => $alt)), 'development');
+                notify(array('code'    => 'not-specified',
+                             'groups'  => 'developers',
+                             'title'   => tr('No image src specified'),
+                             'message' => tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $alt))));
                 return '';
             }
 
@@ -2067,11 +2099,16 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
 
         }else{
             if(!$src){
-                notify('no_img_source', tr('html_img(): No image src specified'), 'developers');
+                notify(array('code'   => 'not-specified',
+                             'groups' => 'developers',
+                             'title'  => tr('html_img(): No image src specified')));
             }
 
             if(!$alt){
-                notify('no_img_alt', tr('html_img(): No image alt text specified for src ":src"', array(':src' => $src)), 'developers');
+                notify(array('code'    => 'not-specified',
+                             'groups'  => 'developers',
+                             'title'   => tr('No image alt specified'),
+                             'message' => tr('html_img(): No image alt text specified for src ":src"', array(':src' => $src))));
             }
         }
 
@@ -2139,7 +2176,11 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                             /*
                              * Image doesnt exist
                              */
-                            notify('image does not exist', tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)), 'developers');
+                            notify(array('code'    => 'not-exists',
+                                         'groups'  => 'developers',
+                                         'title'   => tr('Image does not exist'),
+                                         'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
+
                             $image[0] = -1;
                             $image[1] = -1;
                         }

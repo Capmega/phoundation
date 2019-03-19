@@ -526,7 +526,7 @@ function blogs_update_post_status($blog, $params, $list, $status){
                 /*
                  * This post doesn't exist
                  */
-                notify('blogs_update_post_status(): post not exist', tr('The specified blogs_post ":id" does not exist', array(':id' => $id)));
+                log_console(tr('blogs_update_post_status(): The specified blogs_post ":id" does not exist', array(':id' => $id)), 'yellow');
                 continue;
             }
 

@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.12');
+define('FRAMEWORKCODEVERSION', '2.5.13');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -831,13 +831,6 @@ function debug($enabled = null){
 /*
  * Send a notification to specified groups. This function can send one and the same message over multiple paths like email, sms, push notifications, log, etc.
  *
- * NOTE: This function is still under construction!
- *
- * Examples:
- * notify(array('classes'    => 'developers',
- *              'title'      => '',
- *              'decription' => ''));
- *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -845,19 +838,25 @@ function debug($enabled = null){
  * @package system
  * @see notifications()
  * @version 2.5.0: Updated to now call notifications()
+ * @version 2.5.14: Improved documentation
  * @example
  * code
  * notify(array('code'    => 'test',
  *              'title'   => 'This is a test!',
  *              'message' => 'This is just a message to test the notification system'));
- * showdie($result);
+ *
+ * notify(array('code'    => 'foobar',
+ *              'groups'  => 'developers,moderators',
+ *              'title'   => 'This is a test!',
+ *              'message' => 'This is just a message to test the notification system'));
  * /code
  *
- * @param params BException $params The notification parameters, or an BException object
- * @param mixed $notification[code]
+ * @param params Error Exception BException $params The notification parameters, or an Exception / Error / BException object
+ * @param string $notification[code]
  * @param null string $notification[title]
  * @param null string $notification[message]
- * @param null midex $notification[groups]
+ * @param null mixed $notification[groups]
+ * @param null mixed $notification[data]
  * @return void
  */
 function notify($notification){
@@ -1275,7 +1274,11 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
          * From here, the file does not exist.
          */
         if(!$_CONFIG['production']){
-            notify('content-file-missing', tr('Content file ":file" is missing', array(':file' => $realfile)), 'developers');
+            notify(array('code'    => 'not-exist',
+                         'groups'  => 'developers',
+                         'title'   => tr('Content file missing'),
+                         'message' => tr('load_content(): Content file ":file" is missing', array(':file' => $realfile))));
+
             return '';
         }
 
@@ -1304,20 +1307,19 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
         return $default;
 
     }catch(Exception $e){
-        notify('error', "LOAD_CONTENT() FAILED [".$e->getCode()."]\n".implode("\n", $e->getMessages()));
-        error_log("LOAD_CONTENT() FAILED [".$e->getCode()."]\n".implode("\n", $e->getMessages()));
+        notify($e);
 
         switch($e->getCode()){
             case 'notexist':
-                log_database('load_content(): File "'.cfm($language).'/'.cfm($file).'" does not exist', 'warning');
+                log_file(tr('load_content(): File ":language/:file" does not exist', array(':language' => $language, ':file' => $file)), 'warning');
                 break;
 
             case 'missingmarkers':
-                log_database('load_content(): File "'.cfm($language).'/'.cfm($file).'" still contains markers after replace', 'warning');
+                log_file(tr('load_content(): File ":language/:file" still contains markers after replace', array(':language' => $language, ':file' => $file)), 'warning');
                 break;
 
             case 'searchreplacecounts':
-                log_database('load_content(): Search count does not match replace count', 'warning');
+                log_file(tr('load_content(): Search count does not match replace count'), 'warning');
                 break;
         }
 
@@ -1796,8 +1798,14 @@ function log_file($messages, $class = 'syslog', $color = null){
         return $messages;
 
     }catch(Exception $e){
-// :TODO: When log_file() fails, we need to notify! BUT BE CAREFULL, CURRENTLY NOTIFY() WILL ALWAYS log_file() which would cause an endless loop!
-//        notify($e);
+        /*
+         * If log_file() fails, assume we cannot log to data/log/, log to PHP error instead
+         */
+        error_log(tr('log_file() failed to log the following exception:'));
+
+        foreach($e->getMessages() as $message){
+            error_log($message);
+        }
 
         $message = $e->getMessage();
 
@@ -1885,7 +1893,11 @@ function get_language($language){
              */
             if(empty($_CONFIG['language']['supported'][$language])){
                 $language = $_CONFIG['language']['default'];
-                notify('unsupported-language-specified', 'developers', 'domain(): The specified language ":language" is not supported', array(':language' => $language));
+
+                notify(array('code'    => 'unknown',
+                             'groups'  => 'developers',
+                             'title'   => tr('Unknown language specified'),
+                             'message' => tr('get_language(): The specified language ":language" is not known', array(':language' => $language))));
             }
         }
 
@@ -3102,7 +3114,9 @@ function under_construction($functionality = ''){
  * Throw an "obsolete" exception
  */
 function obsolete($functionality = ''){
-    notify(array('title'   => tr('Obsolete function used'),
+    notify(array('code'    => 'obsolete',
+                 'groups'  => 'developers',
+                 'title'   => tr('Obsolete function used'),
                  'message' => tr('Function ":function" is used in ":file@:@line" in project ":project"', array(':function' => current_function(),
                                                                                                                ':file'     => current_file(),
                                                                                                                ':line'     => current_line(),
@@ -3545,7 +3559,11 @@ function cdn_domain($file = '', $section = 'pub', $false_on_not_exist = false, $
                      * There are no CDN servers available!
                      * Switch to working without CDN servers
                      */
-                    notify('configuration-missing', tr('CDN system is enabled but there are no CDN servers configuraed'), 'developers');
+                    notify(array('code'    => 'invalid',
+                                 'groups'  => 'developers',
+                                 'title'   => tr('Invalid configuration'),
+                                 'message' => tr('cdn_domain(): The CDN system is enabled but there are no CDN servers configured')));
+
                     $_CONFIG['cdn']['enabled'] = false;
                     return cdn_domain($file, $section);
 

@@ -178,7 +178,7 @@ function roles_update_rights($role, $rights){
             /*
              * Specified right does not exist.
              */
-            notify('unknown', tr('Tried adding non existing right ":right" to role ":role", ignoring', array(':right' => $right, ':role' => $role['name'])));
+            throw new BException(tr('roles_update_rights(): Tried adding non existing right ":right" to role ":role", ignoring', array(':right' => $right, ':role' => $role['name'])), 'unknown');
         }
 
         /*

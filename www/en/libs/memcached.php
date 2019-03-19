@@ -67,8 +67,11 @@ function mc_connect(){
                              * Could not connect to this memcached server. Notify, and remove from the connections list
                              */
                             $failed++;
-                            notify('nomemcachedserver', 'Failed to connect to memcached server "'.str_log($server).'"');
-                            log_console(tr('Failed to connect to memcached server ":server"', array(':server' => $server)), 'yellow');
+
+                            notify(array('code'    => 'warning/not-available',
+                                         'groups'  => 'developers',
+                                         'title'   => tr('Memcached server not available'),
+                                         'message' => tr('mc_connect(): Failed to connect to memcached server ":server"', array(':server' => $server))));
                         }
                     }
 
@@ -87,8 +90,11 @@ function mc_connect(){
                      * All memcached servers failed to connect!
                      * Send error notification
                      */
-                    notify('nomemcachedserver', 'Failed to connect to all ('.count($_CONFIG['memcached']['servers']).') configured memcached servers');
-                    throw new BException(tr('Failed to connect to all ":count" configured memcached servers', array(':count' => count($_CONFIG['memcached']['servers']))), 'memcachedconnectfail');
+                    notify(array('code'    => 'not-available',
+                                 'groups'  => 'developers',
+                                 'title'   => tr('Memcached server not available'),
+                                 'message' => tr('mc_connect(): Failed to connect to all ":count" memcached servers', array(':server' => count($_CONFIG['memcached']['servers'])))));
+                    return false;
                 }
             }
         }
@@ -109,7 +115,9 @@ function mc_put($value, $key, $namespace = null, $expiration_time = null){
     global $_CONFIG, $core;
 
     try{
-        mc_connect();
+        if(!mc_connect()){
+            return false;
+        }
 
         if($namespace){
             $namespace = mc_namespace($namespace).'_';
@@ -140,7 +148,9 @@ function mc_add($value, $key, $namespace = null, $expiration_time = null){
     global $_CONFIG, $core;
 
     try{
-        mc_connect();
+        if(!mc_connect()){
+            return false;
+        }
 
         if($namespace){
             $namespace = mc_namespace($namespace).'_';
@@ -173,7 +183,9 @@ function mc_replace($value, $key, $namespace = null, $expiration_time = null){
     global $_CONFIG, $core;
 
     try{
-        mc_connect();
+        if(!mc_connect()){
+            return false;
+        }
 
         if($namespace){
             $namespace = mc_namespace($namespace).'_';
@@ -206,7 +218,10 @@ function mc_get($key, $namespace = null){
     global $_CONFIG, $core;
 
     try{
-        mc_connect();
+        if(!mc_connect()){
+            return false;
+        }
+
         return $core->register['memcached']->get($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key);
 
     }catch(Exception $e){
@@ -223,7 +238,9 @@ function mc_delete($key, $namespace = null){
     global $_CONFIG, $core;
 
     try{
-        mc_connect();
+        if(!mc_connect()){
+            return false;
+        }
 
         if(!$key){
             if(!$namespace){
@@ -252,7 +269,10 @@ function mc_clear($delay = 0){
     global $_CONFIG, $core;
 
     try{
-        mc_connect();
+        if(!mc_connect()){
+            return false;
+        }
+
         $core->register['memcached']->flush($delay);
 
     }catch(Exception $e){
@@ -269,7 +289,10 @@ function mc_increment($key, $namespace = null){
     global $_CONFIG, $core;
 
     try{
-        mc_connect();
+        if(!mc_connect()){
+            return false;
+        }
+
         $core->register['memcached']->increment($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key);
 
     }catch(Exception $e){
@@ -339,7 +362,9 @@ function mc_stats(){
     global $core;
 
     try{
-        mc_connect();
+        if(!mc_connect()){
+            return false;
+        }
 
         if(empty($core->register['memcached'])){
             /*

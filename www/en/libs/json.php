@@ -238,7 +238,6 @@ function json_message($message, $data = null){
             /*
              * This is (presumably) an exception
              */
-            notify($message);
             $message = $message->getRealCode();
         }
 
@@ -325,7 +324,11 @@ function json_message($message, $data = null){
                 json_reply(null, 'RELOAD');
 
             default:
-                notify(tr('json_message(): Unknown message ":message" specified', array(':message' => $message)));
+                notify(array('code'    => 'unknown',
+                             'groups'  => 'developers',
+                             'title'   => tr('Unknown message specified'),
+                             'message' => tr('json_message(): Unknown message ":message" specified', array(':message' => $message))));
+
                 json_error(null, (debug() ? $data : null), 'ERROR', 500);
         }
 

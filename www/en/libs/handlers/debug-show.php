@@ -93,8 +93,7 @@ try{
     }
 
     try{
-        error_log(tr('show() failed with exception ":exception"', array(':exception' => $e->getMessage())));
-        notify('show-exception', tr('show() failed with exception ":exception"', array(':exception' => $e->getMessage())), 'developers');
+        notify($e);
 
     }catch(Exception $e){
         /*

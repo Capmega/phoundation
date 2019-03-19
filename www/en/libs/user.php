@@ -2180,7 +2180,11 @@ function user_check_key($user, $key, $timestamp){
             /*
              * More then N seconds differece between timestamps is NOT allowed
              */
-            notify('user_check_key()', tr('Received user key check request with timestamp of ":timestamp" seconds which is larger than the maximum past time of ":max" seconds', array(':max' => $past, ':timestamp' => $timestamp)), 'security');
+            notify(array('code'    => 'invalid',
+                         'groups'  => 'developers',
+                         'title'   => tr('Received invalid request'),
+                         'message' => tr('user_check_key(): Received user key check request with timestamp of ":timestamp" seconds which is larger than the maximum past time of ":max" seconds', array(':max' => $past, ':timestamp' => $timestamp))));
+
             return false;
         }
 
@@ -2188,7 +2192,11 @@ function user_check_key($user, $key, $timestamp){
             /*
              * More then N seconds differece between timestamps is NOT allowed
              */
-            notify('user_check_key()', tr('Received user key check request with timestamp of ":timestamp" seconds which is larger than the maximum future time of ":max" seconds', array(':max' => $future, ':timestamp' => $timestamp)), 'security');
+            notify(array('code'    => 'invalid',
+                         'groups'  => 'developers',
+                         'title'   => tr('Received invalid request'),
+                         'message' => tr('user_check_key(): Received user key check request with timestamp of ":timestamp" seconds which is larger than the maximum future time of ":max" seconds', array(':max' => $future, ':timestamp' => $timestamp))));
+
             return false;
         }
 
@@ -2294,7 +2302,7 @@ function user_test_password($password){
 
     try{
 // :TODO: Implement!!
-notify('not-implemented', 'user_test_password() has not yet been implemented!!');
+under_construction();
         return $password;
 
     }catch(Exception $e){
@@ -2533,7 +2541,10 @@ function user_update_location($user){
             }
 
             if($_CONFIG['user']['location']['max_offset'] > 10000){
-                notify(tr('user_update_location(): Configured max offset ":max_offset" is very high! this may lead to problems!', array(':max_offset' => $_CONFIG['user']['location']['max_offset'])));
+                notify(array('code'    => 'invalid',
+                             'groups'  => 'developers',
+                             'title'   => tr('Problematic configuration'),
+                             'message' => tr('user_update_location(): Configured max offset ":max_offset" is very high! this may lead to problems!', array(':max_offset' => $_CONFIG['user']['location']['max_offset']))));
             }
 
 // :TODO: Implement random offset

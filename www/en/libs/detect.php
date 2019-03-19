@@ -259,7 +259,11 @@ function detect_language(){
                     /*
                      * Location has not been detected, so language cannot be detected either!
                      */
-                    notify('language-detect-failed', 'developers', tr('Failed to detect langugage because the clients location could not be detected. This might be a configuration issue prohibiting the detection of the client location'));
+                    notify(array('code'    => 'failed',
+                                 'groups'  => 'developers',
+                                 'title'   => tr('Language detection failed'),
+                                 'message' => tr('Failed to detect langugage because the clients location could not be detected. This might be a configuration issue prohibiting the detection of the client location')));
+
                     $language = $_CONFIG['language']['default'];
                     return $language;
                 }

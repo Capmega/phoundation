@@ -738,7 +738,7 @@ function linux_copy($server, $source, $target, $sudo = false){
  */
 function linux_delete($server, $patterns, $sudo = false, $clean_path = true){
     try{
-notify('UNDER CONSTRUCTION! linux_delete() does not yet have support for $clean_path');
+under_construction('linux_delete() does not yet have support for $clean_path');
         if(!is_array()){
             $patterns = array($patterns);
         }

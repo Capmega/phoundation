@@ -506,7 +506,15 @@ function upload_check_files($max_uploads = null, $min_uploads = null){
                         // FALLTHROUGH
                     case 8: // UPLOAD_ERR_EXTENSION
                         if(!debug()){
-                            notify('upload_check_files()', tr('Encountered file upload error "%error%" which indicates a server or configuration error', array('%error%' => $value['error'])), 'log,developers');
+                            /*
+                             * In debug mode we show the error, but in this case
+                             * we can only notify
+                             */
+                            notify(array('code'    => 'invalid',
+                                         'groups'  => 'developers',
+                                         'title'   => tr('File upload error'),
+                                         'message' => tr('upload_check_files(): Encountered file upload error ":error" which indicates a server or configuration error', array(':error' => $value['error']))));
+
                             break;
                         }
 

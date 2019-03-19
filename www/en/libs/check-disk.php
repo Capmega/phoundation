@@ -62,7 +62,10 @@ function check_disk($params = null){
                 file_delete(ROOT.'data/cache');
                 file_delete(ROOT.'data/log');
 
-                notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytes bytes / :percentage%". Executing default callback function which will delete projects\' tmp, cache, and log directories', array(':available' => $available, ':total' => $total, ':bytes' => $bytes, ':percentage' => $percentage)), 'warning/low-diskspace'));
+                notify(array('code'    => 'low-disk',
+                             'groups'  => 'developers',
+                             'title'   => tr('Low disk event encountered'),
+                             'message' => tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytes bytes / :percentage%". Executing default callback function which will delete projects\' tmp, cache, and log directories', array(':available' => $available, ':total' => $total, ':bytes' => $bytes, ':percentage' => $percentage))));
             };
         }
 
@@ -88,7 +91,11 @@ function check_disk($params = null){
         }
 
         if(isset($execute)){
-            notify(new BException(tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage'])), 'low-diskspace'));
+            notify(array('code'    => 'low-disk',
+                         'groups'  => 'developers',
+                         'title'   => tr('Low disk event encountered'),
+                         'message' => tr('check_disk(): Low diskspace event encountered, ":available available from :total total" detected with limits set to ":bytesbytes/:percentage%". Executing callback function', array(':available' => $available, ':total' => $total, ':bytes' => $params['bytes'], ':percentage' => $params['percentage']))));
+
             return $params['callback']($total, $available, $params['percentage'], $bytes);
         }
 

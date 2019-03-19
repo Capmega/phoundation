@@ -188,8 +188,7 @@ function chat_update_user($user){
                     /*
                      * > first failure, notify of failure
                      */
-                    load_libs('user');
-                    notify('not-found', tr('chat_update_user(): Specified user ":user" does not exist', array(':user' => name($user))), 'developers');
+                    throw new BException(tr('chat_update_user(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-found');
 
                 }else{
                     /*

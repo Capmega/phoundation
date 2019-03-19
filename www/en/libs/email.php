@@ -1575,7 +1575,7 @@ function email_send_unsent(){
                  * Error ocurred ! ... Notify and continue sending emails
                  */
                 notify($e->makeWarning(true));
-                log_console(tr('Failed to send email to user ":user" because ":e"', array(':user' => $email['to'], ':e' => $e->getMessage())), 'warning');
+                log_console(tr('Failed to send email to user ":user" because of previous exception'), 'warning');
             }
 
             /*

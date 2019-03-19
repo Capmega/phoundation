@@ -3,7 +3,7 @@
 /*
  * This is an empty test script template
  */
-$usage = "./scripts/base/notifications/send CLASSNAME|CLASSID EVENT MESSAGE \n";
+$usage = "./scripts/base/notifications/send CODE TITLE [--groups GROUPS] [MESSAGE] \n";
 
 $help  = "Send event notifications to the specified classes";
 
@@ -33,11 +33,12 @@ try{
         throw new BException(tr('No message specified'), 'not-specified');
     }
 
-    if(!notify($event, $message, $class)){
-        throw new BException(tr('Failed to send notification'), 'failed');
-    }
+    notify(array('code'    => $code,
+                 'groups'  => $groups,
+                 'title'   => $title,
+                 'message' => $message));
 
-    log_console(tr('Sent notification "%event%"', array('%event%' => $event)), '', 'green');
+    log_console(tr('Sent notification ":event"', array(':event' => $event)), '', 'green');
 
 }catch(Exception $e){
     cli_error($e);

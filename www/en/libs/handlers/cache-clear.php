@@ -73,8 +73,7 @@ try{
     }
 
 }catch(Exception $e){
-    notify('cache-clear/failed', $e);
-    log_console($e);
+    notify($e);
 }
 
 
@@ -91,8 +90,7 @@ try{
     log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/pub/js/bundle-*,ROOT/pub/css/bundle-*')));
 
 }catch(Exception $e){
-    notify('cache-clear/failed', $e);
-    log_console($e);
+    notify($e);
 }
 
 log_database('Cleared all caches', 'clearcache');

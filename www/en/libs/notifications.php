@@ -54,14 +54,19 @@ function notifications_library_init(){
  * notify(array('code'    => 'test',
  *              'title'   => 'This is a test!',
  *              'message' => 'This is just a message to test the notification system'));
- * showdie($result);
+ *
+ * notify(array('code'    => 'foobar',
+ *              'groups'  => 'developers,moderators',
+ *              'title'   => 'This is a test!',
+ *              'message' => 'This is just a message to test the notification system'));
  * /code
  *
  * @param params $notification A parameters array
  * @param mixed $notification[code]
  * @param null string $notification[title]
  * @param null string $notification[message]
- * @param null midex $notification[groups]
+ * @param null mixed $notification[groups]
+ * @param null mixed $notification[data]
  * @return natural The notifications id
  */
 function notifications($notification){
@@ -452,6 +457,7 @@ function notifications_validate($notification){
                 $notification  = array('title'     => ($notification->isWarning() ? tr('Phoundation warning') : tr('Phoundation exception')),
                                        'exception' => true,
                                        'message'   => $notification->getMessages(),
+                                       'data'      => $notification->getData(),
                                        'code'      => 'BException');
 
                 log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['title']));
@@ -472,7 +478,7 @@ function notifications_validate($notification){
             /*
              * This is a normal notification
              */
-            array_ensure($notification, 'code,title,message');
+            array_ensure($notification, 'code,data,title,message');
 
             $notification['exception'] = false;
 
@@ -558,8 +564,15 @@ function notifications_insert($notification){
     try{
         $notification = notifications_validate($notification);
 
-        sql_query('INSERT INTO `notifications` (`createdby`, `meta_id`, `code`, `title`, `message`)
-                   VALUES                      (`createdby`, `meta_id`, `code`, `title`, `message`)');
+        sql_query('INSERT INTO `notifications` (`createdby`, `meta_id`, `code`, `data`, `title`, `message`)
+                   VALUES                      (:createdby , :meta_id , :code , :data , :title , :message )',
+
+                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                         ':meta_id'   => meta_action(),
+                         ':code'      => $notification['code'],
+                         ':data'      => $notification['data'],
+                         ':title'     => $notification['title'],
+                         ':message'   => $notification['message']));
 
         $notification['id'] = sql_insert_id();
         notifications_insert_groups($notification);
@@ -591,7 +604,7 @@ function notifications_insert($notification){
 function notifications_insert_groups($notification){
     try{
         $insert = sql_prepare('INSERT INTO `notifications_groups` (`notifications_id`, `groups_id`)
-                               VALUES                             (`notifications_id`, `groups_id`)');
+                               VALUES                             (:notifications_id , :groups_id )');
 
         foreach($notification['groups'] as $groups_id){
             $insert->execute(array(':groups_id'        => $groups_id,
