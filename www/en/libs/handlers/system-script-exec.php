@@ -6,7 +6,7 @@
 try{
     global $core;
 
-    array_ensure($command, 'script,arguments,function,ok_exitcodes,background,timeout');
+    array_ensure($params, 'script,arguments,function,ok_exitcodes,background,timeout');
 
     /*
      * Validate the requested commands, ensure that script_exec() is only used
@@ -16,11 +16,11 @@ try{
         throw new BException(tr('script_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
-    if(!$command['commands']){
+    if(!$params['commands']){
         throw new BException(tr('script_exec(): No commands specified'), 'not-specified');
     }
 
-    if(!is_array($command['commands'])){
+    if(!is_array($params['commands'])){
         throw new BException(tr('script_exec(): Invalid commands specified'), 'invalid');
     }
 
@@ -29,7 +29,7 @@ try{
      *
      * Ensure that all arguments contain the environment specification
      */
-    foreach($command['commands'] as &$item){
+    foreach($params['commands'] as &$item){
         if(fmod(++$count, 2)){
             /*
              * This must be arguments
@@ -48,9 +48,9 @@ try{
     /*
      * Execute the script using safe_exec
      */
-    return safe_exec($commands);
+    return safe_exec($paramss);
 
 }catch(Exception $e){
-    throw new bException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $command['script'])), $e);
+    throw new bException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $params['script'])), $e);
 }
 ?>
