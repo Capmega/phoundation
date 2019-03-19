@@ -106,8 +106,8 @@ function notifications($notification){
 
         if($core->register['script'] != 'init'){
             if(empty($_CONFIG['mail']['developer'])){
-                log_console('[notifications() FAILED : '.strtoupper($_SESSION['domain']).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', 'error');
-                log_console(tr("notifications() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification $notification was: \":params\"", array(':params' => $notification)), 'error');
+                log_console('[notifications() FAILED : '.strtoupper(isset_get($_SESSION['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', 'error');
+                log_console(tr("notifications() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification was: \":params\"", array(':params' => $notification)), 'error');
                 log_console('WARNING! $_CONFIG[mail][developer] IS NOT SET, NOTIFICATIONS CANNOT BE SENT!', 'error');
 
             }else{
