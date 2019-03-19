@@ -327,6 +327,7 @@ function git_list_branches($path = ROOT, $all = false){
         /*
          * Get and return the branch
          */
+        $retval  = array();
         $results = git_exec($path, array('branch', '-a', '-q'));
 
         foreach($results as $branch){
@@ -334,10 +335,11 @@ function git_list_branches($path = ROOT, $all = false){
             $branch = trim($branch);
             $branch = str_rfrom($branch, '/');
 
-            $retval [] = $branch;
+            $retval[] = $branch;
         }
 
         $retval = array_unique($retval);
+
         return $retval;
 
     }catch(Exception $e){
@@ -545,7 +547,7 @@ function git_fetch($path = ROOT, $params = null){
          */
         $results = git_exec($path, $arguments);
 
-        return $retval;
+        return $results;
 
     }catch(Exception $e){
         throw new BException('git_fetch(): Failed', $e);
@@ -598,7 +600,7 @@ function git_get_branch($branch = null){
     try{
         $results = git_exec($path, array('branch', '--no-color'));
 
-        foreach($retval as $line){
+        foreach($results as $line){
             $current = trim(substr($line, 0, 2));
 
             if($current){
@@ -866,7 +868,7 @@ function git_stash($path = ROOT){
     try{
         $results_add   = git_exec($path, array('add', '.'));
         $results_stash = git_exec($path, array('stash'));
-        $results       = array_merge($results_pop, $results_reset);
+        $results       = array_merge($results_add, $results_stash);
 
         return $results;
 
