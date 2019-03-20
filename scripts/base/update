@@ -3,12 +3,12 @@
 /*
  * This is the update script that will update your Phoundation installation with the latest software
  */
-$usage = './scripts/base/update [-l]
+$usage = './scripts/base/update [--local] [--ignore-changes] [--no-init]
 ./scripts/base/update --upgrade
 ./scripts/base/update --re-update
 ./scripts/base/update --branch BRANCH_NAME
 ./scripts/base/update --version-line VERSION_LINE
-./scripts/base/update';
+./scripts/base/update --branch BRANCH';
 
 $help  = 'The deploy script can pull all the latest PHOUNDATION updates from either a local PHOUNDATION repository, or the central main PHOUNDATION repository
 
@@ -273,6 +273,7 @@ try{
      * Checkout the highest version branch for our version line and start updating!
      */
     code_phoundation_checkout($checkout);
+    code_phoundation_pull();
 
 
 
