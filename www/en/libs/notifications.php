@@ -110,7 +110,7 @@ function notifications($notification, $log){
         return $notification['id'];
 
     }catch(Exception $e){
-        if($notification['exception']){
+        if(is_array($notification) and $notification['exception']){
             /*
              * This is just the notification being thrown as an exception, keep
              * on throwing
