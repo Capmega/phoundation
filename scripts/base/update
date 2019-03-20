@@ -3,12 +3,12 @@
 /*
  * This is the update script that will update your Phoundation installation with the latest software
  */
-$usage = './scripts/base/update [-l]
+$usage = './scripts/base/update [--local] [--ignore-changes] [--no-init]
 ./scripts/base/update --upgrade
 ./scripts/base/update --re-update
 ./scripts/base/update --branch BRANCH_NAME
 ./scripts/base/update --version-line VERSION_LINE
-./scripts/base/update';
+./scripts/base/update --branch BRANCH';
 
 $help  = 'The deploy script can pull all the latest PHOUNDATION updates from either a local PHOUNDATION repository, or the central main PHOUNDATION repository
 
@@ -158,7 +158,7 @@ try{
     }
 
     log_console(tr('Fetching latest phoundation branches and tags'), 'VERBOSE/cyan');
-    code_phoundation_fetch(array('all' => true));
+    $results = code_phoundation_fetch(array('all' => true));
 
 
 
@@ -270,9 +270,15 @@ try{
 
 
     /*
-     * Checkout the highest version branch for our version line and start updating!
+     * Checkout the highest version branch for our version line
+     * Tags should be complete, but if we went for a branch, then pull to ensure
+     * we have the latest of the latest
      */
     code_phoundation_checkout($checkout);
+
+    if(!code_phoundation_is_tag()){
+        code_phoundation_pull();
+    }
 
 
 
