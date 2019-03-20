@@ -1728,6 +1728,13 @@ function cli_build_commands_string(&$params){
         }
 
         /*
+         * Ensure that there are at least two command sections
+         */
+        if(count($params['commands']) == 1){
+            $params['commands'][] = array();
+        }
+
+        /*
          * Set global background
          */
         $background = $params['background'];
