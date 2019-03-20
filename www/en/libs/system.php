@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.18');
+define('FRAMEWORKCODEVERSION', '2.5.19');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1486,13 +1486,13 @@ function log_flags($color){
                 $color = str_from(str_from($color, 'QUIET'), '/');
                 break;
 
-            case 'DOT':
+            case 'VERBOSEDOT':
                 if(!VERBOSE){
                     if(PLATFORM_CLI){
                         /*
                          * Only show a dot instead of the text
                          */
-                        cli_dot('.', str_replace('DOT', '', $color));
+                        cli_dot('.', str_replace('VERBOSEDOT', '', $color));
                         return false;
                     }
                 }
@@ -1500,7 +1500,7 @@ function log_flags($color){
                 /*
                  * Remove the DOT
                  */
-                $color = str_from(str_from($color, 'DOT'), '/');
+                $color = str_from(str_from($color, 'VERBOSEDOT'), '/');
                 break;
 
             case 'DEBUG':

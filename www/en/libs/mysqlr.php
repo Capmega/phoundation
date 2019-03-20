@@ -229,7 +229,7 @@ function mysqlr_master_replication_setup($params){
         /*
          * MySQL SETUP
          */
-        log_console(tr('Making master setup for MySQL configuration file'), 'DOT');
+        log_console(tr('Making master setup for MySQL configuration file'), 'VERBOSEDOT');
 
         file_sed(array('domain' => $database['domain'],
                        'regex'  => 's/#server-id[[:space:]]*=[[:space:]]*1/server-id = '.$database['id'].'/',
@@ -247,7 +247,7 @@ function mysqlr_master_replication_setup($params){
                         'commands' => array('grep', array('-q', '-F', 'binlog_do_db="'.$database['database_name'].'"', $mysql_cnf_path, 'connect' => '||'),
                                             'sed' , array('sudo' => true, '-i', '"/max_binlog_size[[:space:]]*=[[:space:]]*100M/a binlog_do_db = '.$database['database_name'].'"', $mysql_cnf_path))));
 
-        log_console(tr('Restarting remote MySQL service'), 'DOT');
+        log_console(tr('Restarting remote MySQL service'), 'VERBOSEDOT');
         linux_service($database['domain'], 'mysql', 'restart');
 
         /*
@@ -255,7 +255,7 @@ function mysqlr_master_replication_setup($params){
          * sleep infinity and run in background
          * kill ssh pid after dumping db
          */
-        log_console(tr('Making grant replication on remote server and locking tables'), 'DOT');
+        log_console(tr('Making grant replication on remote server and locking tables'), 'VERBOSEDOT');
 // :FIX: There is an issue with mysql exec not executing as root
         //$ssh_mysql_pid = mysql_exec($database['domain'], 'GRANT REPLICATION SLAVE ON *.* TO "'.$database['replication_db_user'].'"@"localhost" IDENTIFIED BY "'.$database['replication_db_password'].'"; FLUSH PRIVILEGES; USE '.$database['database'].'; FLUSH TABLES WITH READ LOCK; DO SLEEP(1000000);', true);
         $ssh_mysql_pid = servers_exec($database['domain'], array('commands' => array('mysql', array('-u'.$database['root_db_user'], '-p'.$database['root_db_password'], '-e "GRANT REPLICATION SLAVE ON *.* TO \''.$database['replication_db_user'].'\'@\'localhost\' IDENTIFIED BY \''.$database['replication_db_password'].'\'; FLUSH PRIVILEGES; USE '.$database['database_name'].'; FLUSH TABLES WITH READ LOCK; DO SLEEP(1000000); "', 'background' => true))));
@@ -263,7 +263,7 @@ function mysqlr_master_replication_setup($params){
         /*
          * Dump database
          */
-        log_console(tr('Making dump of remote database'), 'DOT');
+        log_console(tr('Making dump of remote database'), 'VERBOSEDOT');
         linux_delete($database['domain'], '/tmp/'.$database['database_name'].'.sql.gz', true);
         servers_exec($database['domain'], array('commands' => array('mysqldump', array('sudo' => true, '-u'.$database['root_db_user'], '-p'.$database['root_db_password'], '-K', '-R', '-n', '-e', '--dump-date', '--comments', '-B', $database['database_name'], 'connector' => '|'),
                                                                     'gzip'     , array('connector' => '|'),
@@ -272,17 +272,17 @@ function mysqlr_master_replication_setup($params){
         /*
          * Kill local SSH process to drop the hung connection
          */
-        log_console(tr('Dump finished, killing background process mysql shell session'), 'DOT');
+        log_console(tr('Dump finished, killing background process mysql shell session'), 'VERBOSEDOT');
         cli_kill($ssh_mysql_pid[0], 9);
 
-        log_console(tr('Restarting remote MySQL service'), 'DOT');
+        log_console(tr('Restarting remote MySQL service'), 'VERBOSEDOT');
         linux_service($database['domain'], 'mysql', 'restart');
 
         /*
          * Delete posible LOCAL backup
          * SCP dump from master server to local
          */
-        log_console(tr('Copying remote dump to SLAVE'), 'DOT');
+        log_console(tr('Copying remote dump to SLAVE'), 'VERBOSEDOT');
         file_delete('/tmp/'.$database['database_name'].'.sql.gz');
         mysqlr_scp_database($database, '/tmp/'.$database['database_name'].'.sql.gz', '/tmp/', true);
 
@@ -359,7 +359,7 @@ function mysqlr_slave_replication_setup($params){
         /*
          * MySQL SETUP
          */
-        log_console(tr('Making slave setup for MySQL configuration file'), 'DOT');
+        log_console(tr('Making slave setup for MySQL configuration file'), 'VERBOSEDOT');
 
         file_sed(array('domain' => $slave,
                        'sudo'   => true,
@@ -383,7 +383,7 @@ function mysqlr_slave_replication_setup($params){
         /*
          * Close PDO connection before restarting MySQL
          */
-        log_console(tr('Restarting Slave MySQL service'), 'DOT');
+        log_console(tr('Restarting Slave MySQL service'), 'VERBOSEDOT');
         linux_service($slave, 'mysql', 'restart');
         sleep(2);
 
@@ -413,7 +413,7 @@ function mysqlr_slave_replication_setup($params){
          *
          * Create SSH tunneling user
          */
-        log_console(tr('Creating ssh tunneling user on local server'), 'DOT');
+        log_console(tr('Creating ssh tunneling user on local server'), 'VERBOSEDOT');
         mysqlr_slave_ssh_tunnel($database, $slave);
 
         /*
@@ -503,12 +503,12 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
          * Close PDO connection before restarting MySQL
          */
         if($restart_mysql){
-            log_console(tr('Restarting Slave MySQL service'), 'DOT');
+            log_console(tr('Restarting Slave MySQL service'), 'VERBOSEDOT');
             linux_service($slave, 'mysql', 'restart');
         }
 
         mysqlr_update_replication_status($database, 'paused');
-        log_console(tr('Paused replication for database :database', array(':database' => $database['database_name'])), 'DOT');
+        log_console(tr('Paused replication for database :database', array(':database' => $database['database_name'])), 'VERBOSEDOT');
 
         return 0;
 
@@ -570,12 +570,12 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
          * Close PDO connection before restarting MySQL
          */
         if($restart_mysql){
-            log_console(tr('Restarting Slave MySQL service'), 'DOT');
+            log_console(tr('Restarting Slave MySQL service'), 'VERBOSEDOT');
             linux_service($slave, 'mysql', 'restart');
         }
 
         mysqlr_update_replication_status($database, 'enabled');
-        log_console(tr('Resumed replication for database :database', array(':database' => $database['database_name'])), 'DOT');
+        log_console(tr('Resumed replication for database :database', array(':database' => $database['database_name'])), 'VERBOSEDOT');
 
         return 0;
 
@@ -604,7 +604,7 @@ function mysqlr_check_configuration_path($server_target){
         /*
          * Check for mysqld.cnf file
          */
-        log_console(tr('Checking existance of mysql configuration file'), 'DOT');
+        log_console(tr('Checking existance of mysql configuration file'), 'VERBOSEDOT');
         $mysql_cnf = servers_exec($server_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
 
         /*
@@ -798,13 +798,13 @@ function mysqlr_full_backup(){
                 continue;
             }
 
-            log_console(tr('Making backups of server :server', array(':server' => $server['domain'])), 'DOT');
+            log_console(tr('Making backups of server :server', array(':server' => $server['domain'])), 'VERBOSEDOT');
 
             /*
              * Disable replication of each database
              */
             foreach($databases as $id => $name){
-                log_console(tr('Disabling replication of database :database', array(':database' => $name)), 'DOT');
+                log_console(tr('Disabling replication of database :database', array(':database' => $name)), 'VERBOSEDOT');
                 mysqlr_pause_replication($id, false);
             }
 
@@ -823,7 +823,7 @@ function mysqlr_full_backup(){
                 $db                 = mysql_get_database($id);
                 $db['root_db_user'] = 'root';
 
-                log_console(tr('Making backup of database :database', array(':database' => $db['database_name'])), 'DOT');
+                log_console(tr('Making backup of database :database', array(':database' => $db['database_name'])), 'VERBOSEDOT');
 
                 /*
                  * Make a dump and save it on the backups server backup directory
@@ -854,7 +854,7 @@ function mysqlr_full_backup(){
          * Delete replicate backup for today
          */
         linux_delete($slave, $backup_path, true);
-        log_console(tr('mysqlr_full_backup(): Finished backups'), 'DOT');
+        log_console(tr('mysqlr_full_backup(): Finished backups'), 'VERBOSEDOT');
 
     }catch(Exception $e){
         throw new BException(tr('mysqlr_full_backup(): Failed'), $e);

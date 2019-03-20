@@ -126,16 +126,16 @@ function uglify_css($paths = null, $force = false){
         foreach(array_force($paths) as $path){
             if(!file_exists($path)) continue;
 
-            log_console(tr('uglify_css(): Compressing all CSS files in ":path"', array(':path' => $path)), 'DOT');
+            log_console(tr('uglify_css(): Compressing all CSS files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             if(is_dir($path)){
                 $path = slash($path);
 
-                log_console(tr('uglify_css(): Compressing all CSS files in directory ":path"', array(':path' => $path)), 'DOT');
+                log_console(tr('uglify_css(): Compressing all CSS files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
                 file_check_dir($path);
 
             }elseif(is_file($path)){
-                log_console(tr('uglify_css(): Compressing CSS file ":path"', array(':path' => $path)), 'DOT');
+                log_console(tr('uglify_css(): Compressing CSS file ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             }else{
                 throw new BException(tr('uglify_css(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
@@ -508,16 +508,16 @@ function uglify_js($paths = null, $force = false){
         foreach(array_force($paths) as $path){
             if(!file_exists($path)) continue;
 
-            log_console(tr('uglify_js(): Compressing all javascript files in ":path"', array(':path' => $path)), 'DOT');
+            log_console(tr('uglify_js(): Compressing all javascript files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             if(is_dir($path)){
                 $path = slash($path);
 
-                log_console(tr('uglify_js(): Compressing all javascript files in directory ":path"', array(':path' => $path)), 'DOT');
+                log_console(tr('uglify_js(): Compressing all javascript files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
                 file_check_dir($path);
 
             }elseif(is_file($path)){
-                log_console(tr('uglify_js(): Compressing javascript file ":path"', array(':path' => $path)), 'DOT');
+                log_console(tr('uglify_js(): Compressing javascript file ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             }else{
                 throw new BException(tr('uglify_js(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
