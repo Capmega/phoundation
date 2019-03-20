@@ -265,7 +265,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
         array_default($params, 'proxies'        , $_CONFIG['curl']['proxies']);
         array_default($params, 'simulation'     , false);   // false, partial, or full
         array_default($params, 'sleep'          , 1000);    // Sleep howmany microseconds between retries
-        array_default($params, 'retries'        , 5);       // Retry howmany time on HTTP0 failures
+        array_default($params, 'retries'        , $_CONFIG['curl']['retries']);         // Retry howmany time on HTTP0 failures
         array_default($params, 'timeout'        , $_CONFIG['curl']['timeout']);         // # of seconds for cURL functions to execute
         array_default($params, 'connect_timeout', $_CONFIG['curl']['connect_timeout']); // # of seconds before connection try will fail
         array_default($params, 'log'            , $_CONFIG['curl']['log']); // # of seconds before connection try will fail
@@ -619,7 +619,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
              *
              */
             usleep($params['sleep']);
-            log_console(tr('curl_get(): Got HTTP0 for url ":url" with ":timeout" timeout, retry ":retry"', array(':url' => $params['url'], ':retry' => $retry, ':timeout' => $params['timeout'])), 'yellow');
+            log_console(tr('curl_get(): Got HTTP0 for url ":url" with ":connect_timeout" connect timeout, retry ":retry"', array(':url' => $params['url'], ':retry' => $retry, ':connect_timeout' => $params['connect_timeout'])), 'yellow');
             return curl_get($params, $referer, $post, $options);
         }
 
