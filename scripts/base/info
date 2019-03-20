@@ -13,10 +13,10 @@ cli_no_arguments_left();
 sql_query('SELECT 1');
 
 log_console(cli_color(str_size(tr('Project name:')              , 27), 'white').' '.PROJECT);
-log_console(cli_color(str_size(tr('Framework code version:')    , 27), 'white').' '.FRAMEWORKCODEVERSION);
-log_console(cli_color(str_size(tr('Framework database version:'), 27), 'white').' '.FRAMEWORKDBVERSION);
-log_console(cli_color(str_size(tr('Project code version:')      , 27), 'white').' '.PROJECTCODEVERSION);
-log_console(cli_color(str_size(tr('Project database version:')  , 27), 'white').' '.PROJECTDBVERSION);
+log_console(cli_color(str_size(tr('Framework code version:')    , 27), ((FRAMEWORKCODEVERSION > FRAMEWORKDBVERSION) ? 'yellow' : ((FRAMEWORKCODEVERSION < FRAMEWORKDBVERSION) ? 'error' : 'white'))).' '.FRAMEWORKCODEVERSION);
+log_console(cli_color(str_size(tr('Framework database version:'), 27), ((FRAMEWORKCODEVERSION > FRAMEWORKDBVERSION) ? 'yellow' : ((FRAMEWORKCODEVERSION < FRAMEWORKDBVERSION) ? 'error' : 'white'))).' '.FRAMEWORKDBVERSION);
+log_console(cli_color(str_size(tr('Project code version:')      , 27), ((PROJECTCODEVERSION > PROJECTDBVERSION) ? 'yellow' : ((PROJECTCODEVERSION < PROJECTDBVERSION) ? 'error' : 'white'))).' '.PROJECTCODEVERSION);
+log_console(cli_color(str_size(tr('Project database version:')  , 27), ((PROJECTCODEVERSION > PROJECTDBVERSION) ? 'yellow' : ((PROJECTCODEVERSION < PROJECTDBVERSION) ? 'error' : 'white'))).' '.PROJECTDBVERSION);
 log_console(cli_color(str_size(tr('Init required:')             , 27), 'white').' '.str_boolean((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
 log_console(cli_color(str_size(tr('Platform:')                  , 27), 'white').' '.PLATFORM);
 log_console(cli_color(str_size(tr('Environment:')               , 27), 'white').' '.ENVIRONMENT);

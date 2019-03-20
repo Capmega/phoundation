@@ -531,8 +531,8 @@ if($noversion or $notag){
 /*
  * Do git push all changes and tags
  */
-if($nopush){
-    log_console(tr('Skipping git push for changes and tags due to no "--do-version" or no "--do-tag" or no "--do-push" command line parameters'), 'yellow');
+if($nopush or $ignore){
+    log_console(tr('Skipping git push for changes and tags due to no "--do-version" or "-i" or "--ignore" or  no "--do-tag" or no "--do-push" command line parameters'), 'yellow');
 
 }else{
     log_console(tr('Executing git push'), 'white');
@@ -586,7 +586,7 @@ if($nocompress){
         $option = ' --force-compress';
     }
 
-    script_exec('base/compress', $option, null, null, 30);
+    script_exec('base/compress', $option, null, null, 300);
 
     /*
      * Compress script generates files that aren't git commited
@@ -674,7 +674,7 @@ foreach($targets as $target_environment){
 
     $deploy_config                         = $_CONFIG['deploy'][$target_environment];
     $deploy_config['target_dir']           = unslash($deploy_config['target_dir']);
-    $deploy_config['preserve_owner_group'] = (!$no_preserve_og and isset_get($deploy_config['preserve_owner_group']));
+    $deploy_config['preserve_owner_group'] = (!$no_preserve_og and isset_get($deploy_config['preserve_owner_group'], true));
     $deploy_config['target_user']          = ($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '');
 
     array_ensure($deploy_config, 'target_user,target_server,target_port,target_dir,categories,modes,include_dirs,exclude_dirs,rsync_parrallel,sudo,user,group,dir_mode,file_mode,www_mode');

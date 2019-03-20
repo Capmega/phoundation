@@ -17,6 +17,7 @@ function notifications_send($params){
     static $count = 0;
     global $_CONFIG, $core;
 
+return false;
     try{
 //        log_file(isset_get($params['message']), 'notifications', 'warning');
 
@@ -45,6 +46,7 @@ function notifications_send($params){
             }
 
         }else{
+show($params);
             array_ensure($params, 'title');
             log_file(isset_get($params['description'], tr('No description specified')), 'notification-'.isset_get($params['title'], tr('without-title')), 'yellow');
         }
@@ -218,6 +220,7 @@ return false;
         return true;
 
     }catch(Exception $e){
+showdie($e);
         log_console(tr('notifications_send(): Notification system failed with ":exception"', array(':exception' => $e->getMessage())), 'error');
 
         if($core->register['script'] != 'init'){

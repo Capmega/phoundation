@@ -165,7 +165,7 @@ function html_bundler($type){
              * the 0 bytes bundle files remain, leaving the site without CSS or
              * JS
              */
-            if(filesize($bundle_file)){
+            if(!filesize($bundle_file)){
                 file_delete($bundle_file);
                 return html_bundler($type);
             }
