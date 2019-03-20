@@ -18,13 +18,15 @@ Possible arguments:
                                 project update script will search in
                                 /var/www/html/phoundation
 
---no-init                     - Do not do execute a system init after the update
+-n, --no-init                 - Do not do execute a system init after the update
                                 process has finished
 
 -r, --re-update               - Do not do execute a system init after the update
                                 process has finished
 
---no-commit                   - Do not automatically git commit after the update
+--no-update                   - Do not update anything at all
+
+-c, --no-commit               - Do not automatically git commit after the update
                                 process has finished
 
 -i, --ignore-changes          - Update even though this project has git changes
@@ -42,13 +44,14 @@ try{
     /*
      * Get parameters
      */
-    $noinit   = cli_argument('--no-init');
-    $nocommit = cli_argument('--no-commit');
+    $noinit   = cli_argument('-n,--no-init');
+    $nocommit = cli_argument('-c,--no-commit');
     $ignore   = cli_argument('-i,--ignore-changes');
     $no_stash = cli_argument('-s,--no-stash');
     $local    = cli_argument('-l,--local');
     $no_times = cli_argument('-n,--no-times');
     $reupdate = cli_argument('-r,--re-update');
+    $noupdate = cli_argument('--no-update');
     $upgrade  = cli_argument('-u,--upgrade', true);
     $branch   = cli_argument('-b,--branch' , true);
 
@@ -309,84 +312,90 @@ try{
     /*
      * Libraries
      */
-    log_console(tr('Copying libraries'), 'cyan');
+    if($noupdate){
+        log_console(tr('Not updating anything due to "--no-update" option'), 'yellow');
 
-    if(empty($test)){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/libs '.ROOT.'www/en/', $exitcodes['www/en/libs']);
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/tests '.ROOT.'www/en/', $exitcodes['www/en']);
-    }
+    }else{
+        log_console(tr('Copying libraries'), 'cyan');
+        $exitcodes = array();
 
-    // Phoundation AJAX files
-    log_console(tr('Copying ajax files'), 'cyan');
-
-    if(empty($test)){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/ajax/', $exitcodes['www/en/ajax']);
-
-        // Phoundation AJAX files for admin section
-        if(file_exists(ROOT.'www/en/admin/ajax/')){
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/admin/ajax/', $exitcodes['www/en/admin/ajax']);
+        if(empty(TEST)){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/libs '.ROOT.'www/en/', $exitcodes['www/en/libs']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/tests '.ROOT.'www/en/', $exitcodes['www/en']);
         }
-    }
 
-    // Phoundation scripts
-    log_console(tr('Copying phoundation scripts'), 'cyan');
+        // Phoundation AJAX files
+        log_console(tr('Copying ajax files'), 'cyan');
 
-    if(empty($test)){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/base/* '.ROOT.'scripts/base/', $exitcodes['scripts/base']);
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/tests/* '.ROOT.'scripts/tests/', $exitcodes['libs']);
-    }
+        if(empty(TEST)){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/ajax/', $exitcodes['www/en/ajax']);
 
-    // Framework init files
-    log_console(tr('Copying framework init files'), 'cyan');
-
-    if(empty($test)){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/init/framework/* '.ROOT.'init/framework/', $exitcodes['init/framework']);
-    }
-
-    // phoundation configuration
-    log_console(tr('Copying phoundation configuration'), 'cyan');
-
-    if(empty($test)){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/config/base/* '.ROOT.'config/base/', $exitcodes['config/base']);
-    }
-
-    // Javascript
-    log_console(tr('Copying javascript files'), 'cyan');
-
-    if(empty($test)){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/pub/js/base/', $exitcodes['www/en/pub/js/base']);
-
-        if(file_exists(ROOT.'www/en/admin/pub/js/')){
-            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/admin/pub/js/base/', $exitcodes['www/en/admin/pub/js/base']);
+            // Phoundation AJAX files for admin section
+            if(file_exists(ROOT.'www/en/admin/ajax/')){
+                passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/www/en/ajax/base '.ROOT.'www/en/admin/ajax/', $exitcodes['www/en/admin/ajax']);
+            }
         }
-    }
 
-    // Documentation
-    log_console(tr('Copying documentation'), 'cyan');
+        // Phoundation scripts
+        log_console(tr('Copying phoundation scripts'), 'cyan');
 
-    if(empty($test)){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/doc/* '.ROOT.'data/doc/', $exitcodes['data/doc']);
-    }
-
-    // Audio files
-    log_console(tr('Copying audio files'), 'cyan');
-
-    if(empty($test)){
-        passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.ROOT.'data/audio/', $exitcodes['data/audio']);
-    }
-
-    foreach($exitcodes as $path => $exitcode){
-        if($exitcode){
-            log_console(tr('Rsync of ":path" failed with exit code ":code"', array(':path' => $path, ':code' => $exitcode)));
-            $e = true;
+        if(empty(TEST)){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/base/* '.ROOT.'scripts/base/', $exitcodes['scripts/base']);
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/scripts/tests/* '.ROOT.'scripts/tests/', $exitcodes['libs']);
         }
-    }
 
-    if(isset($e) and !FORCE){
-        throw new bException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
-    }
+        // Framework init files
+        log_console(tr('Copying framework init files'), 'cyan');
 
-    unset($exitcode);
+        if(empty(TEST)){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/init/framework/* '.ROOT.'init/framework/', $exitcodes['init/framework']);
+        }
+
+        // phoundation configuration
+        log_console(tr('Copying phoundation configuration'), 'cyan');
+
+        if(empty(TEST)){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/config/base/* '.ROOT.'config/base/', $exitcodes['config/base']);
+        }
+
+        // Javascript
+        log_console(tr('Copying javascript files'), 'cyan');
+
+        if(empty(TEST)){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/pub/js/base/', $exitcodes['www/en/pub/js/base']);
+
+            if(file_exists(ROOT.'www/en/admin/pub/js/')){
+                passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms --delete '.$phoundation['host'].':'.$phoundation['path'].'/www/en/pub/js/base/* '.ROOT.'www/en/admin/pub/js/base/', $exitcodes['www/en/admin/pub/js/base']);
+            }
+        }
+
+        // Documentation
+        log_console(tr('Copying documentation'), 'cyan');
+
+        if(empty(TEST)){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/doc/* '.ROOT.'data/doc/', $exitcodes['data/doc']);
+        }
+
+        // Audio files
+        log_console(tr('Copying audio files'), 'cyan');
+
+        if(empty(TEST)){
+            passthru('rsync -e "ssh -p '.$phoundation['port'].'" -aczvAXHS '.$no_times.' --no-perms '.$phoundation['host'].':'.$phoundation['path'].'/data/audio/* '.ROOT.'data/audio/', $exitcodes['data/audio']);
+        }
+
+        foreach($exitcodes as $path => $exitcode){
+            if($exitcode){
+                log_console(tr('Rsync of ":path" failed with exit code ":code"', array(':path' => $path, ':code' => $exitcode)));
+                $e = true;
+            }
+        }
+
+        if(isset($e) and !FORCE){
+            throw new bException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
+        }
+
+        unset($exitcode);
+    }
 
 
 
@@ -401,8 +410,8 @@ try{
     /*
      * Auto commit all updated phoundation files
      */
-    if($nocommit){
-        log_console(tr('Skipping git commit due to "--no-commit" option'), 'yellow');
+    if($nocommit or $noupdate or TEST){
+        log_console(tr('Skipping git commit due to "--no-commit" or "--no-update" or "--test" option'), 'yellow');
 
     }else{
         if(git_status()){
