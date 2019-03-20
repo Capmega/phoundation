@@ -1000,7 +1000,7 @@ function ssh_get_account($account){
 
         $retval = sql_get('SELECT    `ssh_accounts`.`id`,
                                      `ssh_accounts`.`createdon`,
-                                     `ssh_accounts`.`modifiedon`,
+                                     `ssh_accounts`.`meta_id`,
                                      `ssh_accounts`.`name`,
                                      `ssh_accounts`.`username`,
                                      `ssh_accounts`.`ssh_key`,
@@ -1008,17 +1008,12 @@ function ssh_get_account($account){
                                      `ssh_accounts`.`description`,
 
                                      `createdby`.`name`   AS `createdby_name`,
-                                     `createdby`.`email`  AS `createdby_email`,
-                                     `modifiedby`.`name`  AS `modifiedby_name`,
-                                     `modifiedby`.`email` AS `modifiedby_email`
+                                     `createdby`.`email`  AS `createdby_email`
 
                            FROM      `ssh_accounts`
 
                            LEFT JOIN `users` AS `createdby`
-                           ON        `ssh_accounts`.`createdby`  = `createdby`.`id`
-
-                           LEFT JOIN `users` AS `modifiedby`
-                           ON        `ssh_accounts`.`modifiedby` = `modifiedby`.`id`'.$where,
+                           ON        `ssh_accounts`.`createdby`  = `createdby`.`id`'.$where,
 
                            $execute);
 
