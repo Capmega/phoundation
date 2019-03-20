@@ -6,22 +6,17 @@ try{
 
     $filters = array_force($filters);
     $trace   = array();
-    $skipped = false;
 
-    foreach(debug_backtrace() as $part){
-        if(!$skipped){
-            /*
-             * Remove the debug_trace() call from the trace list
-             */
-            $skipped = true;
+    foreach(debug_backtrace() as $key => $value){
+        if($skip_own and ($key <= 1)){
             continue;
         }
 
         foreach($filters as $filter){
-            unset($part[$filter]);
+            unset($value[$filter]);
         }
 
-        $trace[] = $part;
+        $trace[] = $value;
     }
 
     return $trace;

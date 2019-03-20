@@ -2,19 +2,22 @@
 global $core;
 
 if(!isset($core)){
-    throw new BException('Pre core available PHP ERROR ['.$errno.'] "'.$errstr.'" in "'.$errfile.'@'.$errline.'"', $errno);
+    throw new BException(tr('Pre core available PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
 }
 
 if(!$core->register['ready']){
-    throw new BException('Pre core-ready PHP ERROR ['.$errno.'] "'.$errstr.'" in "'.$errfile.'@'.$errline.'"', $errno);
+    throw new BException(tr('Pre core ready PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
 }
 
-$trace = "\n\nFUNCTION TRACE\n".htmlentities(print_r(debug_trace(), true));
+$trace = debug_trace();
+unset($trace[0]);
+unset($trace[1]);
 
-notify(array('code'    => 'php-error',
+notify(array('code'    => 'PHP'.$errno,
              'groups'  => 'developers',
-             'title'   => tr('PHP Error'),
-             'message' => tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline" with trace ":trace"', array(':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline, ':trace' => $trace))));
+             'title'   => tr('PHP ERROR ":errno"', array(':errno' => $errno)),
+             'data'    => $trace,
+             'message' => tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline))));
 
-throw new BException(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), $errno);
+throw new BException(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
 ?>

@@ -49,6 +49,7 @@ function notifications_library_init(){
  * @see template_install()
  * @see notify()
  * @version 2.5.0: Added function and documentation
+ * @note $notification[code] is obligatory, and either $notification[title] or $notification[message] must be set
  * @example Remember to not use this function directly, use notify() instead!
  * code
  * notify(array('code'    => 'test',
@@ -63,27 +64,29 @@ function notifications_library_init(){
  *
  * @param params $notification A parameters array
  * @param mixed $notification[code]
+ * @param null natural $notification[priority]
  * @param null string $notification[title]
  * @param null string $notification[message]
- * @param null mixed $notification[groups]
  * @param null mixed $notification[data]
+ * @param null mixed $notification[groups]
+ * @param boolean $log If set to true, will log the notification
  * @return natural The notifications id
  */
-function notifications($notification){
+function notifications($notification, $log){
     global $_CONFIG, $core;
 
     try{
         /*
          * Add the notification to the database for later lookup
          */
-        $notification = notifications_insert($notification);
+        $notification = notifications_insert($notification, $log);
 
         if($notification['exception'] and !$_CONFIG['production']){
             /*
              * Exception in non production environments, don't send
              * notifications since we're working on this project!
              */
-            $code = $notification['message']->getCode();
+            $code = $notification['code'];
 
             if(str_until($code, '/') === 'warning'){
                 /*
@@ -101,11 +104,21 @@ function notifications($notification){
             throw new BException($notification['message'], $notification['code']);
         }
 
-        notifications_send($notification);
+// :TODO: Implement all required sub sections, then enable
+        //notifications_send($notification);
 
         return $notification['id'];
 
     }catch(Exception $e){
+        if($notification['exception']){
+            /*
+             * This is just the notification being thrown as an exception, keep
+             * on throwing
+             */
+            log_console(tr('notifications(): Encountered Error / Exception / BException ":e" on a non production system, throwing exception instead of notifying', array(':e' => $e->getMessage())), 'error');
+            throw $e;
+        }
+
         log_console(tr('notifications(): Notification system failed with ":exception"', array(':exception' => $e->getMessage())), 'error');
         log_console(tr('notifications(): No further exception will be thrown to avoid that one causing another notification which then would cause an endless loop'), 'error');
 
@@ -113,12 +126,875 @@ function notifications($notification){
             if(empty($_CONFIG['mail']['developer'])){
                 log_console('[notifications() FAILED : '.strtoupper(isset_get($_SESSION['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', 'error');
                 log_console(tr("notifications() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification was: \":params\"", array(':params' => $notification)), 'error');
-                log_console('WARNING! $_CONFIG[mail][developer] IS NOT SET, NOTIFICATIONS CANNOT BE SENT!', 'error');
+                log_console('WARNING! $_CONFIG[mail][developer] IS NOT SET, EMERGENCY NOTIFICATIONS CANNOT BE SENT!', 'error');
 
             }else{
                 mail($_CONFIG['mail']['developer'], '[notifications() FAILED : '.strtoupper(isset_get($_SESSION['domain'], $_CONFIG['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', "notifications() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification event was:\nEvent: \"".cfm($event)."\"\nMessage: \"".cfm($message)."\"");
             }
         }
+    }
+}
+
+
+
+/*
+ * Validate the specified notification
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $notification The parameters for this notification email
+ * @param boolean $log If set to true, will log the notification
+ * @return return void()
+ */
+function notifications_validate($notification, $log){
+    global $_CONFIG;
+
+    try{
+        load_libs('validate');
+
+        /*
+         * Process Error, Exception, and BException objects first
+         */
+        if(is_object($notification) and ($notification instanceof Error)){
+            /*
+             * This is a PHP Error. Weird, but not impossible, I guess
+             */
+            $notification = array('title'     => tr('PHP Error'),
+                                  'exception' => true,
+                                  'message'   => $notification->getMessage(),
+                                  'code'      => 'error');
+
+            log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['code']), 'error');
+
+        }elseif(is_object($notification) and ($notification instanceof Exception)){
+            if(is_object($notification) and ($notification instanceof BException) and (strtolower(substr($notification->getCode(), 0, 3)) !== 'php')){
+                /*
+                 * Notify about a BException
+                 */
+                $notification = array('title'     => ($notification->isWarning() ? tr('Phoundation warning') : tr('Phoundation exception')),
+                                      'exception' => true,
+                                      'message'   => implode("\n", $notification->getMessages()),
+                                      'data'      => $notification->getData(),
+                                      'code'      => ($notification->isWarning() ? 'warning' : 'bexception'));
+
+                log_file($notification['title']  , 'notification-'.strtolower($notification['code']), $notification['code']);
+                log_file($notification['message'], 'notification-'.strtolower($notification['code']), $notification['code']);
+
+            }else{
+                /*
+                 * Notify about another PHP exception
+                 */
+                $notification = array('title'     => tr('PHP Exception'),
+                                      'exception' => true,
+                                      'message'   => $notification->getMessage(),
+                                      'code'      => 'exception');
+
+                log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['code']), 'exception');
+            }
+
+        }else{
+            /*
+             * This is a normal notification
+             */
+            array_ensure($notification, 'code,priority,title,message,data');
+
+            $notification['exception'] = false;
+
+            log_file(not_empty($notification['title'].' '.$notification['message'], tr('No message specified')), 'notification-'.strtolower($notification['code']), 'yellow');
+        }
+
+        $v = new ValidateForm($notification, 'users_id,code,title,priority,groups,message,data');
+
+        /*
+         * Validate code
+         */
+        $v->isNotEmpty($notification['code'], tr('Please specify a notification code'));
+        $v->isRegex($notification['code'], '/[a-z0-9- ]{1,32}/i', tr('Please specify a valid code, containing 0-9, a-z, A-Z, - or spaces, between 1 and 32 characters'));
+
+        /*
+         * Validate title
+         */
+        if($notification['title']){
+            $v->hasMinChars($notification['title'], 4, tr('Please ensure that the notification message has more than 4 characters'));
+            $v->hasMaxChars($notification['title'], 4090, tr('Please ensure that the notification message has less than 4090 characters'));
+            $v->hasNoHTML($notification['title'], tr('Please ensure that the notification title has no HTML'));
+
+        }else{
+            $notification['title'] = '';
+        }
+
+        /*
+         * Validate message
+         * Messages can NOT have HTML!
+         */
+        if($notification['message']){
+            $v->hasMinChars($notification['message'], 4, tr('Please ensure that the notification message has more than 4 characters'));
+            $v->hasMaxChars($notification['message'], 4090, tr('Please ensure that the notification message has less than 4090 characters'));
+            $v->hasNoHTML($notification['message'], tr('Please ensure that the message does not contain any HTML'));
+
+        }else{
+            $notification['message'] = '';
+
+        }
+
+        /*
+         * At least title or message must have been specified!
+         */
+        if(!$notification['title'] and !$notification['message']){
+            $v->setError(tr('Please ensure that at least $notification[title] and or $notification[message] have been set'));
+        }
+
+        /*
+         * Validate data
+         */
+        $notification['data'] = str_force($notification['data'], 'json');
+        $v->hasMaxChars($notification['message'], 4090, tr('Please ensure that the notification data has less than 4090 characters'));
+
+        /*
+         * Validate priority
+         */
+        if(!$notification['priority']){
+            $notification['priority'] = $_CONFIG['notifications']['defaults']['priority'];
+        }
+
+        $v->isNatural($notification['priority'], 0, tr('Please ensure that the notification priority is a natural number'));
+        $v->isBetween($notification['priority'], 0, 9, tr('Please ensure that the notification priority is a natural number between 0 (highest) and 9 (lowest)'));
+
+        /*
+         * Default groups
+         */
+        switch($notification['code']){
+            case 'error':
+                // FALLTHROUGH
+            case 'exception':
+                // FALLTHROUGH
+            case 'bexception':
+                /*
+                 * These are always only for the system developers, override
+                 * whatever was specified!
+                 */
+
+                break;
+
+            default:
+                $notification['groups'] = array_force($notification['groups']);
+        }
+
+        /*
+         * Validate that groups exist
+         */
+// :TODO: For now, notifications are still mostly disabled until the system is finished
+$notification['groups'] = array();
+        foreach($notification['groups'] as &$group){
+            $groups_id = notifications_get_group($group, 'id');
+
+            if($groups_id){
+                $group = $groups_id;
+
+            }else{
+                $v->setError(tr('The notifications group ":group" does not exist', array(':group' => $group)));
+            }
+        }
+
+        unset($group);
+
+        $v->isValid();
+
+        /*
+         * Sanitize
+         * Add URL
+         */
+        $notification['code'] = strtolower($notification['code']);
+        $notification['url']  = notifications_get_url($notification);
+
+        return $notification;
+
+    }catch(Exception $e){
+        throw new BException('notifications_validate(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Validate the specified notification group
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $group The parameters for this notification group
+ * @return return void()
+ */
+function notifications_validate_group($group){
+    try{
+        load_libs('validate');
+        $v = new ValidateForm($group, '');
+
+        return $group;
+
+    }catch(Exception $e){
+        throw new BException('notifications_validate_group(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Validate the specified notification member
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $member The parameters for this notification member
+ * @return return void()
+ */
+function notifications_validate_member($member){
+    try{
+        load_libs('validate');
+        $v = new ValidateForm($member, '');
+
+        return $member;
+
+    }catch(Exception $e){
+        throw new BException('notifications_validate_member(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Validate the specified notification method
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $method The parameters for this notification method
+ * @return return void()
+ */
+function notifications_validate_method($method){
+    try{
+        load_libs('validate');
+        $v = new ValidateForm($method, '');
+
+        return $method;
+
+    }catch(Exception $e){
+        throw new BException('notifications_validate_method(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Insert the specified notification in the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_validate()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $notification The parameters for this notification
+ * @return return array The notification, validated and sanitized with the database id added
+ */
+function notifications_insert($notification, $log){
+    try{
+        $notification = notifications_validate($notification, $log);
+
+        sql_query('INSERT INTO `notifications` (`createdby`, `meta_id`, `users_id`, `code`, `url`, `priority`, `data`, `title`, `message`)
+                   VALUES                      (:createdby , :meta_id , :users_id , :code , :url , :priority , :data , :title , :message )',
+
+                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                         ':meta_id'   => meta_action(),
+                         ':users_id'  => $notification['users_id'],
+                         ':code'      => $notification['code'],
+                         ':url'       => $notification['url'],
+                         ':priority'  => $notification['priority'],
+                         ':data'      => $notification['data'],
+                         ':title'     => $notification['title'],
+                         ':message'   => $notification['message']));
+
+        $notification['id'] = sql_insert_id();
+        notifications_insert_groups($notification);
+
+        return $notification;
+
+    }catch(Exception $e){
+        throw new BException('notifications_insert(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Insert the specified notification group in the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_validate()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $notification The parameters for this notification
+ * @return return array The notification, validated and sanitized with the database id added
+ */
+function notifications_insert_group($group){
+    try{
+        $group = notifications_validate_group($group);
+
+        sql_query('INSERT INTO `notifications_groups` (`createdby`, `meta_id`, )
+                   VALUES                             (:createdby , :meta_id , )',
+
+                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                         ':meta_id'   => meta_action(),
+                         ));
+
+        $group['id'] = sql_insert_id();
+
+        return $group;
+
+    }catch(Exception $e){
+        throw new BException('notifications_insert_group(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Insert the specified notification member in the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_validate()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $notification The parameters for this notification
+ * @return return array The notification, validated and sanitized with the database id added
+ */
+function notifications_insert_member($member){
+    try{
+        $member = notifications_validate_member($member);
+
+        sql_query('INSERT INTO `notifications_members` (`createdby`, `meta_id`, )
+                   VALUES                              (:createdby , :meta_id , )',
+
+                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                         ':meta_id'   => meta_action(),
+                         ));
+
+        $member['id'] = sql_insert_id();
+
+        return $member;
+
+    }catch(Exception $e){
+        throw new BException('notifications_insert_member(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Insert the specified notification method in the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_validate()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $notification The parameters for this notification
+ * @return return array The notification, validated and sanitized with the database id added
+ */
+function notifications_insert_method($method){
+    try{
+        $method = notifications_validate_method($method);
+
+        sql_query('INSERT INTO `notifications_methods` (`createdby`, `meta_id`, )
+                   VALUES                              (:createdby , :meta_id , )',
+
+                   array(':createdby' => isset_get($_SESSION['user']['id']),
+                         ':meta_id'   => meta_action(),
+                         ));
+
+        $method['id'] = sql_insert_id();
+
+        return $method;
+
+    }catch(Exception $e){
+        throw new BException('notifications_insert_method(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Link the notification to the specified groups
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notification_insert()
+ * @see notifications_validate()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param params $notification The parameters for this notification
+ * @return return void()
+ */
+function notifications_insert_groups($notification){
+    try{
+        $insert = sql_prepare('INSERT INTO `notifications_groups` (`notifications_id`, `groups_id`)
+                               VALUES                             (:notifications_id , :groups_id )');
+
+        foreach($notification['groups'] as $groups_id){
+            $insert->execute(array(':groups_id'        => $groups_id,
+                                   ':notifications_id' => $notification['id']));
+        }
+
+    }catch(Exception $e){
+        throw new BException('notifications_insert(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get and return the specified notification from the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_insert()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param natural The id for the required notification
+ * @return return array the specified notification
+ */
+function notifications_get($notifications_id){
+    try{
+        if(!is_natural($notifications_id)){
+            throw new BException(tr('notifications_get(): Invalid notifications id ":id" specified', array(':id' => $notifications_id)), 'invalid');
+        }
+
+        $retval = sql_get('SELECT `id`,
+                                  `createdby`,
+                                  `createdon`,
+                                  `meta_id`,
+                                  `status`,
+                                  `url`,
+                                  `code`,
+                                  `priority`,
+                                  `title`,
+                                  `message`,
+                                  `data`
+
+                           FROM   `notifications`
+
+                           WHERE  `id`     = :id
+                           AND    `status` = NULL',
+
+                           array(':id' => $notifications_id));
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('notifications_get(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get and return the specified notifications group from the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_insert()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param natural The id for the required notification
+ * @return return array the specified notification
+ */
+function notifications_get_group($group, $column = null){
+    try{
+        /*
+         * Validate
+         */
+        if(is_natural($group)){
+            $where = ' WHERE `id`     = :id
+                       AND   `status` = NULL ';
+            $execute[':id'] = $group;
+
+        }elseif(is_string($group)){
+            $where = ' WHERE `seoname` = :seoname
+                       AND   `status`  = NULL ';
+            $execute[':seoname'] = $group;
+
+        }else{
+            throw new BException(tr('notifications_get_group(): Specified group ":group" is invalid', array(':group' => $group)), 'invalid');
+        }
+
+        if($column){
+            $single  = true;
+            $columns = ' `'.$column.'` ';
+
+        }else{
+            $single  = false;
+            $columns = '`id`,
+                        `createdby`,
+                        `createdon`,
+                        `meta_id`,
+                        `status`, ';
+        }
+
+        $retval = sql_get('SELECT '.$columns.'
+
+                           FROM   `notifications_groups`'.
+
+                           $where,
+
+                           $single, $execute);
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('notifications_get_group(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get and return the specified notifications method from the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_insert()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param natural The id for the required notification
+ * @return return array the specified notification
+ */
+function notifications_get_method($method, $column = null){
+    try{
+        /*
+         * Validate
+         */
+        if(is_natural($method)){
+            $where = ' WHERE `id`     = :id
+                       AND   `status` = NULL ';
+            $execute[':id'] = $method;
+
+        }elseif(is_string($method)){
+            $where = ' WHERE `seoname` = :seoname
+                       AND   `status`  = NULL ';
+            $execute[':seoname'] = $method;
+
+        }else{
+            throw new BException(tr('notifications_get_method(): Specified method ":method" is invalid', array(':method' => $method)), 'invalid');
+        }
+
+        if($column){
+            $single  = true;
+            $columns = ' `'.$column.'` ';
+
+        }else{
+            $single  = false;
+            $columns = '`id`,
+                        `createdby`,
+                        `createdon`,
+                        `meta_id`,
+                        `status`, ';
+        }
+
+        $retval = sql_get('SELECT '.$columns.'
+
+                           FROM   `notifications_methods`'.
+
+                           $where,
+
+                           $single, $execute);
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('notifications_get_method(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Get and return the specified notifications member from the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_insert()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param natural The id for the required notification
+ * @return return array the specified notification
+ */
+function notifications_get_member($member, $column = null){
+    try{
+        /*
+         * Validate
+         */
+        if(is_natural($member)){
+            $where = ' WHERE `id`     = :id
+                       AND   `status` = NULL ';
+            $execute[':id'] = $member;
+
+        }elseif(is_string($member)){
+            $where = ' WHERE `seoname` = :seoname
+                       AND   `status`  = NULL ';
+            $execute[':seoname'] = $member;
+
+        }else{
+            throw new BException(tr('notifications_get_member(): Specified member ":member" is invalid', array(':member' => $member)), 'invalid');
+        }
+
+        if($column){
+            $single  = true;
+            $columns = ' `'.$column.'` ';
+
+        }else{
+            $single  = false;
+            $columns = '`id`,
+                        `createdby`,
+                        `createdon`,
+                        `meta_id`,
+                        `status`, ';
+        }
+
+        $retval = sql_get('SELECT '.$columns.'
+
+                           FROM   `notifications_members`'.
+
+                           $where,
+
+                           $single, $execute);
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('notifications_get_member(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * List and return the specified notifications groups from the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_insert()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param natural The id for the required notification
+ * @return return array the specified notification
+ */
+function notifications_list_groups($members_id){
+    try{
+        /*
+         * Validate
+         */
+        if(!is_natural($members_id)){
+            throw new BException(tr('notifications_list_groups(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
+        }
+
+        $retval = sql_query('SELECT `id`
+
+                             FROM   `notifications_groups`
+
+                             WHERE ',
+
+                             $execute);
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('notifications_list_groups(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * List and return the specified notifications method from the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_insert()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param natural The id for the required notification
+ * @return return array the specified notification
+ */
+function notifications_list_methods($members_id){
+    try{
+        /*
+         * Validate
+         */
+        if(!is_natural($members_id)){
+            throw new BException(tr('notifications_list_methods(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
+        }
+
+        $retval = sql_query('SELECT `id`
+
+                             FROM   `notifications_methods`
+
+                             WHERE ',
+
+                             $execute);
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('notifications_list_methods(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * List and return the specified notifications member from the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_insert()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param natural The id for the required notification
+ * @return return array the specified notification
+ */
+function notifications_list_members($members_id){
+    try{
+        /*
+         * Validate
+         */
+        if(!is_natural($members_id)){
+            throw new BException(tr('notifications_list_members(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
+        }
+
+        $retval = sql_query('SELECT `id`
+
+                             FROM   `notifications_members`
+
+                             WHERE ',
+
+                             $execute);
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('notifications_list_members(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Create a new URL for the specified notification
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package notifications
+ * @see notify()
+ * @see notification()
+ * @see notifications_validate()
+ * @version 2.5.0: Added function and documentation
+ *
+ * @param natural The id for the required notification
+ * @return return array the specified notification
+ */
+function notifications_get_url($notification){
+    global $_CONFIG;
+
+    try{
+
+    }catch(Exception $e){
+        throw new BException('notifications_get_url(): Failed', $e);
     }
 }
 
@@ -163,39 +1039,79 @@ function notifications_send($notification = null){
             $notification = notifications_get($notification);
         }
 
-        $methods = notifications_get_methods($notification);
+        /*
+         * Go over all linked groups
+         */
+        $groups = notifications_list_methods($notification);
 
-        foreach($methods as $method){
-            switch($method){
-                case 'sms':
-                    return notifications_sms($notification);
+        while($group = sql_fetch($groups)){
+            $members = notifications_list_members($group);
 
-                case 'email':
-                    return notifications_email($notification);
+            while($member = sql_fetch($members)){
+                $methods = notifications_get_methods($member);
 
-                case 'prowl':
-                    return notifications_prowl($notification);
+                foreach($methods as $method){
+                    switch($method){
+                        case 'sms':
+                            notifications_sms($notification);
+                            break;
 
-                case 'pushover':
-                    return notifications_pushover($notification);
+                        case 'email':
+                            notifications_email($notification);
+                            break;
 
-                case 'pushcap':
-                    return notifications_pushcap($notification);
+                        case 'prowl':
+                            notifications_prowl($notification);
+                            break;
 
-                case 'desktop':
-                    return notifications_desktop($notification);
+                        case 'pushover':
+                            notifications_pushover($notification);
+                            break;
 
-                case 'web':
-                    return notifications_web($notification);
+                        case 'pushcap':
+                            notifications_pushcap($notification);
+                            break;
 
-                case 'push':
-                    return notifications_push($notification);
+                        case 'desktop':
+                            notifications_desktop($notification);
+                            break;
 
-                case 'api':
-                    return notifications_api($notification);
+                        case 'web':
+                            notifications_web($notification);
+                            break;
 
-                default:
-                    throw new BException();
+                        case 'push':
+                            notifications_push($notification);
+                            break;
+
+                        case 'api':
+                            notifications_api($notification);
+                            break;
+
+                        case 'jabber':
+                            // FALLTHROUH
+                        case 'irc':
+                            // FALLTHROUH
+                        case 'hangouts':
+                            // FALLTHROUH
+                        case 'matrix':
+                            // FALLTHROUH
+                        case 'whatsapp':
+                            // FALLTHROUH
+                        case 'signal':
+                            // FALLTHROUH
+                        case 'slack':
+                            // FALLTHROUH
+                        case 'telegram':
+                            // FALLTHROUH
+                        case 'twitter':
+                            notifications_messenger($notification, $method);
+                            break;
+
+                        default:
+                            throw new BException(tr('notifications_send(): Unknown notification method ":method" spefified', array(':method' => $method)), 'unknown');
+                    }
+                }
             }
         }
 
@@ -420,7 +1336,7 @@ function notifications_api($notification){
 
 
 /*
- * Validate the specified notification
+ * Send notifications to a messaging system
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -429,249 +1345,18 @@ function notifications_api($notification){
  * @package notifications
  * @see notify()
  * @see notification()
- * @version 2.5.0: Added function and documentation
+ * @version 2.5.14: Added function and documentation
  *
  * @param params $notification The parameters for this notification email
  * @return return void()
  */
-function notifications_validate($notification){
+function notifications_messenger($notification, $method){
     try{
-        load_libs('validate');
-
-        if(is_object($notification) and ($notification instanceof Error)){
-            /*
-             * This is a PHP Error. Weird, but not impossible, I guess
-             */
-            $notification  = array('title'     => tr('PHP Error'),
-                                   'exception' => true,
-                                   'message'   => $notification->getMessage(),
-                                   'code'      => 'error');
-
-            log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['title']));
-
-        }elseif(is_object($notification) and ($notification instanceof Exception)){
-            if(is_object($notification) and ($notification instanceof BException)){
-                /*
-                 * Notify about a BException
-                 */
-                $notification  = array('title'     => ($notification->isWarning() ? tr('Phoundation warning') : tr('Phoundation exception')),
-                                       'exception' => true,
-                                       'message'   => $notification->getMessages(),
-                                       'data'      => $notification->getData(),
-                                       'code'      => 'BException');
-
-                log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['title']));
-
-            }else{
-                /*
-                 * Notify about another PHP exception
-                 */
-                $notification  = array('title'     => tr('PHP Exception'),
-                                       'exception' => true,
-                                       'message'   => $notification->getMessage(),
-                                       'code'      => 'exception');
-
-                log_file($notification['title'].' '.$notification['message'], 'notification-'.strtolower($notification['title']));
-            }
-
-        }else{
-            /*
-             * This is a normal notification
-             */
-            array_ensure($notification, 'code,data,title,message');
-
-            $notification['exception'] = false;
-
-            log_file(not_empty($notification['title'].' '.$notification['message'], tr('No message specified')), 'notification-'.not_empty($notification['title'], tr('without-title')), 'yellow');
-        }
-
-        $v = new ValidateForm($notification, 'code,title,groups,message');
-
-        /*
-         * Validate code
-         */
-        $v->isNotEmpty($notification['code'], tr('Please specify a notification code'));
-        $v->isRegex($notification['code'], '/[a-z0-9- ]{1,32}/i', tr('Please specify a valid code, containing 0-9, a-z, A-Z, - or spaces, between 1 and 32 characters'));
-
-        /*
-         * Validate title
-         */
-        $v->hasMinChars($notification['title'], 4, tr('Please ensure that the notification message has more than 4 characters'));
-        $v->hasMaxChars($notification['title'], 4090, tr('Please ensure that the notification message has less than 4090 characters'));
-        $v->hasNoHTML($notification['title'], tr('Please ensure that the notification title has no HTML'));
-
-        /*
-         * Validate message
-         * Messages can NOT have HTML!
-         */
-        $v->hasMinChars($notification['message'], 4, tr('Please ensure that the notification message has more than 4 characters'));
-        $v->hasMaxChars($notification['message'], 4090, tr('Please ensure that the notification message has less than 4090 characters'));
-        $v->hasNoHTML($notification['message'], tr('Please ensure that the message does not contain any HTML'));
-
-        /*
-         * Validate the groups
-         */
-        switch($notification['code']){
-            case 'error':
-                // FALLTHROUGH
-            case 'exception':
-                // FALLTHROUGH
-            case 'bexception':
-                /*
-                 * These are always only for the system developers, override
-                 * whatever was specified!
-                 */
-
-                break;
-
-            default:
-                $notification['groups'] = array_force($notification['groups']);
-        }
-
-        $v->isValid();
-
-        /*
-         * Add URL
-         */
-        $notification['url'] = notifications_get_url($notification);
-
-        return $notification;
+        load_libs('messenger');
+        messenger_send($method, $notification['priority'].' '.$notification['title'].' '.$notification['url']);
 
     }catch(Exception $e){
-        throw new BException('notifications_validate(): Failed', $e);
+        throw new BException('notifications_messenger(): Failed', $e);
     }
 }
-
-
-
-/*
- * Insert the specified notification in the database
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package notifications
- * @see notify()
- * @see notification()
- * @see notifications_validate()
- * @version 2.5.0: Added function and documentation
- *
- * @param params $notification The parameters for this notification
- * @return return array The notification, validated and sanitized with the database id added
- */
-function notifications_insert($notification){
-    try{
-        $notification = notifications_validate($notification);
-
-        sql_query('INSERT INTO `notifications` (`createdby`, `meta_id`, `code`, `data`, `title`, `message`)
-                   VALUES                      (:createdby , :meta_id , :code , :data , :title , :message )',
-
-                   array(':createdby' => isset_get($_SESSION['user']['id']),
-                         ':meta_id'   => meta_action(),
-                         ':code'      => $notification['code'],
-                         ':data'      => $notification['data'],
-                         ':title'     => $notification['title'],
-                         ':message'   => $notification['message']));
-
-        $notification['id'] = sql_insert_id();
-        notifications_insert_groups($notification);
-
-        return $notification;
-
-    }catch(Exception $e){
-        throw new BException('notifications_insert(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Link the notification to the specified groups
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package notifications
- * @see notification_insert()
- * @see notifications_validate()
- * @version 2.5.0: Added function and documentation
- *
- * @param params $notification The parameters for this notification
- * @return return void()
- */
-function notifications_insert_groups($notification){
-    try{
-        $insert = sql_prepare('INSERT INTO `notifications_groups` (`notifications_id`, `groups_id`)
-                               VALUES                             (:notifications_id , :groups_id )');
-
-        foreach($notification['groups'] as $groups_id){
-            $insert->execute(array(':groups_id'        => $groups_id,
-                                   ':notifications_id' => $notification['id']));
-        }
-
-    }catch(Exception $e){
-        throw new BException('notifications_insert(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Get and return the specified notification from the database
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package notifications
- * @see notify()
- * @see notification()
- * @see notifications_insert()
- * @version 2.5.0: Added function and documentation
- *
- * @param natural The id for the required notification
- * @return return array the specified notification
- */
-function notifications_get($notifications_id){
-    try{
-        if(!is_natural($notifications_id)){
-            throw new BException(tr('notifications_get(): Invalid notifications id ":id" specified', array(':id' => $notifications_id)), 'invalid');
-        }
-
-    }catch(Exception $e){
-        throw new BException('notifications_get(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Create a new URL for the specified notification
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package notifications
- * @see notify()
- * @see notification()
- * @see notifications_validate()
- * @version 2.5.0: Added function and documentation
- *
- * @param natural The id for the required notification
- * @return return array the specified notification
- */
-function notifications_url($notification){
-    global $_CONFIG;
-
-    try{
-
-
-    }catch(Exception $e){
-        throw new BException('notifications_url(): Failed', $e);
-    }
-}
-
 ?>

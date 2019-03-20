@@ -69,6 +69,10 @@ try{
         die('exception before platform detection');
     }
 
+    log_file(tr('UNCAUGHT EXCEPTION'), 'uncaught-exception', 'exception');
+    log_file($e, 'uncaught-exception', 'exception');
+    notify($e, false);
+
     switch(PLATFORM){
         case 'cli':
             /*
@@ -266,6 +270,8 @@ try{
                 define('VERYVERBOSE', (getenv('VERYVERBOSE') ? 'VERYVERBOSE' : null));
             }
 
+            log_file($e, 'uncaught-exception', 'exception');
+
             $defines = array('ADMIN'    => '',
                              'PWD'      => slash(isset_get($_SERVER['PWD'])),
                              'STARTDIR' => slash(getcwd()),
@@ -292,7 +298,7 @@ try{
                  * in debug mode or not!
                  */
                 if(!headers_sent()){
-                    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+                    header($_SERVER['SERVER_PROTOCOL'] . ' 500 '.tr('Internal Server Error'), true, 500);
                 }
 
                 if(method_exists($e, 'getMessages')){
@@ -304,7 +310,7 @@ try{
                     error_log($e->getMessage());
                 }
 
-                die('Pre ready exception');
+                die(tr('Pre ready exception'));
             }
 
             if($e->getCode() === 'validation'){
@@ -322,7 +328,7 @@ try{
 
             if(debug()){
                 if(!headers_sent()){
-                    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+                    header($_SERVER['SERVER_PROTOCOL'].' 500 '.tr('Internal Server Error'), true, 500);
                 }
 
                 switch($core->callType()){

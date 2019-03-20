@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.13');
+define('FRAMEWORKCODEVERSION', '2.5.14');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -839,6 +839,7 @@ function debug($enabled = null){
  * @see notifications()
  * @version 2.5.0: Updated to now call notifications()
  * @version 2.5.14: Improved documentation
+ * @note $notification[code] is obligatory, and either $notification[title] or $notification[message] must be set
  * @example
  * code
  * notify(array('code'    => 'test',
@@ -853,24 +854,34 @@ function debug($enabled = null){
  *
  * @param params Error Exception BException $params The notification parameters, or an Exception / Error / BException object
  * @param string $notification[code]
+ * @param null natural $notification[priority]
  * @param null string $notification[title]
  * @param null string $notification[message]
- * @param null mixed $notification[groups]
  * @param null mixed $notification[data]
+ * @param null mixed $notification[groups]
+ * @param boolean $log If set to true, will log the notification
  * @return void
  */
-function notify($notification){
+function notify($notification, $log = true){
     try{
         load_libs('notifications');
-        return notifications($notification);
+        return notifications($notification, $log);
 
     }catch(Exception $e){
+        if($e){
+            /*
+             * This is just the notification being thrown as an exception, keep
+             * on throwing
+             */
+            throw $e;
+        }
+
         /*
          * Notification failed!
          *
          * Do NOT cause exception, because it its not caught, it might cause another notification, that will fail, cause exception and an endless loop!
          */
-        log_console(tr('Failed to notify event ":event"', array(':event' => $params)), 'error');
+        log_console(tr('Failed to notify event ":event"', array(':event' => $notification)), 'error');
         return false;
     }
 }
@@ -4449,6 +4460,7 @@ class Colors {
         $this->foreground_colors['light_red']    = '1;31';
         $this->foreground_colors['error']        = '1;31';
         $this->foreground_colors['exception']    = '1;31';
+        $this->foreground_colors['bexception']   = '1;31';
         $this->foreground_colors['purple']       = '0;35';
         $this->foreground_colors['light_purple'] = '1;35';
         $this->foreground_colors['brown']        = '0;33';
@@ -5091,9 +5103,10 @@ function debug_sql($query, $execute = null, $return_only = false){
  * @package system
  *
  * @param mixed $filters A list of keys that should be filtered from the debug_backtrace() output
+ * @param boolean $skip_own If specified as true, will skip the debug_trace() call and its handler inclusion from the trace
  * @return array The debug_backtrace() output with the specified keys filtered out
  */
-function debug_trace($filters = 'args'){
+function debug_trace($filters = 'args', $skip_own = true){
     return include(__DIR__.'/handlers/debug-trace.php');
 }
 

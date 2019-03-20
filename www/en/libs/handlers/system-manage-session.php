@@ -412,8 +412,12 @@ try{
                         $check = new DateTimeZone($_SESSION['user']['timezone']);
 
                     }catch(Exception $e){
-                        notify($e);
+                        /*
+                         * Timezone invalid for this user. Notify, but continue
+                         * by using the default
+                         */
                         $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
+                        notify($e);
                     }
                 }
             }
