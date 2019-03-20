@@ -1798,6 +1798,13 @@ function cli_build_commands_string(&$params){
              */
             $params['background'] = false;
 
+            if($params['timeout']){
+                $timeout  = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
+
+            }else{
+                $timeout  = '';
+            }
+
             if($value){
                 if(!is_array($value)){
                     if(empty($command)){
@@ -1811,13 +1818,6 @@ function cli_build_commands_string(&$params){
                 }
 
                 foreach($value as $special => &$argument){
-                    if($params['timeout']){
-                        $timeout  = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
-
-                    }else{
-                        $timeout  = '';
-                    }
-
                     if(!$argument){
                         /*
                          * Skip empty arguments

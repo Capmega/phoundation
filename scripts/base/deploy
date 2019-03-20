@@ -429,7 +429,8 @@ if($nobomcheck){
 
 }else{
     log_console(tr('Executing BOM check'), 'white');
-    script_exec(array('commands' => array('base/clearbom')));
+    script_exec(array('function' => 'passthru',
+                      'commands' => array('base/clearbom')));
 }
 
 
@@ -501,7 +502,7 @@ if($noversion){
     file_put_contents(ROOT.'config/project.php', $data);
 
     git_add(ROOT.'config/project.php');
-    git_commit('Upgraded project "'.PROJECT.'" version to "'.$newversion.'"');
+    git_commit(tr('Upgraded project ":project" version to ":version"', array(':project' => PROJECT, ':version' => $newversion)));
 
     init_hook('deploy_post_version', $nohooks, array('oldversion' => $oldversion,
                                                      'newversion' => $newversion));
@@ -588,7 +589,8 @@ if($nocompress){
         $option = ' --force-compress';
     }
 
-    script_exec(array('commands' => array('base/compress', array('timeout' => 300, $option))));
+    script_exec(array('function' => 'passthru',
+                      'commands' => array('base/compress', array('timeout' => 300, $option))));
 
     /*
      * Compress script generates files that aren't git commited
@@ -618,7 +620,7 @@ if($notranslate){
         log_console(tr('Executing translations'), 'white');
 
         $options[]          = 'translate';
-        $options['timeout'] = 90;
+        $options['timeout'] = 300;
 
         if($ignore_php){
             $options[] = '--ignore-php';
@@ -628,7 +630,8 @@ if($notranslate){
             $options[] = '--ignore-html';
         }
 
-        script_exec(array('commands' => array('base/translate', $options)));
+        script_exec(array('function' => 'passthru',
+                          'commands' => array('base/translate', $options)));
         init_hook('deploy_post_translation', $nohooks, array('languages' => $_CONFIG['language']['supported']));
 
     }else{
