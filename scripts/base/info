@@ -12,11 +12,14 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_no_arguments_left();
 sql_query('SELECT 1');
 
+$framework_status = version_compare(FRAMEWORKCODEVERSION, FRAMEWORKDBVERSION);
+$project_status   = version_compare(PROJECTCODEVERSION  , PROJECTDBVERSION);
+
 log_console(cli_color(str_size(tr('Project name:')              , 27), 'white').' '.PROJECT);
-log_console(cli_color(str_size(tr('Framework code version:')    , 27), ((FRAMEWORKCODEVERSION > FRAMEWORKDBVERSION) ? 'yellow' : ((FRAMEWORKCODEVERSION < FRAMEWORKDBVERSION) ? 'error' : 'white'))).' '.FRAMEWORKCODEVERSION);
-log_console(cli_color(str_size(tr('Framework database version:'), 27), ((FRAMEWORKCODEVERSION > FRAMEWORKDBVERSION) ? 'yellow' : ((FRAMEWORKCODEVERSION < FRAMEWORKDBVERSION) ? 'error' : 'white'))).' '.FRAMEWORKDBVERSION);
-log_console(cli_color(str_size(tr('Project code version:')      , 27), ((PROJECTCODEVERSION > PROJECTDBVERSION) ? 'yellow' : ((PROJECTCODEVERSION < PROJECTDBVERSION) ? 'error' : 'white'))).' '.PROJECTCODEVERSION);
-log_console(cli_color(str_size(tr('Project database version:')  , 27), ((PROJECTCODEVERSION > PROJECTDBVERSION) ? 'yellow' : ((PROJECTCODEVERSION < PROJECTDBVERSION) ? 'error' : 'white'))).' '.PROJECTDBVERSION);
+log_console(cli_color(str_size(tr('Framework code version:')    , 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')).' '.FRAMEWORKCODEVERSION);
+log_console(cli_color(str_size(tr('Framework database version:'), 27), ($framework_status ? (($framework_status < 0) ? 'error' : 'warning') : 'white')).' '.FRAMEWORKDBVERSION);
+log_console(cli_color(str_size(tr('Project code version:')      , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')).' '.PROJECTCODEVERSION);
+log_console(cli_color(str_size(tr('Project database version:')  , 27), ($project_status   ? (($project_status < 0)   ? 'error' : 'warning') : 'white')).' '.PROJECTDBVERSION);
 log_console(cli_color(str_size(tr('Init required:')             , 27), 'white').' '.str_boolean((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)));
 log_console(cli_color(str_size(tr('Platform:')                  , 27), 'white').' '.PLATFORM);
 log_console(cli_color(str_size(tr('Environment:')               , 27), 'white').' '.ENVIRONMENT);
@@ -24,4 +27,14 @@ log_console(cli_color(str_size(tr('Production:')                , 27), 'white').
 log_console(cli_color(str_size(tr('Debug:')                     , 27), 'white').' '.str_boolean(debug()));
 log_console(cli_color(str_size(tr('Core database:')             , 27), 'white').' '.$_CONFIG['db']['core']['db']);
 log_console(cli_color(str_size(tr('Active users:')              , 27), 'white').' '.sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
+
+if(($framework_status < 0) or ($project_status < 0)){
+    log_console();
+    throw new BException(tr('One or both database versions are ahead of the code version. Fix this with running the init script with  "./scripts/base/init reset"'), 'warning/invalid');
+}
+
+if(($framework_status > 0) or ($project_status > 0)){
+    log_console();
+    throw new BException(tr('One or both database versions are behind the code version. Fix this with running the init script with "./scripts/base/init"'), 'warning/invalid');
+}
 ?>
