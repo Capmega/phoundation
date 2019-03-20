@@ -70,9 +70,10 @@ function notifications_library_init(){
  * @param null mixed $notification[data]
  * @param null mixed $notification[groups]
  * @param boolean $log If set to true, will log the notification
+ * @param boolean $throw If set to true, if the notification is an exception and the system is non production, it will throw the exception instead of notifying
  * @return natural The notifications id
  */
-function notifications($notification, $log){
+function notifications($notification, $log, $throw){
     global $_CONFIG, $core;
 
     try{
@@ -81,7 +82,7 @@ function notifications($notification, $log){
          */
         $notification = notifications_insert($notification, $log);
 
-        if($notification['exception'] and !$_CONFIG['production']){
+        if($notification['exception'] and !$_CONFIG['production'] and $throw){
             /*
              * Exception in non production environments, don't send
              * notifications since we're working on this project!

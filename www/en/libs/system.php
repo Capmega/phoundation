@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.16');
+define('FRAMEWORKCODEVERSION', '2.5.17');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -860,12 +860,13 @@ function debug($enabled = null){
  * @param null mixed $notification[data]
  * @param null mixed $notification[groups]
  * @param boolean $log If set to true, will log the notification
+ * @param boolean $throw If set to true, if the notification is an exception and the system is non production, it will throw the exception instead of notifying
  * @return void
  */
-function notify($notification, $log = true){
+function notify($notification, $log = true, $throw = true){
     try{
         load_libs('notifications');
-        return notifications($notification, $log);
+        return notifications($notification, $log, $throw);
 
     }catch(Exception $e){
         if($e){

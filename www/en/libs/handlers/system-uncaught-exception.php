@@ -71,7 +71,7 @@ try{
 
     log_file(tr('UNCAUGHT EXCEPTION'), 'uncaught-exception', 'exception');
     log_file($e, 'uncaught-exception', 'exception');
-    notify($e, false);
+    notify($e, false, false);
 
     switch(PLATFORM){
         case 'cli':
@@ -417,7 +417,7 @@ try{
                 showdie($e);
             }
 
-            notify($e);
+            notify($e, false, false);
 
             switch($core->callType()){
                 case 'api':
@@ -464,8 +464,8 @@ try{
 
         case 'http':
             if(!debug()){
-                notify($f);
-                notify($e);
+                notify($f, false, false);
+                notify($e, false, false);
                 page_show(500);
             }
 

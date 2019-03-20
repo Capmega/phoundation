@@ -422,7 +422,8 @@ try{
 
     }else{
         log_console(tr('Excuting system init'), 'white');
-        script_exec(array('commands' => array('base/init')));
+        script_exec(array('function' => 'passthru',
+                          'commands' => array('base/init')));
     }
 
 
