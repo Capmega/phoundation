@@ -760,7 +760,15 @@ function str_force($source, $separator = ','){
                 throw new BException(tr('str_force(): Specified source is neither scalar nor array but an ":type"', array(':type' => gettype($source))), 'invalid');
             }
 
-            return implode($separator, $source);
+            /*
+             * Encoding?
+             */
+            if($separator === 'json'){
+                $source = json_encode_custom($source);
+
+            }else{
+                $source = implode($separator, $source);
+            }
         }
 
         return (string) $source;
