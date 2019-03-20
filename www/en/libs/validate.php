@@ -1711,6 +1711,10 @@ class ValidateForm {
                 return true;
             }
 
+            if(!is_scalar($value)){
+                return $this->setError($message);
+            }
+
             $clean = strip_tags($value);
 
             if($clean === $value){
