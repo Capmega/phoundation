@@ -722,7 +722,6 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         usleep(mt_rand(1000, 500000));
         sql_query('UPDATE `users` SET `auth_fails` = 0 WHERE `id` = :id', array(':id' => $user['id']));
 
-        log_database(tr('user_authenticate(): Authenticated user account ":username"', array(':username' => $username)), 'authentication/success');
         user_log_authentication($username, $user['id'], $captcha_required);
 
         /*
