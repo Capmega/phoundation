@@ -2112,6 +2112,9 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
             }
         }
 
+        $url      = $src;
+        $file_src = $src;
+
         if(($width === null) or ($height === null)){
             /*
              * Try to get width / height from image.
@@ -2126,7 +2129,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                                   AND    `createdon` > NOW() - INTERVAL 1 DAY
                                   AND    `status`    IS NULL',
 
-                                  array(':url' => $src));
+                                  array(':url' => $url));
 
             }catch(Exception $e){
                 notify($e);
@@ -2145,16 +2148,15 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                     /*
                      *
                      */
-                    $url      = str_exists($src, '://');
-                    $file_src = $src;
+                    $full_url = str_exists($src, '://');
 
-                    if(str_exists($file_src, cdn_domain(''))){
-                        $url      = false;
-                        $file_src = str_from($file_src, cdn_domain(''));
+                    if(str_exists($url, cdn_domain(''))){
+                        $full_url = false;
+                        $file_src = str_from($url, cdn_domain(''));
                         $src      = $file_src;
                     }
 
-                    if($url){
+                    if($full_url){
                         /*
                          * Image comes from a domain, fetch to temp directory to analize
                          */
@@ -2232,7 +2234,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                                    ON DUPLICATE KEY UPDATE `status`    = NULL,
                                                            `createdon` = NOW()',
 
-                                   array(':url'    => $src,
+                                   array(':url'    => $url,
                                          ':width'  => $width,
                                          ':height' => $height,
                                          ':status' => $status));
