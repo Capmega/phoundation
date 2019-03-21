@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.21');
+define('FRAMEWORKCODEVERSION', '2.5.22');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1527,11 +1527,131 @@ function log_flags($color){
 
 
 /*
+ * Sanitize the specified log message
+ *
+ * Also, if required, sets the log message color, filters double messages and can set the log_file() $class
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @note: This function basically only needs to be executed by log_file() and log_console()
+ * @version 2.5.22: Added function and documentation
+ *
+ * @param mixed $messages
+ * @param string $color
+ * @param boolean $filter_double
+ * @return null string $class
+ */
+function log_sanitize($messages, $color, $filter_double = true, &$class = null){
+    static $last;
+
+    try{
+        if($filter_double and ($messages == $last)){
+            /*
+            * We already displayed this message, skip!
+            */
+            return array();
+        }
+
+        if(is_scalar($messages)){
+            $messages = array($messages);
+
+        }elseif(is_array($messages)){
+            $messages = $messages;
+
+        }elseif(is_object($messages)){
+            if($messages instanceof BException){
+                if($color){
+                    $messages->setCode($color);
+                }
+
+                $data = $messages->getData();
+
+                if($messages->isWarning()){
+                    $messages = array($messages->getMessage());
+                    $color    = 'warning';
+
+                }else{
+                    $messages = $messages->getMessages();
+                    $color    = 'error';
+                }
+
+                if($data){
+                    /*
+                     * Add data to messages
+                     */
+                    $messages[] = cli_color('Exception data:', 'error', null, true);
+
+                    foreach(array_force($data) as $line){
+                        if($line){
+                            if(is_scalar($line)){
+                                $messages[] = cli_color($line, 'error', null, true);
+
+                            }elseif(is_array($line)){
+                                /*
+                                 * This is a multi dimensional array or object,
+                                 * we cannot cli_color() these, so just JSON it.
+                                 */
+                                $messages[] = cli_color(json_encode_custom($line), 'error', null, true);
+                            }
+                        }
+                    }
+                }
+
+                if(!$class){
+                    $class = 'exception';
+                }
+
+            }elseif($messages instanceof Exception){
+                $messages = array($messages->getMessage());
+
+            }elseif($messages instanceof Error){
+                $messages = array($messages->getMessage());
+
+            }else{
+                $messages = $messages->__toString();
+            }
+        }
+
+        $last = $messages;
+
+        return $messages;
+
+    }catch(Exception $e){
+        throw new BException('log_sanitize(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Log specified message to console, but only if we are in console mode!
+ *
+ * Messages can be specified as a string, array, or Error, Exception or BException objects
+ *
+ * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @see log_sanitize()
+ * @see log_file()
+ * @package system
+ * @version 2.5.22: Added documentation, upgraded to use log_sanitize()
+ *
+ * @param mixed $messages
+ * @param string $color
+ * @param boolean $newline
+ * @param boolean $filter_double
+ * @param boolean $log_file
+ * @return array the sanitized log messages in array format
  */
 function log_console($messages = '', $color = null, $newline = true, $filter_double = false, $log_file = true){
     global $core;
-    static $c, $last;
+    static $c;
 
     try{
         if($color and !is_scalar($color)){
@@ -1565,40 +1685,7 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
             return false;
         }
 
-        if(($filter_double == true) and ($messages == $last)){
-            /*
-            * We already displayed this message, skip!
-            */
-            return false;
-        }
-
-        $last = $messages;
-
-        if(is_object($messages)){
-            if($color){
-                $messages->setCode($color);
-            }
-
-            if($messages instanceof BException){
-                if($messages->isWarning()){
-                    $messages = array($messages->getMessage());
-                    $color    = 'warning';
-
-                }else{
-                    $messages = $messages->getMessages();
-                    $color    = 'error';
-                }
-
-            }elseif($messages instanceof Exception){
-                $messages = array($messages->getMessage());
-
-            }else{
-                $messages = $messages->__toString();
-            }
-
-        }elseif(!is_array($messages)){
-            $messages = array($messages);
-        }
+        $messages = log_sanitize($messages, $color, $filter_double);
 
         if($color){
             if(defined('NOCOLOR') and !NOCOLOR){
@@ -1660,11 +1747,30 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
 
 
 /*
- * Log specified message to file.
+ * Log specified message(s) to file.
+ *
+ * Messages can be specified as a string, array, or Error, Exception or BException objects
+ *
+ * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
+
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @see log_sanitize()
+ * @see log_console()
+ * @package system
+ * @version 2.5.22: Added documentation, upgraded to use log_sanitize()
+ *
+ * @param mixed $messages
+ * @param string $class
+ * @param string $color
+ * @param string $color
+ * @return array the sanitized log messages in array format
  */
-function log_file($messages, $class = 'syslog', $color = null){
+function log_file($messages, $class = 'syslog', $color = null, $filter_double = true){
     global $_CONFIG, $core;
-    static $h = array(), $last;
+    static $h = array();
 
     try{
         /*
@@ -1679,65 +1785,7 @@ function log_file($messages, $class = 'syslog', $color = null){
             return false;
         }
 
-        if(is_scalar($messages)){
-            if($messages == $last){
-                /*
-                * We already displayed this message, skip!
-                */
-                return;
-            }
-
-            $last = $messages;
-        }
-
-        if(is_object($messages)){
-            if($messages instanceof BException){
-                if($messages->isWarning()){
-                    $color    = 'warning';
-
-                }else{
-                    $color    = 'error';
-                }
-
-                $data     = $messages->getData();
-                $messages = $messages->getMessages();
-
-                if($data){
-                    /*
-                     * Add data to messages
-                     */
-                    $messages[] = cli_color('Exception data:', 'error', null, true);
-
-                    foreach(array_force($data) as $line){
-                        if($line){
-                            if(is_scalar($line)){
-                                $messages[] = cli_color($line, 'error', null, true);
-
-                            }elseif(is_array($line)){
-                                /*
-                                 * This is a multi dimensional array or object,
-                                 * we cannot cli_color() these, so just JSON it.
-                                 */
-                                $messages[] = cli_color(json_encode_custom($line), 'error', null, true);
-                            }
-                        }
-                    }
-                }
-
-                if(!$class){
-                    $class = 'exception';
-                }
-            }
-
-            if($messages instanceof Exception){
-                $color    = 'error';
-                $messages = cli_color($messages->getMessage(), 'error', null, true);
-
-                if(!$class){
-                    $class = 'exception';
-                }
-            }
-        }
+        $messages = log_sanitize($messages, $color, $filter_double, $class);
 
         if(!is_scalar($class)){
             throw new BException(tr('log_file(): Specified class ":class" is not scalar', array(':class' => str_truncate(json_encode_custom($class), 20))));
@@ -4457,107 +4505,117 @@ class Colors {
     private $background_colors = array();
 
     public function __construct() {
-        /*
-         * Set up shell colors
-         */
-        $this->foreground_colors['black']        = '0;30';
-        $this->foreground_colors['dark_gray']    = '1;30';
-        $this->foreground_colors['blue']         = '0;34';
-        $this->foreground_colors['light_blue']   = '1;34';
-        $this->foreground_colors['info']         = '1;34';
-        $this->foreground_colors['green']        = '0;32';
-        $this->foreground_colors['light_green']  = '1;32';
-        $this->foreground_colors['success']      = '1;32';
-        $this->foreground_colors['cyan']         = '0;36';
-        $this->foreground_colors['light_cyan']   = '1;36';
-        $this->foreground_colors['red']          = '0;31';
-        $this->foreground_colors['light_red']    = '1;31';
-        $this->foreground_colors['error']        = '1;31';
-        $this->foreground_colors['exception']    = '1;31';
-        $this->foreground_colors['bexception']   = '1;31';
-        $this->foreground_colors['purple']       = '0;35';
-        $this->foreground_colors['light_purple'] = '1;35';
-        $this->foreground_colors['brown']        = '0;33';
-        $this->foreground_colors['yellow']       = '1;33';
-        $this->foreground_colors['warning']      = '1;33';
-        $this->foreground_colors['light_gray']   = '0;37';
-        $this->foreground_colors['white']        = '1;37';
+        try{
+            /*
+             * Set up shell colors
+             */
+            $this->foreground_colors['black']        = '0;30';
+            $this->foreground_colors['dark_gray']    = '1;30';
+            $this->foreground_colors['blue']         = '0;34';
+            $this->foreground_colors['light_blue']   = '1;34';
+            $this->foreground_colors['info']         = '1;34';
+            $this->foreground_colors['green']        = '0;32';
+            $this->foreground_colors['light_green']  = '1;32';
+            $this->foreground_colors['success']      = '1;32';
+            $this->foreground_colors['cyan']         = '0;36';
+            $this->foreground_colors['light_cyan']   = '1;36';
+            $this->foreground_colors['red']          = '0;31';
+            $this->foreground_colors['light_red']    = '1;31';
+            $this->foreground_colors['error']        = '1;31';
+            $this->foreground_colors['exception']    = '1;31';
+            $this->foreground_colors['bexception']   = '1;31';
+            $this->foreground_colors['purple']       = '0;35';
+            $this->foreground_colors['light_purple'] = '1;35';
+            $this->foreground_colors['brown']        = '0;33';
+            $this->foreground_colors['yellow']       = '1;33';
+            $this->foreground_colors['warning']      = '1;33';
+            $this->foreground_colors['light_gray']   = '0;37';
+            $this->foreground_colors['white']        = '1;37';
 
-        $this->background_colors['black']        = '40';
-        $this->background_colors['red']          = '41';
-        $this->background_colors['green']        = '42';
-        $this->background_colors['yellow']       = '43';
-        $this->background_colors['blue']         = '44';
-        $this->background_colors['magenta']      = '45';
-        $this->background_colors['cyan']         = '46';
-        $this->background_colors['light_gray']   = '47';
+            $this->background_colors['black']        = '40';
+            $this->background_colors['red']          = '41';
+            $this->background_colors['green']        = '42';
+            $this->background_colors['yellow']       = '43';
+            $this->background_colors['blue']         = '44';
+            $this->background_colors['magenta']      = '45';
+            $this->background_colors['cyan']         = '46';
+            $this->background_colors['light_gray']   = '47';
+
+        }catch(Exception $e){
+            throw new BException(tr('Color::__construct(): Failed'), $e);
+        }
     }
 
     /*
      * Returns colored string
      */
     public function getColoredString($string, $foreground_color = null, $background_color = null, $force = false, $reset = true) {
-        $colored_string = '';
+        try{
+            $colored_string = '';
 
-        if(!is_scalar($string)){
-            throw new BException(tr('getColoredString(): Specified text ":text" is not a string or scalar', array(':text' => $string)), 'invalid');
-        }
+            if(!is_scalar($string)){
+                throw new BException(tr('getColoredString(): Specified text ":text" is not a string or scalar', array(':text' => $string)), 'invalid');
+            }
 
-        if(NOCOLOR and !$force){
-            /*
-             * Do NOT apply color
-             */
-            return $string;
-        }
-
-        if($foreground_color){
-            if(!is_string($foreground_color) or !isset($this->foreground_colors[$foreground_color])){
+            if(NOCOLOR and !$force){
                 /*
-                 * If requested colors do not exist, return no
+                 * Do NOT apply color
                  */
-                log_console(tr('[ WARNING ] getColoredString(): specified foreground color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $foreground_color)), 'warning');
                 return $string;
             }
 
-            // Check if given foreground color found
-            if(isset($this->foreground_colors[$foreground_color])) {
-                $colored_string .= "\033[".$this->foreground_colors[$foreground_color].'m';
-            }
-        }
+            if($foreground_color){
+                if(!is_string($foreground_color) or !isset($this->foreground_colors[$foreground_color])){
+                    /*
+                     * If requested colors do not exist, return no
+                     */
+                    log_console(tr('[ WARNING ] getColoredString(): specified foreground color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $foreground_color)), 'warning');
+                    return $string;
+                }
 
-        if($background_color){
-            if(!is_string($background_color) or !isset($this->background_colors[$background_color])){
+                // Check if given foreground color found
+                if(isset($this->foreground_colors[$foreground_color])) {
+                    $colored_string .= "\033[".$this->foreground_colors[$foreground_color].'m';
+                }
+            }
+
+            if($background_color){
+                if(!is_string($background_color) or !isset($this->background_colors[$background_color])){
+                    /*
+                     * If requested colors do not exist, return no
+                     */
+                    log_console(tr('[ WARNING ] getColoredString(): specified background color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $background_color)), 'warning');
+                    return $string;
+                }
+
                 /*
-                 * If requested colors do not exist, return no
+                 * Check if given background color found
                  */
-                log_console(tr('[ WARNING ] getColoredString(): specified background color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $background_color)), 'warning');
-                return $string;
+                if(isset($this->background_colors[$background_color])) {
+                    $colored_string .= "\033[".$this->background_colors[$background_color].'m';
+                }
             }
 
             /*
-             * Check if given background color found
+             * Add string and end coloring
              */
-            if(isset($this->background_colors[$background_color])) {
-                $colored_string .= "\033[".$this->background_colors[$background_color].'m';
+            $colored_string .=  $string;
+
+            if($reset){
+                $colored_string .= cli_reset_color();
             }
+
+            return $colored_string;
+
+        }catch(Exception $e){
+            throw new BException(tr('Color::getColoredString(): Failed'), $e);
         }
-
-        /*
-         * Add string and end coloring
-         */
-        $colored_string .=  $string;
-
-        if($reset){
-            $colored_string .= cli_reset_color();
-        }
-
-        return $colored_string;
     }
 
     /*
      * Returns all foreground color names
      */
-    public function getForegroundColors() {
+    public function getForegroundColors(){
         return array_keys($this->foreground_colors);
     }
 

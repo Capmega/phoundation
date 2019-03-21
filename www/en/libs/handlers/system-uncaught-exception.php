@@ -201,13 +201,13 @@ try{
                 }
             }
 
-            log_console(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'])), 'red');
+            log_console(tr('*** UNCAUGHT EXCEPTION ":code" IN CONSOLE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':script' => $core->register['script'])), 'exception');
             debug(true);
 
             if($e instanceof BException){
                 if($e->getCode() === 'no-trace'){
                     $messages = $e->getMessages();
-                    log_console(array_pop($messages), 'red');
+                    log_console(array_pop($messages), 'exception');
 
                 }else{
                     /*
@@ -249,7 +249,7 @@ try{
                  * Treat this as a normal PHP Exception object
                  */
                 if($e->getCode() === 'no-trace'){
-                    log_console($e->getMessage(), 'red');
+                    log_console($e->getMessage(), 'exception');
 
                 }else{
                     /*
@@ -450,13 +450,13 @@ try{
         die('Pre ready core exception with handling failure');
     }
 
-    log_file('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 'exception-handler', 'red');
+    log_file('STARTUP-UNCAUGHT-EXCEPTION HANDLER CRASHED!', 'exception-handler', 'exception');
     log_file($f, 'exception-handler');
 
     switch(PLATFORM){
         case 'cli':
-            log_console(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])), 'red');
-            log_console(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'), 'red');
+            log_console(tr('*** UNCAUGHT EXCEPTION HANDLER CRASHED FOR SCRIPT ":script" ***', array(':script' => $core->register['script'])), 'exception');
+            log_console(tr('*** SHOWING HANDLER EXCEPTION FIRST, ORIGINAL EXCEPTION BELOW ***'), 'exception');
 
             debug(true);
             show($f);
