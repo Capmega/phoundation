@@ -67,6 +67,9 @@ function detect_client(){
     global $_CONFIG;
 
     try{
+        if(!$_CONFIG['client']['detect']){
+            return null;
+        }
 
         if(PLATFORM_CLI){
             /*
