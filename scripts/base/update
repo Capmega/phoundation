@@ -291,7 +291,7 @@ try{
      */
     code_phoundation_checkout($checkout);
 
-    if(!code_phoundation_is_tag()){
+    if(!code_phoundation_branch_is_tag()){
         code_phoundation_pull();
     }
 
