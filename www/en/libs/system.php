@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.4.82');
+define('FRAMEWORKCODEVERSION', '2.4.85');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2284,40 +2284,45 @@ function user_or_signin(){
     global $_CONFIG, $core;
 
     try{
-        if(PLATFORM_HTTP){
-            if(empty($_SESSION['user']['id'])){
-                /*
-                 * No session
-                 */
-                if($core->callType('api') or $core->callType('ajax')){
-                    json_reply(tr('Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
-                }
+        if(PLATFORM_CLI){
+            return $_SESSION['user'];
+        }
 
-                html_flash_set('Unauthorized: Please sign in to continue');
-                redirect(domain(isset_get($_CONFIG['redirects']['signin'], 'signin.php').'?redirect='.urlencode($_SERVER['REQUEST_URI'])), 302);
-            }
-
-            if(!empty($_SESSION['force_page'])){
-                /*
-                 * Session is, but locked
-                 * Redirect all pages EXCEPT the lock page itself!
-                 */
-                if(empty($_CONFIG['redirects'][$_SESSION['force_page']])){
-                    throw new BException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exists');
-                }
-
-                if($_CONFIG['redirects'][$_SESSION['force_page']] !== str_until(str_rfrom($_SERVER['REQUEST_URI'], '/'), '?')){
-                    redirect(domain($_CONFIG['redirects'][$_SESSION['force_page']].'?redirect='.urlencode($_SERVER['REQUEST_URI'])));
-                }
-            }
-
+        if(empty($_SESSION['user']['id'])){
             /*
-             * Is user restricted to a page? if so, keep him there
+             * No session
              */
-            if(empty($_SESSION['lock']) and !empty($_SESSION['user']['redirect'])){
-                if(str_from($_SESSION['user']['redirect'], '://') != $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']){
-                    redirect(domain($_SESSION['user']['redirect']));
-                }
+            if($core->callType('api') or $core->callType('ajax')){
+                json_reply(tr('Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
+            }
+
+            log_file(tr('No user, redirecting to sign in page'), 'user-or-signin', 'VERBOSE/yellow');
+            html_flash_set('Unauthorized: Please sign in to continue');
+            redirect(domain(isset_get($_CONFIG['redirects']['signin'], 'signin.php').'?redirect='.urlencode($_SERVER['REQUEST_URI'])), 302);
+        }
+
+        if(!empty($_SESSION['force_page'])){
+            /*
+             * Session is, but locked
+             * Redirect all pages EXCEPT the lock page itself!
+             */
+            if(empty($_CONFIG['redirects'][$_SESSION['force_page']])){
+                throw new BException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exist');
+            }
+
+            if($_CONFIG['redirects'][$_SESSION['force_page']] !== str_until(str_rfrom($_SERVER['REQUEST_URI'], '/'), '?')){
+                log_file(tr('User ":user" has forced page ":page"', array(':user' => name($_SESSION['user']), ':page' => $_SESSION['force_page'])), 'user-or-signin', 'VERBOSE/yellow');
+                redirect(domain($_CONFIG['redirects'][$_SESSION['force_page']].'?redirect='.urlencode($_SERVER['REQUEST_URI'])));
+            }
+        }
+
+        /*
+         * Is user restricted to a page? if so, keep him there
+         */
+        if(empty($_SESSION['lock']) and !empty($_SESSION['user']['redirect'])){
+            if(str_from($_SESSION['user']['redirect'], '://') != $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']){
+                log_file(tr('User ":user" has is restricted to page ":page"', array(':user' => name($_SESSION['user']), ':page' => $_SESSION['user']['redirect'])), 'user-or-signin', 'VERBOSE/yellow');
+                redirect(domain($_SESSION['user']['redirect']));
             }
         }
 
@@ -2344,13 +2349,21 @@ function rights_or_access_denied($rights, $url = null){
         user_or_signin();
 
         if(PLATFORM_CLI or has_rights($rights)){
+            /*
+             * We're on CLI or the user has the required rights
+             */
             return $_SESSION['user'];
         }
 
+        /*
+         * If user has no admin permissions we're not even showing 403, we're
+         * simply showing the signin page
+         */
         if(in_array('admin', array_force($rights))){
             redirect(domain(isset_get($url, $_CONFIG['redirects']['signin'])));
         }
 
+        log_file(tr('User ":user" is missing one or more of the rights ":rights"', array(':user' => name($_SESSION['user']), ':rights' => $rights)), 'rights-or-access-denied', 'yellow');
         page_show(403);
 
     }catch(Exception $e){

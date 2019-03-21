@@ -185,6 +185,12 @@ try{
         ini_set('session.cookie_samesite', $_CONFIG['sessions']['same_site']);
         ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
 
+        if($_CONFIG['sessions']['secure']){
+            if($_CONFIG['protocol'] == 'http://'){
+                throw new BException(tr('startup-webpage(): Invalid configuration detected, $_CONFIG[sessions][secure] allows only cookies over HTTPS while $_CONFIG[protocol] only does HTTP'), 'invalid');
+            }
+        }
+
         if($_CONFIG['sessions']['check_referrer']){
             ini_set('session.referer_check', $_SESSION['domain']);
         }
