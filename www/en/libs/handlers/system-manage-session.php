@@ -423,12 +423,14 @@ try{
                              * Timezone invalid for this user. Notify
                              * developers, and fix timezone for user
                              */
-                            $user             = user_get($_SESSION['user']['id']);
-                            $user['timezone'] = $_CONFIG['timezone']['display'];
-                            user_update($user);
+                            $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
 
-                            $_SESSION['user']['timezone'] = $user['timezone'];
-                            notify(new BException(tr('core::startup_manage_session(): Reset timezone for user ":user" to ":timezone"', array(':user' => name($_SESSION['user']), ':timezone' => $user['timezone'])), $e));
+                            load_libs('user');
+                            user_update($_SESSION['user']);
+
+                            $e = new BException(tr('core::manage_session(): Reset timezone for user ":user" to ":timezone"', array(':user' => name($_SESSION['user']), ':timezone' => $_SESSION['user']['timezone'])), $e);
+                            $e->makeWarning(true);
+                            notify($e, true, false);
                         }
                     }
                 }
@@ -457,14 +459,14 @@ try{
 
         }else{
             if(!is_writable(session_save_path())){
-                throw new BException('core::startup_manage_session(): Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
+                throw new BException('core::manage_session(): Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
             }
 
-            throw new BException('core::startup_manage_session(): Session startup failed', $e);
+            throw new BException('core::manage_session(): Session startup failed', $e);
         }
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::startup_manage_session(): Failed'), $e);
+    throw new BException(tr('core::manage_session(): Failed'), $e);
 }
 ?>

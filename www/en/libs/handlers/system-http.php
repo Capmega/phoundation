@@ -187,6 +187,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::startup_http(): Failed'), $e);
+    throw new BException(tr('core::http(): Failed'), $e);
 }
 ?>

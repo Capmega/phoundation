@@ -183,6 +183,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::startup_ajax(): Failed'), $e);
+    throw new BException(tr('core::ajax(): Failed'), $e);
 }
 ?>

@@ -167,6 +167,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::startup_api(): Failed'), $e);
+    throw new BException(tr('core::api(): Failed'), $e);
 }
 ?>

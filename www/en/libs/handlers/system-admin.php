@@ -183,6 +183,6 @@ try{
     http_validate_get();
 
 }catch(Exception $e){
-    throw new BException(tr('core::startup_admin(): Failed'), $e);
+    throw new BException(tr('core::admin(): Failed'), $e);
 }
 ?>

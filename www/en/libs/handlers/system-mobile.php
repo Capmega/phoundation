@@ -186,6 +186,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::startup_mobile(): Failed'), $e);
+    throw new BException(tr('core::mobile(): Failed'), $e);
 }
 ?>

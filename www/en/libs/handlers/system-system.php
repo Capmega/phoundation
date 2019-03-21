@@ -192,6 +192,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::startup_system(): Failed'), $e);
+    throw new BException(tr('core::system(): Failed'), $e);
 }
 ?>
