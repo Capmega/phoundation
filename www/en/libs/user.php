@@ -1933,7 +1933,7 @@ function user_validate($user, $sections = array()){
         array_default($sections, 'role'               , true);
 
         load_libs('validate');
-        $v = new ValidateForm($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone');
+        $v = new ValidateForm($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone,groups');
 
         $user['email2'] = $user['email'];
         $user['terms']  = true;
@@ -2195,6 +2195,131 @@ function user_validate($user, $sections = array()){
 
     }catch(Exception $e){
         throw new BException(tr('user_validate(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return data for the specified user
+ *
+ * This function returns information for the specified user. The user can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @user Function reference
+ * @package users
+ *
+ * @param mixed $user The requested user. Can either be specified by id (natural number) or string (seoname)
+ * @param string $column The specific column that has to be returned
+ * @param string $status
+ * @param string $parent
+ * @return mixed The user data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified user does not exist, NULL will be returned.
+ */
+function users_get($user, $column = null, $status = null, $parent = false){
+    try{
+        if(is_numeric($user)){
+            $where[] = ' `users`.`id` = :id ';
+            $execute[':id'] = $user;
+
+        }else{
+            $where[] = ' `users`.`seoname` = :seoname ';
+            $execute[':seoname'] = $user;
+        }
+
+        if($status !== false){
+            $execute[':status'] = $status;
+            $where[] = ' `users`.`status` '.sql_is($status, ':status');
+        }
+
+        if($parent){
+            /*
+             * Explicitly must be a parent user
+             */
+            $where[] = ' `users`.`parents_id` IS NULL ';
+
+        }elseif($parent === false){
+            /*
+             * Explicitly cannot be a parent user
+             */
+            $where[] = ' `users`.`parents_id` IS NOT NULL ';
+
+        }else{
+            /*
+             * Don't care if its a parent or child user
+             */
+        }
+
+        $where = ' WHERE '.implode(' AND ', $where).' ';
+
+        if($column){
+            $retval = sql_get('SELECT `'.$column.'` FROM `users` '.$where, true, $execute);
+
+        }else{
+            $retval = sql_get('SELECT `id`,
+                                      `createdby`,
+                                      `meta_id`,
+                                      `createdon`,
+                                      `modifiedby`,
+                                      `modifiedon`,
+                                      `status`,
+                                      `key`,
+                                      `apikey`,
+                                      `last_signin`,
+                                      `auth_fails`,
+                                      `locked_until`,
+                                      `signin_count`,
+                                      `username`,
+                                      `password`,
+                                      `fingerprint`,
+                                      `domain`,
+                                      `title`,
+                                      `name`,
+                                      `nickname`,
+                                      `avatar`,
+                                      `email`,
+                                      `code`,
+                                      `phones`,
+                                      `verify_code`,
+                                      `verifiedon`,
+                                      `mailings`,
+                                      `role`,
+                                      `roles_id`,
+                                      `employees_id`,
+                                      `priority`,
+                                      `type`,
+                                      `keywords`,
+                                      `latitude`,
+                                      `longitude`,
+                                      `accuracy`,
+                                      `offset_latitude`,
+                                      `offset_longitude`,
+                                      `cities_id`,
+                                      `states_id`,
+                                      `countries_id`,
+                                      `redirect`,
+                                      `location`,
+                                      `language`,
+                                      `gender`,
+                                      `birthday`,
+                                      `country`,
+                                      `commentary`,
+                                      `description`,
+                                      `badges`,
+                                      `website`,
+                                      `leaders_id`,
+                                      `credits`,
+                                      `timezone`,
+                                      `webpush`,
+
+                               FROM   `users` '.$where, $execute);
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('users_get(): Failed', $e);
     }
 }
 
