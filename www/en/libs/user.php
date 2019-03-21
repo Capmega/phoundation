@@ -1242,22 +1242,24 @@ function user_signup($user, $no_password = false){
             throw new BException(tr('user_signup(): Please specify a password'), 'not-specified');
         }
 
+        $user       = user_validate($user);
         $user['id'] = sql_random_id('users');
 
-        sql_query('INSERT INTO `users` (`id`, `meta_id`, `status`, `createdby`, `username`, `password`, `name`, `email`, `employees_id`, `roles_id`, `role`)
-                   VALUES              (:id , :meta_id , :status , :createdby , :username , :password , :name , :email , :employees_id , :roles_id , :role )',
+        sql_query('INSERT INTO `users` (`id`, `meta_id`, `status`, `createdby`, `username`, `password`, `name`, `email`, `employees_id`, `roles_id`, `role`, `timezone`)
+                   VALUES              (:id , :meta_id , :status , :createdby , :username , :password , :name , :email , :employees_id , :roles_id , :role , :timezone )',
 
                    array(':id'           => $user['id'],
                          ':createdby'    => isset_get($_SESSION['user']['id']),
                          ':meta_id'      => meta_action(),
-                         ':username'     => get_null(isset_get($user['username'])),
-                         ':status'       => isset_get($user['status']),
-                         ':name'         => isset_get($user['name']),
-                         ':password'     => (empty($user['password']) ? '' :((isset_get($user['status']) === '_new') ? '' : get_hash($user['password'], $_CONFIG['security']['passwords']['hash']))),
-                         ':email'        => get_null(isset_get($user['email'])),
-                         ':role'         => get_null(isset_get($user['role'])),
-                         ':roles_id'     => get_null(isset_get($user['roles_id'])),
-                         ':employees_id' => get_null(isset_get($user['employees_id']))));
+                         ':username'     => $user['username'],
+                         ':status'       => $user['status'],
+                         ':name'         => $user['name'],
+                         ':password'     => (empty($user['password']) ? '' : (($user['status'] === '_new') ? '' : get_hash($user['password'], $_CONFIG['security']['passwords']['hash']))),
+                         ':email'        => $user['email'],
+                         ':role'         => $user['role'],
+                         ':roles_id'     => $user['roles_id'],
+                         ':employees_id' => $user['employees_id'],
+                         ':timezone'     => $user['timezone']));
 
         /*
          * Return data from database with the given $user merged over it.
@@ -1271,6 +1273,107 @@ function user_signup($user, $no_password = false){
 
     }catch(Exception $e){
         throw new BException('user_signup(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Update the specified user in the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package user
+ * @version 2.5.21: Added function and documentation
+ * @note This function will NOT update the users password
+ * @note This function will update the users right list according to its roles_id, and specified rights
+ * @note This function will update the users groups list
+ *
+ * @param params $user The user to be updated
+ * @param string $user[username]
+ * @param string $user[nickname]
+ * @param string $user[name]
+ * @param string $user[email]
+ * @param string $user[role]
+ * @param string $user[roles_id]
+ * @param string $user[language]
+ * @param string $user[gender]
+ * @param string $user[latitude]
+ * @param string $user[longitude]
+ * @param string $user[phones]
+ * @param string $user[keywords]
+ * @param string $user[country]
+ * @param string $user[commentary]
+ * @param string $user[description]
+ * @param string $user[avatar]
+ * @param string $user[timezone]
+ * @param string $user[redirect]
+ * @return array The specified user, validated and sanitized
+ */
+function user_update($user){
+    try{
+        $user = user_validate($user, array('password'            => false,
+                                           'validation_password' => false));
+
+        meta_action($user['meta_id'], 'update');
+
+        $update = sql_query('UPDATE `users`
+
+                             SET    `modifiedby`  = :modifiedby,
+                                    `modifiedon`  = NOW(),
+                                    `status`      = :status,
+                                    `username`    = :username,
+                                    `nickname`    = :nickname,
+                                    `name`        = :name,
+                                    `email`       = :email,
+                                    `roles_id`    = :roles_id,
+                                    `role`        = :role,
+                                    `language`    = :language,
+                                    `gender`      = :gender,
+                                    `latitude`    = :latitude,
+                                    `longitude`   = :longitude,
+                                    `phones`      = :phones,
+                                    `keywords`    = :keywords,
+                                    `country`     = :country,
+                                    `commentary`  = :commentary,
+                                    `description` = :description,
+                                    `avatar`      = :avatar,
+                                    `timezone`    = :timezone,
+                                    `redirect`    = :redirect
+
+                             WHERE  `id`          = :id',
+
+                             array(':modifiedby'  =>  isset_get($_SESSION['user']['id']),
+                                   ':id'          =>  $user['id'],
+                                   ':username'    =>  get_null($user['username']),
+                                   ':nickname'    =>  get_null($user['nickname']),
+                                   ':email'       =>  get_null($user['email']),
+                                   ':name'        =>  $user['name'],
+                                   ':language'    =>  $user['language'],
+                                   ':gender'      =>  $user['gender'],
+                                   ':latitude'    =>  $user['latitude'],
+                                   ':longitude'   =>  $user['longitude'],
+                                   ':roles_id'    =>  $user['roles_id'],
+                                   ':role'        =>  $user['role'],
+                                   ':keywords'    =>  $user['keywords'],
+                                   ':phones'      =>  $user['phones'],
+                                   ':status'      =>  $user['status'],
+                                   ':avatar'      =>  $user['avatar'],
+                                   ':timezone'    =>  $user['timezone'],
+                                   ':redirect'    =>  $user['redirect'],
+                                   ':commentary'  =>  $user['commentary'],
+                                   ':description' =>  $user['description'],
+                                   ':country'     =>  $user['country']));
+
+        user_update_rights($user);
+        user_update_groups($user['id'], $user['groups']);
+
+        return $update->rowCount();
+
+    }catch(Exception $e){
+        throw new BException('user_update(): Failed', $e);
     }
 }
 
