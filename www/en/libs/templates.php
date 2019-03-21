@@ -8,7 +8,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
- * @package template
+ * @package templates
  */
 
 
@@ -22,21 +22,21 @@
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package template
+ * @package templates
  * @version 2.5.12: Added function and documentation
  *
  * @return void
  */
-function template_library_init(){
+function templates_library_init(){
     try{
         ensure_installed(array('name'      => 'template',
-                               'callback'  => 'template_install',
+                               'callback'  => 'templates_install',
                                'checks'    => ROOT.'libs/external/template/template,'.ROOT.'libs/external/template/foobar',
                                'functions' => 'template,foobar',
                                'which'     => 'template,foobar'));
 
     }catch(Exception $e){
-        throw new BException('template_library_init(): Failed', $e);
+        throw new BException('templates_library_init(): Failed', $e);
     }
 }
 
@@ -50,18 +50,18 @@ function template_library_init(){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @version 2.5.12: Added function and documentation
- * @package template
+ * @package templates
  *
  * @param
  * @return
  */
-function template_install($params){
+function templates_install($params){
     try{
         load_libs('apt');
         apt_install('template');
 
     }catch(Exception $e){
-        throw new BException('template_install(): Failed', $e);
+        throw new BException('templates_install(): Failed', $e);
     }
 }
 
@@ -131,15 +131,15 @@ function templates_validate($template){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package template
- * @see template_validate()
- * @see template_update()
+ * @package templates
+ * @see templates_validate()
+ * @see templates_update()
  * @table: `template`
  * @note: This is a note
  * @version 2.5.12: Added function and documentation
  * @example [Title]
  * code
- * $result = template_insert(array('foo' => 'bar',
+ * $result = templates_insert(array('foo' => 'bar',
  *                                 'foo' => 'bar',
  *                                 'foo' => 'bar'));
  * showdie($result);
@@ -150,9 +150,9 @@ function templates_validate($template){
  * @param string $params[bar]
  * @return array The specified template, validated and sanitized
  */
-function template_insert($template){
+function templates_insert($template){
     try{
-        $template = template_validate($template);
+        $template = templates_validate($template);
 
         sql_query('INSERT INTO `templates` (`createdby`, `meta_id`, `status`, )
                    VALUES                  (:createdby , :meta_id , :status , )',
@@ -166,7 +166,7 @@ function template_insert($template){
         return $template;
 
     }catch(Exception $e){
-        throw new BException('template_insert(): Failed', $e);
+        throw new BException('templates_insert(): Failed', $e);
     }
 }
 
@@ -179,15 +179,15 @@ function template_insert($template){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package template
- * @see template_validate()
- * @see template_insert()
+ * @package templates
+ * @see templates_validate()
+ * @see templates_insert()
  * @table: `template`
  * @note: This is a note
  * @version 2.5.12: Added function and documentation
  * @example [Title]
  * code
- * $result = template_update(array('foo' => 'bar',
+ * $result = templates_update(array('foo' => 'bar',
  *                                 'foo' => 'bar',
  *                                 'foo' => 'bar'));
  * showdie($result);
@@ -198,9 +198,9 @@ function template_insert($template){
  * @param string $params[bar]
  * @return array The specified template, validated and sanitized
  */
-function template_update($template){
+function templates_update($template){
     try{
-        $template = template_validate($template);
+        $template = templates_validate($template);
 
         meta_action($template['meta_id'], 'update');
 
@@ -218,7 +218,7 @@ function template_update($template){
         return $update->rowCount();
 
     }catch(Exception $e){
-        throw new BException('template_update(): Failed', $e);
+        throw new BException('templates_update(): Failed', $e);
     }
 }
 
@@ -534,15 +534,15 @@ function templates_select($params = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package template
- * @see template_install()
+ * @package templates
+ * @see templates_install()
  * @see date_convert() Used to convert the sitemap entry dates
  * @table: `template`
  * @note: This is a note
  * @version 2.5.12: Added function and documentation
  * @example [Title]
  * code
- * $result = template_function(array('foo' => 'bar'));
+ * $result = templates_function(array('foo' => 'bar'));
  * showdie($result);
  * /code
  *
@@ -556,11 +556,11 @@ function templates_select($params = null){
  * @param string $params[bar]
  * @return string The result
  */
-function template_function($params){
+function templates_function($params){
     try{
 
     }catch(Exception $e){
-        throw new BException('template_function(): Failed', $e);
+        throw new BException('templates_function(): Failed', $e);
     }
 }
 ?>
