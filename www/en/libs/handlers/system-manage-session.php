@@ -1,461 +1,470 @@
 <?php
-/*
- * Correctly detect the remote IP
- */
-if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
-    $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
-}
-
-
-
-/*
- * New session? Detect client type, language, and mobile device
- */
-if(empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])){
-    load_libs('detect');
-    detect();
-}
-
-
-
-/*
- * Add a powered-by header
- */
-if($_CONFIG['security']['signature']){
-    header('Powered-By: Phoundation version "'.FRAMEWORKCODEVERSION.'"');
-}
-
-
-
-// :TODO: The next section may be included in the whitelabel domain check
-/*
- * Check if the requested domain is allowed
- */
-$domain = cfm($_SERVER['HTTP_HOST']);
-
-if(!$domain){
+try{
     /*
-     * No domain was requested at all, so probably instead of a domain
-     * name, an IP was requested. Redirect to the domain name
+     * Correctly detect the remote IP
      */
-    redirect(PROTOCOL.$_CONFIG['domain']);
-}
+    if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+        $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
 
 
 
-/*
- * Check the detected domain against the configured domain.
- * If it doesnt match then check if its a registered whitelabel domain
- */
-if($domain === $_CONFIG['domain']){
     /*
-     * This is the registered domain
+     * New session? Detect client type, language, and mobile device
      */
+    if(empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])){
+        load_libs('detect');
+        detect();
+    }
 
-}else{
+
+
     /*
-     * This is not the registered domain!
+     * Add a powered-by header
      */
-    if($_CONFIG['whitelabels'] === false){
+    if($_CONFIG['security']['signature']){
+        header('Powered-By: Phoundation version "'.FRAMEWORKCODEVERSION.'"');
+    }
+
+
+
+    // :TODO: The next section may be included in the whitelabel domain check
+    /*
+     * Check if the requested domain is allowed
+     */
+    $domain = cfm($_SERVER['HTTP_HOST']);
+
+    if(!$domain){
         /*
-         * white label domains are disabled, so the requested domain
-         * MUST match the configured domain
+         * No domain was requested at all, so probably instead of a domain
+         * name, an IP was requested. Redirect to the domain name
          */
         redirect(PROTOCOL.$_CONFIG['domain']);
+    }
 
-    }elseif($_CONFIG['whitelabels'] === 'all'){
+
+
+    /*
+     * Check the detected domain against the configured domain.
+     * If it doesnt match then check if its a registered whitelabel domain
+     */
+    if($domain === $_CONFIG['domain']){
         /*
-         * All domains are allowed
+         * This is the registered domain
          */
-
-    }elseif($_CONFIG['whitelabels'] === 'sub'){
-        /*
-         * White label domains are disabled, but sub domains from the
-         * $_CONFIG[domain] are allowed
-         */
-        if(str_from($domain, '.') !== $_CONFIG['domain']){
-            redirect(PROTOCOL.$_CONFIG['domain']);
-        }
-
-    }elseif($_CONFIG['whitelabels'] === 'list'){
-        /*
-         * This domain must be registered in the whitelabels list
-         */
-        $domain = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain AND `status` IS NULL', true, array(':domain' => $_SERVER['HTTP_HOST']));
-
-        if(empty($domain)){
-            redirect(PROTOCOL.$_CONFIG['domain']);
-        }
-
-    }elseif(is_array($_CONFIG['whitelabels'])){
-        /*
-         * Domain must be specified in one of the array entries
-         */
-        if(!in_array($domain, $_CONFIG['whitelabels'])){
-            redirect(PROTOCOL.$_CONFIG['domain']);
-        }
 
     }else{
         /*
-         * The domain must match either $_CONFIG[domain] or the domain
-         * specified in $_CONFIG[whitelabels][enabled]
+         * This is not the registered domain!
          */
-        if($domain !== $_CONFIG['whitelabels']){
+        if($_CONFIG['whitelabels'] === false){
+            /*
+             * white label domains are disabled, so the requested domain
+             * MUST match the configured domain
+             */
             redirect(PROTOCOL.$_CONFIG['domain']);
-        }
 
+        }elseif($_CONFIG['whitelabels'] === 'all'){
+            /*
+             * All domains are allowed
+             */
+
+        }elseif($_CONFIG['whitelabels'] === 'sub'){
+            /*
+             * White label domains are disabled, but sub domains from the
+             * $_CONFIG[domain] are allowed
+             */
+            if(str_from($domain, '.') !== $_CONFIG['domain']){
+                redirect(PROTOCOL.$_CONFIG['domain']);
+            }
+
+        }elseif($_CONFIG['whitelabels'] === 'list'){
+            /*
+             * This domain must be registered in the whitelabels list
+             */
+            $domain = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain AND `status` IS NULL', true, array(':domain' => $_SERVER['HTTP_HOST']));
+
+            if(empty($domain)){
+                redirect(PROTOCOL.$_CONFIG['domain']);
+            }
+
+        }elseif(is_array($_CONFIG['whitelabels'])){
+            /*
+             * Domain must be specified in one of the array entries
+             */
+            if(!in_array($domain, $_CONFIG['whitelabels'])){
+                redirect(PROTOCOL.$_CONFIG['domain']);
+            }
+
+        }else{
+            /*
+             * The domain must match either $_CONFIG[domain] or the domain
+             * specified in $_CONFIG[whitelabels][enabled]
+             */
+            if($domain !== $_CONFIG['whitelabels']){
+                redirect(PROTOCOL.$_CONFIG['domain']);
+            }
+
+        }
     }
-}
 
 
 
-/*
- * Check the cookie domain configuration to see if its valid.
- *
- * NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain]
- * must be one of "auto" or ".auto"
- */
-switch($_CONFIG['sessions']['domain']){
-    case '':
-        /*
-         * This domain has no cookies
-         */
-        break;
-
-    case 'auto':
-        $_CONFIG['sessions']['domain'] = $domain;
-        break;
-
-    case '.auto':
-        $_CONFIG['sessions']['domain'] = '.'.$domain;
-        ini_set('session.cookie_domain', '.'.$domain);
-        break;
-
-    default:
-        /*
-         * Test cookie domain limitation
-         *
-         * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
-         * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
-         */
-        if($_CONFIG['sessions']['domain'][0] == '.'){
-            $test = substr($_CONFIG['sessions']['domain'], 1);
-
-        }else{
-            $test = $_CONFIG['sessions']['domain'];
-        }
-
-        if(!strstr($domain, $test)){
-            notify(array('code'    => 'configuration',
-                         'groups'  => 'developers',
-                         'title'   => tr('Invalid cookie domain'),
-                         'message' => tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['sessions']['domain'], '.'), ':cookie_domain' => $_CONFIG['sessions']['domain'], ':current_domain' => $domain))));
-
-            redirect(PROTOCOL.str_starts_not($_CONFIG['sessions']['domain'], '.'));
-        }
-
-        unset($test);
-        unset($length);
-}
-
-$_SESSION['domain'] = $domain;
-
-// :TODO: Test if $_SESSION['domain'] matches $_SERVER['HTTP_HOST']!
-
-
-
-/*
- * Set session and cookie parameters
- */
-try{
-    if($_CONFIG['sessions']['enabled']){
-        /*
-         * Backward compatibility
-         */
-    // :TODO: Remove this section after 2019/04
-        if(isset($_CONFIG['cookie']['domain'])){
-            $_CONFIG['sessions']['domain'] = $_CONFIG['cookie']['domain'];
-        }
-
-        /*
-         * Force session cookie configuration
-         */
-        ini_set('session.gc_maxlifetime' , $_CONFIG['sessions']['timeout']);
-        ini_set('session.cookie_lifetime', $_CONFIG['sessions']['lifetime']);
-        ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
-        ini_set('session.name'           , $_CONFIG['sessions']['cookie_name']);
-        ini_set('session.cookie_httponly', $_CONFIG['sessions']['http']);
-        ini_set('session.cookie_secure'  , $_CONFIG['sessions']['secure']);
-        ini_set('session.cookie_samesite', $_CONFIG['sessions']['same_site']);
-        ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
-
-        if($_CONFIG['sessions']['secure']){
-            if($_CONFIG['protocol'] == 'http://'){
-                throw new BException(tr('startup-webpage(): Invalid configuration detected, $_CONFIG[sessions][secure] allows only cookies over HTTPS while $_CONFIG[protocol] only does HTTP'), 'invalid');
-            }
-        }
-
-        if($_CONFIG['sessions']['check_referrer']){
-            ini_set('session.referer_check', $_SESSION['domain']);
-        }
-
-        if(debug() or !$_CONFIG['cache']['http']['enabled']){
-             ini_set('session.cache_limiter', 'nocache');
-
-        }else{
-            if($_CONFIG['cache']['http']['enabled'] === 'auto'){
-                ini_set('session.cache_limiter', $_CONFIG['cache']['http']['php_cache_limiter']);
-                ini_set('session.cache_expire' , $_CONFIG['cache']['http']['php_cache_expire']);
-            }
-        }
-
-
-
-        /*
-         * Do not send cookies to crawlers!
-         */
-        if(isset_get($core->register['session']['client']['type']) === 'crawler'){
-            log_file(tr('Crawler ":crawler" on URL ":url"', array(':crawler' => $core->register['session']['client'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])));
-
-        }else{
+    /*
+     * Check the cookie domain configuration to see if its valid.
+     *
+     * NOTE: In case whitelabel domains are used, $_CONFIG[cookie][domain]
+     * must be one of "auto" or ".auto"
+     */
+    switch($_CONFIG['sessions']['domain']){
+        case '':
             /*
-             * Setup session handlers
+             * This domain has no cookies
              */
-            switch($_CONFIG['sessions']['handler']){
-                case false:
-                    file_ensure_path(ROOT.'data/cookies/');
-                    ini_set('session.save_path', ROOT.'data/cookies/');
-                    break;
+            break;
 
-                case 'sql':
-                    /*
-                     * Store session data in MySQL
-                     */
-                    load_libs('sessions-sql');
-                    session_set_save_handler('sessions_sql_open', 'sessions_sql_close', 'sessions_sql_read', 'sessions_sql_write', 'sessions_sql_destroy', 'sessions_sql_gc', 'sessions_sql_create_sid');
-                    register_shutdown_function('session_write_close');
+        case 'auto':
+            $_CONFIG['sessions']['domain'] = $domain;
+            break;
 
-                case 'mc':
-                    /*
-                     * Store session data in memcached
-                     */
-                    load_libs('sessions-mc');
-                    session_set_save_handler('sessions_mc_open', 'sessions_mc_close', 'sessions_mc_read', 'sessions_mc_write', 'sessions_mc_destroy', 'sessions_mc_gc', 'sessions_mc_create_sid');
-                    register_shutdown_function('session_write_close');
+        case '.auto':
+            $_CONFIG['sessions']['domain'] = '.'.$domain;
+            ini_set('session.cookie_domain', '.'.$domain);
+            break;
 
-                case 'mm':
-                    /*
-                     * Store session data in shared memory
-                     */
-                    load_libs('sessions-mm');
-                    session_set_save_handler('sessions_mm_open', 'sessions_mm_close', 'sessions_mm_read', 'sessions_mm_write', 'sessions_mm_destroy', 'sessions_mm_gc', 'sessions_mm_create_sid');
-                    register_shutdown_function('session_write_close');
+        default:
+            /*
+             * Test cookie domain limitation
+             *
+             * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
+             * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
+             */
+            if($_CONFIG['sessions']['domain'][0] == '.'){
+                $test = substr($_CONFIG['sessions']['domain'], 1);
+
+            }else{
+                $test = $_CONFIG['sessions']['domain'];
             }
 
+            if(!strstr($domain, $test)){
+                notify(array('code'    => 'configuration',
+                             'groups'  => 'developers',
+                             'title'   => tr('Invalid cookie domain'),
+                             'message' => tr('core::startup(): Specified cookie domain ":cookie_domain" is invalid for current domain ":current_domain". Please fix $_CONFIG[cookie][domain]! Redirecting to ":domain"', array(':domain' => str_starts_not($_CONFIG['sessions']['domain'], '.'), ':cookie_domain' => $_CONFIG['sessions']['domain'], ':current_domain' => $domain))));
 
+                redirect(PROTOCOL.str_starts_not($_CONFIG['sessions']['domain'], '.'));
+            }
+
+            unset($test);
+            unset($length);
+    }
+
+    $_SESSION['domain'] = $domain;
+
+    // :TODO: Test if $_SESSION['domain'] matches $_SERVER['HTTP_HOST']!
+
+
+
+    /*
+     * Set session and cookie parameters
+     */
+    try{
+        if($_CONFIG['sessions']['enabled']){
+            /*
+             * Backward compatibility
+             */
+        // :TODO: Remove this section after 2019/04
+            if(isset($_CONFIG['cookie']['domain'])){
+                $_CONFIG['sessions']['domain'] = $_CONFIG['cookie']['domain'];
+            }
 
             /*
-             * Set cookie, but only if page is not API and domain has
-             * cookie configured
+             * Force session cookie configuration
              */
-            if($_CONFIG['sessions']['euro_cookies'] and empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])){
-                load_libs('geo,geoip');
+            ini_set('session.gc_maxlifetime' , $_CONFIG['sessions']['timeout']);
+            ini_set('session.cookie_lifetime', $_CONFIG['sessions']['lifetime']);
+            ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
+            ini_set('session.name'           , $_CONFIG['sessions']['cookie_name']);
+            ini_set('session.cookie_httponly', $_CONFIG['sessions']['http']);
+            ini_set('session.cookie_secure'  , $_CONFIG['sessions']['secure']);
+            ini_set('session.cookie_samesite', $_CONFIG['sessions']['same_site']);
+            ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
 
-                if(geoip_is_european()){
-                    /*
-                     * All first visits to european countries require cookie permissions given!
-                     */
-                    $_SESSION['euro_cookie'] = true;
-                    return;
+            if($_CONFIG['sessions']['secure']){
+                if($_CONFIG['protocol'] == 'http://'){
+                    throw new BException(tr('startup-webpage(): Invalid configuration detected, $_CONFIG[sessions][secure] allows only cookies over HTTPS while $_CONFIG[protocol] only does HTTP'), 'invalid');
                 }
             }
 
-            if(!$core->callType('api')){
+            if($_CONFIG['sessions']['check_referrer']){
+                ini_set('session.referer_check', $_SESSION['domain']);
+            }
+
+            if(debug() or !$_CONFIG['cache']['http']['enabled']){
+                 ini_set('session.cache_limiter', 'nocache');
+
+            }else{
+                if($_CONFIG['cache']['http']['enabled'] === 'auto'){
+                    ini_set('session.cache_limiter', $_CONFIG['cache']['http']['php_cache_limiter']);
+                    ini_set('session.cache_expire' , $_CONFIG['cache']['http']['php_cache_expire']);
+                }
+            }
+
+
+
+            /*
+             * Do not send cookies to crawlers!
+             */
+            if(isset_get($core->register['session']['client']['type']) === 'crawler'){
+                log_file(tr('Crawler ":crawler" on URL ":url"', array(':crawler' => $core->register['session']['client'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])));
+
+            }else{
                 /*
-                 *
+                 * Setup session handlers
                  */
-                try{
-                    if(isset($_COOKIE[$_CONFIG['sessions']['cookie_name']])){
-                        if(!is_string($_COOKIE[$_CONFIG['sessions']['cookie_name']]) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[$_CONFIG['sessions']['cookie_name']])){
-                            log_file(tr('Received invalid cookie ":cookie", dropping', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'warning');
-                            unset($_COOKIE[$_CONFIG['sessions']['cookie_name']]);
-                            $_POST = array();
+                switch($_CONFIG['sessions']['handler']){
+                    case false:
+                        file_ensure_path(ROOT.'data/cookies/');
+                        ini_set('session.save_path', ROOT.'data/cookies/');
+                        break;
 
-                            /*
-                             * Received cookie but it didn't pass
-                             * Start a new session without a cookie
-                             */
-                            session_start();
+                    case 'sql':
+                        /*
+                         * Store session data in MySQL
+                         */
+                        load_libs('sessions-sql');
+                        session_set_save_handler('sessions_sql_open', 'sessions_sql_close', 'sessions_sql_read', 'sessions_sql_write', 'sessions_sql_destroy', 'sessions_sql_gc', 'sessions_sql_create_sid');
+                        register_shutdown_function('session_write_close');
 
-                        }elseif(!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[$_CONFIG['sessions']['cookie_name']])){
-                            /*
-                             * Cookie code is valid, but it doesn't exist.
-                             *
-                             * Start a session with this non-existing cookie. Rename
-                             * our session after the cookie, as deleting the cookie
-                             * from the browser turned out to be problematic to say
-                             * the least
-                             */
-                            log_file(tr('Received non existing cookie ":cookie", recreating', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'warning');
+                    case 'mc':
+                        /*
+                         * Store session data in memcached
+                         */
+                        load_libs('sessions-mc');
+                        session_set_save_handler('sessions_mc_open', 'sessions_mc_close', 'sessions_mc_read', 'sessions_mc_write', 'sessions_mc_destroy', 'sessions_mc_gc', 'sessions_mc_create_sid');
+                        register_shutdown_function('session_write_close');
 
-                            session_start();
-                            header_remove('Set-Cookie');
-                            session_id($_COOKIE[$_CONFIG['sessions']['cookie_name']]);
-                            html_flash_set(tr('Your browser cookie was expired, or does not exist. please try again'), 'warning');
-                            $_POST = array();
+                    case 'mm':
+                        /*
+                         * Store session data in shared memory
+                         */
+                        load_libs('sessions-mm');
+                        session_set_save_handler('sessions_mm_open', 'sessions_mm_close', 'sessions_mm_read', 'sessions_mm_write', 'sessions_mm_destroy', 'sessions_mm_gc', 'sessions_mm_create_sid');
+                        register_shutdown_function('session_write_close');
+                }
+
+
+
+                /*
+                 * Set cookie, but only if page is not API and domain has
+                 * cookie configured
+                 */
+                if($_CONFIG['sessions']['euro_cookies'] and empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])){
+                    load_libs('geo,geoip');
+
+                    if(geoip_is_european()){
+                        /*
+                         * All first visits to european countries require cookie permissions given!
+                         */
+                        $_SESSION['euro_cookie'] = true;
+                        return;
+                    }
+                }
+
+                if(!$core->callType('api')){
+                    /*
+                     *
+                     */
+                    try{
+                        if(isset($_COOKIE[$_CONFIG['sessions']['cookie_name']])){
+                            if(!is_string($_COOKIE[$_CONFIG['sessions']['cookie_name']]) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[$_CONFIG['sessions']['cookie_name']])){
+                                log_file(tr('Received invalid cookie ":cookie", dropping', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'warning');
+                                unset($_COOKIE[$_CONFIG['sessions']['cookie_name']]);
+                                $_POST = array();
+
+                                /*
+                                 * Received cookie but it didn't pass
+                                 * Start a new session without a cookie
+                                 */
+                                session_start();
+
+                            }elseif(!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[$_CONFIG['sessions']['cookie_name']])){
+                                /*
+                                 * Cookie code is valid, but it doesn't exist.
+                                 *
+                                 * Start a session with this non-existing cookie. Rename
+                                 * our session after the cookie, as deleting the cookie
+                                 * from the browser turned out to be problematic to say
+                                 * the least
+                                 */
+                                log_file(tr('Received non existing cookie ":cookie", recreating', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'warning');
+
+                                session_start();
+                                header_remove('Set-Cookie');
+                                session_id($_COOKIE[$_CONFIG['sessions']['cookie_name']]);
+                                html_flash_set(tr('Your browser cookie was expired, or does not exist. please try again'), 'warning');
+                                $_POST = array();
+
+                            }else{
+                                /*
+                                 * Cookie valid and found.
+                                 * Start a normal session with whit cookie
+                                 */
+                                session_start();
+                            }
 
                         }else{
                             /*
-                             * Cookie valid and found.
-                             * Start a normal session with whit cookie
+                             * No cookie received, start a fresh session
                              */
                             session_start();
                         }
 
-                    }else{
-                        /*
-                         * No cookie received, start a fresh session
-                         */
-                        session_start();
-                    }
-
-                }catch(Exception $e){
-                    /*
-                     * Session startup failed. Clear session and try again
-                     */
-                    try{
-                        session_regenerate_id(true);
-
                     }catch(Exception $e){
                         /*
-                         * Woah, something really went wrong..
+                         * Session startup failed. Clear session and try again
+                         */
+                        try{
+                            session_regenerate_id(true);
+
+                        }catch(Exception $e){
+                            /*
+                             * Woah, something really went wrong..
+                             *
+                             * This may be
+                             * headers already sent (the $core->register['script'] file has a space or BOM at the beginning maybe?)
+                             * permissions of PHP session directory?
+                             */
+                // :TODO: Add check on $core->register['script'] file if it contains BOM!
+                            throw new BException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
+                        }
+                    }
+
+                    if($_CONFIG['security']['url_cloaking']['enabled'] and $_CONFIG['security']['url_cloaking']['strict']){
+                        /*
+                         * URL cloaking was enabled and requires strict checking.
                          *
-                         * This may be
-                         * headers already sent (the $core->register['script'] file has a space or BOM at the beginning maybe?)
-                         * permissions of PHP session directory?
+                         * Ensure that we have a cloaked URL users_id and that it
+                         * matches the sessions users_id
+                         *
+                         * Only check cloaking rules if we are NOT displaying a
+                         * system page
                          */
-            // :TODO: Add check on $core->register['script'] file if it contains BOM!
-                        throw new BException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
-                    }
-                }
+                        if(!$core->callType('system')){
+                            if(empty($core->register['url_cloak_users_id'])){
+                                throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
+                            }
 
-                if($_CONFIG['security']['url_cloaking']['enabled'] and $_CONFIG['security']['url_cloaking']['strict']){
+                            if($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']){
+                                throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', array(':session_users_id' => $_SESSION['user']['id'], ':cloak_users_id' => $core->register['url_cloak_users_id'])), 403);
+                            }
+                        }
+                    }
+
+                    if($_CONFIG['sessions']['regenerate_id']){
+                        if(isset($_SESSION['created']) and (time() - $_SESSION['created'] > $_CONFIG['sessions']['regenerate_id'])){
+                            /*
+                             * Use "created" to monitor session id age and
+                             * refresh it periodically to mitigate attacks on
+                             * sessions like session fixation
+                             */
+                            session_regenerate_id(true);
+                            $_SESSION['created'] = time();
+                        }
+                    }
+
+                    if($_CONFIG['sessions']['lifetime']){
+                        if(isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > $_CONFIG['sessions']['lifetime'])){
+                            /*
+                             * Session expired!
+                             */
+                            session_unset();
+                            session_destroy();
+                            session_start();
+                            session_regenerate_id(true);
+                        }
+                    }
+
+
+
                     /*
-                     * URL cloaking was enabled and requires strict checking.
-                     *
-                     * Ensure that we have a cloaked URL users_id and that it
-                     * matches the sessions users_id
-                     *
-                     * Only check cloaking rules if we are NOT displaying a
-                     * system page
+                     * Set last activity, and vist_visit variables
                      */
-                    if(!$core->callType('system')){
-                        if(empty($core->register['url_cloak_users_id'])){
-                            throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
-                        }
+                    $_SESSION['last_activity'] = time();
 
-                        if($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']){
-                            throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', array(':session_users_id' => $_SESSION['user']['id'], ':cloak_users_id' => $core->register['url_cloak_users_id'])), 403);
-                        }
+                    if(isset($_SESSION['first_visit'])){
+                        $_SESSION['first_visit'] = false;
+
+                    }else{
+                        $_SESSION['first_visit'] = true;
                     }
-                }
-
-                if($_CONFIG['sessions']['regenerate_id']){
-                    if(isset($_SESSION['created']) and (time() - $_SESSION['created'] > $_CONFIG['sessions']['regenerate_id'])){
-                        /*
-                         * Use "created" to monitor session id age and
-                         * refresh it periodically to mitigate attacks on
-                         * sessions like session fixation
-                         */
-                        session_regenerate_id(true);
-                        $_SESSION['created'] = time();
-                    }
-                }
-
-                if($_CONFIG['sessions']['lifetime']){
-                    if(isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > $_CONFIG['sessions']['lifetime'])){
-                        /*
-                         * Session expired!
-                         */
-                        session_unset();
-                        session_destroy();
-                        session_start();
-                        session_regenerate_id(true);
-                    }
-                }
 
 
 
-                /*
-                 * Set last activity, and vist_visit variables
-                 */
-                $_SESSION['last_activity'] = time();
-
-                if(isset($_SESSION['first_visit'])){
-                    $_SESSION['first_visit'] = false;
-
-                }else{
-                    $_SESSION['first_visit'] = true;
-                }
+                    /*
+                     * Auto extended sessions?
+                     */
+                    check_extended_session();
 
 
 
-                /*
-                 * Auto extended sessions?
-                 */
-                check_extended_session();
-
-
-
-                /*
-                 * Set users timezone
-                 */
-                if(empty($_SESSION['user']['timezone'])){
-                    $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
-
-                }else{
-                    try{
-                        $check = new DateTimeZone($_SESSION['user']['timezone']);
-
-                    }catch(Exception $e){
-                        /*
-                         * Timezone invalid for this user. Notify, but continue
-                         * by using the default
-                         */
+                    /*
+                     * Set users timezone
+                     */
+                    if(empty($_SESSION['user']['timezone'])){
                         $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
-                        notify($e);
+
+                    }else{
+                        try{
+                            $check = new DateTimeZone($_SESSION['user']['timezone']);
+
+                        }catch(Exception $e){
+                            /*
+                             * Timezone invalid for this user. Notify
+                             * developers, and fix timezone for user
+                             */
+                            $user             = user_get($_SESSION['user']['id']);
+                            $user['timezone'] = $_CONFIG['timezone']['display'];
+                            user_update($user);
+
+                            $_SESSION['user']['timezone'] = $user['timezone'];
+                            notify(new BException(tr('core::startup_manage_session(): Reset timezone for user ":user" to ":timezone"', array(':user' => name($_SESSION['user']), ':timezone' => $user['timezone'])), $e));
+                        }
                     }
                 }
+
+                if(empty($_SESSION['init'])){
+                    /*
+                     * Initialize the session
+                     */
+                    $_SESSION['init']     = time();
+                    $_SESSION['first']    = true;
+    // :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
+                    $_SESSION['client']   = isset_get($core->register['session']['client']);
+                    $_SESSION['location'] = isset_get($core->register['session']['location']);
+                    $_SESSION['language'] = isset_get($core->register['session']['language']);
+
+                }else{
+                    unset($_SESSION['first']);
+                }
+            }
+        }
+
+    }catch(Exception $e){
+        if($e->getRealCode() == 403){
+            log_file($e->getMessage(), 403, 'yellow');
+            $core->register['page_show'] = 403;
+
+        }else{
+            if(!is_writable(session_save_path())){
+                throw new BException('core::startup_manage_session(): Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
             }
 
-            if(empty($_SESSION['init'])){
-                /*
-                 * Initialize the session
-                 */
-                $_SESSION['init']     = time();
-                $_SESSION['first']    = true;
-// :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
-                $_SESSION['client']   = isset_get($core->register['session']['client']);
-                $_SESSION['location'] = isset_get($core->register['session']['location']);
-                $_SESSION['language'] = isset_get($core->register['session']['language']);
-
-            }else{
-                unset($_SESSION['first']);
-            }
+            throw new BException('core::startup_manage_session(): Session startup failed', $e);
         }
     }
 
 }catch(Exception $e){
-    if($e->getRealCode() == 403){
-        log_file($e->getMessage(), 403, 'yellow');
-        $core->register['page_show'] = 403;
-
-    }else{
-        if(!is_writable(session_save_path())){
-            throw new BException('startup-manage-session: Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
-        }
-
-        throw new BException('startup-manage-session: Session startup failed', $e);
-    }
+    throw new BException(tr('core::startup_manage_session(): Failed'), $e);
 }
 ?>
