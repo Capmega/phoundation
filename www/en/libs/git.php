@@ -294,7 +294,11 @@ function git_branch($branch = null, $path = ROOT){
 
         foreach($results as $branch){
             if(substr(trim($branch), 0, 1) == '*'){
-                return trim(substr(trim($branch), 1));
+                $branch = trim(substr(trim($branch), 1));
+                $branch = strtolower(str_cut($branch, '(', ')'));
+                $branch = trim(str_from($branch, 'head detached at'));
+
+                return $branch;
             }
         }
 
@@ -595,23 +599,36 @@ under_construction();
  * @param string $branch
  * @return
  */
-// :DELETE: This is a duplicate of git_branch() ???
-function git_get_branch($branch = null){
+function git_branch_is_tag($branch = null, $path = ROOT){
     try{
-        $results = git_exec($path, array('branch', '--no-color'));
+        $tags     = git_list_tags($path);
+        $branches = git_list_branches($path);
 
-        foreach($results as $line){
-            $current = trim(substr($line, 0, 2));
-
-            if($current){
-                return trim(substr($line, 2));
-            }
+        if(!$branch){
+            /*
+             * Get the current branch
+             */
+            $branch = git_branch(null, $path);
         }
 
-        return null;
+        /*
+         * Does the specified branch exist as a branch?
+         */
+        if(in_array($branch, $tags)){
+            return true;
+        }
+
+        /*
+         * Does the specified branch exist as a branch?
+         */
+        if(in_array($branch, $branches)){
+            return false;
+        }
+
+        throw new BException(tr('git_branch_is_tag(): Specified branch or tag ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
 
     }catch(Exception $e){
-        throw new BException('git_get_branch(): Failed', $e);
+        throw new BException('git_branch_is_tag(): Failed', $e);
     }
 }
 

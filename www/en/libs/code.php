@@ -223,6 +223,35 @@ function code_phoundation_fetch($params = null){
 
 
 /*
+ * Download objects and refs from another repository on the specified path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package code
+ * @see code_locate_phoundation()
+ * @see git_fetch()
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param null params $params The fetch parameters
+ * @return array Return the available versions for the git project
+ */
+function code_phoundation_branch_is_tag($branch = null){
+    try{
+        $path    = code_locate_phoundation();
+        $results = git_branch_is_tag($branch, $path);
+
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException('code_phoundation_branch_is_tag(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Execute a general "pull" on the current phoundation branch
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>

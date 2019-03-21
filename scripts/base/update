@@ -173,7 +173,7 @@ try{
     }
 
     log_console(tr('Fetching latest phoundation branches and tags'), 'VERBOSE/cyan');
-    code_phoundation_fetch(array('all' => true));
+    $results = code_phoundation_fetch(array('all' => true));
 
 
 
@@ -285,10 +285,15 @@ try{
 
 
     /*
-     * Checkout the highest version branch for our version line and start updating!
+     * Checkout the highest version branch for our version line
+     * Tags should be complete, but if we went for a branch, then pull to ensure
+     * we have the latest of the latest
      */
     code_phoundation_checkout($checkout);
-    code_phoundation_pull();
+
+    if(!code_phoundation_is_tag()){
+        code_phoundation_pull();
+    }
 
 
 
