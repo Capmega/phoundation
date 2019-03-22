@@ -29,7 +29,7 @@
  */
 function wget_library_init(){
     try{
-        if(!cli_which('wget')){
+        if(!file_which('wget')){
             linux_install_package('wget');
         }
 
@@ -65,10 +65,37 @@ function wget($params){
             throw new BException(tr('wget(): No file specified'), 'not-specified');
         }
 
-        $results = safe_exec(array('commands' => array('wget' => array('-q', '-O', $params['file'], '-', '"'.$params['url'].'"'))));
+        $results = safe_exec(array('commands' => array('wget', array('-q', '-O', $params['file'], '-', '"'.$params['url'].'"'))));
         return $result;
 
     }catch(Exception $e){
+        switch($e->getRealCode()){
+            case '1':
+                throw new BException('wget(): Failed to download file, wget reported error "Generic error code"', $e);
+
+            case '2':
+                throw new BException('wget(): Failed to download file, wget reported error "Parse error---for instance, when parsing command-line options, the .wgetrc or .netrc"', $e);
+
+            case '3':
+                throw new BException('wget(): Failed to download file, wget reported error "File I/O error"', $e);
+
+            case '4':
+                throw new BException('wget(): Failed to download file, wget reported error "Network failure"', $e);
+
+            case '5':
+                throw new BException('wget(): Failed to download file, wget reported error "SSL verification failure"', $e);
+
+            case '6':
+                throw new BException('wget(): Failed to download file, wget reported error "Username/password authentication failure"', $e);
+
+            case '7':
+                throw new BException('wget(): Failed to download file, wget reported error "Protocol errors"', $e);
+
+            case '8':
+                throw new BException('wget(): Failed to download file, wget reported error "Server issued an error response"', $e);
+
+        }
+
         throw new BException('wget(): Failed', $e);
     }
 }
