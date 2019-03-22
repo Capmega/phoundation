@@ -1224,6 +1224,17 @@ function cli_done(){
 
 /*
  * Returns the PID list for the specified process name, if exists
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @see cli_pidgrep()
+ * @version 2.5.27: Added documentation
+ *
+ * @param string $name The process name to scan for
+ * @return array The list of process ids found that maches the specified name
  */
 function cli_pgrep($name){
     try{
@@ -1239,6 +1250,17 @@ function cli_pgrep($name){
 
 /*
  * Returns the process name for the specified PID
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @see cli_pgrep()
+ * @version 2.5.27: Added documentation
+ *
+ * @param string $name The process id to scan for
+ * @return string The process name found that maches the specified PID
  */
 function cli_pidgrep($pid){
     try{
