@@ -159,37 +159,7 @@ function git_exec($path, $arguments, $check_path = true){
             git_check_path($path);
         }
 
-        $pid = cli_pgrep('git');
-
-        while($pid){
-            /*
-             * Git is already running somewhere. Check if its not running on our
-             * current target path
-             */
-            $git_path = cli_get_cwd($pid);
-            $exists   = (str_exists($git_path, $path) or str_exists($path, $git_path));
-
-            if($exists){
-                /*
-                 * Git is already being used on our target path! Wait up to the
-                 * one second and retry the configured amount of times
-                 */
-                if(!isset($retry)){
-                    $retry = $_CONFIG['git']['retries'];
-                }
-
-                if($retry <= 0){
-                    throw new BException(tr('git_exec(): The target path ":path" is occupied by the process ":pid", and the waiting period timed out after ":tries" tries', array(':path' => $path, ':pid' => $pid, ':tries' => $_CONFIG['git']['retries'])), 'busy');
-                }
-
-                log_console(tr('Found git process already working on target path ":path", retrying ":tries" times in 1 second.', array(':path' => $path, ':tries' => $retry)), 'yellow');
-                sleep(1);
-                $retry--;
-
-            }else{
-                $pid = null;
-            }
-        }
+        git_wait_no_process($path);
 
         $results = safe_exec(array('commands' => array('cd' , array($path),
                                                        'git', $arguments)));
@@ -198,6 +168,72 @@ function git_exec($path, $arguments, $check_path = true){
 
     }catch(Exception $e){
         throw new BException('git_exec(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Checks if another git process is running on the specified path. If so, wait for that process to finish, then continue
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package git
+ * @version 2.5.272: Added function and documentation
+ *
+ * @return void
+ */
+function git_wait_no_process($path){
+    try{
+        $found = false;
+        $pids  = cli_pgrep('git');
+
+        foreach($pids as $pid){
+            $process = cli_pidgrep($pid);
+            $process = str_until($process, ' ');
+
+            if($process === 'git'){
+                /*
+                 * We found a git process, but is it on the specified path?
+                 */
+                $git_path = cli_get_cwd($found);
+                $exists   = (str_exists($git_path, $path) or str_exists($path, $git_path));
+
+                if(!isset($retry)){
+                    $retry = $_CONFIG['git']['retries'];
+                }
+
+                while($exists){
+                    /*
+                     * Git is already being used on our target path! Wait up to
+                     * the one second and retry the configured amount of times
+                     */
+                    if($retry <= 0){
+                        throw new BException(tr('git_wait_no_process(): The target path ":path" is occupied by the process ":pid", and the waiting period timed out after ":tries" tries', array(':path' => $path, ':pid' => $pid, ':tries' => $_CONFIG['git']['retries'])), 'busy');
+                    }
+
+                    log_console(tr('Found git process already working on target path ":path", retrying ":tries" times in 1 second.', array(':path' => $path, ':tries' => $retry)), 'yellow');
+
+                    if(cli_pidgrep($pid)){
+                        sleep(1);
+                        $retry--;
+                        continue;
+                    }
+
+                    /*
+                     * The PID that was using the path is gone! Doesn't mean
+                     * though that they are all gone, so retry and be sure the
+                     * are no processes left
+                     */
+                    return git_wait_no_process($path);
+                }
+            }
+        }
+
+    }catch(Exception $e){
+        throw new BException('git_wait_no_process(): Failed', $e);
     }
 }
 
