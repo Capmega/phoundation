@@ -57,11 +57,11 @@ function fprint_enroll($users_id, $finger = 'auto'){
     global $_CONFIG;
 
     try{
-        $device = fprint_select_device();
+        $device = fprint_pick_device();
         $finger = fprint_verify_finger($finger);
-        fprint_kill($device['server']);
+        fprint_kill($device['servers_id']);
 
-        $results = servers_exec($device['server'], 'sudo timeout '.$_CONFIG['fprint']['timeouts']['enroll'].' fprintd-enroll '.($finger ? '-f '.$finger.' ' : '').$users_id);
+        $results = servers_exec($device['servers_id'], 'sudo timeout '.$_CONFIG['fprint']['timeouts']['enroll'].' fprintd-enroll '.($finger ? '-f '.$finger.' ' : '').$users_id);
         $result  = array_pop($results);
 
         if($result == 'Enroll result: enroll-completed'){
@@ -111,11 +111,11 @@ function fprint_verify($user, $finger = 'auto'){
         }
 
         $finger = fprint_verify_finger($finger);
-        $device = fprint_select_device();
+        $device = fprint_pick_device();
 
-        fprint_kill($device['server']);
+        fprint_kill($device['servers_id']);
 
-        $results = servers_exec($device['server'], 'sudo timeout '.$_CONFIG['fprint']['timeouts']['verify'].' fprintd-verify '.($finger ? '-f '.$finger.' ' : '').$user);
+        $results = servers_exec($device['servers_id'], array('commands' => array('fprintd-verify', array('sudo' => true, 'timeout' => $_CONFIG['fprint']['timeouts']['verify'], ($finger ? '-f '.$finger.' ' : ''), $dbuser['id']))));
         $result  = array_pop($results);
 
         log_file(tr('Started fprintd-verify process for user ":user"', array(':user' => $user)), 'fprint');
@@ -149,8 +149,8 @@ function fprint_verify($user, $finger = 'auto'){
  */
 function fprint_list_users(){
     try{
-        $device  = fprint_select_device();
-        $results = linux_scandir($device['server'], '/var/lib/fprint');
+        $device  = fprint_pick_device();
+        $results = linux_scandir($device['servers_id'], '/var/lib/fprint');
 
         return $results;
 
@@ -175,8 +175,8 @@ function fprint_list_users(){
  */
 function fprint_list($users){
     try{
-        $device  = fprint_select_device();
-        $results = servers_exec($device['server'], 'sudo fprintd-list'.str_force($users, ' '));
+        $device  = fprint_pick_device();
+        $results = servers_exec($device['servers_id'], 'sudo fprintd-list'.str_force($users, ' '));
 
         return $results;
 
@@ -202,16 +202,16 @@ function fprint_list($users){
  */
 function fprint_delete($user){
     try{
-        $device = fprint_select_device();
+        $device = fprint_pick_device();
 
-        if(!linux_file_exists($device['server'], '/var/lib/fprint/'.$user)){
+        if(!linux_file_exists($device['servers_id'], '/var/lib/fprint/'.$user)){
             throw new BException(tr('fprint_delete(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
         }
 
         /*
          * Delete the directory for this user completely
          */
-        linux_file_delete($device['server'], '/var/lib/fprint/'.$user, false, true);
+        linux_file_delete($device['servers_id'], '/var/lib/fprint/'.$user, false, true);
 
     }catch(Exception $e){
         throw new BException('fprint_delete(): Failed', $e);
@@ -234,8 +234,8 @@ function fprint_delete($user){
  */
 function fprint_kill(){
     try{
-        $device = fprint_select_device();
-        return linux_pkill($device['server'], 'fprintd', 15, true);
+        $device = fprint_pick_device();
+        return linux_pkill($device['servers_id'], 'fprintd', 15, true);
 
     }catch(Exception $e){
         throw new BException('fprint_kill(): Failed', $e);
@@ -258,8 +258,8 @@ function fprint_kill(){
  */
 function fprint_process(){
     try{
-        $device = fprint_select_device();
-        return linux_pgrep($device['server'], 'fprintd');
+        $device = fprint_pick_device();
+        return linux_pgrep($device['servers_id'], 'fprintd');
 
     }catch(Exception $e){
         throw new BException('fprint_kill(): Failed', $e);
@@ -383,9 +383,9 @@ function fprint_handle_exception($e, $user){
  */
 function fprint_detect_software(){
     try{
-        $device = fprint_select_device();
+        $device = fprint_pick_device();
 
-        if(!linux_file_exists($device['server'], '/var/lib/fprint')){
+        if(!linux_file_exists($device['servers_id'], '/var/lib/fprint')){
             throw new BException(tr('fprint_detect_software(): fprintd application data directory "/var/lib/fprint" not found, it it probably is not installed. Please fix this by executing "sudo apt-get install fprintd" on the command line'), 'install');
         }
 
@@ -428,29 +428,33 @@ function fprint_detect_device(){
  * @package fprint
  * @version 1.25.0: Added function and documentation
  * @note This function caches the result. After the first call, it will keep returning the same device and server data for all subsequent calls.
+ * @note IMPORTANT: For the moment, this function does not support assigning devices to categories, companies, branches, departments, or employees as the devices library does not yet fully supports this either
  *
  * @param mixed $category id or seoname of category
  * @return array The selected finger print scanner device with server data included
  */
-function fprint_select_device($category = null){
+function fprint_pick_device($category = null){
     static $device;
 
     try{
+// :TODO: Implement support for category / company / branch / department / employee filtering per fingerprint reader
         if(!$device){
             load_libs('devices');
-            $device = devices_select('fingerprint-reader', $category);
+            $devices = devices_list('fingerprint-reader');
+            $devices = sql_list($devices);
 
-            if(!$device){
-                throw new BException(t('fprint_select_device(): No fingerprint reader device found'), 'not-exists');
+            if(!$devices){
+                throw new BException(tr('fprint_pick_device(): No fingerprint reader device found'), 'not-exists');
             }
 
+            $device            = $devices[array_rand($devices)];
             $device['persist'] = true;
         }
 
         return $device;
 
     }catch(Exception $e){
-        throw new BException('fprint_select_device(): Failed', $e);
+        throw new BException('fprint_pick_device(): Failed', $e);
     }
 }
 
@@ -470,10 +474,10 @@ function fprint_select_device($category = null){
  */
 function fprint_test_device(){
    try{
-        $device = fprint_select_device();
+        $device = fprint_pick_device();
 
-        fprint_kill($device['server']);
-        servers_exec($device['server'], 'sudo timeout 1 fprintd-enroll test', false, null, 124);
+        fprint_kill($device['servers_id']);
+        servers_exec($device['servers_id'], 'sudo timeout 1 fprintd-enroll test', false, null, 124);
 
         return $device;
 
