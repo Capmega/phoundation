@@ -771,17 +771,17 @@ function servers_exec($server, $params){
 
     }catch(Exception $e){
         /*
-         * Try deleting the keyfile anyway!
+         * We failed to execute the server command but try deleting the keyfile
+         * anyway!
          */
         try{
             servers_remove_identity_file(isset_get($identity_file));
-            notify($e);
 
         }catch(Exception $f){
             /*
              * Cannot be deleted, just ignore and notify
              */
-            notify($f);
+            notify($f, true, false);
         }
 
         throw new BException('servers_exec(): Failed', $e);
