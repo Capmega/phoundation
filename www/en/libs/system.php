@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.29');
+define('FRAMEWORKCODEVERSION', '2.5.30');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2179,8 +2179,8 @@ function download($url, $section = false, $callback = null){
             $file = TMP.$file;
         }
 
-        load_libs('wget');
         file_ensure_path(TMP.$section, 0770, true);
+        load_libs('wget');
 
         wget(array('url'  => $url,
                    'file' => $file));

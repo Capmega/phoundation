@@ -6,11 +6,6 @@ try{
         throw new BException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
-// :COMPATIBILITY: Remove the following code after 2019/06
-if(is_string($params)){
-$params = array('commands' => $params);
-}
-
     if(!is_array($params)){
         throw new BException(tr('safe_exec(): Specified $params is invalid, should be an array but is an ":type"', array(':type' => gettype($params))), 'invalid');
     }
