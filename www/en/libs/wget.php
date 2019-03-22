@@ -65,8 +65,9 @@ function wget($params){
             throw new BException(tr('wget(): No file specified'), 'not-specified');
         }
 
-        $results = safe_exec(array('commands' => array('wget', array('-q', '-O', $params['file'], '-', '"'.$params['url'].'"'))));
-        return $result;
+        $results = safe_exec(array('commands' => array('wget' => array('-q', '-O', $params['file'], '-', $params['url']))));
+	
+	return $result;
 
     }catch(Exception $e){
         switch($e->getRealCode()){
