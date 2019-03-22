@@ -1310,7 +1310,7 @@ function user_signup($user, $no_password = false){
  * @param string $user[avatar]
  * @param string $user[timezone]
  * @param string $user[redirect]
- * @return array The specified user, validated and sanitized
+ * @return boolean True if the user was updated, false otherwise
  */
 function user_update($user){
     try{
@@ -1370,7 +1370,7 @@ function user_update($user){
         user_update_rights($user);
         user_update_groups($user['id'], $user['groups']);
 
-        return $update->rowCount();
+        return (boolean) $update->rowCount();
 
     }catch(Exception $e){
         throw new BException('user_update(): Failed', $e);
