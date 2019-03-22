@@ -2791,4 +2791,36 @@ function file_restrict($params, $name = null){
         throw new BException('file_restrict(): Failed', $e);
     }
 }
+
+
+
+
+/*
+ * Locates the specifed command and returns it path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.0.5: Added function and documentation
+ * @version 2.4.16: Added $whereis support
+ *
+ * @param string $command The command searched for
+ * @param boolean $whereis If set to true, instead of "which", "whereis" will be used
+ * @return string The path of the specified file
+ */
+function file_which($command, $whereis = false){
+    try{
+        $result = safe_exec(array('ok_exitcodes' => '0,1',
+                                  'commands'     => array(($whereis ? 'whereis' : 'which'), array($command))));
+
+        $result = array_shift($result);
+
+        return get_null($result);
+
+    }catch(Exception $e){
+        throw new BException('file_which(): Failed', $e);
+    }
+}
 ?>

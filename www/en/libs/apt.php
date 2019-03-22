@@ -100,7 +100,7 @@ function apt_update($server = null){
     try{
         $results = servers_exec($server, array('timeout'  => 120,
                                                'function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
-                                               'commands' => array('apt', array('update'))));
+                                               'commands' => array('apt-get', array('sudo' => true, 'update'))));
         return $results;
 
     }catch(Exception $e){

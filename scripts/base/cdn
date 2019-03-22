@@ -34,9 +34,7 @@ OPTIONS
 
 require_once(__DIR__.'/../../libs/startup.php');
 load_libs('cdn');
-
-cli_only();
-cli_exclusive();
+cli_only(true);
 
 switch(cli_method()){
     case 'command':

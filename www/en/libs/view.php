@@ -134,7 +134,7 @@ function view_image($file){
  */
 function view_image_feh($file){
     try{
-        if(!cli_which('feh')){
+        if(!file_which('feh')){
             /*
              * feh isn't installed yet, try to install it
              */

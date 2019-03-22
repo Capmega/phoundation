@@ -57,7 +57,7 @@ function image_get_text($image) {
          return $retval;
 
     }catch(Exception $e){
-        if(!cli_which('tesseract')){
+        if(!file_which('tesseract')){
             throw new BException('image_get_text(): Failed to find the "tesseract" command, is it installed? On Ubuntu, use "sudo apt-get install tesseract-ocr" to install the required command', $e);
         }
 
@@ -497,7 +497,7 @@ function image_convert($source, $destination, $params = null){
         return $destination;
 
     }catch(Exception $e){
-        $exist = cli_which('convert');
+        $exist = file_which('convert');
 
         if(!$exist){
             throw new BException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. To install imagemagick on ubuntu, please execute "sudo apt -y install imagemagick"'), 'not-installed');

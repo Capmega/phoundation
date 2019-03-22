@@ -25,7 +25,7 @@
  */
 function dig_library_init(){
     try{
-        if(!cli_which('dig')){
+        if(!file_which('dig')){
             throw new BException(tr('dig_library_init(): The "dig" command was not found. To install "dig" on ubuntu, please execute "sudo apt-get install dnsutils"'), 'not-exists');
         }
 

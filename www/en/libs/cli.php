@@ -1637,37 +1637,6 @@ function cli_unzip($file, $target_path = null, $remove = true){
 
 
 /*
- * Locates the specifed command and returns it path
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package cli
- * @version 2.0.5: Added function and documentation
- * @version 2.4.16: Added $whereis support
- *
- * @param string $command The command searched for
- * @param boolean $whereis If set to true, instead of "which", "whereis" will be used
- * @return string The path of the specified file
- */
-function cli_which($command, $whereis = false){
-    try{
-        $result = safe_exec(array('ok_exitcodes' => '0,1',
-                                  'commands'     => array(($whereis ? 'whereis' : 'which'), array($command))));
-
-        $result = array_shift($result);
-
-        return get_null($result);
-
-    }catch(Exception $e){
-        throw new BException('cli_which(): Failed', $e);
-    }
-}
-
-
-
-/*
  * Returns true if the specified command is builtin in bash or not
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1972,10 +1941,6 @@ function cli_get_cwd($pid){
 /*
  * WARNING! BELOW HERE BE OBSOLETE FUNCTIONS AND OBSOLETE-BUT-WE-WANT-TO-BE-BACKWARD-COMPATIBLE WRAPPERS
  */
-function this_script_already_runs($action = 'exception', $force = false){
-    return cli_run_once($action, $force);
-}
-
 function cli_exclusive($action = 'exception', $force = false){
     return cli_run_once($action, $force);
 }

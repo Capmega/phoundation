@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.25');
+define('FRAMEWORKCODEVERSION', '2.5.26');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -3298,7 +3298,7 @@ function ensure_installed($params){
          */
         if(isset($params['which']) and !isset($fail)){
             foreach(array_force($params['which']) as $program){
-                if(!cli_which($program)){
+                if(!file_which($program)){
                     $fail = 'which '.$program;
                     break;
                 }

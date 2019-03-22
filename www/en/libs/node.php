@@ -16,13 +16,13 @@
 function node_check(){
     try{
         try{
-            $result = cli_which('nodejs');
+            $result = file_which('nodejs');
 
         }catch(Exception $e){
             /*
              * No "nodejs"? Maybe just "node" ?
              */
-            $result = cli_which('node');
+            $result = file_which('node');
         }
 
         log_console(tr('node_check(): Using NodeJS ":result"', array(':result' => $result)), 'green');
@@ -104,7 +104,7 @@ function node_check_modules(){
  */
 function node_check_npm(){
     try{
-        $result = cli_which('npm');
+        $result = file_which('npm');
         log_console(tr('node_check_npm(): Using npm ":result"', array(':result' => $result)), 'green');
         return $result;
 

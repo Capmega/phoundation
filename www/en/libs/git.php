@@ -68,7 +68,7 @@ function git_is_repository($path = ROOT){
         return false;
 
     }catch(Exception $e){
-        throw new BException('git_commit(): Failed', $e);
+        throw new BException('git_is_repository(): Failed', $e);
     }
 }
 
@@ -88,7 +88,7 @@ function git_is_repository($path = ROOT){
  */
 function git_is_available(){
     try{
-        return (boolean) cli_which('git');
+        return (boolean) file_which('git');
 
     }catch(Exception $e){
         throw new BException('git_is_available(): Failed', $e);

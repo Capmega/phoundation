@@ -28,7 +28,7 @@
  */
 function video_library_init(){
     try{
-        if(!cli_which('ffmpeg')){
+        if(!file_which('ffmpeg')){
             throw new BException(tr('video_library_init(): ffmpeg module not installed, run this command on your server: sudo apt update && sudo apt install ffmpeg libav-tools x264 x265;'), 'not_available');
         }
 
