@@ -18,7 +18,10 @@
 
         switch (jqXHR.responseJSON.result) {
             case "RELOAD":
-                location.reload();
+                /*
+                 * Reload as GET, NOT as POST!
+                 */
+                window.location.href = window.location.href;
                 break;
 
             case "OK":
