@@ -66,8 +66,7 @@ function wget($params){
         }
 
         $results = safe_exec(array('commands' => array('wget' => array('-q', '-O', $params['file'], '-', $params['url']))));
-	
-	return $result;
+    	return $result;
 
     }catch(Exception $e){
         switch($e->getRealCode()){
