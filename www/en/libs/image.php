@@ -219,8 +219,8 @@ function image_convert($source, $destination, $params = null){
 
                 case 'quality':
                     if($value){
-                       $arguments[] = '-quality '.$value.'%';
-                       $arguments[] = $value;
+                       $arguments[] = '-quality';
+                       $arguments[] = $value.'%';
                     }
 
                     break;
