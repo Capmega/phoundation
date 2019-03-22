@@ -65,34 +65,34 @@ function wget($params){
             throw new BException(tr('wget(): No file specified'), 'not-specified');
         }
 
-        $results = safe_exec(array('commands' => array('wget' => array('-q', '-O', $params['file'], '-', $params['url']))));
+        $results = safe_exec(array('commands' => array('wget' => array('-O', $params['file'], '-', $params['url'], 'redirect' => ROOT.'data/log/syslog'))));
     	return $result;
 
     }catch(Exception $e){
         switch($e->getRealCode()){
             case '1':
-                throw new BException('wget(): Failed to download file, wget reported error "Generic error code"', $e);
+                throw new BException('wget(): Failed to download file, wget reported error "1: Generic error code"', $e);
 
             case '2':
-                throw new BException('wget(): Failed to download file, wget reported error "Parse error---for instance, when parsing command-line options, the .wgetrc or .netrc"', $e);
+                throw new BException('wget(): Failed to download file, wget reported error "2: Parse error---for instance, when parsing command-line options, the .wgetrc or .netrc"', $e);
 
             case '3':
-                throw new BException('wget(): Failed to download file, wget reported error "File I/O error"', $e);
+                throw new BException('wget(): Failed to download file, wget reported error "3: File I/O error"', $e);
 
             case '4':
-                throw new BException('wget(): Failed to download file, wget reported error "Network failure"', $e);
+                throw new BException('wget(): Failed to download file, wget reported error "4: Network failure"', $e);
 
             case '5':
-                throw new BException('wget(): Failed to download file, wget reported error "SSL verification failure"', $e);
+                throw new BException('wget(): Failed to download file, wget reported error "5: SSL verification failure"', $e);
 
             case '6':
-                throw new BException('wget(): Failed to download file, wget reported error "Username/password authentication failure"', $e);
+                throw new BException('wget(): Failed to download file, wget reported error "6: Username/password authentication failure"', $e);
 
             case '7':
-                throw new BException('wget(): Failed to download file, wget reported error "Protocol errors"', $e);
+                throw new BException('wget(): Failed to download file, wget reported error "7: Protocol errors"', $e);
 
             case '8':
-                throw new BException('wget(): Failed to download file, wget reported error "Server issued an error response"', $e);
+                throw new BException('wget(): Failed to download file, wget reported error "8: Server issued an error response"', $e);
 
         }
 
