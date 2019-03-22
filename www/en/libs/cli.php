@@ -1745,7 +1745,7 @@ function cli_build_commands_string(&$params){
          */
         foreach($params['commands'] as $key => $value){
             if(!is_numeric($key)){
-                throw new BException(tr('cli_build_commands_string(): Specified command structure ":commands" is invalid. It should be a numerical array with a list of "command, argurments_array, command, argurments_array, etc.."', array(':commands' => $params['commands'])), 'invalid');
+                throw new BException(tr('cli_build_commands_string(): Specified command structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['commands'])), 'invalid');
             }
 
             if(!($key % 2)){
