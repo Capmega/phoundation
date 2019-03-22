@@ -187,8 +187,7 @@ function git_exec($path, $arguments, $check_path = true){
  */
 function git_wait_no_process($path){
     try{
-        $found = false;
-        $pids  = cli_pgrep('git');
+        $pids = cli_pgrep('git');
 
         foreach($pids as $pid){
             $process = cli_pidgrep($pid);
@@ -198,7 +197,7 @@ function git_wait_no_process($path){
                 /*
                  * We found a git process, but is it on the specified path?
                  */
-                $git_path = cli_get_cwd($found);
+                $git_path = cli_get_cwd($pid);
                 $exists   = (str_exists($git_path, $path) or str_exists($path, $git_path));
 
                 if(!isset($retry)){
