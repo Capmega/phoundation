@@ -60,6 +60,10 @@ function ssh_exec($server, $params){
     static $retry = 0;
 
     try{
+        if(!is_array($params)){
+            throw new BException(tr('ssh_exec(): Invalid command parameters ":params" specified, should be a parameter array containing a "commands" key', array(':params' => $params)), 'invalid');
+        }
+
         if($retry > 1){
             throw new BException(tr('ssh_exec(): Command ":command" retried ":retry" times, command failed', array(':command' => isset_get($params['commands']), ':retry' => $retry)), 'failed');
         }
@@ -218,7 +222,6 @@ function ssh_exec($server, $params){
         /*
          * Remove "Permanently added host blah" error, even in this exception
          */
-        notify($e);
         throw new BException('ssh_exec(): Failed', $e);
     }
 }
