@@ -283,6 +283,11 @@ function json_message($message, $data = null){
             case 'not-acceptable':
                 json_error(null, null, ($data ? $data : 'NOT-ACCEPTABLE'), 406);
 
+            case 408:
+                // FALLTHROUGH
+            case 'timeout':
+                json_error(null, null, ($data ? $data : 'TIMEOUT'), 408);
+
             case 409:
                 // FALLTHROUGH
             case 'conflict':
