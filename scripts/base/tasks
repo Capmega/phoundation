@@ -168,7 +168,7 @@ under_construction('add');
 
         }else{
             if(!$status){
-                $status = array('completed', 'failed');
+                $status = array('completed', 'failed', 'timeout');
 
             }else{
                 /*
@@ -179,6 +179,8 @@ under_construction('add');
                         case 'completed':
                             // FALLTHROUGH
                         case 'failed':
+                            // FALLTHROUGH
+                        case 'timeout':
                             /*
                              * These are okay to clear without force option
                              */
@@ -263,6 +265,8 @@ under_construction('add');
                         $task['status'] = cli_color($task['status'], 'green');
                         break;
 
+                    case 'timeout':
+                        // FALLTHROUGH
                     case 'failed':
                         $task['status'] = cli_color($task['status'], 'red');
                         break;
@@ -333,6 +337,8 @@ under_construction('add');
             case 'completed':
                 // FALLTHROUGH
             case 'failed':
+                // FALLTHROUGH
+            case 'timeout':
                 /*
                  * Task has finished or failed, show results
                  */
@@ -365,8 +371,8 @@ under_construction('add');
             throw new BException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
-        if(($task['status'] !== 'failed') and !FORCE){
-            throw new BException(tr('Cannot reset task ":id", it has status ":status" instead of "failed". Use FORCE to reset the task anyway', array(':id' => $task['id'], ':status' => $task['status'])), 'warning/invalid');
+        if(($task['status'] !== 'failed') and ($task['status'] !== 'timeout') and !FORCE){
+            throw new BException(tr('Cannot reset task ":id", it has status ":status" instead of "failed" or "timeout". Use FORCE to reset the task anyway', array(':id' => $task['id'], ':status' => $task['status'])), 'warning/invalid');
         }
 
         meta_action($task['meta_id'], 'reset');
@@ -485,17 +491,18 @@ under_construction('add');
                     unset($task['data']['method']);
                 }
 
-                /*
-                 * Run the task in verbose mode?
-                 */
-                if(VERBOSE){
-                    if(VERYVERBOSE){
-                        $task['data'][] = '--very-verbose';
-
-                    }else{
-                        $task['data'][] = '--verbose';
-                    }
-                }
+// :DELETE: Don't do this, because some tasks REQUIRE not to be run in verbose mode. If the system runs in verbose mode, with the next lines, these tasks could never execute normally
+                ///*
+                // * Run the task in verbose mode?
+                // */
+                //if(VERBOSE){
+                //    if(VERYVERBOSE){
+                //        $task['data'][] = '--very-verbose';
+                //
+                //    }else{
+                //        $task['data'][] = '--verbose';
+                //    }
+                //}
 
                 foreach($task['data'] as $key => $value){
                     if(empty($value)) continue;
@@ -599,7 +606,13 @@ under_construction('add');
                         $task['results'] = array_merge($e->getMessages(), array(' '), array_force($e->getData()));
                     }
 
-                    $task['status']     = 'failed';
+                    if($e->getRealCode() == '124'){
+                        $task['status'] = 'timeout';
+
+                    }else{
+                        $task['status'] = 'failed';
+                    }
+
                     $task['time_spent'] = microtime(true) - $start;
 
                     array_unshift($task['results'], tr('Task executed command ":command"'   , array(':command' => $command.' '.$options))."\n");
