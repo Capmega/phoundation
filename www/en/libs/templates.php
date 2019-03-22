@@ -145,10 +145,10 @@ function templates_validate($template){
  * showdie($result);
  * /code
  *
- * @param params $params The template to be inserted
- * @param string $params[foo]
- * @param string $params[bar]
- * @return array The specified template, validated and sanitized
+ * @param params $template The template to be inserted
+ * @param string $template[foo]
+ * @param string $template[bar]
+ * @return params The specified template, validated and sanitized
  */
 function templates_insert($template){
     try{
@@ -196,7 +196,7 @@ function templates_insert($template){
  * @param params $params The template to be updated
  * @param string $params[foo]
  * @param string $params[bar]
- * @return array The specified template, validated and sanitized
+ * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
  */
 function templates_update($template){
     try{
@@ -215,7 +215,7 @@ function templates_update($template){
                                    ':'   => $template[''],
                                    ':'   => $template['']));
 
-        return $update->rowCount();
+        return (boolean) $update->rowCount();
 
     }catch(Exception $e){
         throw new BException('templates_update(): Failed', $e);
