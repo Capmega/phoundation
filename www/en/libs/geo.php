@@ -55,7 +55,7 @@ function geo_countries_select($params) {
         array_default($params, 'empty'       , tr('No countries available'));
         array_default($params, 'option_class', '');
 
-        $cache_key = serialize($params);
+        $cache_key = sha1(json_encode_custom($params));
 
         if($retval = cache_read($cache_key)){
             return $retval;
@@ -100,7 +100,7 @@ function geo_states_select($params) {
         array_default($params, 'option_class'    , '');
         array_default($params, 'countries_column', 'countries_id');
 
-        $cache_key = serialize($params);
+        $cache_key = sha1(json_encode_custom($params));
 
         if($retval = cache_read($cache_key)){
             return $retval;
@@ -156,7 +156,7 @@ function geo_cities_select($params) {
         array_default($params, 'option_class' , '');
         array_default($params, 'states_column', 'states_id');
 
-        $cache_key = serialize($params);
+        $cache_key = sha1(json_encode_custom($params));
 
         if($retval = cache_read($cache_key)){
             return $retval;
