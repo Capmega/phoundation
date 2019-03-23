@@ -647,7 +647,7 @@ function git_branch_is_tag($branch = null, $path = ROOT){
         }
 
         /*
-         * Does the specified branch exist as a branch?
+         * Does the specified branch exist as a tag?
          */
         if(in_array($branch, $tags)){
             return true;

@@ -365,87 +365,98 @@ function customers_select($params = null){
  * @param natural $categories_id Filter by the specified categories_id. If NULL, the customer must NOT belong to any category
  * @return mixed The customer data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified customer does not exist, NULL will be returned.
  */
-function customers_get($customer, $column = null, $status = null, $categories_id = false){
+function customers_get($params){
     try{
-        if(is_numeric($customer)){
-            $where[] = ' `customers`.`id` = :id ';
-            $execute[':id'] = $customer;
+        array_ensure($params, 'seocustomer');
 
-        }else{
-            $where[] = ' `customers`.`seoname` = :seoname ';
-            $execute[':seoname'] = $customer;
-        }
+        $params['table'] = 'customers';
 
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `customers`.`status` '.sql_is($status, ':status');
-        }
+        array_default($params, 'filters', array('customers.seoname' => $params['seocustomer'],
+                                                'customers.status'  => null));
 
-        if($categories_id !== false){
-            $execute[':categories_id'] = $categories_id;
-            $where[] = ' `customers`.`categories_id` '.sql_is($categories_id, ':categories_id');
-        }
+        array_default($params, 'joins'  , array('LEFT JOIN `geo_countries`
+                                                 ON        `geo_countries`.`id` = `customers`.`countries_id`',
 
-        $where   = ' WHERE '.implode(' AND ', $where).' ';
+                                                'LEFT JOIN `geo_states`
+                                                 ON        `geo_states`.`id`    = `customers`.`states_id`',
 
-        if($column){
-            $retval = sql_get('SELECT `'.$column.'` FROM `customers` '.$where, true, $execute, 'core');
+                                                'LEFT JOIN `geo_cities`
+                                                 ON        `geo_cities`.`id`    = `customers`.`cities_id`',
 
-        }else{
-            $retval = sql_get('SELECT    `customers`.`id`,
-                                         `customers`.`createdon`,
-                                         `customers`.`createdby`,
-                                         `customers`.`meta_id`,
-                                         `customers`.`status`,
-                                         `customers`.`name`,
-                                         `customers`.`seoname`,
-                                         `customers`.`code`,
-                                         `customers`.`company`,
-                                         `customers`.`email`,
-                                         `customers`.`phones`,
-                                         `customers`.`documents_id`,
-                                         `customers`.`categories_id`,
-                                         `customers`.`address1`,
-                                         `customers`.`address2`,
-                                         `customers`.`address3`,
-                                         `customers`.`zipcode`,
-                                         `customers`.`countries_id`,
-                                         `customers`.`states_id`,
-                                         `customers`.`cities_id`,
-                                         `customers`.`url`,
-                                         `customers`.`description`,
+                                                'LEFT JOIN `categories`
+                                                 ON        `categories`.`id`    = `customers`.`categories_id`'));
 
-                                         `categories`.`name`       AS `category`,
-                                         `categories`.`seoname`    AS `seocategory`,
+        array_default($params, 'columns', 'customers.id,
+                                           customers.createdon,
+                                           customers.createdby,
+                                           customers.meta_id,
+                                           customers.status,
+                                           customers.name,
+                                           customers.seoname,
+                                           customers.code,
+                                           customers.company,
+                                           customers.email,
+                                           customers.phones,
+                                           customers.documents_id,
+                                           customers.categories_id,
+                                           customers.address1,
+                                           customers.address2,
+                                           customers.address3,
+                                           customers.zipcode,
+                                           customers.countries_id,
+                                           customers.states_id,
+                                           customers.cities_id,
+                                           customers.url,
+                                           customers.description,
 
-                                         `geo_countries`.`name`    AS `country`,
-                                         `geo_countries`.`seoname` AS `seocountry`,
+                                           categories.name       AS category,
+                                           categories.seoname    AS seocategory,
 
-                                         `geo_states`.`name`       AS `state`,
-                                         `geo_states`.`seoname`    AS `seostate`,
+                                           geo_countries.name    AS country,
+                                           geo_countries.seoname AS seocountry,
 
-                                         `geo_cities`.`name`       AS `city`,
-                                         `geo_cities`.`seoname`    AS `seocity`
+                                           geo_states.name       AS state,
+                                           geo_states.seoname    AS seostate,
 
-                               FROM      `customers`
+                                           geo_cities.name       AS city,
+                                           geo_cities.seoname    AS seocity');
 
-                               LEFT JOIN `geo_countries`
-                               ON        `geo_countries`.`id` = `customers`.`countries_id`
-
-                               LEFT JOIN `geo_states`
-                               ON        `geo_states`.`id`    = `customers`.`states_id`
-
-                               LEFT JOIN `geo_cities`
-                               ON        `geo_cities`.`id`    = `customers`.`cities_id`
-
-                               LEFT JOIN `categories`
-                               ON        `categories`.`id`    = `customers`.`categories_id` '.$where, $execute, null, 'core');
-        }
-
-        return $retval;
+        return sql_simple_get($params);
 
     }catch(Exception $e){
         throw new BException('customers_get(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a list of all available customers
+ *
+ * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @template Function reference
+ * @package customers
+ * @see sql_simple_list()
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available templates
+ */
+function customers_list($params){
+    try{
+        array_ensure($params);
+
+        $params['table']   = 'customers';
+        $params['columns'] = 'seoname,name';
+        $params['orderby'] = array('name' => 'asc');
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException('customers_list(): Failed', $e);
     }
 }
 ?>

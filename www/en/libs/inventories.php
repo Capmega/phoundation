@@ -149,7 +149,8 @@ function inventories_validate($item, $reload_only = false){
          */
         if($item['seocustomer']){
             load_libs('customers');
-            $item['customers_id'] = customers_get($item['seocustomer'], 'id');
+            $item['customers_id'] = customers_get(array('columns' => 'id',
+                                                        'filters' => array('seoname' => $item['seocustomer'])));
 
             if(!$item['customers_id']){
                 $v->setError(tr('Specified customer does not exist'));
@@ -165,7 +166,8 @@ function inventories_validate($item, $reload_only = false){
          */
         if($item['seoproject']){
             load_libs('projects');
-            $item['projects_id'] = projects_get($item['seoproject'], 'id');
+            $item['projects_id'] = projects_get(array('column'  => 'id',
+                                                      'filters' => array('seoname' => $item['seoproject'])));
 
             if(!$item['projects_id']){
                 $v->setError(tr('Specified project does not exist'));

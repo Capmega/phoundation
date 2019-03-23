@@ -170,7 +170,8 @@ function email_servers_validate_domain($domain){
         $v->isFilter($domain['name'], FILTER_VALIDATE_DOMAIN, tr('Please specify a valid domain'));
 
         if($domain['seocustomer']){
-            $domain['customer'] = customers_get($domain['seocustomer'], 'seoname');
+            $domain['customer'] = customers_get(array('columns' => 'seoname',
+                                                      'filters' => array('seoname' => $domain['seocustomer'])));
 
         }else{
             $domain['customer'] = null;

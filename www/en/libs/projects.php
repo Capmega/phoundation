@@ -76,7 +76,8 @@ function projects_validate($project, $reload_only = false){
          */
         if($project['seocustomer']){
             load_libs('customers');
-            $project['customers_id'] = customers_get($project['seocustomer'], 'id', null, false);
+            $project['customers_id'] = customers_get(array('columns' => 'id',
+                                                           'filters' => array('seoname' => $project['seocustomer'])));
 
             if(!$project['customers_id']){
                 $v->setError(tr('Specified customer does not exist'));
@@ -262,7 +263,8 @@ function projects_select($params = null){
 
         if($params['seocustomer']){
             load_libs('customers');
-            $params['customers_id'] = customers_get($params['seocustomer'], 'id');
+            $params['customers_id'] = customers_get(array('columns' => 'id',
+                                                          'filters' => array('seoname' => $params['seocustomer'])));
 
             if(!$params['customers_id']){
                 throw new BException(tr('projects_select(): The reqested customer ":customer" is not available', array(':customer' => $params['seocustomer'])), 'not-available');
@@ -299,6 +301,7 @@ function projects_select($params = null){
 
 
 
+
 /*
  * Return data for the specified project
  *
@@ -307,72 +310,90 @@ function projects_select($params = null){
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @project Function reference
+ * @category Function reference
  * @package projects
  *
  * @param mixed $project The requested project. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
+ * @param string $status Filter by the specified status
+ * @param natural $categories_id Filter by the specified categories_id. If NULL, the project must NOT belong to any category
  * @return mixed The project data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified project does not exist, NULL will be returned.
  */
-function projects_get($project, $column = null, $status = null){
+function projects_get($params){
     try{
-        if(is_numeric($project)){
-            $where[] = ' `projects`.`id` = :id ';
-            $execute[':id'] = $project;
+        array_ensure($params, 'seoproject');
 
-        }else{
-            $where[] = ' `projects`.`seoname` = :seoname ';
-            $execute[':seoname'] = $project;
-        }
+        $params['table'] = 'projects';
 
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `projects`.`status` '.sql_is($status, ':status');
-        }
+        array_default($params, 'filters', array('projects.seoname' => $params['seoproject'],
+                                                'projects.status'  => null));
 
-        $where   = ' WHERE '.implode(' AND ', $where).' ';
+        array_default($params, 'joins'  , array('LEFT JOIN `categories`
+                                                 ON        `categories`.`id` = `projects`.`categories_id`',
 
-        if($column){
-            $retval = sql_get('SELECT `'.$column.'` FROM `projects` '.$where, true, $execute);
+                                                'LEFT JOIN `customers`
+                                                 ON        `customers`.`id` = `projects`.`customers_id`'));
 
-        }else{
-            $retval = sql_get('SELECT    `projects`.`id`,
-                                         `projects`.`createdon`,
-                                         `projects`.`createdby`,
-                                         `projects`.`meta_id`,
-                                         `projects`.`status`,
-                                         `projects`.`categories_id`,
-                                         `projects`.`customers_id`,
-                                         `projects`.`processes_id`,
-                                         `projects`.`steps_id`,
-                                         `projects`.`documents_id`,
-                                         `projects`.`name`,
-                                         `projects`.`seoname`,
-                                         `projects`.`code`,
-                                         `projects`.`api_key`,
-                                         `projects`.`fcm_api_key`,
-                                         `projects`.`last_login`,
-                                         `projects`.`description`,
+        array_default($params, 'columns', 'projects.id,
+                                           projects.createdon,
+                                           projects.createdby,
+                                           projects.meta_id,
+                                           projects.status,
+                                           projects.categories_id,
+                                           projects.customers_id,
+                                           projects.processes_id,
+                                           projects.steps_id,
+                                           projects.documents_id,
+                                           projects.name,
+                                           projects.seoname,
+                                           projects.code,
+                                           projects.api_key,
+                                           projects.fcm_api_key,
+                                           projects.last_login,
+                                           projects.description,
 
-                                         `categories`.`name`    AS `category`,
-                                         `categories`.`seoname` AS `seocategory`,
+                                           categories.name    AS category,
+                                           categories.seoname AS seocategory,
 
-                                         `customers`.`name`    AS `customer`,
-                                         `customers`.`seoname` AS `seocustomer`
+                                           customers.name    AS customer,
+                                           customers.seoname AS seocustomer');
 
-                               FROM      `projects`
-
-                               LEFT JOIN `categories`
-                               ON        `categories`.`id` = `projects`.`categories_id`
-
-                               LEFT JOIN `customers`
-                               ON        `customers`.`id` = `projects`.`customers_id` '.$where, $execute);
-        }
-
-        return $retval;
+        return sql_simple_get($params);
 
     }catch(Exception $e){
         throw new BException('projects_get(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a list of all available projects
+ *
+ * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @template Function reference
+ * @package projects
+ * @see sql_simple_list()
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available templates
+ */
+function projects_list($params){
+    try{
+        array_ensure($params);
+
+        $params['table']   = 'projects';
+        $params['columns'] = 'seoname,name';
+        $params['orderby'] = array('name' => 'asc');
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException('projects_list(): Failed', $e);
     }
 }
 ?>

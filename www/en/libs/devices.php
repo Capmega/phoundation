@@ -317,7 +317,8 @@ function devices_validate($device, $server, $update = true){
          * Validate customer
          */
         if($device['customer']){
-           $device['customers_id'] = customers_get($device['customer'], 'id');
+            $device['customers_id'] = customers_get(array('columns' => 'id',
+                                                          'filters' => array('seoname' => $device['customer'])));
 
             if(!$device['customers_id']){
                 $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $device['customer'])));

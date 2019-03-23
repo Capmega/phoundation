@@ -275,7 +275,7 @@ switch(cli_method()){
             $assign_branch     = cli_argument('--branch'    , true);
             $assign_department = cli_argument('--department', true);
             $assign_employee   = cli_argument('--employee'  , true);
-            $assign_customer   = cli_argument('--customer'  , true);
+            $customer          = cli_argument('--customer'  , true);
             $assign_provider   = cli_argument('--provider'  , true);
             $assign_inventory  = cli_argument('--inventory' , true);
             $id                = cli_argument(1);
@@ -318,12 +318,13 @@ switch(cli_method()){
                 }
             }
 
-            if($assign_customer){
+            if($customer){
                 load_libs('customers');
-                $customer = customers_get($assign_customer);
+                $device['customers_id'] = customers_get(array('columns' => 'id',
+                                                              'filters' => array('seoname' => $customer)));
 
-                if(!$customer){
-                    throw new BException(tr('The specified customer ":customer" does not exist', array(':customer' => $assign_customer)), 'not-exists');
+                if(!$device['customers_id']){
+                    throw new BException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'not-exists');
                 }
             }
 
@@ -402,7 +403,7 @@ switch(cli_method()){
             $assign_branch     = cli_argument('--branch'    , true);
             $assign_department = cli_argument('--department', true);
             $assign_employee   = cli_argument('--employee'  , true);
-            $assign_customer   = cli_argument('--customer'  , true);
+            $customer          = cli_argument('--customer'  , true);
             $assign_provider   = cli_argument('--provider'  , true);
             $assign_inventory  = cli_argument('--inventory' , true);
             $sudo              = cli_argument('--sudo');
@@ -442,12 +443,13 @@ switch(cli_method()){
                 }
             }
 
-            if($assign_customer){
+            if($customer){
                 load_libs('customers');
-                $customer = customers_get($assign_customer);
+                $device['customers_id'] = customers_get(array('columns' => 'id',
+                                                              'filters' => array('seoname' => $customer)));
 
-                if(!$customer){
-                    throw new BException(tr('The specified customer ":customer" does not exist', array(':customer' => $assign_customer)), 'not-exists');
+                if(!$device['customers_id']){
+                    throw new BException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'not-exists');
                 }
             }
 
@@ -509,6 +511,8 @@ switch(cli_method()){
                     $device['companies_id']   = isset_get($company['id']);
                     $device['branches_id']    = isset_get($branch['id']);
                     $device['departments_id'] = isset_get($department['id']);
+                    $device['employees_id']   = isset_get($employee['id']);
+                    $device['providers_id']   = isset_get($provider['id']);
 
                     try{
                         $device = devices_insert($device, $servers_id);

@@ -420,7 +420,8 @@ function mysql_validate_database($database, $structure_only = false){
         }
 
         if($database['project']){
-            $database['projects_id'] = projects_get($database['project']);
+            $database['projects_id'] = projects_get(array('column'  => 'id',
+                                                          'filters' => array('seoname' => $database['project'])));
 
             if(!$database['projects_id']){
                 $v->setError(tr('Specified project ":project" does not exist', array(':project' => $database['project'])));
