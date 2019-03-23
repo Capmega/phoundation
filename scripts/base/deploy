@@ -224,7 +224,7 @@ $nocontent           = !cli_argument('--do-content,--do-content-check');
 $nofixperms          =  cli_argument('--no-fix-perms,--no-fix-permissions');
 $nofixstructure      =  cli_argument('--no-fix-struct,--no-fix-structure');
 $all                 =  cli_argument('--all,-a');
-$ignore              =  cli_argument('--ignore-changes,-i');
+$ignore_changes      =  cli_argument('-,--ignore-changes');
 $nocacheclear        =  cli_argument('--no-cache-clear');
 $notranslate         =  cli_argument('--no-translate,--no-translation,--no-translations');
 $ignore_php          =  cli_argument('--ignore-php');
@@ -236,7 +236,7 @@ $send_content_texts  =  cli_argument('--send-content-texts');
 $send_sitemap        =  cli_argument('--send-sitemap');
 
 $notag               = (cli_argument('--no-tag,--no-tags') or $noversion);
-$nopush              = (cli_argument('--no-push')          or $ignore);
+$nopush              = (cli_argument('--no-push')          or $ignore_changes);
 $stash               =  cli_argument('--stash');
 $notouch             =  cli_argument('--no-touch');
 
@@ -377,7 +377,7 @@ if(!$targets){
 /*
  * Check if we dont have any changes that should be committed first
  */
-if(!$ignore){
+if(!$ignore_changes){
     if(git_status()){
         if(!FORCE){
             if(!$stash){
@@ -534,7 +534,7 @@ if($noversion or $notag){
 /*
  * Do git push all changes and tags
  */
-if($nopush or $ignore){
+if($nopush or $ignore_changes){
     log_console(tr('Skipping git push for changes and tags due to no "--do-version" or "-i" or "--ignore" or  no "--do-tag" or no "--do-push" command line parameters'), 'yellow');
 
 }else{
@@ -597,12 +597,17 @@ if($nocompress){
      * so we must do a git commit for those files.
      */
     if(git_status()){
-        log_console(tr('Changes detected from the compression script script, committing to git'), 'white');
-        git_add();
-        git_commit('Deploy commit: compressed files changed');
+        if($ignore_changes){
+            log_console(tr('Changes detected from the compression script script, but not committing due to --ignore-changes'), 'yellow');
 
-        if(!$nopush){
-            git_push();
+        }else{
+            log_console(tr('Changes detected from the compression script script, committing to git'), 'white');
+            git_add(ROOT.'www/en/pub');
+            git_commit('Deploy commit: compressed files changed');
+
+            if(!$nopush){
+                git_push();
+            }
         }
     }
 }
