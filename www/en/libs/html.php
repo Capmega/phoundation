@@ -857,21 +857,7 @@ function html_header($params = null, $meta = array()){
             }
         }
 
-        /*
-         * Add all other meta tags
-         * Only add keywords with contents, all that have none are considerred
-         * as false, and do-not-add
-         */
-        foreach($meta as $keyword => $content){
-            $retval .= '<meta name="'.$keyword.'" content="'.$content.'">';
-        }
-
-        if(!empty($params['properties'])){
-            foreach($params['properties'] as $property => $content){
-                $retval .= '<meta property="'.$property.'" content="'.$content.'">';
-            }
-        }
-
+        $retval .= html_meta($meta);
         $retval .= html_favicon($params['favicon']).$params['extra'];
         $retval .= '</head>'.$params['body'];
 
@@ -879,6 +865,46 @@ function html_header($params = null, $meta = array()){
 
     }catch(Exception $e){
         throw new BException('html_header(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Generate all <meta> tags
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_header()
+ * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
+ * @version 2.4.89: Added function and documentation
+ *
+ * @param params $meta The required meta tags in key => value format
+ * @return string The <meta> tags
+ */
+function html_meta($meta){
+    try{
+        /*
+         * Add all other meta tags
+         * Only add keywords with contents, all that have none are considerred
+         * as false, and do-not-add
+         */
+        foreach($meta as $key => $value){
+            if(substr($key, 0, 3) === 'og:'){
+                $retval .= '<meta property="'.$key.'" content="'.$value.'">';
+
+            }else{
+                $retval .= '<meta name="'.$key.'" content="'.$value.'">';
+            }
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('html_meta(): Failed', $e);
     }
 }
 
