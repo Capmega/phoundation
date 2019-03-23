@@ -65,8 +65,8 @@ function wget($params){
             throw new BException(tr('wget(): No file specified'), 'not-specified');
         }
 
-        $results = safe_exec(array('commands' => array('wget' => array('-O', $params['file'], '-', $params['url'], 'redirect' => ROOT.'data/log/syslog'))));
-    	return $result;
+        $results = safe_exec(array('commands' => array('wget', array('-O', $params['file'], $params['url'], 'redirect' => ' >> '.ROOT.'data/log/syslog'))));
+    	return $results;
 
     }catch(Exception $e){
         switch($e->getRealCode()){
