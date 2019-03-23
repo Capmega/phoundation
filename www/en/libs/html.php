@@ -871,6 +871,11 @@ function html_meta($meta){
          * Only add keywords with contents, all that have none are considerred
          * as false, and do-not-add
          */
+        array_ensure($meta, 'title,description');
+        array_default($meta, 'og:url'        , domain(true));
+        array_default($meta, 'og:title'      , $meta['title']);
+        array_default($meta, 'og:description', $meta['description']);
+
         foreach($meta as $key => $value){
             if(substr($key, 0, 3) === 'og:'){
                 $retval .= '<meta property="'.$key.'" content="'.$value.'">';
