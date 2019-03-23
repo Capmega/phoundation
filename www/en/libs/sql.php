@@ -2050,6 +2050,10 @@ function sql_simple_execute($column, $values, $extra = null){
  * @category Function reference
  * @package sql
  * @note Any filter key that has the value "-" WILL BE IGNORED
+ * @note Any keys prefixed with ! will perform a NOT operation
+ * @note Any keys prefixed with ~ will perform a LIKE operation
+ * @note Any keys prefixed with # will allow $value to be an arran and operate an IN operation
+ * @note Key prefixes may be combined in any order
  * @version 2.5.38: Added function and documentation
  *
  * @param params A key => value array with required filters
@@ -2074,6 +2078,7 @@ function sql_get_where_string($filters, &$execute, $table){
                 continue;
             }
 
+            $like       = false;
             $array      = false;
             $not_string = '';
             $not        = '';
@@ -2085,13 +2090,29 @@ function sql_get_where_string($filters, &$execute, $table){
              */
             while(true){
                 switch($key[0]){
+                    case '~':
+                        /*
+                         * LIKE
+                         */
+                        $key   = substr($key, 1);
+                        $like  = true;
+                        $value = '%'.$value.'%';
+                        break;
+
                     case '!':
-                        $key = substr($key, 1);
+                        /*
+                         * NOT
+                         */
+                        $key        = substr($key, 1);
                         $not_string = ' NOT ';
                         $not        = '!';
                         break;
 
                     case '#':
+                        /*
+                         * IN
+                         */
+                        $key   = substr($key, 1);
                         $array = true;
 
                     default:
@@ -2106,29 +2127,52 @@ function sql_get_where_string($filters, &$execute, $table){
             $column = '`'.str_replace('.', '`.`', trim($key)).'`';
             $key    = str_replace('.', '_', $key);
 
-            if(is_array($value)){
-                if($array){
-                    throw new BException(tr('sql_get_where_string(): The specified filter key ":key" contains an array, whcih is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
+            if($like){
+                if(is_string($value)){
+                    $where[] = ' '.$column.' '.$not.'LIKE :'.$key.' ';
+                    $execute[':'.$key] = $value;
+
+                }else{
+                    if(is_array($value)){
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" is an array, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
+                    }
+
+                    if(is_bool($value)){
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" is a boolean, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
+                    }
+
+                    if($value === null){
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" is a null, which is not allowed with a LIKE comparisson.', array(':key' => $key)), 'invalid');
+                    }
+
+                    throw new BException(tr('sql_get_where_string(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
                 }
 
-                $value   = sql_in($value);
-                $where[] = ' '.$column.' '.$not_string.'IN ('.sql_in_columns($value).') ';
-                $execute = array_merge($execute, $value);
-
-            }elseif(is_bool($value)){
-                $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
-                $execute[':'.$key] = (integer) $value;
-
-            }elseif(is_string($value)){
-                $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
-                $execute[':'.$key] = $value;
-
-            }elseif($value === null){
-                $where[] = ' '.$column.' IS'.$not_string.' :'.$key.' ';
-                $execute[':'.$key] = $value;
-
             }else{
-                throw new BException(tr('sql_get_where_string(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
+                if(is_array($value)){
+                    if($array){
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" contains an array, whcih is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
+                    }
+
+                    $value   = sql_in($value);
+                    $where[] = ' '.$column.' '.$not_string.'IN ('.sql_in_columns($value).') ';
+                    $execute = array_merge($execute, $value);
+
+                }elseif(is_bool($value)){
+                    $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
+                    $execute[':'.$key] = (integer) $value;
+
+                }elseif(is_string($value)){
+                    $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
+                    $execute[':'.$key] = $value;
+
+                }elseif($value === null){
+                    $where[] = ' '.$column.' IS'.$not_string.' :'.$key.' ';
+                    $execute[':'.$key] = $value;
+
+                }else{
+                    throw new BException(tr('sql_get_where_string(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
+                }
             }
         }
 
@@ -2306,8 +2350,17 @@ function sql_simple_list($params){
         array_default($params, 'method'     , 'resource');
         array_default($params, 'filters'    , array('status' => null));
         array_default($params, 'orderby'    , array('name'   => 'asc'));
-        array_default($params, 'auto_id'    , true);
-        array_default($params, 'auto_status', true);
+        array_default($params, 'auto_status', null);
+
+        /*
+         * Apply automatic filter settings
+         */
+        if(($params['auto_status'] !== false) and !isset($params['filters']['status'])){
+            /*
+             * Automatically ensure we only get entries with the auto status
+             */
+            $params['filters'][$params['table'].'.status'] = $params['auto_status'];
+        }
 
         $columns  = sql_get_columns_string($params['columns'], $params['table']);
         $joins    = str_force($params['joins'], ' ');
@@ -2384,7 +2437,6 @@ function sql_simple_get($params){
         array_default($params, 'connector'  , 'core');
         array_default($params, 'single'     , null);
         array_default($params, 'filters'    , array('status' => null));
-        array_default($params, 'auto_id'    , true);
         array_default($params, 'auto_status', null);
 
         $params['columns'] = array_force($params['columns']);
