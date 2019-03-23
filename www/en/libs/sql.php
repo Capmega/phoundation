@@ -2042,36 +2042,387 @@ function sql_simple_execute($column, $values, $extra = null){
 
 
 /*
+ * Build an SQL WHERE string out of the specified filters, typically used for basic foobar_list() like functions
  *
- *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
- * @obsolete
+ * @note Any filter key that has the value "-" WILL BE IGNORED
+ * @version 2.5.38: Added function and documentation
  *
- * @param
- * @return
+ * @param params A key => value array with required filters
+ * @param byref array $execute The execute array that will be created by this function
+ * @param string $table The table for which these colums will be setup
+ * @return string The WHERE string
  */
-function sql_where($query, $required = true){
+function sql_get_where_string($filters, &$execute, $table){
     try{
-        if(!$query){
-            if($required){
-                throw new BException('sql_where(): No filter query specified, but it is required', 'required');
-            }
-
-            return ' ';
+        if(!is_array($filters)){
+            throw new BException(tr('sql_get_where_string(): The specified filters are invalid, it should be a key => value array'), 'invalid');
         }
 
-        return ' WHERE '.$query;
+        /*
+         * Build the where section from the specified filters
+         */
+        foreach($filters as $key => $value){
+            if($value === '-'){
+                /*
+                 * Ignore this entry
+                 */
+                continue;
+            }
 
-    }catch(BException $e){
-        throw new BException('sql_where(): Failed', $e);
+            $array      = false;
+            $not_string = '';
+            $not        = '';
+
+            /*
+             * Check for modifiers in the keys
+             * ! will make it a NOT filter
+             * # will allow arrays
+             */
+            while(true){
+                switch($key[0]){
+                    case '!':
+                        $key = substr($key, 1);
+                        $not_string = ' NOT ';
+                        $not        = '!';
+                        break;
+
+                    case '#':
+                        $array = true;
+
+                    default:
+                        break 2;
+                }
+            }
+
+            if(strpos($key, '.') === false){
+                $key = $table.'.'.$key;
+            }
+
+            $column = '`'.str_replace('.', '`.`', trim($key)).'`';
+            $key    = str_replace('.', '_', $key);
+
+            if(is_array($value)){
+                if($array){
+                    throw new BException(tr('sql_get_where_string(): The specified filter key ":key" contains an array, whcih is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
+                }
+
+                $value   = sql_in($value);
+                $where[] = ' '.$column.' '.$not_string.'IN ('.sql_in_columns($value).') ';
+                $execute = array_merge($execute, $value);
+
+            }elseif(is_bool($value)){
+                $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
+                $execute[':'.$key] = (integer) $value;
+
+            }elseif(is_string($value)){
+                $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
+                $execute[':'.$key] = $value;
+
+            }elseif($value === null){
+                $where[] = ' '.$column.' IS'.$not_string.' :'.$key.' ';
+                $execute[':'.$key] = $value;
+
+            }else{
+                throw new BException(tr('sql_get_where_string(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
+            }
+        }
+
+        if(isset($where)){
+            $where = ' WHERE '.implode(' AND ', $where);
+        }
+
+        return $where;
+
+    }catch(Exception $e){
+        throw new BException('sql_get_where_string(): Failed', $e);
     }
 }
 
 
 
+/*
+ * Build the SQL columns list for the specified columns list, escaping all columns with backticks
+ *
+ * If the specified column is of the "column" format, it will be returned as "`column`". If its of the "table.column" format, it will be returned as "`table`.`column`"
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param csv array $columns The list of columns from which the query must be built
+ * @param string $table The table for which these colums will be setup
+ * @return string The columns with column quotes
+ */
+function sql_get_columns_string($columns, $table){
+    try{
+        /*
+         * Validate the columns
+         */
+        if(!$columns){
+            throw new BException(tr('sql_get_columns_string(): No columns specified'));
+        }
+
+        $columns = array_force($columns);
+
+        foreach($columns as $id => &$column){
+            if(!$column){
+                unset($columns[$id]);
+                continue;
+            }
+
+            $column = strtolower($column);
+
+            if(strpos($column, '.') === false){
+                $column = $table.'.'.$column;
+            }
+
+            if(str_exists($column, 'as')){
+                $target  = trim(str_from($column, 'as'));
+                $column  = trim(str_until($column, 'as'));
+                $column  = '`'.str_replace('.', '`.`', trim($column)).'`';
+                $column .= ' AS `'.trim($target).'`';
+
+            }else{
+                $column = '`'.str_replace('.', '`.`', trim($column)).'`';
+            }
+        }
+
+        $columns = implode(', ', $columns);
+
+        unset($column);
+        return $columns;
+
+    }catch(Exception $e){
+        throw new BException('sql_get_columns_string(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Build the SQL columns list for the specified columns list
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param array $orderby A key => value array containing the columns => direction definitions
+ * @return string The columns with column quotes
+ */
+function sql_get_orderby_string($orderby){
+    try{
+        /*
+         * Validate the columns
+         */
+        if(!$orderby){
+            return '';
+        }
+
+        if(!is_array($orderby)){
+            throw new BException(tr('sql_get_orderby_string(): Specified orderby ":orderby" should be an array but is a ":datatype"', array(':orderby' => $orderby, ':datatype' => gettype($orderby))), 'invalid');
+        }
+
+        foreach($orderby as $column => $direction){
+            if(!is_string($direction)){
+                throw new BException(tr('sql_get_orderby_string(): Specified orderby direction ":direction" for column ":column" is invalid, it should be a string', array(':direction' => $direction, ':column' => $column)), 'invalid');
+            }
+
+            $direction = strtoupper($direction);
+
+            switch($direction){
+                case 'ASC':
+                    // FALLTHOGUH
+                case 'DESC':
+                    break;
+
+                default:
+                    throw new BException(tr('sql_get_orderby_string(): Specified orderby direction ":direction" for column ":column" is invalid, it should be either "ASC" or "DESC"', array(':direction' => $direction, ':column' => $column)), 'invalid');
+            }
+
+            $retval[] = '`'.$column.'` '.$direction;
+        }
+
+        $retval = implode(', ', $retval);
+
+        return ' ORDER BY '.$retval.' ';
+
+    }catch(Exception $e){
+        throw new BException('sql_get_orderby_string(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Build and execut a SQL function that lists entries from the specified table using the specified parameters
+ *
+ * This function can build a SELECT query, specifying the required table columns, WHERE filtering, ORDER BY, and LIMIT
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ * @see sql_simple_get()
+ * @note Any filter key that has the value "-" WILL BE IGNORED
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param params $params The parameters for the SELECT command
+ * @param enum(resource, array) $params[method]
+ * @param string $params[connector]
+ * @param string $params[table]
+ * @param list $params[columns]
+ * @param null array $params[filters]
+ * @param null array $params[orderby]
+ * @param null list $params[joins]
+ * @param false boolean $params[debug]
+ * @param null boolean $params[auto_status]
+ * @return mixed The entries from the requested table
+ */
+function sql_simple_list($params){
+    try{
+        array_ensure($params, 'joins,debug');
+
+        if(empty($params['table'])){
+            throw new BException(tr('sql_simple_list(): No table specified'), 'not-specified');
+        }
+
+        if(empty($params['columns'])){
+            throw new BException(tr('sql_simple_list(): No columns specified'), 'not-specified');
+        }
+
+        array_default($params, 'connector'  , 'core');
+        array_default($params, 'method'     , 'resource');
+        array_default($params, 'filters'    , array('status' => null));
+        array_default($params, 'orderby'    , array('name'   => 'asc'));
+        array_default($params, 'auto_id'    , true);
+        array_default($params, 'auto_status', true);
+
+        $columns  = sql_get_columns_string($params['columns'], $params['table']);
+        $joins    = str_force($params['joins'], ' ');
+        $where    = sql_get_where_string($params['filters'], $execute, $params['table']);
+        $orderby  = sql_get_orderby_string($params['orderby']);
+        $resource = sql_query(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where.$orderby, $execute, $params['connector']);
+
+        /*
+         * Execute query and return results
+         */
+        switch($params['method']){
+            case 'resource':
+                /*
+                 * Return a query instead of a list array
+                 */
+                return $resource;
+
+            case 'array':
+                /*
+                 * Return a list array instead of a query
+                 */
+                return sql_list($resource);
+
+            default:
+                throw new BException(tr('sql_simple_list(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
+        }
+
+
+    }catch(Exception $e){
+        throw new BException(tr('sql_simple_list(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Build and execut a SQL function that returns a single entry from the specified table using the specified parameters
+ *
+ * This function can build a SELECT query, specifying the required table columns, WHERE filtering
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ * @see sql_simple_list()
+ * @note Any filter key that has the value "-" WILL BE IGNORED
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param params $params A parameters array
+ * @param enum(resource, array) $params[method]
+ * @param string $params[connector]
+ * @param string $params[table]
+ * @param list $params[columns]
+ * @param null array $params[filters]
+ * @param null array $params[orderby]
+ * @param null list $params[joins]
+ * @param false boolean $params[debug]
+ * @param null boolean $params[auto_status]
+ * @return mixed The entries from the requested table
+ */
+function sql_simple_get($params){
+    try{
+        array_ensure($params, 'joins,debug');
+
+        if(empty($params['table'])){
+            throw new BException(tr('sql_simple_get(): No table specified'), 'not-specified');
+        }
+
+        if(empty($params['columns'])){
+            throw new BException(tr('sql_simple_get(): No columns specified'), 'not-specified');
+        }
+
+        array_default($params, 'connector'  , 'core');
+        array_default($params, 'single'     , null);
+        array_default($params, 'filters'    , array('status' => null));
+        array_default($params, 'auto_id'    , true);
+        array_default($params, 'auto_status', null);
+
+        $params['columns'] = array_force($params['columns']);
+
+        /*
+         * Apply automatic filter settings
+         */
+        if(($params['auto_status'] !== false) and !isset($params['filters']['status'])){
+            /*
+             * Automatically ensure we only get entries with the auto status
+             */
+            $params['filters'][$params['table'].'.status'] = $params['auto_status'];
+        }
+
+        if((count($params['columns']) === 1) and ($params['single'] !== false)){
+            /*
+             * By default, when one column is selected, return the value
+             * directly, instead of in an array
+             */
+            $params['single'] = true;
+        }
+
+        $columns  = sql_get_columns_string($params['columns'], $params['table']);
+        $joins    = str_force($params['joins'], ' ');
+        $where    = sql_get_where_string($params['filters'], $execute, $params['table']);
+
+        return sql_get(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where, $execute, $params['single'], $params['connector']);
+
+    }catch(Exception $e){
+        throw new BException(tr('sql_simple_get(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * HERE BE OBSOLETE CRAP
+ */
 function sql_affected_rows($r){
     return $r->rowCount();
 }
