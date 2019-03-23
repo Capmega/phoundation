@@ -28,7 +28,7 @@ try{
 
 
 
-    // :TODO: The next section may be included in the whitelabel domain check
+// :TODO: The next section may be included in the whitelabel domain check
     /*
      * Check if the requested domain is allowed
      */
@@ -161,7 +161,7 @@ try{
 
     $_SESSION['domain'] = $domain;
 
-    // :TODO: Test if $_SESSION['domain'] matches $_SERVER['HTTP_HOST']!
+// :TODO: Test if $_SESSION['domain'] matches $_SERVER['HTTP_HOST']!
 
 
 
@@ -170,14 +170,6 @@ try{
      */
     try{
         if($_CONFIG['sessions']['enabled']){
-            /*
-             * Backward compatibility
-             */
-        // :TODO: Remove this section after 2019/04
-            if(isset($_CONFIG['cookie']['domain'])){
-                $_CONFIG['sessions']['domain'] = $_CONFIG['cookie']['domain'];
-            }
-
             /*
              * Force session cookie configuration
              */
@@ -189,12 +181,6 @@ try{
             ini_set('session.cookie_secure'  , $_CONFIG['sessions']['secure']);
             ini_set('session.cookie_samesite', $_CONFIG['sessions']['same_site']);
             ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
-
-            if($_CONFIG['sessions']['secure']){
-                if($_CONFIG['protocol'] == 'http://'){
-                    throw new BException(tr('startup-webpage(): Invalid configuration detected, $_CONFIG[sessions][secure] allows only cookies over HTTPS while $_CONFIG[protocol] only does HTTP'), 'invalid');
-                }
-            }
 
             if($_CONFIG['sessions']['check_referrer']){
                 ini_set('session.referer_check', $_SESSION['domain']);
@@ -335,7 +321,7 @@ try{
                              * headers already sent (the $core->register['script'] file has a space or BOM at the beginning maybe?)
                              * permissions of PHP session directory?
                              */
-                // :TODO: Add check on $core->register['script'] file if it contains BOM!
+// :TODO: Add check on $core->register['script'] file if it contains BOM!
                             throw new BException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
                         }
                     }
@@ -441,7 +427,7 @@ try{
                      */
                     $_SESSION['init']     = time();
                     $_SESSION['first']    = true;
-    // :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
+// :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
                     $_SESSION['client']   = isset_get($core->register['session']['client']);
                     $_SESSION['location'] = isset_get($core->register['session']['location']);
                     $_SESSION['language'] = isset_get($core->register['session']['language']);
