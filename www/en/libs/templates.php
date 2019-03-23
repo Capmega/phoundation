@@ -23,7 +23,7 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package templates
- * @version 2.5.12: Added function and documentation
+ * @version 2.5.38: Added function and documentation
  *
  * @return void
  */
@@ -49,7 +49,7 @@ function templates_library_init(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @version 2.5.12: Added function and documentation
+ * @version 2.5.38: Added function and documentation
  * @package templates
  *
  * @param
@@ -136,7 +136,7 @@ function templates_validate($template){
  * @see templates_update()
  * @table: `template`
  * @note: This is a note
- * @version 2.5.12: Added function and documentation
+ * @version 2.5.38: Added function and documentation
  * @example [Title]
  * code
  * $result = templates_insert(array('foo' => 'bar',
@@ -184,7 +184,7 @@ function templates_insert($template){
  * @see templates_insert()
  * @table: `template`
  * @note: This is a note
- * @version 2.5.12: Added function and documentation
+ * @version 2.5.38: Added function and documentation
  * @example [Title]
  * code
  * $result = templates_update(array('foo' => 'bar',
@@ -234,6 +234,7 @@ function templates_update($template){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference
  * @package templates
+ * @version 2.5.38: Added function and documentation
  *
  * @param mixed $template The requested template. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
@@ -243,64 +244,35 @@ function templates_update($template){
  */
 function templates_get($template, $column = null, $status = null, $parent = false){
     try{
-        if(is_numeric($template)){
-            $where[] = ' `templates`.`id` = :id ';
-            $execute[':id'] = $template;
+        array_ensure($params, 'seotemplate');
 
-        }else{
-            $where[] = ' `templates`.`seoname` = :seoname ';
-            $execute[':seoname'] = $template;
-        }
+        $params['table']   = 'templates';
 
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `templates`.`status` '.sql_is($status, ':status');
-        }
+        array_default($params, 'filters', array('seoname' => $params['seotemplate'],
+                                                'status'  => null));
 
-        if($parent){
-            /*
-             * Explicitly must be a parent template
-             */
-            $where[] = ' `templates`.`parents_id` IS NULL ';
+        array_default($params, 'joins'  , array('LEFT JOIN `geo_countries`
+                                                 ON        `geo_countries`.`id` = `customers`.`countries_id`',
 
-        }elseif($parent === false){
-            /*
-             * Explicitly cannot be a parent template
-             */
-            $where[] = ' `templates`.`parents_id` IS NOT NULL ';
+                                                'LEFT JOIN `categories`
+                                                 ON        `categories`.`id`    = `customers`.`categories_id`'));
 
-        }else{
-            /*
-             * Don't care if its a parent or child template
-             */
-        }
+        array_default($params, 'columns', 'templates.id,
+                                           templates.createdon,
+                                           templates.createdby,
+                                           templates.meta_id,
+                                           templates.status,
+                                           templates.name,
+                                           templates.seoname,
+                                           templates.description,
 
-        $where = ' WHERE '.implode(' AND ', $where).' ';
+                                           categories.name       AS category,
+                                           categories.seoname    AS seocategory,
 
-        if($column){
-            $retval = sql_get('SELECT `'.$column.'` FROM `templates` '.$where, true, $execute);
+                                           geo_countries.name    AS country,
+                                           geo_countries.seoname AS seocountry');
 
-        }else{
-            $retval = sql_get('SELECT    `templates`.`id`,
-                                         `templates`.`createdon`,
-                                         `templates`.`createdby`,
-                                         `templates`.`meta_id`,
-                                         `templates`.`status`,
-                                         `templates`.`parents_id`,
-                                         `templates`.`name`,
-                                         `templates`.`seoname`,
-                                         `templates`.`description`,
-
-                                         `parents`.`name`    AS `parent`,
-                                         `parents`.`seoname` AS `seoparent`
-
-                               FROM      `templates`
-
-                               LEFT JOIN `templates` AS `parents`
-                               ON        `parents`.`id` = `templates`.`parents_id` '.$where, $execute);
-        }
-
-        return $retval;
+        return sql_simple_get($params);
 
     }catch(Exception $e){
         throw new BException('templates_get(): Failed', $e);
@@ -316,68 +288,20 @@ function templates_get($template, $column = null, $status = null, $parent = fals
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference
+ * @see sql_simple_list()
  * @package templates
+ * @version 2.5.38: Added function and documentation
  *
- * @param null string array $columns The columns to return in the list. Can be specified with an array list, or CVS string. By default this is `seoname`, `name`
- * @param boolean $resource If specified true, the return value will be a PDO statement. If set to false, the list will be returned as an array
+ * @param params $params The list parameters
  * @return mixed The list of available templates
  */
-function templates_list($filters, $columns = null, $resource = true){
+function templates_list($params){
     try{
-        if(!is_array($filters)){
-            throw new BException(tr('templates_list(): The specified filters are invalid, it should be a key => value array'), 'invalid');
-        }
+        array_ensure($params);
 
-        /*
-         * Build the where section
-         */
-        foreach($filters as $key => $value){
-            if(is_array($value)){
-                $value   = sql_in($value);
-                $where[] = ' `'.$key.'` IN ('.sql_in_columns($value).') ';
-                $execute = array_merge($execute, $value);
+        $params['table'] = 'templates';
 
-            }else{
-                $where[] = ' `'.$key.'` = :'.$key.' ';
-                $execute[':'.$key] = $value;
-            }
-        }
-
-        if(isset($where)){
-            $where = ' WHERE '.implode(' AND ', $filters);
-        }
-
-        /*
-         * Validate the columns
-         */
-        if(!$columns){
-            $columns = '`seoname`, `name`';
-
-        }else{
-            $columns = array_force($columns);
-            $columns = '`'.implode('`, `', $columns).'`';
-        }
-
-        $query = 'SELECT '.$columns.'
-
-                  FROM   `templates`
-
-                  '.$where;
-
-        /*
-         * Execute query and return results
-         */
-        if($resource){
-            /*
-             * Return a query instead of a list array
-             */
-            return sql_query($query, $execute);
-        }
-
-        /*
-         * Return a list array instead of a query
-         */
-        return sql_list($query, $execute);
+        return sql_simple_list($params);
 
     }catch(Exception $e){
         throw new BException('templates_list(): Failed', $e);
@@ -396,6 +320,8 @@ function templates_list($filters, $columns = null, $resource = true){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference
  * @package templates
+ * @see sql_simple_get()
+ * @version 2.5.38: Added function and documentation
  *
  * @param array $params The parameters required
  * @param $params name
@@ -415,7 +341,6 @@ function templates_select($params = null){
         array_default($params, 'name'      , 'seotemplate');
         array_default($params, 'class'     , 'form-control');
         array_default($params, 'selected'  , null);
-        array_default($params, 'seoparent' , null);
         array_default($params, 'autosubmit', true);
         array_default($params, 'parents_id', null);
         array_default($params, 'status'    , null);
@@ -423,50 +348,6 @@ function templates_select($params = null){
         array_default($params, 'empty'     , tr('No templates available'));
         array_default($params, 'none'      , tr('Select a template'));
         array_default($params, 'orderby'   , '`name`');
-
-        if($params['seoparent']){
-            /*
-             * This is a child template
-             */
-            $params['parents_id'] = sql_get('SELECT `id` FROM `templates` WHERE `seoname` = :seoname AND `parents_id` IS NULL AND `status` IS NULL', true, array(':seoname' => $params['seoparent']));
-
-            if(!$params['parents_id']){
-                /*
-                 * The template apparently does not exist, auto create it
-                 */
-                $parent = sql_get('SELECT `id`, `parents_id`, `status` FROM `templates` WHERE `seoname` = :seoname', array(':seoname' => $params['seoparent']));
-
-                if($parent){
-                    if($parent['status']){
-                        /*
-                         * The template exists, but has non NULL status, we cannot continue!
-                         */
-                        throw new BException(tr('templates_select(): The reqested parent ":parent" does exist, but is not available', array(':parent' => $params['seoparent'])), 'not-available');
-                    }
-
-                    /*
-                     * The template exists, but it's a child template
-                     */
-                    throw new BException(tr('templates_select(): The reqested parent ":parent" does exist, but is a child template itself. Child templates cannot be parent templates', array(':parent' => $params['seoparent'])), 'not-available');
-                }
-
-                load_libs('seo');
-
-                sql_query('INSERT INTO `templates` (`meta_id`, `name`, `seoname`)
-                           VALUES                  (:meta_id , :name , :seoname )',
-
-                           array(':meta_id' => meta_action(),
-                                 ':name'    => $params['seoparent'],
-                                 ':seoname' => seo_unique($params['seoparent'], 'templates')));
-
-                $params['parents_id'] = sql_insert_id();
-            }
-
-        }else{
-            /*
-             * This is a parent template. Nothing to do, just saying..
-             */
-        }
 
         $execute = array();
 
@@ -539,7 +420,7 @@ function templates_select($params = null){
  * @see date_convert() Used to convert the sitemap entry dates
  * @table: `template`
  * @note: This is a note
- * @version 2.5.12: Added function and documentation
+ * @version 2.5.38: Added function and documentation
  * @example [Title]
  * code
  * $result = templates_function(array('foo' => 'bar'));
