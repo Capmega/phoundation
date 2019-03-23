@@ -876,6 +876,8 @@ function html_meta($meta){
         array_default($meta, 'og:title'      , $meta['title']);
         array_default($meta, 'og:description', $meta['description']);
 
+        $retval = '';
+
         foreach($meta as $key => $value){
             if(substr($key, 0, 3) === 'og:'){
                 $retval .= '<meta property="'.$key.'" content="'.$value.'">';
