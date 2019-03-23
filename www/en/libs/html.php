@@ -2582,43 +2582,42 @@ function html_fix_checkbox_values(){
  * @category Function reference
  * @package html
  *
- * @param string $action The URL where the post should be sent to
- * @param string $method
- * @param string $name
- * @param string $class
- * @param string $extra
- * @param boolean $csrf_check
+ * @param params $param The form parameters
+ * @param string $param[action] The URL where the post should be sent to
+ * @param string $param[method] The HTTP method to be used. Should be either get or post.
+ * @param string $param[id] The id attribute of the form
+ * @param string $param[name] The name attribute of the form
+ * @param string $param[class] Any class data to be added to the form
+ * @param string $param[extra] Any extra attributes to be added. Can be a complete string like 'data="blah" foo="bar"'
+ * @param boolean $param[csrf] If set to true, the form will include a hidden Cross Site Request Forgery protection input. Defaults to $_CONFIG[security][csrf][enabled]
  * @return string the HTML <form> tag
  */
-function html_form($method = 'post', $action = null, $name = 'form', $class = 'form-horizontal', $extra = '', $csrf_check = true){
+function html_form($params = null){
+    global $_CONFIG;
+
     try{
-        if(!$action){
-            $action = domain(true);
-        }
+        array_ensure($params, 'extra');
+        array_default($params, 'id'    , 'form');
+        array_default($params, 'name'  , $params['id']);
+        array_default($params, 'method', 'post');
+        array_default($params, 'action', domain(true));
+        array_default($params, 'class' , 'form-horizontal');
+        array_default($params, 'csrf'  , $_CONFIG['security']['csrf']['enabled']);
 
-        foreach(array('name', 'method', 'action', 'class', 'extra') as $key){
-            if(!$$key) continue;
+        foreach(array('id', 'name', 'method', 'action', 'class', 'extra') as $key){
+            if(!$params[$key]) continue;
 
-            if($key == 'extra'){
-                $keys[] = $$key;
+            if($params[$key] == 'extra'){
+                $attributes[] = $params[$key];
 
             }else{
-                $keys[] = $key.'="'.$$key.'"';
+                $attributes[] = $key.'="'.$params[$key].'"';
             }
         }
 
-        if(!empty($name)){
-            $keys[] = 'id="'.$name.'"';
+        $form = '<form '.implode(' ', $attributes).'>';
 
-        }
-
-        if(empty($keys)){
-            throw new BException(tr('html_form(): No variables specified'), 'not-specified');
-        }
-
-        $form = '<form '.implode(' ', $keys).'>';
-
-        if($csrf_check){
+        if($params['csrf']){
             $csrf  = set_csrf();
             $form .= '<input type="hidden" name="csrf" value="'.$csrf.'">';
         }
