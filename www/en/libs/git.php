@@ -30,6 +30,7 @@
 function git_library_init(){
     try{
         load_libs('cli');
+        load_config('git');
 
     }catch(Exception $e){
         throw new BException('git_library_init(): Failed', $e);
@@ -186,6 +187,8 @@ function git_exec($path, $arguments, $check_path = true){
  * @return void
  */
 function git_wait_no_process($path){
+    global $_CONFIG;
+
     try{
         $pids = cli_pgrep('git');
 
