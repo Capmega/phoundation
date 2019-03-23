@@ -369,8 +369,6 @@ function customers_get($params){
     try{
         array_ensure($params, 'seocustomer');
 
-        $params['table'] = 'customers';
-
         array_default($params, 'filters', array('customers.seoname' => $params['seocustomer'],
                                                 'customers.status'  => null));
 
@@ -421,6 +419,8 @@ function customers_get($params){
                                            geo_cities.name       AS city,
                                            geo_cities.seoname    AS seocity');
 
+        $params['table'] = 'customers';
+
         return sql_simple_get($params);
 
     }catch(Exception $e){
@@ -448,10 +448,10 @@ function customers_get($params){
 function customers_list($params){
     try{
         array_ensure($params);
+        array_default($params, 'columns', 'seoname,name');
+        array_default($params, 'orderby', array('name' => 'asc'));
 
-        $params['table']   = 'customers';
-        $params['columns'] = 'seoname,name';
-        $params['orderby'] = array('name' => 'asc');
+        $params['table'] = 'customers';
 
         return sql_simple_list($params);
 

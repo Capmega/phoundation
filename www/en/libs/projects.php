@@ -323,8 +323,6 @@ function projects_get($params){
     try{
         array_ensure($params, 'seoproject');
 
-        $params['table'] = 'projects';
-
         array_default($params, 'filters', array('projects.seoname' => $params['seoproject'],
                                                 'projects.status'  => null));
 
@@ -358,6 +356,8 @@ function projects_get($params){
                                            customers.name    AS customer,
                                            customers.seoname AS seocustomer');
 
+        $params['table'] = 'projects';
+
         return sql_simple_get($params);
 
     }catch(Exception $e){
@@ -385,10 +385,10 @@ function projects_get($params){
 function projects_list($params){
     try{
         array_ensure($params);
+        array_default($params, 'columns', 'seoname,name');
+        array_default($params, 'orderby', array('name' => 'asc'));
 
-        $params['table']   = 'projects';
-        $params['columns'] = 'seoname,name';
-        $params['orderby'] = array('name' => 'asc');
+        $params['table'] = 'projects';
 
         return sql_simple_list($params);
 
