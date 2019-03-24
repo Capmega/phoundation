@@ -36,6 +36,14 @@ function paging_library_init(){
             $core->register['page']  = isset_get($_GET['page']);
         }
 
+        if($core->register['limit'] >= 10000){
+            $core->register['limit'] = 10000;
+        }
+
+        if($core->register['page'] >= 100000){
+            $core->register['page'] = 100000;
+        }
+
     }catch(Exception $e){
         throw new BException('paging_library_init(): Failed', $e);
     }
