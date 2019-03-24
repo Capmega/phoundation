@@ -200,7 +200,7 @@ function git_wait_no_process($path){
                 /*
                  * We found a git process, but is it on the specified path?
                  */
-                $git_path = cli_get_cwd($pid);
+                $git_path = cli_get_cwd($pid, true);
                 $exists   = (str_exists($git_path, $path) or str_exists($path, $git_path));
 
                 if(!isset($retry)){
