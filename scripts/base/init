@@ -97,9 +97,25 @@ sql_query('SELECT true;');
 
 
 /*
+ * Get method, but be sure to ignore version numbers
+ */
+$method = cli_method();
+
+if(is_version($method)){
+    /*
+     * Oops, this is not a method but a version. Return it to where it was found
+     */
+// :TODO: This might cause problems when this version number was NOT at the end of the arguments array! Fix this!
+    array_push($argv, $method);
+    $method = '';
+}
+
+
+
+/*
  * Process methods
  */
-switch(cli_method()){
+switch($method){
     case 'drop':
         /*
          * Drop the core database
@@ -107,6 +123,7 @@ switch(cli_method()){
         sql_init();
 
         if(!is_object($core->sql['core']) or !($core->sql['core'] instanceof PDO)){
+            throw new BException(tr('The core sql database connector is not available'), 'not-exists');
         }
 
         $core->sql['core']->query('DROP DATABASE '.$_CONFIG['db']['core']['db']);
@@ -136,8 +153,6 @@ switch(cli_method()){
         $section              = cli_argument('-s,--section', true);
         $reset                = cli_argument('-s,--section', true);
 
-
-
         /*
          * Init from specific versions?
          */
@@ -145,14 +160,14 @@ switch(cli_method()){
             /*
              * Default -f to current framework database version
              */
-            $fromframeworkversion = FRAMEWORKDBVERSION;
+            $fromframeworkversion = init_get_highest_file_version('framework');
         }
 
         if($fromprojectversion === false){
             /*
              * Default -p to current project database version
              */
-            $fromprojectversion = PROJECTDBVERSION;
+            $fromprojectversion = init_get_highest_file_version('project');
         }
 
 
@@ -235,6 +250,6 @@ switch(cli_method()){
         break;
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new BException(tr('Unknown method ":method" specified', array(':method' => $method)), 'unknown-method');
 }
 ?>
