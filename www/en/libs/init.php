@@ -733,4 +733,57 @@ function init_reset(){
         throw new BException('init_reset(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Get the verion of the init file with the highest version for the specified section
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package init
+ * @version 2.5.2: Added function and documentation
+ *
+ * @param string $section The section (either "framework", "project", or a custom one) in which to find the highest init file version
+ * @return string The highest init file version available for the specified section
+ */
+function init_get_highest_file_version($section){
+    try{
+        switch($section){
+            case 'framework':
+                // FALLTHROUGH
+            case 'project':
+                /*
+                 * These are the default sections, these are okay
+                 */
+                break;
+
+            default:
+                /*
+                 * Custom section, check if it exists
+                 */
+                if(!file_exists(ROOT.'init/'.$section)){
+                    throw new BException(tr('init_get_highest_file_version(): The specified custom init section ":section" does not exist', array(':section' => $section)), 'not-exist');
+                }
+        }
+
+        $version = '0.0.0';
+        $files   = scandir(ROOT.'init/'.$section);
+
+        foreach($files as $file){
+            $file = str_runtil($file, '.php');
+
+            if(version_compare($file, $version)){
+                $version = $file;
+            }
+        }
+
+        return $version;
+
+    }catch(Exception $e){
+        throw new BException('init_get_highest_file_version(): Failed', $e);
+    }
+}
 ?>
