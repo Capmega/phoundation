@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.46');
+define('FRAMEWORKCODEVERSION', '2.5.47');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2909,6 +2909,31 @@ function is_natural($number, $start = 1){
 
     }catch(Exception $e){
         throw new BException('is_natural(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns true if the specified string is a version, or false if it is not
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @version 2.5.46: Added function and documentation
+ *
+ * @param string $version The version to be validated
+ * @return boolean True if the specified $version is an N.N.N version string
+ */
+function is_version($version){
+    try{
+        $valid = preg_match('/\d+\.\d+\.\d+/', $version);
+        return $valid;
+
+    }catch(Exception $e){
+        throw new BException('is_version(): Failed', $e);
     }
 }
 
