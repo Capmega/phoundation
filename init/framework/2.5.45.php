@@ -56,6 +56,7 @@ sql_query('CREATE TABLE `invoices_items` (`id`            INT(11)       NOT NULL
                                          `status`         VARCHAR(16)       NULL,
                                          `invoices_id`    INT(11)       NOT NULL,
                                          `projects_id`    INT(11)           NULL,
+                                         `process_id`     INT(11)           NULL,
                                          `documents_id`   INT(11)           NULL,
                                          `inventories_id` INT(11)           NULL,
                                          `name`           VARCHAR(32)   NOT NULL,
@@ -68,13 +69,15 @@ sql_query('CREATE TABLE `invoices_items` (`id`            INT(11)       NOT NULL
                                                  KEY `createdby`      (`createdby`),
                                                  KEY `status`         (`status`),
                                                  KEY `invoices_id`    (`invoices_id`),
-                                                 KEY `projects_id`    (`documents_id`),
+                                                 KEY `projects_id`    (`projects_id`),
+                                                 KEY `process_id`     (`process_id`),
                                                  KEY `documents_id`   (`documents_id`),
                                                  KEY `inventories_id` (`inventories_id`),
 
 
                                           CONSTRAINT `fk_invoices_items_meta_id`        FOREIGN KEY (`meta_id`)        REFERENCES `meta`              (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_invoices_items_createdby`      FOREIGN KEY (`createdby`)      REFERENCES `users`             (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_invoices_items_process_id`     FOREIGN KEY (`process_id`)     REFERENCES `processes`         (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_invoices_items_invoices_id`    FOREIGN KEY (`invoices_id`)    REFERENCES `invoices`          (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_invoices_items_documents_id`   FOREIGN KEY (`documents_id`)   REFERENCES `storage_documents` (`id`) ON DELETE RESTRICT,
                                           CONSTRAINT `fk_invoices_items_inventories_id` FOREIGN KEY (`inventories_id`) REFERENCES `inventories`       (`id`) ON DELETE RESTRICT
