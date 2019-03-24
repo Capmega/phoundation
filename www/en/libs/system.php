@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.43');
+define('FRAMEWORKCODEVERSION', '2.5.44');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1563,10 +1563,6 @@ function log_sanitize($messages, $color, $filter_double = true, &$class = null){
 
         }elseif(is_object($messages)){
             if($messages instanceof BException){
-                if($color){
-                    $messages->setCode($color);
-                }
-
                 $data = $messages->getData();
 
                 if($messages->isWarning()){
