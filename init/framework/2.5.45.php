@@ -1,0 +1,114 @@
+<?php
+/*
+ * Add required tables for invoices library
+ */
+sql_query('DROP TABLE IF EXISTS `payments`');
+sql_query('DROP TABLE IF EXISTS `invoices_items`');
+sql_query('DROP TABLE IF EXISTS `invoices`');
+
+
+
+/*
+ * Create invoices table
+ */
+sql_query('CREATE TABLE `invoices` (`id`           INT(11)       NOT NULL AUTO_INCREMENT,
+                                    `createdon`    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    `createdby`    INT(11)           NULL,
+                                    `meta_id`      INT(11)       NOT NULL,
+                                    `status`       VARCHAR(16)       NULL,
+                                    `providers_id` INT(11)           NULL,
+                                    `customers_id` INT(11)           NULL,
+                                    `due_date`     DATETIME          NULL,
+                                    `paid_date`    DATETIME          NULL,
+                                    `code`         VARCHAR(32)       NULL,
+                                    `seocode`      VARCHAR(32)       NULL,
+                                    `name`         VARCHAR(32)       NULL,
+                                    `description`  VARCHAR(4090)     NULL,
+
+                                    PRIMARY KEY `id`           (`id`),
+                                            KEY `meta_id`      (`meta_id`),
+                                            KEY `createdon`    (`createdon`),
+                                            KEY `createdby`    (`createdby`),
+                                            KEY `status`       (`status`),
+                                            KEY `customers_id` (`customers_id`),
+                                            KEY `providers_id` (`providers_id`),
+                                            KEY `seocode`      (`seocode`),
+                                            KEY `code`         (`code`),
+                                            KEY `paid_date`    (`paid_date`),
+                                            KEY `due_date`     (`due_date`),
+
+                                    CONSTRAINT `fk_invoices_meta_id`      FOREIGN KEY (`meta_id`)      REFERENCES `meta`      (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_invoices_createdby`    FOREIGN KEY (`createdby`)    REFERENCES `users`     (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_invoices_customers_id` FOREIGN KEY (`customers_id`) REFERENCES `customers` (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_invoices_providers_id` FOREIGN KEY (`providers_id`) REFERENCES `providers` (`id`) ON DELETE RESTRICT
+
+                                  ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
+
+
+
+/*
+ * Create invoices items table
+ */
+sql_query('CREATE TABLE `invoices_items` (`id`            INT(11)       NOT NULL AUTO_INCREMENT,
+                                         `createdon`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                         `createdby`      INT(11)           NULL,
+                                         `meta_id`        INT(11)       NOT NULL,
+                                         `status`         VARCHAR(16)       NULL,
+                                         `invoices_id`    INT(11)       NOT NULL,
+                                         `projects_id`    INT(11)           NULL,
+                                         `documents_id`   INT(11)           NULL,
+                                         `inventories_id` INT(11)           NULL,
+                                         `name`           VARCHAR(32)   NOT NULL,
+                                         `seoname`        VARCHAR(32)   NOT NULL,
+                                         `description`    VARCHAR(4090)     NULL,
+
+                                         PRIMARY KEY `id`             (`id`),
+                                                 KEY `meta_id`        (`meta_id`),
+                                                 KEY `createdon`      (`createdon`),
+                                                 KEY `createdby`      (`createdby`),
+                                                 KEY `status`         (`status`),
+                                                 KEY `invoices_id`    (`invoices_id`),
+                                                 KEY `projects_id`    (`documents_id`),
+                                                 KEY `documents_id`   (`documents_id`),
+                                                 KEY `inventories_id` (`inventories_id`),
+
+
+                                          CONSTRAINT `fk_invoices_items_meta_id`        FOREIGN KEY (`meta_id`)        REFERENCES `meta`              (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_invoices_items_createdby`      FOREIGN KEY (`createdby`)      REFERENCES `users`             (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_invoices_items_invoices_id`    FOREIGN KEY (`invoices_id`)    REFERENCES `invoices`          (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_invoices_items_documents_id`   FOREIGN KEY (`documents_id`)   REFERENCES `storage_documents` (`id`) ON DELETE RESTRICT,
+                                          CONSTRAINT `fk_invoices_items_inventories_id` FOREIGN KEY (`inventories_id`) REFERENCES `inventories`       (`id`) ON DELETE RESTRICT
+
+                                         ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
+
+
+
+
+/*
+ * Create payments table
+ */
+sql_query('CREATE TABLE `payments` (`id`          INT(11)       NOT NULL AUTO_INCREMENT,
+                                    `createdon`   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    `createdby`   INT(11)           NULL,
+                                    `meta_id`     INT(11)       NOT NULL,
+                                    `status`      VARCHAR(16)       NULL,
+                                    `items_id`    INT(11)           NULL,
+                                    `invoices_id` INT(11)       NOT NULL,
+                                    `email`       VARCHAR(128)      NULL,
+                                    `description` VARCHAR(2040)     NULL,
+
+                                    PRIMARY KEY `id`          (`id`),
+                                            KEY `meta_id`     (`meta_id`),
+                                            KEY `createdon`   (`createdon`),
+                                            KEY `createdby`   (`createdby`),
+                                            KEY `status`      (`status`),
+                                            KEY `items_id`    (`items_id`),
+                                            KEY `invoices_id` (`invoices_id`),
+
+                                    CONSTRAINT `fk_invoices_items_participants_meta_id`     FOREIGN KEY (`meta_id`)     REFERENCES `meta`           (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_invoices_items_participants_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`          (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_invoices_items_participants_items_id`    FOREIGN KEY (`items_id`)    REFERENCES `invoices_items` (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_invoices_items_participants_invoices_id` FOREIGN KEY (`invoices_id`) REFERENCES `invoices`       (`id`) ON DELETE RESTRICT
+
+                                   ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
+?>
