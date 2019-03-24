@@ -1942,13 +1942,14 @@ function cli_build_commands_string(&$params){
  * @param natural The PID for which the CWD is required
  * @return string The CWD for the specified PID if it exist
  */
-function cli_get_cwd($pid){
+function cli_get_cwd($pid, $ignore_gone = false){
     try{
         if(!is_natural($pid) or ($pid > 65535)){
             throw new BException(tr('cli_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
         }
 
-        $results = safe_exec(array('commands' => array('readlink', array('sudo' => true, '-e', '/proc/'.$pid.'/cwd'))));
+        $results = safe_exec(array('ok_exitcodes' => ($ignore_gone ? '1' : ''),
+                                   'commands'     => array('readlink', array('sudo' => true, '-e', '/proc/'.$pid.'/cwd'))));
         $results = array_pop($results);
 
         return $results;
