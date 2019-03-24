@@ -340,7 +340,7 @@ switch(cli_method()){
         break;
 
     case 'give-role':
-        // FALLTHROUGH
+        // F$core->register['all']THROUGH
     case 'set-role':
         load_libs('roles');
 
@@ -417,7 +417,7 @@ switch(cli_method()){
             throw new BException(tr('--limit must be followed by a natural number lower than 99999'), 'warning/invalid');
         }
 
-        if(STATUS and DELETED and ALL){
+        if(STATUS and DELETED and $core->register['all']){
             throw new BException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
         }
 
@@ -425,11 +425,11 @@ switch(cli_method()){
             throw new BException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(STATUS and ALL){
+        if(STATUS and $core->register['all']){
             throw new BException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(DELETED and ALL){
+        if(DELETED and $core->register['all']){
             throw new BException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
@@ -440,7 +440,7 @@ switch(cli_method()){
             $where[] = ' `users`.`status` = :status ';
             $execute[':status'] = STATUS;
 
-        }elseif(!ALL){
+        }elseif(!$core->register['all']){
             $where[] = ' `users`.`status` IS NULL ';
         }
 
@@ -551,23 +551,19 @@ switch(cli_method()){
         break;
 
     case 'list':
-        $type        = not_empty(cli_argument('-t', true), cli_argument('--type'    , true));
-        $email       = not_empty(cli_argument('-e', true), cli_argument('--email'   , true));
-        $name        = not_empty(cli_argument('-n', true), cli_argument('--name'    , true));
-        $username    = not_empty(cli_argument('-u', true), cli_argument('--username', true));
-        $right       = cli_argument('-r') or cli_argument('--show-rights');
+        $type     = not_empty(cli_argument('-t', true), cli_argument('--type'    , true));
+        $email    = not_empty(cli_argument('-e', true), cli_argument('--email'   , true));
+        $name     = not_empty(cli_argument('-n', true), cli_argument('--name'    , true));
+        $username = not_empty(cli_argument('-u', true), cli_argument('--username', true));
+        $right    = cli_argument('-r') or cli_argument('--show-rights');
 
-        $filters     = not_empty(cli_argument('-f', true), cli_argument('--filter', true), cli_argument('--filters', true));
-        $filters     = array_merge(array_force($filters), $argv);
-        $execute     = array();
+        $filters  = not_empty(cli_argument('-f', true), cli_argument('--filter', true), cli_argument('--filters', true));
+        $filters  = array_merge(array_force($filters), $argv);
+        $execute  = array();
 
         cli_no_arguments_left();
 
-        if(!is_natural($limit, 0) or (!$limit > 99999)){
-            throw new BException(tr('--limit must be followed by a natural number lower than 99999'), 'warning/invalid');
-        }
-
-        if(STATUS and DELETED and ALL){
+        if(STATUS and DELETED and $core->register['all']){
             throw new BException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
         }
 
@@ -575,11 +571,11 @@ switch(cli_method()){
             throw new BException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(STATUS and ALL){
+        if(STATUS and $core->register['all']){
             throw new BException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(DELETED and ALL){
+        if(DELETED and $core->register['all']){
             throw new BException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
@@ -590,7 +586,7 @@ switch(cli_method()){
             $where[] = ' `users`.`status` = :status ';
             $execute[':status'] = STATUS;
 
-        }elseif(!ALL){
+        }elseif(!$core->register['all']){
             $where[] = ' `users`.`status` IS NULL ';
         }
 
@@ -804,13 +800,13 @@ switch(cli_method()){
         break;
 
     case 'lock':
-        // FALLTRGOUGH
+        // F$core->register['all']TRGOUGH
     case 'delete':
-        // FALLTRGOUGH
+        // F$core->register['all']TRGOUGH
     case 'undelete':
-        // FALLTRGOUGH
+        // F$core->register['all']TRGOUGH
     case 'disable':
-        // FALLTRGOUGH
+        // F$core->register['all']TRGOUGH
     case 'enable':
         $users = cli_arguments();
 
