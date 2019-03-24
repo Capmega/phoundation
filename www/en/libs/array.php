@@ -80,7 +80,7 @@ function array_next_value(&$array, $currentvalue, $delete = false, $restart = fa
             /*
              * The currentvalue was found, but it was at the end of the array
              */
-            throw new BException(tr('array_next_value(): Option ":value" does not have a value specified', array(':value' => str_log($currentvalue))), 'invalid');
+            throw new BException(tr('array_next_value(): Option ":value" does not have a value specified', array(':value' => $currentvalue)), 'invalid');
         }
 
         reset($array);
