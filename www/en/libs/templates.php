@@ -77,7 +77,7 @@ function templates_install($params){
  * @package templates
  *
  * @param array $template The template to validate
- * @return array The validated and cleaned $template array
+ * @return array The validated and cleaned $template parameter array
  */
 function templates_validate($template){
     try{
