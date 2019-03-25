@@ -583,11 +583,22 @@ switch(cli_method()){
                      * Patch or show diff
                      */
                     if($section == 'phoundation'){
-                        code_patch(ROOT.$file, $paths[$section], (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()), null, !$no_clean);
+                        code_patch(array('file'          => ROOT.$file,
+                                         'path'          => $paths[$section],
+                                         'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
+                                         'clean'         => $no_clean,
+                                         'restrictions'  => $paths));
+
                         $status = 'patched';
 
                     }elseif(!$phoundation_only){
-                        code_patch(ROOT.$file, $paths[$section], (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()), array($file => str_replace('admin/', '', $file)), null, !$no_clean);
+                        code_patch(array('file'          => ROOT.$file,
+                                         'path'          => $paths[$section],
+                                         'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
+                                         'replaces'      => array($file => str_replace('admin/', '', $file)),
+                                         'clean'         => $no_clean,
+                                         'restrictions'  => $paths));
+
                         $status = 'patched';
                     }
 
@@ -602,7 +613,7 @@ switch(cli_method()){
                             $patch_file = isset_get($files['patch_file']);
 
                             if($patch_file){
-                                file_delete($patch_file);
+                                file_delete($patch_file, false, false, $paths['phoundation']);
                             }
                         }
                     }

@@ -1,4 +1,3 @@
-
 <?php
 /*
  * Add support for project parents and priorities

@@ -948,19 +948,24 @@ function code_diff_toolkit($file){
  * @see git_apply()
  * @version 2.2.0: Added function and documentation
  *
- * @param string $file The first file to be compared
- * @param string $path
- * @param string $method
- * @param array $replaces
- * @param boolean $clean If set to true, delete the patch file
+ * @param params $params The patch parameters
+ * @param string $params[file] The first file to be compared
+ * @param string $params[path]
+ * @param string $params[method]
+ * @param array $params[replaces]
+ * @param boolean $params[clean] If set to true, delete the patch file
+ * @param null array $params[restrictions] If set, restrict function access to the specified paths only
  * @return string The difference between the two files
  */
-function code_patch($file, $path, $method = 'apply', $replaces = null, $clean = true){
+function code_patch($params){
     try{
-        switch($method){
+        array_ensure($params, 'file,path,replaces,clean,restrictions');
+        array_default($params, 'method', 'apply');
+
+        switch($params['method']){
             case 'diff':
-                log_console(tr('Showing diff patch for file ":file"', array(':file' => $file)), 'white');
-                echo git_diff($file, !NOCOLOR);
+                log_console(tr('Showing diff patch for file ":file"', array(':file' => $params['file'])), 'white');
+                echo git_diff($params['file'], !NOCOLOR);
                 break;
 
             case 'create':
@@ -968,27 +973,27 @@ function code_patch($file, $path, $method = 'apply', $replaces = null, $clean = 
             case 'apply':
                 // FALLTHROUGH
             case 'patch':
-                log_console(tr('Trying to patch ":file"', array(':file' => $file)), 'VERBOSE/cyan');
+                log_console(tr('Trying to patch ":file"', array(':file' => $params['file'])), 'VERBOSE/cyan');
 
-                $patch      = git_diff($file);
-                $patch_file = slash($path).sha1($file).'.patch';
+                $patch      = git_diff($params['file']);
+                $patch_file = slash($params['path']).sha1($params['file']).'.patch';
 
                 if(empty($patch)){
                     throw new BException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $file)), 'empty');
                 }
 
-                if($replaces){
+                if($params['replaces']){
                     /*
                      * Perform a search / replace on the patch data
                      */
-                    foreach($replaces as $search => $replace){
+                    foreach($params['replaces'] as $search => $replace){
                         $patch = str_replace($search, $replace, $patch);
                     }
                 }
 
                 file_put_contents($patch_file, implode("\n", $patch)."\n");
 
-                if($method == 'create'){
+                if($params['method'] == 'create'){
                     /*
                      * Don't actually apply the patch
                      */
@@ -996,19 +1001,19 @@ function code_patch($file, $path, $method = 'apply', $replaces = null, $clean = 
                 }else{
                     git_apply($patch_file);
 
-                    if($clean){
-                        file_delete($patch_file);
+                    if($params['clean']){
+                        file_delete($patch_file, false, false, $params['restrictions']);
                     }
                 }
 
                 break;
 
             default:
-                throw new BException(tr('code_patch(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
+                throw new BException(tr('code_patch(): Unknown method ":method" specified', array(':method' => $params['method'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('code_patch(): Failed for file ":file"', array(':file' => $file)), $e, array('patch_file' => isset_get($patch_file)));
+        throw new BException(tr('code_patch(): Failed for file ":file"', array(':file' => $params['file'])), $e, array('patch_file' => isset_get($patch_file)));
     }
 }
 ?>
