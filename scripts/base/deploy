@@ -224,7 +224,7 @@ $nocontent           = !cli_argument('--do-content,--do-content-check');
 $nofixperms          =  cli_argument('--no-fix-perms,--no-fix-permissions');
 $nofixstructure      =  cli_argument('--no-fix-struct,--no-fix-structure');
 $all                 =  cli_argument('--all,-a');
-$ignore              =  cli_argument('--ignore-changes,-i');
+$ignore_changes      =  cli_argument('-,--ignore-changes');
 $nocacheclear        =  cli_argument('--no-cache-clear');
 $notranslate         =  cli_argument('--no-translate,--no-translation,--no-translations');
 $ignore_php          =  cli_argument('--ignore-php');
@@ -236,7 +236,7 @@ $send_content_texts  =  cli_argument('--send-content-texts');
 $send_sitemap        =  cli_argument('--send-sitemap');
 
 $notag               = (cli_argument('--no-tag,--no-tags') or $noversion);
-$nopush              = (cli_argument('--no-push')          or $ignore);
+$nopush              = (cli_argument('--no-push')          or $ignore_changes);
 $stash               =  cli_argument('--stash');
 $notouch             =  cli_argument('--no-touch');
 
@@ -376,7 +376,7 @@ if(!$targets){
 /*
  * Check if we dont have any changes that should be committed first
  */
-if(!$ignore){
+if(!$ignore_changes){
     if(git_status()){
         if(!FORCE){
             if(!$stash){
@@ -531,7 +531,7 @@ if($noversion or $notag){
 /*
  * Do git push all changes and tags
  */
-if($nopush or $ignore){
+if($nopush or $ignore_changes){
     log_console(tr('Skipping git push for changes and tags due to no "--do-version" or "-i" or "--ignore" or  no "--do-tag" or no "--do-push" command line parameters'), 'yellow');
 
 }else{
@@ -593,12 +593,17 @@ if($nocompress){
      * so we must do a git commit for those files.
      */
     if(git_status()){
-        log_console(tr('Changes detected from the compression script script, committing to git'), 'white');
-        git_add();
-        git_commit('Deploy commit: compressed files changed');
+        if($ignore_changes){
+            log_console(tr('Changes detected from the compression script script, but not committing due to --ignore-changes'), 'yellow');
 
-        if(!$nopush){
-            git_push();
+        }else{
+            log_console(tr('Changes detected from the compression script script, committing to git'), 'white');
+            git_add(ROOT.'www/en/pub');
+            git_commit('Deploy commit: compressed files changed');
+
+            if(!$nopush){
+                git_push();
+            }
         }
     }
 }
@@ -675,16 +680,23 @@ foreach($targets as $target_environment){
     $deploy_config                         = $_CONFIG['deploy'][$target_environment];
     $deploy_config['target_dir']           = unslash($deploy_config['target_dir']);
     $deploy_config['preserve_owner_group'] = (!$no_preserve_og and isset_get($deploy_config['preserve_owner_group'], true));
-    $deploy_config['target_user']          = ($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '');
 
     array_ensure($deploy_config, 'target_user,target_server,target_port,target_dir,categories,modes,include_dirs,exclude_dirs,rsync_parrallel,sudo,user,group,dir_mode,file_mode,www_mode');
 
-    if(!$deploy_config['target_user']){
+    if($deploy_config['target_user']){
+        /*
+         * Target user specified, ensure its user@ so we can prepend it to
+         * domain names
+         */
+        $deploy_config['target_user'] .= '@';
+
+    }else{
         /*
          * No target user specified, use the current process user
          */
         load_libs('process');
         $deploy_config['target_user'] = process_get_user();
+        $deploy_config['target_user'] = process_get_user().'@';
     }
 
     log_console(tr('Deploying to target environment ":target" on server ":server"', array(':target' => $target_environment, ':server' => $deploy_config['target_server'])), 'white');
@@ -916,8 +928,7 @@ foreach($targets as $target_environment){
                 passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mkdir '.$deploy_config['target_dir'].'\'', $exitcode);
             }
 
-            safe_exec(array('debug'    => true,
-                            'timeout'  => 90,
+            safe_exec(array('timeout'  => 90,
                             'commands' => array('ssh', array('-t', '-p', $target_port, $deploy_config['target_user'].$deploy_config['target_server'], $sudo.'rm '.$deploy_config['target_dir'].$tilde.' -rf; '.$sudo.'cp '.($deploy_config['preserve_owner_group'] ? '-a' : '--no-dereference --recursive --preserve=mode,links,xattr').' '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde))));
         }
 

@@ -29,6 +29,8 @@
  */
 function wget_library_init(){
     try{
+        load_libs('cli');
+
         if(!cli_which('wget')){
             linux_install_package('wget');
         }
@@ -65,7 +67,7 @@ function wget($params){
             throw new BException(tr('wget(): No file specified'), 'not-specified');
         }
 
-        $results = safe_exec(array('commands' => array('wget' => array('-q', '-O', $params['file'], '-', '"'.$params['url'].'"'))));
+        $results = safe_exec(array('commands' => array('wget' => array('-q', '-O', $params['file'], '-', $params['url']))));
         return $result;
 
     }catch(Exception $e){
