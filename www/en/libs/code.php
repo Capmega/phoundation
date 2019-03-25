@@ -955,12 +955,31 @@ function code_diff_toolkit($file){
  * @param array $params[replaces]
  * @param boolean $params[clean] If set to true, delete the patch file
  * @param null array $params[restrictions] If set, restrict function access to the specified paths only
- * @return string The difference between the two files
+ * @return string The patch result, either "patched", "created" or "deleted"
  */
 function code_patch($params){
     try{
-        array_ensure($params, 'file,path,replaces,clean,restrictions');
-        array_default($params, 'method', 'apply');
+        array_ensure($params, 'file,source_path,target_path,replaces,clean,restrictions');
+        array_default($params, 'method'     , 'apply');
+        array_default($params, 'source_path', ROOT);
+        array_default($params, 'clean'      , true);
+
+        file_restrict($params);
+
+        if(!$params['target_path']){
+            throw new BException(tr('code_patch(): No target path specified'), 'empty');
+        }
+
+        if(!file_exists($params['source_path'])){
+            throw new BException(tr('code_patch(): Specified source path ":source" does not exist', array(':source' => $params['source_path'])), 'not-exist');
+        }
+
+        if(!file_exists($params['target_path'])){
+            throw new BException(tr('code_patch(): Specified target path ":target" does not exist', array(':target' => $params['target_path'])), 'not-exist');
+        }
+
+        $params['source_path'] = slash($params['source_path']);
+        $params['target_path'] = slash($params['target_path']);
 
         switch($params['method']){
             case 'diff':
@@ -975,38 +994,49 @@ function code_patch($params){
             case 'patch':
                 log_console(tr('Trying to patch ":file"', array(':file' => $params['file'])), 'VERBOSE/cyan');
 
-                $patch      = git_diff($params['file']);
-                $patch_file = slash($params['path']).sha1($params['file']).'.patch';
-
-                if(empty($patch)){
-                    throw new BException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $file)), 'empty');
-                }
-
-                if($params['replaces']){
+                if(file_exists($params['target_path'].$params['file'])){
                     /*
-                     * Perform a search / replace on the patch data
+                     * The target file exists. Send the changed by patch
                      */
-                    foreach($params['replaces'] as $search => $replace){
-                        $patch = str_replace($search, $replace, $patch);
+                    $patch      = git_diff($params['source_path'].$params['file']);
+                    $patch_file = slash($params['target_path']).sha1($params['file']).'.patch';
+
+                    if(empty($patch)){
+                        throw new BException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $params['file'])), 'empty');
                     }
+
+                    if($params['replaces']){
+                        /*
+                         * Perform a search / replace on the patch data
+                         */
+                        foreach($params['replaces'] as $search => $replace){
+                            $patch = str_replace($search, $replace, $patch);
+                        }
+                    }
+
+                    file_put_contents($patch_file, implode("\n", $patch)."\n");
+
+                    if($params['method'] == 'create'){
+                        /*
+                         * Don't actually apply the patch
+                         */
+
+                    }else{
+                        git_apply($patch_file);
+
+                        if($params['clean']){
+                            file_delete($patch_file, false, false, $params['restrictions']);
+                        }
+                    }
+
+                    return 'patched';
                 }
 
-                file_put_contents($patch_file, implode("\n", $patch)."\n");
-
-                if($params['method'] == 'create'){
-                    /*
-                     * Don't actually apply the patch
-                     */
-
-                }else{
-                    git_apply($patch_file);
-
-                    if($params['clean']){
-                        file_delete($patch_file, false, false, $params['restrictions']);
-                    }
-                }
-
-                break;
+                /*
+                 * The target file does not exist, so just copy it
+                 */
+                copy($params['source_path'].$params['file'], $params['target_path'].$params['file']);
+                return 'created';
 
             default:
                 throw new BException(tr('code_patch(): Unknown method ":method" specified', array(':method' => $params['method'])), 'unknown');

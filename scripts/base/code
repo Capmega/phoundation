@@ -284,8 +284,13 @@ switch(cli_method()){
         foreach($files as $file => &$status){
             try{
                 $marked = false;
-                if($status != 'modified') continue;
 
+                switch($status){
+                    case 'modified':
+                        // FALLTHROUGH
+                    case 'not tracked':
+                       continue;
+                }
 
                 if(preg_match('/sitemap.*?.xml/', $file)){
                     /*
@@ -583,23 +588,21 @@ switch(cli_method()){
                      * Patch or show diff
                      */
                     if($section == 'phoundation'){
-                        code_patch(array('file'          => ROOT.$file,
-                                         'path'          => $paths[$section],
-                                         'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
-                                         'clean'         => $no_clean,
-                                         'restrictions'  => $paths));
-
-                        $status = 'patched';
+                        $status = code_patch(array('file'          => $file,
+                                                   'source_path'   => ROOT,
+                                                   'target_path'   => $paths[$section],
+                                                   'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
+                                                   'clean'         => $no_clean,
+                                                   'restrictions'  => array(ROOT, $paths[$section])));
 
                     }elseif(!$phoundation_only){
-                        code_patch(array('file'          => ROOT.$file,
-                                         'path'          => $paths[$section],
-                                         'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
-                                         'replaces'      => array($file => str_replace('admin/', '', $file)),
-                                         'clean'         => $no_clean,
-                                         'restrictions'  => $paths));
-
-                        $status = 'patched';
+                        $status = code_patch(array('file'          => $file,
+                                                   'source_path'   => ROOT,
+                                                   'target_path'   => $paths[$section],
+                                                   'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
+                                                   'replaces'      => array($file => str_replace('admin/', '', $file)),
+                                                   'clean'         => $no_clean,
+                                                   'restrictions'  => array(ROOT, $paths[$section])));
                     }
 
                     if(cli_method() == 'patch'){
@@ -699,15 +702,19 @@ switch(cli_method()){
 
                 foreach($sections as $section => $list){
                     foreach($list as $file => $status){
-                        if($status === 'patched'){
-                            if(VERBOSE){
-                                log_console(tr('Cleaning up file ":file"', array(':file' => $file)));
+                        log_console(tr('Cleaning up file ":file"', array(':file' => $file)), 'VERBOSEDOT/green');
 
-                            }else{
-                                cli_dot(1, 'green', '.', true);
-                            }
+                        switch($status){
+                            case 'patched':
+                                git_checkout(null, ROOT.$file);
+                                break;
 
-                            git_checkout(null, ROOT.$file);
+                            case 'created':
+                                file_delete(ROOT.$file, false, false, ROOT);
+                                break;
+
+                            default:
+                                throw new bException(tr('Unknown code patch result ":result" encountered for file ":file"', array(':result' => $status, ':file' => $file)), 'unknown');
                         }
                     }
                 }
