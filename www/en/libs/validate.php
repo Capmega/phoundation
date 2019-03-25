@@ -1515,7 +1515,7 @@ class ValidateForm {
      *
      * @return boolean
      */
-    public function isDate(string $date, string $format = 'Y-m-d', string $message = "this is not a valid date"){
+    public function isDate($date, $format = 'Y-m-d', $message = "this is not a valid date"){
         try{
             $d = DateTime::createFromFormat($format, $date);
             if (!($d && $d->format($format) == $date)) {
@@ -1818,7 +1818,7 @@ class ValidateForm {
      *
      * @return boolean
      */
-    public function isCity(string $city, string $message = "this is not a valid city"){
+    public function isCity($city, $message = "this is not a valid city"){
         try{
             // :TODO: add this validate
         }catch(Exception $e){
