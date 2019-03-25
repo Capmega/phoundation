@@ -973,7 +973,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
              * Re-execute this command as the specified user
              */
             log_console(tr('Current user ":user" is not authorized to execute this script, reexecuting script as user ":reuser"', array(':user' => cli_get_process_uid(), ':reuser' => getmyuid())), 'yellow', true, false, false);
-            passthru(cli_sudo('sudo -Eu "'.get_current_user().'" '.ROOT.'scripts/'.str_rfrom($core->register['script_command'], 'scripts/')));
+            passthru(cli_sudo('sudo -Eu "'.get_current_user().'" '.ROOT.'scripts/'.str_rfrom($core->register['argv'], 'scripts/')));
             die();
         }
 
@@ -1202,10 +1202,10 @@ function cli_done(){
                     /*
                      * Script ended with warning
                      */
-                    log_console(tr('Script ":script" ended with warning in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'yellow');
+                    log_console(tr('Script ":script" ended with exit code ":exitcode" warning in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code)), 'yellow');
 
                 }else{
-                    log_console(tr('Script ":script" failed in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()))), 'red');
+                    log_console(tr('Script ":script" failed with exit code ":exitcode" in :time with ":usage" peak memory usage', array(':script' => $core->register['script'], ':time' => time_difference(STARTTIME, microtime(true), 'auto', 2), ':usage' => bytes(memory_get_peak_usage()), ':exitcode' => $exit_code)), 'red');
                 }
 
             }else{
@@ -1679,9 +1679,8 @@ function cli_is_builtin($command){
         return (substr($results, -7, 7) === 'builtin');
 
     }catch(Exception $e){
-        switch($e->getRealCode()){
-            case '127':
-                throw new BException('cli_is_builtin(): The specified command ":command" does not exist', array(':command' => $command), $e);
+        if($e->getRealCode() === '127'){
+            throw new BException(tr('cli_is_builtin(): The specified command ":command" was not found and probably does not exist', array(':command' => $command)), 'not-exists');
         }
 
         throw new BException('cli_is_builtin(): Failed', $e);
@@ -1956,6 +1955,52 @@ function cli_get_cwd($pid, $ignore_gone = false){
 
     }catch(Exception $e){
         throw new BException('cli_get_cwd(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Restart the current script in the background with a 1 second delay to ensure the current process has exitted completely
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @note This function has been written for 2.4 and up, but already with 2.5 and up script_exec() call upgrades in mind
+ * @version 2.4.94: Added function and documentation
+ *
+ * @param numeric $delay The amount of time to wait in background before restarting the script to ensure that this script has finished
+ * @return void
+ */
+function cli_restart($delay = 1){
+    global $core;
+    try{
+        if(!PLATFORM_CLI){
+            throw new BException(tr('cli_restart(): This function can only be run from a CLI platform'), $e);
+        }
+
+        $command = array_shift($core->register['argv']);
+        $script  = str_rfrom($command, '/');
+        $command = str_runtil($command, '/'.$script);
+
+        if(substr($command, -4, 4) == 'base'){
+            /*
+             * This is a bas command
+             */
+            $script = 'base/'.$script;
+        }
+
+        $pid = script_exec(array('background' => true,
+                                 'delay'      => $delay,
+                                 'commands'   => array($script, $core->register['argv'])));
+
+        log_console(tr('Restarted script ":script" in background with pid ":pid" with ":delay" seconds delay', array(':pid' => $pid, ':script' => $script, '::delay' => $delay)), 'green');
+        die();
+
+    }catch(Exception $e){
+        throw new BException(tr('cli_restart(): Failed'), $e);
     }
 }
 

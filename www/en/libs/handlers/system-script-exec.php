@@ -6,7 +6,7 @@
 try{
     global $core;
 
-    array_ensure($params, 'script,arguments,function,ok_exitcodes,background,timeout');
+    array_ensure($params, 'script,arguments,function,ok_exitcodes,background,timeout,delay');
 
     /*
      * Validate the requested commands, ensure that script_exec() is only used
@@ -30,6 +30,7 @@ try{
      * Ensure that all arguments contain the environment specification
      */
     $count = 0;
+
     foreach($params['commands'] as &$item){
         if(fmod(++$count, 2)){
             /*
@@ -46,12 +47,21 @@ try{
         }
     }
 
+    if($params['delay']){
+        if(!is_numeric($params['delay']) or ($params['delay'] < 0)){
+            throw new BException(tr('script_exec(): Invalid delay ":delay" specified. Please specify a valid amount of seconds, like 1, 0.5, .4, 3.9, 7, etc.', array(':delay' => $params['delay'])), 'invalid');
+        }
+
+        array_unshift($params['commands'], array($params['delay']));
+        array_unshift($params['commands'], 'sleep');
+    }
+
     /*
      * Execute the script using safe_exec
      */
     return safe_exec($params);
 
 }catch(Exception $e){
-    throw new bException(tr('script_exec(): Failed to execute script ":script"', array(':script' => $params['script'])), $e);
+    throw new bException(tr('script_exec(): Failed'), $e);
 }
 ?>

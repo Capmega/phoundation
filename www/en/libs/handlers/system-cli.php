@@ -8,11 +8,14 @@
 
 
 
+/*
+ * Define basic platform constants
+ */
 try{
     /*
-     * Make sure we have the original script command available
+     * Make sure we have the original arguments available
      */
-    $core->register['script_command'] = implode(' ', $GLOBALS['argv']);
+    $core->register['argv'] = $GLOBALS['argv'];
 
 
 

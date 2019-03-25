@@ -161,7 +161,7 @@ under_construction();
 
 }catch(Exception $e){
     if(!isset($output)){
-        $output = '*** COMMAND HAS NOT YET BEEN EXECUTED ***';
+        $output = '*** NO OUTPUT AVAILABLE, COMMAND HAS NOT YET BEEN EXECUTED ***';
     }
 
     /*
