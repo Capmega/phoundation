@@ -294,11 +294,11 @@ function init($projectfrom = null, $frameworkfrom = null){
         }
 
         if($_CONFIG['production']){
-            log_console('Removing data symlink in all languages');
+            log_console('Removing data symlink or files in all languages', 'cyan');
 
             if($_CONFIG['language']['supported']){
                 foreach($_CONFIG['language']['supported'] as $language => $name){
-                    file_delete(ROOT.'www/'.substr($language, 0, 2).'/data');
+                    file_delete(ROOT.'www/'.substr($language, 0, 2).'/data', false, false, ROOT.'www/'.substr($language, 0, 2));
                 }
             }
 

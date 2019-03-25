@@ -82,12 +82,12 @@ try{
  * Clear bundler caches
  */
 try{
-    file_delete(ROOT.'www/en/pub/js/bundle-*');
-    file_delete(ROOT.'www/en/pub/css/bundle-*');
-    file_delete(ROOT.'www/en/admin/pub/js/bundle-*');
-    file_delete(ROOT.'www/en/admin/pub/css/bundle-*');
+    file_delete(ROOT.'www/en/pub/js/bundle-*'       , false, false, ROOT.'www/en/pub/js/');
+    file_delete(ROOT.'www/en/pub/css/bundle-*'      , false, false, ROOT.'www/en/pub/css/');
+    file_delete(ROOT.'www/en/admin/pub/js/bundle-*' , false, false, ROOT.'www/en/admin/pub/js/');
+    file_delete(ROOT.'www/en/admin/pub/css/bundle-*', false, false, ROOT.'www/en/admin/pub/css/');
 
-    log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/pub/js/bundle-*,ROOT/pub/css/bundle-*')));
+    log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/pub/js/bundle-*,ROOT/pub/css/bundle-*')), 'green');
 
 }catch(Exception $e){
     notify($e);
