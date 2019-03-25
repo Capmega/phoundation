@@ -16,7 +16,7 @@
 /*
  *
  */
-function storage_files_add($params){
+function storage_files_insert($params){
     try{
         array_ensure($params);
         array_default($params, 'sections_id' , null);
@@ -59,11 +59,11 @@ function storage_files_add($params){
                     break;
 
                 default:
-                    throw new BException(tr('storage_files_add(): Unknown convert value ":convert" specified', array(':convert' => $params['convert'])), 'unknown');
+                    throw new BException(tr('storage_files_insert(): Unknown convert value ":convert" specified', array(':convert' => $params['convert'])), 'unknown');
             }
         }
 
-        $file = files_add($file);
+        $file = files_insert($file);
 
         sql_query('INSERT INTO `storage_files` (`sections_id`, `documents_id`, `pages_id`, `types_id`, `files_id`, `originals_id`, `priority`)
                    VALUES                      (:sections_id , :documents_id , :pages_id , :types_id , :files_id , :originals_id , :priority )',
@@ -80,7 +80,7 @@ function storage_files_add($params){
         return $file;
 
     }catch(Exception $e){
-        throw new BException('storage_files_add(): Failed', $e);
+        throw new BException('storage_files_insert(): Failed', $e);
     }
 }
 

@@ -260,7 +260,7 @@ switch(cli_method()){
 
                         log_console(tr('Adding file ":file" from path ":path"', array(':file' => $file, ':path' => $path)), 'VERBOSE/cyan');
 
-                        $file = storage_files_add(array('sections_id'  => $section['id'],
+                        $file = storage_files_insert(array('sections_id'  => $section['id'],
                                                         'documents_id' => $document['id'],
                                                         'pages_id'     => isset_get($page['id']),
                                                         'file'         => $path.$file,
@@ -273,7 +273,7 @@ switch(cli_method()){
                 }else{
                     log_console(tr('Adding file ":file"', array(':file' => $file)), 'VERBOSE/cyan');
 
-                    $path = storage_files_add(array('sections_id'  => $section['id'],
+                    $path = storage_files_insert(array('sections_id'  => $section['id'],
                                                     'documents_id' => $document['id'],
                                                     'pages_id'     => isset_get($page['id']),
                                                     'file'         => $file,
