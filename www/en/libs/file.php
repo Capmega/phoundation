@@ -2756,40 +2756,15 @@ function file_cat($params){
  * @param null mixed $params[target]
  * @param null mixed $params[file]
  * @param null mixed $params[path]
+ * @param null list $params[restrictions] list of paths to which the specified files must be restricted. This will only be used if $restrictions is NULL
  * @param null list $restrictions list of paths to which the specified files must be restricted
- * @param null string DOT NOT USE! file_restrict() uses this internally in case it was called using various sections
- * @return void()
+ * @return void
  */
-function file_restrict($params, $restrictions = null, $key = null){
+function file_restrict($params, $restrictions = null){
     try{
-        if(is_string($params)){
-            /*
-             * This is a single path. Ensure its not outside of the restricted
-             * zones
-             */
-            if(!$restrictions){
-                $restrictions = array(ROOT.'data/', '/tmp/');
-
-            }else{
-                $restrictions = array_force($restrictions);
-            }
-
-            foreach($restrictions as $restriction){
-                if(substr($params, 0, strlen($restriction)) === $restriction){
-                    /*
-                     * Passed!
-                     */
-                    return true;
-                }
-            }
-
-            if($key){
-                throw new BException(tr('file_restrict(): The specified file or path ":path" for key ":key" is outside of the authorized paths', array(':path' => $params, ':key' => $key)), 'access-denied');
-            }
-
-            throw new BException(tr('file_restrict(): The specified file or path ":path" is outside of the authorized paths', array(':path' => $params)), 'access-denied');
-        }
-
+        /*
+         * Disable all restrictions?
+         */
         if(!empty($params['unrestricted'])){
             /*
              * No restrictions required
@@ -2798,16 +2773,72 @@ function file_restrict($params, $restrictions = null, $key = null){
         }
 
         /*
+         * Determine what restrictions apply. The restrictions is a white list
+         * containing the paths where the calling function is allowed to work
+         */
+        if(!$restrictions){
+            /*
+             * If the file was specified as an array, then the restrictions may
+             * have been included in there for convenience.
+             */
+            if(is_array($params) and isset($params['restrictions'])){
+                $restrictions = $params['restrictions'];
+            }
+
+            if(!$restrictions){
+                /*
+                 * Apply default restrictions
+                 */
+                $restrictions = array(ROOT.'data', '/tmp');
+            }
+
+        }else{
+            /*
+             * Restrictions may have been specified as a CSV list, ensure its an
+             * array so we can process then all
+             */
+            $restrictions = array_force($restrictions);
+        }
+
+        /*
+         * If this is a string containing a single path, then test it
+         */
+        if(is_string($params)){
+            /*
+             * The file or path to be checked must start with the $restriction
+             * Unslash the $restriction to avoid checking a path like "/test/"
+             * against a restriction "/test" and having it fail because of the
+             * missing slash at the end
+             */
+            foreach($restrictions as $restriction){
+                unslash($restriction);
+                if(substr($params, 0, strlen($restriction)) === $restriction){
+                    /*
+                     * Passed!
+                     */
+                    return;
+                }
+            }
+
+            throw new BException(tr('file_restrict(): The specified file or path ":path" is outside of the authorized paths', array(':path' => $params)), 'access-denied', $restrictions);
+        }
+
+        /*
          * Search for default fields
          */
-        $keys = array('source', 'target', 'path', 'file');
+        $keys = array('source', 'target', 'source_path', 'source_path', 'path');
 
         foreach($keys as $key){
             if(isset($params[$key])){
                 /*
                  * All these must be tested
                  */
-                file_restrict($value, $restrictions, $key);
+                try{
+                    file_restrict($params[$key], $restrictions);
+
+                }catch(Exception $e){
+                    throw new BException(tr('file_restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
+                }
             }
         }
 
