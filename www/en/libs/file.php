@@ -891,15 +891,28 @@ function file_list_tree($path, $pattern = null, $recursive = true){
 
 /*
  * Delete a file, weather it exists or not, without error
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @template Function reference
+ * @package files
+ * @see file_restrict() This function uses file restrictions, see file_restrict() for more information
+ *
+ * @param mixed $patterns
+ * @param boolean $clean_path
+ * @param boolean $sudo
+ * @param null list $restrictions A list of paths to which file_delete() operations will be restricted
+ * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
  */
-// :SECURITY: $pattern is NOT checked!!
-function file_delete($patterns, $clean_path = false, $sudo = false){
+function file_delete($patterns, $clean_path = false, $sudo = false, $restrictions = null){
     try{
         if(!$patterns){
             throw new BException(tr('file_delete(): No files or patterns specified'), 'not-specified');
         }
 
         foreach(array_force($patterns) as $pattern){
+            file_restrict($pattern, $restrictions);
             safe_exec(array('commands' => array('rm', array('sudo' => $sudo, '-rf', $pattern))));
 
             if($clean_path){
@@ -2738,24 +2751,31 @@ function file_cat($params){
  * @package file
  * @version 2.4.24: Added function and documentation
  *
- * @param mixed $params The parameters for file_restrict
+ * @param mixed $params The parameters on which to restrict the specified file or path. May also simply be a file string, in which case the default parameters apply
  * @param null mixed $params[source]
  * @param null mixed $params[target]
  * @param null mixed $params[file]
  * @param null mixed $params[path]
+ * @param null list $restrictions list of paths to which the specified files must be restricted
+ * @param null string DOT NOT USE! file_restrict() uses this internally in case it was called using various sections
  * @return void()
  */
-function file_restrict($params, $name = null){
+function file_restrict($params, $restrictions = null, $key = null){
     try{
         if(is_string($params)){
             /*
              * This is a single path. Ensure its not outside of the restricted
              * zones
              */
-            $allowed = array(ROOT.'data/', '/tmp/');
+            if(!$restrictions){
+                $restrictions = array(ROOT.'data/', '/tmp/');
 
-            foreach($allowed as $allow){
-                if(substr($params, 0, strlen($allow), $params) === $allow){
+            }else{
+                $restrictions = array_force($restrictions);
+            }
+
+            foreach($restrictions as $restriction){
+                if(substr($params, 0, strlen($restriction)) === $restriction){
                     /*
                      * Passed!
                      */
@@ -2763,7 +2783,11 @@ function file_restrict($params, $name = null){
                 }
             }
 
-            throw new BException(tr('file_restrict(): The specified file or path ":path" for key ":key" is outside of the authorized paths', array(':path' => $params, ':key' => $key)), 'access-denied');
+            if($key){
+                throw new BException(tr('file_restrict(): The specified file or path ":path" for key ":key" is outside of the authorized paths', array(':path' => $params, ':key' => $key)), 'access-denied');
+            }
+
+            throw new BException(tr('file_restrict(): The specified file or path ":path" is outside of the authorized paths', array(':path' => $params)), 'access-denied');
         }
 
         if(!empty($params['unrestricted'])){
@@ -2783,7 +2807,7 @@ function file_restrict($params, $name = null){
                 /*
                  * All these must be tested
                  */
-                file_restrict($value, $key);
+                file_restrict($value, $restrictions, $key);
             }
         }
 
