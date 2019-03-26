@@ -973,7 +973,16 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
              * Re-execute this command as the specified user
              */
             log_console(tr('Current user ":user" is not authorized to execute this script, reexecuting script as user ":reuser"', array(':user' => cli_get_process_uid(), ':reuser' => getmyuid())), 'yellow', true, false, false);
-            passthru(cli_sudo('sudo -Eu "'.get_current_user().'" '.ROOT.'scripts/'.str_rfrom($core->register['argv'], 'scripts/')));
+
+            $argv = $core->register['argv'];
+            array_shift($argv);
+
+            $arguments = array('sudo' => 'sudo -Eu \''.get_current_user().'\'');
+            $arguments = array_merge($arguments, $argv);
+
+            script_exec(array('delay'    => 1,
+                              'function' => 'passthru',
+                              'commands' => array($core->register['real_script'], $arguments)));
             die();
         }
 
@@ -1858,8 +1867,11 @@ function cli_build_commands_string(&$params){
                                 break;
 
                             case 'sudo':
-                                if($argument){
+                                if($argument === true){
                                     $sudo = 'sudo ';
+
+                                }elseif($argument){
+                                    $sudo = $argument.' ';
                                 }
 
                                 unset($value[$special]);

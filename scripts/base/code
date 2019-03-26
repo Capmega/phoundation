@@ -211,7 +211,7 @@ switch(cli_method()){
                     git_stash_pop();
 
                 }catch(Exception $e){
-                    throw new BException(tr('Update succeeded, but "git stas pop" failed. Very likely this is due to merge conflicts. Please resolve the conflicts, and re-run this script'), $e);
+                    throw new BException(tr('Update succeeded, but "git stash pop" failed. Very likely this is due to merge conflicts. Please resolve the conflicts, and re-run this script'), $e);
                 }
         }
 

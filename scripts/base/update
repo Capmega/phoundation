@@ -175,8 +175,6 @@ try{
     log_console(tr('Fetching latest phoundation branches and tags'), 'VERBOSE/cyan');
     $results = code_phoundation_fetch(array('all' => true));
 
-
-
     /*
      * Get our current framework version line, then get available version lines from
      * the local phoundation project
