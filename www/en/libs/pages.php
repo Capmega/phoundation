@@ -53,6 +53,7 @@ function pages_list($params){
             }
         }
 
+        ksort($retval);
         return $retval;
 
     }catch(Exception $e){
@@ -149,51 +150,6 @@ function pages_select($params = null){
 
     }catch(Exception $e){
         throw new BException(tr('pages_select(): Failed'), $e);
-    }
-}
-
-
-
-/*
- * SUB HEADER TEXT
- *
- * PARAGRAPH
- *
- * PARAGRAPH
- *
- * PARAGRAPH
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package pages
- * @see pages_install()
- * @see date_convert() Used to convert the sitemap entry dates
- * @table: `pages`
- * @note: This is a note
- * @version 2.5.38: Added function and documentation
- * @example [Title]
- * code
- * $result = pages_function(array('foo' => 'bar'));
- * showdie($result);
- * /code
- *
- * This would return
- * code
- * Foo...bar
- * /code
- *
- * @param params $params A parameters array
- * @param string $params[foo]
- * @param string $params[bar]
- * @return string The result
- */
-function pages_function($params){
-    try{
-
-    }catch(Exception $e){
-        throw new BException(tr('pages_function(): Failed'), $e);
     }
 }
 ?>
