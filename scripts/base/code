@@ -465,6 +465,7 @@ switch(cli_method()){
                         log_console(tr('Identified file as phoundation'), 'VERBOSE');
                         $sections['phoundation'][$file] = $status;
                         $marked = true;
+
                     }elseif(code_file_exists_in_toolkit($file)){
                         /*
                          * Toolkit existing library handler files
@@ -587,26 +588,31 @@ switch(cli_method()){
                     /*
                      * Patch or show diff
                      */
-                    if($section == 'phoundation'){
-                        $status = code_patch(array('file'          => $file,
-                                                   'source_path'   => ROOT,
-                                                   'target_path'   => $paths[$section],
-                                                   'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
-                                                   'clean'         => $no_clean,
-                                                   'restrictions'  => array(ROOT, $paths[$section])));
+                    if($status === 'not tracked'){
+                        log_console(tr('Ignoring not tracked file ":file", it is unknown where this file has to go', array(':file' => $file)), 'VERBOSEDOT/yellow');
 
-                    }elseif(!$phoundation_only){
-                        $status = code_patch(array('file'          => $file,
-                                                   'source_path'   => ROOT,
-                                                   'target_path'   => $paths[$section],
-                                                   'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
-                                                   'replaces'      => array($file => str_replace('admin/', '', $file)),
-                                                   'clean'         => $no_clean,
-                                                   'restrictions'  => array(ROOT, $paths[$section])));
-                    }
+                    }else{
+                        if($section == 'phoundation'){
+                            $status = code_patch(array('file'          => $file,
+                                                       'source_path'   => ROOT,
+                                                       'target_path'   => $paths[$section],
+                                                       'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
+                                                       'clean'         => $no_clean,
+                                                       'restrictions'  => array(ROOT, $paths[$section])));
 
-                    if(cli_method() == 'patch'){
-                        cli_dot(1, 'green', '.', true);
+                        }elseif(!$phoundation_only){
+                            $status = code_patch(array('file'          => $file,
+                                                       'source_path'   => ROOT,
+                                                       'target_path'   => $paths[$section],
+                                                       'method'        => (((cli_method() == 'patch') and $create_only) ? 'create' : cli_method()),
+                                                       'replaces'      => array($file => str_replace('admin/', '', $file)),
+                                                       'clean'         => $no_clean,
+                                                       'restrictions'  => array(ROOT, $paths[$section])));
+                        }
+
+                        if(cli_method() == 'patch'){
+                            cli_dot(1, 'green', '.', true);
+                        }
                     }
 
                 }catch(Exception $e){
@@ -631,19 +637,26 @@ switch(cli_method()){
                              * If this is so, we can simply act as if the file
                              * was patched
                              */
+                            $patch_file = $e->getData();
+                            $patch_file = array_shift($patch_file);
+
                             if($section == 'phoundation'){
-                                if(!code_diff($file, $paths[$section].$file)){
-                                    log_console(tr('Patch of Phoundation file ":file" failed, because file already received patch before. Ignorning', array(':file' => $file)), 'VERBOSE/yellow');
-                                    $status = 'patched';
-                                    break;
+                                if(code_diff(ROOT.$file, $paths[$section].$file)){
+                                    throw $e;
                                 }
 
+                                log_console(tr('Patch of Phoundation file ":file" failed, because file already received patch before. Ignorning', array(':file' => $file)), 'yellow');
+                                $status = 'patched';
+                                break;
+
                             }else{
-                                if(!code_diff($file, $paths[$section].str_replace('admin/', '', $file))){
-                                    log_console(tr('Patch of Toolkit file ":file" failed, because file already received patch before. Ignorning', array(':file' => $file)), 'VERBOSE/yellow');
-                                    $status = 'patched';
-                                    break;
+                                if(code_diff(ROOT.$file, $paths[$section].str_replace('admin/', '', ROOT.$file))){
+                                    throw $e;
                                 }
+
+                                log_console(tr('Patch of Toolkit file ":file" failed, because file already received patch before. Ignorning', array(':file' => ROOT.$file)), 'yellow');
+                                $status = 'patched';
+                                break;
                             }
 
                             if(!$no_clean){
@@ -711,6 +724,13 @@ switch(cli_method()){
 
                             case 'created':
                                 file_delete(ROOT.$file, false, false, ROOT);
+                                break;
+
+                            case 'not tracked':
+                                /*
+                                 * This is a new file and we don't know what to
+                                 * do with it
+                                 */
                                 break;
 
                             default:
