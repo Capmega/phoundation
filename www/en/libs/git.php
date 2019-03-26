@@ -292,7 +292,7 @@ function git_apply($file){
         $data = array_pop($data);
 
         if(strstr($data, 'patch does not apply')){
-            throw new BException(tr('git_apply(): Failed to apply patch ":file"', array(':file' => $file)), 'failed');
+            throw new BException(tr('git_apply(): patch ":file" does not apply', array(':file' => $file)), 'failed');
         }
 
         throw new BException('git_apply(): Failed', $e);
