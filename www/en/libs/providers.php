@@ -284,4 +284,37 @@ function providers_get($provider, $column = null, $status = null, $categories_id
         throw new BException('providers_get(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Return a list of all available providers
+ *
+ * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @template Function reference
+ * @package providers
+ * @see sql_simple_list()
+ * @version 2.5.50: Added function and documentation
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available templates
+ */
+function providers_list($params){
+    try{
+        array_ensure($params);
+        array_default($params, 'columns', 'seoname,name');
+        array_default($params, 'orderby', array('name' => 'asc'));
+
+        $params['table'] = 'providers';
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException('providers_list(): Failed', $e);
+    }
+}
 ?>
