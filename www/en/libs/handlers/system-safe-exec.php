@@ -153,7 +153,7 @@ under_construction();
                 throw new BException(tr('safe_exec(): Received exitcode 124 from executed program, which very likely is a timeout'), 124);
             }
 
-            throw new BException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode, $output);
+            throw new BException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode);
         }
     }
 
@@ -161,7 +161,7 @@ under_construction();
 
 }catch(Exception $e){
     if(!isset($output)){
-        $output = '*** NO OUTPUT AVAILABLE, COMMAND HAS NOT YET BEEN EXECUTED ***';
+        $output = '*** COMMAND HAS NOT YET BEEN EXECUTED ***';
     }
 
     /*
