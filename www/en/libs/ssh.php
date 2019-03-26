@@ -1391,7 +1391,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
 
         $port       = ssh_get_port($port);
         $db_count   = sql_get('SELECT COUNT(`id`) FROM `ssh_fingerprints` WHERE `domain` = :domain AND `port` = :port', true, array('domain' => $domain, ':port' => $port), 'core');
-        $file_count = safe_exec(array('commands' => array('grep', array('"\['.$domain.'\]:'.$port.'"', ROOT.'data/ssh/known_hosts', 'connect' => '|'),
+        $file_count = safe_exec(array('commands' => array('grep', array('"\['.$domain.'\]:'.$port.'"', ROOT.'data/ssh/known_hosts', 'connector' => '|'),
                                                           'wc'  , array('-l'))));
         $file_count = array_shift($file_count);
 

@@ -701,7 +701,7 @@ class ValidateForm {
                 return true;
             }
 
-            if($this->not xor !isScalar($value)){
+            if($this->not xor !is_scalar($value)){
                 return $this->setError($message);
             }
 
