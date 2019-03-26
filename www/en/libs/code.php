@@ -871,7 +871,8 @@ function code_file_exists_in_toolkit($file){
  */
 function code_diff($file, $file2){
     try{
-        return safe_exec(array('commands' => array('diff', array($file, $file2))));
+        return safe_exec(array('ok_exitcodes' => 1,
+                               'commands'     => array('diff', array($file, $file2))));
 
     }catch(Exception $e){
         throw new BException('code_diff(): Failed', $e);
