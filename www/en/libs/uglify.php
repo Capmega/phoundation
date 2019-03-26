@@ -334,7 +334,7 @@ function uglify_css($paths = null, $force = false){
                      * Compress file
                      */
                     log_console(tr('uglify_css(): Compressing CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                    file_delete(substr($file, 0, -4).'.min.css');
+                    file_delete(substr($file, 0, -4).'.min.css', false, false, ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css');
 
                     try{
                         if(filesize($file)){
@@ -370,7 +370,7 @@ function uglify_css($paths = null, $force = false){
                     }
 
                 }catch(Exception $e){
-                    log_console(tr('Failed to compress CSS file ":file"', array(':file' => $file)), 'yellow');
+                    log_console(tr('Failed to compress CSS file ":file" because ":e"', array(':file' => $file, ':e' => $e->getMessage())), 'yellow');
                 }
             }
         }
@@ -676,7 +676,7 @@ function uglify_js($paths = null, $force = false){
                      * Compress file
                      */
                     log_console(tr('uglify_js(): Compressing javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                    file_delete(substr($file, 0, -3).'.min.js');
+                    file_delete(substr($file, 0, -3).'.min.js', false, false, ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css');
 
                     try{
                         if(filesize($file)){
@@ -712,7 +712,7 @@ function uglify_js($paths = null, $force = false){
                     }
 
                 }catch(Exception $e){
-                    log_console(tr('Failed to compress javascript file ":file"', array(':file' => $file)), 'yellow');
+                    log_console(tr('Failed to compress javascript file ":file" because ":e"', array(':file' => $file, ':e' => $e->getMessage())), 'yellow');
 
                 }
             }
