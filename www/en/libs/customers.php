@@ -358,6 +358,7 @@ function customers_select($params = null){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package customers
+ * @version 2.5.50: Added function and documentation
  *
  * @param mixed $customer The requested customer. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
@@ -440,6 +441,7 @@ function customers_get($params){
  * @template Function reference
  * @package customers
  * @see sql_simple_list()
+ * @version 2.5.50: Added function and documentation
  *
  * @param params $params The list parameters
  * @return mixed The list of available templates
