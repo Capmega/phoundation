@@ -1720,7 +1720,9 @@ function cli_build_commands_string(&$params){
 
         array_default($params, 'timeout'     , $_CONFIG['exec']['timeout']);
         array_default($params, 'route_errors', true);
+        array_default($params, 'function'    , 'exec');
         array_default($params, 'background'  , false);
+        array_default($params, 'delay'       , 0);
 
         if(!is_array($params['commands'])){
             throw new BException(tr('cli_build_commands_string(): Specified commands is not an array'), 'invalid');
@@ -1731,6 +1733,15 @@ function cli_build_commands_string(&$params){
          */
         if(count($params['commands']) == 1){
             $params['commands'][] = array();
+        }
+
+        if($params['delay']){
+            if(!is_numeric($params['delay']) or ($params['delay'] < 0)){
+                throw new BException(tr('cli_build_commands_string(): Invalid delay ":delay" specified. Please specify a valid amount of seconds, like 1, 0.5, .4, 3.9, 7, etc.', array(':delay' => $params['delay'])), 'invalid');
+            }
+
+            array_unshift($params['commands'], array($params['delay']));
+            array_unshift($params['commands'], 'sleep');
         }
 
         /*
@@ -1765,6 +1776,7 @@ function cli_build_commands_string(&$params){
                 $command   = escapeshellcmd(mb_trim($value));
                 $sudo      = false;
                 $redirect  = '';
+                $prefix    = '';
                 $nice      = '';
                 $connector = ';';
                 $builtin   = false;
@@ -1840,7 +1852,33 @@ function cli_build_commands_string(&$params){
                         /*
                          * This is a normal argument
                          */
-                        $argument = escapeshellarg(mb_trim($argument));
+                        if($argument[0] === '$'){
+                            /*
+                             * Apparently this is a variable which should not be
+                             * quoted. Ensure there is no funny stuff going on
+                             * here
+                             */
+                            $argument = mb_trim($argument);
+
+                            if(strlen($argument) == 2){
+                                $valid = preg_match('/^\$[0-9#?$!-*@]$/i', $argument);
+
+                            }else{
+                                $valid = preg_match('/^\${?[A-Z_]+(?:\[[0-9]\])?}?$/i', $argument);
+                            }
+
+                            if(!$valid){
+                                throw new BException(tr('cli_build_commands_string(): Encountered what appears to be an invalid shell variable ":variable". Shell variables are only allowed to use A-Z, -, and _', array(':variable' => $argument)), 'invalid');
+                            }
+
+                            /*
+                             * This appears to be a valid shell variable. Do not
+                             * escape it
+                             */
+
+                        }else{
+                            $argument = escapeshellarg(mb_trim($argument));
+                        }
 
                     }else{
                         /*
@@ -1895,6 +1933,12 @@ function cli_build_commands_string(&$params){
                                 unset($value[$special]);
                                 break;
 
+                            case 'prefix':
+                                $prefix = ' '.$argument.' ';
+
+                                unset($value[$special]);
+                                break;
+
                             default:
                                 switch($special){
                                     case 'connect':
@@ -1908,8 +1952,10 @@ function cli_build_commands_string(&$params){
                 unset($argument);
 
                 $command .= ' '.implode(' ', $value);
-                $command .= $route;
             }
+
+            $command .= $route;
+            $command  = $prefix.$command;
 
             if(!$builtin and !$background){
                 $command  = $timeout.$command;
