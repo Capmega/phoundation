@@ -56,17 +56,7 @@ function git_library_init(){
  */
 function git_is_repository($path = ROOT){
     try{
-        git_check_path($path);
-
-        while($path){
-            if(file_exists(slash($path).'.git')){
-                return true;
-            }
-
-            $path = str_runtil($path, '/');
-        }
-
-        return false;
+        return git_check_path($path);
 
     }catch(Exception $e){
         throw new BException('git_is_repository(): Failed', $e);
@@ -99,7 +89,7 @@ function git_is_available(){
 
 
 /*
- * Ensure the path is specified and exists
+ * Ensure the path is specified, exists, and contains a git repository
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -108,9 +98,9 @@ function git_is_available(){
  * @package git
  *
  * @param string $path
- * @return
+ * @return The specified path, checked
  */
-function git_check_path(&$path){
+function git_check_path($path){
     static $paths;
 
     try{
@@ -130,8 +120,8 @@ function git_check_path(&$path){
             throw new BException(tr('git_check_path(): Specified path ":path" is not a git repository', array(':path' => $path)), 'git');
         }
 
-        $paths[$path] = true;
-        return true;
+        $paths[$path] = $path;
+        return $path;
 
     }catch(Exception $e){
         throw new BException('git_check_path(): Failed', $e);
@@ -157,7 +147,7 @@ function git_check_path(&$path){
 function git_exec($path, $arguments, $check_path = true){
     try{
         if($check_path){
-            git_check_path($path);
+            $path = git_check_path($path);
         }
 
         git_wait_no_process($path);
@@ -316,8 +306,6 @@ function git_apply($file){
  */
 function git_branch($branch = null, $path = ROOT){
     try{
-        git_check_path($path);
-
         if($branch){
             /*
              * Set the branch
@@ -364,8 +352,6 @@ function git_branch($branch = null, $path = ROOT){
  */
 function git_list_branches($path = ROOT, $all = false){
     try{
-        git_check_path($path);
-
         /*
          * Get and return the branch
          */
@@ -536,7 +522,6 @@ function git_diff($file, $color = false){
 function git_show($commit, $path = ROOT, $params = null){
     try{
         array_ensure($params, 'check');
-        git_check_path($path);
 
         $arguments = array('show');
 
@@ -572,7 +557,6 @@ function git_show($commit, $path = ROOT, $params = null){
 function git_fetch($path = ROOT, $params = null){
     try{
         array_params($params, 'tags,all');
-        git_check_path($path);
 
         $arguments = array('fetch');
 
@@ -790,8 +774,6 @@ function git_reset($commit = 'HEAD', $path = ROOT, $params = null){
  */
 function git_status($path = ROOT, $filters = null){
     try{
-        git_check_path($path);
-
         /*
          * Check if we dont have any changes that should be committed first
          */
