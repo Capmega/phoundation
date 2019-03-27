@@ -111,6 +111,10 @@ function notifications($notification, $log, $throw){
         return $notification['id'];
 
     }catch(Exception $e){
+        if(!$_CONFIG['production']){
+            throw new BException(tr('notifications(): Failed'), $e);
+        }
+
         if(is_array($notification) and !empty($notification['exception'])){
             /*
              * This is just the notification being thrown as an exception, keep
@@ -120,8 +124,8 @@ function notifications($notification, $log, $throw){
             throw $e;
         }
 
-        log_console(tr('notifications(): Notification system failed with ":exception"', array(':exception' => $e->getMessage())), 'error');
-        log_console(tr('notifications(): No further exception will be thrown to avoid that one causing another notification which then would cause an endless loop'), 'error');
+        log_console(tr('notifications(): Notification system failed with ":exception"', array(':exception' => $e->getMessage())), 'warning');
+        log_console(tr('notifications(): No further exception will be thrown to avoid that one causing another notification which then would cause an endless loop'), 'warning');
 
         if($core->register['script'] != 'init'){
             if(empty($_CONFIG['mail']['developer'])){
@@ -130,7 +134,12 @@ function notifications($notification, $log, $throw){
                 log_console('WARNING! $_CONFIG[mail][developer] IS NOT SET, EMERGENCY NOTIFICATIONS CANNOT BE SENT!', 'error');
 
             }else{
-                mail($_CONFIG['mail']['developer'], '[notifications() FAILED : '.strtoupper(isset_get($_SESSION['domain'], $_CONFIG['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', "notifications() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification data was:\nEvent: \"".json_encode_custom($notification)."\"");
+                load_libs('email');
+                log_console(tr('Attempting to send out a notification email to the $_CONFIG[mail][developer] email ":email" to let them know the notification system has failed', array(':email' => $_CONFIG['mail']['developer'])), 'warning');
+
+                email_send(array('to'      => $_CONFIG['mail']['developer'],
+                                 'subject' => '[notifications() FAILED : '.strtoupper(isset_get($_SESSION['domain'], $_CONFIG['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', "notifications() failed with: ".implode("\n", $e->getMessages()),
+                                 'body'    => "Original notification data was:\nEvent: \"".json_encode_custom($notification)."\""));
             }
         }
     }
@@ -262,11 +271,16 @@ function notifications_validate($notification, $log){
          * Validate priority
          */
         if(!$notification['priority']){
-            $notification['priority'] = $_CONFIG['notifications']['defaults']['priority'];
+            $notification['priority'] = isset_get($_CONFIG['notifications']['defaults']['priority']);
         }
 
-        $v->isNatural($notification['priority'], 0, tr('Please ensure that the notification priority is a natural number'));
-        $v->isBetween($notification['priority'], 0, 9, tr('Please ensure that the notification priority is a natural number between 0 (highest) and 9 (lowest)'));
+        if($notification['priority']){
+            $v->isNatural($notification['priority'], 0, tr('Please ensure that the notification priority is a natural number'));
+            $v->isBetween($notification['priority'], 0, 9, tr('Please ensure that the notification priority is a natural number between 0 (highest) and 9 (lowest)'));
+
+        }else{
+            $notification['priority'] = 5;
+        }
 
         /*
          * Default groups
