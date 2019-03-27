@@ -143,7 +143,7 @@ $_CONFIG['db']                 = array('default'                            => '
 $_CONFIG['domain']             = 'auto';                                                                                                    // The base domain of this website. for example, "mywebsite.com",  "thisismine.com.mx", etc. If set to "auto" it will use $_SERVER[SERVER_NAME]
 
 // Exec configuration
-$_CONFIG['exec']               = array('path'                               => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',  // The path used by safe_exec()
+$_CONFIG['exec']               = array('path'                               => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin',  // The default path used by safe_exec()
                                        'timeout'                            => 10);
 
 // Feedback configuration
