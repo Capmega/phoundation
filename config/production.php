@@ -16,11 +16,11 @@ $_CONFIG['db']['core']['timezone']                                              
 $_CONFIG['domain']                                                              = 'phoundation.org';
 
 // Date / time format configuration
-$_CONFIG['formats']                                                             = array('date'           => 'Ymd',
-                                                                                        'time'           => 'YmdHis',
-                                                                                        'human_date'     => 'F j, Y',
-                                                                                        'human_time'     => 'H:i:s A',
-                                                                                        'human_datetime' => 'd/m/Y H:i:s A');
+$_CONFIG['formats']['date']                                                     = 'Ymd';
+$_CONFIG['formats']['time']                                                     = 'YmdHis';
+$_CONFIG['formats']['human_date']                                               = 'F j, Y';
+$_CONFIG['formats']['human_time']                                               = 'H:i:s A';
+$_CONFIG['formats']['human_datetime']                                           = 'd/m/Y H:i:s A';
 
 // Mail configuration
 $_CONFIG['mail']['developers']                                                  = array(array('name'  => '',
