@@ -582,19 +582,35 @@ function image_interlace_valid($value, $source = false){
 
 
 /*
- * Is this an image?
+ * Validates if the specified file is an image and optionally if the minimim image width and heights are okay
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package image
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param string $file
+ * @return string The image mimetype
  */
-function image_is_valid($filename, $minw = 0, $minh = 0) {
+function image_is_valid($file, $min_width = 0, $min_height = 0) {
     try{
-        if(!$img_size = getimagesize($filename)){
-            throw new BException('image_is_valid(): File "'.str_log($filename).'" is not an image');
+        $mimetype = file_mimetype($file);
+
+        if(str_until($mimetype, '/') !== 'image'){
+            throw new BException(tr('image_is_valid(): Specified file ":file" is not an image but an ":mimetype"', array(':file' => $file, ':mimetype' => $mimetype)));
         }
 
-        if(($img_size[0] < $minw) or ($img_size[1] < $minh)) {
-            throw new BException('image_is_valid(): File "'.str_log($filename).'" has wxh "'.str_log($img_size[0].'x'.$img_size[1]).'" where a minimum wxh of "'.str_log($minw.'x'.$minh).'" is required');
+        if(!$img_size = getimagesize($file)){
+            throw new BException(tr('image_is_valid(): Failed to get width / height data from specified image ":file"', array(':file' => $file)));
         }
 
-        return true;
+        if(($img_size[0] < $min_width) or ($img_size[1] < $min_height)) {
+            throw new BException(tr('image_is_valid(): File ":file" has width x height ":actual" where a minimum wxh of ":required" is required', array(':file' => $file, ':actual' => $img_size[0].' x '.$img_size[1], ':required' => $min_width.' x '.$min_height)));
+        }
+
+        return $mimetype;
 
     }catch(Exception $e){
         throw new BException('image_is_valid(): Failed', $e);
@@ -1217,6 +1233,55 @@ function image_slider($params = null){
 
     }catch(Exception $e){
         throw new BException('image_slider(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Modify the specified image to make it look glitched
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package image
+ *
+ * @param string $file The image to be modified
+ * @param null mixed $server The server on which to execute this glitch command
+ * @return string The result
+ */
+function image_glitch($file, $server = null){
+    try{
+        $mimetype = image_is_valid($file);
+
+        if(str_from($mimetype, '/') !== 'png'){
+            throw new BException(tr('image_glitch(): This function only supports PNG images. The specified file ":file" is a ":type" type file', array(':file' => $file, ':type' => str_from($mimetype, '/'))), 'not-supported');
+        }
+
+        $file_out = file_temp();
+
+        if($server){
+// :TODO: Git doesnt support multi server yet
+under_construction();
+        }
+
+        load_libs('go');
+
+        if(!go_exists('corrupter/corrupter')){
+            log_console('Corrupter program not setup yet, creating now');
+            load_libs('git');
+            linux_file_delete($server, ROOT.'data/go/corrupter', false, false, false);
+            git_clone('https://github.com/r00tman/corrupter', ROOT.'data/go');
+            go_build(ROOT.'data/go/corrupter', $server);
+        }
+
+        go_exec(array('commands' => array('corrupter/corrupter', array($file, $file_out))));
+
+        return $file_out;
+
+    }catch(Exception $e){
+        throw new BException(tr('image_glitch(): Failed'), $e);
     }
 }
 

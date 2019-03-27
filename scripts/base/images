@@ -166,6 +166,19 @@ $params['y']                = not_empty(cli_argument('--height', true)   , cli_a
 $now = date_convert(null, 'Ymd-His');
 
 switch(cli_method()){
+    case 'glitch':
+        $file   = cli_argument(1);
+        $output = cli_argument(2);
+        cli_no_arguments_left();
+
+        if(!$output){
+            throw new BException(tr('No output file specified'), 'not-specified');
+        }
+
+        $file   = image_glitch($file);
+        rename($file, $output);
+        break;
+
     case 'retina':
         $count = 0;
         $all   = not_empty(cli_argument('--all'), cli_argument('-a'));
