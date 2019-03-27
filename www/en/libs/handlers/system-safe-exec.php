@@ -117,13 +117,21 @@ try{
             $output   = array();
             $lastline = '';
 
-            passthru($params['commands']);
+            passthru($params['commands'], $exitcode);
 
             /*
              * Get output and exitcode from temp files
              */
-            $exitcode = trim(file_get_contents($exitcode_file));
-            $output   = file($output_file);
+            if(file_exists($exitcode_file)){
+                $exitcode = trim(file_get_contents($exitcode_file));
+            }
+
+            if(file_exists($output_file)){
+                $output = file($output_file);
+
+            }else{
+                $output = '';
+            }
 
             /*
              * Delete the temp files
