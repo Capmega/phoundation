@@ -723,8 +723,12 @@ function file_mimetype($file){
 
     try{
         /*
-         * Check the source file
+         * Check the specified file
          */
+        if(!$file){
+            throw new BException(tr('file_mimetype(): No file specified'), 'not-specified');
+        }
+
         if(!is_file($file)){
             if(!file_exists($file)){
                 throw new BException(tr('file_mimetype(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
@@ -2765,7 +2769,7 @@ function file_restrict($params, $restrictions = null){
         /*
          * Disable all restrictions?
          */
-        if(!empty($params['unrestricted'])){
+        if(!empty($params['unrestricted']) or ($restrictions === false)){
             /*
              * No restrictions required
              */
