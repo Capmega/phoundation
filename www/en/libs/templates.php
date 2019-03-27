@@ -234,15 +234,16 @@ function templates_update($template){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference
  * @package templates
+ * @see sql_simple_get()
  * @version 2.5.38: Added function and documentation
  *
- * @param mixed $template The requested template. Can either be specified by id (natural number) or string (seoname)
- * @param string $column The specific column that has to be returned
- * @param string $status
- * @param string $parent
+ * @param params $params The parameters for this get request
+ * @param string $params[columns] The specific column that has to be returned
+ * @param string $params[filters]
+ * @param string $params[joins]
  * @return mixed The template data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified template does not exist, NULL will be returned.
  */
-function templates_get($template, $column = null, $status = null, $parent = false){
+function templates_get($params){
     try{
         array_ensure($params, 'seotemplate');
 
@@ -300,6 +301,14 @@ function templates_list($params){
         array_ensure($params);
 
         $params['table'] = 'templates';
+
+        array_default($params, 'columns', array('templates.seoname,templates.name'));
+
+        array_default($params, 'filters', array('foobar.status'     => 'available',
+                                                'templates.status'  => null));
+
+        array_default($params, 'joins'  , array('LEFT JOIN `foobar`
+                                                 ON        `foobar`.`id` = `templates`.`foobar_id`'));
 
         return sql_simple_list($params);
 
