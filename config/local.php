@@ -16,6 +16,10 @@ $_CONFIG['cdn']['bundler']['enabled']                                           
 // Mail configuration
 $_CONFIG['mail']['developer']                                                   = 'support@capmega.com';
 
+// Database configuration
+$_CONFIG['db']['core']['user']                                                  = 'base';
+$_CONFIG['db']['core']['pass']                                                  = 'base';
+
 //domain
 $_CONFIG['domain']                                                              = 'phoundation.org.l.cpamega.com';
 
