@@ -2366,7 +2366,8 @@ function sql_simple_list($params){
         $joins    = str_force($params['joins'], ' ');
         $where    = sql_get_where_string($params['filters'], $execute, $params['table']);
         $orderby  = sql_get_orderby_string($params['orderby']);
-        $resource = sql_query(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where.$orderby, $execute, $params['connector']);
+        $limit    = sql_limit($params['limit'], $params['page']);
+        $resource = sql_query(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where.$orderby.$limit, $execute, $params['connector']);
 
         /*
          * Execute query and return results
@@ -2438,6 +2439,8 @@ function sql_simple_get($params){
         array_default($params, 'single'     , null);
         array_default($params, 'filters'    , array('status' => null));
         array_default($params, 'auto_status', null);
+        array_default($params, 'limit'      , null);
+        array_default($params, 'page'       , null);
 
         $params['columns'] = array_force($params['columns']);
 
@@ -2459,9 +2462,9 @@ function sql_simple_get($params){
             $params['single'] = true;
         }
 
-        $columns  = sql_get_columns_string($params['columns'], $params['table']);
-        $joins    = str_force($params['joins'], ' ');
-        $where    = sql_get_where_string($params['filters'], $execute, $params['table']);
+        $columns = sql_get_columns_string($params['columns'], $params['table']);
+        $joins   = str_force($params['joins'], ' ');
+        $where   = sql_get_where_string($params['filters'], $execute, $params['table']);
 
         return sql_get(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where, $execute, $params['single'], $params['connector']);
 
