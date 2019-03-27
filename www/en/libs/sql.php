@@ -287,8 +287,8 @@ function sql_get($query, $single_column = null, $execute = null, $connector = nu
             $query = $query->queryString;
         }
 
-        if(strtolower(substr(trim($query), 0, 6)) != 'select'){
-            throw new BException('sql_get(): Query "'.str_log(debug_sql($query, $execute, true), 4096).'" is not a select query and as such cannot return results', $e);
+        if((strtolower(substr(trim($query), 0, 6)) !== 'select') and (strtolower(substr(trim($query), 0, 4)) !== 'show')){
+            throw new BException('sql_get(): Query "'.str_log(debug_sql($query, $execute, true), 4096).'" is not a select or show query and as such cannot return results', $e);
         }
 
         throw new BException('sql_get(): Failed', $e);
