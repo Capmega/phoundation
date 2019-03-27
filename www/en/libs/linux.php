@@ -131,14 +131,21 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
  */
 function linux_file_exists($server, $path){
     try{
+        if($server === null){
+            /*
+             * Do this locally!
+             */
+            return file_exists($path);
+        }
+
         $server  = servers_get($server);
         $results = servers_exec($server, array('ok_exitcodes' => '0,2',
                                                'commands'     => array('ls', array($path))));
 
+under_construction();
         return true;
 
     }catch(Exception $e){
-showdie($e);
         throw new BException('linux_file_exists(): Failed', $e);
     }
 }
@@ -191,8 +198,13 @@ function linux_scandir($server, $path){
  * @return void
  */
 // :SECURITY: $pattern is NOT checked!!
-function linux_file_delete($server, $patterns, $clean_path = false, $sudo = false){
+function linux_file_delete($server, $patterns, $clean_path = false, $sudo = false, $restrictions = null){
     try{
+        if(!$server){
+            return file_delete($patterns, $clean_path, $sudo, $restrictions);
+        }
+
+// :TODO: Implement restrictions
         if(!$patterns){
             throw new BException('linux_file_delete(): No files or patterns specified');
         }
@@ -598,6 +610,13 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
     global $_CONFIG;
 
     try{
+        if($server === null){
+            /*
+             * Do this locally!
+             */
+            return file_ensure_path($path, $mode, $clear);
+        }
+
         if(!$mode){
             $mode = $_CONFIG['fs']['dir_mode'];
         }
@@ -883,6 +902,41 @@ function linux_download($server, $url, $section = false, $callback = null){
 
     }catch(Exception $e){
         throw new BException('linux_download(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Ensure that the specified command is available. If the command is not available, the specified packages will be installed automatically to ensure the commands will be available
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @version 2.4.11: Added function and documentation
+ *
+ * @param mixed $server
+ * @param string $command The command that has to exists -found with linux_which()-
+ * @param list $packages The packages that must be installed in case the specified command was not found
+ * @return mixed null if the command exists and nothing had to be done, the output from linux_install_package() if the command didn't exist and the specified package had to be installed
+ */
+function linux_ensure_package($server, $command, $packages){
+    try{
+        $exists = linux_which($server, $command);
+
+        if($exists){
+            /*
+             * The requested commands are available
+             */
+            return null;
+        }
+
+        return linux_install_package($server, $packages);
+
+    }catch(Exception $e){
+        throw new BException('linux_ensure_package(): Failed', $e);
     }
 }
 
