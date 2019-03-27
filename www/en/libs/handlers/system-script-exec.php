@@ -13,7 +13,7 @@ try{
      * when the system is ready to go
      */
     if(!$core->register['ready']){
-        throw new BException(tr('script_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
+        throw new BException(tr('script_exec(): Startup has not yet finished and base is not ready to start working properly. script_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
     if(!$params['commands']){
@@ -53,15 +53,6 @@ try{
             $item[] = '-E';
             $item[] = ENVIRONMENT;
         }
-    }
-
-    if($params['delay']){
-        if(!is_numeric($params['delay']) or ($params['delay'] < 0)){
-            throw new BException(tr('script_exec(): Invalid delay ":delay" specified. Please specify a valid amount of seconds, like 1, 0.5, .4, 3.9, 7, etc.', array(':delay' => $params['delay'])), 'invalid');
-        }
-
-        array_unshift($params['commands'], array($params['delay']));
-        array_unshift($params['commands'], 'sleep');
     }
 
     /*

@@ -59,13 +59,16 @@ try{
         $color = (PLATFORM_HTTP ? '' : ($params['log'] ? '' : 'VERY')).'VERBOSE/cyan';
     }
 
-    log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
+//    $params['commands'] = 'set -uo pipefail; '.$params['commands'];
+    $params['commands'] = 'set -u; '.$params['commands'];
+    $params['commands'] = trim($params['commands']);
 
     /*
      * Execute the command
      */
     switch($params['function']){
         case 'exec':
+            log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
             $lastline = exec($params['commands'], $output, $exitcode);
 
             if($params['background']){
@@ -79,6 +82,8 @@ try{
             break;
 
         case 'shell_exec':
+            log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
+
             if($params['background']){
                 throw new BException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the shell_exec()', array(':command' => $params['commands'])), 'not-supported');
             }
@@ -89,6 +94,22 @@ try{
             break;
 
         case 'passthru':
+            /*
+             * Execute the file and dump the raw output directly to the client
+             * This method will modify the command to be executed slightly so
+             * that all output is routed through tee to a temp file, and the
+             * exit code will be stored in a temp file as well. The contents of
+             * these temp files will then be used to proceed equal to exec()
+             */
+            $exitcode_file = file_temp();
+            $output_file   = file_temp();
+
+            $params['commands'] = trim($params['commands']);
+            $params['commands'] = str_ends_not($params['commands'], ';');
+            $params['commands'] = 'bash -c "set -o pipefail; '.$params['commands'].' | tee '.$output_file.'"; echo $? > '.$exitcode_file;
+
+            log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
+
             if($params['background']){
                 throw new BException(tr('safe_exec(): The specified command ":command" requires background execution which is not supported by PHP passthru()', array(':command' => $params['commands'])), 'not-supported');
             }
@@ -96,8 +117,19 @@ try{
             $output   = array();
             $lastline = '';
 
-            passthru($params['commands'], $exitcode);
-            $output = $exitcode;
+            passthru($params['commands']);
+
+            /*
+             * Get output and exitcode from temp files
+             */
+            $exitcode = trim(file_get_contents($exitcode_file));
+            $output   = file($output_file);
+
+            /*
+             * Delete the temp files
+             */
+            file_delete($output_file);
+            file_delete($exitcode_file);
             break;
 
         case 'system':
@@ -114,6 +146,7 @@ try{
             break;
 
         case 'pcntl_exec':
+            log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
 under_construction();
             break;
 
@@ -131,43 +164,42 @@ under_construction();
     }
 
     /*
-     *
+     * Shell command reported something went wrong (possibly)
      */
     if($exitcode){
         if(!in_array($exitcode, array_force($params['ok_exitcodes']))){
-            log_console(tr('Command ":command" failed with exit code ":exitcode", see output below for more information', array(':command' => $params['commands'], ':exitcode' => $exitcode)), 'VERBOSE/warning');
+            log_console(tr('Command ":command" stopped with exit code ":exitcode". This may be a problem, or no problem at all. See output below for more information', array(':command' => $params['commands'], ':exitcode' => $exitcode)), 'VERBOSE/warning');
 
-// :DELETE: Since the exception will already log all the information, there is no need to log it separately
-            //if($output){
-            //    log_file($output, 'safe_exec', 'error');
-            //
-            //}elseif(empty($lasline)){
-            //    log_file(tr('Command has no output'), 'safe_exec', 'error');
-            //
-            //}else{
-            //    log_file(tr('Command only had last line (shown below)'), 'safe_exec', 'error');
-            //    log_file($lasline, 'safe_exec', 'error');
-            //}
-
-            if($exitcode === 124){
-                throw new BException(tr('safe_exec(): Received exitcode 124 from executed program, which very likely is a timeout'), 124);
+            if(!isset($output)){
+                $output = '*** NO OUTPUT AVAILABLE, COMMAND PROBABLY HAS NOT YET BEEN EXECUTED ***';
             }
 
-            throw new BException(tr('safe_exec(): Command ":command" failed with exit code ":exitcode", see attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode);
+            if($exitcode === 124){
+                throw new BException(tr('safe_exec(): Received exitcode 124 from executed program, which very likely is a timeout'), 124, $output);
+            }
+
+            throw new BException(tr('safe_exec(): Command ":command" stopped with exit code ":exitcode". This may be a problem, or no problem at all. See attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode, $output);
         }
     }
 
     return $output;
 
 }catch(Exception $e){
-    if(!isset($output)){
-        $output = '*** COMMAND HAS NOT YET BEEN EXECUTED ***';
-    }
-
     /*
      * Store the output in the data property of the exception
      */
-    $e->setData($output);
+    if($params['function'] === 'passthru'){
+        /*
+         * passthru method creates temp files. Ensure they are deleted
+         */
+        if(isset($exitcode_file)){
+            file_delete($exitcode_file);
+        }
+
+        if(isset($exitcode_file)){
+            file_delete(isset_get($exitcode_file));
+        }
+    }
 
     if($e->getRealCode() === 124){
         throw new BException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);

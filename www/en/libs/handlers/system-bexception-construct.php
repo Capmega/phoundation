@@ -38,7 +38,7 @@ if(is_object($code)){
     $code       = $e->getCode();
 
     if($data){
-        $this->data = $data;
+        $this->data = array_force($data);
 
     }elseif(method_exists($e, 'getData')){
         $this->data = $e->getData();
@@ -50,7 +50,7 @@ if(is_object($code)){
     }
 
     $orgmessage = reset($messages);
-    $this->data = $data;
+    $this->data = array_force($data);
 }
 
 if(!$messages){

@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.59');
+define('FRAMEWORKCODEVERSION', '2.5.60');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -569,7 +569,7 @@ class BException extends Exception{
      * @param mixed $data The content for this exception
      */
     public function setData($data){
-        $this->data = $data;
+        $this->data = array_force($data);
     }
 
 
