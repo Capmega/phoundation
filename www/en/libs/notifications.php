@@ -111,7 +111,7 @@ function notifications($notification, $log, $throw){
         return $notification['id'];
 
     }catch(Exception $e){
-        if(is_array($notification) and $notification['exception']){
+        if(is_array($notification) and !empty($notification['exception'])){
             /*
              * This is just the notification being thrown as an exception, keep
              * on throwing
@@ -130,7 +130,7 @@ function notifications($notification, $log, $throw){
                 log_console('WARNING! $_CONFIG[mail][developer] IS NOT SET, EMERGENCY NOTIFICATIONS CANNOT BE SENT!', 'error');
 
             }else{
-                mail($_CONFIG['mail']['developer'], '[notifications() FAILED : '.strtoupper(isset_get($_SESSION['domain'], $_CONFIG['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', "notifications() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification event was:\nEvent: \"".cfm($event)."\"\nMessage: \"".cfm($message)."\"");
+                mail($_CONFIG['mail']['developer'], '[notifications() FAILED : '.strtoupper(isset_get($_SESSION['domain'], $_CONFIG['domain'])).' / '.strtoupper(php_uname('n')).' / '.strtoupper(ENVIRONMENT).']', "notifications() failed with: ".implode("\n", $e->getMessages())."\n\nOriginal notification data was:\nEvent: \"".json_encode_custom($notification)."\"");
             }
         }
     }
