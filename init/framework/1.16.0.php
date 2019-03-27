@@ -1,32 +1,5 @@
 <?php
 /*
- * Add projects table
- */
-sql_query('DROP TABLE IF EXISTS `projects`');
-
-sql_query('CREATE TABLE `projects` (`id`         INT(11)     NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                                    `createdon`  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `createdby`  INT(11)         NULL,
-                                    `modifiedon` TIMESTAMP       NULL,
-                                    `modifiedby` INT(11)         NULL,
-                                    `status`     VARCHAR(16)     NULL,
-                                    `name`       VARCHAR(64)     NULL,
-                                    `api_key`    VARCHAR(16)     NULL,
-                                    `last_login` TIMESTAMP       NULL,
-
-                                    INDEX (`createdon`),
-                                    INDEX (`createdby`),
-                                    INDEX (`modifiedon`),
-                                    INDEX (`modifiedby`),
-
-                                    UNIQUE(`name`),
-
-                                    CONSTRAINT `fk_projects_createdby`  FOREIGN KEY (`createdby`)  REFERENCES `users`  (`id`) ON DELETE RESTRICT,
-                                    CONSTRAINT `fk_projects_modifiedby` FOREIGN KEY (`modifiedby`) REFERENCES `users`  (`id`) ON DELETE RESTRICT
-                                    ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
-
-
-/*
  * (Re?) add projects table, if needed
  * Add tables for new categories library
  * Add tables for new projects library
@@ -48,10 +21,6 @@ sql_foreignkey_exists('customers', 'fk_customers_categories_id', 'ALTER TABLE `c
 sql_foreignkey_exists('customers', 'fk_customers_documents_id' , 'ALTER TABLE `customers` DROP FOREIGN KEY `fk_customers_documents_id`');
 
 sql_foreignkey_exists('providers', 'fk_providers_categories_id', 'ALTER TABLE `providers` DROP FOREIGN KEY `fk_providers_categories_id`');
-
-sql_foreignkey_exists('projects', 'fk_projects_steps_id'     , 'ALTER TABLE `projects` DROP FOREIGN KEY `fk_projects_steps_id`');
-sql_foreignkey_exists('projects', 'fk_projects_processes_id' , 'ALTER TABLE `projects` DROP FOREIGN KEY `fk_projects_processes_id`');
-sql_foreignkey_exists('projects', 'fk_projects_categories_id', 'ALTER TABLE `projects` DROP FOREIGN KEY `fk_projects_categories_id`');
 
 sql_foreignkey_exists('storage_documents', 'fk_storage_documents_processes_id', 'ALTER TABLE `storage_documents` DROP FOREIGN KEY `fk_storage_documents_processes_id`');
 sql_foreignkey_exists('storage_documents', 'fk_storage_documents_steps_id'    , 'ALTER TABLE `storage_documents` DROP FOREIGN KEY `fk_storage_documents_steps_id`');
@@ -140,28 +109,6 @@ sql_query('CREATE TABLE `categories` (`id`          INT(11)       NOT NULL AUTO_
                                     ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 
-sql_column_exists('projects', 'seoname', '!ALTER TABLE `projects` ADD COLUMN `seoname` VARCHAR(64) AFTER `name`');
-
-sql_column_exists('projects', 'seoname', '!ALTER TABLE `projects` ADD COLUMN `seoname` VARCHAR(64) AFTER `name`');
-sql_query('ALTER TABLE `projects` CHANGE COLUMN `api_key` `api_key` VARCHAR(64)');
-
-sql_column_exists('projects', 'code', '!ALTER TABLE `projects` ADD COLUMN `code` VARCHAR(32) NULL DEFAULT NULL AFTER `seoname`');
-sql_index_exists ('projects', 'code', '!ALTER TABLE `projects` ADD UNIQUE KEY `code` (`code`)');
-
-sql_column_exists('projects', 'customers_id', '!ALTER TABLE `projects` ADD COLUMN `customers_id` INT(11) NULL DEFAULT NULL AFTER `status`');
-sql_index_exists ('projects', 'customers_id', '!ALTER TABLE `projects` ADD KEY `customers_id` (`customers_id`)');
-
-sql_column_exists('projects', 'modifiedon',  'ALTER TABLE `projects` DROP COLUMN `modifiedon`');
-
-sql_foreignkey_exists('projects', 'fk_projects_modifiedby', 'ALTER TABLE `projects` DROP FOREIGN KEY `fk_projects_modifiedby`');
-sql_index_exists ('projects', 'modifiedby',  'ALTER TABLE `projects` DROP INDEX  `modifiedby`');
-sql_column_exists('projects', 'modifiedby',  'ALTER TABLE `projects` DROP COLUMN `modifiedby`');
-
-sql_column_exists('projects', 'meta_id', '!ALTER TABLE `projects` ADD COLUMN `meta_id` INT(11) NULL DEFAULT NULL AFTER `createdby`');
-sql_index_exists ('projects', 'meta_id', '!ALTER TABLE `projects` ADD KEY    `meta_id` (`meta_id`)');
-sql_foreignkey_exists('projects', 'fk_projects_meta_id', '!ALTER TABLE `projects` ADD CONSTRAINT `fk_projects_meta_id` FOREIGN KEY (`meta_id`) REFERENCES `meta` (`id`) ON DELETE CASCADE;');
-
-sql_column_exists('projects', 'fcm_apikey', '!ALTER TABLE `projects` ADD COLUMN `fcm_apikey` VARCHAR(511) NULL');
 
 sql_query('CREATE TABLE `progress_processes` (`id`            INT(11)       NOT NULL AUTO_INCREMENT,
                                               `createdon`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -287,20 +234,23 @@ sql_query('CREATE TABLE `projects` (`id`            INT(11)       NOT NULL AUTO_
                                     `createdby`     INT(11)           NULL DEFAULT NULL,
                                     `meta_id`       INT(11)       NOT NULL,
                                     `status`        VARCHAR(16)       NULL DEFAULT NULL,
+                                    `parents_id`    INT(11)           NULL DEFAULT NULL,
                                     `categories_id` INT(11)           NULL DEFAULT NULL,
                                     `customers_id`  INT(11)           NULL DEFAULT NULL,
+                                    `leaders_id`    INT(11)           NULL DEFAULT NULL,
                                     `processes_id`  INT(11)           NULL DEFAULT NULL,
                                     `steps_id`      INT(11)           NULL DEFAULT NULL,
                                     `documents_id`  INT(11)           NULL DEFAULT NULL,
+                                    `priority`      INT(11)       NOT NULL,
                                     `name`          VARCHAR(64)       NULL DEFAULT NULL,
                                     `seoname`       VARCHAR(64)       NULL DEFAULT NULL,
                                     `code`          VARCHAR(32)       NULL DEFAULT NULL,
                                     `api_key`       VARCHAR(64)       NULL DEFAULT NULL,
+                                    `fcm_api_key`   VARCHAR(511)      NULL DEFAULT NULL,
                                     `last_login`    TIMESTAMP         NULL DEFAULT NULL,
                                     `description`   VARCHAR(2047)     NULL DEFAULT NULL,
 
-                                    PRIMARY KEY (`id`),
-
+                                    PRIMARY KEY                 (`id`),
                                     UNIQUE  KEY `seoname`       (`seoname`),
                                     UNIQUE  KEY `code`          (`code`),
                                     UNIQUE  KEY `api_key`       (`api_key`),
@@ -313,12 +263,16 @@ sql_query('CREATE TABLE `projects` (`id`            INT(11)       NOT NULL AUTO_
                                             KEY `documents_id`  (`documents_id`),
                                             KEY `processes_id`  (`processes_id`),
                                             KEY `steps_id`      (`steps_id`),
+                                            KEY `leaders_id`    (`leaders_id`),
+                                            KEY `priority`      (`priority`),
+                                            KEY `parents_id`    (`parents_id`),
 
                                     CONSTRAINT `fk_projects_categories_id` FOREIGN KEY (`categories_id`) REFERENCES `categories`         (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_projects_createdby`     FOREIGN KEY (`createdby`)     REFERENCES `users`              (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_projects_customers_id`  FOREIGN KEY (`customers_id`)  REFERENCES `customers`          (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_projects_documents_id`  FOREIGN KEY (`documents_id`)  REFERENCES `storage_documents`  (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_projects_meta_id`       FOREIGN KEY (`meta_id`)       REFERENCES `meta`               (`id`) ON DELETE RESTRICT,
+                                    CONSTRAINT `fk_projects_parents_id`    FOREIGN KEY (`parents_id`)    REFERENCES `projects`           (`id`) ON DELETE CASCADE,
                                     CONSTRAINT `fk_projects_processes_id`  FOREIGN KEY (`processes_id`)  REFERENCES `progress_processes` (`id`) ON DELETE RESTRICT,
                                     CONSTRAINT `fk_projects_steps_id`      FOREIGN KEY (`steps_id`)      REFERENCES `progress_steps`     (`id`) ON DELETE CASCADE
 
@@ -330,7 +284,7 @@ sql_query('CREATE TABLE `databases` (`id`                 INT(11)       NOT NULL
                                      `createdon`          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                      `createdby`          INT(11)       NOT NULL,
                                      `meta_id`            INT(11)           NULL DEFAULT NULL,
-                                     `status`             VARCHAR(16)       NULL  DEFAULT NULL,
+                                     `status`             VARCHAR(16)       NULL DEFAULT NULL,
                                      `servers_id`         INT(11)       NOT NULL,
                                      `projects_id`        INT(11)           NULL DEFAULT NULL,
                                      `replication_status` ENUM("enabled","preparing","paused","disabled","error") NULL DEFAULT "disabled",
@@ -349,10 +303,10 @@ sql_query('CREATE TABLE `databases` (`id`                 INT(11)       NOT NULL
                                              KEY `replication_status` (`replication_status`),
                                              KEY `name`               (`name`),
 
-                                     CONSTRAINT `fk_databases_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`    (`id`),
-                                     CONSTRAINT `fk_databases_meta_id`     FOREIGN KEY (`meta_id`)     REFERENCES `meta`     (`id`),
-                                     CONSTRAINT `fk_databases_projects_id` FOREIGN KEY (`projects_id`) REFERENCES `projects` (`id`),
-                                     CONSTRAINT `fk_databases_servers_id`  FOREIGN KEY (`servers_id`)  REFERENCES `servers`  (`id`)
+                                     CONSTRAINT `fk_databases_createdby`   FOREIGN KEY (`createdby`)   REFERENCES `users`    (`id`) ON DELETE RESTRICT,
+                                     CONSTRAINT `fk_databases_meta_id`     FOREIGN KEY (`meta_id`)     REFERENCES `meta`     (`id`) ON DELETE RESTRICT,
+                                     CONSTRAINT `fk_databases_projects_id` FOREIGN KEY (`projects_id`) REFERENCES `projects` (`id`) ON DELETE RESTRICT,
+                                     CONSTRAINT `fk_databases_servers_id`  FOREIGN KEY (`servers_id`)  REFERENCES `servers`  (`id`) ON DELETE RESTRICT
 
                                    ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
