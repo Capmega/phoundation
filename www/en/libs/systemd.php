@@ -1,14 +1,14 @@
 <?php
 /*
- * Template library
+ * systemd library
  *
- * This is a library template file
+ * This library contains functions to manage systemd
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
- * @package template
+ * @package systemd
  */
 
 
@@ -22,49 +22,49 @@
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package template
+ * @package systemd
  * @version 2.0.5: Added function and documentation
  *
  * @return void
  */
-function template_library_init(){
+function systemd_library_init(){
     try{
-        ensure_installed(array('name'      => 'template',
-                               'callback'  => 'template_install',
-                               'checks'    => ROOT.'libs/external/template/template,'.ROOT.'libs/external/template/foobar',
-                               'functions' => 'template,foobar',
-                               'which'     => 'template,foobar'));
+        ensure_installed(array('name'      => 'systemd',
+                               'callback'  => 'systemd_install',
+                               'checks'    => ROOT.'libs/external/systemd/systemd,'.ROOT.'libs/external/systemd/foobar',
+                               'functions' => 'systemd,foobar',
+                               'which'     => 'systemd,foobar'));
 
     }catch(Exception $e){
-        throw new BException('template_library_init(): Failed', $e);
+        throw new BException('systemd_library_init(): Failed', $e);
     }
 }
 
 
 
 /*
- * Install the external template library
+ * Install the external systemd library
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @version 2.0.5: Added function and documentation
- * @package template
+ * @package systemd
  *
  * @param
  * @return
  */
-function template_install($params){
+function systemd_install($params){
     try{
         load_libs('apt');
-        apt_install('template');
+        apt_install('systemd');
 
         load_libs('apt');
-        apt_install('template');
+        apt_install('systemd');
 
     }catch(Exception $e){
-        throw new BException('template_install(): Failed', $e);
+        throw new BException('systemd_install(): Failed', $e);
     }
 }
 
@@ -83,15 +83,15 @@ function template_install($params){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package template
- * @see template_install()
+ * @package systemd
+ * @see systemd_install()
  * @see date_convert() Used to convert the sitemap entry dates
- * @table: `template`
+ * @table: `systemd`
  * @note: This is a note
  * @version 2.0.5: Added function and documentation
  * @example [Title]
  * code
- * $result = template_function(array('foo' => 'bar'));
+ * $result = systemd_function(array('foo' => 'bar'));
  * showdie($result);
  * /code
  *
@@ -105,11 +105,11 @@ function template_install($params){
  * @param string $params[bar]
  * @return string The result
  */
-function template_function($params){
+function systemd_function($params){
     try{
 
     }catch(Exception $e){
-        throw new BException('template_function(): Failed', $e);
+        throw new BException('systemd_function(): Failed', $e);
     }
 }
 ?>
