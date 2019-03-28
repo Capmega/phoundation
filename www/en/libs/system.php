@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.65');
+define('FRAMEWORKCODEVERSION', '2.5.66');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2009,6 +2009,9 @@ function get_domain(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
+ * @see cdn_domain()
+ * @see get_domain()
+ * @see mapped_domain()
  * @package system
  *
  * @return void
@@ -2098,7 +2101,9 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
- * @see file_get_local()
+ * @see domain()
+ * @see cdn_domain()
+ * @see get_domain()
  * @version 2.0.7: Added function and documentation
  *
  * @param string $url The URL to create the domain URL from
