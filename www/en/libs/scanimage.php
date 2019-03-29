@@ -235,7 +235,7 @@ function scanimage($params){
                     /*
                      * No scanner found
                      */
-                    throw new BException(tr('scanimage(): No scanner found'), 'not-found');
+                    throw new BException(tr('scanimage(): No scanner found'), 'not-exists');
 
                 case 'scanimage: open of device':
                     /*

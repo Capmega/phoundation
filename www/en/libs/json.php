@@ -275,8 +275,8 @@ function json_message($message, $data = null){
 
             case 404:
                 // FALLTHROUGH
-            case 'not-found':
-                json_error(null, null, ($data ? $data : 'NOT-FOUND'), 404);
+            case 'not-exists':
+                json_error(null, null, ($data ? $data : 'not-exists'), 404);
 
             case 406:
                 // FALLTHROUGH

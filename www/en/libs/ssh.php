@@ -1050,7 +1050,7 @@ function ssh_add_known_host($domain, $port){
         $count        = 0;
 
         if(empty($fingerprints)){
-            throw new BException(tr('ssh_add_known_host(): ssh-keyscan found no public keys for domain ":domain"', array(':domain' => $domain)), 'not-found');
+            throw new BException(tr('ssh_add_known_host(): ssh-keyscan found no public keys for domain ":domain"', array(':domain' => $domain)), 'not-exists');
         }
 
         /*

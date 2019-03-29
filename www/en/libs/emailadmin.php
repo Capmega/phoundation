@@ -315,7 +315,7 @@ function emailadmin_add_user($email, $password){
         //}
 
         if(!$domains_id = emailadmin_get_domain(str_from($email, '@'))){
-            throw new BException(tr('emailadmin_add_user(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-found');
+            throw new BException(tr('emailadmin_add_user(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-exists');
         }
 
         emailadmin_query('INSERT INTO `virtual_users` (`domains_id`, `email`, `password`)
@@ -444,7 +444,7 @@ function emailadmin_add_alias($source, $destination){
         //}
 
         if(!$domains_id = emailadmin_get_domain(str_from($email, '@'))){
-            throw new BException(tr('emailadmin_add_alias(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-found');
+            throw new BException(tr('emailadmin_add_alias(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-exists');
         }
 
         emailadmin_query('INSERT INTO `virtual_aliases` (`domains_id`, `source`, `destination`)

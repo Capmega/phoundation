@@ -38,7 +38,7 @@ function csf_library_init(){
 function csf_install($server = null){
     try{
         if($csf = csf_get_exec($server)){
-            throw new BException(tr('csf_install(): CSF has already been installed and is available at ":csf"', array(':csf' => $csf)), 'executable-not-found');
+            throw new BException(tr('csf_install(): CSF has already been installed and is available at ":csf"', array(':csf' => $csf)), 'executable-not-exists');
         }
 
         $command = 'wget --directory-prefix=/tmp https://download.configserver.com/csf.tgz; cd /tmp/; tar -xf csf.tgz; cd csf/; sh install.sh;';

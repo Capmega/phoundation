@@ -344,7 +344,7 @@ function inet_dig($domain, $section = false){
         $data = str_from($data, 'ANSWER: ');
 
         if(str_until($data, ',') == '0'){
-            throw new BException(tr('inet_dig(): Specified domain ":domain" was not found', array(':domain' => $domain)), 'not-found');
+            throw new BException(tr('inet_dig(): Specified domain ":domain" was not found', array(':domain' => $domain)), 'not-exists');
         }
 
         $data   = str_cut($data, "ANSWER SECTION:\n", "\n;;");

@@ -566,7 +566,7 @@ function blogs_update_post_status($blog, $params, $list, $status){
         }
 
         if(!$count){
-            throw new BException(tr('Found no :object to :status', array(':object' => $params['object_name'], ':status' => $status)), 'not-found');
+            throw new BException(tr('Found no :object to :status', array(':object' => $params['object_name'], ':status' => $status)), 'not-exists');
         }
 
         /*

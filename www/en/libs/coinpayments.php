@@ -189,7 +189,7 @@ function coinpayments_get_rates($currencies = null){
         if($currencies){
             foreach(array_force($currencies) as $currency){
                 if(empty($results[$currency])){
-                    throw new BException(tr('coinpayments_get_rates(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-found');
+                    throw new BException(tr('coinpayments_get_rates(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-exists');
                 }
 
                 $filtered[$currency] = $results[$currency];
@@ -221,7 +221,7 @@ function coinpayments_get_balances($currencies = true){
             if($currencies){
                 foreach(array_force($currencies) as $currency){
                     if(empty($results[$currency])){
-                        throw new BException(tr('coinpayments_get_balances(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-found');
+                        throw new BException(tr('coinpayments_get_balances(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-exists');
                     }
 
                     $filtered[$currency] = $results[$currency];

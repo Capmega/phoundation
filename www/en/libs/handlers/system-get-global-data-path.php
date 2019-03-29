@@ -40,7 +40,7 @@ try{
 
     if(!$found){
         if(!PLATFORM_CLI){
-            throw new BException('get_global_data_path(): Global data path not found', 'not-found');
+            throw new BException('get_global_data_path(): Global data path not found', 'not-exists');
         }
 
         try{

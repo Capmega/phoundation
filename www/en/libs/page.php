@@ -18,7 +18,7 @@ function page_get($seoname){
         $page = sql_get('SELECT `data`, `status` FROM `pages` WHERE `seoname` = :seoname', array(':seoname' => $seoname));
 
         if(!$page){
-            throw new BException('page_get(): Page with seoname "'.str_log($seoname).'" does not exist', 'not-found');
+            throw new BException('page_get(): Page with seoname "'.str_log($seoname).'" does not exist', 'not-exists');
         }
 
         if($page['status'] !== null){

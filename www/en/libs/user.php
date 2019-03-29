@@ -541,7 +541,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
                          FROM   `users` '.$where, $execute);
 
         if(!$user){
-            throw new BException(tr('user_authenticate(): Specified user account ":username" with status ":status" not found', array(':username' => $username, ':status' => $status)), 'not-found');
+            throw new BException(tr('user_authenticate(): Specified user account ":username" with status ":status" not found', array(':username' => $username, ':status' => $status)), 'not-exists');
         }
 
 
@@ -605,7 +605,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             /*
              * This check will only do anything if the users table contains the "type" column. If it doesn't, nothing will ever happen here, really
              */
-            log_database(tr('user_authenticate(): Specified user account ":username" has status ":type" and cannot be authenticated', array(':username' => str_log($username), ':type' => str_log($user['type']))), 'authentication/not-found');
+            log_database(tr('user_authenticate(): Specified user account ":username" has status ":type" and cannot be authenticated', array(':username' => str_log($username), ':type' => str_log($user['type']))), 'authentication/not-exists');
             throw new BException(tr('user_authenticate(): Specified user account has status ":type" and cannot be authenticated', array(':type' => $user['type'])), 'type');
         }
 

@@ -131,11 +131,11 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
         }
 
         if(!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)){
-            throw new BException('curl_list_ips(): ifconfig returned no IPs', 'not-found');
+            throw new BException('curl_list_ips(): ifconfig returned no IPs', 'not-exists');
         }
 
         if(!$matches or empty($matches[1])) {
-            throw new BException('curl_list_ips(): No IP data found', 'not-found');
+            throw new BException('curl_list_ips(): No IP data found', 'not-exists');
         }
 
         $flags   = FILTER_VALIDATE_IP;
@@ -144,7 +144,7 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
 
         if(!$ipv4){
             if(!$ipv6){
-                throw new BException('curl_list_ips(): Both IPv4 and IPv6 IP\'s are specified to be disallowed', 'not-found');
+                throw new BException('curl_list_ips(): Both IPv4 and IPv6 IP\'s are specified to be disallowed', 'not-exists');
             }
 
             $options = FILTER_FLAG_IPV6;

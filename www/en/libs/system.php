@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.74');
+define('FRAMEWORKCODEVERSION', '2.5.75');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -775,7 +775,7 @@ function tr($text, $replace = null, $verify = true){
                         }
                     }
 
-                    throw new BException('tr(): Not all specified keywords were found in text', 'not-found');
+                    throw new BException('tr(): Not all specified keywords were found in text', 'not-exists');
                 }
 
                 /*
@@ -1081,7 +1081,7 @@ function load_config($files = ''){
             }
 
             if(!$loaded){
-                throw new BException(tr('load_config(): No configuration file was found for requested configuration ":file"', array(':file' => $file)), 'not-found');
+                throw new BException(tr('load_config(): No configuration file was found for requested configuration ":file"', array(':file' => $file)), 'not-exists');
             }
         }
 

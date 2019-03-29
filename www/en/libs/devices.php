@@ -71,7 +71,7 @@ function devices_insert($device, $server = null){
             $device['_exists'] = true;
 
             switch($exists['status']){
-                case 'not-found':
+                case 'not-exists':
                     log_console(tr('Not inserting ":device" on server ":server", it is already registered with id ":id". Enabling existing device instead.', array(':device' => $exists['description'], ':server' => $exists['domain'], ':id' => $exists['id'])), 'VERBOSE/yellow');
                     devices_set_status(null, $exists['id']);
                     return $exists;

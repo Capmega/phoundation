@@ -36,7 +36,7 @@ function buks_get_key($section, $users_id, $password){
         $key = sql_query('SELECT `key` FROM `buks` WHERE `section` = :section AND `users_id` = :users_id AND `status` IS NULL', true, array('section' => $section, ':users_id' => $users_id));
 
         if(!$key){
-            throw new BException(tr('buks_get_key(): No key found for section ":section" and user "users_id"', array(':users_id' => $users_id)), 'not-found');
+            throw new BException(tr('buks_get_key(): No key found for section ":section" and user "users_id"', array(':users_id' => $users_id)), 'not-exists');
         }
 
         $key = openssl_decrypt($key, $password);

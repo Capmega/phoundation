@@ -766,7 +766,7 @@ function proxies_get_server($host, $return_proxies = false){
         $server = servers_get($host, false, $return_proxies);
 
         if(empty($server)){
-            throw new BException(tr('proxies_get_server(): No server found for host ":host"', array(':host' => $host)), 'not-found');
+            throw new BException(tr('proxies_get_server(): No server found for host ":host"', array(':host' => $host)), 'not-exists');
         }
 
         return $server;
