@@ -429,7 +429,7 @@ function mysqlr_slave_replication_setup($params){
         $slave_setup .= 'CHANGE MASTER TO MASTER_HOST=\"127.0.0.1\", ';
         $slave_setup .= 'MASTER_USER=\"'.$database['replication_db_user'].'\", ';
         $slave_setup .= 'MASTER_PASSWORD=\"'.$database['replication_db_password'].'\", ';
-        $slave_setup .= 'MASTER_PORT='.$database['ssh_port'].', ';
+        $slave_setup .= 'MASTER_PORT='.$database['port'].', ';
         $slave_setup .= 'MASTER_LOG_FILE=\"'.$database['log_file'].'\", ';
         $slave_setup .= 'MASTER_LOG_POS='.$database['log_pos'].' ';
         $slave_setup .= 'FOR CHANNEL \"'.$database['domain'].'\"; ';
@@ -705,7 +705,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
          * and execute autossh
          */
         safe_exec('scp '.$server['arguments'].' -P '.$_CONFIG['mysqlr']['port'].' -i '.$keyfile.' '.$keyfile.' '.$server['username'].'@'.$slave.':/data/ssh/keys/');
-        servers_exec($slave, 'autossh -p '.$server['port'].' -i /data/ssh/keys/'.$keyname.' -L '.$server['ssh_port'].':localhost:3306 '.$server['username'].'@'.$server['domain'].' -f -N');
+        servers_exec($slave, 'autossh -p '.$server['port'].' -i /data/ssh/keys/'.$keyname.' -L '.$server['port'].':localhost:3306 '.$server['username'].'@'.$server['domain'].' -f -N');
 
         /*
          * Delete local file key

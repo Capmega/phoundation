@@ -1576,7 +1576,7 @@ function sql_get_database($db_name){
 
                                        `servers`.`id` AS `servers_id`,
                                        `servers`.`hostname`,
-                                       `servers`.`ssh_port`,
+                                       `servers`.`port`,
                                        `servers`.`replication_status` AS `servers_replication_status`,
 
                                        `database_accounts`.`username`      AS `replication_db_user`,

@@ -222,7 +222,7 @@ function mysql_get_database($db_name){
 
                                        `servers`.`id` AS `servers_id`,
                                        `servers`.`domain`,
-                                       `servers`.`ssh_port`,
+                                       `servers`.`port`,
                                        `servers`.`replication_status` AS `servers_replication_status`,
                                        `servers`.`replication_lock`   AS `server_replication_lock`,
                                        `servers`.`tasks_id`           AS `server_tasks_id`,
