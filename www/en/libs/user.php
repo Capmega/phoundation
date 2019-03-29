@@ -42,11 +42,11 @@ function user_data($id) {
         load_libs('memcached');
 
         $key  = 'USER-'.$id;
-        $user = mc_get($key);
+        $user = memcached_get($key);
 
         if(empty($user)) {
             $user = sql_get('SELECT * FROM users WHERE id = :id', array(':id' => cfi($id)));
-            mc_put($key, $user);
+            memcached_put($key, $user);
 
         } else {
             return $user;

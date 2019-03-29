@@ -227,7 +227,7 @@ try{
                          * Store session data in memcached
                          */
                         load_libs('sessions-mc');
-                        session_set_save_handler('sessions_mc_open', 'sessions_mc_close', 'sessions_mc_read', 'sessions_mc_write', 'sessions_mc_destroy', 'sessions_mc_gc', 'sessions_mc_create_sid');
+                        session_set_save_handler('sessions_memcached_open', 'sessions_memcached_close', 'sessions_memcached_read', 'sessions_memcached_write', 'sessions_memcached_destroy', 'sessions_memcached_gc', 'sessions_memcached_create_sid');
                         register_shutdown_function('session_write_close');
 
                     case 'mm':

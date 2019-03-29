@@ -260,7 +260,7 @@ function facebook_signin(){
             //        sql_query("insert into fb_friend_check_queue (fb_id, uid) values ('".cfm($fb_data['id'])."',".cfi($uid).");");
             //
             //        //add to memcached
-            //        mc_add_username($username,$uid);
+            //        memcached_add_username($username,$uid);
             //
             //        add_stat('USER_FB_NEW_USER');
             //

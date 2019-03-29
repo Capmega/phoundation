@@ -50,13 +50,13 @@ try{
              * Clear all keys from memcached
              */
             if($namespace){
-                mc_delete(null, $namespace);
+                memcached_delete(null, $namespace);
 
             }elseif($key){
-                mc_delete($key, $namespace);
+                memcached_delete($key, $namespace);
 
             }else{
-                mc_clear();
+                memcached_clear();
             }
 
             log_console(tr('Cleared memchached caches from servers ":servers"', array(':servers' => $_CONFIG['memcached']['servers'])));

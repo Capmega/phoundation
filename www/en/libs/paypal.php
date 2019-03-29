@@ -183,7 +183,7 @@ function paypal_ipn_log() {
         }
 
         if(!empty($_POST['txn_type']) && paypal_check_ipn_request()) {
-            sql_query("insert into paypal_payments (custom,item_number,subscr_id,buyer_email,txn_type,currency_code,amount,logdate,raw_paypal_data,payment_status) values ('".cfm(isset_get($_POST['custom']))."','".cfm(isset_get($_POST['item_number']))."','".cfm(isset_get($_POST['subscr_id']))."','".cfm(isset_get($_POST['payer_email']))."','".cfm(isset_get($_POST['txn_type']))."','".cfm(isset_get($_POST['mc_currency']))."','".cfm(isset_get($_POST['mc_gross']))."',".time().",'".cfm(json_encode_custom($_POST))."','".cfm(isset_get($_POST['payment_status']))."');");
+            sql_query("insert into paypal_payments (custom,item_number,subscr_id,buyer_email,txn_type,currency_code,amount,logdate,raw_paypal_data,payment_status) values ('".cfm(isset_get($_POST['custom']))."','".cfm(isset_get($_POST['item_number']))."','".cfm(isset_get($_POST['subscr_id']))."','".cfm(isset_get($_POST['payer_email']))."','".cfm(isset_get($_POST['txn_type']))."','".cfm(isset_get($_POST['memcached_currency']))."','".cfm(isset_get($_POST['memcached_gross']))."',".time().",'".cfm(json_encode_custom($_POST))."','".cfm(isset_get($_POST['payment_status']))."');");
             return $_POST;
         } else {
             throw new BException('paypal_ipn_log(): Failed ipn check','ipn_check_fail');

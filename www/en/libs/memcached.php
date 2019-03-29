@@ -16,14 +16,14 @@
  * Initialize the library
  * Automatically executed by libs_load()
  */
-function mc_library_init(){
+function memcached_library_init(){
     try{
         if(!class_exists('Memcached')){
-            throw new BException(tr('mc_library_init(): php module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
+            throw new BException(tr('memcached_library_init(): php module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
         }
 
     }catch(Exception $e){
-        throw new BException('mc_library_init(): failed', $e);
+        throw new BException('memcached_library_init(): failed', $e);
     }
 }
 
@@ -32,7 +32,7 @@ function mc_library_init(){
 /*
  * Connect to the memcached server
  */
-function mc_connect(){
+function memcached_connect(){
     global $_CONFIG, $core;
 
     try{
@@ -71,7 +71,7 @@ function mc_connect(){
                             notify(array('code'    => 'warning/not-available',
                                          'groups'  => 'developers',
                                          'title'   => tr('Memcached server not available'),
-                                         'message' => tr('mc_connect(): Failed to connect to memcached server ":server"', array(':server' => $server))));
+                                         'message' => tr('memcached_connect(): Failed to connect to memcached server ":server"', array(':server' => $server))));
                         }
                     }
 
@@ -93,7 +93,7 @@ function mc_connect(){
                     notify(array('code'    => 'not-available',
                                  'groups'  => 'developers',
                                  'title'   => tr('Memcached server not available'),
-                                 'message' => tr('mc_connect(): Failed to connect to all ":count" memcached servers', array(':server' => count($_CONFIG['memcached']['servers'])))));
+                                 'message' => tr('memcached_connect(): Failed to connect to all ":count" memcached servers', array(':server' => count($_CONFIG['memcached']['servers'])))));
                     return false;
                 }
             }
@@ -102,7 +102,7 @@ function mc_connect(){
         return $core->register['memcached'];
 
     }catch(Exception $e){
-        throw new BException('mc_connect(): failed', $e);
+        throw new BException('memcached_connect(): failed', $e);
     }
 }
 
@@ -111,16 +111,16 @@ function mc_connect(){
 /*
  *
  */
-function mc_put($value, $key, $namespace = null, $expiration_time = null){
+function memcached_put($value, $key, $namespace = null, $expiration_time = null){
     global $_CONFIG, $core;
 
     try{
-        if(!mc_connect()){
+        if(!memcached_connect()){
             return false;
         }
 
         if($namespace){
-            $namespace = mc_namespace($namespace).'_';
+            $namespace = memcached_namespace($namespace).'_';
         }
 
         if($expiration_time === null){
@@ -130,12 +130,12 @@ function mc_put($value, $key, $namespace = null, $expiration_time = null){
             $expiration_time = $_CONFIG['memcached']['expire_time'];
         }
 
-        $core->register['memcached']->set($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key, $value, $expiration_time);
+        $core->register['memcached']->set($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key, $value, $expiration_time);
 
         return $value;
 
     }catch(Exception $e){
-        throw new BException('mc_put(): failed', $e);
+        throw new BException('memcached_put(): failed', $e);
     }
 }
 
@@ -144,16 +144,16 @@ function mc_put($value, $key, $namespace = null, $expiration_time = null){
 /*
  *
  */
-function mc_add($value, $key, $namespace = null, $expiration_time = null){
+function memcached_add($value, $key, $namespace = null, $expiration_time = null){
     global $_CONFIG, $core;
 
     try{
-        if(!mc_connect()){
+        if(!memcached_connect()){
             return false;
         }
 
         if($namespace){
-            $namespace = mc_namespace($namespace).'_';
+            $namespace = memcached_namespace($namespace).'_';
         }
 
         if($expiration_time === null){
@@ -163,14 +163,14 @@ function mc_add($value, $key, $namespace = null, $expiration_time = null){
             $expiration_time = $_CONFIG['memcached']['expire_time'];
         }
 
-        if(!$core->register['memcached']->add($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key, $value, $expiration_time)){
+        if(!$core->register['memcached']->add($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key, $value, $expiration_time)){
 
         }
 
         return $value;
 
     }catch(Exception $e){
-        throw new BException('mc_add(): failed', $e);
+        throw new BException('memcached_add(): failed', $e);
     }
 }
 
@@ -179,16 +179,16 @@ function mc_add($value, $key, $namespace = null, $expiration_time = null){
 /*
  *
  */
-function mc_replace($value, $key, $namespace = null, $expiration_time = null){
+function memcached_replace($value, $key, $namespace = null, $expiration_time = null){
     global $_CONFIG, $core;
 
     try{
-        if(!mc_connect()){
+        if(!memcached_connect()){
             return false;
         }
 
         if($namespace){
-            $namespace = mc_namespace($namespace).'_';
+            $namespace = memcached_namespace($namespace).'_';
         }
 
         if($expiration_time === null){
@@ -198,14 +198,14 @@ function mc_replace($value, $key, $namespace = null, $expiration_time = null){
             $expiration_time = $_CONFIG['memcached']['expire_time'];
         }
 
-        if(!$core->register['memcached']->replace($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key, $value, $expiration_time)){
+        if(!$core->register['memcached']->replace($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key, $value, $expiration_time)){
 
         }
 
         return $value;
 
     }catch(Exception $e){
-        throw new BException('mc_replace(): failed', $e);
+        throw new BException('memcached_replace(): failed', $e);
     }
 }
 
@@ -214,18 +214,18 @@ function mc_replace($value, $key, $namespace = null, $expiration_time = null){
 /*
  *
  */
-function mc_get($key, $namespace = null){
+function memcached_get($key, $namespace = null){
     global $_CONFIG, $core;
 
     try{
-        if(!mc_connect()){
+        if(!memcached_connect()){
             return false;
         }
 
-        return $core->register['memcached']->get($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key);
+        return $core->register['memcached']->get($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new BException('mc_get(): Failed', $e);
+        throw new BException('memcached_get(): Failed', $e);
     }
 }
 
@@ -234,11 +234,11 @@ function mc_get($key, $namespace = null){
 /*
  * Delete the specified key or namespace
  */
-function mc_delete($key, $namespace = null){
+function memcached_delete($key, $namespace = null){
     global $_CONFIG, $core;
 
     try{
-        if(!mc_connect()){
+        if(!memcached_connect()){
             return false;
         }
 
@@ -250,13 +250,13 @@ function mc_delete($key, $namespace = null){
             /*
              * Delete the entire namespace
              */
-            return mc_namespace($namespace, true);
+            return memcached_namespace($namespace, true);
         }
 
-        return $core->register['memcached']->delete($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key);
+        return $core->register['memcached']->delete($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new BException('mc_delete(): Failed', $e);
+        throw new BException('memcached_delete(): Failed', $e);
     }
 }
 
@@ -265,18 +265,18 @@ function mc_delete($key, $namespace = null){
 /*
  * clear the entire memcache
  */
-function mc_clear($delay = 0){
+function memcached_clear($delay = 0){
     global $_CONFIG, $core;
 
     try{
-        if(!mc_connect()){
+        if(!memcached_connect()){
             return false;
         }
 
         $core->register['memcached']->flush($delay);
 
     }catch(Exception $e){
-        throw new BException('mc_clear(): Failed', $e);
+        throw new BException('memcached_clear(): Failed', $e);
     }
 }
 
@@ -285,18 +285,18 @@ function mc_clear($delay = 0){
 /*
  * Increment the value of the specified key
  */
-function mc_increment($key, $namespace = null){
+function memcached_increment($key, $namespace = null){
     global $_CONFIG, $core;
 
     try{
-        if(!mc_connect()){
+        if(!memcached_connect()){
             return false;
         }
 
-        $core->register['memcached']->increment($_CONFIG['memcached']['prefix'].mc_namespace($namespace).$key);
+        $core->register['memcached']->increment($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new BException('mc_increment(): Failed', $e);
+        throw new BException('memcached_increment(): Failed', $e);
     }
 }
 
@@ -307,7 +307,7 @@ function mc_increment($key, $namespace = null){
  * with an alternate key, its very easy to invalidate namespace keys by simply assigning a new
  * value to the namespace key
  */
-function mc_namespace($namespace, $delete = false){
+function memcached_namespace($namespace, $delete = false){
     global $_CONFIG;
 
     try{
@@ -315,11 +315,11 @@ function mc_namespace($namespace, $delete = false){
             return '';
         }
 
-        $key = mc_get('ns:'.$namespace);
+        $key = memcached_get('ns:'.$namespace);
 
         if(!$key){
             $key = (string) microtime(true);
-            mc_add($key, 'ns:'.$namespace);
+            memcached_add($key, 'ns:'.$namespace);
 
         }elseif($delete){
             /*
@@ -329,8 +329,8 @@ function mc_namespace($namespace, $delete = false){
              * newer keys.
              */
             try{
-                mc_increment($namespace);
-                $key = mc_get('ns:'.$namespace);
+                memcached_increment($namespace);
+                $key = memcached_get('ns:'.$namespace);
 
             }catch(Exception $e){
                 /*
@@ -349,7 +349,7 @@ function mc_namespace($namespace, $delete = false){
         return $key;
 
     }catch(Exception $e){
-        throw new BException('mc_namespace(): Failed', $e);
+        throw new BException('memcached_namespace(): Failed', $e);
     }
 }
 
@@ -358,11 +358,11 @@ function mc_namespace($namespace, $delete = false){
 /*
  * Return statistics for memcached
  */
-function mc_stats(){
+function memcached_stats(){
     global $core;
 
     try{
-        if(!mc_connect()){
+        if(!memcached_connect()){
             return false;
         }
 
@@ -377,7 +377,7 @@ function mc_stats(){
         return $stats;
 
     }catch(Exception $e){
-        throw new BException('mc_stats(): Failed', $e);
+        throw new BException('memcached_stats(): Failed', $e);
     }
 }
 ?>

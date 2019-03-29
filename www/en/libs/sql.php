@@ -1074,7 +1074,7 @@ function sql_get_cached($key, $query, $column = false, $execute = false, $expira
     try{
         $connector = sql_connector_name($connector);
 
-        if(($value = mc_get($key, 'sql_')) === false){
+        if(($value = memcached_get($key, 'sql_')) === false){
             /*
              * Keyword data not found in cache, get it from MySQL with
              * specified query and store it in cache for next read
@@ -1101,7 +1101,7 @@ function sql_get_cached($key, $query, $column = false, $execute = false, $expira
 
             $value = sql_get($query, $column, $execute, $connector);
 
-            mc_put($value, $key, 'sql_', $expiration_time);
+            memcached_put($value, $key, 'sql_', $expiration_time);
         }
 
         return $value;
@@ -1129,14 +1129,14 @@ function sql_list_cached($key, $query, $execute = false, $numerical_array = fals
     try{
         $connector = sql_connector_name($connector);
 
-        if(($list = mc_get($key, 'sql_')) === false){
+        if(($list = memcached_get($key, 'sql_')) === false){
             /*
              * Keyword data not found in cache, get it from MySQL with
              * specified query and store it in cache for next read
              */
             $list = sql_list($query, $execute, $numerical_array, $connector);
 
-            mc_put($list, $key, 'sql_', $expiration_time);
+            memcached_put($list, $key, 'sql_', $expiration_time);
         }
 
         return $list;

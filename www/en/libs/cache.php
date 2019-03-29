@@ -81,7 +81,7 @@ function cache_read($key, $namespace = null){
                     $namespace = unslash($namespace);
                 }
 
-                $data = mc_get($key, $namespace);
+                $data = memcached_get($key, $namespace);
                 break;
 
             case false:
@@ -156,7 +156,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null){
                 break;
 
             case 'memcached':
-                mc_put($value, $key, $namespace, $max_age);
+                memcached_put($value, $key, $namespace, $max_age);
                 break;
 
             case false:
