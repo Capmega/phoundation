@@ -405,86 +405,99 @@ function sql_init($connector_name = null){
             include(__DIR__.'/handlers/sql-init-force.php');
         }
 
-        if(!defined('FRAMEWORKDBVERSION')){
-            /*
-             * Get database version
-             *
-             * This can be disabled by setting $_CONFIG[db][CONNECTORNAME][init] to false
-             */
-            if(!empty($_CONFIG['db'][$connector_name]['init'])){
-                try{
-                    $r = $core->sql[$connector_name]->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+        /*
+         * Check current init data?
+         */
+        if(empty($core->register['skip_init_check'])){
+            if(!defined('FRAMEWORKDBVERSION')){
+                /*
+                 * Get database version
+                 *
+                 * This can be disabled by setting $_CONFIG[db][CONNECTORNAME][init] to false
+                 */
+                if(!empty($_CONFIG['db'][$connector_name]['init'])){
+                    try{
+                        $r = $core->sql[$connector_name]->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
-                }catch(Exception $e){
-                    if($e->getCode() !== '42S02'){
-                        if($e->getMessage() === 'SQLSTATE[42S22]: Column not found: 1054 Unknown column \'offline_until\' in \'field list\''){
-                            $r = $core->sql[$connector_name]->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                    }catch(Exception $e){
+                        if($e->getCode() !== '42S02'){
+                            if($e->getMessage() === 'SQLSTATE[42S22]: Column not found: 1054 Unknown column \'offline_until\' in \'field list\''){
+                                $r = $core->sql[$connector_name]->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
-                        }else{
-                            /*
-                             * Compatibility issue, this happens when older DB is running init.
-                             * Just ignore it, since in these older DB's the functionality
-                             * wasn't even there
-                             */
-                            throw $e;
+                            }else{
+                                /*
+                                 * Compatibility issue, this happens when older DB is running init.
+                                 * Just ignore it, since in these older DB's the functionality
+                                 * wasn't even there
+                                 */
+                                throw $e;
+                            }
                         }
                     }
-                }
 
-                try{
-                    if(empty($r) or !$r->rowCount()){
-                        log_console(tr('sql_init(): No versions table found or no versions in versions table found, assumed empty database ":db"', array(':db' => $_CONFIG['db'][$connector_name]['db'])), 'yellow');
+                    try{
+                        if(empty($r) or !$r->rowCount()){
+                            log_console(tr('sql_init(): No versions table found or no versions in versions table found, assumed empty database ":db"', array(':db' => $_CONFIG['db'][$connector_name]['db'])), 'yellow');
 
-                        define('FRAMEWORKDBVERSION', 0);
-                        define('PROJECTDBVERSION'  , 0);
+                            define('FRAMEWORKDBVERSION', 0);
+                            define('PROJECTDBVERSION'  , 0);
 
-                        $core->register['no-db'] = true;
+                            $core->register['no-db'] = true;
 
-                    }else{
-                        $versions = $r->fetch(PDO::FETCH_ASSOC);
+                        }else{
+                            $versions = $r->fetch(PDO::FETCH_ASSOC);
 
-                        if(!empty($versions['offline_until'])){
-                            if(PLATFORM_HTTP){
-                                page_show(503, array('offline_until' => $versions['offline_until']));
+                            if(!empty($versions['offline_until'])){
+                                if(PLATFORM_HTTP){
+                                    page_show(503, array('offline_until' => $versions['offline_until']));
+                                }
+                            }
+
+                            define('FRAMEWORKDBVERSION', $versions['framework']);
+                            define('PROJECTDBVERSION'  , $versions['project']);
+
+                            if(version_compare(FRAMEWORKDBVERSION, '0.1.0') === -1){
+                                $core->register['no-db'] = true;
                             }
                         }
 
-                        define('FRAMEWORKDBVERSION', $versions['framework']);
-                        define('PROJECTDBVERSION'  , $versions['project']);
-
-                        if(version_compare(FRAMEWORKDBVERSION, '0.1.0') === -1){
-                            $core->register['no-db'] = true;
-                        }
+                    }catch(Exception $e){
+                        /*
+                         * Database version lookup failed. Usually, this would be due to the database being empty,
+                         * and versions table does not exist (yes, that makes a query fail). Just to be sure that
+                         * it did not fail due to other reasons, check why the lookup failed.
+                         */
+                        load_libs('init');
+                        init_process_version_fail($e);
                     }
 
-                }catch(Exception $e){
                     /*
-                     * Database version lookup failed. Usually, this would be due to the database being empty,
-                     * and versions table does not exist (yes, that makes a query fail). Just to be sure that
-                     * it did not fail due to other reasons, check why the lookup failed.
+                     * On console, show current versions
                      */
-                    load_libs('init');
-                    init_process_version_fail($e);
-                }
-
-                /*
-                 * On console, show current versions
-                 */
-                if((PLATFORM_CLI) and VERBOSE){
-                    log_console(tr('sql_init(): Found framework code version ":frameworkcodeversion" and framework database version ":frameworkdbversion"', array(':frameworkcodeversion' => FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION)));
-                    log_console(tr('sql_init(): Found project code version ":projectcodeversion" and project database version ":projectdbversion"'        , array(':projectcodeversion'   => PROJECTCODEVERSION  , ':projectdbversion'   => PROJECTDBVERSION)));
-                }
+                    if((PLATFORM_CLI) and VERBOSE){
+                        log_console(tr('sql_init(): Found framework code version ":frameworkcodeversion" and framework database version ":frameworkdbversion"', array(':frameworkcodeversion' => FRAMEWORKCODEVERSION, ':frameworkdbversion' => FRAMEWORKDBVERSION)));
+                        log_console(tr('sql_init(): Found project code version ":projectcodeversion" and project database version ":projectdbversion"'        , array(':projectcodeversion'   => PROJECTCODEVERSION  , ':projectdbversion'   => PROJECTDBVERSION)));
+                    }
 
 
-                /*
-                 * Validate code and database version. If both FRAMEWORK and PROJECT versions of the CODE and DATABASE do not match,
-                 * then check exactly what is the version difference
-                 */
-                if((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)){
-                    load_libs('init');
-                    init_process_version_diff();
+                    /*
+                     * Validate code and database version. If both FRAMEWORK and PROJECT versions of the CODE and DATABASE do not match,
+                     * then check exactly what is the version difference
+                     */
+                    if((FRAMEWORKCODEVERSION != FRAMEWORKDBVERSION) or (PROJECTCODEVERSION != PROJECTDBVERSION)){
+                        load_libs('init');
+                        init_process_version_diff();
+                    }
                 }
             }
+
+        }else{
+            /*
+             * We were told NOT to do an init check. Assume database framework
+             * and project versions are the same as their code variants
+             */
+            define('FRAMEWORKDBVERSION', FRAMEWORKCODEVERSION);
+            define('PROJECTDBVERSION'  , PROJECTCODEVERSION);
         }
 
         return $connector_name;
@@ -758,7 +771,7 @@ function sql_columns($source, $columns){
 //
 //        foreach($filter as $item){
 //            if(!isset($source[$item])){
-//                throw new BException('sql_set(): Specified filter item "'.str_log($item).'" was not found in source', 'not-found');
+//                throw new BException('sql_set(): Specified filter item "'.str_log($item).'" was not found in source', 'not-exists');
 //            }
 //        }
 //
@@ -935,7 +948,7 @@ function sql_unique_id($table, $column = 'id', $max = 10000000, $connector = nul
             }
         }
 
-        throw new BException('sql_unique_id(): Could not find a unique id in "'.$maxretries.'" retries', 'not-found');
+        throw new BException('sql_unique_id(): Could not find a unique id in "'.$maxretries.'" retries', 'not-exists');
 
     }catch(BException $e){
         throw new BException('sql_unique_id(): Failed', $e);
