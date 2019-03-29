@@ -382,10 +382,6 @@ function sql_init($connector = null){
             return $connector;
         }
 
-        if(empty($_CONFIG['db'][$connector])){
-            throw new BException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector)), 'not-exists');
-        }
-
         $db = $_CONFIG['db'][$connector];
 
         /*
@@ -1251,7 +1247,7 @@ function sql_connector_name($connector){
     global $_CONFIG, $core;
 
     try{
-        if($connector === null){
+        if(!$connector){
             $connector = $core->register('sql_connector');
 
             if($connector){
@@ -1263,6 +1259,10 @@ function sql_connector_name($connector){
 
         if(!is_scalar($connector)){
             throw new BException(tr('sql_connector_name(): Invalid connector ":connector" specified, it must be scalar', array(':connector' => $connector)), 'invalid');
+        }
+
+        if(empty($_CONFIG['db'][$connector])){
+            throw new BException(tr('sql_connector_name(): Specified database connector ":connector" does not exist', array(':connector' => $connector)), 'not-exists');
         }
 
         return $connector;
