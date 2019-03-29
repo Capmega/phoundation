@@ -137,7 +137,7 @@ function templates_validate($template){
  * @table: `template`
  * @note: This is a note
  * @version 2.5.38: Added function and documentation
- * @example [Title]
+ * @example Insert a template in the database
  * code
  * $result = templates_insert(array('foo' => 'bar',
  *                                 'foo' => 'bar',
@@ -185,11 +185,12 @@ function templates_insert($template){
  * @table: `template`
  * @note: This is a note
  * @version 2.5.38: Added function and documentation
- * @example [Title]
+ * @example Update a template in the database
  * code
- * $result = templates_update(array('foo' => 'bar',
- *                                 'foo' => 'bar',
- *                                 'foo' => 'bar'));
+ * $result = templates_update(array('id'  => 42,
+ *                                  'foo' => 'bar',
+ *                                  'foo' => 'bar',
+ *                                  'foo' => 'bar'));
  * showdie($result);
  * /code
  *
@@ -430,7 +431,7 @@ function templates_select($params = null){
  * @table: `template`
  * @note: This is a note
  * @version 2.5.38: Added function and documentation
- * @example [Title]
+ * @example
  * code
  * $result = templates_function(array('foo' => 'bar'));
  * showdie($result);

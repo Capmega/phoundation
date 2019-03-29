@@ -121,6 +121,7 @@ try{
 
             /*
              * Get output and exitcode from temp files
+             * NOTE: In case of errors, these output files may NOT exist!
              */
             if(file_exists($exitcode_file)){
                 $exitcode = trim(file_get_contents($exitcode_file));
