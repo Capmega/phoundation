@@ -28,7 +28,11 @@ function config_get_for_environment($environment){
         include(ROOT.'config/production.php');
         include(ROOT.'config/deploy.php');
 
-        if($environment != 'production'){
+        if($environment !== 'production'){
+            if(!file_exists(ROOT.'config/'.$environment.'.php')){
+                throw new BException(tr('config_get_for_environment(): Specified environment ":environment" does not exist', array(':environment' => $environment)), 'not-exists');
+            }
+
             include(ROOT.'config/'.$environment.'.php');
         }
 
