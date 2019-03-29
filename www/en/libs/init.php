@@ -308,12 +308,19 @@ function init($projectfrom = null, $frameworkfrom = null){
         log_console('Finished all', 'green');
 
     }catch(Exception $e){
-        if($e->getCode() === 'invalidforce'){
-            foreach($e->getMessages() as $message){
-                log_console($message);
-            }
+        switch($e->getRealCode()){
+            case 'invalidforce':
+                foreach($e->getMessages() as $message){
+                    log_console($message);
+                }
 
-            die(1);
+                die(1);
+
+            case 'validation':
+                /*
+                 * In init mode, all validation warnings are fatal!
+                 */
+                $e->makeWarning(false);
         }
 
         throw new BException('init(): Failed', $e);

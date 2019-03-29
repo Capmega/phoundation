@@ -178,6 +178,14 @@ try{
                         die($core->register['exit_code']);
 
                     case 'validation':
+                        if($core->register['script'] === 'init'){
+                            /*
+                             * In the init script, all validations are fatal!
+                             */
+                            $e->makeWarning(false);
+                            break;
+                        }
+
                         if(method_exists($e, 'getMessages')){
                             $messages = $e->getMessages();
 
