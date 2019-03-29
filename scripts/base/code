@@ -625,7 +625,7 @@ switch(cli_method()){
                             $patch_file = isset_get($files['patch_file']);
 
                             if($patch_file){
-                                file_delete($patch_file, false, false, $paths['phoundation']);
+                                file_delete($patch_file, false, false, array($paths['phoundation'], $paths['toolkit']));
                             }
                         }
                     }
@@ -653,7 +653,7 @@ switch(cli_method()){
                                 break;
 
                             }else{
-                                if(code_diff(ROOT.$file, $paths[$section].str_replace('admin/', '', ROOT.$file))){
+                                if(code_diff(ROOT.$file, $paths[$section].str_replace('admin/', '', $file))){
                                     throw $e;
                                 }
 
