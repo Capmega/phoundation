@@ -114,16 +114,26 @@ include(ROOT.'config/sync.php');
 /*
  * Get configuration for specified environment
  */
-$source_config = array_merge_complete(config_get_for_environment('production'), config_get_for_environment($environment));
+try{
+    $source_config = array_merge_complete(config_get_for_environment('production'), config_get_for_environment($environment));
 
-if(!isset($source_config['deploy'][$environment])){
-    throw new BException(tr('The specified environment ":env" does not exist', array(':env' => $environment)), 'warning/not-exist');
+    if(!isset($source_config['deploy'][$environment])){
+        throw new BException(tr('The specified environment ":env" does not exist', array(':env' => $environment)), 'warning/not-exist');
+    }
+
+    $deploy_config = $source_config['deploy'][$environment];
+    $local_config  = config_get_for_environment(ENVIRONMENT);
+    $project       = strtolower(PROJECT);
+    $dumpfile      = uniqid().'.sql';
+
+}catch(Exception $e){
+    if($e->getRealCode() === 'not-exists'){
+        $e->makeWarning(true);
+    }
+
+    throw $e;
 }
 
-$deploy_config = $source_config['deploy'][$environment];
-$local_config  = config_get_for_environment(ENVIRONMENT);
-$project       = strtolower(PROJECT);
-$dumpfile      = uniqid().'.sql';
 
 
 /*
