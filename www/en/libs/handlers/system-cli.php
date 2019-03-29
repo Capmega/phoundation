@@ -51,7 +51,7 @@ try{
          */
         if(empty($_SERVER['PHP_SELF'])){
             if(!isset($_SERVER['_'])){
-                throw new Exception('No $_SERVER[PHP_SELF] or $_SERVER[_] found', 'not-found');
+                throw new Exception('No $_SERVER[PHP_SELF] or $_SERVER[_] found', 'not-exists');
             }
 
              $_SERVER['PHP_SELF'] =  $_SERVER['_'];
@@ -189,6 +189,15 @@ try{
 
                     unset($GLOBALS['argv'][$argid]);
                     unset($GLOBALS['argv'][$argid + 1]);
+                    break;
+
+                case '-I':
+                    // FALLTHROUGH
+                case '--skip-init-check':
+                    /*
+                     * Skip init check for the core database
+                     */
+                    $core->register['skip_init_check'] = true;
                     break;
 
                 default:
