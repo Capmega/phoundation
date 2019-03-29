@@ -166,7 +166,7 @@ function html_bundler($type){
              * JS
              */
             if(!filesize($bundle_file)){
-                file_delete($bundle_file);
+                file_delete($bundle_file, false, false, $path);
                 return html_bundler($type);
             }
 
@@ -175,7 +175,7 @@ function html_bundler($type){
              * not too old
              */
             if((filemtime($bundle_file) + $_CONFIG['cdn']['bundler']['max_age']) < time()){
-                file_delete($bundle_file);
+                file_delete($bundle_file, false, false, $path);
                 return html_bundler($type);
             }
 
@@ -2221,8 +2221,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                         }
 
                         if(!empty($file)){
-                            file_delete(TMP.$file);
-                            file_delete(dirname(TMP.$file));
+                            file_delete(TMP.$file, true);
                         }
 
                     }else{
