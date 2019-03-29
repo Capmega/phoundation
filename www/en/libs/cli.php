@@ -1732,6 +1732,10 @@ function cli_build_commands_string(&$params){
          */
         $background = $params['background'];
 
+        if(count($params['commands']) === 1){
+            $params['commands'][] = null;
+        }
+
         /*
          * Build the commands together
          * Escape all commands and arguments first
@@ -1762,6 +1766,7 @@ function cli_build_commands_string(&$params){
                 $nice      = '';
                 $connector = ';';
                 $builtin   = false;
+                $timeout   = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
 
                 /*
                  * Check if command is built in
@@ -1812,10 +1817,10 @@ function cli_build_commands_string(&$params){
 
                 foreach($value as $special => &$argument){
                     if($params['timeout']){
-                        $timeout  = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
+                        $timeout = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
 
                     }else{
-                        $timeout  = '';
+                        $timeout = '';
                     }
 
                     if(!$argument){
