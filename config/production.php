@@ -32,17 +32,6 @@ $_CONFIG['mobile']['viewport']                                                  
 // Name of the website
 $_CONFIG['name']                                                                = 'base';
 
-// SSO configuration
-$_CONFIG['sso']['facebook']                                                     = array('appid'    => '',
-                                                                                        'secret'   => '',
-                                                                                        'scope'    => 'email,publish_stream,status_update,friends_online_presence,user_birthday,user_location,user_work_history',
-                                                                                        'redirect' => 'http://base.localhost/tests/sso.php?provider=facebook');
-
-$_CONFIG['sso']['google']                                                       = array('appid'    => '',
-                                                                                        'secret'   => '',
-                                                                                        'scope'    => 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/plus.me https://www.google.com/m8/feeds',
-                                                                                        'redirect' => 'http://base.localhost/tests/sso.php?provider=google');
-
 // Session configuration
 $_CONFIG['sessions']['domain']                                                  = 'phoundation.org';
 $_CONFIG['sessions']['secure']                                                  = false;

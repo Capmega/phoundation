@@ -337,6 +337,10 @@ function sso_config($provider){
     global $_CONFIG;
 
     try{
+        if(empty($_CONFIG['sso'][$provider]['appid'])){
+            throw new BException(tr('sso_config(): The specified provider ":provider" is not configured'), 'not-exist');
+        }
+
         $path = ROOT.'data/cache/sso/'.ENVIRONMENT.'/';
         $file = $path.$provider.'.php';
 
