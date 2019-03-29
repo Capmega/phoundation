@@ -56,13 +56,13 @@ function sql_library_init(){
  * @param
  * @return
  */
-function sql_query($query, $execute = false, $connector = null){
+function sql_query($query, $execute = false, $connector_name = null){
     global $core;
 
     try{
-        $connector   = sql_connector_name($connector);
-        $connector   = sql_init($connector);
-        $query_start = microtime(true);
+        $connector_name = sql_connector_name($connector_name);
+        $connector_name = sql_init($connector_name);
+        $query_start    = microtime(true);
 
         if(!is_string($query)){
             if(is_object($query)){
@@ -97,13 +97,13 @@ function sql_query($query, $execute = false, $connector = null){
             /*
              * Just execute plain SQL query string.
              */
-            $pdo_statement = $core->sql[$connector]->query($query);
+            $pdo_statement = $core->sql[$connector_name]->query($query);
 
         }else{
             /*
              * Execute the query with the specified $execute variables
              */
-            $pdo_statement = $core->sql[$connector]->prepare($query);
+            $pdo_statement = $core->sql[$connector_name]->prepare($query);
 
             try{
                 $pdo_statement->execute($execute);
@@ -155,10 +155,10 @@ function sql_query($query, $execute = false, $connector = null){
             /*
              * Let sql_error() try and generate more understandable errors
              */
-            sql_error($e, $query, $execute, isset_get($core->sql[$connector]));
+            sql_error($e, $query, $execute, isset_get($core->sql[$connector_name]));
 
         }catch(Exception $e){
-            throw new BException(tr('sql_query(:connector): Query ":query" failed', array(':connector' => $connector, ':query' => $query)), $e);
+            throw new BException(tr('sql_query(:connector): Query ":query" failed', array(':connector' => $connector_name, ':query' => $query)), $e);
         }
     }
 }
@@ -176,14 +176,14 @@ function sql_query($query, $execute = false, $connector = null){
  * @param
  * @return
  */
-function sql_prepare($query, $connector = null){
+function sql_prepare($query, $connector_name = null){
     global $core;
 
     try{
-        $connector = sql_connector_name($connector);
-        $connector = sql_init($connector);
+        $connector_name = sql_connector_name($connector_name);
+        $connector_name = sql_init($connector_name);
 
-        return $core->sql[$connector]->prepare($query);
+        return $core->sql[$connector_name]->prepare($query);
 
     }catch(Exception $e){
         throw new BException('sql_prepare(): Failed', $e);
@@ -260,9 +260,9 @@ function sql_fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC){
  * @param
  * @return
  */
-function sql_get($query, $single_column = null, $execute = null, $connector = null){
+function sql_get($query, $single_column = null, $execute = null, $connector_name = null){
     try{
-        $connector = sql_connector_name($connector);
+        $connector_name = sql_connector_name($connector_name);
 
         if(is_array($single_column)){
             /*
@@ -274,7 +274,7 @@ function sql_get($query, $single_column = null, $execute = null, $connector = nu
             unset($tmp);
         }
 
-        $result = sql_query($query, $execute, $connector);
+        $result = sql_query($query, $execute, $connector_name);
 
         if($result->rowCount() > 1){
             throw new BException(tr('sql_get(): Failed for query ":query" to fetch single row, specified query result contains not 1 but ":count" results', array(':count' => $result->rowCount(), ':query' => debug_sql($result->queryString, $execute, true))), 'multiple');
@@ -308,16 +308,16 @@ function sql_get($query, $single_column = null, $execute = null, $connector = nu
  * @param
  * @return
  */
-function sql_list($query, $execute = null, $numerical_array = false, $connector = null){
+function sql_list($query, $execute = null, $numerical_array = false, $connector_name = null){
     try{
-        $connector = sql_connector_name($connector);
+        $connector_name = sql_connector_name($connector_name);
 
         if(is_object($query)){
             $r     = $query;
             $query = $r->queryString;
 
         }else{
-            $r = sql_query($query, $execute, $connector);
+            $r = sql_query($query, $execute, $connector_name);
         }
 
         $retval = array();
@@ -369,20 +369,23 @@ function sql_list($query, $execute = null, $numerical_array = false, $connector 
  * @param
  * @return
  */
-function sql_init($connector = null){
+function sql_init($connector_name = null){
     global $_CONFIG, $core;
 
     try{
-        $connector = sql_connector_name($connector);
+        $connector_name = sql_connector_name($connector_name);
 
-        if(!empty($core->sql[$connector])){
+        if(!empty($core->sql[$connector_name])){
             /*
              * Already connected to requested DB
              */
-            return $connector;
+            return $connector_name;
         }
 
-        $db = $_CONFIG['db'][$connector];
+        /*
+         * Get a database configuration connector and ensure its valid
+         */
+        $connector = sql_ensure_connector($_CONFIG['db'][$connector_name]);
 
         /*
          * Set the MySQL rand() seed for this session
@@ -393,12 +396,12 @@ function sql_init($connector = null){
         /*
          * Connect to database
          */
-        $core->sql[$connector] = sql_connect($db);
+        $core->sql[$connector_name] = sql_connect($connector);
 
         /*
          * This is only required for the system connection
          */
-        if((PLATFORM_CLI) and ($core->register['script'] == 'init') and FORCE and !empty($_CONFIG['db'][$connector]['init'])){
+        if((PLATFORM_CLI) and ($core->register['script'] == 'init') and FORCE and !empty($connector['init'])){
             include(__DIR__.'/handlers/sql-init-force.php');
         }
 
@@ -408,14 +411,14 @@ function sql_init($connector = null){
              *
              * This can be disabled by setting $_CONFIG[db][CONNECTORNAME][init] to false
              */
-            if(!empty($_CONFIG['db'][$connector]['init'])){
+            if(!empty($_CONFIG['db'][$connector_name]['init'])){
                 try{
-                    $r = $core->sql[$connector]->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                    $r = $core->sql[$connector_name]->query('SELECT `project`, `framework`, `offline_until` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                 }catch(Exception $e){
                     if($e->getCode() !== '42S02'){
                         if($e->getMessage() === 'SQLSTATE[42S22]: Column not found: 1054 Unknown column \'offline_until\' in \'field list\''){
-                            $r = $core->sql[$connector]->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
+                            $r = $core->sql[$connector_name]->query('SELECT `project`, `framework` FROM `versions` ORDER BY `id` DESC LIMIT 1;');
 
                         }else{
                             /*
@@ -430,7 +433,7 @@ function sql_init($connector = null){
 
                 try{
                     if(empty($r) or !$r->rowCount()){
-                        log_console(tr('sql_init(): No versions table found or no versions in versions table found, assumed empty database ":db"', array(':db' => $_CONFIG['db'][$connector]['db'])), 'yellow');
+                        log_console(tr('sql_init(): No versions table found or no versions in versions table found, assumed empty database ":db"', array(':db' => $_CONFIG['db'][$connector_name]['db'])), 'yellow');
 
                         define('FRAMEWORKDBVERSION', 0);
                         define('PROJECTDBVERSION'  , 0);
@@ -484,7 +487,7 @@ function sql_init($connector = null){
             }
         }
 
-        return $connector;
+        return $connector_name;
 
     }catch(Exception $e){
         include(__DIR__.'/handlers/sql-init-fail.php');
@@ -1189,7 +1192,7 @@ function sql_merge($database_entry, $post, $skip = null){
 
         if(!is_array($database_entry)){
             if($database_entry !== null){
-                throw new BException(tr('sql_merge(): Specified database source data type should be an array but is a ":type"', array(':type' => gettype($db))), 'invalid');
+                throw new BException(tr('sql_merge(): Specified database source data type should be an array but is a ":type"', array(':type' => gettype($database_entry))), 'invalid');
             }
 
             /*
@@ -1233,39 +1236,39 @@ function sql_merge($database_entry, $post, $skip = null){
 
 
 /*
- * Ensure that $connector is default in case its not specified
+ * Ensure that $connector_name is default in case its not specified
  *
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
  *
- * @param string $connector
+ * @param string $connector_name
  * @return string The connector that should be used
  */
-function sql_connector_name($connector){
+function sql_connector_name($connector_name){
     global $_CONFIG, $core;
 
     try{
-        if(!$connector){
-            $connector = $core->register('sql_connector');
+        if(!$connector_name){
+            $connector_name = $core->register('sql_connector');
 
-            if($connector){
-                return $connector;
+            if($connector_name){
+                return $connector_name;
             }
 
             return $_CONFIG['db']['default'];
         }
 
-        if(!is_scalar($connector)){
-            throw new BException(tr('sql_connector_name(): Invalid connector ":connector" specified, it must be scalar', array(':connector' => $connector)), 'invalid');
+        if(!is_scalar($connector_name)){
+            throw new BException(tr('sql_connector_name(): Invalid connector ":connector" specified, it must be scalar', array(':connector' => $connector_name)), 'invalid');
         }
 
-        if(empty($_CONFIG['db'][$connector])){
-            throw new BException(tr('sql_connector_name(): Specified database connector ":connector" does not exist', array(':connector' => $connector)), 'not-exists');
+        if(empty($_CONFIG['db'][$connector_name])){
+            throw new BException(tr('sql_connector_name(): Specified database connector ":connector" does not exist', array(':connector' => $connector_name)), 'not-exists');
         }
 
-        return $connector;
+        return $connector_name;
 
     }catch(Exception $e){
         throw new BException('sql_connector_name(): Failed', $e);
@@ -1454,15 +1457,15 @@ function sql_current_database(){
  * @param
  * @return
  */
-function sql_random_id($table, $min = 1, $max = 2147483648, $connector = null){
+function sql_random_id($table, $min = 1, $max = 2147483648, $connector_name = null){
     try{
-        $connector = sql_connector_name($connector);
-        $exists    = true;
-        $timeout   = 50; // Don't do more than 50 tries on this!
+        $connector_name = sql_connector_name($connector_name);
+        $exists         = true;
+        $timeout        = 50; // Don't do more than 50 tries on this!
 
         while($exists and --$timeout > 0){
             $id     = mt_rand($min, $max);
-            $exists = sql_query('SELECT `id` FROM `'.$table.'` WHERE `id` = :id', array(':id' => $id), $connector);
+            $exists = sql_query('SELECT `id` FROM `'.$table.'` WHERE `id` = :id', array(':id' => $id), $connector_name);
         }
 
         return $id;
@@ -1619,30 +1622,30 @@ function sql_get_database($db_name){
  * @category Function reference
  * @package sql
  *
- * @param string $connector The requested connector name
+ * @param string $connector_name The requested connector name
  * @return array The requested connector data. NULL if the specified connector does not exist
  */
-function sql_get_connector($requested){
+function sql_get_connector($connector_name){
     global $_CONFIG;
 
     try{
-        if(!is_natural($requested)){
+        if(!is_natural($connector_name)){
             /*
              * Connector was specified by name
              */
-            if(isset($_CONFIG['db'][$requested])){
-                return $_CONFIG['db'][$requested];
+            if(isset($_CONFIG['db'][$connector_name])){
+                return $_CONFIG['db'][$connector_name];
             }
 
             $where   = ' `name` = :name ';
-            $execute = array(':name' => $requested);
+            $execute = array(':name' => $connector_name);
 
         }else{
             /*
              * Connector was specified by id
              */
             $where   = ' `id` = :id ';
-            $execute = array(':id' => $requested);
+            $execute = array(':id' => $connector_name);
         }
 
         $connector = sql_get('SELECT `id`,
@@ -1686,7 +1689,7 @@ function sql_get_connector($requested){
             unset($connector['ssh_tunnel_source_port']);
             unset($connector['ssh_tunnel_hostname']);
 
-            $_CONFIG['db'][$requested] = $connector;
+            $_CONFIG['db'][$connector_name] = $connector;
         }
 
         return $connector;
@@ -1699,33 +1702,58 @@ function sql_get_connector($requested){
 
 
 /*
- * Create an SQL connector in $_CONFIG['db'][$name] = $data
+ * Create an SQL connector in $_CONFIG['db'][$connector_name] = $data
  *
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
  *
- * @param string $name
- * @param array $data
+ * @param string $connector_name
+ * @param array $connector
  * @return array The specified connector data, with all informatinon completed if missing
  */
-function sql_make_connector($name, $data){
+function sql_make_connector($connector_name, $connector){
     global $_CONFIG;
 
     try{
-        if(empty($data['ssh_tunnel'])){
-            $data['ssh_tunnel'] = array();
+        if(empty($connector['ssh_tunnel'])){
+            $connector['ssh_tunnel'] = array();
         }
 
-        if(!is_array($data['ssh_tunnel'])){
-            throw new BException(tr('sql_make_connector(): Specified ssh_tunnel should be an array but is a ":type"', array(':type' => gettype($data['ssh_tunnel']))), 'invalid');
+        if(sql_get_connector($connector_name)){
+            throw new BException(tr('sql_make_connector(): The specified connector name ":name" already exists', array(':name' => $connector_name)), 'exists');
         }
 
-        if(sql_get_connector($name)){
-            throw new BException(tr('sql_make_connector(): The specified connector name ":name" already exists', array(':name' => $name)), 'exists');
+        $connector = sql_ensure_connector($connector);
+
+        if($connector['ssh_tunnel']){
+            $connector['ssh_tunnel']['required'] = true;
         }
 
+        $_CONFIG['db'][$connector_name] = $connector;
+        return $connector;
+
+    }catch(Exception $e){
+        throw new BException(tr('sql_make_connector(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Ensure all SQL connector fields are available
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ *
+ * @param array $connector
+ * @return array The specified connector data with all fields available
+ */
+function sql_ensure_connector($connector){
+    try{
         $template = array('driver'           => 'mysql',
                           'host'             => '127.0.0.1',
                           'port'             => null,
@@ -1747,18 +1775,17 @@ function sql_make_connector($name, $data){
                           'version'          => '0.0.0',
                           'timezone'         => 'UTC');
 
-        $data['ssh_tunnel'] = sql_merge($template['ssh_tunnel'], $data['ssh_tunnel']);
-        $data               = sql_merge($template, $data);
+        $connector['ssh_tunnel'] = sql_merge($template['ssh_tunnel'], isset_get($connector['ssh_tunnel'], array()));
+        $connector               = sql_merge($template, $connector);
 
-        if($data['ssh_tunnel']){
-            $data['ssh_tunnel']['required'] = true;
+        if(!is_array($connector['ssh_tunnel'])){
+            throw new BException(tr('sql_ensure_connector(): Specified ssh_tunnel ":tunnel" should be an array but is a ":type"', array(':tunnel' => $connector['ssh_tunnel'], ':type' => gettype($connector['ssh_tunnel']))), 'invalid');
         }
 
-        $_CONFIG['db'][$name] = $data;
-        return $data;
+        return $connector;
 
     }catch(Exception $e){
-        throw new BException(tr('sql_make_connector(): Failed'), $e);
+        throw new BException(tr('sql_ensure_connector(): Failed'), $e);
     }
 }
 
