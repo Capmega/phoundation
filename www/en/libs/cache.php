@@ -254,7 +254,7 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null){
             }
 
             if(!$etag){
-                $etag = $core->register['etag'];
+                $etag = isset_get($core->register['etag']);
             }
 
             $core->register('page_cache_key', $key);

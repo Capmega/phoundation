@@ -1515,7 +1515,7 @@ class ValidateForm {
      *
      * @return boolean
      */
-    public function isDate(string $date, string $format = 'Y-m-d', string $message = "this is not a valid date"){
+    public function isDate($date, $format = 'Y-m-d', $message = "this is not a valid date"){
         try{
             $d = DateTime::createFromFormat($format, $date);
             if (!($d && $d->format($format) == $date)) {
