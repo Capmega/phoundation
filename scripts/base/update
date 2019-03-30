@@ -464,6 +464,13 @@ try{
         git_reset();
     }
 
-    throw $e;
+    switch($e->getRealCode()){
+        case 'busy':
+            $e->makeWarning(true);
+            // FALLTHROUGH
+
+        default:
+            throw $e;
+    }
 }
 ?>
