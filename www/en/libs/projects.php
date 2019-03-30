@@ -43,10 +43,23 @@ function projects_library_init(){
  * @category Function reference
  * @package
  *
- * @param
+ * @param params $project The project parameters array
+ * @param string null $project[seocategory]
+ * @param string $project[seocustomer]
+ * @param string $project[name] The project name
+ * @param string $project[code] The project code to which it can be referenced (beside its seoname)
+ * @param string null $project[seoprocess] The process selected for this project
+ * @param string null $project[step] If a process has been specified, specifies in what step of the process this project is
+ * @param string null $project[documents_id] If a storage system document has been attached, this is the documents_id
+ * @param string null 64 $project[api_key] An API key which can be used to execute actions for this project
+ * @param string 0-511 $project[fcm_api_key]
+ * @param string 0-2047 $project[description] A description for the specified project
+ *
  * @return
  */
 function projects_validate($project, $reload_only = false){
+    global $_CONFIG;
+
     try{
         load_libs('validate,seo');
 
@@ -57,7 +70,7 @@ function projects_validate($project, $reload_only = false){
          */
         if($project['seocategory']){
             load_libs('categories');
-            $project['categories_id'] = categories_get($project['seocategory'], 'id');
+            $project['categories_id'] = categories_get($project['seocategory'], 'id', null, $_CONFIG['projects']['categories_parent']);
 
             if(!$project['categories_id']){
                 $v->setError(tr('Specified category does not exist'));
@@ -65,10 +78,6 @@ function projects_validate($project, $reload_only = false){
 
         }else{
             $project['categories_id'] = null;
-
-            if(!$reload_only){
-                $v->setError(tr('No category specified'));
-            }
         }
 
         /*
