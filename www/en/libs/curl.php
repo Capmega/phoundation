@@ -537,7 +537,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
             $retval['status'] = curl_getinfo($ch);
 
             foreach($retval['status'] as $key => $value){
-                log_console(cli_color($key.' : ', 'white').$value);
+                log_console(cli_color($key.' : ', 'white').str_force($value));
             }
         }
 
