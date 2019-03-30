@@ -63,9 +63,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
             throw new BException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
         }
 
-        if(VERBOSE and (PLATFORM_CLI)){
-            log_console(tr('Using proxy ":proxy"', array(':proxy' => str_cut(str_log($serverurl), '://', '/'))));
-        }
+        log_console(tr('Using proxy ":proxy"', array(':proxy' => str_cut(str_log($serverurl), '://', '/'))), 'VERBOSE');
 
         $data = curl_get(array('url'        => str_ends($serverurl, '?apikey='.$_CONFIG['curl']['apikey'].'&url=').urlencode($url),
                                'getheaders' => false,
@@ -270,9 +268,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
         array_default($params, 'connect_timeout', $_CONFIG['curl']['connect_timeout']); // # of seconds before connection try will fail
         array_default($params, 'log'            , $_CONFIG['curl']['log']); // # of seconds before connection try will fail
 
-        if(VERBOSE and (PLATFORM_CLI)){
-            log_console(tr('Connecting with ":url"', array(':url' => $params['url'])));
-        }
+        log_console(tr('Making cURL request to URL ":url"', array(':url' => $params['url'])), 'VERBOSE/cyan');
 
         if($params['proxies']){
             return curl_get_proxy($params['url'], $params['file']);
@@ -527,6 +523,14 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
 
             }else{
                 throw new BException(tr('curl_get(): Unknown simulation type ":simulation" specified. Please use either false, "partial" or "full"', array(':simulation' => $params['simulation'])), 'unknown');
+            }
+        }
+
+        if(VERYVERBOSE){
+            log_console(tr('cURL result status:'));
+
+            foreach($retval['status'] as $key => $value){
+                log_console(cli_color($key.' : ', 'white').$value);
             }
         }
 
