@@ -268,7 +268,12 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
         array_default($params, 'connect_timeout', $_CONFIG['curl']['connect_timeout']); // # of seconds before connection try will fail
         array_default($params, 'log'            , $_CONFIG['curl']['log']); // # of seconds before connection try will fail
 
-        log_console(tr('Making cURL request to URL ":url"', array(':url' => $params['url'])), 'VERBOSE/cyan');
+        if($params['simulation']){
+            log_console(tr('Simulating cURL request to URL ":url"', array(':url' => $params['url'])), 'VERBOSE/cyan');
+
+        }else{
+            log_console(tr('Making cURL request to URL ":url"', array(':url' => $params['url'])), 'VERBOSE/cyan');
+        }
 
         if($params['proxies']){
             return curl_get_proxy($params['url'], $params['file']);
@@ -528,6 +533,8 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
 
         if(VERYVERBOSE){
             log_console(tr('cURL result status:'));
+
+            $retval['status'] = curl_getinfo($ch);
 
             foreach($retval['status'] as $key => $value){
                 log_console(cli_color($key.' : ', 'white').$value);
