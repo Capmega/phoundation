@@ -166,7 +166,7 @@ function html_bundler($type){
              * JS
              */
             if(!filesize($bundle_file)){
-                file_delete($bundle_file, false, false, $path);
+                file_delete($bundle_file, false, false, false);
                 return html_bundler($type);
             }
 
@@ -175,7 +175,7 @@ function html_bundler($type){
              * not too old
              */
             if((filemtime($bundle_file) + $_CONFIG['cdn']['bundler']['max_age']) < time()){
-                file_delete($bundle_file, false, false, $path);
+                file_delete($bundle_file, false, false, false);
                 return html_bundler($type);
             }
 
