@@ -2268,9 +2268,9 @@ function sql_get_columns_string($columns, $table){
                 $column = $table.'.'.$column;
             }
 
-            if(str_exists($column, 'as')){
-                $target  = trim(str_from($column, 'as'));
-                $column  = trim(str_until($column, 'as'));
+            if(str_exists($column, ' as ')){
+                $target  = trim(str_from($column, ' as '));
+                $column  = trim(str_until($column, ' as '));
                 $column  = '`'.str_replace('.', '`.`', trim($column)).'`';
                 $column .= ' AS `'.trim($target).'`';
 
