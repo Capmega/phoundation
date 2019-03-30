@@ -308,7 +308,8 @@ if($nofiles){
     /*
      * Ensure write permissions to all files to avoid sync crashes on write protected files
      */
-    safe_exec(array('commands' => array('chmod', array('sudo' => $sudo, 'ug+w', ROOT, '-R'))));
+// :TODO: Change this for file_chmod()
+    safe_exec(array('commands' => array('chmod', array('sudo' => $sudo, 'timeout' => 120, 'ug+w', ROOT, '-R'))));
 
     foreach($_CONFIG['sync'] as $path){
         try{
@@ -318,6 +319,7 @@ if($nofiles){
 
             if($deletesync){
                 log_console(tr('Deleting local path ":path"', array(':path' => $path)), 'white');
+// :TODO: Change this for file_delete();
                 passthru($command = 'rm '.ROOT.$path.' -rf', $exitcode);
 
                 if($exitcode){
@@ -326,6 +328,7 @@ if($nofiles){
             }
 
             try{
+// :TODO: Change this for rsync();
                 passthru($command = 'rsync -aczvAXHS '.$no_times.' --no-perms --progress -p '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':'.slash($deploy_config['target_dir']).slash($path).' '.ROOT.slash($path).' --exclude="*.php" --exclude="*.css" --exclude="*.js" --exclude="/scripts/*" --exclude="/data/doc" --exclude="/data/system" --exclude="/data/mock*" --exclude="/data/sources" --exclude=".htaccess" --exclude=".git*" --exclude="/pub/*"', $exitcode);
 
                 if($exitcode){
@@ -381,6 +384,7 @@ if($noinit){
      * executed in a completely separate PHP process, while still dumping output on command line
      */
     log_console(tr('Executing init script to ensure that database will be up to date'), 'white');
+// :TODO: Change this for init() call directly
     passthru(ROOT.'scripts/base/init --env '.ENVIRONMENT, $exitcode);
 
     if($exitcode){
@@ -410,8 +414,12 @@ if($noinit or $noblogupdateurl){
 
 }else{
     load_libs('blogs');
-// :DELETE: Sync script removes original DB, so theres a problem with PDO using that DB.
-//    blogs_update_urls();
+
+    /*
+     * IMPORTANT! DO NOT USE blogs_update_urls() DIRECTLY AS SYNC DESTROYED THE
+     * ORIGINAL DATABASE!
+     */
+// :TODO: USe script_exec();
     passthru(ROOT.'scripts/base/blogs rebuild-post-urls --env '.ENVIRONMENT);
 }
 
