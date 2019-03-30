@@ -619,7 +619,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
              *
              */
             usleep($params['sleep']);
-            log_console(tr('curl_get(): Got HTTP0 for url ":url" with ":connect_timeout" connect timeout, retry ":retry"', array(':url' => $params['url'], ':retry' => $retry, ':connect_timeout' => $params['connect_timeout'])), 'yellow');
+            log_console(tr('curl_get(): Got HTTP0 for url ":url" at attepmt ":retry" with ":connect_timeout" seconds connect timeout', array(':url' => $params['url'], ':retry' => $retry, ':connect_timeout' => $params['connect_timeout'])), 'yellow');
             return curl_get($params, $referer, $post, $options);
         }
 
@@ -639,7 +639,6 @@ function curl_get_random_user_agent() {
                     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.57 Safari/537.36');
 
     shuffle($agents);
-
     return $agents[0];
 }
 
