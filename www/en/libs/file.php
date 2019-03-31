@@ -1550,6 +1550,7 @@ function file_http_download($params){
         array_default($params, 'restrictions', ROOT.'data/downloads');
         array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
         array_default($params, 'filename'    , basename($params['file']));
+        array_default($params, 'die'         , true);
 
         /*
          * Do we need compression?
@@ -1605,30 +1606,42 @@ function file_http_download($params){
             /*
              * Send the specified file to the client
              */
+            $bytes = filesize($params['file']);
+            log_file(tr('HTTP downloading ":bytes" bytes file ":file" to client as ":filename"', array(':bytes' => $bytes, ':filename' => $params['filename'], ':file' => $params['file'])), 'http-download', 'cyan');
+
 // :TODO: Are these required?
             //header('Expires: -1');
             //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
             header('Content-Type: '.$mimetype);
-            header("Content-length: ".filesize($params['file']));
+            header("Content-length: ".$bytes);
             header('Content-Disposition: attachment; filename="'.$params['filename'].'"');
 
-            readfile($params['file']);
+            $f = fopen($params['file']);
+            fpassthru($f);
+            fclose($f);
 
         }elseif($params['data']){
             /*
              * Send the specified data as a file to the client
              */
+            $bytes = strlen($params['data']);
+            log_file(tr('HTTP downloading ":bytes" bytes of data to client as ":filename"', array(':bytes' => $bytes, ':file' => $params['file'])), 'http-download', 'cyan');
+
 // :TODO: Are these required?
             //header('Expires: -1');
             //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
             header('Content-Type: application/csv');
-            header("Content-length: ".strlen($params['data']));
+            header("Content-length: ".$length);
             header('Content-Disposition: attachment; filename="'.$params['file'].'"');
 
             echo $params['data'];
 
         }else{
             throw new BException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
+        }
+
+        if($params['die']){
+            die();
         }
 
     }catch(Exception $e){
