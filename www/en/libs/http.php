@@ -653,7 +653,7 @@ function http_validate_get(){
 
 
 /*
- * Here be depreciated wrappers
+ * Here be dragons and depreciated wrappers
  */
 function http_build_url($url, $query){
     try{
