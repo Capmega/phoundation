@@ -1545,6 +1545,8 @@ function file_check_dir($path, $writable = false){
  * @return void
  */
 function file_http_download($params){
+    global $_CONFIG;
+
     try{
         array_ensure($params, 'file,name');
         array_default($params, 'restrictions', ROOT.'data/downloads');
