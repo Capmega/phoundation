@@ -1532,144 +1532,104 @@ function file_check_dir($path, $writable = false){
 
 
 /*
- * Send a file over HTTP "the right way" with headers et-al
+ * Send the specified file to the client using the HTTP protocol with correct headers
  *
- * Copyright 2012 Armand Niculescu - media-division.com
- * Rewritten for use in BASE by Sven Oostenbrink <so.oostenbrink@gmail.com>
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE FREEBSD PROJECT "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE FREEBSD PROJECT OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.5.92: Rewrote function and added documentation
+ *
+ * @param $file
+ * @return void
  */
-// :TEST: This function still needs to be tested to confirm that it works correctly
-function file_http_download($file, $stream = false){
+function file_http_download($params){
     try{
-        // get the file request, throw error if nothing supplied
-
-        //- turn off compression on the server
-        apache_setenv('no-gzip', 1);
-        ini_set('zlib.output_compression', 'Off');
-
-        if(empty($file)){
-            header('HTTP/1.0 400 Bad Request');
-            throw new BException(tr('file_http_download(): No file specified'), 'not-specified');
-        }
-
-        // make sure the file exists
-        if(file_exists($file)){
-            header('HTTP/1.0 404 Not Found');
-            throw new BException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible'. array(':file' => $file)), 'not-exists');
-        }
-
-        // make sure the file can be opened
-        if(is_readable($file)){
-            header('HTTP/1.0 500 Internal Server Error');
-            throw new BException(tr('file_http_download(): Specified file ":file" exists but is not readable'. array(':file' => $file)), 'not-readable');
-        }
-
-        // sanitize the file request, keep just the name and extension
-        // also, replaces the file location with a preset one ('./myfiles/' in this example)
-        $path_parts = pathinfo($file);
-        $file_name  = $path_parts['basename'];
-        $file_ext   = $path_parts['extension'];
-        $file_path  = './myfiles/' . $file_name;
-        $file_size  = filesize($file);
-        $file       = fopen($file, 'rb');
-
-        if(!$file){
-            header('HTTP/1.0 500 Internal Server Error');
-            throw new BException(tr('file_http_download(): Specified file ":file" failed to be opened'. array(':file' => $file)), 'failed');
-        }
-
-        // set the headers, prevent caching
-        header('Expires: -1');
-        header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
-        header('Content-Disposition: attachment; filename="'.$file_name.'"');
+        array_ensure($params, 'file,name');
+        array_default($params, 'restrictions', ROOT.'data/downloads');
+        array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
+        array_default($params, 'filename'    , basename($params['file']));
 
         /*
-         * set appropriate headers for attachment or streamed file
+         * Do we need compression?
          */
-// :BUG: Possible bug, the Content-Disposition: attachment header is already specified in the last line, while with $stream it would be inline?
-        if($stream){
-            header('Content-Disposition: inline;');
+        if($params['compression']){
+            apache_setenv('no-gzip', 0);
+            ini_set('zlib.output_compression', 'On');
 
         }else{
-            header('Content-Disposition: attachment; filename="'.$file_name.'"');
+            apache_setenv('no-gzip', 1);
+            ini_set('zlib.output_compression', 'Off');
         }
 
-        // set the mime type based on extension, add yours if needed.
-        $ctype_default = 'application/octet-stream';
-        $content_types = array('exe' => 'application/octet-stream',
-                               'zip' => 'application/zip',
-                               'mp3' => 'audio/mpeg',
-                               'mpg' => 'video/mpeg',
-                               'avi' => 'video/x-msvideo');
+        /*
+         * Validate the file name for the user
+         */
+        if(!$params['filename']){
+            throw new BException(tr('file_http_download(): No filename specified. Note: This is not the file to be downloaded to the client, but the name it will have when saved on the clients storage'), 'not-specified');
+        }
 
-        $ctype = isset($content_types[$file_ext]) ? $content_types[$file_ext] : $ctype_default;
-        header("Content-Type: ".$ctype);
+        if(!is_scalar($params['filename'])){
+                throw new BException(tr('file_http_download(): Specified filename ":filename" is not scalar'. array(':filename' => $params['filename'])), 'invalid');
+        }
 
-        //check if http_range is sent by browser (or download manager)
-        if(isset($_SERVER['HTTP_RANGE'])){
-            list($size_unit, $range_orig) = explode('=', $_SERVER['HTTP_RANGE'], 2);
+        if(mb_strlen($params['filename']) > 250){
+                throw new BException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters'. array(':filename' => $params['filename'])), 'invalid');
+        }
 
-            if($size_unit == 'bytes'){
-                /*
-                 * multiple ranges could be specified at the same time, but for simplicity only serve the first range
-                 * http://tools.ietf.org/id/draft-ietf-http-range-retrieval-00.txt
-                 */
-                list($range, $extra_ranges) = explode(',', $range_orig, 2);
-
-            }else{
-                $range = '';
-                header('HTTP/1.1 416 Requested Range Not Satisfiable');
-                throw new BException(tr('file_http_download(): Unknown size_unit ":size_unit" specified, please ensure its "bytes"', array(':size_unit' => $size_unit)), 'not-exist');
+        if($params['file']){
+            /*
+             * Send a file from disk
+             * Validate data
+             */
+            if(!is_scalar($params['file'])){
+                throw new BException(tr('file_http_download(): Specified file ":file" is not scalar'. array(':file' => $params['file'])), 'invalid');
             }
 
-        }else{
-            $range = '';
-        }
-
-        //figure out download piece from range (if set)
-        list($seek_start, $seek_end) = explode('-', $range, 2);
-
-        //set start and end based on range (if set), else set defaults
-        //also check for invalid ranges.
-        $seek_end   = (empty($seek_end)) ? ($file_size - 1) : min(abs(intval($seek_end)), ($file_size - 1));
-        $seek_start = (empty($seek_start) or ($seek_end < abs(intval($seek_start)))) ? 0 : max(abs(intval($seek_start)), 0);
-
-        //Only send partial content header if downloading a piece of the file (IE workaround)
-        if($seek_start or ($seek_end < ($file_size - 1))){
-            header('HTTP/1.1 206 Partial Content');
-            header('Content-Range: bytes '.$seek_start.'-'.$seek_end.'/'.$file_size);
-            header('Content-Length: '.($seek_end - $seek_start + 1));
-
-        }else{
-            header('Content-Length: '.$file_size);
-        }
-
-        header('Accept-Ranges: bytes');
-
-        set_time_limit(0);
-        fseek($file, $seek_start);
-
-        /*
-         * Download file to client
-         */
-        while(!feof($file)){
-            print(fread($file, 8912));
-            ob_flush();
-            flush();
-
-            if(connection_status()){
-                fclose($file);
-                exit;
+            if(file_exists($params['file'])){
+                throw new BException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible'. array(':file' => $params['file'])), 'not-exists');
             }
-        }
 
-        /*
-         * file download was a success
-         */
-        fclose($file);
+            if(is_readable($params['file'])){
+                throw new BException(tr('file_http_download(): Specified file ":file" exists but is not readable'. array(':file' => $params['file'])), 'not-readable');
+            }
+
+            file_restrict($params['file'], $params['restrictions']);
+
+            /*
+             * We have to send the right content type headers
+             */
+            $mimetype = mime_content_type($params['file']);
+
+            /*
+             * Send the specified file to the client
+             */
+// :TODO: Are these required?
+            //header('Expires: -1');
+            //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
+            header('Content-Type: '.$mimetype);
+            header("Content-length: ".filesize($params['file']));
+            header('Content-Disposition: attachment; filename="'.$params['filename'].'"');
+
+            readfile($params['file']);
+
+        }elseif($params['data']){
+            /*
+             * Send the specified data as a file to the client
+             */
+// :TODO: Are these required?
+            //header('Expires: -1');
+            //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
+            header('Content-Type: application/csv');
+            header("Content-length: ".strlen($params['data']));
+            header('Content-Disposition: attachment; filename="'.$params['file'].'"');
+
+            echo $params['data'];
+
+        }else{
+            throw new BException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
+        }
 
     }catch(Exception $e){
         throw new BException(tr('file_http_download(): Failed'), $e);
