@@ -2376,7 +2376,7 @@ function sql_get_orderby_string($orderby){
  */
 function sql_simple_list($params){
     try{
-        array_ensure($params, 'joins,debug');
+        array_ensure($params, 'joins,debug,limit,page');
 
         if(empty($params['table'])){
             throw new BException(tr('sql_simple_list(): No table specified'), 'not-specified');
