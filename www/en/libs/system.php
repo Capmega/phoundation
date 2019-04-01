@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.87');
+define('FRAMEWORKCODEVERSION', '2.5.88');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2054,7 +2054,7 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             }
         }
 
-        $prefix = str_starts(str_ends($prefix, '/'), '/');
+        $prefix = str_starts_not(str_ends($prefix, '/'), '/');
         $domain = slash($domain);
 
         if(!$url){
