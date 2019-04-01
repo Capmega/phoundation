@@ -47,6 +47,7 @@ require_once(__DIR__.'/system.php');
  * @category Function reference
  * @package route
  * @see route_404()
+ * @see route_send()
  * @see mapped_domain()
  * @table: `route`
  * @version 1.27.0: Added function and documentation
@@ -246,8 +247,7 @@ function route($regex, $target, $flags = null){
 
                     $count = 1;
                     unset($flags[$flags_id]);
-                    include(current_file(1));
-                    die();
+                    route_send(current_file(1));
 
                 case 'G':
                     /*
@@ -421,11 +421,8 @@ function route($regex, $target, $flags = null){
             }
         }
 
-        log_file(tr('Executing page ":page"', array(':page' => $page)), 'route', 'VERYVERBOSE/cyan');
-
         unset($map);
-        include($page);
-        die();
+        route_send($page);
 
     }catch(Exception $e){
         if(substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():'){
@@ -443,6 +440,45 @@ function route($regex, $target, $flags = null){
         }
 
         throw new BException('route(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Process the routed target
+ *
+ * We have a target for the requested route. If the resource is a PHP page, then
+ * execute it. Anything else, send it directly to the client
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package route
+ * @see route()
+ * @note: This function will kill the process once it has finished executing / sending the target file to the client
+ * @version 2.5.88: Added function and documentation
+ *
+ * @param string $target The target file that should be executed or sent to the client
+ * @return void
+ */
+function route_send($target){
+    try{
+        if(substr($target, -4, 4) === 'php'){
+            log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
+            include($page);
+
+        }else{
+            log_file(tr('Sending file ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
+            file_http_download(array('file'     => $target,
+                                     'filename' => basename($target)));
+        }
+
+        die();
+
+    }catch(Exception $e){
+        throw new BException(tr('route_send(): Failed'), $e);
     }
 }
 

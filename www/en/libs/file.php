@@ -1539,9 +1539,9 @@ function file_check_dir($path, $writable = false){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package file
- * @version 2.5.92: Rewrote function and added documentation
+ * @version 2.5.89: Rewrote function and added documentation
  *
- * @param $file
+ * @param params $params The file parameters
  * @return void
  */
 function file_http_download($params){
