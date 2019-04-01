@@ -8,5 +8,6 @@
  * @category Configuration
  * @package stream
  */
-$_CONFIG['stream']                                                              = array('buffer' => '102400');
+$_CONFIG['stream']                                                              = array('buffer' => '102400',
+                                                                                        'strict' => false);
 ?>

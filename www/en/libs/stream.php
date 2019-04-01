@@ -57,8 +57,11 @@ function stream_library_init(){
  * @param params $params The streaming parameters array
  */
 function stream($params){
+    global $_CONFIG;
+
     try{
         array_ensure($params, 'file,mimetype');
+        array_default($params, 'strict', $_CONFIG['stream']['strict']);
 
         /*
          * Open the file to be streamed and determine its mimetype to know what
