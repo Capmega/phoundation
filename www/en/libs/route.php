@@ -141,7 +141,7 @@ function route($regex, $target, $flags = null){
 
         $route        = $target;
         $attachment   = false;
-        $restrictions = ROOT.'www,'.ROOT.'data/files';
+        $restrictions = ROOT.'www,'.ROOT.'data/content/downloads';
 
         /*
          * Regex matched. Do variable substitution on the target.
@@ -487,6 +487,10 @@ function route_send($target, $attachment, $restrictions){
 
     try{
         if(substr($target, -3, 3) === 'php'){
+            if($attachment){
+                throw new BException(tr('route_send(): Found "A" flag for executable target ":target", but this flag can only be used for not executable files', array(':target' => $target)), 'access-denied');
+            }
+
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
             include($target);
 
