@@ -106,6 +106,6 @@ route('/^admin\/?$/'                                        , ':PROTOCOL:DOMAIN/
 /*
  * System files / downloadable files
  */
-route('/(.+?(?!.html))$/'                                   , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
+route('/(.+?(?:xml|txt))$/'                                 , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
 route('/\/files\/(.+)$/'                                    , '$1'                                                   , 'A');                // Downloadable files
 ?>
