@@ -54,7 +54,7 @@ try{
         log_console(tr('Warning: The specified global data path ":path" already exists', array(':path' => $path)), 'yellow');
 
     }else{
-        mkdir($path, $_CONFIG['fs']['dir_mode'], true);
+        mkdir($path, $_CONFIG['file']['dir_mode'], true);
     }
 
 }catch(Exception $e){
@@ -65,7 +65,7 @@ try{
 ///*
 // * Install geoname script
 // */
-//mkdir($path.'geonames', $_CONFIG['fs']['dir_mode'], true);
+//mkdir($path.'geonames', $_CONFIG['file']['dir_mode'], true);
 //file_copy_tree(ROOT.'data/sources/geonames', $path.'geonames');
 
 $return = $path;

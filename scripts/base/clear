@@ -61,7 +61,7 @@ if($tmp){
      * Move TMP out of the way, then delete it
      */
     rename(TMP, $delete = unslash(TMP).'~delete');
-    mkdir(TMP, $_CONFIG['fs']['dir_mode'], true);
+    mkdir(TMP, $_CONFIG['file']['dir_mode'], true);
 
     file_delete_tree($delete);
     log_console(tr('Done!'), 'green');

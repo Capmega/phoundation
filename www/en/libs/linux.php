@@ -618,7 +618,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
         }
 
         if(!$mode){
-            $mode = $_CONFIG['fs']['dir_mode'];
+            $mode = $_CONFIG['file']['dir_mode'];
         }
 
         if(!$path){

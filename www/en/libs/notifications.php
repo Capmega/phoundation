@@ -80,7 +80,12 @@ function notifications($notification, $log, $throw){
         /*
          * Add the notification to the database for later lookup
          */
-        $notification = notifications_insert($notification, $log);
+        if($core->register['script'] === 'init'){
+            $notification = notifications_validate($notification, $log);
+
+        }else{
+            $notification = notifications_insert($notification, $log);
+        }
 
         if($notification['exception'] and !$_CONFIG['production'] and $throw){
             /*
@@ -108,7 +113,7 @@ function notifications($notification, $log, $throw){
 // :TODO: Implement all required sub sections, then enable
         //notifications_send($notification);
 
-        return $notification['id'];
+        return isset_get($notification['id']);
 
     }catch(Exception $e){
         if(!$_CONFIG['production']){

@@ -279,7 +279,7 @@ function image_convert($source, $destination, $params = null){
 
                 case 'updatemode':
                     if($params['updatemode'] === true){
-                        $params['updatemode'] = $_CONFIG['fs']['dir_mode'];
+                        $params['updatemode'] = $_CONFIG['file']['dir_mode'];
                     }
 
                 case 'x':

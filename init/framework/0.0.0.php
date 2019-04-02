@@ -5,7 +5,7 @@
  */
 file_delete_tree(ROOT.'data/pub');
 
-mkdir(ROOT.'data/pub', $_CONFIG['fs']['dir_mode'], true);
+mkdir(ROOT.'data/pub', $_CONFIG['file']['dir_mode'], true);
 
 
 
