@@ -1,9 +1,14 @@
 <?php
 /*
- * File library containing all kinds of filesystem related functions
+ * File library
  *
+ * This library contains various file related functions
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package file
  */
 
 
@@ -305,7 +310,7 @@ function file_create_target_path($path, $singledir = false, $length = false){
 
     try{
         if($length === false){
-            $length = $_CONFIG['fs']['target_path_size'];
+            $length = $_CONFIG['file']['target_path_size'];
         }
 
         $path = unslash(file_ensure_path($path));
@@ -355,7 +360,7 @@ function file_ensure_file($file, $mode = null, $path_mode = null){
 
     try{
         if(!$mode){
-            $mode = $_CONFIG['fs']['file_mode'];
+            $mode = $_CONFIG['file']['file_mode'];
         }
 
         file_ensure_path(dirname($file), $path_mode);
@@ -403,7 +408,7 @@ function file_ensure_path($path, $mode = null, $clear = false){
 
     try{
         if($mode === null){
-            $mode = $_CONFIG['fs']['dir_mode'];
+            $mode = $_CONFIG['file']['dir_mode'];
 
             if(!$mode){
                 /*
@@ -588,7 +593,29 @@ function file_get_extension($filename){
 
 
 /*
- * Return a temporary filename for the specified file in the specified path
+ * Return a file path for a temporary file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.5.90: Added documentation, expanded $create to be able to contain data for the temp file
+ * @note: If the resolved temp file path already exist, it will be deleted, so take care when using $name!
+ * @example
+ * code
+ * $result = file_temp('This is temporary data!');
+ * showdie(file_get_contents($result));
+ * /code
+ *
+ * This would return
+ * code
+ * This is temporary data!
+ * /code
+ *
+ * @param boolean string $create If set to false, only the file path will be returned, the temporary file will NOT be created. If set to true, the file will be created. If set to a string, the temp file will be created with as contents the $create string
+ * @param null string $name If specified, use ROOT/data/tmp/$name instead of a randomly generated filename
+ * @return string The filename for the temp file
  */
 function file_temp($create = true, $name = null){
     try{
@@ -598,13 +625,26 @@ function file_temp($create = true, $name = null){
             $name = substr(hash('sha1', uniqid().microtime()), 0, 12);
         }
 
-		file_delete(TMP.$name);
+        $path = TMP.$name;
 
-        if($create){
-            touch(TMP.$name);
+        if(file_exists($path)){
+    		file_delete($path);
         }
 
-        return TMP.$name;
+        if($create){
+            if($create === true){
+                touch($path);
+
+            }else{
+                if(!is_string($create)){
+                    throw new BException(tr('file_temp(): Specified $create variable is of datatype ":type" but should be either false, true, or a data string that should be written to the temp file', array(':type' => gettype($create))), $e);
+                }
+
+                file_put_contents($path, $create);
+            }
+        }
+
+        return $path;
 
     }catch(Exception $e){
         throw new BException(tr('file_temp(): Failed'), $e);
@@ -1066,7 +1106,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                 }
 
                 if(is_null($mode)){
-                    $filemode = $_CONFIG['fs']['dir_mode'];
+                    $filemode = $_CONFIG['file']['dir_mode'];
 
                 }elseif(is_link($source.$file)){
                     /*
@@ -1135,7 +1175,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
              * Determine mode
              */
             if($mode === null){
-                $filemode = $_CONFIG['file_mode'];
+                $filemode = $_CONFIG['file']['file_mode'];
 
             }elseif($mode === true){
                 $filemode = fileperms($source);
@@ -1275,7 +1315,7 @@ function file_temp_dir($prefix = '', $mode = null){
          * Use default configged mode, or specific mode?
          */
         if($mode === null){
-            $mode = $_CONFIG['fs']['dir_mode'];
+            $mode = $_CONFIG['file']['dir_mode'];
         }
 
         file_ensure_path($path = TMP);
@@ -1532,7 +1572,7 @@ function file_check_dir($path, $writable = false){
 
 
 /*
- * Send the specified file to the client using the HTTP protocol with correct headers
+ * Send the specified file to the client as a download using the HTTP protocol with correct headers
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -1548,7 +1588,346 @@ function file_http_download($params){
     global $_CONFIG;
 
     try{
-        array_ensure($params, 'file,name');
+        array_ensure($params, 'file,data,name');
+        array_default($params, 'restrictions', ROOT.'data/downloads');
+        array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
+        array_default($params, 'filename'    , basename($params['file']));
+        array_default($params, 'attachment'  , false);
+        array_default($params, 'die'         , true);
+
+        /*
+         * Validate the file name for the user
+         */
+        if(!$params['filename']){
+            throw new BException(tr('file_http_download(): No filename specified. Note: This is not the file to be downloaded to the client, but the name it will have when saved on the clients storage'), 'not-specified');
+        }
+
+        if(!is_scalar($params['filename'])){
+                throw new BException(tr('file_http_download(): Specified filename ":filename" is not scalar', array(':filename' => $params['filename'])), 'invalid');
+        }
+
+        if(mb_strlen($params['filename']) > 250){
+                throw new BException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters', array(':filename' => $params['filename'])), 'invalid');
+        }
+
+        if($params['data']){
+            /*
+             * Send the specified data as a file to the client
+             * Write the data to a temp file first so we can just upload from
+             * there
+             */
+            if($params['file']){
+                throw new BException(tr('file_http_download(): Both "file" and "data" were specified, these parameters are mutually exclusive. Please specify one or the other'), 'invalid');
+            }
+
+            $params['file'] = file_temp($params['data']);
+            $params['data'] = $params['file'];
+        }
+
+        if(!$params['file']){
+            throw new BException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
+        }
+
+        /*
+         * Send a file from disk
+         * Validate data
+         */
+        if(!is_scalar($params['file'])){
+            throw new BException(tr('file_http_download(): Specified file ":file" is not scalar', array(':file' => $params['file'])), 'invalid');
+        }
+
+        if(!file_exists($params['file'])){
+            throw new BException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible', array(':file' => $params['file'])), 'not-exists');
+        }
+
+        if(!is_readable($params['file'])){
+            throw new BException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
+        }
+
+        file_restrict($params['file'], $params['restrictions']);
+
+        /*
+         * We have to send the right content type headers and we might need to
+         * figure out if we need to use compression or not
+         */
+        $mimetype  = mime_content_type($params['file']);
+        $primary   = str_until($mimetype, '/');
+        $secondary = str_from($mimetype , '/');
+
+        /*
+         * What file mode will we use?
+         */
+        if(file_is_binary($primary, $secondary)){
+            $mode = 'rb';
+
+        }else{
+            $mode = 'r';
+        }
+
+        /*
+         * Do we need compression?
+         */
+        if($params['compression'] === 'auto'){
+            /*
+             * Detect if the file is already compressed. If so, we don't need
+             * the server to try to compress the data stream too because it
+             * won't do anything (possibly make it even worse)
+             */
+            $params['compression'] = !file_is_compressed($primary, $secondary);
+        }
+
+        if($params['compression']){
+            if(is_executable('apache_setenv')){
+                apache_setenv('no-gzip', 0);
+            }
+
+            ini_set('zlib.output_compression', 'On');
+
+        }else{
+            if(is_executable('apache_setenv')){
+                apache_setenv('no-gzip', 1);
+            }
+
+            ini_set('zlib.output_compression', 'Off');
+        }
+
+        /*
+         * Send the specified file to the client
+         */
+        $bytes = filesize($params['file']);
+        log_file(tr('HTTP downloading ":bytes" bytes file ":file" to client as ":filename"', array(':bytes' => $bytes, ':filename' => $params['filename'], ':file' => $params['file'])), 'http-download', 'cyan');
+
+// :TODO: Are these required?
+        //header('Expires: -1');
+        //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
+        header('Content-Type: '.$mimetype);
+        header("Content-length: ".$bytes);
+
+        if($params['attachment']){
+            /*
+             * Instead of sending the file to the browser to display directly,
+             * send it as a file attachement that will be downloaded to their
+             * disk
+             */
+            header('Content-Disposition: attachment; filename="'.$params['filename'].'"');
+        }
+
+        $f = fopen($params['file'], $mode);
+        fpassthru($f);
+        fclose($f);
+
+        /*
+         * If we created a temporary file for a given data string, then delete
+         * the temp file
+         */
+        if($params['data']){
+            file_delete($params['data']);
+        }
+
+        if($params['die']){
+            die();
+        }
+
+    }catch(Exception $e){
+        /*
+         * If we created a temporary file for a given data string, then delete
+         * the temp file
+         */
+        if($params['data']){
+            file_delete($params['data']);
+        }
+
+        throw new BException(tr('file_http_download(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return true if the specified mimetype is for a binary file or false if it is for a text file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.5.90: Added function and documentation
+ *
+ * @param string $mimetype The primary mimetype section to check. If the mimetype is "text/plain", this variable would receive "text". You can also leave $secondary empty and specify the complete mimetype "text/plain" here, both will work
+ * @param string $mimetype The secondary mimetype section to check. If the mimetype is "text/plain", this variable would receive "plain". If the complete mimetype is specified in $primary, you can leave this one empty
+ * @return boolean True if the specified mimetype is for a binary file, false if it is a text file
+ */
+function file_is_binary($primary, $secondary = null){
+    try{
+// :TODO: IMPROVE THIS! Loads of files that are not text/ are still not binary
+        /*
+         * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
+         */
+        if(!$secondary){
+            if(!str_exists($primary, '/')){
+                throw new BException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
+            }
+
+            $secondary = str_from($primary , '/');
+            $primary   = str_until($primary, '/');
+        }
+
+        /*
+         * Check the mimetype data
+         */
+        switch($primary){
+            case 'text':
+                /*
+                 * Readonly
+                 */
+                return false;
+
+            default:
+                switch($secondary){
+                    case 'json':
+                        // FALLTHROUGH
+                    case 'ld+json':
+                        // FALLTHROUGH
+                    case 'svg+xml':
+                        // FALLTHROUGH
+                    case 'x-csh':
+                        // FALLTHROUGH
+                    case 'x-sh':
+                        // FALLTHROUGH
+                    case 'xhtml+xml':
+                        // FALLTHROUGH
+                    case 'xml':
+                        // FALLTHROUGH
+                    case 'xml':
+                        // FALLTHROUGH
+                    case 'vnd.mozilla.xul+xml':
+                        /*
+                         * This should be text
+                         */
+                        return false;
+                }
+        }
+
+        /*
+         * This should be binary
+         */
+        return true;
+
+    }catch(Exception $e){
+        throw new BException('file_is_binary(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return true if the specified mimetype is for a compressed file, false if not
+ *
+ * This function will check the primary and secondary sections of the mimetype and depending on their values, determine if the file format should use compression or not
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.5.90: Added function and documentation
+ *
+ * @param string $mimetype The primary mimetype section to check. If the mimetype is "text/plain", this variable would receive "text". You can also leave $secondary empty and specify the complete mimetype "text/plain" here, both will work
+ * @param string $mimetype The secondary mimetype section to check. If the mimetype is "text/plain", this variable would receive "plain". If the complete mimetype is specified in $primary, you can leave this one empty
+ * @return boolean True if the specified mimetype is for a compressed file, false if not
+ */
+function file_is_compressed($primary, $secondary = null){
+    try{
+// :TODO: IMPROVE THIS! Loads of files that may be mis detected
+        /*
+         * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
+         */
+        if(!$secondary){
+            if(!str_exists($primary, '/')){
+                throw new BException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
+            }
+
+            $secondary = str_from($primary , '/');
+            $primary   = str_until($primary, '/');
+        }
+
+        /*
+         * Check the mimetype data
+         */
+        if(str_exists($secondary, 'compressed')){
+            /*
+             * This file is already compressed
+             */
+            return true;
+
+        }elseif(str_exists($secondary, 'zip')){
+            /*
+             * This file is already compressed
+             */
+            return true;
+
+        }else{
+            switch($secondary){
+                case 'jpeg':
+                    // FALLTHROUGH
+                case 'mpeg':
+                    // FALLTHROUGH
+                case 'ogg':
+                    /*
+                     * This file is already compressed
+                     */
+                    return true;
+
+                default:
+                    switch($primary){
+                        case 'audio':
+                            switch($secondary){
+                                case 'mpeg':
+                                    // FALLTHROUGH
+                                case 'ogg':
+                            }
+                            break;
+
+                        case 'image':
+                            break;
+
+                        case 'video':
+                            break;
+
+                        default:
+                            /*
+                             * This file probably is not compressed
+                             */
+                            return false;
+                    }
+            }
+        }
+
+    }catch(Exception $e){
+        throw new BException('template_function(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Send the specified file to the client using the HTTP protocol with correct headers
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.5.92: Rewrote function and added documentation
+ *
+ * @param $file
+ * @return void
+ */
+function file_http_send($params){
+    global $_CONFIG;
+
+    try{
+        array_ensure($params, 'file,data,name');
         array_default($params, 'restrictions', ROOT.'data/downloads');
         array_default($params, 'compression' , $_CONFIG['file']['download']['compression']);
         array_default($params, 'filename'    , basename($params['file']));
@@ -1574,73 +1953,70 @@ function file_http_download($params){
         }
 
         if(!is_scalar($params['filename'])){
-                throw new BException(tr('file_http_download(): Specified filename ":filename" is not scalar'. array(':filename' => $params['filename'])), 'invalid');
+                throw new BException(tr('file_http_download(): Specified filename ":filename" is not scalar', array(':filename' => $params['filename'])), 'invalid');
         }
 
         if(mb_strlen($params['filename']) > 250){
-                throw new BException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters'. array(':filename' => $params['filename'])), 'invalid');
+                throw new BException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters', array(':filename' => $params['filename'])), 'invalid');
         }
 
-        if($params['file']){
-            /*
-             * Send a file from disk
-             * Validate data
-             */
-            if(!is_scalar($params['file'])){
-                throw new BException(tr('file_http_download(): Specified file ":file" is not scalar'. array(':file' => $params['file'])), 'invalid');
-            }
-
-            if(file_exists($params['file'])){
-                throw new BException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible'. array(':file' => $params['file'])), 'not-exists');
-            }
-
-            if(is_readable($params['file'])){
-                throw new BException(tr('file_http_download(): Specified file ":file" exists but is not readable'. array(':file' => $params['file'])), 'not-readable');
-            }
-
-            file_restrict($params['file'], $params['restrictions']);
-
-            /*
-             * We have to send the right content type headers
-             */
-            $mimetype = mime_content_type($params['file']);
-
-            /*
-             * Send the specified file to the client
-             */
-            $bytes = filesize($params['file']);
-            log_file(tr('HTTP downloading ":bytes" bytes file ":file" to client as ":filename"', array(':bytes' => $bytes, ':filename' => $params['filename'], ':file' => $params['file'])), 'http-download', 'cyan');
-
-// :TODO: Are these required?
-            //header('Expires: -1');
-            //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
-            header('Content-Type: '.$mimetype);
-            header("Content-length: ".$bytes);
-            header('Content-Disposition: attachment; filename="'.$params['filename'].'"');
-
-            $f = fopen($params['file']);
-            fpassthru($f);
-            fclose($f);
-
-        }elseif($params['data']){
+        if($params['data']){
             /*
              * Send the specified data as a file to the client
+             * Write the data to a temp file first so we can just upload from
+             * there
              */
-            $bytes = strlen($params['data']);
-            log_file(tr('HTTP downloading ":bytes" bytes of data to client as ":filename"', array(':bytes' => $bytes, ':file' => $params['file'])), 'http-download', 'cyan');
+            if($params['file']){
+                throw new BException(tr('file_http_download(): Both "file" and "data" were specified, these parameters are mutually exclusive. Please specify one or the other'), 'invalid');
+            }
 
-// :TODO: Are these required?
-            //header('Expires: -1');
-            //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
-            header('Content-Type: application/csv');
-            header("Content-length: ".$length);
-            header('Content-Disposition: attachment; filename="'.$params['file'].'"');
+            $params['file'] = file_temp($params['data']);
+            unset($params['data']);
+        }
 
-            echo $params['data'];
-
-        }else{
+        if(!$params['file']){
             throw new BException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
         }
+
+        /*
+         * Send a file from disk
+         * Validate data
+         */
+        if(!is_scalar($params['file'])){
+            throw new BException(tr('file_http_download(): Specified file ":file" is not scalar', array(':file' => $params['file'])), 'invalid');
+        }
+
+        if(file_exists($params['file'])){
+            throw new BException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible', array(':file' => $params['file'])), 'not-exists');
+        }
+
+        if(is_readable($params['file'])){
+            throw new BException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
+        }
+
+        file_restrict($params['file'], $params['restrictions']);
+
+        /*
+         * We have to send the right content type headers
+         */
+        $mimetype = mime_content_type($params['file']);
+
+        /*
+         * Send the specified file to the client
+         */
+        $bytes = filesize($params['file']);
+        log_file(tr('HTTP downloading ":bytes" bytes file ":file" to client as ":filename"', array(':bytes' => $bytes, ':filename' => $params['filename'], ':file' => $params['file'])), 'http-download', 'cyan');
+
+// :TODO: Are these required?
+        //header('Expires: -1');
+        //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
+        header('Content-Type: '.$mimetype);
+        header("Content-length: ".$bytes);
+        header('Content-Disposition: attachment; filename="'.$params['filename'].'"');
+
+        $f = fopen($params['file']);
+        fpassthru($f);
+        fclose($f);
 
         if($params['die']){
             die();

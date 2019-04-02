@@ -1,12 +1,23 @@
 <?php
 /*
- * Basic BASE configuration file. DO NOT MODIFY THIS FILE! This file contains default values
- * that may be overwritten when you perform a system update!
+ * MAIN PHOUNDATION CONFIGURATION FILE
+ *
+ * DO NOT MODIFY THIS FILE!
+ *
+ * This file contains default valuesthat may be overwritten when you perform a
+ * system update! Always update the following configuration files if you need to
+ * make configuration changes
+ *
+ * production.php
+ * ENVIRONMENT.php (Where ENVIRONMENT is the environment for which you wish to change the configuration)
  *
  * ALL CONFIGURATION ENTRIES ARE ORDERED ALPHABETICALLY, ONLY "debug" IS ON TOP FOR CONVENIENCE
-
+ *
+ * @author Sven Oostenbrink <support@capmega.com>,
+ * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Sven Oostenbrink <support@capmega.com>, Johan Geuze
+ * @category Configuration
+ * @package system
  */
 
 // To debug or not to debug?
@@ -149,6 +160,12 @@ $_CONFIG['exec']               = array('path'                               => '
 // Feedback configuration
 $_CONFIG['feedback']           = array('emails'                             => array('Capmega Support' => 'support@capmega.com'));
 
+// File library configuration
+$_CONFIG['file']                                                                = array('dir_mode'         => 0770,                                     // When the system creates directory, this sets what file mode it will have (Google unix file modes for more information)
+                                                                                        'file_mode'        => 0660,                                     // When the system creates a file, this sets what file mode it will have (Google unix file modes for more information)
+                                                                                        'target_path_size' => 4,                                        // When creating
+                                                                                        'download'         => array('compression' => 'auto'));          // When downloading a file to a client, use compression or not. Either true, false, or "auto". In case of auto, the system will determine the mimetype of the file, and from there decide if compression is a good idea or not (jpeg, for example, might not be a good idea). Recommended value is "auto"
+
 // Flash alert configuration
 $_CONFIG['flash']              = array('type'                               => 'html',                                                      // The type of HTML flash message to use. Either "html" or "sweetalert"
                                        'html'                               => '<div class="flash:type">:message</div>');
@@ -161,11 +178,6 @@ $_CONFIG['formats']            = array('force1224'                          => '
                                        'human_time'                         => 'H:i:s',
                                        'human_datetime'                     => 'd/m/Y H:i:s',
                                        'human_nice_date'                    => 'l, j F Y');
-
-// Filesystem configuration
-$_CONFIG['fs']                 = array('dir_mode'                           => 0770,                                                        // When the system creates directory, this sets what file mode it will have (Google unix file modes for more information)
-                                       'file_mode'                          => 0660,                                                        // When the system creates a file, this sets what file mode it will have (Google unix file modes for more information)
-                                       'target_path_size'                   => 4);                                                          // When creating
 
 // Init configuration
 $_CONFIG['init']               = array('cli'                                => true,                                                        // Sets if system init can be executed by shell
