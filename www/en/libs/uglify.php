@@ -334,7 +334,7 @@ function uglify_css($paths = null, $force = false){
                      * Compress file
                      */
                     log_console(tr('uglify_css(): Compressing CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                    file_delete(substr($file, 0, -4).'.min.css', false, false, ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css');
+                    file_delete(substr($file, 0, -4).'.min.css', false, false, ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css,'.ROOT.'www/en/admin/pub/js,'.ROOT.'www/en/admin/pub/css');
 
                     try{
                         if(filesize($file)){
@@ -359,12 +359,14 @@ function uglify_css($paths = null, $force = false){
                     $time = time();
 
                     if(empty($_CONFIG['deploy'][ENVIRONMENT]['sudo'])){
+// :TODO: Replace this with file_touch();
                         touch(str_runtil($file, '.').'.css'    , $time, $time);
                         touch(str_runtil($file, '.').'.min.css', $time, $time);
 
                     }else{
                         $time = date_convert($time, 'Y-m-d H:i:s');
 
+// :TODO: Replace this with file_touch();
                         safe_exec(array('commands' => array('touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.css'),
                                                             'touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.min.css'))));
                     }
@@ -676,7 +678,7 @@ function uglify_js($paths = null, $force = false){
                      * Compress file
                      */
                     log_console(tr('uglify_js(): Compressing javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                    file_delete(substr($file, 0, -3).'.min.js', false, false, ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css');
+                    file_delete(substr($file, 0, -3).'.min.js', false, false, ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css,'.ROOT.'www/en/admin/pub/js,'.ROOT.'www/en/admin/pub/css');
 
                     try{
                         if(filesize($file)){
