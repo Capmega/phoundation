@@ -56,7 +56,7 @@ function git_library_init(){
  */
 function git_is_repository($path = ROOT){
     try{
-        return git_check_path($path);
+        return (boolean) git_check_path($path, false);
 
     }catch(Exception $e){
         throw new BException('git_is_repository(): Failed', $e);
@@ -98,9 +98,10 @@ function git_is_available(){
  * @package git
  *
  * @param string $path
+ * @param boolean $exception If set true, this function will throw an exception if the specified path is not a git repository
  * @return The specified path, checked
  */
-function git_check_path($path){
+function git_check_path($path, $exception = true){
     static $paths;
 
     try{
@@ -113,11 +114,19 @@ function git_check_path($path){
         }
 
         if(!file_exists($path)){
-            throw new BException(tr('git_check_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            if($exception){
+                throw new BException(tr('git_check_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            }
+
+            return false;
         }
 
         if(!file_scan($path, '.git')){
-            throw new BException(tr('git_check_path(): Specified path ":path" is not a git repository', array(':path' => $path)), 'git');
+            if($exception){
+                throw new BException(tr('git_check_path(): Specified path ":path" is not a git repository', array(':path' => $path)), 'git');
+            }
+
+            return false;
         }
 
         $paths[$path] = $path;
