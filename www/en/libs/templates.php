@@ -216,7 +216,8 @@ function templates_update($template){
                                    ':'   => $template[''],
                                    ':'   => $template['']));
 
-        return (boolean) $update->rowCount();
+        $template['_updated'] = (boolean) $update->rowCount();
+        return $template;
 
     }catch(Exception $e){
         throw new BException(tr('templates_update(): Failed'), $e);
@@ -246,7 +247,7 @@ function templates_update($template){
  */
 function templates_get($params){
     try{
-        array_ensure($params, 'seotemplate');
+        array_params($params, 'seotemplate');
 
         $params['table']   = 'templates';
 

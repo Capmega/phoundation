@@ -235,6 +235,117 @@ function projects_validate($project, $reload_only = false){
 
 
 /*
+ * Insert the specified project into the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package projects
+ * @see projects_validate()
+ * @see projects_update()
+ * @table: `project`
+ * @version 2.5.92: Added function and documentation
+ * @example Insert a project in the database
+ *
+ * @param params $project The project to be inserted
+ * @param string $project[]
+ * @param string $project[]
+ * @return params The specified project, validated and sanitized
+ */
+function projects_insert($project){
+    try{
+        $project = projects_validate($project);
+
+        sql_query('INSERT INTO `projects` (`createdby`, `meta_id`, `categories_id`, `customers_id`, `processes_id`, `steps_id`, `code`, `name`, `seoname`, `api_key`, `fcm_api_key`, `description`)
+                   VALUES                 (:createdby , :meta_id , :categories_id , :customers_id , :processes_id , :steps_id , :code , :name , :seoname , :api_key , :fcm_api_key , :description )',
+
+                   array(':createdby'     =>  isset_get($_SESSION['project']['id']),
+                         ':meta_id'       =>  meta_action(),
+                         ':categories_id' =>  $project['categories_id'],
+                         ':customers_id'  =>  $project['customers_id'],
+                         ':processes_id'  =>  $project['processes_id'],
+                         ':steps_id'      =>  $project['steps_id'],
+                         ':code'          =>  $project['code'],
+                         ':name'          =>  $project['name'],
+                         ':seoname'       =>  $project['seoname'],
+                         ':api_key'       =>  $project['api_key'],
+                         ':fcm_api_key'   =>  $project['fcm_api_key'],
+                         ':description'   =>  $project['description']));
+
+        $project['id'] = sql_insert_id();
+
+        return $project;
+
+    }catch(Exception $e){
+        throw new BException(tr('projects_insert(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Update the specified project in the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package projects
+ * @see projects_validate()
+ * @see projects_insert()
+ * @table: `project`
+ * @version 2.5.92: Added function and documentation
+ *
+ * @param params $params The project to be updated
+ * @param string $project[]
+ * @param string $project[]
+ * @return boolean True if the user was updated, false if not. If not updated, this might be because no data has changed
+ */
+function projects_update($project){
+    try{
+        $project = projects_validate($project);
+
+        meta_action($project['meta_id'], 'update');
+
+        $update = sql_query('UPDATE `projects`
+
+                             SET    `categories_id` = :categories_id,
+                                    `customers_id`  = :customers_id,
+                                    `processes_id`  = :processes_id,
+                                    `steps_id`      = :steps_id,
+                                    `code`          = :code,
+                                    `name`          = :name,
+                                    `seoname`       = :seoname,
+                                    `api_key`       = :api_key,
+                                    `fcm_api_key`   = :fcm_api_key,
+                                    `description`   = :description
+
+                             WHERE  `id`            = :id',
+
+                             array(':id'            => $project['id'],
+                                   ':categories_id' => $project['categories_id'],
+                                   ':customers_id'  => $project['customers_id'],
+                                   ':processes_id'  => $project['processes_id'],
+                                   ':steps_id'      => $project['steps_id'],
+                                   ':code'          => $project['code'],
+                                   ':name'          => $project['name'],
+                                   ':seoname'       => $project['seoname'],
+                                   ':api_key'       => $project['api_key'],
+                                   ':fcm_api_key'   => $project['fcm_api_key'],
+                                   ':description'   => $project['description']));
+
+        $project['_updated'] = (boolean) $update->rowCount();
+        return $project;
+
+    }catch(Exception $e){
+        throw new BException(tr('projects_update(): Failed'), $e);
+    }
+}
+
+
+
+/*
  * Return HTML for a projects select box
  *
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available projects

@@ -148,6 +148,118 @@ function providers_validate($provider){
 
 
 /*
+ * Insert the specified provider into the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package providers
+ * @see providers_validate()
+ * @see providers_update()
+ * @version 2.5.92: Added function and documentation
+ *
+ * @param params $provider The provider to be inserted
+ * @param string $provider[name]
+ * @param string $provider[code]
+ * @param string $provider[email]
+ * @param string $provider[]
+ * @param string $provider[]
+ * @param string $provider[]
+ * @param string $provider[]
+ * @return params The specified provider, validated and sanitized
+ */
+function providers_insert($provider){
+    try{
+        $provider = providers_validate($provider);
+
+        sql_query('INSERT INTO `providers` (`createdby`, `categories_id`, `name`, `seoname`, `code`, `url`, `email`, `phones`, `description`)
+                   VALUES                  (:createdby , :categories_id , :name , :seoname , :code , :url , :email , :phones , :description )',
+
+                   array(':createdby'     => $_SESSION['user']['id'],
+                         ':categories_id' => $provider['categories_id'],
+                         ':name'          => $provider['name'],
+                         ':seoname'       => $provider['seoname'],
+                         ':code'          => $provider['code'],
+                         ':url'           => $provider['url'],
+                         ':email'         => $provider['email'],
+                         ':phones'        => $provider['phones'],
+                         ':description'   => $provider['description']));
+
+        $provider['id'] = sql_insert_id();
+
+        return $provider;
+
+    }catch(Exception $e){
+        throw new BException(tr('providers_insert(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Update the specified provider in the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package providers
+ * @see providers_validate()
+ * @see providers_insert()
+ * @table: `provider`
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param params $provider The provider to be inserted
+ * @param string $provider[name]
+ * @param string $provider[code]
+ * @param string $provider[email]
+ * @param string $provider[]
+ * @param string $provider[]
+ * @param string $provider[]
+ * @param string $provider[]
+ * @return params The specified provider, validated and sanitized
+ */
+function providers_update($provider){
+    try{
+        $provider = providers_validate($provider);
+
+        meta_action($provider['meta_id'], 'update');
+
+        $update = sql_query('UPDATE `providers`
+
+                             SET    `categories_id` = :categories_id,
+                                    `url`           = :url,
+                                    `code`          = :code,
+                                    `name`          = :name,
+                                    `seoname`       = :seoname,
+                                    `email`         = :email,
+                                    `phones`        = :phones,
+                                    `description`   = :description
+
+                             WHERE  `id`            = :id',
+
+                             array(':id'            => $provider['id'],
+                                   ':categories_id' => $provider['categories_id'],
+                                   ':name'          => $provider['name'],
+                                   ':seoname'       => $provider['seoname'],
+                                   ':code'          => $provider['code'],
+                                   ':url'           => $provider['url'],
+                                   ':email'         => $provider['email'],
+                                   ':phones'        => $provider['phones'],
+                                   ':description'   => $provider['description']));
+
+        $provider['_updated'] = (boolean) $update->rowCount();
+        return $provider;
+
+    }catch(Exception $e){
+        throw new BException(tr('providers_update(): Failed'), $e);
+    }
+}
+
+
+
+/*
  * Return HTML for a providers select box
  *
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available providers
@@ -222,63 +334,42 @@ function providers_select($params = null){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package providers
+ * @version 2.5.50: Added function and documentation
  *
  * @param mixed $provider The requested provider. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
  * @param string $status Filter by the specified status
- * @param natural $categories_id Filter by the specified categories_id. If NULL, the customer must NOT belong to any category
+ * @param natural $categories_id Filter by the specified categories_id. If NULL, the provider must NOT belong to any category
  * @return mixed The provider data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified provider does not exist, NULL will be returned.
  */
-function providers_get($provider, $column = null, $status = null, $categories_id = false){
+function providers_get($params){
     try{
-        if(is_numeric($provider)){
-            $where[] = ' `providers`.`id` = :id ';
-            $execute[':id'] = $provider;
+        array_params($params, 'seoprovider');
 
-        }else{
-            $where[] = ' `providers`.`seoname` = :seoname ';
-            $execute[':seoname'] = $provider;
-        }
+        array_default($params, 'filters', array('providers.seoname' => $params['seoprovider']));
 
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `providers`.`status` '.sql_is($status, ':status');
-        }
+        array_default($params, 'joins'  , array('LEFT JOIN `categories`
+                                                 ON        `categories`.`id` = `providers`.`categories_id`'));
 
-        if($categories_id !== false){
-            $execute[':categories_id'] = $categories_id;
-            $where[] = ' `customers`.`categories_id` '.sql_is($categories_id, ':categories_id');
-        }
+        array_default($params, 'columns', 'providers.id,
+                                           providers.createdon,
+                                           providers.createdby,
+                                           providers.meta_id,
+                                           providers.status,
+                                           providers.name,
+                                           providers.seoname,
+                                           providers.email,
+                                           providers.phones,
+                                           providers.code,
+                                           providers.url,
+                                           providers.description,
 
-        $where   = ' WHERE '.implode(' AND ', $where).' ';
+                                           categories.name    AS category,
+                                           categories.seoname AS seocategory');
 
-        if($column){
-            $retval = sql_get('SELECT `'.$column.'` FROM `providers` '.$where, true, $execute);
+        $params['table'] = 'providers';
 
-        }else{
-            $retval = sql_get('SELECT    `providers`.`id`,
-                                         `providers`.`createdon`,
-                                         `providers`.`createdby`,
-                                         `providers`.`meta_id`,
-                                         `providers`.`status`,
-                                         `providers`.`name`,
-                                         `providers`.`seoname`,
-                                         `providers`.`email`,
-                                         `providers`.`phones`,
-                                         `providers`.`code`,
-                                         `providers`.`url`,
-                                         `providers`.`description`,
-
-                                         `categories`.`name`    AS `category`,
-                                         `categories`.`seoname` AS `seocategory`
-
-                               FROM      `providers`
-
-                               LEFT JOIN `categories`
-                               ON        `categories`.`id` = `providers`.`categories_id` '.$where, $execute);
-        }
-
-        return $retval;
+        return sql_simple_get($params);
 
     }catch(Exception $e){
         throw new BException('providers_get(): Failed', $e);
@@ -295,13 +386,13 @@ function providers_get($provider, $column = null, $status = null, $categories_id
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @template Function reference
+ * @provider Function reference
  * @package providers
  * @see sql_simple_list()
  * @version 2.5.50: Added function and documentation
  *
  * @param params $params The list parameters
- * @return mixed The list of available templates
+ * @return mixed The list of available providers
  */
 function providers_list($params){
     try{

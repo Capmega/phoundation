@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.93');
+define('FRAMEWORKCODEVERSION', '2.5.94');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2043,6 +2043,10 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
         }
 
         $language = get_language($language);
+
+        if($language){
+            $language .= '/';
+        }
 
         if($prefix === null){
 // :COMPATIBILITY:  Remove "root" support after 2019-04-01

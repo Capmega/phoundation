@@ -52,7 +52,7 @@ function customers_validate($customer){
     try{
         load_libs('validate,seo');
 
-        $v = new ValidateForm($customer, 'seocategory,name,code,company,email,phones,address1,address2,address3,zipcode,documents_id,seocountry,seostate,seocity,description');
+        $v = new ValidateForm($customer, 'seocategory,name,code,url,company,email,phones,address1,address2,address3,zipcode,documents_id,seocountry,seostate,seocity,description');
         $v->isNotEmpty ($customer['name']    , tr('No customers name specified'));
         $v->hasMinChars($customer['name'],  2, tr('Please ensure the customer\'s name has at least 2 characters'));
         $v->hasMaxChars($customer['name'], 64, tr('Please ensure the customer\'s name has less than 64 characters'));
@@ -89,11 +89,19 @@ function customers_validate($customer){
         }
 
         if($customer['email']){
-            $v->hasMaxChars($customer['email'], 64, tr('Please ensure the email has less than 96 characters'));
+            $v->hasMaxChars($customer['email'], 96, tr('Please ensure the email has less than 96 characters'));
             $v->isEmail($customer['email'], tr('Please specify a valid emailaddress'));
 
         }else{
             $customer['email'] = null;
+        }
+
+        if($customer['url']){
+            $v->hasMaxChars($customer['url'], 255, tr('Please ensure the email has less than 255 characters'));
+            $v->isUrl($customer['url'], tr('Please specify a valid url'));
+
+        }else{
+            $customer['url'] = '';
         }
 
         if($customer['phones']){
@@ -272,6 +280,156 @@ function customers_validate($customer){
 
 
 /*
+ * Insert the specified customer into the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package customers
+ * @see customers_validate()
+ * @see customers_update()
+ * @version 2.5.92: Added function and documentation
+ * @example Insert a customer in the database
+ * code
+ * $result = customers_insert(array('name'        => 'Capmega',
+ *                                  'code'        => 'MX_CAPMEGA',
+ *                                  'email'       => 'support@capmega.com',
+ *                                  'seocompany'  => 'capmega',
+ *                                  'seocompany'  => 'capmega',
+ *                                  'description' => 'This is a test'));
+ * showdie($result);
+ * /code
+ *
+ * @param params $customer The customer to be inserted
+ * @param string $customer[name]
+ * @param string $customer[code]
+ * @param string $customer[email]
+ * @param string $customer[]
+ * @param string $customer[]
+ * @param string $customer[]
+ * @param string $customer[]
+ * @return params The specified customer, validated and sanitized
+ */
+function customers_insert($customer){
+    try{
+        $customer = customers_validate($customer);
+
+        sql_query('INSERT INTO `customers` (`createdby`, `name`, `seoname`, `code`, `email`, `phones`, `company`, `documents_id`, `categories_id`, `address1`, `address2`, `address3`, `zipcode`, `countries_id`, `states_id`, `cities_id`, `url`, `description`)
+                   VALUES                  (:createdby , :name , :seoname , :code , :email , :phones,  :company , :documents_id , :categories_id , :address1 , :address2 , :address3 , :zipcode , :countries_id , :states_id , :cities_id , :url , :description )',
+
+                   array(':createdby'     => $_SESSION['user']['id'],
+                         ':name'          => $customer['name'],
+                         ':seoname'       => $customer['seoname'],
+                         ':code'          => $customer['code'],
+                         ':email'         => $customer['email'],
+                         ':phones'        => $customer['phones'],
+                         ':company'       => $customer['company'],
+                         ':documents_id'  => $customer['documents_id'],
+                         ':categories_id' => $customer['categories_id'],
+                         ':address1'      => $customer['address1'],
+                         ':address2'      => $customer['address2'],
+                         ':address3'      => $customer['address3'],
+                         ':zipcode'       => $customer['zipcode'],
+                         ':countries_id'  => $customer['countries_id'],
+                         ':states_id'     => $customer['states_id'],
+                         ':cities_id'     => $customer['cities_id'],
+                         ':url'           => $customer['url'],
+                         ':description'   => $customer['description']));
+
+        $customer['id'] = sql_insert_id();
+
+        return $customer;
+
+    }catch(Exception $e){
+        throw new BException(tr('customers_insert(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Update the specified customer in the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package customers
+ * @see customers_validate()
+ * @see customers_insert()
+ * @table: `customer`
+ * @version 2.5.38: Added function and documentation
+ * @example Update a customer in the database
+ *
+ * @param params $customer The customer to be inserted
+ * @param string $customer[name]
+ * @param string $customer[code]
+ * @param string $customer[email]
+ * @param string $customer[]
+ * @param string $customer[]
+ * @param string $customer[]
+ * @param string $customer[]
+ * @return params The specified customer, validated and sanitized
+ */
+function customers_update($customer){
+    try{
+        $customer = customers_validate($customer);
+
+        meta_action($customer['meta_id'], 'update');
+
+        $update = sql_query('UPDATE `customers`
+
+                             SET    `name`          = :name,
+                                    `seoname`       = :seoname,
+                                    `email`         = :email,
+                                    `phones`        = :phones,
+                                    `code`          = :code,
+                                    `company`       = :company,
+                                    `documents_id`  = :documents_id,
+                                    `categories_id` = :categories_id,
+                                    `address1`      = :address1,
+                                    `address2`      = :address2,
+                                    `address3`      = :address3,
+                                    `zipcode`       = :zipcode,
+                                    `countries_id`  = :countries_id,
+                                    `states_id`     = :states_id,
+                                    `cities_id`     = :cities_id,
+                                    `url`           = :url,
+                                    `description`   = :description
+
+                             WHERE  `id`            = :id',
+
+                             array(':id'            => $customer['id'],
+                                   ':name'          => $customer['name'],
+                                   ':seoname'       => $customer['seoname'],
+                                   ':code'          => $customer['code'],
+                                   ':email'         => $customer['email'],
+                                   ':phones'        => $customer['phones'],
+                                   ':company'       => $customer['company'],
+                                   ':documents_id'  => $customer['documents_id'],
+                                   ':categories_id' => $customer['categories_id'],
+                                   ':address1'      => $customer['address1'],
+                                   ':address2'      => $customer['address2'],
+                                   ':address3'      => $customer['address3'],
+                                   ':zipcode'       => $customer['zipcode'],
+                                   ':countries_id'  => $customer['countries_id'],
+                                   ':states_id'     => $customer['states_id'],
+                                   ':cities_id'     => $customer['cities_id'],
+                                   ':url'           => $customer['url'],
+                                   ':description'   => $customer['description']));
+
+        $customer['_updated'] = (boolean) $update->rowCount();
+        return $customer;
+
+    }catch(Exception $e){
+        throw new BException(tr('customers_update(): Failed'), $e);
+    }
+}
+
+
+
+/*
  * Return HTML for a customers select box
  *
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available customers
@@ -368,7 +526,7 @@ function customers_select($params = null){
  */
 function customers_get($params){
     try{
-        array_ensure($params, 'seocustomer');
+        array_params($params, 'seocustomer');
 
         array_default($params, 'filters', array('customers.seoname' => $params['seocustomer']));
 
@@ -438,13 +596,13 @@ function customers_get($params){
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @template Function reference
+ * @customer Function reference
  * @package customers
  * @see sql_simple_list()
  * @version 2.5.50: Added function and documentation
  *
  * @param params $params The list parameters
- * @return mixed The list of available templates
+ * @return mixed The list of available customers
  */
 function customers_list($params){
     try{
