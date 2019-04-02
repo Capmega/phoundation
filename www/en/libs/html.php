@@ -2266,7 +2266,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                                    ON DUPLICATE KEY UPDATE `status`    = NULL,
                                                            `createdon` = NOW()',
 
-                                   array(':url'    => $url,
+                                   array(':url'    => $src,
                                          ':width'  => $width,
                                          ':height' => $height,
                                          ':status' => $status));
