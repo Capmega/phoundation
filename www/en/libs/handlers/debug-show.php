@@ -68,13 +68,19 @@ try{
 
                     echo debug_html($data, tr('Unknown'), $trace_offset);
                     ob_flush();
+                    flush();
             }
 
         }else{
             echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => current_file($trace_offset), ':line' => current_line($trace_offset)))."\n";
             print_r($data)."\n";
             ob_flush();
+            flush();
         }
+
+        echo $retval;
+        ob_flush();
+        flush();
 
     }else{
         if(is_scalar($data)){
@@ -95,10 +101,11 @@ try{
             $retval .= print_r(variable_zts_safe($data), true);
             $retval .= "\n";
         }
+
+        echo $retval;
     }
 
-    echo $retval;
-    ob_flush();
+
     return $data;
 
 }catch(Exception $e){
