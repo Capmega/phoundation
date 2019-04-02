@@ -135,7 +135,9 @@ function route($regex, $target, $flags = null){
             return false;
         }
 
-        log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERBOSE/green');
+        if(VERBOSE){
+            log_file(tr('Regex ":count" ":regex" matched with matches ":matches"', array(':count' => $count, ':regex' => $regex, ':matches' => $matches)), 'route', 'green');
+        }
 
         $route        = $target;
         $attachment   = false;
