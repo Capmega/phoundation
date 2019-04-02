@@ -137,7 +137,9 @@ function route($regex, $target, $flags = null){
 
         log_file(tr('Regex ":count" ":regex" matched', array(':count' => $count, ':regex' => $regex)), 'route', 'VERBOSE/green');
 
-        $route = $target;
+        $route        = $target;
+        $attachment   = false;
+        $restrictions = ROOT.'www,'.ROOT.'data/files';
 
         /*
          * Regex matched. Do variable substitution on the target.
@@ -219,11 +221,11 @@ function route($regex, $target, $flags = null){
 
         foreach($flags as $flags_id => $flag){
             switch($flag[0]){
-                case 'Q':
+                case 'A':
                     /*
-                     * Let GET request queries pass through
+                     * Send the file as a downloadable attachment
                      */
-                    $get = true;
+                    $attachment = true;
                     break;
 
                 case 'C':
@@ -247,7 +249,7 @@ function route($regex, $target, $flags = null){
 
                     $count = 1;
                     unset($flags[$flags_id]);
-                    route_send(current_file(1));
+                    route_send(current_file(1), $attachment, $restrictions);
 
                 case 'G':
                     /*
@@ -269,6 +271,13 @@ function route($regex, $target, $flags = null){
                         return false;
                     }
 
+                    break;
+
+                case 'Q':
+                    /*
+                     * Let GET request queries pass through
+                     */
+                    $get = true;
                     break;
 
                 case 'R':
@@ -300,6 +309,13 @@ function route($regex, $target, $flags = null){
                     log_file(tr('Redirecting to ":route" with HTTP code ":code"', array(':route' => $route, ':code' => $http_code)), 'route', 'VERYVERBOSE/cyan');
                     unregister_shutdown('route_404');
                     redirect($route, $http_code);
+
+                case 'X':
+                    /*
+                     * Restrict access to the specified path list
+                     */
+                    $restrictions = substr($flag, 1);
+                    break;
             }
         }
 
@@ -422,7 +438,7 @@ function route($regex, $target, $flags = null){
         }
 
         unset($map);
-        route_send($page);
+        route_send($page, $attachment, $restrictions);
 
     }catch(Exception $e){
         if(substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():'){
@@ -461,18 +477,23 @@ function route($regex, $target, $flags = null){
  * @version 2.5.88: Added function and documentation
  *
  * @param string $target The target file that should be executed or sent to the client
+ * @param boolean $attachment If specified as true, will send the file as an downloadable attachement, to be written to disk instead of displayed on the browser. If set to false, the file will be sent as a file to be displayed in the browser itself.
  * @return void
  */
-function route_send($target){
+function route_send($target, $attachment, $restrictions){
     try{
         if(substr($target, -4, 4) === 'php'){
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
             include($page);
 
         }else{
+            $target = file_absolute(unslash($target), ROOT.'www/');
+
             log_file(tr('Sending file ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
-            file_http_download(array('file'     => $target,
-                                     'filename' => basename($target)));
+            file_http_download(array('restrictions' => $restrictions,
+                                     'attachment'   => $attachment,
+                                     'file'         => $target,
+                                     'filename'     => basename($target)));
         }
 
         die();

@@ -13,7 +13,7 @@ $trace = debug_trace();
 unset($trace[0]);
 unset($trace[1]);
 
-notify(array('code'    => 'PHP'.$errno,
+notify(array('code'    => 'PHP-ERROR-'.$errno,
              'groups'  => 'developers',
              'title'   => tr('PHP ERROR ":errno"', array(':errno' => $errno)),
              'data'    => $trace,
