@@ -44,20 +44,36 @@ try{
                 case 'ajax':
                     /*
                      * If JSON, CORS requests require correct headers!
+                     * Also force plain text content type
                      */
                     http_headers(null, 0);
+
+                    if(!headers_sent()){
+                        header_remove('Content-Type');
+                        header('Content-Type: text/plain', true);
+                    }
 
                     echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => current_file($trace_offset - 1), ':line' => current_line($trace_offset - 1)))."\n";
                     print_r($data)."\n";
                     break;
 
                 default:
+                    /*
+                     * Force HTML content type, and show HTML data
+                     */
+                    if(!headers_sent()){
+                        header_remove('Content-Type');
+                        header('Content-Type: text/html', true);
+                    }
+
                     echo debug_html($data, tr('Unknown'), $trace_offset);
+                    ob_flush();
             }
 
         }else{
             echo "\n".tr('DEBUG SHOW (:file@:line) ', array(':file' => current_file($trace_offset), ':line' => current_line($trace_offset)))."\n";
             print_r($data)."\n";
+            ob_flush();
         }
 
     }else{
@@ -82,6 +98,7 @@ try{
     }
 
     echo $retval;
+    ob_flush();
     return $data;
 
 }catch(Exception $e){
