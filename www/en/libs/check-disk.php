@@ -62,6 +62,13 @@ function check_disk($params = null){
                 file_delete(ROOT.'data/cache');
                 file_delete(ROOT.'data/log');
 
+                /*
+                 * Regenerate the paths to ensure that they are available
+                 */
+                file_ensure_path(ROOT.'data/tmp');
+                file_ensure_path(ROOT.'data/cache');
+                file_ensure_path(ROOT.'data/log');
+
                 notify(array('code'    => 'low-disk',
                              'groups'  => 'developers',
                              'title'   => tr('Low disk event encountered'),
