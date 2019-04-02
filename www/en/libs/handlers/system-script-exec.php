@@ -50,8 +50,26 @@ try{
                 throw new BException(tr('script_exec(): Invalid commands structure specified, entry ":id" is a ":datatype" while it should be an array. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
             }
 
-            $item[] = '-E';
-            $item[] = ENVIRONMENT;
+            /*
+             * Detect if environment has been specified. If so, avoid specifying
+             * it again
+             */
+            $environment = false;
+
+            foreach($item as $key => $value){
+                switch($value){
+                    case '-E';
+                        // FALLTHROUGH
+                    case '--env';
+                        $environment = true;
+                        break 2;
+                }
+            }
+
+            if(!$environment){
+                $item[] = '-E';
+                $item[] = ENVIRONMENT;
+            }
         }
     }
 
