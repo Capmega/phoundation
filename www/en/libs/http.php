@@ -484,8 +484,20 @@ function http_cache_etag(){
  *
  * Returns headers Cache-Control and ETag
  *
- * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
- * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package http
+ * @see htt_no_cache()
+ * @see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
+ * @see https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
+ * @version 2.5.92: Added function and documentation
+
+ * @param params $params The caching parameters
+ * @param natural $http_code The HTTP code that will be sent to the client
+ * @param array $headers Any extra headers that are required
+ * @return void
  */
 function http_cache($params, $http_code, $headers = array()){
     global $_CONFIG, $core;
@@ -545,6 +557,33 @@ function http_cache($params, $http_code, $headers = array()){
 
     }catch(Exception $e){
         throw new BException('http_cache(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Send the required headers to ensure that the page will not be cached ever
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package http
+ * @see htt_cache()
+ * @version 2.5.92: Added function and documentation
+
+ * @return void
+ */
+function http_no_cache(){
+    try{
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0', true);
+        header('Cache-Control: post-check=0, pre-check=0'                     , true);
+        header('Pragma: no-cache'                                             , true);
+        header('Expires: Wed, 10 Jan 2000 07:00:00 GMT'                       , true);
+
+    }catch(Exception $e){
+        throw new BException(tr('http_no_cache(): Failed'), $e);
     }
 }
 
