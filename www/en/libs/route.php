@@ -481,10 +481,12 @@ function route($regex, $target, $flags = null){
  * @return void
  */
 function route_send($target, $attachment, $restrictions){
+    global $_CONFIG, $core;
+
     try{
-        if(substr($target, -4, 4) === 'php'){
+        if(substr($target, -3, 3) === 'php'){
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
-            include($page);
+            include($target);
 
         }else{
             $target = file_absolute(unslash($target), ROOT.'www/');
