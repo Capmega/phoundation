@@ -124,27 +124,31 @@ function inet_test_host_port($host, $port, $server = null, $timeout = 5, $except
             throw new BException(tr('inet_test_host_port(): Specified timeout ":timeout"is invalid. It must be a natural number smaller than or equal to 600', array(':timeout' => $timeout)), 'invalid');
         }
 
-        try{
-            servers_exec($server, array('commands' => array('nc', array('-zv', $host, $port, '-w', $timeout))));
-            return true;
+        $results = servers_exec($server, array('ok_exitcodes' => '0,1',
+                                               'commands'     => array('nc', array('-zv', $host, $port, '-w', $timeout))));
 
-        }catch(Exception $e){
-            $data = $e->getData();
-            $data = array_force($data);
-            $data = array_shift($data);
-            $data = strtolower($data);
+        $results = array_shift($results);
+        $results = strtolower($results);
 
-            if(strstr($data, 'connection refused')){
-                if($exception){
-                    $e->setCode('connect-failure');
-                    throw new BException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $host, '%port' => $port)), $e);
-                }
-
-                return false;
+        if(str_exists($results, 'connection refused')){
+            if($exception){
+                throw new BException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $host, '%port' => $port)), 'warning/failed');
             }
 
-            throw $e;
+            return false;
         }
+
+        if(str_exists($results, 'succeeded!')){
+            /*
+             * Yei!
+             */
+            return true;
+        }
+
+        /*
+         * No idea what happened
+         */
+        throw new BException(tr('inet_test_host_port(): Unknown output received from nc command, see exception data'), 'unknown', $results);
 
     }catch(Exception $e){
         throw new BException(tr('inet_test_host_port(): Failed'), $e);
