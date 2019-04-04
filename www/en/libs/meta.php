@@ -23,7 +23,7 @@ function meta_action($meta_id = null, $action = null, $data = null){
             sql_query('INSERT INTO `meta` (`id`)
                        VALUES             (null)', null, 'core');
 
-            $meta_id = sql_insert_id();
+            $meta_id = sql_insert_id('core');
 
         }else{
             if(!is_numeric($meta_id)){

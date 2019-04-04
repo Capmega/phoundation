@@ -472,7 +472,7 @@ function notifications_insert($notification, $log){
                          ':title'     => $notification['title'],
                          ':message'   => $notification['message']), 'core');
 
-        $notification['id'] = sql_insert_id();
+        $notification['id'] = sql_insert_id('core');
         notifications_insert_groups($notification);
 
         return $notification;
@@ -511,7 +511,7 @@ function notifications_insert_group($group){
                          ':meta_id'   => meta_action(),
                          ), 'core');
 
-        $group['id'] = sql_insert_id();
+        $group['id'] = sql_insert_id('core');
 
         return $group;
 
@@ -549,7 +549,7 @@ function notifications_insert_member($member){
                          ':meta_id'   => meta_action(),
                          ), 'core');
 
-        $member['id'] = sql_insert_id();
+        $member['id'] = sql_insert_id('core');
 
         return $member;
 
@@ -587,7 +587,7 @@ function notifications_insert_method($method){
                          ':meta_id'   => meta_action(),
                          ), 'core');
 
-        $method['id'] = sql_insert_id();
+        $method['id'] = sql_insert_id('core');
 
         return $method;
 

@@ -270,9 +270,9 @@ function servers_insert($server){
                          ':ssh_accounts_id'         => $server['ssh_accounts_id'],
                          ':allow_sshd_modification' => $server['allow_sshd_modification'],
                          ':description'             => $server['description'],
-                         ':ipv4'                    => $server['ipv4']));
+                         ':ipv4'                    => $server['ipv4']), 'core');
 
-        $server['id'] = sql_insert_id();
+        $server['id'] = sql_insert_id('core');
 
         log_console(tr('Inserted server ":domain" with id ":id"', array(':domain' => $server['domain'], ':id' => $server['id'])), 'VERBOSE/green');
 
@@ -311,7 +311,7 @@ function servers_erase($server){
         servers_remove_domain($server);
         servers_unregister_host($server);
 
-        sql_query('DELETE FROM `servers` WHERE `id` = :id', array(':id' => $server['id']));
+        sql_query('DELETE FROM `servers` WHERE `id` = :id', array(':id' => $server['id']), 'core');
 
         return $server;
 
@@ -372,7 +372,7 @@ function servers_update($server){
                          ':ssh_accounts_id'         =>  $server['ssh_accounts_id'],
                          ':allow_sshd_modification' =>  $server['allow_sshd_modification'],
                          ':description'             =>  $server['description'],
-                         ':ipv4'                    =>  $server['ipv4']));
+                         ':ipv4'                    =>  $server['ipv4']), 'core');
 
         log_console(tr('Updated server ":domain" with id ":id"', array(':domain' => $server['domain'], ':id' => $server['id'])), 'VERBOSE/green');
         servers_update_domains($server, $server['domains']);
@@ -420,7 +420,7 @@ function servers_like($domain){
 
                                WHERE  `id` = :id',
 
-                               true, array(':id' => $domain));
+                               true, array(':id' => $domain), 'core');
 
         }else{
             $server = sql_get('SELECT `domain`
@@ -433,7 +433,7 @@ function servers_like($domain){
 
                                true, array(':ipv4'      => '%'.$domain.'%',
                                            ':domain'    => '%'.$domain.'%',
-                                           ':seodomain' => '%'.$domain.'%'));
+                                           ':seodomain' => '%'.$domain.'%'), 'core');
         }
 
         if($server === null){
@@ -452,7 +452,7 @@ function servers_like($domain){
                                ON     `servers`.`id` = `domains_servers`.`servers_id`',
 
                                true, array(':domain'    => '%'.$domain.'%',
-                                           ':seodomain' => '%'.$domain.'%'));
+                                           ':seodomain' => '%'.$domain.'%'), 'core');
 
             if(!$server){
                 throw new BException(tr('servers_like(): Specified server ":server" does not exist', array(':server' => $domain)), 'not-exists');
@@ -545,14 +545,14 @@ function servers_update_domains($server, $domains = null){
     try{
         $servers_id = servers_get_id($server);
 
-        sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id));
+        sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id), 'core');
 
         if(empty($domains)){
             return false;
         }
 
         $insert = sql_prepare('INSERT INTO `domains_servers` (`createdby`, `meta_id`, `domains_id`, `servers_id`)
-                               VALUES                        (:createdby , :meta_id , :domains_id , :servers_id )');
+                               VALUES                        (:createdby , :meta_id , :domains_id , :servers_id )', 'core');
 
         foreach($domains as $domain){
             /*
@@ -602,7 +602,7 @@ function servers_add_domain($server, $domain){
     try{
         $server = servers_get_id($server);
         $domain = domains_get_id($domain);
-        $exists = sql_get('SELECT `id` FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', array(':servers_id' => $server, ':domains_id' => $domain));
+        $exists = sql_get('SELECT `id` FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', array(':servers_id' => $server, ':domains_id' => $domain), 'core');
 
         if($exists){
             return false;
@@ -659,22 +659,22 @@ function servers_remove_domain($server, $domain = null){
 
         if($server){
             if($domain){
-                $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', array(':domains_id' => $domain, ':servers_id' => $server));
+                $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', array(':domains_id' => $domain, ':servers_id' => $server), 'core');
 
             }else{
-                $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $server));
+                $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $server), 'core');
             }
 
         }else{
             if($domain){
-                $r = sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain));
+                $r = sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain), 'core');
 
             }else{
                 throw new BException(tr('servers_remove_domain(): Neither $domain not $server specified. At least one must be specified'), 'not-specified');
             }
         }
 
-        return sql_num_rows($r);
+        return sql_insert_id('core');
 
     }catch(Exception $e){
         throw new BException('servers_remove_domain(): Failed', $e);
@@ -859,7 +859,7 @@ function servers_exec_on_all($params){
 
                           WHERE `servers`.`status` '.sql_is($params['status'], ':status'),
 
-                          array(':status' => $params['status']));
+                          array(':status' => $params['status']), 'core');
 
         while($server = sql_fetch($servers)){
             $params['callback']($server);
@@ -972,10 +972,10 @@ function servers_list($as_resource = false){
                            `createdon`   ASC';
 
         if($as_resource){
-            $retval = sql_query($query);
+            $retval = sql_query($query, null, 'core');
 
         }else{
-            $retval = sql_list($query);
+            $retval = sql_list($query, null, 'core');
         }
 
         return $retval;
@@ -1763,7 +1763,7 @@ function servers_scan_domains($server = null){
             /*
              * Scan ALL servers
              */
-            $domains = sql_query('SELECT `domain` FROM `servers` WHERE `status` IS NULL');
+            $domains = sql_query('SELECT `domain` FROM `servers` WHERE `status` IS NULL', null, 'core');
 
             while($domain = sql_fetch($domains, true)){
                 $count++;
