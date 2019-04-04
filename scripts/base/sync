@@ -107,7 +107,7 @@ if($environment == ENVIRONMENT){
 /*
  * Get configuration for specified environment
  */
-include(ROOT.'config/sync.php');
+load_config('sync');
 
 
 

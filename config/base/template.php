@@ -1,6 +1,6 @@
 <?php
 /*
- * PHOUNDATION FILE LIBRARY CONFIGURATION FILE
+ * PHOUNDATION DEFAULT TEMPLATE LIBRARY CONFIGURATION FILE
  *
  * DO NOT MODIFY THIS FILE!
  *
@@ -8,8 +8,8 @@
  * system update! Always update the following configuration files if you need to
  * make configuration changes
  *
- * production_empty.php
- * ENVIRONMENT_empty.php (Where ENVIRONMENT is the environment for which you wish to change the configuration)
+ * production_template.php
+ * ENVIRONMENT_template.php (Where ENVIRONMENT is the environment for which you wish to change the configuration)
  *
  * ALL CONFIGURATION ENTRIES ARE ORDERED ALPHABETICALLY, ONLY "debug" IS ON TOP FOR CONVENIENCE
  *
