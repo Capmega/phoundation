@@ -60,6 +60,8 @@ function sql_query($query, $execute = false, $connector_name = null){
     global $core;
 
     try{
+        log_console(tr('Executing query ":query"', array(':query' => $query)), 'VERYVERBOSE/cyan');
+
         $connector_name = sql_connector_name($connector_name);
         $connector_name = sql_init($connector_name);
         $query_start    = microtime(true);
@@ -396,6 +398,7 @@ function sql_init($connector_name = null){
         /*
          * Connect to database
          */
+        log_console(tr('Connecting with SQL connector ":name"', array(':name' => $connector_name)), 'VERYVERBOSE/cyan');
         $core->sql[$connector_name] = sql_connect($connector);
 
         /*
