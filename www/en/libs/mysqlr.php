@@ -244,7 +244,7 @@ function mysqlr_master_replication_setup($params){
          * Check if it exists, if not append
          */
         safe_exec(array('domain'   => $database['domain'],
-                        'commands' => array('grep', array('-q', '-F', 'binlog_do_db="'.$database['database_name'].'"', $mysql_cnf_path, 'connect' => '||'),
+                        'commands' => array('grep', array('-q', '-F', 'binlog_do_db="'.$database['database_name'].'"', $mysql_cnf_path, 'connector' => '||'),
                                             'sed' , array('sudo' => true, '-i', '"/max_binlog_size[[:space:]]*=[[:space:]]*100M/a binlog_do_db = '.$database['database_name'].'"', $mysql_cnf_path))));
 
         log_console(tr('Restarting remote MySQL service'), 'VERBOSEDOT');

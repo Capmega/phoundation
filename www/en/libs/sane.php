@@ -55,8 +55,8 @@ function sane_find_scanners($libusb = false){
 
     try{
         $results = safe_exec(array('ok_exitcodes' => '1',
-                                   'commands'     => array('sane-find-scanner', array('sudo' => true, '-q', 'connect' => '|'),
-                                                           'grep'             , array('-v', '"Could not find"', 'connect' => '|'),
+                                   'commands'     => array('sane-find-scanner', array('sudo' => true, '-q', 'connector' => '|'),
+                                                           'grep'             , array('-v', '"Could not find"', 'connector' => '|'),
                                                             'grep'            , array('-v', '"Pipe error"'))));
         $retval  = array('count'     => 0,
                          'usb'       => array(),

@@ -103,8 +103,8 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
         }
 
         $enable   = ($enable ? 'yes' : 'no');
-        $results  = servers_exec($server, array('commands' => array('cp'     , array('sudo' => true, '-a', '/etc/ssh/sshd_config /etc/ssh/sshd_config~'.date_convert(null, 'Ymd-His'), 'connect' => '&&'),
-                                                                    'sed'    , array('sudo' => true, '-iE', 's/AllowTcpForwarding \+\(yes\|no\)/AllowTcpForwarding '.$enable.'/gI', '/etc/ssh/sshd_config', 'connect' => '&'),
+        $results  = servers_exec($server, array('commands' => array('cp'     , array('sudo' => true, '-a', '/etc/ssh/sshd_config /etc/ssh/sshd_config~'.date_convert(null, 'Ymd-His'), 'connector' => '&&'),
+                                                                    'sed'    , array('sudo' => true, '-iE', 's/AllowTcpForwarding \+\(yes\|no\)/AllowTcpForwarding '.$enable.'/gI', '/etc/ssh/sshd_config', 'connector' => '&'),
                                                                     'service', array('sudo' => true, 'ssh', 'restart'))));
 
         return $enable;
