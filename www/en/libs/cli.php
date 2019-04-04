@@ -1297,11 +1297,18 @@ function cli_pidgrep($pid){
  * @category Function reference
  * @package cli
  *
- * @param numeric $pid
- * @return void
+ * @param natural $pid
+ * @param natural $signal
+ * @param numeric $signal
+ * @param boolean $sudo
+ * @return boolean True if the process was killed, false if it wasn't found
  */
 function cli_kill($pid, $signal = 15, $verify = -20, $sudo = false){
     try{
+        if(!$pid){
+            throw new BException(tr('cli_kill(): No $pid specified'), 'not-specified');
+        }
+
         if(!$signal){
             $signal = 15;
         }
@@ -1313,6 +1320,19 @@ function cli_kill($pid, $signal = 15, $verify = -20, $sudo = false){
 
         $results = safe_exec(array('ok_exitcodes' => '0,1',
                                    'commands'     => array('kill', array('sudo' => $sudo, '-'.$signal, $pid))));
+
+        if($results){
+            $results = array_shift($results);
+            $results = strtolower($results);
+
+            if(str_exists($results, 'no such process')){
+                /*
+                 * Process didn't exist!
+                 */
+                log_console(tr('Could not kill PID ":pid", it does not exist', array(':pid' => $pid)), 'warning');
+                return false;
+            }
+        }
 
         if($verify){
             $sigkill = ($verify < 0);
@@ -1330,6 +1350,7 @@ function cli_kill($pid, $signal = 15, $verify = -20, $sudo = false){
                      */
                     return true;
                 }
+
                 log_console(tr('Waiting for PID ":pid" to die...', array(':pid' => $pid)), 'cyan');
                 usleep(100000);
             }
