@@ -21,7 +21,7 @@ function meta_action($meta_id = null, $action = null, $data = null){
             }
 
             sql_query('INSERT INTO `meta` (`id`)
-                       VALUES             (null)');
+                       VALUES             (null)', null, 'core');
 
             $meta_id = sql_insert_id();
 
@@ -51,7 +51,7 @@ function meta_add_history($meta_id, $action, $data = null){
                    array(':createdby' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => $meta_id,
                          ':action'    => not_empty($action, tr('Unknown')),
-                         ':data'      => json_encode($data)));
+                         ':data'      => json_encode($data)), 'core');
 
         return $meta_id;
 
@@ -87,7 +87,7 @@ function meta_history($meta_id){
 
                              ORDER BY  `meta_history`.`createdon` DESC, `meta_history`.`id` DESC ',
 
-                             array(':meta_id' => $meta_id));
+                             array(':meta_id' => $meta_id), false, 'core');
 
         return $history;
 
@@ -105,8 +105,8 @@ function meta_history($meta_id){
  */
 function meta_erase($meta_id){
     try{
-        sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id', array(':meta_id' => $meta_id));
-        sql_query('DELETE FROM `meta`         WHERE `id`      = :id'     , array(':id'      => $meta_id));
+        sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id', array(':meta_id' => $meta_id), 'core');
+        sql_query('DELETE FROM `meta`         WHERE `id`      = :id'     , array(':id'      => $meta_id), 'core');
 
         return $meta_id;
 
@@ -123,11 +123,11 @@ function meta_erase($meta_id){
 function meta_clear($meta_id, $views_only = false){
     try{
         if($views_only){
-            sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id AND `action` = "view"', array(':meta_id' => $meta_id));
+            sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id AND `action` = "view"', array(':meta_id' => $meta_id), 'core');
             meta_action($meta_id, 'clear-views');
 
         }else{
-            sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id', array(':meta_id' => $meta_id));
+            sql_query('DELETE FROM `meta_history` WHERE `meta_id` = :meta_id', array(':meta_id' => $meta_id), 'core');
             meta_action($meta_id, 'clear-history');
         }
 
@@ -164,7 +164,7 @@ function meta_clear($meta_id, $views_only = false){
  */
 function meta_link($table_id, $table){
     try{
-        $exists = sql_get('SELECT `meta_id` FROM `'.$table.'` WHERE `id` = :id', true, array(':id' => $table_id));
+        $exists = sql_get('SELECT `meta_id` FROM `'.$table.'` WHERE `id` = :id', true, array(':id' => $table_id), 'core');
 
         if($exists){
             /*
@@ -176,11 +176,11 @@ function meta_link($table_id, $table){
         $meta_id = meta_action(null, 'linked');
 
         sql_query('UPDATE `'.$table.'`
-                  SET     `meta_id` = :meta_id
-                  WHERE   `id`      = :id',
+                   SET     `meta_id` = :meta_id
+                   WHERE   `id`      = :id',
 
-                  array(':id'      => $table_id,
-                        ':meta_id' => $meta_id));
+                   array(':id'      => $table_id,
+                         ':meta_id' => $meta_id), 'core');
 
         return $meta_id;
 
