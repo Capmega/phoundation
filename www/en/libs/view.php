@@ -54,11 +54,32 @@ function view_library_init(){
  */
 function view($file){
     try{
-        if(is_dir($file)){
+        /*
+         * Validate argument
+         */
+        if(!$file){
             /*
              * A directory was specified instead of a file.
              */
-            throw new BException(tr('view(): The specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
+            throw new BException(tr('view(): No file specified'), 'invalid');
+        }
+
+        if(!file_exists($file)){
+            /*
+             * A directory was specified instead of a file.
+             */
+            throw new BException(tr('view(): The specified file ":file" does not exist', array(':file' => $file)), 'invalid');
+        }
+
+        if(!is_file($file)){
+            if(is_dir($file)){
+                /*
+                 * A directory was specified instead of a file.
+                 */
+                throw new BException(tr('view(): The specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
+            }
+
+            throw new BException(tr('view(): The specified file ":file" is not a normal viewable file', array(':file' => $file)), 'invalid');
         }
 
         $mimetype = file_mimetype($file);
