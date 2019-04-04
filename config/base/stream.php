@@ -8,6 +8,7 @@
  * @category Configuration
  * @package stream
  */
-$_CONFIG['stream']                                                              = array('buffer' => '102400',
-                                                                                        'strict' => false);
+$_CONFIG['stream']                                                              = array('cache_max_age' => '2592000',
+                                                                                        'buffer'        => '102400',
+                                                                                        'strict'        => false);
 ?>

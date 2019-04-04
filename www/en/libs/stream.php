@@ -61,7 +61,8 @@ function stream($params){
 
     try{
         array_ensure($params, 'file,mimetype');
-        array_default($params, 'strict', $_CONFIG['stream']['strict']);
+        array_default($params, 'strict'       , $_CONFIG['stream']['strict']);
+        array_default($params, 'cache_max_age', $_CONFIG['stream']['cache_max_age']);
 
         /*
          * Open the file to be streamed and determine its mimetype to know what
@@ -89,6 +90,11 @@ function stream($params){
                 }
             }
         }
+
+        /*
+         * Set mimetype in parameters, it will be required later
+         */
+        $params['mimetype'] = $mimetype;
 
         switch(str_until($mimetype, '/')){
             case 'audio':
@@ -264,7 +270,7 @@ function stream_video($params){
  */
 function stream_video_data_headers($params){
     try{
-        array_ensure($params);
+        array_ensure($params, 'mimetype,cache_max_age,start,end,size');
 
         if(empty($params['resource'])){
             throw new BException(tr('stream_video_data_headers(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
@@ -279,10 +285,10 @@ function stream_video_data_headers($params){
          */
         ob_get_clean();
 
-        header('Content-Type: video/mp4');
-        header('Cache-Control: max-age=2592000, public');
-        header('Expires: '.gmdate('D, d M Y H:i:s', time() + 2592000) . ' GMT');
-        header('Last-Modified: '.gmdate('D, d M Y H:i:s', $params['filemtime']) . ' GMT' );
+        header('Content-Type: '.$params['mimetype']);
+        header('Cache-Control: max-age='.$params['cache_max_age'].', public');
+        header('Expires: '.gmdate('D, d M Y H:i:s', time() + $params['cache_max_age']).' GMT');
+        header('Last-Modified: '.gmdate('D, d M Y H:i:s', $params['filemtime']).' GMT');
 
         header('Accept-Ranges: 0-'.$params['end']);
 
