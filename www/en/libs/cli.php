@@ -1597,24 +1597,27 @@ function cli_pid($pid){
  */
 function cli_list_processes($filters){
     try{
-        //foreach($filters as &$filter){
-        //    $filter = trim($filter);
-        //
-        //    if($filter[0] == '-'){
-        //        $filter = '\\\\'.$filter;
-        //    }
-        //
-        //    $filter = $filter;
-        //}
-        //
-        //unset($filter);
+        $filters  = array_force($filters);
+        $commands = array('ps', array('ax', 'connector' => '|'));
 
-        $filters = array_force($filters);
-        $results = safe_exec(array('ok_exitcodes' => '0,1',
-                                   'commands'     => array('ps'  , array('ax', 'connector' => '|'),
-                                                           'grep', array_merge(array('--color=never', 'connector' => '|'), $filters),
-                                                           'grep', array('--color=never', '-v', 'grep --color=never'))));
+        foreach($filters as $filter){
+            if($filter[0] === '-'){
+                /*
+                 * Escape anything that looks like a command line parameter
+                 */
+                $filter = str_replace('-', '\-', $filter);
+            }
+
+            $commands[] = 'grep';
+            $commands[] = array('--color=never', 'connector' => '|', $filter);
+        }
+
+        $commands[] = 'grep';
+        $commands[] = array('--color=never', '-v', 'grep --color=never');
+
         $retval  = array();
+        $results = safe_exec(array('ok_exitcodes' => '0,1',
+                                   'commands'     => $commands));
 
         foreach($results as $key => $result){
             $result       = trim($result);
