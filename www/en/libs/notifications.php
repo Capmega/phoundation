@@ -77,6 +77,8 @@ function notifications($notification, $log, $throw){
     global $_CONFIG, $core;
 
     try{
+        log_file($notification, 'notifications', 'VERYVERBOSE');
+
         /*
          * Add the notification to the database for later lookup
          */
@@ -468,7 +470,7 @@ function notifications_insert($notification, $log){
                          ':priority'  => $notification['priority'],
                          ':data'      => $notification['data'],
                          ':title'     => $notification['title'],
-                         ':message'   => $notification['message']));
+                         ':message'   => $notification['message']), 'core');
 
         $notification['id'] = sql_insert_id();
         notifications_insert_groups($notification);
@@ -507,7 +509,7 @@ function notifications_insert_group($group){
 
                    array(':createdby' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
-                         ));
+                         ), 'core');
 
         $group['id'] = sql_insert_id();
 
@@ -545,7 +547,7 @@ function notifications_insert_member($member){
 
                    array(':createdby' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
-                         ));
+                         ), 'core');
 
         $member['id'] = sql_insert_id();
 
@@ -583,7 +585,7 @@ function notifications_insert_method($method){
 
                    array(':createdby' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
-                         ));
+                         ), 'core');
 
         $method['id'] = sql_insert_id();
 
@@ -614,7 +616,7 @@ function notifications_insert_method($method){
 function notifications_insert_groups($notification){
     try{
         $insert = sql_prepare('INSERT INTO `notifications_groups` (`notifications_id`, `groups_id`)
-                               VALUES                             (:notifications_id , :groups_id )');
+                               VALUES                             (:notifications_id , :groups_id )', 'core');
 
         foreach($notification['groups'] as $groups_id){
             $insert->execute(array(':groups_id'        => $groups_id,
@@ -667,7 +669,7 @@ function notifications_get($notifications_id){
                            WHERE  `id`     = :id
                            AND    `status` = NULL',
 
-                           array(':id' => $notifications_id));
+                           array(':id' => $notifications_id), 'core');
 
         return $retval;
 
@@ -732,7 +734,7 @@ function notifications_get_group($group, $column = null){
 
                            $where,
 
-                           $single, $execute);
+                           $single, $execute, 'core');
 
         return $retval;
 
@@ -797,7 +799,7 @@ function notifications_get_method($method, $column = null){
 
                            $where,
 
-                           $single, $execute);
+                           $single, $execute, 'core');
 
         return $retval;
 
@@ -862,7 +864,7 @@ function notifications_get_member($member, $column = null){
 
                            $where,
 
-                           $single, $execute);
+                           $single, $execute, 'core');
 
         return $retval;
 
@@ -904,7 +906,7 @@ function notifications_list_groups($members_id){
 
                              WHERE ',
 
-                             $execute);
+                             $execute, 'core');
 
         return $retval;
 
@@ -946,7 +948,7 @@ function notifications_list_methods($members_id){
 
                              WHERE ',
 
-                             $execute);
+                             $execute, 'core');
 
         return $retval;
 
@@ -988,7 +990,7 @@ function notifications_list_members($members_id){
 
                              WHERE ',
 
-                             $execute);
+                             $execute, 'core');
 
         return $retval;
 
