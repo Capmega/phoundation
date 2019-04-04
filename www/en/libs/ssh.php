@@ -69,8 +69,8 @@ function ssh_exec($server, $params){
         }
 
         array_ensure($params, 'domain,port,commands');
-        array_default($params, 'output_log', (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
-
+        array_default($params, 'output_log'        , (VERBOSE ? ROOT.'data/log/syslog' : '/dev/null'));
+        array_default($params, 'include_ssh_errors', true);
 
         /*
          * If no domain is specified, then don't execute this command on a
@@ -108,6 +108,12 @@ function ssh_exec($server, $params){
          */
         if($params['background']){
             $params['commands'] .= ' > '.$params['output_log'].' 2>&1 3>&1 & echo $! ';
+
+        }elseif($params['include_ssh_errors']){
+            /*
+             * Output will contain SSH errors
+             */
+            $params['commands'] .= ' 2>&1 ';
         }
 
         /*
@@ -161,7 +167,7 @@ function ssh_exec($server, $params){
                     if($data){
                         $data = array_force($data);
                         $data = array_pop($data);
-                        $data = strtolower($data);
+                        $data = strtolower(trim($data));
 
                         if(str_exists($data, 'permission denied')){
                             if(strtolower(substr($data, 0, 5)) !== 'bash:'){
@@ -170,16 +176,11 @@ function ssh_exec($server, $params){
                                 throw $e->makeWarning(true);
                             }
                         }
-                    }
 
-                    try{
-                        /*
-                         * Check if the exception perhaps was caused by missing ssh server fingerprints (common enough to test)
-                         */
-                        if(!empty($params['domain'])){
+                        if(str_exists($data, 'host key verification failed')){
                             $known = ssh_host_is_known($params['domain'], $params['port']);
 
-                            if($known === false){
+                            if(!$known){
                                 /*
                                  * There are no fingerprints availabe in either the
                                  * `ssh_fingerprints` table or known_hosts file
@@ -198,7 +199,9 @@ function ssh_exec($server, $params){
                                 return ssh_exec($server, $params);
                             }
                         }
+                    }
 
+                    try{
                         /*
                          * Check if SSH can connect to the specified server / port
                          */
