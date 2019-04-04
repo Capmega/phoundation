@@ -1480,10 +1480,10 @@ function ssh_tunnel($params, $reuse = true){
 
             if($exists){
                 if($params['source_port'] === $exists['source_port']){
-                    log_console(tr('Found pre-existing SSH tunnel for requested configuration ":source_port::target_domain::target_port" with pid ":pid" on the requested source port, not creating a new one', array(':source_port' => $params['source_port'], ':target_domain' => $params['target_domain'], ':target_port' => $params['target_port'], ':pid' => $exists['pid'])), 'VERBOSE/warning');
+                    log_console(tr('Found pre-existing SSH tunnel for requested configuration ":source_port::target_domain::target_port" with pid ":pid" on the requested source port, not creating a new one', array(':source_port' => $params['source_port'], ':target_domain' => $params['target_domain'], ':target_port' => $params['target_port'], ':pid' => $exists['pid'])), 'VERBOSE/green');
 
                 }else{
-                    log_console(tr('Found pre-existing SSH tunnel for requested configuration ":source_port::target_domain::target_port" with pid ":pid" on different source port ":different_port", not creating a new one', array(':source_port' => $params['source_port'], ':target_domain' => $params['target_domain'], ':target_port' => $params['target_port'], ':pid' => $exists['pid'], ':different_port' => $exists['source_port'])), 'VERBOSE/warning');
+                    log_console(tr('Found pre-existing SSH tunnel for requested configuration ":source_port::target_domain::target_port" with pid ":pid" on different source port ":different_port", not creating a new one', array(':source_port' => $params['source_port'], ':target_domain' => $params['target_domain'], ':target_port' => $params['target_port'], ':pid' => $exists['pid'], ':different_port' => $exists['source_port'])), 'VERBOSE/green');
                 }
 
                 return $exists;
@@ -1589,7 +1589,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
         }
 
         $results   = array();
-        $processes = linux_list_processes($server, 'ssh,-L');
+        $processes = cli_list_processes('ssh,-L');
 
         foreach($processes as $pid => $process){
             if(!preg_match_all('/(\d+)(\:.+?\:\d+)/', $process, $matches)){
