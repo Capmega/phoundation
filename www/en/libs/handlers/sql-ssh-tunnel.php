@@ -23,10 +23,11 @@ if(empty($connector['port']) or empty($connector['ssh_tunnel']['source_port'])){
      * Assign a dymanic port
      */
     load_libs('inet');
+
     $connector['port']                      = inet_get_available_port(not_empty($connector['ssh_tunnel']['target_hostname'], '127.0.0.1'));
     $connector['ssh_tunnel']['source_port'] = $connector['port'];
 
-    log_console(tr('Dynamically assigned port ":port" for SQL SSH tunnel', array(':port' => $connector['port'])), 'VERBOSE');
+    log_console(tr('Dynamically assigned port ":port" for SQL SSH tunnel', array(':port' => $connector['port'])), 'VERBOSE/green');
 }
 
 $tunnel = ssh_tunnel($connector['ssh_tunnel']);
