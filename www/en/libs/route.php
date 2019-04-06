@@ -507,7 +507,7 @@ function route_send($target, $attachment, $restrictions){
         die();
 
     }catch(Exception $e){
-        throw new BException(tr('route_send(): Failed'), $e);
+        throw new BException(tr(tr('route_send(): Failed to execute page ":target"', array(':target' => $target))), $e);
     }
 }
 
