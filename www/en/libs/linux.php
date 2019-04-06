@@ -1108,4 +1108,120 @@ function linux_get_cwd($pid){
         throw new BException('linux_get_cwd(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Execute the find command on the specified server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @version 2.5.112 Added function and documentation
+ *
+ * @param params $server The server on which to execute this
+ * @param params $params A parameters array
+ * @param string $params[path] The path where to start
+ * @param string $params[type] find -type
+ * @param string $params[name] find -name
+ * @param string $params[maxdepth] find -maxdepth
+ * @param string $params[exec] find -exec
+ * @param string $params[cdw] The working directory where to start from
+ * @param string $params[sudo] If true, use sudo for the find command
+ * @return string The results from the find command
+ */
+function linux_find($server, $params){
+    try{
+        array_ensure($params, 'debug,cwd,exec,maxdepth,path,type');
+
+        $commands = array();
+
+        if($params['cwd']){
+            $commands[] = 'cd';
+            $commands[] = array($params['cwd']);
+        }
+
+        $arguments[] = $params['path'];
+
+        if($params['maxdepth']){
+            $arguments[] = '-maxdepth';
+            $arguments[] = $params['maxdepth'];
+        }
+
+        if($params['type']){
+            $arguments[] = '-type';
+            $arguments[] = $params['type'];
+        }
+
+        /*
+         * For -exec we're executing commands within find. Build up the exec
+         * parameters as normal arguments to the find command
+         */
+        if($params['exec']){
+            $arguments[] = '-exec';
+
+            foreach($params['exec'] as $key => $value){
+                if(!is_numeric($key)){
+                    throw new BException(tr('linux_find(): Specified exec structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['exec'])), 'invalid');
+                }
+
+                if(!($key % 2)){
+                    /*
+                     * This value should contain a command
+                     */
+                    if(!$value){
+                        throw new BException(tr('linux_find(): No exec command specified'), 'invalid');
+                    }
+
+                    if(!is_string($value)){
+                        throw new BException(tr('linux_find(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
+                    }
+
+                    $command     = $value;
+                    $arguments[] = $command;
+
+                }else{
+                    if($value){
+                        if(!is_array($value)){
+                            if(empty($command)){
+                                /*
+                                 * No command was set yet, probably commands / arguments out of order?
+                                 */
+                                throw new BException(tr('linux_find(): Encountered (arguments?) array before command. Please check the commands parameter ":commands"', array(':commands' => $params['exec'])), 'invalid');
+                            }
+
+                            throw new BException(tr('linux_find(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['exec']))), 'invalid');
+                        }
+
+                        foreach($value as $sub_key => $sub_value){
+                            if(!is_numeric($sub_key)){
+                                throw new BException(tr('linux_find(): Specified exec sub structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $value)), 'invalid');
+                            }
+
+                            $arguments[] = $sub_value;
+                        }
+                    }
+                }
+            }
+
+            $arguments[] = ';';
+        }
+
+        $commands[] = 'find';
+        $commands[] = $arguments;
+
+        /*
+         * Execute the find argument on the server
+         */
+        $results = servers_exec($server, array('debug'    => $params['debug'],
+                                               'commands' => $commands));
+
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException(tr('linux_find(): Failed'), $e);
+    }
+}
 ?>
