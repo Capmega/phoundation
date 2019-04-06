@@ -550,7 +550,7 @@ function sql_close($connector = null){
  * @param
  * @return
  */
-function sql_connect($connector, $use_database = true){
+function sql_connect(&$connector, $use_database = true){
     global $_CONFIG;
 
     try{
