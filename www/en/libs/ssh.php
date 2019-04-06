@@ -125,7 +125,7 @@ function ssh_exec($server, $params){
             /*
              * Output will contain SSH errors
              */
-//            $params['commands'] .= ' 2>&1 ';
+            $params['commands'] .= ' 2>&1 ';
         }
 
         /*
@@ -183,14 +183,14 @@ function ssh_exec($server, $params){
 
                     if(str_exists($data, 'permission denied')){
                         if(strtolower(substr($data, 0, 5)) !== 'bash:'){
-                            $e = new BException(tr('ssh_exec(): Got access denied when trying to connect to server ":server"', array(':server' => $params['domain'])), $e);
+                            $e = new BException(tr('ssh_exec(): Got access denied when trying to connect to server ":server"', array(':server' => $server['domain'])), $e);
                             $e->setCode('access-denied');
                             throw $e->makeWarning(true);
                         }
                     }
 
                     if(str_exists($data, 'host key verification failed')){
-                        $known = ssh_host_is_known($params['domain'], $params['port']);
+                        $known = ssh_host_is_known($server['domain'], $server['port']);
 
                         if(!$known){
                             /*
@@ -198,7 +198,7 @@ function ssh_exec($server, $params){
                              * `ssh_fingerprints` table or known_hosts file
                              */
                             $e->setCode('host-verification-failed');
-                            throw new BException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $params['domain'])), $e);
+                            throw new BException(tr('ssh_exec(): The domain ":domain" has no fingerprints available in neither the known_hosts file nor `ssh_fingerprints`', array(':domain' => $server['domain'])), $e);
 
                         }elseif(is_numeric($known)){
                             /*
@@ -220,7 +220,7 @@ function ssh_exec($server, $params){
                     if(empty($not_check_inet) and isset($params['port'])){
                         try{
                             load_libs('inet');
-                            inet_test_host_port($params['domain'], $params['port']);
+                            inet_test_host_port($server['domain'], $server['port']);
 
                         }catch(Exception $f){
                             throw new BException(tr('ssh_exec(): inet_test_host_port() failed with ":e"', array(':e' => $f->getMessage())), $e);
