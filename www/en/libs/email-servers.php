@@ -23,6 +23,7 @@
  */
 function email_servers_library_init(){
     try{
+        load_libs('linux');
 
     }catch(Exception $e){
         throw new BException('email_servers_library_init(): Failed', $e);
@@ -88,7 +89,7 @@ function email_servers_validate($email_server){
 
         $v->isValid();
 
-        $exists = sql_get('SELECT `id` FROM `email_servers` WHERE `domain` = :domain AND `id` != :id LIMIT 1', true, array(':domain' => $email_server['domain'], ':id' => isset_get($email_server['id'], 0)));
+        $exists = sql_get('SELECT `id` FROM `email_servers` WHERE `domain` = :domain AND `id` != :id LIMIT 1', true, array(':domain' => $email_server['domain'], ':id' => isset_get($email_server['id'], 0)), 'core');
 
         if($exists){
             $v->setError(tr('The domain ":domain" is already registered', array(':domain' => $email_server['domain'])));
@@ -336,8 +337,6 @@ function email_servers_select_domain($params = null){
         array_default($params, 'status'  , null);
         array_default($params, 'empty'   , tr('No domains available'));
         array_default($params, 'none'    , tr('Select a domain'));
-        array_default($params, 'tabindex', 0);
-        array_default($params, 'extra'   , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby' , '`name`');
 
         if($params['status'] !== false){
@@ -399,7 +398,7 @@ function email_servers_get($email_server, $column = null, $status = null){
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
         if($column){
-            $retval = sql_get('SELECT `'.$column.'` FROM `email_servers` '.$where, true, $execute, 'core');
+            $retval = sql_get('SELECT `'.$column.'` FROM `email_servers` '.$where, true, $execute);
 
         }else{
             $retval = sql_get('SELECT    `email_servers`.`id`,
@@ -479,19 +478,25 @@ function email_servers_update_password($email, $password){
  * @param mixed $servers
  * @return array An array with mailbox => bytes format
  */
-function email_servers_get_domain_mailbox_sizes($server, $domain){
+function email_servers_list_mailbox_sizes($server, $domain){
     try{
         if(!filter_var($domain, FILTER_VALIDATE_DOMAIN)){
-            throw new BException(tr('email_servers_get_domain_mailbox_sizes(): Specified domain "" is not a valid domain', array(':domain' => $domain)), $e);
+            throw new BException(tr('email_servers_list_mailbox_sizes(): Specified domain "" is not a valid domain', array(':domain' => $domain)), $e);
         }
 
+        $total   = 0;
         $retval  = array();
-        $results = servers_exec($server, 'sudo find /var/mail/vhosts/'.$domain.'/ -type d -maxdepth 1 -exec du -s {} \;');
-        $total   = array_shift($results);
+        $results = linux_find($server, array('path'     => '/var/mail/vhosts/'.$domain,
+                                             'maxdepth' => 1,
+                                             'type'     => 'd',
+                                             'exec'     => array('du', array('-s', '{}'))));
 
         foreach($results as $result){
             $result = trim($result);
-            $retval[str_rfrom($result, '/')] = (str_until($result, "\t") * 1024);
+            $size   = (str_until($result, "\t") * 1024);
+            $total += $size;
+
+            $retval[str_rfrom($result, '/')] = $size;
         }
 
         ksort($retval);
@@ -500,7 +505,7 @@ function email_servers_get_domain_mailbox_sizes($server, $domain){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('email_servers_get_domain_mailbox_sizes(): Failed', $e);
+        throw new BException('email_servers_list_mailbox_sizes(): Failed', $e);
     }
 }
 ?>
