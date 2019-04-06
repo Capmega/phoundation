@@ -51,7 +51,7 @@ function domains_validate($domain){
          * Validate provider, customer
          */
         if($domain['provider']){
-            $domain['providers_id'] = sql_get('SELECT `id` FROM `providers` WHERE `seoname` = :seoname AND `status` IS NULL', array(':seoname' => $domain['provider']), 'id');
+            $domain['providers_id'] = sql_get('SELECT `id` FROM `providers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $domain['provider']), 'core');
 
             if(!$domain['providers_id']){
                 $v->setError(tr('Specified provider ":provider" does not exist', array(':provider' => $domain['provider'])));
@@ -62,7 +62,7 @@ function domains_validate($domain){
         }
 
         if($domain['customer']){
-            $domain['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname` = :seoname AND `status` IS NULL', array(':seoname' => $domain['customer']), 'id');
+            $domain['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $domain['customer']), 'core');
 
             if(!$domain['customers_id']){
                 $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $domain['customer'])));
@@ -72,13 +72,13 @@ function domains_validate($domain){
             $domain['customers_id'] = null;
         }
 
-        $domain['mx_domains_id'] = sql_get('SELECT `id` FROM `email_servers` WHERE `seodomain` = :seodomain AND `status` IS NULL', array(':seodomain' => $domain['mx_domain']), 'id');
+        $domain['mx_domains_id'] = sql_get('SELECT `id` FROM `email_servers` WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $domain['mx_domain']), 'core');
 
         /*
          * Check if the domain already exists
          * Make seodomain
          */
-        $exists = sql_get('SELECT `id` FROM `domains` WHERE `domain` = :domain AND `id` != :id', array(':domain' => $domain['domain'], ':id' => isset_get($domain['id'], 0)), 'id');
+        $exists = sql_get('SELECT `id` FROM `domains` WHERE `domain` = :domain AND `id` != :id', true, array(':domain' => $domain['domain'], ':id' => isset_get($domain['id'], 0)), 'core');
 
         if($exists){
             $v->setError(tr('Domain ":domain" already exists', array(':domain' => $domain['domain'])));
@@ -102,7 +102,7 @@ function domains_validate($domain){
                 foreach($domain['servers'] as $server){
                     if(!$server) continue;
 
-                    $servers_id = sql_get('SELECT `id` FROM `servers` WHERE `seodomain` = :seodomain AND `status` IS NULL', array(':seodomain' => $server), 'id');
+                    $servers_id = sql_get('SELECT `id` FROM `servers` WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $server), 'core');
                     $servers[] = $servers_id;
 
                     if(!$servers_id){
@@ -143,7 +143,7 @@ function domains_validate_keyword($keyword){
 
         $v->isValid();
 
-        $exists = sql_get('SELECT `id` FROM `domains_keywords` WHERE `keyword` = :keyword', true, array(':keyword' => $keyword['keyword']));
+        $exists = sql_get('SELECT `id` FROM `domains_keywords` WHERE `keyword` = :keyword', true, array(':keyword' => $keyword['keyword']), 'core');
 
         if($exists){
             $v->setError(tr('Specified keyword ":keyword" already exists', array(':keyword' => $keyword['keyword'])));
@@ -212,7 +212,7 @@ function domains_get($domain = null){
                               AND       (`domains`.`status` IS NULL OR (`domains`.`type` = "scan" AND `domains`.`status` IN ("exists", "available")))',
 
                               array(':domain'    => $domain,
-                                    ':seodomain' => $domain));
+                                    ':seodomain' => $domain), false, 'core');
 
         }else{
             /*
@@ -223,7 +223,7 @@ function domains_get($domain = null){
                               WHERE  `domains`.`createdby` = :createdby
                               AND    `domains`.`status`    = "_new"',
 
-                              array(':createdby' => $_SESSION['user']['id']));
+                              array(':createdby' => $_SESSION['user']['id']), false, 'core');
 
             if(!$retval){
                 sql_query('INSERT INTO `domains` (`createdby`, `meta_id`, `status`)
@@ -231,7 +231,7 @@ function domains_get($domain = null){
 
                            array(':status'    => '_new',
                                  ':meta_id'   => meta_action(),
-                                 ':createdby' => isset_get($_SESSION['user']['id'])));
+                                 ':createdby' => isset_get($_SESSION['user']['id'])), 'core');
 
                 return domains_get($domain);
             }
@@ -275,7 +275,7 @@ function domains_list_servers($domain){
 
                              ORDER BY `servers`.`domain` ASC',
 
-                             array(':domains_id' => $domain));
+                             array(':domains_id' => $domain), false, 'core');
 
         return $servers;
 
@@ -305,14 +305,14 @@ function domains_update_servers($domain, $servers = null){
     try{
         $domain = domains_get_id($domain);
 
-        sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain));
+        sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain), 'core');
 
         if(empty($servers)){
             return false;
         }
 
         $insert = sql_prepare('INSERT INTO `domains_servers` (`domains_id`, `servers_id`)
-                               VALUES                        (:domains_id , :servers_id )');
+                               VALUES                        (:domains_id , :servers_id )', 'core');
 
         foreach($servers as $servers_id){
             $insert->execute(array(':domains_id' => $domain,
@@ -353,9 +353,9 @@ function domains_add_keyword($keyword){
                    array(':createdby'  => isset_get($_SESSION['user']['id']),
                          ':meta_id'    => meta_action(),
                          ':keyword'    => $keyword['keyword'],
-                         ':seokeyword' => $keyword['seokeyword']));
+                         ':seokeyword' => $keyword['seokeyword']), 'core');
 
-        $insert_id        = sql_insert_id();
+        $insert_id        = sql_insert_id('core');
         $count            = 0;
         $options          = array('', '-');
         $reverses         = array(true, false);
@@ -367,9 +367,9 @@ function domains_add_keyword($keyword){
 
                                        FROM   `domains_keywords`
 
-                                       WHERE  `status` IS NULL');
+                                       WHERE  `status` IS NULL', null, 'core');
         $insert           = sql_prepare('INSERT INTO `domains` (`createdby`, `meta_id`, `domain`, `type`)
-                                         VALUES                (:createdby , :meta_id , :domain , "scan")');
+                                         VALUES                (:createdby , :meta_id , :domain , "scan")', 'core');
 
         while($combination = sql_fetch($combination_list, true)){
             if($combination === '1'){
@@ -398,7 +398,7 @@ function domains_add_keyword($keyword){
                             }
                         }
 
-                        $exists = sql_get('SELECT `id` FROM `domains` WHERE `domain` = :domain', true, array(':domain' => $domain));
+                        $exists = sql_get('SELECT `id` FROM `domains` WHERE `domain` = :domain', true, array(':domain' => $domain), 'core');
 
                         if(!$exists){
                             $count++;
@@ -433,7 +433,7 @@ function domains_add_keyword($keyword){
  */
 function domains_scan_keywords(){
     try{
-        $domains = sql_query('SELECT `domain` FROM `domains` WHERE `type` = "scan" AND `status` IS NULL');
+        $domains = sql_query('SELECT `domain` FROM `domains` WHERE `type` = "scan" AND `status` IS NULL', null, 'core');
 
         while($domain = sql_fetch($domains)){
 
@@ -468,7 +468,7 @@ function domains_like($domain){
                            OR     `seodomain` LIKE :seodomain',
 
                            true, array(':domain'    => '%'.$domain.'%',
-                                       ':seodomain' => '%'.$domain.'%'));
+                                       ':seodomain' => '%'.$domain.'%'), 'core');
 
         if(!$domain){
             /*
@@ -511,17 +511,17 @@ function domains_insert($domain){
             sql_query('INSERT INTO `domains` (`createdby`, `meta_id`, `status`, `mx_domains_id`, `customers_id`, `providers_id`, `domain`, `seodomain`, `description`)
                        VALUES                (:createdby , :meta_id , :status , :mx_domains_id , :customers_id , :providers_id , :domain , :seodomain , :description )',
 
-                       array(':status'          => null,
-                             ':createdby'       => $_SESSION['user']['id'],
-                             ':meta_id'         => meta_action(),
-                             ':customers_id'    => $domain['customers_id'],
-                             ':providers_id'    => $domain['providers_id'],
-                             ':mx_domains_id'   => $domain['mx_domains_id'],
-                             ':domain'          => $domain['domain'],
-                             ':seodomain'       => $domain['seodomain'],
-                             ':description'     => $domain['description']));
+                       array(':status'        => null,
+                             ':createdby'     => $_SESSION['user']['id'],
+                             ':meta_id'       => meta_action(),
+                             ':customers_id'  => $domain['customers_id'],
+                             ':providers_id'  => $domain['providers_id'],
+                             ':mx_domains_id' => $domain['mx_domains_id'],
+                             ':domain'        => $domain['domain'],
+                             ':seodomain'     => $domain['seodomain'],
+                             ':description'   => $domain['description']), 'core');
 
-        $domain['id'] = sql_insert_id();
+        $domain['id'] = sql_insert_id('core');
 
         log_console(tr('Inserted domain ":domain" with id ":id"', array(':domain' => $domain['domain'], ':id' => $domain['id'])), 'VERBOSE/green');
         domains_update_servers($domain, $domain['servers']);
@@ -575,7 +575,7 @@ function domains_update($domain, $new = false){
                          ':mx_domains_id' => $domain['mx_domains_id'],
                          ':domain'        => $domain['domain'],
                          ':seodomain'     => $domain['seodomain'],
-                         ':description'   => $domain['description']));
+                         ':description'   => $domain['description']), 'core');
 
         log_console(tr('Updated domain ":domain" with id ":id"', array(':domain' => $domain['domain'], ':id' => $domain['id'])), 'VERBOSE/green');
         domains_update_servers($domain, $domain['servers']);
