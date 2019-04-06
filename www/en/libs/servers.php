@@ -602,7 +602,7 @@ function servers_add_domain($server, $domain){
     try{
         $server = servers_get_id($server);
         $domain = domains_get_id($domain);
-        $exists = sql_get('SELECT `id` FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', array(':servers_id' => $server, ':domains_id' => $domain), 'core');
+        $exists = sql_get('SELECT `id` FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', true, array(':servers_id' => $server, ':domains_id' => $domain), 'core');
 
         if($exists){
             return false;
