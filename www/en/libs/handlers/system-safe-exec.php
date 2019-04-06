@@ -52,16 +52,20 @@ try{
         $params['commands'] = 'export PATH="'.$_CONFIG['exec']['path'].'"; '.$params['commands'];
     }
 
+//    $params['commands'] = 'set -uo pipefail; '.$params['commands'];
+    $params['commands'] = 'set -u; '.$params['commands'];
+    $params['commands'] = trim($params['commands']);
+
+    /*
+     * Log and debug display options
+     */
     if($params['debug']){
         $color = 'cyan';
+        show($params['commands']);
 
     }else{
         $color = (PLATFORM_HTTP ? '' : ($params['log'] ? '' : 'VERY')).'VERBOSE/cyan';
     }
-
-//    $params['commands'] = 'set -uo pipefail; '.$params['commands'];
-    $params['commands'] = 'set -u; '.$params['commands'];
-    $params['commands'] = trim($params['commands']);
 
     /*
      * Execute the command
