@@ -64,15 +64,15 @@ try{
             load_libs('cli,servers');
 
             if(!cli_pidgrep($tunnel['pid'])){
-                $server     = servers_get($connector['ssh_tunnel']['hostname']);
+                $server     = servers_get($connector['ssh_tunnel']['domain']);
                 $registered = ssh_host_is_known($server['hostname'], $server['port']);
 
                 if($registered === false){
-                    throw new BException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $connector['ssh_tunnel']['hostname'])), $e);
+                    throw new BException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $connector['ssh_tunnel']['domain'])), $e);
                 }
 
                 if($registered === true){
-                    throw new BException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the ROOT/data/ssh/known_hosts file.', array(':hostname' => $connector['ssh_tunnel']['hostname'], ':port' => $connector['port'])), $e);
+                    throw new BException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the ROOT/data/ssh/known_hosts file.', array(':hostname' => $connector['ssh_tunnel']['domain'], ':port' => $connector['port'])), $e);
                 }
 
                 /*
@@ -85,6 +85,13 @@ try{
             throw new BException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', array(':hostname' => $connector['host'], ':port' => $connector['port'])), $e);
 
         case 2006:
+            /*
+             * MySQL server went away
+             *
+             * Check if tunnel PID is still there
+             * Check if target server supports TCP forwarding.
+             * Check if the tunnel is still responding to TCP requests
+             */
             if(empty($connector['ssh_tunnel']['required'])){
                 /*
                  * No SSH tunnel was required for this connector
@@ -93,36 +100,47 @@ try{
             }
 
             load_libs('servers,linux');
-            $server  = servers_get($connector['ssh_tunnel']['hostname']);
+
+            $server  = servers_get($connector['ssh_tunnel']['domain']);
             $allowed = linux_get_ssh_tcp_forwarding($server);
 
-            if($allowed){
+            if(!$allowed){
                 /*
-                 * SSH tunnel is required for this connector, but tcp fowarding is allowed
+                 * SSH tunnel is required for this connector, but tcp fowarding
+                 * is not allowed. Allow it and retry
                  */
-                throw $e;
-            }
+                if(!$server['allow_sshd_modification']){
+                    throw new BException(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', array(':connector' => $connector)), 'configuration');
+                }
 
-            if(!$server['allow_sshd_modification']){
-                throw new BException(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', array(':connector' => $connector)), 'configuration');
-            }
+                log_console(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
 
-            log_console(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', array(':server' => $connector['ssh_tunnel']['hostname'])), 'yellow');
+                /*
+                 * Now enable TCP forwarding on the server, and retry connection
+                 */
+                linux_set_ssh_tcp_forwarding($server, true);
+                log_console(tr('sql_connect(): Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
+
+                if($connector['ssh_tunnel']['pid']){
+                    log_console(tr('sql_connect(): Closing previously opened SSH tunnel to server ":server"', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
+                    ssh_close_tunnel($connector['ssh_tunnel']['pid']);
+                }
+
+                return sql_connect($connector);
+            }
 
             /*
-             * Now enable TCP forwarding on the server, and retry connection
+             * Check if the tunnel process is still up and about
              */
-            linux_set_ssh_tcp_forwarding($server, true);
-            log_console(tr('sql_connect(): Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', array(':server' => $connector['ssh_tunnel']['hostname'])), 'yellow');
-
-            if($connector['ssh_tunnel']['pid']){
-                log_console(tr('sql_connect(): Closing previously opened SSH tunnel to server ":server"', array(':server' => $connector['ssh_tunnel']['hostname'])), 'yellow');
-                ssh_close_tunnel($connector['ssh_tunnel']['pid']);
+            if(!cli_pid($connector['ssh_tunnel']['pid'])){
+                throw new BException(tr('sql_init_fail(): SSH tunnel process ":pid" is gone', array(':pid' => $connector['ssh_tunnel']['pid'])), 'failed');
             }
 
-            return sql_connect($connector);
+            /*
+             * Check if we can connect over the tunnel to the remote SSH
+             */
 
-        default:
+      default:
             throw new BException('sql_connect(): Failed to create PDO SQL object', $e);
     }
 
