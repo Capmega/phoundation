@@ -10,14 +10,15 @@ try{
         throw new BException(tr('safe_exec(): Specified $params is invalid, should be an array but is an ":type"', array(':type' => gettype($params))), 'invalid');
     }
 
-    array_default($params, 'path'        , $_CONFIG['exec']['path']);
-    array_default($params, 'domain'      , null);
-    array_default($params, 'function'    , 'exec');
-    array_default($params, 'ok_exitcodes', 0);
-    array_default($params, 'background'  , false);
-    array_default($params, 'log'         , true);
-    array_default($params, 'debug'       , false);
-    array_default($params, 'output_log'  , ((VERBOSE or $params['debug']) ? ROOT.'data/log/syslog' : '/dev/null'));
+    array_default($params, 'path'           , $_CONFIG['exec']['path']);
+    array_default($params, 'domain'          , null);
+    array_default($params, 'function'        , 'exec');
+    array_default($params, 'ok_exitcodes'    , 0);
+    array_default($params, 'background'      , false);
+    array_default($params, 'log'             , true);
+    array_default($params, 'debug'           , false);
+    array_default($params, 'include_exitcode', false);
+    array_default($params, 'output_log'      , ((VERBOSE or $params['debug']) ? ROOT.'data/log/syslog' : '/dev/null'));
 
     if($params['domain']){
         /*
@@ -174,6 +175,17 @@ under_construction();
     if(VERYVERBOSE or $params['debug']){
         log_console('Command output:', 'purple');
         log_console($output);
+    }
+
+    /*
+     * Include the exitcode on to the output array.
+     *
+     * Since background already returns the PID, and only the PID, and we cannot
+     * get an exit code from a background process, do not add the exit code in
+     * that case
+     */
+    if($params['include_exitcode'] and !$params['background']){
+        $output[] = $exitcode;
     }
 
     /*
