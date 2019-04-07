@@ -246,7 +246,7 @@ function email_servers_validate_account($account){
             $v->setError(tr('The domain ":domain" is already registered', array(':domain' => $account['domain'])));
         }
 
-        $account['seoemail'] = seo_unique($account['domain'], 'accounts', $account['id'], 'seoemail');
+        $account['seoemail'] = seo_unique($account['seoemail'], 'accounts', $account['id'], 'seoemail');
 
         $v->isValid();
 
@@ -531,10 +531,14 @@ function email_servers_insert_account($account){
 function email_servers_update_account($account){
     try{
         $account = email_servers_validate_account($account);
-        $update  = sql_query('UPDATE `accounts` SET `description` = :description WHERE `id` = :id',
+        $update  = sql_query('UPDATE `accounts`
 
-                              array(':id'            => $account['id'],
-                                    ':description'   => $account['description']));
+                              SET    `description` = :description
+
+                              WHERE `id`           = :id',
+
+                              array(':id'          => $account['id'],
+                                    ':description' => $account['description']));
 
         $account['_updated'] = (boolean) $update->rowCount();
 
