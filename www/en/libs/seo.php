@@ -40,10 +40,11 @@
  * @param string $column
  * @param string $replace
  * @param null $first_suffix
+ * @param null string $connector_name If specified, use the specified database connector instead of the default "core" database connector
  * @return string The specified $source string seo optimized, which does not yet exist in the specified $table
  */
 // :TODO: Update to use bound variable queries
-function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replace = '-', $first_suffix = null) {
+function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replace = '-', $first_suffix = null, $connector_name = null) {
     try{
         /*
          * Prepare string
@@ -129,7 +130,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
                     }
                 }
 
-                $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.array_implode_with_keys($source, '" AND `', '` = "', true).'"'.$ownid.';', true);
+                $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.array_implode_with_keys($source, '" AND `', '` = "', true).'"'.$ownid.';', true, null, $connector_name);
 
                 if(!$exists){
                     return $source[key($first)];
@@ -150,7 +151,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
                     }
                 }
 
-                $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.$column.'` = "'.$str.'"'.$ownid.';', true);
+                $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.$column.'` = "'.$str.'"'.$ownid.';', true, null, $connector_name);
 
                 if(!$exists){
                     return $str;
