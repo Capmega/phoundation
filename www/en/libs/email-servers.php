@@ -179,9 +179,11 @@ function email_servers_validate_domain($domain){
 
 
 /*
- * Validate an email account
+ * Validate an email server
  *
- * This function will validate all relevant fields in the specified $domain array
+ * This function will validate all relevant fields in the specified $email_server array
+ *
+ * This function will generate HTML for an HTML select box using html_select() and fill it with the available categories
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -189,49 +191,71 @@ function email_servers_validate_domain($domain){
  * @category Function reference
  * @package categories
  *
- * @param array $params The parameters required
- * @return string HTML for a categories select box within the specified parameters
+ * @param params $account The email account to be validated
+ * @params natural $account[id] The database table id for the specified email account, if not new
+ * @params string $account[domains_id]
+ * @params string $account[servers_id]
+ * @params string $account[email]
+ * @params string $account[description]
+ * @return The specified email account, validated
  */
-function email_servers_validate_account($domain){
+function email_servers_validate_account($account){
     try{
-        load_libs('validate,seo,customers');
+        load_libs('email,description');
 
-        $v = new ValidateForm($domain, 'id,email,description');
-        $v->isNotEmpty($domain['email'], tr('Please specify a domain name'));
-        $v->hasMaxChars($domain['email'], 120, tr('Please specify a domain of less than 64 characters'));
-        $v->isFilter($domain['email'], FILTER_VALIDATE_EMAIL, tr('Please specify a valid email address'));
+        $v = new ValidateForm($account, 'id,email,server,domain,description');
+        $v->isNotEmpty($account['email'], tr('Please specify an email address'));
+        $v->isNotEmpty($account['domain'], tr('Please specify a mail domain'));
+        $v->isNotEmpty($account['server'], tr('Please specify a mail server'));
 
-        $v->isValid();
+        /*
+         * Validate the server
+         */
+        $server = servers_get($account['servers_id'], false, true, true);
 
-        $exists = sql_get('SELECT `id` FROM `domains` WHERE `name` = :name LIMIT 1', true, array(':name' => $domain['name']));
-
-        if($exists){
-            $v->setError(tr('The domain ":name" is already registered on this email server'. array(':name' => $domain['name'])));
+        if(!$server){
+            $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['servers_id'])));
         }
 
-        if($email_server['description']){
-            $v->hasMinChars($email_server['description'], 16, tr('Please specify at least 16 characters for a description'));
-            $v->hasMaxChars($email_server['description'], 2048, tr('Please specify no more than 2047 characters for a description'));
+        /*
+         * Validate the domain
+         */
+        $account['domains_id'] = domains_ensure($account['domain']);
+
+        /*
+         * Validate the rest
+         */
+        if($account['description']){
+            $v->hasMinChars($account['description'], 16, tr('Please specify at least 16 characters for a description'));
+            $v->hasMaxChars($account['description'], 2048, tr('Please specify no more than 2047 characters for a description'));
 
         }else{
-            $email_server['description'] = null;
+            $account['description'] = null;
         }
 
         $v->isValid();
 
-        $domain['seoname'] = seo_unique($domain['name'], 'domains', $domain['id']);
+        $exists = sql_get('SELECT `id` FROM `accounts` WHERE `email` = :email AND `id` != :id LIMIT 1', true, array(':domain' => $account['domain'], ':id' => isset_get($account['id'], 0)));
 
-        return $domain;
+        if($exists){
+            $v->setError(tr('The domain ":domain" is already registered', array(':domain' => $account['domain'])));
+        }
+
+        $account['seoemail'] = seo_unique($account['domain'], 'email_servers', $account['id'], 'seoemail');
+
+        $v->isValid();
+
+        return $account;
 
     }catch(Exception $e){
         if($e->getCode() == '1049'){
             load_libs('servers');
 
-            $servers  = servers_list_domains($domain['server']);
-            $server   = servers_get($domain['server']);
-            $domain = not_empty($servers[$domain['server']], $domain['server']);
+            $servers = servers_list_domains($domain['server']);
+            $server  = servers_get($domain['server']);
+            $domain  = not_empty($servers[$domain['server']], $domain['server']);
 
-            throw new BException(tr('email_servers_validate_account(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
+            throw new BException(tr('email_servers_validate_account(): Specified email server ":server" (server domain ":domain") does not appear to have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
         }
 
         throw new BException(tr('email_servers_validate_account(): Failed'), $e);
@@ -331,13 +355,13 @@ function email_servers_select($params = null){
 function email_servers_select_domain($params = null){
     try{
         array_ensure($params);
-        array_default($params, 'name'    , 'seodomain');
-        array_default($params, 'class'   , 'form-control');
-        array_default($params, 'selected', null);
-        array_default($params, 'status'  , null);
-        array_default($params, 'empty'   , tr('No domains available'));
-        array_default($params, 'none'    , tr('Select a domain'));
-        array_default($params, 'orderby' , '`name`');
+        array_default($params, 'name'         , 'seodomain');
+        array_default($params, 'class'        , 'form-control');
+        array_default($params, 'selected'     , null);
+        array_default($params, 'status'       , null);
+        array_default($params, 'select_server', tr('Please select mail server first'));
+        array_default($params, 'none'         , tr('Select a mail domain'));
+        array_default($params, 'orderby'      , '`name`');
 
         if($params['status'] !== false){
             $where[] = ' `status` '.sql_is($params['status'], ':status');
@@ -351,9 +375,21 @@ function email_servers_select_domain($params = null){
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
-        $query              = 'SELECT `seoname`, `name` FROM `domains` '.$where.' ORDER BY '.$params['orderby'];
-        $params['resource'] = sql_query($query, $execute);
-        $retval             = html_select($params);
+        if(empty($params['server'])){
+            /*
+             * No mail server specified, we can't check for domains
+             */
+            $params['resource'] = null;
+            array_default($params, 'empty', $params['select_server']);
+
+        }else{
+            $query              = 'SELECT `seoname`, `name` FROM `domains` '.$where.' ORDER BY '.$params['orderby'];
+            $params['resource'] = sql_query($query, $execute);
+        }
+
+        array_default($params, 'empty', tr('No mail domains available'));
+
+        $retval = html_select($params);
 
         return $retval;
 
@@ -436,6 +472,83 @@ function email_servers_get($email_server, $column = null, $status = null){
 
 
 /*
+ * Insert the specified email account on the mail server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ * @version
+ *
+ * @param params $account
+ * @return params The specified email account, validated and sanitized
+ */
+function email_servers_insert_account($account){
+    try{
+        $account = email_servers_validate_account($account);
+
+        sql_query('INSERT INTO `accounts` (`domains_id`, `password`                                                     , `email`, `seoemail`, `max_size`, `description`)
+                   VALUES                 (:domains_id , ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16))) , :email`, :seoemail , :max_size , :description )',
+
+                   array(':domains_id'    => $account['domains_id'],
+                         ':password'      => $account['password'],
+                         ':email'         => $account['email'],
+                         ':seoemail'      => $account['seoemail'],
+                         ':max_size'      => $account['max-size'],
+                         ':current_size'  => 0,
+                         ':description'   => $account['description']));
+
+        $account['id'] = sql_insert_id();
+
+        return $account;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_insert_account(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Update the email account on the mail server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ * @version
+ *
+ * @param params $account
+ * @return params The specified email account, validated and sanitized
+ */
+function email_servers_update_account($account){
+    try{
+        $account = email_servers_validate_account($account);
+
+        sql_query('UPDATE `emails` SET `description` = :description WHERE `id` = :id',
+
+                   array(':id'            => $account['id'],
+                         ':description'   => $account['description']));
+
+        $account['_updated'] = (boolean) $update->rowCount();
+
+        if(!empty($account['password'])){
+            $updated = email_servers_update_password($account['email'], $account['password']);
+            $account['_updated'] = ($account['_updated'] and $updated);
+        }
+
+        return $account;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_update_account(): Failed', $e);
+    }
+}
+
+
+
+/*
  *
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -449,14 +562,16 @@ function email_servers_get($email_server, $column = null, $status = null){
  */
 function email_servers_update_password($email, $password){
     try{
-        sql_query('UPDATE `accounts`
+        $update = sql_query('UPDATE `accounts`
 
-                   SET    `password` = ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16)))
+                             SET    `password` = ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16)))
 
-                   WHERE  `email`    = :email',
+                             WHERE  `email`    = :email',
 
-                   array(':email'    => $email,
-                         ':password' => $password));
+                             array(':email'    => $email,
+                                   ':password' => $password));
+
+        return (boolean) $update->rowCount();
 
     }catch(Exception $e){
         throw new BException('email_servers_update_password(): Failed', $e);
