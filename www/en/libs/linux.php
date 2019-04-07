@@ -126,10 +126,11 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
  * @package linux
  *
  * @param mixed $server
- * @param string $path
+ * @param string $path The path that needs to be tested
+ * @param boolean [false] $sudo If specified true, the function will test the path's existence on the server using sudo
  * @return boolean True if the file exists, false if not
  */
-function linux_file_exists($server, $path){
+function linux_file_exists($server, $path, $sudo = false){
     try{
         if($server === null){
             /*
@@ -138,15 +139,46 @@ function linux_file_exists($server, $path){
             return file_exists($path);
         }
 
-        $server  = servers_get($server);
-        $results = servers_exec($server, array('ok_exitcodes' => '0,2',
-                                               'commands'     => array('ls', array($path))));
-
-under_construction();
-        return true;
+        $result = linux_test($server, 'e', $path, $sudo);
+        return $result;
 
     }catch(Exception $e){
         throw new BException('linux_file_exists(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Execute the test command on the specified file on the specified server
+ *
+ * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ *
+ * @param mixed $server
+ * @param string $flag The test command flag to use
+ * @param string $path The path that needs to be tested
+ * @param boolean [false] $sudo If specified true, the function will test the path's existence on the server using sudo
+ * @return boolean True if the file exists, false if not
+ */
+function linux_test($server, $flag, $path, $sudo = false){
+    try{
+        $server  = servers_get($server);
+        $results = servers_exec($server, array('include_exitcode' => true,
+                                               'ok_exitcodes'     => 1,
+                                               'commands'         => array('test', array('sudo' => $sudo, '-'.$flag, $path))));
+
+        $results = array_pop($results);
+
+        return ! (boolean) $results;
+
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException('linux_test(): Failed', $e);
     }
 }
 
@@ -237,13 +269,14 @@ function linux_file_delete($server, $patterns, $clean_path = false, $sudo = fals
  *
  * @param mixed $server
  * @param string $path
+ * @param boolean [false] $sudo If specified true, the function will test the path's existence on the server using sudo
  * @return
  */
-function linux_file_clear_path($server, $path){
+function linux_file_clear_path($server, $path, $sudo = false){
     try{
         $server = servers_get($server);
 
-        if(!linux_file_exists($server, $path)){
+        if(!linux_file_exists($server, $path, $sudo)){
             /*
              * This section does not exist, jump up to the next section
              */
@@ -551,8 +584,8 @@ function linux_pid($server, $pid){
  */
 function linux_netstat($server, $options){
     try{
-
-        return linux_file_exists($server, 'netstat '.$parameters);
+under_construction();
+//        return linux_file_exists($server, 'netstat '.$parameters);
 
     }catch(Exception $e){
         throw new BException('linux_netstat(): Failed', $e);
@@ -1134,7 +1167,7 @@ function linux_get_cwd($pid){
  */
 function linux_find($server, $params){
     try{
-        array_ensure($params, 'debug,cwd,exec,maxdepth,path,type');
+        array_ensure($params, 'debug,cwd,exec,maxdepth,path,type,sudo');
 
         $commands = array();
 
@@ -1144,6 +1177,10 @@ function linux_find($server, $params){
         }
 
         $arguments[] = $params['path'];
+
+        if($params['sudo']){
+            $arguments['sudo'] = true;
+        }
 
         if($params['maxdepth']){
             $arguments[] = '-maxdepth';
