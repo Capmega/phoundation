@@ -201,7 +201,7 @@ function email_servers_validate_domain($domain){
  */
 function email_servers_validate_account($account){
     try{
-        load_libs('email,description');
+        load_libs('email,seo,servers,domains');
 
         $v = new ValidateForm($account, 'id,email,server,domain,description');
         $v->isNotEmpty($account['email'], tr('Please specify an email address'));
@@ -211,16 +211,21 @@ function email_servers_validate_account($account){
         /*
          * Validate the server
          */
-        $server = servers_get($account['servers_id'], false, true, true);
+        $account['servers_id'] = servers_get($account['server'], false, true, true);
 
-        if(!$server){
-            $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['servers_id'])));
+        if(!$account['servers_id']){
+            $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['server'])));
         }
+
 
         /*
          * Validate the domain
          */
-        $account['domains_id'] = domains_ensure($account['domain']);
+        $account['domains_id'] = sql_get('SELECT `id` FROM `domains` WHERE `seoname` = :seoname', true, array(':seoname' => $account['domain']));
+
+        if(!$account['domains_id']){
+            $v->setError(tr('The specified mail domain ":domain" does not exist', array(':domain' => $account['domain'])));
+        }
 
         /*
          * Validate the rest
@@ -235,13 +240,13 @@ function email_servers_validate_account($account){
 
         $v->isValid();
 
-        $exists = sql_get('SELECT `id` FROM `accounts` WHERE `email` = :email AND `id` != :id LIMIT 1', true, array(':domain' => $account['domain'], ':id' => isset_get($account['id'], 0)));
+        $exists = sql_get('SELECT `id` FROM `accounts` WHERE `email` = :email AND `id` != :id LIMIT 1', true, array(':email' => $account['email'], ':id' => isset_get($account['id'], 0)));
 
         if($exists){
             $v->setError(tr('The domain ":domain" is already registered', array(':domain' => $account['domain'])));
         }
 
-        $account['seoemail'] = seo_unique($account['domain'], 'email_servers', $account['id'], 'seoemail');
+        $account['seoemail'] = seo_unique($account['domain'], 'accounts', $account['id'], 'seoemail');
 
         $v->isValid();
 
@@ -526,17 +531,16 @@ function email_servers_insert_account($account){
 function email_servers_update_account($account){
     try{
         $account = email_servers_validate_account($account);
+        $update  = sql_query('UPDATE `accounts` SET `description` = :description WHERE `id` = :id',
 
-        sql_query('UPDATE `emails` SET `description` = :description WHERE `id` = :id',
-
-                   array(':id'            => $account['id'],
-                         ':description'   => $account['description']));
+                              array(':id'            => $account['id'],
+                                    ':description'   => $account['description']));
 
         $account['_updated'] = (boolean) $update->rowCount();
 
         if(!empty($account['password'])){
-            $updated = email_servers_update_password($account['email'], $account['password']);
-            $account['_updated'] = ($account['_updated'] and $updated);
+            email_servers_update_password($account['email'], $account['password']);
+            $account['_updated'] = true;
         }
 
         return $account;
@@ -549,7 +553,7 @@ function email_servers_update_account($account){
 
 
 /*
- *
+ * Update the password for the specified email account
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -557,10 +561,11 @@ function email_servers_update_account($account){
  * @category Function reference
  * @package email-servers
  *
- * @param array $servers
+ * @param string $account
+ * @param string $password
  * @return void
  */
-function email_servers_update_password($email, $password){
+function email_servers_update_password($account, $password){
     try{
         $update = sql_query('UPDATE `accounts`
 
@@ -568,10 +573,8 @@ function email_servers_update_password($email, $password){
 
                              WHERE  `email`    = :email',
 
-                             array(':email'    => $email,
+                             array(':email'    => $account,
                                    ':password' => $password));
-
-        return (boolean) $update->rowCount();
 
     }catch(Exception $e){
         throw new BException('email_servers_update_password(): Failed', $e);
