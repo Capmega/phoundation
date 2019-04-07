@@ -603,7 +603,11 @@ if($nocompress){
         }else{
             log_console(tr('Changes detected from the compression script script, committing to git'), 'white');
             git_add(ROOT.'www/en/pub');
-            git_add(ROOT.'www/en/admin/pub');
+
+            if(file_exists(ROOT.'www/en/admin/pub')){
+                git_add(ROOT.'www/en/admin/pub');
+            }
+
             git_commit('Deploy commit: compressed files changed');
 
             if(!$nopush){
