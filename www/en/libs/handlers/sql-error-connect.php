@@ -139,6 +139,10 @@ try{
             /*
              * Check if we can connect over the tunnel to the remote SSH
              */
+            $results = inet_telnet(array('host' => '127.0.0.1',
+                                         'port' => $connector['ssh_tunnel']['source_port']));
+
+// :TODO: Implement further error handling.. From here on, appearently inet_telnet() did NOT cause an exception, so we have a result.. We can check the result for mysql server data and with that confirm that it is working, but what would.. well, cause a problem, because if everything worked we would not be here...
 
       default:
             throw new BException('sql_connect(): Failed to create PDO SQL object', $e);

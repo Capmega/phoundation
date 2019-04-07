@@ -36,6 +36,7 @@ $tunnel = ssh_tunnel($connector['ssh_tunnel']);
  * The SSH tunnel MAY force a different port, so be sure to force the connector
  * port to the SSH source port
  */
-$connector['ssh_tunnel']['pid'] = $tunnel['pid'];
-$connector['port']              = $tunnel['source_port'];
+$connector['ssh_tunnel']['pid']         = $tunnel['pid'];
+$connector['ssh_tunnel']['source_port'] = $tunnel['source_port'];
+$connector['port']                      = $tunnel['source_port'];
 ?>
