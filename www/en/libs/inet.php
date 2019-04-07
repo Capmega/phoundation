@@ -101,38 +101,37 @@ function is_ipv6($version = null){
  * @category Function reference
  * @package inet
  *
- * @param string $host The hostname or IP to connect to
- * @param natural $port (1 - 65535) The port on the specified hostname or IP to connect to
+ * @param string $params[host] The hostname or IP to connect to
+ * @param natural (1-65535) $params[port] The port on the specified hostname or IP to connect to
+ * @param natural [null] $params[server] If specified, execute this from the specified server
+ * @param natural (1-600) [5] $params[timeout] Time to wait for a connection. Defaults to 5 seconds
+ * @param enum (tcp|udp) [tcp] The protocol to be used. Either "tcp" or "udp"
+ * @param boolean [false] $params[exception] If specified true, and connection fails, don't return boolean false, throw an exception instead.
  * @return boolean True if the specified host / port responds, false if not
  */
-function inet_test_host_port($host, $port, $server = null, $timeout = 5, $exception = false){
+function inet_test_host_port($params){
     try{
-        if(!is_natural($port) or ($port > 65535)){
-            throw new BException(tr('inet_test_host_port(): Specified port ":port" is invalid, please specify a natural number 1 - 65535', array(':port' => $port)), 'invalid');
+        array_ensure($params, 'host,port,server');
+        array_default($params, 'timeout'  , 5);
+        array_default($params, 'exception', false);
+        array_default($params, 'protocol' , 'tcp');
+
+        inet_validate_port($params['port']);
+        inet_validate_host($params['host']);
+
+        if(!is_natural($params['timeout']) or ($params['timeout'] > 600)){
+            throw new BException(tr('inet_test_host_port(): Specified timeout ":timeout"is invalid. It must be a natural number smaller than or equal to 600', array(':timeout' => $params['timeout'])), 'invalid');
         }
 
-        if(!filter_var($host, FILTER_VALIDATE_IP)){
-            /*
-             * This is not an IP address, so assume its a hostname. Do a lookup
-             */
-            if(gethostbyname($host) === $host){
-                throw new BException(tr('inet_test_host_port(): Failed to lookup specified host ":host". Either there was a DNS lookup failure, or the specified host does not exist', array(':host' => $host)), 'dns-lookup-failure');
-            }
-        }
-
-        if(!is_natural($timeout) or ($timeout > 600)){
-            throw new BException(tr('inet_test_host_port(): Specified timeout ":timeout"is invalid. It must be a natural number smaller than or equal to 600', array(':timeout' => $timeout)), 'invalid');
-        }
-
-        $results = servers_exec($server, array('ok_exitcodes' => '0,1',
-                                               'commands'     => array('nc', array('-zv', $host, $port, '-w', $timeout))));
+        $results = servers_exec($params['server'], array('ok_exitcodes' => '0,1',
+                                                         'commands'     => array('nc', array('-zv', $params['host'], $params['port'], '-w', $params['timeout']))));
 
         $results = array_shift($results);
         $results = strtolower($results);
 
         if(str_exists($results, 'connection refused')){
-            if($exception){
-                throw new BException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $host, '%port' => $port)), 'warning/failed');
+            if($params['exception']){
+                throw new BException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $params['host'], '%port' => $params['port'])), 'warning/failed');
             }
 
             return false;
@@ -152,6 +151,41 @@ function inet_test_host_port($host, $port, $server = null, $timeout = 5, $except
 
     }catch(Exception $e){
         throw new BException(tr('inet_test_host_port(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Setup a connection with the specified host:port, and return the initially received data
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package inet
+ *
+ * @param string $params The parameters for the telnet command
+ * @param string $params[host] The hostname or IP to connect to
+ * @param natural (1-65535) $params[port] The port on the specified hostname or IP to connect to
+ * @param natural [null] $params[server] If specified, execute this from the specified server
+ * @param natural (1-600) [1] $params[timeout] Time to wait for the remote connection to send output
+ * @return string The data received from the remote server
+ */
+function inet_telnet($params){
+    try{
+        array_ensure($params, 'host,port,server');
+        array_default($params, 'timeout', 1);
+
+        inet_validate_port($params['port']);
+        inet_validate_host($params['host']);
+
+        $results = servers_exec($params['server'], array('ok_exitcodes' => 124,
+                                                         'commands'     => array('telnet', array($params['host'], $params['port'], 'timeout' => $params['timeout']))));
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException(tr('inet_telnet(): Failed'), $e);
     }
 }
 
@@ -569,7 +603,45 @@ function inet_validate_port($port, $lowest = 1025){
  * @param boolean $allow_empty
  * @return The specified ip, if valid
  */
-function inet_validate_ip($ip, $allow_all = true){
+function inet_validate_host($host, $allow_all = true, $exception = true){
+    try{
+        /*
+         * Maybe its a valid IP?
+         */
+        $valid = inet_validate_ip($host, $allow_all, false);
+
+        if(!$valid){
+            return $valid;
+        }
+
+        if(!filter_var($host, FILTER_VALIDATE_DOMAIN)){
+            throw new BException(tr('inet_validate_host(): Specified host ":host" is invalid', array(':host' => $host)), 'validation');
+        }
+
+        return $host;
+
+    }catch(Exception $e){
+        throw new BException('inet_validate_host(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns the specified IP if it is valid, else it causes an exception. By default, empty values are allowed
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package inet
+ * @exception BException If the specified ip is not valid
+ *
+ * @param natural $ip
+ * @param boolean $allow_empty
+ * @return The specified ip, if valid
+ */
+function inet_validate_ip($ip, $allow_all = true, $exception = true){
     try{
         if(!$ip){
             throw new BException(tr('inet_validate_ip(): No ip specified'), 'validation');
@@ -586,14 +658,18 @@ function inet_validate_ip($ip, $allow_all = true){
         return $ip;
 
     }catch(Exception $e){
-        throw new BException('inet_validate_ip(): Failed', $e);
+        if($exception){
+            throw new BException('inet_validate_ip(): Failed', $e);
+        }
+
+        return false;
     }
 }
 
 
 
 /*
- * Returns true if the specified port is available, false otherwise
+ * Returns true if the specified port is available on the specified server, false otherwise
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
