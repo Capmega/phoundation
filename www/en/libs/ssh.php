@@ -220,7 +220,8 @@ function ssh_exec($server, $params){
                     if(empty($not_check_inet) and isset($params['port'])){
                         try{
                             load_libs('inet');
-                            inet_test_host_port($server['domain'], $server['port']);
+                            inet_test_host_port(array('host' => $server['domain'],
+                                                      'port' => $server['port']));
 
                         }catch(Exception $f){
                             throw new BException(tr('ssh_exec(): inet_test_host_port() failed with ":e"', array(':e' => $f->getMessage())), $e);
@@ -1538,7 +1539,9 @@ function ssh_tunnel($params, $reuse = true){
                 /*
                  * Is the tunnel responding?
                  */
-                $exists = inet_test_host_port('127.0.0.1', $params['tunnel']['source_port'], $params['server']);
+                $exists = inet_test_host_port(array('host'   => '127.0.0.1',
+                                                    'port'   => $params['tunnel']['source_port'],
+                                                    'server' => $params['server']));
 
                 if($exists){
                     log_console(tr('SSH tunnel confirmed working'), 'VERBOSE/green');
@@ -1641,7 +1644,9 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
                 load_libs('inet');
 
                 $source_port = current($results);
-                $works       = inet_test_host_port('127.0.0.1', $source_port, $server);
+                $works       = inet_test_host_port(array('host'   => '127.0.0.1',
+                                                         'port'   => $source_port,
+                                                         'server' => $server));
 
                 if($works){
                     /*
