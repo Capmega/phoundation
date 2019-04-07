@@ -481,12 +481,13 @@ function email_servers_update_password($email, $password){
 function email_servers_list_mailbox_sizes($server, $domain){
     try{
         if(!filter_var($domain, FILTER_VALIDATE_DOMAIN)){
-            throw new BException(tr('email_servers_list_mailbox_sizes(): Specified domain "" is not a valid domain', array(':domain' => $domain)), $e);
+            throw new BException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" is not a valid domain', array(':domain' => $domain)), 'invalid');
         }
 
         $total   = 0;
         $retval  = array();
         $results = linux_find($server, array('path'     => '/var/mail/vhosts/'.$domain,
+                                             'sudo'     => true,
                                              'maxdepth' => 1,
                                              'type'     => 'd',
                                              'exec'     => array('du', array('-s', '{}'))));
@@ -500,11 +501,16 @@ function email_servers_list_mailbox_sizes($server, $domain){
         }
 
         ksort($retval);
-        $retval['--total--'] = (str_until($total, "\t") * 1024);
+        $retval['--total--'] = $total;
 
         return $retval;
 
     }catch(Exception $e){
+        if(!linux_file_exists($server, '/var/mail/vhosts/'.$domain, true)){
+            $e->setCode('not-exist');
+            throw new BException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" does not exists as a mail domain', array(':domain' => $domain)), $e);
+        }
+
         throw new BException('email_servers_list_mailbox_sizes(): Failed', $e);
     }
 }
