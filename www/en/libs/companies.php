@@ -1153,7 +1153,7 @@ function companies_select_employee($params = null){
 
 
 /*
- * Return data for the specified company
+ * Return data for the specified employee
  *
  * This function returns information for the specified company. The company can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
@@ -1167,152 +1167,69 @@ function companies_select_employee($params = null){
  * @param string $column The specific column that has to be returned
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
-function companies_get_employee($company, $branch, $department, $employee, $column = null, $status = null){
+function companies_get_employee($params){
     try{
-        /*
-         * Filter by specified company
-         */
-        if(!is_numeric($company)){
-            $companies_id = companies_get($company, 'id');
+        array_params($params, 'seoname', 'id');
 
-            if(!$companies_id){
-                throw new BException(tr('companies_get_employee(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
-            }
+        $params['table']     = 'employees';
+        $params['connector'] = 'core';
 
-        }else{
-            $companies_id = $company;
-        }
+        array_default($params, 'filters', array('employees.id'      => $params['id'],
+                                                'employees.seoname' => $params['seoname']));
 
-        $where[] = ' `employees`.`companies_id` = :companies_id ';
-        $execute[':companies_id'] = $companies_id;
+        array_default($params, 'joins'  , array('LEFT JOIN `users`
+                                                 ON        `users`.`id`       = `employees`.`users_id`
 
-        /*
-         * Filter by specified branch
-         */
-        if(!is_numeric($branch)){
-            $branches_id = companies_get_branch($companies_id, $branch, 'id');
+                                                 JOIN      `companies`
+                                                 ON        `companies`.`id`   = `employees`.`companies_id`
+                                                 AND       `companies`.`status`   IS NULL
 
-            if(!$branches_id){
-                throw new BException(tr('companies_get_employee(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
-            }
+                                                 LEFT JOIN `categories`
+                                                 ON        `categories`.`id`  = `companies`.`categories_id`
 
-        }else{
-            $branches_id = $branch;
-        }
+                                                 JOIN      `branches`
+                                                 ON        `branches`.`id`    = `employees`.`branches_id`
+                                                 AND       `branches`.`status`    IS NULL
 
-        $where[] = ' `employees`.`companies_id` = :companies_id ';
-        $execute[':companies_id'] = $companies_id;
+                                                 JOIN      `departments`
+                                                 ON        `departments`.`id` = `employees`.`departments_id`
+                                                 AND       `departments`.`status` IS NULL'));
 
-        /*
-         * Filter by specified department
-         */
-        if(!is_numeric($department)){
-            $departments_id = companies_get_department($companies_id, $branches_id, $department, 'id');
+        array_default($params, 'columns', 'employees.id,
+                                           employees.createdon,
+                                           employees.createdby,
+                                           employees.meta_id,
+                                           employees.status,
+                                           employees.companies_id,
+                                           employees.branches_id,
+                                           employees.departments_id,
+                                           employees.users_id,
+                                           employees.name,
+                                           employees.seoname,
+                                           employees.description,
 
-            if(!$departments_id){
-                throw new BException(tr('companies_get_employee(): Specified department ":department" does not exist', array(':department' => $department)), 'not-exists');
-            }
+                                           users.username,
+                                           users.email,
 
-        }else{
-            $departments_id = $department;
-        }
+                                           categories.name     AS category,
+                                           categories.seoname  AS seocategory,
 
-        $where[] = ' `employees`.`companies_id` = :companies_id ';
-        $execute[':companies_id'] = $companies_id;
+                                           companies.customers_id,
+                                           companies.providers_id,
 
-        /*
-         * Filter by specified employee
-         */
-        if(is_numeric($employee)){
-            $where[] = ' `employees`.`id` = :id ';
-            $execute[':id'] = $employee;
+                                           companies.name      AS company,
+                                           companies.seoname   AS seocompany,
 
-        }else{
-            $where[] = ' `employees`.`seoname` = :seoname ';
-            $execute[':seoname'] = $employee;
-        }
+                                           branches.name       AS branch,
+                                           branches.seoname    AS seobranch,
 
-        /*
-         * Filter by specified status
-         */
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `employees`.`status` '.sql_is($status, ':status');
-        }
+                                           departments.name    AS department,
+                                           departments.seoname AS seodepartment');
 
-        $where   = ' WHERE '.implode(' AND ', $where).' ';
-
-        if($column){
-            $retval = sql_get('SELECT `employees`.`'.$column.'`
-
-                               FROM   `employees`
-
-                               JOIN   `companies`
-                               ON     `companies`.`id`    = `employees`.`companies_id`
-                               AND    `companies`.`status`    IS NULL
-
-                               JOIN    `branches`
-                               ON      `branches`.`id`    = `employees`.`branches_id`
-                               AND     `branches`.`status`    IS NULL
-
-                               JOIN    `departments`
-                               ON      `departments`.`id` = `employees`.`departments_id`
-                               AND     `departments`.`status` IS NULL '.$where, true, $execute);
-
-        }else{
-            $retval = sql_get('SELECT    `employees`.`id`,
-                                         `employees`.`createdon`,
-                                         `employees`.`createdby`,
-                                         `employees`.`meta_id`,
-                                         `employees`.`status`,
-                                         `employees`.`companies_id`,
-                                         `employees`.`branches_id`,
-                                         `employees`.`departments_id`,
-                                         `employees`.`users_id`,
-                                         `employees`.`name`,
-                                         `employees`.`seoname`,
-                                         `employees`.`description`,
-
-                                         `users`.`username`,
-                                         `users`.`email`,
-
-                                         `categories`.`name`     AS `category`,
-                                         `categories`.`seoname`  AS `seocategory`,
-
-                                         `companies`.`name`      AS `company`,
-                                         `companies`.`seoname`   AS `seocompany`,
-
-                                         `branches`.`name`       AS `branch`,
-                                         `branches`.`seoname`    AS `seobranch`,
-
-                                         `departments`.`name`    AS `department`,
-                                         `departments`.`seoname` AS `seodepartment`
-
-                               FROM      `employees`
-
-                               LEFT JOIN `users`
-                               ON        `users`.`id`       = `employees`.`users_id`
-
-                               JOIN      `companies`
-                               ON        `companies`.`id`   = `employees`.`companies_id`
-                               AND       `companies`.`status`   IS NULL
-
-                               LEFT JOIN `categories`
-                               ON        `categories`.`id`  = `companies`.`categories_id`
-
-                               JOIN      `branches`
-                               ON        `branches`.`id`    = `employees`.`branches_id`
-                               AND       `branches`.`status`    IS NULL
-
-                               JOIN      `departments`
-                               ON        `departments`.`id` = `employees`.`departments_id`
-                               AND       `departments`.`status` IS NULL '.$where, $execute);
-        }
-
-        return $retval;
+        return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('companies_get_employee(): Failed', $e);
+        throw new BException(tr('companies_get_employee(): Failed'), $e);
     }
 }
 ?>
