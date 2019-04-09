@@ -55,9 +55,9 @@ function companies_library_init(){
  */
 function companies_validate($company){
     try{
-        load_libs('validate,seo');
+        load_libs('validate,seo,customers,providers');
 
-        $v = new ValidateForm($company, 'name,seocategory,description');
+        $v = new ValidateForm($company, 'name,seocategory,seocustomer,seoprovider,description');
 
         /*
          * Validate category
@@ -72,6 +72,38 @@ function companies_validate($company){
 
         }else{
             $company['categories_id'] = null;
+        }
+
+        /*
+         * Validate customer
+         */
+        if($company['seocustomer']){
+            load_libs('customers');
+            $company['customers_id'] = customers_get(array('columns' => 'id',
+                                                           'filters' => array('seoname' => $company['seocustomer'])));
+
+            if(!$company['customers_id']){
+                $v->setError(tr('Specified customer does not exist'));
+            }
+
+        }else{
+            $company['customers_id'] = null;
+        }
+
+        /*
+         * Validate provider
+         */
+        if($company['seoprovider']){
+            load_libs('providers');
+            $company['providers_id'] = providers_get(array('columns' => 'id',
+                                                           'filters' => array('seoname' => $company['seoprovider'])));
+
+            if(!$company['providers_id']){
+                $v->setError(tr('Specified provider does not exist'));
+            }
+
+        }else{
+            $company['providers_id'] = null;
         }
 
         /*
@@ -257,17 +289,32 @@ function companies_get($company, $column = null, $status = null){
                                          `companies`.`meta_id`,
                                          `companies`.`status`,
                                          `companies`.`categories_id`,
+                                         `companies`.`customers_id`,
+                                         `companies`.`providers_id`,
                                          `companies`.`name`,
                                          `companies`.`seoname`,
                                          `companies`.`description`,
 
                                          `categories`.`name`    AS `category`,
-                                         `categories`.`seoname` AS `seocategory`
+                                         `categories`.`seoname` AS `seocategory`,
+
+                                         `customers`.`name`    AS `customer`,
+                                         `customers`.`seoname` AS `seocustomer`,
+
+                                         `providers`.`name`    AS `provider`,
+                                         `providers`.`seoname` AS `seoprovider`
 
                                FROM      `companies`
 
                                LEFT JOIN `categories`
-                               ON        `categories`.`id` = `companies`.`categories_id` '.$where, $execute);
+                               ON        `categories`.`id` = `companies`.`categories_id`
+
+                               LEFT JOIN `customers`
+                               ON        `customers`.`id`  = `companies`.`customers_id`
+
+                               LEFT JOIN `providers`
+                               ON        `providers`.`id`  = `companies`.`providers_id`
+                               '.$where, $execute);
         }
 
         return $retval;
@@ -961,18 +1008,10 @@ function companies_validate_employee($employee, $reload_only = false){
 
                 }else{
                     $employee['departments_id'] = null;
-
-                    if(!$reload_only){
-                        $v->setError(tr('No department specified'));
-                    }
                 }
 
             }else{
                 $employee['branches_id'] = null;
-
-                if(!$reload_only){
-                    $v->setError(tr('No branch specified'));
-                }
             }
 
         }else{
@@ -1187,11 +1226,11 @@ function companies_get_employee($params){
                                                  LEFT JOIN `categories`
                                                  ON        `categories`.`id`  = `companies`.`categories_id`
 
-                                                 JOIN      `branches`
+                                                 LEFT JOIN `branches`
                                                  ON        `branches`.`id`    = `employees`.`branches_id`
                                                  AND       `branches`.`status`    IS NULL
 
-                                                 JOIN      `departments`
+                                                 LEFT JOIN `departments`
                                                  ON        `departments`.`id` = `employees`.`departments_id`
                                                  AND       `departments`.`status` IS NULL'));
 
