@@ -305,7 +305,7 @@ function templates_list($params){
 
         $params['table'] = 'templates';
 
-        array_default($params, 'columns', array('templates.seoname,templates.name'));
+        array_default($params, 'columns', 'templates.seoname,templates.name');
 
         array_default($params, 'filters', array('templates.seoname' => $params['status'],
                                                 'foobar.status'     => 'available',
@@ -313,6 +313,8 @@ function templates_list($params){
 
         array_default($params, 'joins'  , array('LEFT JOIN `foobar`
                                                  ON        `foobar`.`id` = `templates`.`foobar_id`'));
+
+        array_default($params, 'orderby', array('templates' => 'asc'));
 
         return sql_simple_list($params);
 
