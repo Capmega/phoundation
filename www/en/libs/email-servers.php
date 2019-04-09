@@ -109,6 +109,105 @@ function email_servers_validate($email_server){
 
 
 /*
+ * Insert the specified email account on the mail server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ * @version
+ *
+ * @param params $server
+ * @return params The specified email account, validated and sanitized
+ */
+function email_servers_insert($server){
+    try{
+        $server = email_servers_validate($server);
+
+        sql_query('INSERT INTO `email_servers` (`createdby`, `meta_id`, `domains_id`, `servers_id`, `domain`, `seodomain`, `description`)
+                   VALUES                      (:createdby , :meta_id , :domains_id , :servers_id , :domain , :seodomain , :description )',
+
+                   array(':createdby'     => $_SESSION['user']['id'],
+                         ':meta_id'       => meta_action(),
+                         ':domains_id'    => $server['domains_id'],
+                         ':servers_id'    => $server['servers_id'],
+                         ':domain'        => $server['domain'],
+                         ':seodomain'     => $server['seodomain'],
+                         ':description'   => $server['description']));
+
+        $server['id'] = sql_insert_id();
+
+        /*
+         * Register this domain with this server
+         */
+        servers_add_domain($server['servers_id'], $server['domain']);
+
+        return $server;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_insert(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Update the email account on the mail server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ * @version
+ *
+ * @param params $server
+ * @return params The specified email account, validated and sanitized
+ */
+function email_servers_update($server){
+    try{
+        $server   = email_servers_validate($server);
+        $dbserver = email_servers_get($server['id']);
+
+        meta_action($server['meta_id'], 'update');
+
+        $update = sql_query('UPDATE `email_servers`
+
+                             SET    `domain`      = :domain,
+                                    `domains_id`  = :domains_id,
+                                    `servers_id`  = :servers_id,
+                                    `domain`      = :domain,
+                                    `seodomain`   = :seodomain,
+                                    `description` = :description
+
+                             WHERE  `id`          = :id',
+
+                             array(':id'          => $server['id'],
+                                   ':domains_id'  => $server['domains_id'],
+                                   ':servers_id'  => $server['servers_id'],
+                                   ':domain'      => $server['domain'],
+                                   ':seodomain'   => $server['seodomain'],
+                                   ':description' => $server['description']));
+
+        $server['_updated'] = (boolean) $update->rowCount();
+
+        /*
+         * Register this domain with this server
+         */
+        servers_remove_domain($server['servers_id'], $dbserver['domain']);
+        servers_add_domain   ($server['servers_id'], $server['domain']);
+
+        return $server;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_update(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Validate an email domain
  *
  * This function will validate all relevant fields in the specified $domain array
@@ -203,7 +302,7 @@ function email_servers_validate_account($account){
     try{
         load_libs('email,seo,servers,domains');
 
-        $v = new ValidateForm($account, 'id,email,server,domain,description');
+        $v = new ValidateForm($account, 'id,email,server,domain,password,max_size,description');
         $v->isNotEmpty($account['email'], tr('Please specify an email address'));
         $v->isNotEmpty($account['domain'], tr('Please specify a mail domain'));
         $v->isNotEmpty($account['server'], tr('Please specify a mail server'));
@@ -220,15 +319,17 @@ function email_servers_validate_account($account){
 
         /*
          * Validate the domain
+         *
+         * NOTE: This domain has to be available on the mail server!!
          */
-        $account['domains_id'] = sql_get('SELECT `id` FROM `domains` WHERE `seoname` = :seoname', true, array(':seoname' => $account['domain']));
+        $account['domains_id'] = sql_get('SELECT `id` FROM `domains` WHERE `name` = :name', true, array(':name' => $account['domain']));
 
         if(!$account['domains_id']){
             $v->setError(tr('The specified mail domain ":domain" does not exist', array(':domain' => $account['domain'])));
         }
 
         /*
-         * Validate the rest
+         * Validate description
          */
         if($account['description']){
             $v->hasMinChars($account['description'], 16, tr('Please specify at least 16 characters for a description'));
@@ -238,15 +339,54 @@ function email_servers_validate_account($account){
             $account['description'] = null;
         }
 
+        /*
+         * Validate password
+         */
+        if($account['password']){
+            $v->hasMinChars($account['password'], 8, tr('Please specify at least 8 characters for a password'));
+            $v->hasMaxChars($account['password'], 64, tr('Please specify no more than 64 characters for a password'));
+
+        }else{
+            $account['password'] = '';
+        }
+
+        /*
+         * Validate status
+         */
+        if($account['status']){
+            $v->hasMinChars($account['status'], 2, tr('Please specify at least 2 characters for a password'));
+            $v->hasMaxChars($account['status'], 16, tr('Please specify no more than 16 characters for a password'));
+
+        }else{
+            $account['status'] = null;
+        }
+
+        /*
+         * Validate max_size
+         */
+        if($account['max_size']){
+            $v->is_natural($account['max_size'], 8, tr('Please specify a valid natural number for max_size'));
+
+        }else{
+// :TODO: Make this configurable
+            $account['max_size'] = 30000000000;
+        }
+
         $v->isValid();
 
         $exists = sql_get('SELECT `id` FROM `accounts` WHERE `email` = :email AND `id` != :id LIMIT 1', true, array(':email' => $account['email'], ':id' => isset_get($account['id'], 0)));
 
         if($exists){
-            $v->setError(tr('The domain ":domain" is already registered', array(':domain' => $account['domain'])));
+            $v->setError(tr('The account ":account" already exists', array(':domain' => $account['domain'])));
         }
 
-        $account['seoemail'] = seo_unique($account['seoemail'], 'accounts', $account['id'], 'seoemail');
+        $exists = sql_get('SELECT `id` FROM `aliases` WHERE `source` = :source AND `id` != :id LIMIT 1', true, array(':source' => $account['email'], ':id' => isset_get($account['id'], 0)));
+
+        if($exists){
+            $v->setError(tr('The account ":account" already exists as an alias', array(':domain' => $account['domain'])));
+        }
+
+        $account['seoemail'] = seo_unique($account['email'], 'accounts', $account['id'], 'seoemail');
 
         $v->isValid();
 
@@ -458,6 +598,9 @@ function email_servers_get($email_server, $column = null, $status = null){
                                          `email_servers`.`footer`,
                                          `email_servers`.`description`,
 
+                                         `servers`.`ssh_accounts_id`,
+                                         `servers`.`database_accounts_id`,
+
                                          `servers`.`domain`    AS `server_domain`,
                                          `servers`.`seodomain` AS `server_seodomain`
 
@@ -487,25 +630,36 @@ function email_servers_get($email_server, $column = null, $status = null){
  * @version
  *
  * @param params $account
+ * @param string $account[email]
+ * @param string $account[password]
+ * @param null numeric $account[max_size]
+ * @param string $account[description]
  * @return params The specified email account, validated and sanitized
  */
 function email_servers_insert_account($account){
     try{
-        $account = email_servers_validate_account($account);
+        $account  = email_servers_validate_account($account);
+        $password = 'ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16)))';
 
-        sql_query('INSERT INTO `accounts` (`domains_id`, `password`                                                     , `email`, `seoemail`, `max_size`, `description`)
-                   VALUES                 (:domains_id , ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16))) , :email`, :seoemail , :max_size , :description )',
+        if(!$account['password']){
+            /*
+             * Have password be an empty entry
+             */
+            $password = ':password';
+        }
+
+        sql_query('INSERT INTO `accounts` (`domains_id`, `status`,   `password` , `email`, `seoemail`, `max_size`, `current_size`, `description`)
+                   VALUES                 (:domains_id , :status , '.$password.', :email , :seoemail , :max_size , 0             , :description )',
 
                    array(':domains_id'    => $account['domains_id'],
+                         ':status'        => $account['status'],
                          ':password'      => $account['password'],
                          ':email'         => $account['email'],
                          ':seoemail'      => $account['seoemail'],
-                         ':max_size'      => $account['max-size'],
-                         ':current_size'  => 0,
+                         ':max_size'      => $account['max_size'],
                          ':description'   => $account['description']));
 
         $account['id'] = sql_insert_id();
-
         return $account;
 
     }catch(Exception $e){
@@ -634,6 +788,215 @@ function email_servers_list_mailbox_sizes($server, $domain){
         }
 
         throw new BException('email_servers_list_mailbox_sizes(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Check for all known issues on the mail server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ *
+ * @param mixed $server
+ * @param boolean [true] $fix If set to true, will auto fix all found issues
+ * @return array An array with all accounts that had issues in the format $key => $value email-address (or domain) => issue
+ */
+function email_servers_check($server, $fix = true){
+    try{
+        $failed['seodomains'] = email_servers_check_seo(array('fix'    => $fix,
+                                                              'server' => $server,
+                                                              'table'  => 'domains'));
+
+        $failed['seosources'] = email_servers_check_seo(array('fix'    => $fix,
+                                                              'server' => $server,
+                                                              'table'  => 'aliases',
+                                                              'column' => 'source'));
+
+        $failed['seotargets'] = email_servers_check_seo(array('fix'    => $fix,
+                                                              'server' => $server,
+                                                              'table'  => 'aliases',
+                                                              'column' => 'target'));
+
+        $failed['seoaccounts'] = email_servers_check_seo(array('fix'    => $fix,
+                                                               'server' => $server,
+                                                               'table'  => 'accounts',
+                                                               'column' => 'email'));
+
+        $failed['orphans'] = email_servers_check_orphans($server, $fix);
+
+        $failed['count'] = count($failed['orphans']) + count($failed['seotargets']) + count($failed['seosources']) + count($failed['seoaccounts']) + count($failed['seodomains']);
+
+        return $failed;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_check(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Check the specified mail server for invalid seonames in the domains table
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ *
+ * @param mixed $server
+ * @param boolean [true] $add If set to true, will add the orphaned account in the database again with status "orphaned"
+ * @return array An array with all orphaned directories
+ */
+function email_servers_check_seo($params){
+    try{
+        load_libs('seo');
+
+        array_ensure($params, 'server,domain,rerun');
+        array_default($params, 'column', 'name');
+        array_default($params, 'rerun' , true);
+
+        if($params['rerun']){
+            log_console(tr('Checking seo data for table ":table" on mail server ":server"', array(':server' => $params['server'], ':table' => $params['table'])), 'cyan');
+
+        }else{
+            log_console(tr('Re-checking seo data for table ":table" on mail server ":server"', array(':server' => $params['server'], ':table' => $params['table'])), 'cyan');
+        }
+
+        $failed  = array();
+        $domains = sql_query('SELECT `id`, `'.$params['column'].'`, `seo'.$params['column'].'` FROM `'.$params['table'].'`');
+
+        while($domain = sql_fetch($domains)){
+            if($domain['seo'.$params['column']] === seo_string($domain[$params['column']])){
+                /*
+                 * Seo name maches, we're done!
+                 */
+                continue;
+            }
+
+            /*
+             * Seo name does not match. This MIGHT be because it is seo_string()
+             * + a number because of double issues
+             */
+            $extra = str_from($domain['seo'.$params['column']], seo_string($domain[$params['column']]));
+
+            if($extra){
+                if(is_natural($extra)){
+                    /*
+                     * We have extra data that IS a natural number, so at least
+                     * it is valid,
+                     */
+                    continue;
+                }
+            }
+
+            /*
+             * The seo name is NOT valid, update it.
+             */
+            $failed[] = $domain[$params['column']];
+
+            if($params['rerun']){
+                /*
+                 * Update the SEO value to something temmporal because what if
+                 * some other value is occupying the real SEO value (whcih then
+                 * also would be detected as incorrect) ?
+                 */
+                log_console(tr('Updating seo:column for table ":table" with value ":value" to random value', array(':table' => $params['table'], ':column' => $params['column'], ':value' => $domain[$params['column']])), 'VERBOSE/cyan');
+                sql_query('UPDATE `'.$params['table'].'` SET `seo'.$params['column'].'` = :seo'.$params['column'].' WHERE `id` = :id', array(':id' => $domain['id'], ':seo'.$params['column'] => str_random(8)));
+
+            }else{
+                /*
+                 * Update the SEO value to the real and correct seoname
+                 */
+                $seoname = seo_unique($domain[$params['column']], $params['table'], $domain['id'], 'seo'.$params['column'], '-', null);
+
+                log_console(tr('Updating seo:column for table ":table" with value ":value" to ":seovalue"', array(':table' => $params['table'], ':column' => $params['column'], ':value' => $domain[$params['column']], ':seovalue' => $seoname)), 'VERBOSE/cyan');
+                sql_query('UPDATE `'.$params['table'].'` SET `seo'.$params['column'].'` = :seo'.$params['column'].' WHERE `id` = :id', array(':id' => $domain['id'], ':seo'.$params['column'] => $seoname));
+            }
+        }
+
+        if($failed and $params['rerun']){
+            /*
+             * We've set all invalid SEO values to something temporary. Run this
+             * function again to update it to the permanent, correct value
+             */
+            $params['rerun'] = false;
+
+            log_console(tr('Found failed entries in table ":table", rerunning', array(':table' => $params['table'])), 'VERBOSE/warning');
+            return email_servers_check_seo($params);
+        }
+
+        return $failed;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_check_seo(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Check the specified mail server for email account directories that are not registered in the database, effectively being orphaned
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ *
+ * @param mixed $server
+ * @param boolean [true] $add If set to true, will add the orphaned account in the database again with status "orphaned"
+ * @return array An array with all orphaned directories
+ */
+function email_servers_check_orphans($server, $add = true){
+    try{
+        log_console(tr('Checking for orphaned email account data'), 'cyan');
+
+        $retval  = array();
+        $domains = linux_ls($server, '/var/mail/vhosts', true);
+
+        foreach($domains as $domain){
+            log_console(tr('Searching for orphaned accounts in domain ":domain"', array(':domain' => $domain)), 'VERBOSE/cyan');
+            $accounts = linux_ls($server, '/var/mail/vhosts/'.$domain, true);
+
+            foreach($accounts as $account){
+                try{
+                    $exists = sql_get('SELECT `id`, `status` FROM `accounts` WHERE `email` = :email', array(':email' => $account.'@'.$domain));
+
+                    if(!$exists){
+                        /*
+                         * Found an orphan!
+                         */
+                        log_console(tr('Found orphaned email data path ":path"', array(':path' => '/var/mail/vhosts/'.$domain.'/'.$account)), 'warning');
+
+                        if($add){
+                            log_console(tr('Adding email account ":account" for orphaned data path ":path"', array(':account' => $account.'@'.$domain, ':path' => '/var/mail/vhosts/'.$domain.'/'.$account)), 'warning');
+                            $retval[] = $account.'@'.$domain;
+
+                            email_servers_insert_account(array('server'      => $server,
+                                                               'domain'      => $domain,
+                                                               'email'       => $account.'@'.$domain,
+                                                               'status'      => 'orphaned',
+                                                               'description' => tr('This email address was found as file ":path" by the email_servers_find_orphans() function while it did not exist in the database. This database entry was created to ensure it will be accessible from the user interface', array(':path' => '/var/mail/vhosts/'.$domain.'/'.$account))));
+                        }
+                    }
+
+                }catch(Exception $e){
+                    log_console(tr('Failed to add orphaned email address ":email"', array(':email' => $account.'@'.$domain)));
+                    log_console($e);
+                }
+            }
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_check_orphans(): Failed', $e);
     }
 }
 ?>
