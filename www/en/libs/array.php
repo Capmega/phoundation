@@ -33,15 +33,17 @@
 function array_params(&$params, $string_key = null, $numeric_key = null, $default = false){
     try{
         if(is_array($params)){
-            return $params;
+            array_ensure($params, array($string_key, $numeric_key));
+            return;
         }
 
         if(!$params){
             /*
              * The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
              */
-            return array($numeric_key => $default,
-                         $string_key  => $default);
+            $params = array($numeric_key => $default,
+                            $string_key  => $default);
+            return;
         }
 
         if(is_numeric($params)){
@@ -50,7 +52,7 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
              */
             $params = array($numeric_key => $params,
                             $string_key  => $default);
-            return $params;
+            return;
         }
 
         if(is_string($params)){
@@ -59,7 +61,7 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
              */
             $params = array($numeric_key => $default,
                             $string_key  => $params);
-            return $params;
+            return;
         }
 
         throw new BException(tr('array_params(): Specified $params ":params" is invalid. It is an ":datatype" should be either one of array, integer, or string', array(':datatype' => gettype($params), ':params' => $params)), 'invalid');
