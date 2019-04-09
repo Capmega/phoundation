@@ -152,11 +152,11 @@ function route($regex, $target, $flags = null){
             foreach(array_shift($variables) as $variable){
                 switch($variable){
                     case 'PROTOCOL':
-                        $route = str_replace(':PROTOCOL', PROTOCOL, $route);
+                        $route = str_replace(':PROTOCOL', $_SERVER['REQUEST_SCHEME'], $route);
                         break;
 
                     case 'DOMAIN':
-                        $route = str_replace(':DOMAIN', $_CONFIG['domain'], $route);
+                        $route = str_replace(':DOMAIN', $_SERVER['HTTP_HOST'], $route);
                         break;
 
                     case 'LANGUAGE':
