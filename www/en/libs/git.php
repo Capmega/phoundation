@@ -565,7 +565,7 @@ function git_show($commit, $path = ROOT, $params = null){
  */
 function git_fetch($path = ROOT, $params = null){
     try{
-        array_params($params, 'tags,all');
+        array_ensure($params, 'tags,all');
 
         $arguments = array('fetch');
 
