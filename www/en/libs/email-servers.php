@@ -596,9 +596,12 @@ function email_servers_list_domains($params){
  */
 function email_servers_scan_domains($params = null){
     try{
-unset($_SESSION['cache']['mail_servers']);
         if(isset($_SESSION['cache']['mail_servers'])){
             return $_SESSION['cache']['mail_servers'];
+        }
+
+        if(empty($_SESSION['user']['customer'])){
+            throw new BException(tr('email_servers_scan_domains(): No customer specified for this user'), 'not-specified');
         }
 
         load_libs('databases');
