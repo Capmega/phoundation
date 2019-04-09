@@ -436,6 +436,10 @@ try{
                     unset($_SESSION['first']);
                 }
             }
+
+            if(!isset($_SESSION['cache'])){
+                $_SESSION['cache'] = array();
+            }
         }
 
     }catch(Exception $e){
