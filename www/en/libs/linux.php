@@ -58,7 +58,7 @@ function linux_get_ssh_tcp_forwarding($server){
         $server   = servers_get($server);
         $results  = servers_exec($server, array('commands' => array('sshd', array('-T', 'redirect' => '2> /dev/null', 'connector' => '|'),
                                                                     'grep', array('-i', 'allowtcpforwarding'))));
-        $result   = array_shift($results);
+        $result   = array_pop($results);
         $result   = strtolower(trim($result));
         $result   = str_cut($result, ' ', ' ');
 
