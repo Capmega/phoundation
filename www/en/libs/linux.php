@@ -1047,7 +1047,7 @@ function linux_install_package($server, $package){
  */
 function linux_detect_os($server){
     try{
-        $results = server_exec($server, array('commands' => array('cat'  , array('/etc/issue'),
+        $results = servers_exec($server, array('commands' => array('cat'  , array('/etc/issue'),
                                                                   'uname', array('-a'))));
 showdie($results);
 
@@ -1123,22 +1123,51 @@ function linux_service($server, $service, $action){
  * @package linux
  * @version 2.5.2: Added function and documentation
  *
+ * @param mixed $server
  * @param natural The PID for which the CWD is required
  * @return string The CWD for the specified PID if it exist
  */
-function linux_get_cwd($pid){
+function linux_get_cwd($server, $pid){
     try{
         if(!is_natural($pid) or ($pid > 65535)){
             throw new BException(tr('linux_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
         }
 
-        $results = safe_exec(array('commands' => array('readlink', array('sudo' => true, '-e', '/proc/'.$pid.'/cwd'))));
+        $results = servers_exec($server, array('commands' => array('readlink', array('sudo' => true, '-e', '/proc/'.$pid.'/cwd'))));
         $results = array_pop($results);
 
         return $results;
 
     }catch(Exception $e){
         throw new BException('linux_get_cwd(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return the available files in the specified $path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package linux
+ * @version 2.5.2: Added function and documentation
+ *
+ * @param mixed $server
+ * @param string $path The path for which the contents should be returned
+ * @param boolean $sudo If set to true, execute the command with sudo
+ * @param list $restrictions The file paths to which this function should be restricted
+ * @return string The CWD for the specified PID if it exist
+ */
+function linux_ls($server, $path, $sudo = false, $restrictions = null){
+    try{
+        $results = servers_exec($server, array('commands' => array('ls', array('sudo' => true, $path))));
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException('linux_ls(): Failed', $e);
     }
 }
 
