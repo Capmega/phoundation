@@ -64,6 +64,7 @@ function customers_validate($customer){
         if($customer['description']){
             $v->hasMinChars($customer['description'],    8, tr('Please ensure the description has at least 8 characters'));
             $v->hasMaxChars($customer['description'], 2047, tr('Please ensure the description has less than 2047 characters'));
+            $v->hasNoHTML($customer['description'], tr('Please ensure the description has no HTML code'));
 
             $customer['description'] = str_clean($customer['description']);
 
@@ -315,10 +316,11 @@ function customers_insert($customer){
     try{
         $customer = customers_validate($customer);
 
-        sql_query('INSERT INTO `customers` (`createdby`, `name`, `seoname`, `code`, `email`, `phones`, `company`, `documents_id`, `categories_id`, `address1`, `address2`, `address3`, `zipcode`, `countries_id`, `states_id`, `cities_id`, `url`, `description`)
-                   VALUES                  (:createdby , :name , :seoname , :code , :email , :phones,  :company , :documents_id , :categories_id , :address1 , :address2 , :address3 , :zipcode , :countries_id , :states_id , :cities_id , :url , :description )',
+        sql_query('INSERT INTO `customers` (`createdby`, `meta_id`, `name`, `seoname`, `code`, `email`, `phones`, `company`, `documents_id`, `categories_id`, `address1`, `address2`, `address3`, `zipcode`, `countries_id`, `states_id`, `cities_id`, `url`, `description`)
+                   VALUES                  (:createdby , :meta_id , :name , :seoname , :code , :email , :phones,  :company , :documents_id , :categories_id , :address1 , :address2 , :address3 , :zipcode , :countries_id , :states_id , :cities_id , :url , :description )',
 
                    array(':createdby'     => $_SESSION['user']['id'],
+                         ':meta_id'       => meta_action(),
                          ':name'          => $customer['name'],
                          ':seoname'       => $customer['seoname'],
                          ':code'          => $customer['code'],
