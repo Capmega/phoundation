@@ -968,7 +968,7 @@ function companies_validate_employee($employee, $reload_only = false){
          */
         if($employee['username']){
             if(strstr($employee['username'], '@')){
-                $employee['users_id'] = sql_get(' SELECT `id` FROM `users` WHERE `email`    = :email    AND `status` IS NULL', true, array(':email'    => $employee['username']));
+                $employee['users_id'] = sql_get('SELECT `id` FROM `users` WHERE `email`    = :email    AND `status` IS NULL', true, array(':email'    => $employee['username']));
 
             }else{
                 $employee['users_id'] = sql_get('SELECT `id` FROM `users` WHERE `username` = :username AND `status` IS NULL', true, array(':username' => $employee['username']));

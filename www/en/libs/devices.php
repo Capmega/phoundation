@@ -395,7 +395,11 @@ function devices_validate($device, $server, $update = true){
                                  * Validate employee
                                  */
                                 if($device['employee']){
-                                    $device['employees_id'] = companies_get_employee($device['companies_id'], $device['branches_id'], $device['departments_id'], $device['employee'], 'id');
+                                    $device['employees_id'] = companies_get_employee(array('columns' => 'id',
+                                                                                           'filters' => array('employees.companies_id'   => $device['companies_id'],
+                                                                                                              'employees.branches_id'    => $device['branches_id'],
+                                                                                                              'employees.departments_id' => $device['departments_id'],
+                                                                                                              'employees.seoname'        => $device['employee'])));
 
                                     if(!$device['employees_id']){
                                         $v->setError(tr('Specified employee ":employee" does not exist in company ":company"', array(':company' => $device['company'], ':employee' => $device['employee'])));

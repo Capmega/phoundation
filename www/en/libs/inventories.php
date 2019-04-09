@@ -127,7 +127,11 @@ function inventories_validate($item, $reload_only = false){
              */
             if($item['seoemployee']){
                 load_libs('companies');
-                $item['employees_id'] = companies_get_employee($item['companies_id'], $item['branches_id'], $item['departments_id'], $item['seoemployee'], 'id');
+                $item['employees_id'] = companies_get_employee(array('columns' => 'id',
+                                                                     'filters' => array('employees.companies_id'   => $item['companies_id'],
+                                                                                        'employees.branches_id'    => $item['branches_id'],
+                                                                                        'employees.departments_id' => $item['departments_id'],
+                                                                                        'employees.seoname'        => $item['seoemployee'])));
 
                 if(!$item['employees_id']){
                     $v->setError(tr('Specified employee does not exist'));
