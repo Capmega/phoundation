@@ -109,7 +109,7 @@ function email_servers_validate($email_server){
 
 
 /*
- * Insert the specified email account on the mail server
+ * Insert the specified email server
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -119,7 +119,7 @@ function email_servers_validate($email_server){
  * @version
  *
  * @param params $server
- * @return params The specified email account, validated and sanitized
+ * @return params The specified email server, validated and sanitized
  */
 function email_servers_insert($server){
     try{
@@ -153,7 +153,7 @@ function email_servers_insert($server){
 
 
 /*
- * Update the email account on the mail server
+ * Update the email server
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -163,7 +163,7 @@ function email_servers_insert($server){
  * @version
  *
  * @param params $server
- * @return params The specified email account, validated and sanitized
+ * @return params The specified email server, validated and sanitized
  */
 function email_servers_update($server){
     try{
@@ -208,7 +208,165 @@ function email_servers_update($server){
 
 
 /*
- * Validate an email domain
+ * Return data for the specified email_server
+ *
+ * This function returns information for the specified email_server. The email_server can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email_servers
+ *
+ * @param mixed $email_server The requested email_server. Can either be specified by id (natural number) or string (seoname)
+ * @param string $column The specific column that has to be returned
+ * @return mixed The email_server data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified email_server does not exist, NULL will be returned.
+ */
+function email_servers_get($params){
+    try{
+        array_params($params, 'seoname', 'id');
+
+        $params['table']     = 'email_servers';
+        $params['connector'] = 'core';
+
+        array_default($params, 'filters', array('id'      => $params['id'],
+                                                'seoname' => $params['seoname']));
+
+        array_default($params, 'joins'  , array('LEFT JOIN `servers`
+                                                 ON        `servers`.`id` = `email_servers`.`servers_id`'));
+
+        array_default($params, 'columns', 'email_servers.id,
+                                           email_servers.createdon,
+                                           email_servers.createdby,
+                                           email_servers.meta_id,
+                                           email_servers.status,
+                                           email_servers.servers_id,
+                                           email_servers.domains_id,
+                                           email_servers.domain,
+                                           email_servers.seodomain,
+                                           email_servers.smtp_port,
+                                           email_servers.imap,
+                                           email_servers.poll_interval,
+                                           email_servers.header,
+                                           email_servers.footer,
+                                           email_servers.description,
+
+                                           servers.ssh_accounts_id,
+                                           servers.database_accounts_id,
+
+                                           servers.domain    AS server_domain,
+                                           servers.seodomain AS server_seodomain');
+
+        return sql_simple_get($params);
+
+    }catch(Exception $e){
+        throw new BException('email_servers_get(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a list of all available email_servers
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @template Function reference
+ * @see sql_simple_list()
+ * @package email_servers
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available email_servers
+ */
+function email_servers_list($params){
+    try{
+        array_params($params, 'status');
+
+        $params['table']     = 'email_servers';
+        $params['connector'] = 'core';
+
+        array_default($params, 'columns', array('email_servers.seoname,email_servers.name'));
+
+        array_default($params, 'filters', array('email_servers.id'      => $params['id'],
+                                                'email_servers.seoname' => $params['seoname'],
+                                                'email_servers.status'  => 'available'));
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException(tr('email_servers_list(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return HTML for a email server select box
+ *
+ * This function will generate HTML for an HTML select box using html_select() and fill it with the available email servers
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email_servers
+ *
+ * @param array $params The parameters required
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params parents_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
+ * @return string HTML for a email_servers select box within the specified parameters
+ */
+function email_servers_select($params = null){
+    try{
+        array_ensure($params);
+        array_default($params, 'name'    , 'seodomain');
+        array_default($params, 'class'   , 'form-control');
+        array_default($params, 'selected', null);
+        array_default($params, 'status'  , null);
+        array_default($params, 'empty'   , tr('No email servers available'));
+        array_default($params, 'none'    , tr('Select an email server'));
+        array_default($params, 'tabindex', 0);
+        array_default($params, 'extra'   , 'tabindex="'.$params['tabindex'].'"');
+        array_default($params, 'orderby' , '`domain`');
+
+        if($params['status'] !== false){
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
+            $execute[':status'] = $params['status'];
+        }
+
+        if(empty($where)){
+            $where = '';
+
+        }else{
+            $where = ' WHERE '.implode(' AND ', $where).' ';
+        }
+
+        $query              = 'SELECT `seodomain`, `domain` FROM `email_servers` '.$where.' ORDER BY '.$params['orderby'];
+        $params['resource'] = sql_query($query, $execute, 'core');
+        $retval             = html_select($params);
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_select(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Validate the specified email domain
  *
  * This function will validate all relevant fields in the specified $domain array
  *
@@ -218,8 +376,8 @@ function email_servers_update($server){
  * @category Function reference
  * @package categories
  *
- * @param array $params The parameters required
- * @return string HTML for a categories select box within the specified parameters
+ * @param params $domain The email domain to be validated
+ * @return params The specified domain validated and sanitized
  */
 function email_servers_validate_domain($domain){
     try{
@@ -240,18 +398,18 @@ function email_servers_validate_domain($domain){
 
         $v->isValid();
 
-        $exists = sql_get('SELECT `id` FROM `domains` WHERE `name` = :name LIMIT 1', true, array(':name' => $domain['name']));
+        $exists = sql_get('SELECT `id` FROM `domains` WHERE `name` = :name and `id` != :id LIMIT 1', true, array(':name' => $domain['name'], ':id' => isset_get($domain['id'], 0)));
 
         if($exists){
-            $v->setError(tr('The domain ":name" is already registered on this email server'. array(':name' => $domain['name'])));
+            $v->setError(tr('The domain ":name" is already registered on this email server', array(':name' => $domain['name'])));
         }
 
-        if($email_server['description']){
-            $v->hasMinChars($email_server['description'], 16, tr('Please specify at least 16 characters for a description'));
-            $v->hasMaxChars($email_server['description'], 2048, tr('Please specify no more than 2047 characters for a description'));
+        if($domain['description']){
+            $v->hasMinChars($domain['description'], 16, tr('Please specify at least 16 characters for a description'));
+            $v->hasMaxChars($domain['description'], 2048, tr('Please specify no more than 2047 characters for a description'));
 
         }else{
-            $email_server['description'] = null;
+            $domain['description'] = null;
         }
 
         $v->isValid();
@@ -272,6 +430,227 @@ function email_servers_validate_domain($domain){
         }
 
         throw new BException(tr('email_servers_validate_domain(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Insert the specified email domain on the mail server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ * @version
+ *
+ * @param params $server
+ * @return params The specified email domain, validated and sanitized
+ */
+function email_servers_insert_domain($domain){
+    try{
+        $domain = email_servers_validate_domain($domain);
+
+        sql_query('INSERT INTO `domains` (`name`, `seoname`, `customer`, `description`)
+                   VALUES                (:name , :seoname , :customer , :description )',
+
+                   array(':name'        => $domain['name'],
+                         ':seoname'     => $domain['seoname'],
+                         ':customer'    => $domain['customer'],
+                         ':description' => $domain['description']));
+
+        $domain['id'] = sql_insert_id();
+        return $domain;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_insert_domain(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Update the email account on the mail server
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email-servers
+ * @version
+ *
+ * @param params $domain
+ * @return params The specified email account, validated and sanitized
+ */
+function email_servers_update_domain($domain){
+    try{
+        $domain   = email_servers_validate_domain($domain);
+        $update   = sql_query('UPDATE `domains`
+
+                               SET    `name`        = :name,
+                                      `seoname`     = :seoname,
+                                      `customer`    = :customer,
+                                      `description` = :description
+
+                               WHERE  `id`          = :id',
+
+                               array(':id'          => $domain['id'],
+                                     ':name'        => $domain['name'],
+                                     ':seoname'     => $domain['seoname'],
+                                     ':customer'    => $domain['customer'],
+                                     ':description' => $domain['description']));
+
+        $domain['_updated'] = (boolean) $update->rowCount();
+        return $domain;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_update_domain(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return data for the specified email_server
+ *
+ * This function returns information for the specified email_server. The email_server can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email_servers
+ *
+ * @param mixed $email_server The requested email_server. Can either be specified by id (natural number) or string (seoname)
+ * @param string $column The specific column that has to be returned
+ * @return mixed The email_server data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified email_server does not exist, NULL will be returned.
+ */
+function email_servers_get_domain($params){
+    try{
+        array_params($params, 'seoname', 'id');
+
+        $params['table'] = 'domains';
+
+        array_default($params, 'filters', array('id'      => $params['id'],
+                                                'seoname' => $params['seoname']));
+
+        array_default($params, 'columns', 'id,
+                                           createdon,
+                                           status,
+                                           name,
+                                           seoname,
+                                           customer,
+                                           description');
+
+        return sql_simple_get($params);
+
+    }catch(Exception $e){
+        throw new BException('email_servers_get_domain(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a list of all available email_servers
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @template Function reference
+ * @see sql_simple_list()
+ * @package email_servers
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available email_servers
+ */
+function email_servers_list_domains($params){
+    try{
+        array_params($params, 'status');
+
+        $params['table'] = 'domains';
+
+        array_default($params, 'columns', array('seoname,name'));
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException(tr('email_servers_list_domains(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return HTML for a email server domain select box
+ *
+ * This function will generate HTML for an HTML select box using html_select() and fill it with the available email server domains
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package email_servers
+ *
+ * @param array $params The parameters required
+ * @param $params name
+ * @param $params class
+ * @param $params extra
+ * @param $params tabindex
+ * @param $params empty
+ * @param $params none
+ * @param $params selected
+ * @param $params parents_id
+ * @param $params status
+ * @param $params orderby
+ * @param $params resource
+ * @return string HTML for a email_servers select box within the specified parameters
+ */
+function email_servers_select_domain($params = null){
+    try{
+        array_ensure($params);
+        array_default($params, 'name'         , 'seodomain');
+        array_default($params, 'class'        , 'form-control');
+        array_default($params, 'selected'     , null);
+        array_default($params, 'status'       , null);
+        array_default($params, 'select_server', tr('Please select mail server first'));
+        array_default($params, 'none'         , tr('Select a mail domain'));
+        array_default($params, 'orderby'      , '`name`');
+
+        if($params['status'] !== false){
+            $where[] = ' `status` '.sql_is($params['status'], ':status');
+            $execute[':status'] = $params['status'];
+        }
+
+        if(empty($where)){
+            $where = '';
+
+        }else{
+            $where = ' WHERE '.implode(' AND ', $where).' ';
+        }
+
+        if(empty($params['server'])){
+            /*
+             * No mail server specified, we can't check for domains
+             */
+            $params['resource'] = null;
+            array_default($params, 'empty', $params['select_server']);
+
+        }else{
+            $query              = 'SELECT `seoname`, `name` FROM `domains` '.$where.' ORDER BY '.$params['orderby'];
+            $params['resource'] = sql_query($query, $execute);
+        }
+
+        array_default($params, 'empty', tr('No mail domains available'));
+
+        $retval = html_select($params);
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException('email_servers_select_domain(): Failed', $e);
     }
 }
 
@@ -404,216 +783,6 @@ function email_servers_validate_account($account){
         }
 
         throw new BException(tr('email_servers_validate_account(): Failed'), $e);
-    }
-}
-
-
-
-/*
- * Return HTML for a email server select box
- *
- * This function will generate HTML for an HTML select box using html_select() and fill it with the available email servers
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package email_servers
- *
- * @param array $params The parameters required
- * @param $params name
- * @param $params class
- * @param $params extra
- * @param $params tabindex
- * @param $params empty
- * @param $params none
- * @param $params selected
- * @param $params parents_id
- * @param $params status
- * @param $params orderby
- * @param $params resource
- * @return string HTML for a email_servers select box within the specified parameters
- */
-function email_servers_select($params = null){
-    try{
-        array_ensure($params);
-        array_default($params, 'name'    , 'seodomain');
-        array_default($params, 'class'   , 'form-control');
-        array_default($params, 'selected', null);
-        array_default($params, 'status'  , null);
-        array_default($params, 'empty'   , tr('No email servers available'));
-        array_default($params, 'none'    , tr('Select an email server'));
-        array_default($params, 'tabindex', 0);
-        array_default($params, 'extra'   , 'tabindex="'.$params['tabindex'].'"');
-        array_default($params, 'orderby' , '`domain`');
-
-        if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status'], ':status');
-            $execute[':status'] = $params['status'];
-        }
-
-        if(empty($where)){
-            $where = '';
-
-        }else{
-            $where = ' WHERE '.implode(' AND ', $where).' ';
-        }
-
-        $query              = 'SELECT `seodomain`, `domain` FROM `email_servers` '.$where.' ORDER BY '.$params['orderby'];
-        $params['resource'] = sql_query($query, $execute, 'core');
-        $retval             = html_select($params);
-
-        return $retval;
-
-    }catch(Exception $e){
-        throw new BException('email_servers_select(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Return HTML for a email server domain select box
- *
- * This function will generate HTML for an HTML select box using html_select() and fill it with the available email server domains
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package email_servers
- *
- * @param array $params The parameters required
- * @param $params name
- * @param $params class
- * @param $params extra
- * @param $params tabindex
- * @param $params empty
- * @param $params none
- * @param $params selected
- * @param $params parents_id
- * @param $params status
- * @param $params orderby
- * @param $params resource
- * @return string HTML for a email_servers select box within the specified parameters
- */
-function email_servers_select_domain($params = null){
-    try{
-        array_ensure($params);
-        array_default($params, 'name'         , 'seodomain');
-        array_default($params, 'class'        , 'form-control');
-        array_default($params, 'selected'     , null);
-        array_default($params, 'status'       , null);
-        array_default($params, 'select_server', tr('Please select mail server first'));
-        array_default($params, 'none'         , tr('Select a mail domain'));
-        array_default($params, 'orderby'      , '`name`');
-
-        if($params['status'] !== false){
-            $where[] = ' `status` '.sql_is($params['status'], ':status');
-            $execute[':status'] = $params['status'];
-        }
-
-        if(empty($where)){
-            $where = '';
-
-        }else{
-            $where = ' WHERE '.implode(' AND ', $where).' ';
-        }
-
-        if(empty($params['server'])){
-            /*
-             * No mail server specified, we can't check for domains
-             */
-            $params['resource'] = null;
-            array_default($params, 'empty', $params['select_server']);
-
-        }else{
-            $query              = 'SELECT `seoname`, `name` FROM `domains` '.$where.' ORDER BY '.$params['orderby'];
-            $params['resource'] = sql_query($query, $execute);
-        }
-
-        array_default($params, 'empty', tr('No mail domains available'));
-
-        $retval = html_select($params);
-
-        return $retval;
-
-    }catch(Exception $e){
-        throw new BException('email_servers_select_domain(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Return data for the specified email_server
- *
- * This function returns information for the specified email_server. The email_server can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package email_servers
- *
- * @param mixed $email_server The requested email_server. Can either be specified by id (natural number) or string (seoname)
- * @param string $column The specific column that has to be returned
- * @return mixed The email_server data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified email_server does not exist, NULL will be returned.
- */
-function email_servers_get($email_server, $column = null, $status = null){
-    try{
-        if(is_numeric($email_server)){
-            $where[] = ' `email_servers`.`id` = :id ';
-            $execute[':id'] = $email_server;
-
-        }else{
-            $where[] = ' `email_servers`.`seodomain` = :seodomain ';
-            $execute[':seodomain'] = $email_server;
-        }
-
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `email_servers`.`status` '.sql_is($status, ':status');
-        }
-
-        $where   = ' WHERE '.implode(' AND ', $where).' ';
-
-        if($column){
-            $retval = sql_get('SELECT `'.$column.'` FROM `email_servers` '.$where, true, $execute);
-
-        }else{
-            $retval = sql_get('SELECT    `email_servers`.`id`,
-                                         `email_servers`.`createdon`,
-                                         `email_servers`.`createdby`,
-                                         `email_servers`.`meta_id`,
-                                         `email_servers`.`status`,
-                                         `email_servers`.`servers_id`,
-                                         `email_servers`.`domains_id`,
-                                         `email_servers`.`domain`,
-                                         `email_servers`.`seodomain`,
-                                         `email_servers`.`smtp_port`,
-                                         `email_servers`.`imap`,
-                                         `email_servers`.`poll_interval`,
-                                         `email_servers`.`header`,
-                                         `email_servers`.`footer`,
-                                         `email_servers`.`description`,
-
-                                         `servers`.`ssh_accounts_id`,
-                                         `servers`.`database_accounts_id`,
-
-                                         `servers`.`domain`    AS `server_domain`,
-                                         `servers`.`seodomain` AS `server_seodomain`
-
-                               FROM      `email_servers`
-
-                               LEFT JOIN `servers`
-                               ON        `servers`.`id` = `email_servers`.`servers_id` '.$where, null, $execute, 'core');
-        }
-
-        return $retval;
-
-    }catch(Exception $e){
-        throw new BException('email_servers_get(): Failed', $e);
     }
 }
 
