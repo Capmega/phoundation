@@ -16,7 +16,7 @@
 /*
  *
  */
-function database_validate_accounts($database){
+function databases_validate_accounts($database){
     global $_CONFIG;
 
     try{
@@ -29,7 +29,7 @@ function database_validate_accounts($database){
         return $database;
 
     }catch(Exception $e){
-        throw new BException('database_validate_accounts(): Failed', $e);
+        throw new BException('databases_validate_accounts(): Failed', $e);
     }
 }
 
@@ -46,7 +46,7 @@ function database_validate_accounts($database){
  * @template Function reference
  * @package database
  * @see sql_simple_get()
- * @see database_list_accounts()
+ * @see databases_list_accounts()
  * @version 2.5.38: Added function and documentation
  *
  * @param params $params The parameters for this get request
@@ -55,7 +55,7 @@ function database_validate_accounts($database){
  * @param string $params[joins]
  * @return mixed The database account data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified template does not exist, NULL will be returned.
  */
-function database_get_account($params){
+function databases_get_account($params){
     try{
         array_params($params, 'seoname', 'id');
 
@@ -80,28 +80,28 @@ function database_get_account($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException(tr('database_get_account(): Failed'), $e);
+        throw new BException(tr('databases_get_account(): Failed'), $e);
     }
 }
 
 
 
 /*
- * Return a list of all available database_accounts filtered by
+ * Return a list of all available databases_accounts filtered by
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference
  * @see sql_simple_list()
- * @see database_get_account()
- * @package database_accounts
+ * @see databases_get_account()
+ * @package databases_accounts
  * @version 2.5.38: Added function and documentation
  *
  * @param params $params The list parameters
- * @return mixed The list of available database_accounts
+ * @return mixed The list of available databases_accounts
  */
-function database_list_accounts($params){
+function databases_list_accounts($params){
     try{
         array_ensure($params);
 
@@ -114,7 +114,7 @@ function database_list_accounts($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException(tr('database_list_accounts(): Failed'), $e);
+        throw new BException(tr('databases_list_accounts(): Failed'), $e);
     }
 }
 ?>
