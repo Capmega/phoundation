@@ -601,7 +601,11 @@ function email_servers_scan_domains($params = null){
         }
 
         if(empty($_SESSION['user']['customer'])){
-            throw new BException(tr('email_servers_scan_domains(): No customer specified for this user'), 'not-specified');
+            if(!has_rights('god')){
+                throw new BException(tr('email_servers_scan_domains(): No customer specified for this user'), 'not-specified');
+            }
+
+            return array();
         }
 
         load_libs('databases');
