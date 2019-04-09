@@ -14,6 +14,64 @@
 
 
 /*
+ * Ensure that the specified $params source is an array. If its a numeric value, convert it to array($numeric_key => $params). If its a string value, convert it to array($string_key => $params)
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package array
+ * @see array_ensure()
+ * @version 2.5.119: Added function and documentation
+ *
+ * @param params $params A parameters array
+ * @param string $string_key
+ * @param null string $numeric_key
+ * @param null $default The default value for the non selected key
+ * @return array The specified source, guaranteed as a parameters array
+ */
+function array_params(&$params, $string_key = null, $numeric_key = null, $default = false){
+    try{
+        if(is_array($params)){
+            return $params;
+        }
+
+        if(!$params){
+            /*
+             * The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
+             */
+            return array($numeric_key => $default,
+                         $string_key  => $default);
+        }
+
+        if(is_numeric($params)){
+            /*
+             * The specified value is numeric, convert it to an array with the specified numeric key set having the value $params
+             */
+            $params = array($numeric_key => $params,
+                            $string_key  => $default);
+            return $params;
+        }
+
+        if(is_string($params)){
+            /*
+             * The specified value is string, convert it to an array with the specified string key set having the value $params
+             */
+            $params = array($numeric_key => $default,
+                            $string_key  => $params);
+            return $params;
+        }
+
+        throw new BException(tr('array_params(): Specified $params ":params" is invalid. It is an ":datatype" should be either one of array, integer, or string', array(':datatype' => gettype($params), ':params' => $params)), 'invalid');
+
+    }catch(Exception $e){
+        throw new BException(tr('array_params(): Failed'), $e);
+    }
+}
+
+
+
+/*
  * Return the next key right after specified $key
  */
 function array_next_key(&$array, $currentkey, $delete = false){
@@ -1060,30 +1118,6 @@ function array_pluck($source, $regex){
 /*
  * OBSOLETE
  */
-
-
-
-/*
- * If specified params is not an array, then make it an array with the current value under the specified string_key
- * If numeric_key is set, and params is numeric, then use the numeric key instead
- */
-function array_params(&$params, $keys = null){
-    try{
-        array_ensure($params, $keys);
-
-    }catch(Exception $e){
-        /*
-         * Compatibility code
-         */
-        if(!is_scalar($params) and !is_null($params)){
-            throw new BException('array_params(): Failed', $e);
-        }
-
-        $params = array($keys => $params);
-        array_ensure($params, $keys);
-
-    }
-}
 
 
 
