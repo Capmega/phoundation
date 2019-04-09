@@ -62,6 +62,7 @@ try{
              * white label domains are disabled, so the requested domain
              * MUST match the configured domain
              */
+            log_file(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
             redirect(PROTOCOL.$_CONFIG['domain']);
 
         }elseif($_CONFIG['whitelabels'] === 'all'){
@@ -75,6 +76,7 @@ try{
              * $_CONFIG[domain] are allowed
              */
             if(str_from($domain, '.') !== $_CONFIG['domain']){
+                log_file(tr('Whitelabels are set to sub domains only, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }
 
@@ -85,6 +87,7 @@ try{
             $domain = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain AND `status` IS NULL', true, array(':domain' => $_SERVER['HTTP_HOST']));
 
             if(empty($domain)){
+                log_file(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }
 
@@ -93,6 +96,7 @@ try{
              * Domain must be specified in one of the array entries
              */
             if(!in_array($domain, $_CONFIG['whitelabels'])){
+                log_file(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }
 
@@ -102,6 +106,7 @@ try{
              * specified in $_CONFIG[whitelabels][enabled]
              */
             if($domain !== $_CONFIG['whitelabels']){
+                log_file(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }
 

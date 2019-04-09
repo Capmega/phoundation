@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.125');
+define('FRAMEWORKCODEVERSION', '2.5.126');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1989,11 +1989,14 @@ function get_domain(){
     global $_CONFIG;
 
     try{
-        if(empty($_SESSION['domain'])){
-            return $_CONFIG['domain'];
-        }
+//:TODO: Delete the following. With whitelabel checking, the HTTP_HOST should be okay
+        //if(empty($_SESSION['domain'])){
+        //    return $_CONFIG['domain'];
+        //}
+        //
+        //return $_SESSION['domain'];
 
-        return $_SESSION['domain'];
+        return $_SERVER['HTTP_HOST'];
 
     }catch(Exception $e){
         throw new BException('get_domain(): Failed', $e);
@@ -2389,9 +2392,11 @@ function user_or_signin(){
                 json_reply(tr('Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
             }
 
-            log_file(tr('No user, redirecting to sign in page'), 'user-or-signin', 'VERBOSE/yellow');
+            $url = domain(isset_get($_CONFIG['redirects']['signin'], 'signin.php').'?redirect='.urlencode($_SERVER['REQUEST_URI']));
+
             html_flash_set('Unauthorized: Please sign in to continue');
-            redirect(domain(isset_get($_CONFIG['redirects']['signin'], 'signin.php').'?redirect='.urlencode($_SERVER['REQUEST_URI'])), 302);
+            log_file(tr('No user, redirecting to sign in page ":url"', array(':url' => $url)), 'user-or-signin', 'VERBOSE/yellow');
+            redirect($url, 302);
         }
 
         if(!empty($_SESSION['force_page'])){
