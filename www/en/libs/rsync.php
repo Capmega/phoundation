@@ -51,7 +51,7 @@ function rsync($params){
         /*
          * The optional parameters
          */
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'append'             , false);
         array_default($params, 'append_verify'      , false);
         array_default($params, 'archive'            , true);

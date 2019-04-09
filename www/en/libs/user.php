@@ -1387,7 +1387,7 @@ function user_update_password($params, $current = true){
     global $_CONFIG;
 
     try{
-        array_params($params);
+        array_ensure($params);
         array_ensure($params, 'id,password,password2,cpassword');
 
         array_default($params, 'validated'             , false);

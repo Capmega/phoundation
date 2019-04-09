@@ -75,7 +75,7 @@ function date_random($min = null, $max = null){
  */
 function date_timezones_select($params = null){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'name', 'timezone');
 
         $params['resource'] = date_timezones_list();

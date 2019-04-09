@@ -526,9 +526,10 @@ function customers_select($params = null){
  */
 function customers_get($params){
     try{
-        array_params($params, 'seocustomer');
+        array_params($params, 'seoname', 'id');
 
-        array_default($params, 'filters', array('customers.seoname' => $params['seocustomer']));
+        array_default($params, 'filters', array('customers.id'      => $params['id'],
+                                                'customers.seoname' => $params['seoname']));
 
         array_default($params, 'joins'  , array('LEFT JOIN `geo_countries`
                                                  ON        `geo_countries`.`id` = `customers`.`countries_id`',

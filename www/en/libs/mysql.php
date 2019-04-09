@@ -167,7 +167,7 @@ function mysql_delete_password_file($server = null){
  */
 function mysql_dump($params){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'server'  , '');
         array_default($params, 'database', '');
         array_default($params, 'path'    , '');

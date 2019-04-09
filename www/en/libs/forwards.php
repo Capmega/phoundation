@@ -342,7 +342,7 @@ function forwards_update_apply($forward, $old_forward){
 function forwards_validate($forward){
     try{
         load_libs('validate');
-        array_params($forward);
+        array_ensure($forward);
 
         $v = new ValidateForm($forward, 'source_ip,source_port,target_ip,target_port,servers_id');
         $v->isNotEmpty($forward['servers_id'], tr('Please specifiy a server'));

@@ -554,7 +554,7 @@ function sql_connect(&$connector, $use_database = true){
     global $_CONFIG;
 
     try{
-        array_params($connector);
+        array_ensure($connector);
         array_default($connector, 'driver' , null);
         array_default($connector, 'host'   , null);
         array_default($connector, 'user'   , null);

@@ -577,7 +577,7 @@ function sitemap_delete_entry($list){
  */
 function sitemap_insert_entry($entry){
     try{
-        array_params($entry);
+        array_ensure($entry);
         array_default($entry, 'url'             , '');
         array_default($entry, 'priority'        , '');
         array_default($entry, 'page_modifiedon' , null);

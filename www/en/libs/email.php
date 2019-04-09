@@ -117,7 +117,7 @@ function email_poll($params){
     global $_CONFIG;
 
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'account'       , null);
         array_default($params, 'mail_box'      , null);
         array_default($params, 'criteria'      , 'ALL');
@@ -913,7 +913,7 @@ function email_send($email, $smtp = null, $account = null){
     global $_CONFIG;
 
     try{
-        array_params($email);
+        array_ensure($email);
         array_default($email, 'delayed'     , true);
         array_default($email, 'conversation', true);
         array_default($email, 'validate'    , true);
@@ -1519,7 +1519,7 @@ function email_delay($email){
     global $_CONFIG;
 
     try{
-        array_params($email);
+        array_ensure($email);
         array_default($email, 'auto_start', isset_get($_CONFIG['email']['delayed']['auto_start']));
 
         /*
@@ -1771,7 +1771,7 @@ function email_validate_account($account, $client){
  */
 function email_delete($params){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'account' , '');
         array_default($params, 'mail_box', '');
         array_default($params, 'criteria', '');

@@ -2390,7 +2390,7 @@ function file_get_permissions($file){
  */
 function file_tree_execute($params){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'ignore_exceptions', true);
         array_default($params, 'path'             , null);
         array_default($params, 'filters'          , null);

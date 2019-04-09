@@ -282,7 +282,7 @@ function mailer_unsubscribe($user, $validate_user = true){
  */
 function mailer_get($params, $columns = false){
     try{
-        array_params($params, 'name', 'id');
+        array_ensure($params, 'name', 'id');
 
         foreach(array('id', 'name') as $key){
             if(isset_get($params[$key])){

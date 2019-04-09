@@ -49,7 +49,7 @@ function tasks_library_init(){
  */
 function tasks_insert($task){
     try{
-        array_params($task);
+        array_ensure($task);
         array_default($task, 'status'      , 'new');
         array_default($task, 'method'      , 'normal');
         array_default($task, 'timeout'     , 30);

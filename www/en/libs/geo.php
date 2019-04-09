@@ -854,7 +854,7 @@ function geo_detect_client_location($params = null){
     try{
         html_load_js('base/base');
 
-        array_params($params);
+        array_ensure($params);
 
         array_default($params, 'success_url'     , domain($_CONFIG['geo']['detect']['urls']['success']));
         array_default($params, 'success_callback', '');

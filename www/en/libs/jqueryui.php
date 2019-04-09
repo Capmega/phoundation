@@ -56,7 +56,7 @@ function jqueryui_date($selector, $params = null){
     try{
         html_load_css('jquery.ui/jquery.ui.datepicker');
 
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'placeholder'     , tr('Select a date'));
         array_default($params, 'number_of_months', 1);
         array_default($params, 'change_month'    , true);
@@ -105,7 +105,7 @@ function jqueryui_time($selector, $params = null){
     global $_CONFIG;
 
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'placeholder'        , '');
         array_default($params, 'default_time'       , '');
         array_default($params, 'class'              , '');
@@ -182,7 +182,7 @@ throw new BException('jqueryui_datepair(): This function is not yet implemented'
     //global $_CONFIG;
     //
     //try{
-    //    array_params($params);
+    //    array_ensure($params);
     //    array_default($params, 'placeholder'        , '');
     //    array_default($params, 'default_datepair'       , '');
     //    array_default($params, 'auto_submit'        , true);
@@ -255,7 +255,7 @@ function jqueryui_date_range($from_selector, $to_selector, $params = null){
     global $_CONFIG;
 
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'labels'          , array('from'    => tr('From'),
                                                          'until'   => tr('Until')));
 
@@ -376,7 +376,7 @@ function jqueryui_date_range($from_selector, $to_selector, $params = null){
  */
 function jqueryui_fancybox($params){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'gallery_id'      , 'fancybox');
         array_default($params, 'gallery_template', '');
         array_default($params, 'item_template'   , '');

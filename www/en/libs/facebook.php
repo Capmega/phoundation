@@ -493,7 +493,7 @@ function facebook_button($params){
          * See https://developers.facebook.com/docs/plugins/like-button
          *     https://developers.facebook.com/docs/plugins/share-button
          */
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'type'      , 'like');    // possible values : 'like' or 'share'
         array_default($params, 'width'     , 225);       // this is the minimal
         array_default($params, 'layout'    , 'button');  // each button type has its own layouts

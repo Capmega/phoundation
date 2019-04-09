@@ -27,7 +27,7 @@
  */
 function wp_admin_signin($params){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'rememberme', true);                      // Check the "remember me" box in the admin login screen
         array_default($params, 'simulation', false);                     // false, partial, or full. "partial" will sign in, but not really post, full will not sign in and not post at all. False will just sign in and post normally.
         array_default($params, 'redirect'  , isset_get($params['url'])); //
@@ -119,7 +119,7 @@ function wp_admin_post($params, $force_new = false){
     static $retry;
 
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'sleep'  , 15);    // Sleep howmany seconds between retries
         array_default($params, 'retries',  5);    // Retry howmany time on postid failures
 
@@ -301,7 +301,7 @@ show($retval['curl']['data']);
  */
 function wp_admin_trash($params){
     try{
-        array_params($params);
+        array_ensure($params);
 
         if(empty($params['curl'])){
             throw new BException('wp_admin_trash(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
@@ -356,7 +356,7 @@ function wp_admin_trash($params){
  */
 function wp_admin_restore($params){
     try{
-        array_params($params);
+        array_ensure($params);
 
         if(empty($params['curl'])){
             throw new BException('wp_admin_restore(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
@@ -409,7 +409,7 @@ function wp_admin_restore($params){
  */
 function wp_admin_remove_permanently($params){
     try{
-        array_params($params);
+        array_ensure($params);
 
         if(empty($params['curl'])){
             throw new BException('wp_admin_remove_permanently(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
@@ -462,7 +462,7 @@ function wp_admin_remove_permanently($params){
  */
 function wp_admin_get($post_id, $curl){
     try{
-        array_params($params);
+        array_ensure($params);
 
         if(!is_array($curl)){
             throw new BException('wp_admin_get(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
@@ -531,7 +531,7 @@ function wp_admin_get($post_id, $curl){
  */
 function wp_xmlrpc_post($params){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'encoding'  , 'UTF-8');
         array_default($params, 'keywords'  , '');
         array_default($params, 'categories', '');

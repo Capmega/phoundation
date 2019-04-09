@@ -37,7 +37,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
     global $_CONFIG;
 
     try{
-        array_params($params, 'to_email');
+        array_ensure($params);
 
         if(empty($params['to_email'])){
             throw new BException('mail_send_templated_email(): No to_email specified', 'notpsecified');

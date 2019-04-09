@@ -344,9 +344,10 @@ function providers_select($params = null){
  */
 function providers_get($params){
     try{
-        array_params($params, 'seoprovider');
+        array_params($params, 'seoname', 'id');
 
-        array_default($params, 'filters', array('providers.seoname' => $params['seoprovider']));
+        array_default($params, 'filters', array('providers.id'      => $params['id'],
+                                                'providers.seoname' => $params['seoname']));
 
         array_default($params, 'joins'  , array('LEFT JOIN `categories`
                                                  ON        `categories`.`id` = `providers`.`categories_id`'));

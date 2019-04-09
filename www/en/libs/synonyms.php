@@ -21,7 +21,7 @@
  */
 function synonym($source, $params = array()){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'synonyms', null);
         array_default($params, 'chance'  , 50);
         array_default($params, 'skip'    , null);

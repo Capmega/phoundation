@@ -247,11 +247,12 @@ function templates_update($template){
  */
 function templates_get($params){
     try{
-        array_params($params, 'seotemplate');
+        array_params($params, 'seotemplate', 'id');
 
         $params['table']   = 'templates';
 
-        array_default($params, 'filters', array('seoname' => $params['seotemplate'],
+        array_default($params, 'filters', array('id'      => $params['id'],
+                                                'seoname' => $params['seotemplate'],
                                                 'status'  => null));
 
         array_default($params, 'joins'  , array('LEFT JOIN `geo_countries`
@@ -300,13 +301,15 @@ function templates_get($params){
  */
 function templates_list($params){
     try{
-        array_ensure($params);
+        array_params($params, 'seoname', 'id');
 
         $params['table'] = 'templates';
 
         array_default($params, 'columns', array('templates.seoname,templates.name'));
 
-        array_default($params, 'filters', array('foobar.status'     => 'available',
+        array_default($params, 'filters', array('foobar.id'         => $params['id'],
+                                                'foobar.seoname'    => $params['seoname'],
+                                                'foobar.status'     => 'available',
                                                 'templates.status'  => null));
 
         array_default($params, 'joins'  , array('LEFT JOIN `foobar`

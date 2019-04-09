@@ -61,7 +61,7 @@ function upload_dropzone($selector = null, $url = '/ajax/upload.php', $params = 
  */
 function upload_ocupload($selector = 'input[name=upload]', $url = '/ajax/upload.php', $params = array()){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'executeon', true);
 
         load_libs('html');
@@ -109,7 +109,7 @@ function upload_multi($params){
     global $_CONFIG;
 
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'selector'  , '');
         array_default($params, 'url'       , '');
         array_default($params, 'done'      , '');

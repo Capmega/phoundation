@@ -100,7 +100,7 @@ function verify_js($params){
     try{
         html_load_js('verify');
 
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'rules'      , null);
         array_default($params, 'group_rules', null);
         array_default($params, 'submit'     , null);

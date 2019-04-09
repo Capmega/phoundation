@@ -323,7 +323,7 @@ function blogs_post_get_key_values($blogs_posts_id, $seovalues = false){
  */
 function blogs_post_update($post, $params = null){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'sitemap_priority'        , 1);
         array_default($params, 'sitemap_change_frequency', 'weekly');
 
@@ -504,7 +504,7 @@ function blogs_update_post_status($blog, $params, $list, $status){
     try{
         load_libs('sitemap');
 
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'sitemap_priority'        , 1);
         array_default($params, 'sitemap_change_frequency', 'daily');
 
@@ -1259,7 +1259,7 @@ function blogs_validate_post($post, $params = null){
     global $_CONFIG;
 
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'force_id'         , false);
         array_default($params, 'use_id'           , false);
         array_default($params, 'namemax'          , 64);

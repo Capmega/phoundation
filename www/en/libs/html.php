@@ -714,8 +714,8 @@ function html_header($params = null, $meta = array()){
     global $_CONFIG, $core;
 
     try{
-        array_params($meta);
-        array_params($params, 'title');
+        array_ensure($meta);
+        array_ensure($params, 'title,links,extra');
 
         array_default($params, 'http'          , 'html');
         array_default($params, 'captcha'       , false);
@@ -723,8 +723,6 @@ function html_header($params = null, $meta = array()){
         array_default($params, 'html'          , '<html lang="'.LANGUAGE.'">');
         array_default($params, 'body'          , '<body>');
         array_default($params, 'title'         , isset_get($meta['title']));
-        array_default($params, 'links'         , '');
-        array_default($params, 'extra'         , '');
         array_default($params, 'favicon'       , true);
         array_default($params, 'amp'           , false);
         array_default($params, 'prefetch_dns'  , $_CONFIG['prefetch']['dns']);
@@ -2428,7 +2426,7 @@ function html_autosuggest($params){
     static $sent = array();
 
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'class'          , '');
         array_default($params, 'input_class'    , 'form-control');
         array_default($params, 'name'           , '');

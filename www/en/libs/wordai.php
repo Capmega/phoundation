@@ -39,7 +39,7 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
     try{
         load_config('wordai');
 
-        array_params($params, 'text');
+        array_ensure($params);
         array_default($params, 'quality'  , $quality);
         array_default($params, 'email'    , not_empty($email   , $_CONFIG['wordai']['email']));
         array_default($params, 'password' , not_empty($password, $_CONFIG['wordai']['password']));

@@ -144,7 +144,7 @@ function image_convert($source, $destination, $params = null){
             $arguments['redirect'] = ' >> '.$params['log'];
         }
 
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'degrees'   , null);
         array_default($params, 'x'         , null);
         array_default($params, 'y'         , null);
@@ -872,7 +872,7 @@ function image_fix_extension($file){
  */
 function image_fancybox($params = null){
     try{
-        array_params($params, 'selector');
+        array_params($params);
         array_default($params, 'selector', '.fancy');
         array_default($params, 'options' , array());
 
@@ -907,7 +907,7 @@ function image_fancybox($params = null){
  */
 function image_watermark($params){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'image'    , '');
         array_default($params, 'watermark', '');
         array_default($params, 'target'   , '');
@@ -1087,7 +1087,7 @@ function image_picker($params){
         html_load_js('image-picker/image-picker');
         html_load_css('image-picker');
 
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'resource'  , null);
         array_default($params, 'name'      , 'image-picker');
         array_default($params, 'id'        , 'image-picker');
@@ -1190,7 +1190,7 @@ console.log("imagesloaded");
  */
 function image_slider($params = null){
     try{
-        array_params($params);
+        array_ensure($params);
         array_default($params, 'library' , 'bxslider');
         array_default($params, 'selector', '#slider');
         array_default($params, 'options'  , array());
