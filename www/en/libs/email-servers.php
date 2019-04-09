@@ -224,13 +224,13 @@ function email_servers_update($server){
  */
 function email_servers_get($params){
     try{
-        array_params($params, 'seoname', 'id');
+        array_params($params, 'seodomain', 'id');
 
         $params['table']     = 'email_servers';
         $params['connector'] = 'core';
 
-        array_default($params, 'filters', array('id'      => $params['id'],
-                                                'seoname' => $params['seoname']));
+        array_default($params, 'filters', array('id'        => $params['id'],
+                                                'seodomain' => $params['seodomain']));
 
         array_default($params, 'joins'  , array('LEFT JOIN `servers`
                                                  ON        `servers`.`id` = `email_servers`.`servers_id`'));
@@ -280,18 +280,15 @@ function email_servers_get($params){
  * @param params $params The list parameters
  * @return mixed The list of available email_servers
  */
-function email_servers_list($params){
+function email_servers_list($params = null){
     try{
         array_params($params, 'status');
 
         $params['table']     = 'email_servers';
         $params['connector'] = 'core';
 
-        array_default($params, 'columns', array('email_servers.seoname,email_servers.name'));
-
-        array_default($params, 'filters', array('email_servers.id'      => $params['id'],
-                                                'email_servers.seoname' => $params['seoname'],
-                                                'email_servers.status'  => 'available'));
+        array_default($params, 'columns', 'seodomain,domain');
+        array_default($params, 'orderby', array('domain' => 'asc'));
 
         return sql_simple_list($params);
 
@@ -572,12 +569,85 @@ function email_servers_list_domains($params){
 
         $params['table'] = 'domains';
 
-        array_default($params, 'columns', array('seoname,name'));
+        array_default($params, 'columns', 'seoname,name');
 
         return sql_simple_list($params);
 
     }catch(Exception $e){
         throw new BException(tr('email_servers_list_domains(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return a list of all available email servers and domains for this customer
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @template Function reference
+ * @see sql_simple_list()
+ * @package email_servers
+ * @version 2.5.38: Added function and documentation
+ *
+ * @param params $params The scan parameters
+ * @return mixed The list of available email servers and domains
+ */
+function email_servers_scan_domains($params = null){
+    try{
+unset($_SESSION['cache']['mail_servers']);
+        if(isset($_SESSION['cache']['mail_servers'])){
+            return $_SESSION['cache']['mail_servers'];
+        }
+
+        load_libs('databases');
+
+        array_ensure($params);
+        array_default($params, 'seocustomer', $_SESSION['user']['customer']['seoname']);
+
+        $retval      = array();
+        $mailservers = email_servers_list(array('columns' => 'seodomain,domain,servers_id'));
+
+        while($mailserver = sql_fetch($mailservers)){
+            /*
+             * Setup the database connector for this email server
+             */
+            $server    = servers_get($mailserver['servers_id'], true);
+            $database  = databases_get_account(array('filter'  => array('id' => $server['database_accounts_id']),
+                                                     'columns' => 'username,password'));
+
+            $connector = sql_make_connector($mailserver['seodomain'], array('overwrite'  => true,
+                                                                            'db'         => 'mail',
+                                                                            'user'       => $database['username'],
+                                                                            'pass'       => $database['password'],
+                                                                            'ssh_tunnel' => array('domain' => $server['domain'])));
+
+            $domains   = email_servers_list_domains(array('connector' => $mailserver['seodomain'],
+                                                          'filters'   => array('customer' => $params['seocustomer'])));
+
+            /*
+             * If this server has domains where the customer has access to, add
+             * it to the list
+             */
+            if($domains->rowCount()){
+                $retval[$mailserver['seodomain']] = array();
+            }
+
+            /*
+             * Add the domains where this customer has access to
+             */
+            while($domain = sql_fetch($domains)){
+                $retval[$mailserver['seodomain']][$domain['seoname']] = $domain['name'];
+            }
+        }
+
+        $_SESSION['cache']['mail_servers'] = $retval;
+
+        return $retval;
+
+    }catch(Exception $e){
+        throw new BException(tr('email_servers_scan_domains(): Failed'), $e);
     }
 }
 
