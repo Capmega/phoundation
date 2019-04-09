@@ -845,7 +845,7 @@ under_construction('Move this to compress_unzip()');
          * Unzip and
          */
         servers_exec($server, array('commands' => array('cd'    , array($path),
-                                                        'gunzip'. array($filename))));
+                                                        'gunzip', array($filename))));
         linux_delete($server, $path.$filename);
 
         return $path;

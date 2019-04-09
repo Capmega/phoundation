@@ -182,7 +182,7 @@ function email_servers_validate_domain($domain){
         $exists = sql_get('SELECT `id` FROM `domains` WHERE `name` = :name LIMIT 1', true, array(':name' => $domain['name']));
 
         if($exists){
-            $v->setError(tr('The domain ":name" is already registered on this email server'. array(':name' => $domain['name'])));
+            $v->setError(tr('The domain ":name" is already registered on this email server', array(':name' => $domain['name'])));
         }
 
         $domain['seoname'] = seo_unique($domain['name'], 'domains', $domain['id']);

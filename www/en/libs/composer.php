@@ -159,7 +159,7 @@ function composer_require($package){
  */
 function composer_install($package){
     try{
-        safe_exec(array('commands' => array(ROOT.'libs/external/composer.phar'. array('install', $package))));
+        safe_exec(array('commands' => array(ROOT.'libs/external/composer.phar', array('install', $package))));
 
     }catch(Exception $e){
         throw new BException('composer_install(): Failed', $e);
