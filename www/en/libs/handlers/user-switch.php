@@ -26,6 +26,35 @@ try{
          */
         $from = $_SESSION['user'];
 
+        /*
+         * Optionally, load extra data
+         */
+        if($user['employees_id']){
+            /*
+             * Load employee data
+             */
+            load_libs('companies');
+            $user['employee'] = companies_get_employee($user['employees_id']);
+
+            if($user['employee']['customers_id']){
+                /*
+                 * Load customers data
+                 */
+                load_libs('customers');
+                $user['customer'] = customers_get(array('id'      => $user['employee']['customers_id'],
+                                                        'columns' => 'name,seoname'));
+            }
+
+            if($user['employee']['providers_id']){
+                /*
+                 * Load providers data
+                 */
+                load_libs('providers');
+                $user['provider'] = providers_get(array('id'      => $user['employee']['providers_id'],
+                                                        'columns' => 'name,seoname'));
+            }
+        }
+
         $_SESSION['user'] = $user;
 
         sql_query('UPDATE `users`
