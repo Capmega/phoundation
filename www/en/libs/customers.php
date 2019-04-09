@@ -578,7 +578,8 @@ function customers_get($params){
                                            geo_cities.name       AS city,
                                            geo_cities.seoname    AS seocity');
 
-        $params['table'] = 'customers';
+        $params['table']     = 'customers';
+        $params['connector'] = 'core';
 
         return sql_simple_get($params);
 
@@ -611,7 +612,8 @@ function customers_list($params){
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 
-        $params['table'] = 'customers';
+        $params['table']     = 'customers';
+        $params['connector'] = 'core';
 
         return sql_simple_list($params);
 

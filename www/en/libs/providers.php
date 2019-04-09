@@ -368,7 +368,8 @@ function providers_get($params){
                                            categories.name    AS category,
                                            categories.seoname AS seocategory');
 
-        $params['table'] = 'providers';
+        $params['table']     = 'providers';
+        $params['connector'] = 'core';
 
         return sql_simple_get($params);
 
@@ -401,7 +402,8 @@ function providers_list($params){
         array_default($params, 'columns', 'seoname,name');
         array_default($params, 'orderby', array('name' => 'asc'));
 
-        $params['table'] = 'providers';
+        $params['table']     = 'providers';
+        $params['connector'] = 'core';
 
         return sql_simple_list($params);
 
