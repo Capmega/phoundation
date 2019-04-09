@@ -209,6 +209,7 @@ function rights_get($right){
         }
 
         $retval = sql_get('SELECT    `rights`.`id`,
+                                     `rights`.`meta_id`,
                                      `rights`.`name`,
                                      `rights`.`status`,
                                      `rights`.`description`,
@@ -327,9 +328,14 @@ function rights_validate($right, $old_right = null){
         $v->hasMaxChars($right['name'], 32, tr('Please ensure the right\'s name has less than 32 characters'));
         $v->isRegex    ($right['name'], '/^[a-z-]{2,32}$/', tr('Please ensure the right\'s name contains only lower case letters, and dashes'));
 
-        $v->isNotEmpty ($right['description']      , tr('No right\'s description specified'));
-        $v->hasMinChars($right['description'],    2, tr('Please ensure the right\'s description has at least 2 characters'));
-        $v->hasMaxChars($right['description'], 2047, tr('Please ensure the right\'s description has less than 2047 characters'));
+        if($right['description']){
+            $v->hasMinChars($right['description'],    2, tr('Please ensure the right\'s description has at least 2 characters'));
+            $v->hasMaxChars($right['description'], 2047, tr('Please ensure the right\'s description has less than 2047 characters'));
+            $v->hasNoHTML($right['description']);
+
+        }else{
+            $right['description'] = '';
+        }
 
         if(is_numeric(substr($right['name'], 0, 1))){
             $v->setError(tr('Please ensure that the rights\'s name does not start with a number'));
