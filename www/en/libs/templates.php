@@ -301,16 +301,15 @@ function templates_get($params){
  */
 function templates_list($params){
     try{
-        array_params($params, 'seoname', 'id');
+        array_params($params, 'status');
 
         $params['table'] = 'templates';
 
         array_default($params, 'columns', array('templates.seoname,templates.name'));
 
-        array_default($params, 'filters', array('foobar.id'         => $params['id'],
-                                                'foobar.seoname'    => $params['seoname'],
+        array_default($params, 'filters', array('templates.seoname' => $params['status'],
                                                 'foobar.status'     => 'available',
-                                                'templates.status'  => null));
+                                                'foobar.status'     => null));
 
         array_default($params, 'joins'  , array('LEFT JOIN `foobar`
                                                  ON        `foobar`.`id` = `templates`.`foobar_id`'));
