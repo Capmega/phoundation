@@ -2394,7 +2394,7 @@ function sql_simple_list($params){
             throw new BException(tr('sql_simple_list(): No columns specified'), 'not-specified');
         }
 
-        array_default($params, 'connector'  , 'core');
+        array_default($params, 'connector'  , null);
         array_default($params, 'method'     , 'resource');
         array_default($params, 'filters'    , array('status' => null));
         array_default($params, 'orderby'    , array('name'   => 'asc'));
@@ -2483,7 +2483,7 @@ function sql_simple_get($params){
             throw new BException(tr('sql_simple_get(): No columns specified'), 'not-specified');
         }
 
-        array_default($params, 'connector'  , 'core');
+        array_default($params, 'connector'  , null);
         array_default($params, 'single'     , null);
         array_default($params, 'filters'    , array('status' => null));
         array_default($params, 'auto_status', null);
