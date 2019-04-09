@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.123');
+define('FRAMEWORKCODEVERSION', '2.5.124');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -284,7 +284,7 @@ class Core{
             throw new BException(tr('core::startup(): Failed with PHP error'), $e);
 
         }catch(Exception $e){
-            if(headers_sent($file, $line)){
+            if(PLATFORM_HTTP and headers_sent($file, $line)){
                 if(preg_match('/debug-.+\.php$/', $file)){
                     throw new BException(tr('core::startup(): Failed because headers were already sent on ":location", so probably some added debug code caused this issue', array(':location' => $file.'@'.$line)), $e);
                 }
