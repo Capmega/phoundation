@@ -152,7 +152,7 @@ function route($regex, $target, $flags = null){
             foreach(array_shift($variables) as $variable){
                 switch($variable){
                     case 'PROTOCOL':
-                        $route = str_replace(':PROTOCOL', $_SERVER['REQUEST_SCHEME'], $route);
+                        $route = str_replace(':PROTOCOL', $_SERVER['REQUEST_SCHEME'].'://', $route);
                         break;
 
                     case 'DOMAIN':
