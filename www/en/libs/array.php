@@ -33,7 +33,7 @@
 function array_params(&$params, $string_key = null, $numeric_key = null, $default = false){
     try{
         if(is_array($params)){
-            array_ensure($params, array($string_key, $numeric_key));
+            array_ensure($params, array($string_key, $numeric_key), $default);
             return;
         }
 
