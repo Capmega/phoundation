@@ -2203,7 +2203,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                                     break;
 
                                 default:
-                                    throw $e;
+                                    throw $e->makeWarning(true);
                             }
 
                             /*
