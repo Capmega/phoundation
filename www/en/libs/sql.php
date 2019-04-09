@@ -1694,7 +1694,7 @@ function sql_get_connector($connector_name){
 
                               WHERE  '.$where,
 
-                              $execute);
+                              null, $execute, 'core');
 
         if($connector){
             $connector['ssh_tunnel'] = array('required'    => $connector['ssh_tunnel_required'],
@@ -1738,7 +1738,9 @@ function sql_make_connector($connector_name, $connector){
         }
 
         if(sql_get_connector($connector_name)){
-            throw new BException(tr('sql_make_connector(): The specified connector name ":name" already exists', array(':name' => $connector_name)), 'exists');
+            if(empty($connector['overwrite'])){
+                throw new BException(tr('sql_make_connector(): The specified connector name ":name" already exists', array(':name' => $connector_name)), 'exists');
+            }
         }
 
         $connector = sql_ensure_connector($connector);
@@ -2214,6 +2216,10 @@ function sql_get_where_string($filters, &$execute, $table){
                     $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
                     $execute[':'.$key] = $value;
 
+                }elseif(is_numeric($value)){
+                    $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
+                    $execute[':'.$key] = $value;
+
                 }elseif($value === null){
                     $where[] = ' '.$column.' IS'.$not_string.' :'.$key.' ';
                     $execute[':'.$key] = $value;
@@ -2397,7 +2403,7 @@ function sql_simple_list($params){
         array_default($params, 'connector'  , null);
         array_default($params, 'method'     , 'resource');
         array_default($params, 'filters'    , array('status' => null));
-        array_default($params, 'orderby'    , array('name'   => 'asc'));
+        array_default($params, 'orderby'    , null);
         array_default($params, 'auto_status', null);
 
         /*
@@ -2487,7 +2493,6 @@ function sql_simple_get($params){
         array_default($params, 'single'     , null);
         array_default($params, 'filters'    , array('status' => null));
         array_default($params, 'auto_status', null);
-        array_default($params, 'limit'      , null);
         array_default($params, 'page'       , null);
 
         $params['columns'] = array_force($params['columns']);
