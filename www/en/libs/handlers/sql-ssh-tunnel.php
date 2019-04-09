@@ -4,8 +4,7 @@
  */
 load_libs('ssh');
 
-$connector['ssh_tunnel'] = array_merge_null(array('target_hostname' => $_CONFIG['ssh']['tunnel']['target_hostname'],
-                                                  'target_port'     => 3306), $connector['ssh_tunnel']);
+$connector['ssh_tunnel'] = array_merge_null(array('target_hostname' => $_CONFIG['ssh']['tunnel']['target_hostname'], 'target_port' => 3306), $connector['ssh_tunnel']);
 
 /*
  * Assign port dynamically?

@@ -2114,7 +2114,12 @@ function sql_get_where_string($filters, &$execute, $table){
          * Build the where section from the specified filters
          */
         foreach($filters as $key => $value){
-            if($value === '-'){
+            /*
+             * Any entry with value BOOLEAN FALSE will not be considered. this
+             * way we have a simple way to skip keys if needed
+             */
+// :TODO: Look up why '-' also was considered "skip"
+            if(($value === '-') or ($value === false)){
                 /*
                  * Ignore this entry
                  */
@@ -2265,7 +2270,7 @@ function sql_get_columns_string($columns, $table){
                 continue;
             }
 
-            $column = strtolower($column);
+            $column = strtolower(trim($column));
 
             if(strpos($column, '.') === false){
                 $column = $table.'.'.$column;
@@ -2398,7 +2403,7 @@ function sql_simple_list($params){
         /*
          * Apply automatic filter settings
          */
-        if(($params['auto_status'] !== false) and !isset($params['filters']['status'])){
+        if(($params['auto_status'] !== false) and !array_key_exists('status', $params['filters']) and !array_key_exists($params['table'].'.status', $params['filters'])){
             /*
              * Automatically ensure we only get entries with the auto status
              */
@@ -2490,7 +2495,7 @@ function sql_simple_get($params){
         /*
          * Apply automatic filter settings
          */
-        if(($params['auto_status'] !== false) and !isset($params['filters']['status'])){
+        if(($params['auto_status'] !== false) and !array_key_exists('status', $params['filters']) and !array_key_exists($params['table'].'.status', $params['filters'])){
             /*
              * Automatically ensure we only get entries with the auto status
              */

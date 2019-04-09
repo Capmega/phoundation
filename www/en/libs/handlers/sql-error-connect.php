@@ -113,16 +113,16 @@ try{
                     throw new BException(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', array(':connector' => $connector)), 'configuration');
                 }
 
-                log_console(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
+                log_console(tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
 
                 /*
                  * Now enable TCP forwarding on the server, and retry connection
                  */
                 linux_set_ssh_tcp_forwarding($server, true);
-                log_console(tr('sql_connect(): Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
+                log_console(tr('Enabled TCP fowarding for server ":server", trying to reconnect to MySQL database', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
 
                 if($connector['ssh_tunnel']['pid']){
-                    log_console(tr('sql_connect(): Closing previously opened SSH tunnel to server ":server"', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
+                    log_console(tr('Closing previously opened SSH tunnel to server ":server"', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
                     ssh_close_tunnel($connector['ssh_tunnel']['pid']);
                 }
 
@@ -133,7 +133,7 @@ try{
              * Check if the tunnel process is still up and about
              */
             if(!cli_pid($connector['ssh_tunnel']['pid'])){
-                throw new BException(tr('sql_init_fail(): SSH tunnel process ":pid" is gone', array(':pid' => $connector['ssh_tunnel']['pid'])), 'failed');
+                throw new BException(tr('sql_connect(): SSH tunnel process ":pid" is gone', array(':pid' => $connector['ssh_tunnel']['pid'])), 'failed');
             }
 
             /*
@@ -149,6 +149,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw $e;
+    throw new BException(tr('sql_connect(): Failed'), $e);
 }
 ?>
