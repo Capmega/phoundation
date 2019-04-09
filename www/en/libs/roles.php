@@ -18,24 +18,19 @@ function roles_get($role = null){
 
     try{
         $query = 'SELECT    `roles`.`id`,
+                            `roles`.`meta_id`,
                             `roles`.`name`,
                             `roles`.`status`,
                             `roles`.`createdon`,
-                            `roles`.`modifiedon`,
                             `roles`.`description`,
 
                             `createdby`.`name`   AS `createdby_name`,
-                            `createdby`.`email`  AS `createdby_email`,
-                            `modifiedby`.`name`  AS `modifiedby_name`,
-                            `modifiedby`.`email` AS `modifiedby_email`
+                            `createdby`.`email`  AS `createdby_email`
 
                   FROM      `roles`
 
                   LEFT JOIN `users` as `createdby`
-                  ON        `roles`.`createdby`     = `createdby`.`id`
-
-                  LEFT JOIN `users` as `modifiedby`
-                  ON        `roles`.`modifiedby`    = `modifiedby`.`id`';
+                  ON        `roles`.`createdby`     = `createdby`.`id`';
 
         if($role){
             if(!is_string($role)){
@@ -62,10 +57,11 @@ function roles_get($role = null){
                               array(':createdby' => $_SESSION['user']['id']));
 
             if(!$retval){
-                sql_query('INSERT INTO `roles` (`createdby`, `status`, `name`)
-                           VALUES              (:createdby , :status , :name )',
+                sql_query('INSERT INTO `roles` (`createdby`, `meta_id`, `status`, `name`)
+                           VALUES              (:createdby , :meta_id , :status , :name )',
 
                            array(':name'      => $role,
+                                 ':meta_id'   => meta_action(),
                                  ':status'    => '_new',
                                  ':createdby' => isset_get($_SESSION['user']['id'])));
 
