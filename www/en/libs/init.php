@@ -780,9 +780,13 @@ function init_get_highest_file_version($section){
         $files   = scandir(ROOT.'init/'.$section);
 
         foreach($files as $file){
+            if(($file === '.') or ($file === '..')){
+                continue;
+            }
+
             $file = str_runtil($file, '.php');
 
-            if(version_compare($file, $version)){
+            if(version_compare($file, $version) === 1){
                 $version = $file;
             }
         }
