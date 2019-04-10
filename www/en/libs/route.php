@@ -92,7 +92,8 @@ require_once(__DIR__.'/system.php');
  */
 function route($regex, $target, $flags = null){
     global $_CONFIG, $core;
-    static $count = 1;
+    static $count = 1,
+           $init  = false;
 
     try{
         if($regex === 'map'){
@@ -106,7 +107,10 @@ function route($regex, $target, $flags = null){
         /*
          * Ensure the 404 shutdown function is registered
          */
-        register_shutdown('route_404', null);
+        if(!$init){
+            log_file(tr('Processing routes for ":type" type request ":url"', array(':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'route', 'white');
+            register_shutdown('route_404', null);
+        }
 
         if(!$regex){
             /*
