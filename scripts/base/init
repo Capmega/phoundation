@@ -197,13 +197,16 @@ switch($method){
             cli_no_arguments_left();
 
             try{
-                if($pfrom = $fromprojectversion){
+                $pfrom = $fromprojectversion;
+                $ffrom = $fromframeworkversion;
+
+                if($pfrom){
                     if(!str_is_version($pfrom)){
                         throw new BException(tr('The specified fromprojectversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', array(':version' => $pfrom)), 'warning/invalid');
                     }
                 }
 
-                if($ffrom = $fromframeworkversion){
+                if($ffrom){
                     if(!str_is_version($ffrom)){
                         throw new BException(tr('The specified fromframeworkversion ":version" is not a valid version format. Please supply a version in format "n.n.n"', array(':version' => $ffrom)), 'warning/invalid');
                     }
