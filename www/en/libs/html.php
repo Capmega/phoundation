@@ -335,7 +335,7 @@ function html_bundler($type){
 // :TODO: Add support for individual bundles that require async loading
                 $core->register[$type]['bundle-'.$bundle] = false;
 
-                if($_CONFIG['cdn']['network']['enabled']){
+                if($_CONFIG['cdn']['enabled']){
                     load_libs('cdn');
                     cdn_add_object($bundle_file);
                 }
@@ -810,7 +810,7 @@ function html_header($params = null, $meta = array()){
                 $retval .= $params['links'];
 
             }else{
-    // :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
+// :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
                 foreach($params['links'] as $data){
                     $sections = array();
 
