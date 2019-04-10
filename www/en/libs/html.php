@@ -805,19 +805,21 @@ function html_header($params = null, $meta = array()){
 
         unset($meta['title']);
 
-        if(is_string($params['links'])){
-            $retval .= $params['links'];
+        if($params['links']){
+            if(is_string($params['links'])){
+                $retval .= $params['links'];
 
-        }else{
-// :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
-            foreach($params['links'] as $data){
-                $sections = array();
+            }else{
+    // :OBSOLETE: Links specified as an array only adds more complexity, we're going to send it as plain HTML, and be done with the crap. This is still here for backward compatibility
+                foreach($params['links'] as $data){
+                    $sections = array();
 
-                foreach($data as $key => $value){
-                    $sections[] = $key.'="'.$value.'"';
+                    foreach($data as $key => $value){
+                        $sections[] = $key.'="'.$value.'"';
+                    }
+
+                    $retval .= '<link '.implode(' ', $sections).'>';
                 }
-
-                $retval .= '<link '.implode(' ', $sections).'>';
             }
         }
 
