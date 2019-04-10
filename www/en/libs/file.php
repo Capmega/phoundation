@@ -1440,8 +1440,15 @@ function file_get_local($file, &$is_downloaded = false, $context = null){
         return $file;
 
     }catch(Exception $e){
-        if(strstr($e->getMessage(), 'HTTP/1.1 404 Not Found')){
-            throw new BException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $file)), 404);
+        $message = $e->getMessage();
+        $message = strtolower($message);
+
+        if(str_exists($message, '404 not found')){
+            throw new BException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $file)), 'file-404');
+        }
+
+        if(str_exists($message, '400 bad request')){
+            throw new BException(tr('file_get_local(): URL ":file" is invalid', array(':file' => $file)), 'file-400');
         }
 
         throw new BException(tr('file_get_local(): Failed for file ":file"', array(':file' => $file)), $e);
