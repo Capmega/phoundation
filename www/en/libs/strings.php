@@ -1008,6 +1008,7 @@ function str_boolean($value){
 }
 
 
+
 /* From http://stackoverflow.com/questions/11151250/how-to-compare-two-very-large-strings, implement?
 $string1 = "This is a sample text to test a script to highlight the differences between 2 strings, so the second string will be slightly different";
 $string2 = "This is 2 s4mple text to test a scr1pt to highlight the differences between 2 strings, so the first string will be slightly different";
