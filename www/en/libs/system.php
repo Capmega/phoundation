@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.138');
+define('FRAMEWORKCODEVERSION', '2.5.139');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1026,7 +1026,6 @@ function load_libs($libraries){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
- * @see notifications_send()
  *
  * @param mixed $files Either array or CSV string with the libraries to be loaded
  * @return void
