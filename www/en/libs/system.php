@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.139');
+define('FRAMEWORKCODEVERSION', '2.5.140');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -151,12 +151,13 @@ switch(php_sapi_name()){
         define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
         define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
 
-        /*
-         * Set protocol
-         */
-        define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
         break;
 }
+
+/*
+ * Set protocol
+ */
+define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
 
 if($_CONFIG['security']['url_cloaking']['enabled']){
     /*
