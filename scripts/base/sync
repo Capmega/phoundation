@@ -298,7 +298,7 @@ if($nofiles){
     /*
      * Ensure write permissions to all files to avoid sync crashes on write protected files
      */
-    safe_exec(array('commands' => array('chmod', array('sudo' => $sudo, 'ug+w', ROOT, '-R'))));
+    safe_exec(array('timeout' => 300, 'commands' => array('chmod', array('sudo' => $sudo, 'ug+w', ROOT, '-R'))));
 
     foreach($_CONFIG['sync'] as $path){
         try{
