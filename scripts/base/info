@@ -10,7 +10,19 @@ $help  = 'The info script will show detailed information about the current frame
 require_once(__DIR__.'/../../libs/startup.php');
 
 cli_no_arguments_left();
-sql_query('SELECT 1');
+
+try{
+    sql_query('SELECT 1');
+
+}catch(Exception $e){
+    if($e->getRealCode() != '1049'){
+        throw $e;
+    }
+
+    $no_db = true;
+    define('FRAMEWORKDBVERSION', tr('database ":db" does not exist', array(':db' => $_CONFIG['db']['core']['db'])));
+    define('PROJECTDBVERSION'  , tr('database ":db" does not exist', array(':db' => $_CONFIG['db']['core']['db'])));
+}
 
 log_console(cli_color(str_size(tr('Project name:')              , 27), 'white').' '.PROJECT);
 log_console(cli_color(str_size(tr('Framework code version:')    , 27), ((FRAMEWORKCODEVERSION > FRAMEWORKDBVERSION) ? 'yellow' : ((FRAMEWORKCODEVERSION < FRAMEWORKDBVERSION) ? 'error' : 'white'))).' '.FRAMEWORKCODEVERSION);
@@ -23,5 +35,8 @@ log_console(cli_color(str_size(tr('Environment:')               , 27), 'white').
 log_console(cli_color(str_size(tr('Production:')                , 27), 'white').' '.str_boolean($_CONFIG['production']));
 log_console(cli_color(str_size(tr('Debug:')                     , 27), 'white').' '.str_boolean(debug()));
 log_console(cli_color(str_size(tr('Core database:')             , 27), 'white').' '.$_CONFIG['db']['core']['db']);
-log_console(cli_color(str_size(tr('Active users:')              , 27), 'white').' '.sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
+
+if(empty($no_db)){
+    log_console(cli_color(str_size(tr('Active users:')         , 27), 'white').' '.sql_get('SELECT COUNT(`id`) AS `count` FROM `users` WHERE `status` IS NULL', true));
+}
 ?>
