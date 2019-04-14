@@ -419,6 +419,6 @@ if(!$nobadgescached){
 /*
  * Fix permissions to ensure all files will have correct file modes
  */
-script_exec('base/fix-permissions');
+script_exec('base/fix-permissions', null, null, null, 90);
 cli_run_once_local(true);
 ?>
