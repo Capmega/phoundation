@@ -766,19 +766,34 @@ function email_servers_validate_account($account){
         /*
          * Validate the server
          */
-        $account['servers_id'] = servers_get($account['server'], false, true, true);
+        try{
+            $account['servers_id'] = servers_like($account['server']);
+            $account['servers_id'] = servers_get ($account['servers_id'], false, true, true);
 
-        if(!$account['servers_id']){
-            $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['server'])));
+            if(!$account['servers_id']){
+                $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['server'])));
+            }
+
+        }catch(Exception $e){
+            /*
+             * For now, servers_get also gives exception if server does not exist!
+             */
+            switch($e->getRealCode()){
+                case 'not-exists';
+                    $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['server'])));
+                    break;
+
+                default:
+                    throw $e;
+            }
         }
-
 
         /*
          * Validate the domain
          *
          * NOTE: This domain has to be available on the mail server!!
          */
-        $account['domains_id'] = sql_get('SELECT `id` FROM `domains` WHERE `name` = :name', true, array(':name' => $account['domain']));
+        $account['domains_id'] = sql_get('SELECT `id` FROM `domains` WHERE `seoname` = :seoname', true, array(':seoname' => $account['domain']));
 
         if(!$account['domains_id']){
             $v->setError(tr('The specified mail domain ":domain" does not exist', array(':domain' => $account['domain'])));
@@ -850,8 +865,6 @@ function email_servers_validate_account($account){
 
     }catch(Exception $e){
         if($e->getCode() == '1049'){
-            load_libs('servers');
-
             $servers = servers_list_domains($domain['server']);
             $server  = servers_get($domain['server']);
             $domain  = not_empty($servers[$domain['server']], $domain['server']);
