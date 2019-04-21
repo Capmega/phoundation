@@ -77,6 +77,10 @@ function sql_query($query, $execute = false, $connector = null){
                     debug_sql($query, $execute);
                 }
 
+                if(VERYVERBOSE){
+                    log_console(str_ends(str_replace("\n", '', debug_sql($query->queryString, $execute, true)), ';'));
+                }
+
                 $query->execute($execute);
                 return $query;
             }
@@ -89,8 +93,12 @@ function sql_query($query, $execute = false, $connector = null){
             $query = ' '.$query;
         }
 
-        if(substr($query, 0, 1) == ' '){
+        if($query[0] == ' '){
             debug_sql($query, $execute);
+        }
+
+        if(VERYVERBOSE){
+            log_console(str_ends(str_replace("\n", '', debug_sql($query, $execute, true)), ';'));
         }
 
         if(!$execute){
