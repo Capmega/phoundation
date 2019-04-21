@@ -322,7 +322,7 @@ try{
 
             if(debug()){
                 if(!headers_sent()){
-                    header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+                    http_response_code(500);
                 }
 
                 switch($core->callType()){

@@ -56,7 +56,13 @@ try{
         $query = str_nodouble($query, ' ', '\s');
     }
 
-    log_file(str_ends($query, ';'), 'debug-sql');
+    /*
+     * VERYVERBOSE already logs the query, don't log it again
+     */
+    if(!VERYVERBOSE){
+        log_file(str_ends($query, ';'), 'debug-sql');
+    }
+
     return show(str_ends($query, ';'), 6);
 
 }catch(Exception $e){
