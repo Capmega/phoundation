@@ -155,6 +155,10 @@ function sql_query($query, $execute = false, $connector = null){
             /*
              * Let sql_error() try and generate more understandable errors
              */
+            if(!is_string($connector)){
+                throw new BException(tr('sql_query(): Specified connector ":connector" for query ":query" is invalid, it should be a string', array(':connector' => $connector, ':query' => $query)), $e);
+            }
+
             sql_error($e, $query, $execute, isset_get($core->sql[$connector]));
 
         }catch(Exception $e){
