@@ -186,9 +186,9 @@
 
 									loading = false;
 
-									if((data.result) == "OK" && data.html) {
+									if((data.result) == "OK" && data.data.html) {
 										target
-											.html(data.html)
+											.html(data.data.html)
 											.addClass("active");
 
 									} else {

@@ -79,6 +79,10 @@ function sql_query($query, $execute = false, $connector_name = null){
                     debug_sql($query, $execute);
                 }
 
+                if(VERYVERBOSE){
+                    log_console(str_ends(str_replace("\n", '', debug_sql($query->queryString, $execute, true)), ';'));
+                }
+
                 $query->execute($execute);
                 return $query;
             }
@@ -91,8 +95,12 @@ function sql_query($query, $execute = false, $connector_name = null){
             $query = ' '.$query;
         }
 
-        if(substr($query, 0, 1) == ' '){
+        if($query[0] == ' '){
             debug_sql($query, $execute);
+        }
+
+        if(VERYVERBOSE){
+            log_console(str_ends(str_replace("\n", '', debug_sql($query, $execute, true)), ';'));
         }
 
         if(!$execute){
@@ -157,6 +165,12 @@ function sql_query($query, $execute = false, $connector_name = null){
             /*
              * Let sql_error() try and generate more understandable errors
              */
+            sql_error($e, $query, $execute, isset_get($core->sql[$connector_name]));
+
+            if(!is_string($connector_name)){
+                throw new BException(tr('sql_query(): Specified connector name ":connector" for query ":query" is invalid, it should be a string', array(':connector' => $connector_name, ':query' => $query)), $e);
+            }
+
             sql_error($e, $query, $execute, isset_get($core->sql[$connector_name]));
 
         }catch(Exception $e){
