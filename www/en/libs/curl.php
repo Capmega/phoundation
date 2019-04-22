@@ -122,6 +122,7 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
         try{
             $results = safe_exec(array('commands' => array('/sbin/ifconfig', array('connector' => '|'),
                                                            'egrep'         , array('-i', 'addr|inet'))));
+
             $results = implode($results, "\n");
 
         }catch(Exception $e){
@@ -145,13 +146,20 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
                 throw new BException('curl_list_ips(): Both IPv4 and IPv6 IP\'s are specified to be disallowed', 'not-exists');
             }
 
-            $options = FILTER_FLAG_IPV6;
+            $options = $options | FILTER_FLAG_IPV6;
 
         }elseif(!$ipv6){
-            $options = FILTER_FLAG_IPV4;
+            $options = $options | FILTER_FLAG_IPV4;
         }
 
         foreach($matches[1] as $ip){
+            if(!$ip){
+                continue;
+            }
+
+            $ip = str_replace(':', '', $ip);
+            $ip = trim(str_from($ip, 'addr'));
+
             if($ip == '127.0.0.1'){
                 if(!$localhost){
                     continue;
@@ -161,6 +169,10 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
             if(filter_var($ip, $flags, $options)){
                 $ips[] = $ip;
             }
+        }
+
+        if(!$ips){
+            throw new BException(tr('curl_list_ips(): Failed to find any IP addresses'), 'failed');
         }
 
         return $ips;
