@@ -2656,6 +2656,10 @@ function file_execute_mode($path, $mode, $callback, $params = null){
             throw new BException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
+        if(!is_string($callback) and !is_callable($callback)){
+            throw new BException(tr('file_execute_mode(): Specified callback ":callback" is invalid, it should be a string or a callable function', array(':callback' => $callback)), 'invalid');
+        }
+
         if($mode){
             $original_mode = fileperms($path);
             chmod($path, $mode);
