@@ -108,6 +108,7 @@ function route($regex, $target, $flags = null){
          * Ensure the 404 shutdown function is registered
          */
         if(!$init){
+            $init = true;
             log_file(tr('Processing routes for ":type" type request ":url"', array(':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'route', 'white');
             register_shutdown('route_404', null);
         }
