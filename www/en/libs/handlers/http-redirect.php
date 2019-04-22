@@ -92,11 +92,15 @@ try{
         $target = $_CONFIG['url_prefix'].$target;
     }
 
+    $target = redirect_url($target);
+
     if($time_delay){
-        header('Refresh: '.$time_delay.';'.redirect_url($target), true, $http_code);
+        log_file(tr('Redirecting with ":time" seconds delay to url ":url"', array(':time' => $time_delay, ':url' => $target)), null, 'cyan');
+        header('Refresh: '.$time_delay.';'.$target, true, $http_code);
         die();
     }
 
+    log_file(tr('Redirecting to url ":url"', array(':url' => $target)), null, 'cyan');
     header('Location:'.redirect_url($target), true, $http_code);
     die();
 
