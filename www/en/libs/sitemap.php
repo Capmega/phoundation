@@ -67,32 +67,32 @@ function sitemap_install_files($files){
              * Install the sub sitemap files
              */
             foreach($files as $file){
-                file_execute_mode(ROOT.'www/'.$file['language'], 0770, $file, function($path, $params) use ($insert){
+                file_execute_mode(ROOT.'www/'.$file['language'], 0770, function($path) use ($insert, $file){
                     /*
                      * Move sub sitemap files in place
                      */
-                    if($params['file']){
-                        if($params['language']){
-                            $file = $params['language'].'/sitemap-'.$params['file'].'.xml';
+                    if($file['file']){
+                        if($file['language']){
+                            $filename = $file['language'].'/sitemap-'.$file['file'].'.xml';
 
                         }else{
-                            $file = '/sitemap-'.$params['file'].'.xml';
+                            $filename = '/sitemap-'.$file['file'].'.xml';
                         }
 
                     }else{
-                        if($params['language']){
-                            $file = $params['language'].'/sitemap.xml';
+                        if($file['language']){
+                            $filename = $file['language'].'/sitemap.xml';
 
                         }else{
-                            $file = '/sitemap.xml';
+                            $filename = '/sitemap.xml';
                         }
                     }
 
-                    log_console(tr('Installing sitemap file ":file"', array(':file' => 'www/'.$file)), 'VERBOSE/cyan');
-                    file_delete(ROOT.'www/'.$file);
-                    rename(TMP.'sitemaps/'.$file, ROOT.'www/'.$file);
-                    chmod(ROOT.'www/'.$file, 0440);
-                    $insert->execute(array(':language' => $params['language']));
+                    log_console(tr('Installing sitemap file ":file"', array(':file' => 'www/'.$filename)), 'VERBOSE/cyan');
+                    file_delete(ROOT.'www/'.$filename, false, false, ROOT.'www/');
+                    rename(TMP.'sitemaps/'.$filename, ROOT.'www/'.$filename);
+                    chmod(ROOT.'www/'.$filename, 0440);
+                    $insert->execute(array(':language' => $file['language']));
                 });
             }
         }
@@ -101,7 +101,7 @@ function sitemap_install_files($files){
          * Install the index file
          */
         log_console(tr('Installing sitemap index file ":file"', array(':file' => 'www/sitemap.xml')), 'VERBOSE/cyan');
-        file_delete(ROOT.'www/sitemap.xml');
+        file_delete(ROOT.'www/sitemap.xml', false, false, ROOT.'www/');
         rename(TMP.'sitemaps/sitemap.xml', ROOT.'www/sitemap.xml');
         chmod(ROOT.'www/sitemap.xml', 0440);
 
