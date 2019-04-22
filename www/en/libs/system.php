@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.142');
+define('FRAMEWORKCODEVERSION', '2.5.143');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1989,14 +1989,11 @@ function get_domain(){
     global $_CONFIG;
 
     try{
-//:TODO: Delete the following. With whitelabel checking, the HTTP_HOST should be okay
-        //if(empty($_SESSION['domain'])){
-        //    return $_CONFIG['domain'];
-        //}
-        //
-        //return $_SESSION['domain'];
+        if(PLATFORM_HTTP){
+            return $_SERVER['HTTP_HOST'];
+        }
 
-        return $_SERVER['HTTP_HOST'];
+        return $_CONFIG['domain'];
 
     }catch(Exception $e){
         throw new BException('get_domain(): Failed', $e);
