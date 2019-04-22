@@ -205,7 +205,7 @@ try{
          * Do not send cookies to crawlers!
          */
         if(isset_get($core->register['session']['client']['type']) === 'crawler'){
-            log_file(tr('Crawler ":crawler" on URL ":url"', array(':crawler' => $core->register['session']['client'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])));
+            log_file(tr('Crawler ":crawler" on URL ":url"', array(':crawler' => $core->register['session']['client'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'crawler', 'white');
 
         }else{
             /*
@@ -267,7 +267,7 @@ try{
                 try{
                     if(isset($_COOKIE[$_CONFIG['sessions']['cookie_name']])){
                         if(!is_string($_COOKIE[$_CONFIG['sessions']['cookie_name']]) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[$_CONFIG['sessions']['cookie_name']])){
-                            log_file(tr('Received invalid cookie ":cookie", dropping', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'warning');
+                            log_file(tr('Received invalid cookie ":cookie", dropping', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'warning', 'yellow');
                             unset($_COOKIE[$_CONFIG['sessions']['cookie_name']]);
                             $_POST = array();
 
@@ -286,7 +286,7 @@ try{
                              * from the browser turned out to be problematic to say
                              * the least
                              */
-                            log_file(tr('Received non existing cookie ":cookie", recreating', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'warning');
+                            log_file(tr('Received non existing cookie ":cookie", recreating', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'warning', 'yellow');
 
                             session_start();
                             header_remove('Set-Cookie');
