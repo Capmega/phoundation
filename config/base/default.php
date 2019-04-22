@@ -168,7 +168,7 @@ $_CONFIG['file']                                                                
 
 // Flash alert configuration
 $_CONFIG['flash']              = array('type'                               => 'html',                                                      // The type of HTML flash message to use. Either "html" or "sweetalert"
-                                       'html'                               => '<div class="flash:type">:message</div>');
+                                       'html'                               => '<div class="flash:type :hidden">:message</div>');
 
 //
 $_CONFIG['formats']            = array('force1224'                          => '24',
