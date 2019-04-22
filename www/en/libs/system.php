@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.143');
+define('FRAMEWORKCODEVERSION', '2.5.144');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1791,7 +1791,11 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
         $messages = log_sanitize($messages, $color, $filter_double, $class);
 
         if(!is_scalar($class)){
-            throw new BException(tr('log_file(): Specified class ":class" is not scalar', array(':class' => str_truncate(json_encode_custom($class), 20))));
+            if($class){
+                throw new BException(tr('log_file(): Specified class ":class" is not scalar', array(':class' => str_truncate(json_encode_custom($class), 20))), 'invalid');
+            }
+
+            $class = $core->register['script'];
         }
 
         /*
