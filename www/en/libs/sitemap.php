@@ -89,8 +89,12 @@ function sitemap_install_files($files){
                     }
 
                     log_console(tr('Installing sitemap file ":file"', array(':file' => 'www/'.$filename)), 'VERBOSE/cyan');
-                    file_delete(ROOT.'www/'.$filename, false, false, ROOT.'www/');
-                    rename(TMP.'sitemaps/'.$filename, ROOT.'www/'.$filename);
+
+                    file_execute_mode(ROOT.'www/', 0770, function($path) use ($filename){
+                        file_delete(ROOT.'www/'.$filename, false, false, ROOT.'www/');
+                        rename(TMP.'sitemaps/'.$filename, ROOT.'www/'.$filename);
+                    });
+
                     chmod(ROOT.'www/'.$filename, 0440);
                     $insert->execute(array(':language' => $file['language']));
                 });
@@ -101,9 +105,22 @@ function sitemap_install_files($files){
          * Install the index file
          */
         log_console(tr('Installing sitemap index file ":file"', array(':file' => 'www/sitemap.xml')), 'VERBOSE/cyan');
-        file_delete(ROOT.'www/sitemap.xml', false, false, ROOT.'www/');
-        rename(TMP.'sitemaps/sitemap.xml', ROOT.'www/sitemap.xml');
-        chmod(ROOT.'www/sitemap.xml', 0440);
+
+        file_execute_mode(ROOT.'www/', 0770, function($path){
+            $target = ROOT.'www/sitemap.xml';
+
+            if(file_exists($target)){
+                $perms = fileperms($target);
+
+            }else{
+                $perms = 0440;
+            }
+
+            chmod(ROOT.'www/sitemap.xml', 0660);
+            file_delete($target, false, false, ROOT.'www/');
+            rename(TMP.'sitemaps/sitemap.xml', ROOT.'www/sitemap.xml');
+            chmod(ROOT.'www/sitemap.xml', $perms);
+        });
 
     }catch(Exception $e){
         throw new BException('sitemap_install_files(): Failed', $e);
