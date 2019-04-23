@@ -448,6 +448,13 @@ function sitemap_list_files(){
 
         $retval = array();
 
+        if(empty($_CONFIG['language']['supported'])){
+            /*
+             * No multiple languages supported. Only use the default
+             */
+            $_CONFIG['language']['supported'] = array($_CONFIG['language']['default'] => $_CONFIG['language']['default']);
+        }
+
         foreach($_CONFIG['language']['supported'] as $code => $language){
             $files  = sql_query('SELECT   `file`
 
