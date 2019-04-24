@@ -337,7 +337,7 @@ function html_bundler($type){
 
                 if($_CONFIG['cdn']['enabled']){
                     load_libs('cdn');
-                    cdn_add_object($bundle_file);
+                    cdn_add_files($bundle_file);
                 }
             }
         }
