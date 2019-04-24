@@ -619,7 +619,7 @@ function html_generate_js(){
                     notify(array('code'    => 'empty',
                                  'groups'  => 'developers',
                                  'title'   => tr('Empty file specified'),
-                                 'message' => tr('html_generate_js(): Empty file specified')));
+                                 'message' => tr('html_generate_js(): Found empty string file specified in html_load_js()')));
                     continue;
                 }
 
