@@ -335,7 +335,7 @@ function route($regex, $target, $flags = null){
                  * Client specified variables on a URL that does not allow
                  * queries, cancel the match
                  */
-                log_file(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
+                log_file(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE/yellow');
                 return false;
             }
         }
