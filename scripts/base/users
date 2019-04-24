@@ -303,9 +303,12 @@ switch(cli_method()){
         }
 
         $db_user = sql_get('SELECT `id`,
+                                   `meta_id`,
                                    `username`,
                                    `nickname`,
                                    `name`,
+                                   `role`,
+                                   `roles_id`,
                                    `email`,
                                    `status`,
                                    `redirect`,
