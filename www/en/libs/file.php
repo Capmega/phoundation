@@ -485,9 +485,12 @@ function file_ensure_path($path, $mode = null, $clear = false){
 
         }elseif(!is_dir($path)){
             /*
-             * Some other file is in the way. Delete the file, and retry
+             * Some other file is in the way. Delete the file, and retry.
+             *
+             * Ensure that the "file" is not accidentally specified as a
+             * directory ending in a /
              */
-            file_delete($path);
+            file_delete(str_ends_not($path, '/'));
             return file_ensure_path($path, $mode);
         }
 
@@ -659,7 +662,7 @@ function file_temp($create = true, $name = null){
  * Kindly taken from http://lixlpixel.org/recursive_function/php/recursive_directory_delete/
  * Slightly rewritten and cleaned up by Sven Oostenbrink
  */
-function file_delete_tree($directory){
+function file_delete_tree($directory, $clean_path = false, $sudo = false, $restrictions = null){
     try{
         $directory = unslash($directory);
 
@@ -682,11 +685,11 @@ function file_delete_tree($directory){
         $handle = opendir($directory);
 
         while (false !== ($item = readdir($handle))){
-            if($item != '.' && $item != '..'){
+            if(($item != '.') and ($item != '..')){
                 $path = $directory.'/'.$item;
 
                 if(is_dir($path)){
-                    file_delete_tree($path);
+                    file_delete_tree($path, $clean_path, $sudo, $restrictions);
 
                 }else{
                     try{
@@ -704,7 +707,7 @@ function file_delete_tree($directory){
         }
 
         closedir($handle);
-        file_delete($directory);
+        file_delete($directory, $clean_path, $sudo, $restrictions);
 
     }catch(Exception $e){
         throw new BException(tr('file_delete_tree(): Failed'), $e);
