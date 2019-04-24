@@ -354,8 +354,11 @@ function http_headers($params, $content_length){
          */
         http_response_code($params['http_code']);
 
-        if($params['http_code'] != 200){
-            log_file(tr('Phoundation sent HTTP:http for URL ":url"', array(':http' => $params['http_code'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'warning', 'yellow');
+        if(($params['http_code'] != 200)){
+            log_file(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP'.$params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'warning', 'yellow');
+
+        }elseif(VERBOSE){
+            log_file(tr('Phoundation sent :http for URL ":url"', array(':http' => ($params['http_code'] ? 'HTTP'.$params['http_code'] : 'HTTP0'), ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'http', 'green');
         }
 
         foreach($headers as $header){
