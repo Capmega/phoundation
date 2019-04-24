@@ -278,6 +278,23 @@ console.log("geoLocation");
 //
 $(document).ready(function(){
     $(document)
+        .on("click", ".navigate.back", function(e){
+            e.stopPropagation();
+
+            var $target = $(e.target);
+            var steps   = $target.data("steps");
+
+            if(steps){
+                steps = -steps;
+
+            }else{
+                steps = -1;
+            }
+
+            window.history.go(steps);
+            return false;
+        })
+
         .on("click", ".nolink", function(e){
             e.stopPropagation();
             return false;
