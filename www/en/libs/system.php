@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.147');
+define('FRAMEWORKCODEVERSION', '2.5.148');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -3589,7 +3589,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
          * files there
          */
         foreach($servers as $servers_id => $server){
-            foreach($files as $url => $file){
+            foreach(array_force($files) as $url => $file){
                 log_file(tr('cdn_add_files(): Added file ":file" with url ":url" to CDN server ":server"', array(':file' => $file, ':url' => $url, ':server' => $server)), 'DEBUG/cdn');
 
                 $file_insert->execute(array(':servers_id' => $servers_id,
