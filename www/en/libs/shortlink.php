@@ -140,6 +140,8 @@ function shortlink_get_access_token($provider = null){
  * @return string a shortlink URL from the specified provider for the specified URL
  */
 function shortlink_create($url, $provider = null) {
+    static $count = 10;
+
     try{
         $token = shortlink_get_access_token($provider);
 
@@ -148,21 +150,37 @@ function shortlink_create($url, $provider = null) {
 under_construction();
 
             case 'bitly':
-                $result = curl_get(array('url'     => 'https://api-ssl.bitly.com/v4/bitlinks?access_token='.$token,
+                try{
+                    $result = curl_get(array('url'     => 'https://api-ssl.bitly.com/v4/bitlinks?access_token='.$token,
 
-                                         'post'    => json_encode(array('long_url' => $url)),
+                                             'post'    => json_encode(array('long_url' => $url)),
 
-                                         'headers' => array('Authorization: Bearer {$token}',
-                                                            'Content-Type: application/json',
-                                                            'Content-Length: '.strlen($json_string))));
+                                             'headers' => array('Authorization: Bearer {$token}',
+                                                                'Content-Type: application/json',
+                                                                'Content-Length: '.strlen($json_string))));
 
-                $result = json_decode_custom($result);
+                    $result = json_decode_custom($result);
 
-                if(empty($result['link'])){
-                    throw new BException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
+                    if(empty($result['link'])){
+                        throw new BException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
+                    }
+
+                    return $result['link'];
+
+                }catch(Exception $e){
+                    /*
+                     * The bitly provider regularly fails. If failure is detected, simply
+                     * retry a few times
+                     */
+                    if($e->getRealCode() === 'CURL7'){
+                        if(--$count >= 0){
+                            log_console(tr('Failed to connect to bitly provider to create shortlink. Retrying ":count" more times', array(':count' => $count)), 'warning');
+                            usleep(mt_rand(1000, 1000000));
+
+                            return shortlink_create($url, $provider);
+                        }
+                    }
                 }
-
-                return $result['link'];
         }
 
     }catch(Exception $e){
