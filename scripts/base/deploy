@@ -608,6 +608,10 @@ if($nocompress){
                 git_add(ROOT.'www/en/admin/pub');
             }
 
+            if(file_exists(ROOT.'data/cdn/pub')){
+                git_add(ROOT.'data/cdn/pub');
+            }
+
             git_commit('Deploy commit: compressed files changed');
 
             if(!$nopush){
