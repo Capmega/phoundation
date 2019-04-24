@@ -278,7 +278,7 @@ console.log("geoLocation");
 //
 $(document).ready(function(){
     $(document)
-        .on("click", ".navigate.back", function(e){
+        .on("click", ".btn.navigate.back,.button.navigate.back", function(e){
             e.stopPropagation();
 
             var $target = $(e.target);
