@@ -297,6 +297,17 @@ function url_add_query($url){
                 $query = $_SERVER['QUERY_STRING'];
             }
 
+            if($query[0] === '-'){
+                /*
+                 * Remove this query instead of adding it
+                 */
+                $url = str_replace(substr($query, 1), '', $url);
+                $url = str_replace('&&'             , '', $url);
+                $url = str_ends_not($url            , '?');
+
+                continue;
+            }
+
             $url = str_ends_not($url, '?');
 
             if(!preg_match('/.+?=.*?/', $query)){
