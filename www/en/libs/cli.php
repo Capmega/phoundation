@@ -1647,21 +1647,24 @@ function cli_list_processes($filters){
  * @param string $file The file to be unzipped
  * @param null string $target_path If specified, unzip the files to the specified target directory
  * @param boolean $remove If set to true, the specified zip file will be removed after the unzip action
- * @return string The path of the specified file
+ * @return string The specified $target_path, or if not specified, the temporary path where the file has been extracted
  */
 function cli_unzip($file, $target_path = null, $remove = true){
     try{
-        $filename = filename($file);
-        $filename = str_runtil($file, '.');
-        $path     = TMP.$filename.'/';
+        if(!$target_path){
+            $target_path = file_temp(false);
+        }
 
-        file_ensure_path($path);
+        $filename    = basename($file);
+        $target_path = slash($target_path);
 
-        if($move){
-            rename($file, $path.$filename);
+        file_ensure_path($target_path);
+
+        if($remove){
+            rename($file, $target_path.$filename);
 
         }else{
-            copy($file, $path.$filename);
+            copy($file, $target_path.$filename);
         }
 
         /*
@@ -1674,11 +1677,11 @@ function cli_unzip($file, $target_path = null, $remove = true){
             $arguments[] = $target_path;
         }
 
-        safe_exec(array('commands' => array('cd'   , array($path),
+        safe_exec(array('commands' => array('cd'   , array($target_path),
                                             'unzip', $arguments)));
 
-        file_delete($path.$filename);
-        return $path;
+        file_delete($target_path.$filename);
+        return $target_path;
 
     }catch(Exception $e){
         if(!file_exists($file)){
