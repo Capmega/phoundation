@@ -184,7 +184,7 @@ function sso($provider, $method, $redirect, $role = 'user'){
                     /*
                      * Account doesn't exist yet, create it first
                      */
-                    $user = user_signup(array('name' => $profile['displayName'], 'email' => $profile['email']), true);
+                    $user = user_signup(array('name' => $profile['displayName'], 'email' => $profile['email']), array('no_password' => true));
                     $user = user_get($user);
                 }
 

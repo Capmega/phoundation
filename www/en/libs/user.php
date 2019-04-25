@@ -1249,9 +1249,9 @@ function user_check_blacklisted($name){
 /*
  * Wrapper for user_signup
  */
-function user_create($params){
+function user_create($user, $options){
     try{
-        return user_signup($params);
+        return user_signup($user, $options);
 
     }catch(Exception $e){
         throw new BException('user_create(): Failed', $e);
@@ -1263,15 +1263,17 @@ function user_create($params){
 /*
  * Add a new user
  */
-function user_signup($user, $no_password = false){
+function user_signup($user, $options){
     global $_CONFIG;
 
     try{
-        if(empty($user['password']) and (isset_get($user['status']) !== '_new') and !$no_password){
+        array_ensure($options, 'no_password');
+
+        if(empty($user['password']) and (isset_get($user['status']) !== '_new') and !$options['no_password']){
             throw new BException(tr('user_signup(): Please specify a password'), 'not-specified');
         }
 
-        $user       = user_validate($user);
+        $user       = user_validate($user, $options);
         $user['id'] = sql_random_id('users');
 
         sql_query('INSERT INTO `users` (`id`, `meta_id`, `status`, `createdby`, `username`, `password`, `name`, `email`, `employees_id`, `roles_id`, `role`, `timezone`)
@@ -1647,7 +1649,7 @@ function user_get($user = null, $status = null){
                                array(':createdby' => $_SESSION['user']['id']));
 
             if(!$retval){
-                $id = user_signup(array('status' => '_new'));
+                $id = user_signup(array('status' => '_new'), array('no_validation' => true));
                 return user_get(null);
             }
         }
@@ -1953,19 +1955,24 @@ function user_password_banned($password){
  * Validate the specified user. Validations is done in sections, and sections
  * can be disabled if needed
  */
-function user_validate($user, $sections = array()){
+function user_validate($user, $options = array()){
     global $_CONFIG;
 
     try{
-        array_default($sections, 'password'           , true);
-        array_default($sections, 'validation_password', true);
-        array_default($sections, 'role'               , true);
+        array_default($options, 'password'           , true);
+        array_default($options, 'validation_password', true);
+        array_default($options, 'role'               , true);
+        array_default($options, 'no_validation'      , false);
 
         load_libs('validate');
-        $v = new ValidateForm($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone,groups,keywords');
+        $v = new ValidateForm($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone,groups,keywords,employees_id');
 
         $user['email2'] = $user['email'];
         $user['terms']  = true;
+
+        if($options['no_validation']){
+            return $user;
+        }
 
         /*
          * Validate domain
@@ -2075,7 +2082,7 @@ function user_validate($user, $sections = array()){
 
         $v->isTimezone($user['timezone'], tr('Please specify a valid timezone'), VALIDATE_ALLOW_EMPTY_NULL);
 
-        if($sections['role']){
+        if($options['role']){
             if(!empty($user['role'])){
                 /*
                  * Role was specified by name
@@ -2112,7 +2119,7 @@ function user_validate($user, $sections = array()){
             }
         }
 
-        if($sections['password']){
+        if($options['password']){
             if(empty($user['password'])){
                 $v->setError(tr('Please specify a password'));
 
@@ -2120,7 +2127,7 @@ function user_validate($user, $sections = array()){
                 /*
                  * Check password strength
                  */
-                if($sections['validation_password']){
+                if($options['validation_password']){
                     if($user['password'] === $user['password2']){
                         try{
                             $strength = user_password_strength($user['password']);
@@ -2870,7 +2877,7 @@ function user_update_location($user){
 /*
  * OBSOLETE WRAPPERS BELOW
  */
-function users_validate($user, $sections = array()){
-    return user_validate($user, $sections);
+function users_validate($user, $options = array()){
+    return user_validate($user, $options);
 }
 ?>
