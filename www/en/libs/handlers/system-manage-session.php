@@ -164,8 +164,6 @@ try{
             unset($length);
     }
 
-    $_SESSION['domain'] = $domain;
-
 
 
     /*
@@ -186,7 +184,7 @@ try{
             ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
 
             if($_CONFIG['sessions']['check_referrer']){
-                ini_set('session.referer_check', $_SESSION['domain']);
+                ini_set('session.referer_check', $domain);
             }
 
             if(debug() or !$_CONFIG['cache']['http']['enabled']){
@@ -444,6 +442,8 @@ try{
                 $_SESSION['cache'] = array();
             }
         }
+
+        $_SESSION['domain'] = $domain;
 
     }catch(Exception $e){
         if($e->getRealCode() == 403){
