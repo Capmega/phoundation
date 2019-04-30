@@ -1556,7 +1556,11 @@ function html_select($params){
         }
 
         if(!$params['name']){
-            throw new BException(tr('html_select(): No name specified'), 'not-specified');
+            if(!$params['id']){
+                throw new BException(tr('html_select(): No name specified'), 'not-specified');
+            }
+
+            $params['name'] = $params['id'];
         }
 
         if($params['autosubmit']){
