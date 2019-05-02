@@ -26,7 +26,13 @@
 function image_library_init(){
     try{
         if(!class_exists('Imagick')){
-            throw new BException(tr('image: php module "imagick" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-imagick; sudo phpenmod imagick" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-imagick" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
+            try{
+                load_libs('linux');
+                linux_install_package(null, 'php-imagick');
+
+            }catch(Exception $f){
+                throw new BException(tr('image: php module "imagick" appears not to be installed, and automatic installation failed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-imagick; sudo phpenmod imagick" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-imagick" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), $f);
+            }
         }
 
         load_config('images');
@@ -58,7 +64,13 @@ function image_get_text($image) {
 
     }catch(Exception $e){
         if(!file_which('tesseract')){
-            throw new BException('image_get_text(): Failed to find the "tesseract" command, is it installed? On Ubuntu, use "sudo apt-get install tesseract-ocr" to install the required command', $e);
+            try{
+                load_libs('linux');
+                linux_install_package(null, 'tesseract-ocr');
+
+            }catch(Exception $f){
+                throw new BException('image_get_text(): Failed to find the "tesseract" command, and automatic installation failed. On Ubuntu, use "sudo apt-get install tesseract-ocr" to install the required command', $f);
+            }
         }
 
         throw new BException(tr('image_get_text(): Failed to get text from image ":image"', array(':image' => $image)), $e);
@@ -154,8 +166,58 @@ function image_convert($source, $destination, $params = null){
         array_default($params, 'to_w'      , null);
         array_default($params, 'method'    , null);
         array_default($params, 'format'    , null);
-        array_default($params, 'background', 'none');
+        array_default($params, 'background', null);
         array_default($params, 'defaults'  , $imagick['defaults']);
+
+        /*
+         * Check format and update destination file name to match
+         */
+        $source_path = dirname($source);
+        $source_file = basename($source);
+        $dest_path   = dirname($destination);
+        $dest_file   = basename($destination);
+
+        switch($params['format']){
+            case 'gif':
+                //FALLTHROUGH
+            case 'png':
+                /*
+                 * Preserve transparent background
+                 */
+                array_params($params, 'background', 'none');
+                $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
+                break;
+
+            case 'jpeg':
+                // FALLTHROUGH
+            case 'jpg':
+                array_params($params, 'background', 'white');
+                $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
+                break;
+
+            case 'webp':
+                array_params($params, 'background', 'white');
+                $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
+                break;
+
+            case '':
+                /*
+                 * Use current format. If source file has no extension (Hello PHP temporary upload files!)
+                 * then let the dest file keep its own extension
+                 */
+                $extension = str_rfrom($source_file, '.');
+
+                if(!$extension){
+                    $dest_file = str_runtil($dest_file, '.').'.'.$extension;
+                }
+
+                break;
+
+            default:
+                throw new BException(tr('image_convert(): Unknown format ":format" specified.', array(':format' => $params['format'])), 'unknown');
+        }
+
+        $destination = slash($dest_path).$dest_file;
 
         /*
          * Remove the log file so we surely have data from only this session
@@ -197,6 +259,22 @@ function image_convert($source, $destination, $params = null){
             array_default($params, 'keep_aspectratio', null);
             array_default($params, 'limit_memory'    , null);
             array_default($params, 'limit_map'       , null);
+        }
+
+        if($params['format'] === 'webp'){
+            $webp = $_CONFIG['images']['webp'];
+
+            foreach($webp as $key => $value){
+                if($value === null){
+                    continue;
+                }
+
+                if(is_bool($value)){
+                    $value = str_boolean($value);
+                }
+
+                $params['defines'][] = 'webp:'.$key.'='.$value;
+            }
         }
 
         foreach($params as $key => $value){
@@ -308,7 +386,6 @@ function image_convert($source, $destination, $params = null){
             }
         }
 
-
         /*
          * Check width / height
          *
@@ -332,56 +409,6 @@ function image_convert($source, $destination, $params = null){
                 $params['y'] = not_empty($params['y'], $size[0]) * $ar;
             }
         }
-
-        /*
-         * Check format and update destination file name to match
-         */
-        $source_path = dirname($source);
-        $source_file = basename($source);
-        $dest_path   = dirname($destination);
-        $dest_file   = basename($destination);
-
-        switch($params['format']){
-            case 'gif':
-                //FALLTHROUGH
-            case 'png':
-                /*
-                 * Preserve transparent background
-                 */
-                $arguments[] = '-background';
-                $arguments[] = 'none';
-                $dest_file   = str_runtil($dest_file, '.').'.'.$params['format'];
-
-                break;
-
-            case 'jpeg':
-                // FALLTHROUGH
-            case 'jpg':
-                $arguments[] = '-background';
-                $arguments[] = 'white';
-                $dest_file   = str_runtil($dest_file, '.').'.'.$params['format'];
-
-                break;
-
-            case '':
-                /*
-                 * Use current format. If source file has no extension (Hello PHP temporary upload files!)
-                 * then let the dest file keep its own extension
-                 */
-                $extension = str_rfrom($source_file, '.');
-
-                if(!$extension){
-                    $dest_file = str_runtil($dest_file, '.').'.'.$extension;
-                }
-
-                break;
-
-            default:
-                throw new BException(tr('image_convert(): Unknown format ":format" specified.', array(':format' => $params['format'])), 'unknown');
-        }
-
-
-        $destination = slash($dest_path).$dest_file;
 
         /*
          * Execute command to convert image
@@ -497,12 +524,51 @@ function image_convert($source, $destination, $params = null){
         return $destination;
 
     }catch(Exception $e){
-        $exist = file_which('convert');
+        switch($e->getCode()){
+            case 'not-installed':
+                /*
+                 * Imagemagick command "convert" missing
+                 */
+                log_console(tr('image_convert(): The "convert" command could not be found, trying to install imagemagick'), 'warning');
 
-        if(!$exist){
-            throw new BException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. To install imagemagick on ubuntu, please execute "sudo apt -y install imagemagick"'), 'not-installed');
+                try{
+                    load_libs('linux');
+                    linux_install_package(null, 'imagemagick');
+
+                    return image_convert($source, $destination, $params);
+
+                }catch(Exception $f){
+                    throw new BException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. Phoundation tried to install the package automatically but this failed. Please install imagemagick yourself. On Debian and derrivates this can be done with the command "sudo apt -y install imagemagick". On Redhat and derrivates this can be done with the command "sudo yum install imagemagick"'), $f);
+                }
         }
 
+        /*
+         * webp support missing?
+         */
+        if($params['format'] === 'webp'){
+            $line = $e->getData();
+            $line = array_pop($line);
+
+            if(str_exists($line, 'delegate failed') and str_exists($line, 'error/delegate.c/InvokeDelegate')){
+                /*
+                 * WebP conversion failed. Very likely this is due to webp being
+                 * not installed. Install it and retry
+                 */
+                try{
+                    load_libs('linux');
+                    linux_install_package(null, 'webp');
+
+                    return image_convert($source, $destination, $params);
+
+                }catch(Exception $f){
+                    throw new BException(tr('image_convert(): The "convert" command failed because webp is not supported. On Debian and derrivates this may require installing webp, which was tried and failed. Please try installing the package manually using "sudo apt -y install webp".'), $f);
+                }
+            }
+        }
+
+        /*
+         * Get error information from the imagemagic_convert log file
+         */
         try{
             if(file_exists(ROOT.'data/log/imagemagic_convert.log')){
                 $contents = safe_exec(array('commands' => array('tail', array('-n', '3', ROOT.'data/log/imagemagic_convert.log'))));
