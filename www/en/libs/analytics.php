@@ -55,14 +55,19 @@ function analytics_library_init(){
  * @see analytics_matomo()
  * @version 1.27.1: Added function and documentation
  *
- * @params string $sites_id
+ * @params string $sites_id The website id code provided by the analytics provider for this website
+ * @params null string $provider The analytics provider that should be used
  * @return string The HTML required to have the client register with your matomo tracking site
  */
-function analytics($sites_id){
+function analytics($sites_id, $provider = null){
     global $_CONFIG;
 
     try{
-        switch($_CONFIG['analytics']['provider']){
+        if(!$provider){
+            $provider = $_CONFIG['analytics']['provider'];
+        }
+
+        switch($provider){
             case 'google':
                 return analytics_google($sites_id);
 
@@ -70,7 +75,7 @@ function analytics($sites_id){
                 return analytics_matomo($sites_id);
 
             default:
-                throw new BException(tr('analytics(): Unknown analytics provider ":provider" specified, see $_CONFIG[analytics][provider]', array(':provider' => $_CONFIG['analytics']['provider'])), 'unknown');
+                throw new BException(tr('analytics(): Unknown analytics provider ":provider" specified, see $_CONFIG[analytics][provider] or calling function', array(':provider' => $_CONFIG['analytics']['provider'])), 'unknown');
         }
 
     }catch(Exception $e){
@@ -92,6 +97,7 @@ function analytics($sites_id){
  * @package analytics
  * @see analytics()
  * @see analytics_google()
+ * @see analytics_bing()
  * @version 1.27.1: Added function and documentation
  *
  * @params string $sites_id
@@ -169,46 +175,58 @@ function analytics_matomo($sites_id){
  * @package analytics
  * @see analytics()
  * @see analytics_matomo()
+ * @see analytics_bing()
  * @version 1.27.1: Added function and documentation
+ * @version 2.5.158: Removed local caching until CDN service is available.
  *
  * @params string $sites_id
  * @return string The HTML required to have the client register with google analytics
  */
-function analytics_google($code){
+function analytics_google($sites_id){
     try{
         if(!$sites_id){
             throw new BException(tr('analytics_google(): No sites_id specified'), 'not-specified');
         }
 
-        /*
-         * Ensure we have the analytics file available on our CDN system
-         */
-// :TODO: Right now we're only testing this locally, we should test this on the CDN network system! This lookup may be heavy though, so maybe we should do that once every 100 page views or something
-        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')){
-            /*
-             * Download the file from google analytics and install it in our
-             * local CDN
-             */
-            $file = file_get_local('https://www.google-analytics.com/analytics.js');
+// :OBSOLETE: Should no longer be used
+        ///*
+        // * Ensure we have the analytics file available on our CDN system
+        // */
+        //if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')){
+        //    /*
+        //     * Download the file from google analytics and install it in our
+        //     * local CDN
+        //     */
+        //    $file = file_get_local('https://www.google-analytics.com/analytics.js');
+        //
+        //    file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+        //        file_ensure_path($path.'google', 0550);
+        //
+        //        file_execute_mode($path.'google/', 0770, function($path) use ($file) {
+        //            rename($file, $path.'analytics.js');
+        //            chmod($path.'analytics.js', 0440);
+        //        });
+        //    });
+        //}
+        //
+        //$retval = ' <script>
+        //                (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
+        //                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        //                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        //                })(window,document,"script","'.cdn_domain('/js/google/analytics.js').'","ga");
+        //                ga("create", "'.$sites_id.'", "auto");
+        //                ga("send", "pageview");
+        //            </script>';
 
-            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
-                file_ensure_path($path.'google', 0550);
+// :TODO: Implement the CDN service that can serve cached files with key / value replacements by URL
+        $retval = '<script async src="https://www.googletagmanager.com/gtag/js?id='.$sites_id.'"></script>
+                   <script>
+                       window.dataLayer = window.dataLayer || [];
+                       function gtag(){dataLayer.push(arguments);}
+                       gtag("js", new Date());
 
-                file_execute_mode($path.'google/', 0770, function($path) use ($file) {
-                    rename($file, $path.'analytics.js');
-                    chmod($path.'analytics.js', 0440);
-                });
-            });
-        }
-
-        $retval = ' <script>
-                        (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
-                        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-                        })(window,document,"script","'.cdn_domain('/js/google/analytics.js').'","ga");
-                        ga("create", "'.$code.'", "auto");
-                        ga("send", "pageview");
-                    </script>';
+                       gtag("config", "'.$sites_id.'");
+                   </script>';
 
         return $retval;
 
@@ -216,4 +234,3 @@ function analytics_google($code){
         throw new BException('analytics_google(): Failed', $e);
     }
 }
-?>
