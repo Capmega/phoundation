@@ -2183,7 +2183,10 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
             }else{
                 try{
                     /*
-                     *
+                     * Check if the URL comes from this domain (so we can
+                     * analyze the files directly on this server) or a remote
+                     * domain (we have to download the files first to analyze
+                     * them)
                      */
                     $full_url = str_exists($src, '://');
 
@@ -2232,7 +2235,8 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                         /*
                          * Local image. Analize directly
                          */
-                        $src = cdn_domain($src);
+                        $src      = cdn_domain($src);
+                        $file_src = 'pub'.str_starts($file_src, '/');
 
                         if(file_exists(ROOT.'www/en/'.$file_src)){
                             $image = getimagesize(ROOT.'www/en/'.$file_src);
@@ -2241,7 +2245,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                             /*
                              * Image doesn't exist.
                              */
-                            log_console(tr('html_img(): image ":src" does not exist', array(':src' => $file_src)), 'yellow');
+                            log_console(tr('html_img(): Can not analyze image ":src", the local path ":path" does not exist', array(':src' => $src, ':path' => $file_src)), 'yellow');
                             $image[0] = -1;
                             $image[1] = -1;
                         }
