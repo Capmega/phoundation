@@ -1036,7 +1036,7 @@ function code_patch($params){
                 /*
                  * The target file does not exist, so just copy it
                  */
-                copy($params['source_path'].$params['file'], $params['target_path'].$params['file']);
+                copy($params['source_path'].$params['file'], $params['target_path'].str_replace('admin/', '', $params['file']));
                 return 'created';
 
             default:
