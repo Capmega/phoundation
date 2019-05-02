@@ -560,7 +560,7 @@ function route_send($target, $attachment, $restrictions){
     try{
         if(substr($target, -3, 3) === 'php'){
             if($attachment){
-                throw new BException(tr('route_send(): Found "A" flag for executable target ":target", but this flag can only be used for not executable files', array(':target' => $target)), 'access-denied');
+                throw new BException(tr('route_send(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
             }
 
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
