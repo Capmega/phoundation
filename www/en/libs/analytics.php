@@ -188,45 +188,44 @@ function analytics_google($sites_id){
             throw new BException(tr('analytics_google(): No sites_id specified'), 'not-specified');
         }
 
-// :OBSOLETE: Should no longer be used
-        ///*
-        // * Ensure we have the analytics file available on our CDN system
-        // */
-        //if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')){
-        //    /*
-        //     * Download the file from google analytics and install it in our
-        //     * local CDN
-        //     */
-        //    $file = file_get_local('https://www.google-analytics.com/analytics.js');
-        //
-        //    file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
-        //        file_ensure_path($path.'google', 0550);
-        //
-        //        file_execute_mode($path.'google/', 0770, function($path) use ($file) {
-        //            rename($file, $path.'analytics.js');
-        //            chmod($path.'analytics.js', 0440);
-        //        });
-        //    });
-        //}
-        //
-        //$retval = ' <script>
-        //                (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
-        //                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        //                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        //                })(window,document,"script","'.cdn_domain('/js/google/analytics.js').'","ga");
-        //                ga("create", "'.$sites_id.'", "auto");
-        //                ga("send", "pageview");
-        //            </script>';
+        /*
+         * Ensure we have the analytics file available on our CDN system
+         */
+        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')){
+            /*
+             * Download the file from google analytics and install it in our
+             * local CDN
+             */
+            $file = file_get_local('https://www.google-analytics.com/analytics.js');
 
-// :TODO: Implement the CDN service that can serve cached files with key / value replacements by URL
-        $retval = '<script async src="https://www.googletagmanager.com/gtag/js?id='.$sites_id.'"></script>
-                   <script>
-                       window.dataLayer = window.dataLayer || [];
-                       function gtag(){dataLayer.push(arguments);}
-                       gtag("js", new Date());
+            file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js/', 0770, function($path) use ($file) {
+                file_ensure_path($path.'google', 0550);
 
-                       gtag("config", "'.$sites_id.'");
-                   </script>';
+                file_execute_mode($path.'google/', 0770, function($path) use ($file) {
+                    rename($file, $path.'analytics.js');
+                    chmod($path.'analytics.js', 0440);
+                });
+            });
+        }
+
+        $retval = ' <script>
+                        (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
+                        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                        })(window,document,"script","'.cdn_domain('/js/google/analytics.js').'","ga");
+                        ga("create", "'.$sites_id.'", "auto");
+                        ga("send", "pageview");
+                    </script>';
+
+// :TODO: Determine if this should be implemented at all
+//        $retval = '<script async src="https://www.googletagmanager.com/gtag/js?id='.$sites_id.'"></script>
+//                   <script>
+//                       window.dataLayer = window.dataLayer || [];
+//                       function gtag(){dataLayer.push(arguments);}
+//                       gtag("js", new Date());
+//
+//                       gtag("config", "'.$sites_id.'");
+//                   </script>';
 
         return $retval;
 
