@@ -30,7 +30,7 @@
  * @param null $default The default value for the non selected key
  * @return array The specified source, guaranteed as a parameters array
  */
-function array_params(&$params, $string_key = null, $numeric_key = null, $default = false){
+function array_params(&$params, $string_key = null, $numeric_key = null, $default = null){
     try{
         if(is_array($params)){
             array_ensure($params, array($string_key, $numeric_key), $default);
@@ -41,8 +41,16 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
             /*
              * The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
              */
-            $params = array($numeric_key => $default,
-                            $string_key  => $default);
+            $params = array();
+
+            if($numeric_key){
+                $params[$numeric_key] = $default;
+            }
+
+            if($string_key){
+                $params[$string_key] = $default;
+            }
+
             return;
         }
 
