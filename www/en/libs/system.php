@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.159');
+define('FRAMEWORKCODEVERSION', '2.5.160');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -265,9 +265,6 @@ class Core{
                     break;
             }
 
-            /*
-             * Start the call type dependant startup script
-             */
             require('handlers/system-'.$this->callType.'.php');
 
             /*
@@ -282,7 +279,7 @@ class Core{
             }
 
         }catch(Error $e){
-            throw new BException(tr('core::startup(): Failed with PHP error'), $e);
+            throw new BException(tr('core::startup(): Failed calltype ":calltype" with PHP error', array(':calltype' => $this->callType)), $e);
 
         }catch(Exception $e){
             if(PLATFORM_HTTP and headers_sent($file, $line)){
@@ -293,7 +290,7 @@ class Core{
                 throw new BException(tr('core::startup(): Failed because headers were already sent on ":location"', array(':location' => $file.'@'.$line)), $e);
             }
 
-            throw new BException(tr('core::startup(): Failed'), $e);
+            throw new BException(tr('core::startup(): Failed calltype ":calltype"', array(':calltype' => $this->callType)), $e);
         }
     }
 
@@ -3163,23 +3160,12 @@ function page_show($pagename, $params = null, $get = null){
                 return include($include);
 
             case 'admin':
-                $include = ROOT.'www/'.$language.'/admin/'.$pagename.'.php';
-
-                if(isset_get($params['exists'])){
-                    return file_exists($include);
-                }
-
-                log_file(tr('Showing ":language" language admin page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
-
-                $result = include($include);
-
-                if(isset_get($params['return'])){
-                    return $result;
-                }
+                $admin = '/admin';
+                // FALLTHROUGH
 
             default:
                 if(is_numeric($pagename)){
-                    $include = ROOT.'www/'.$language.'/system/'.$pagename.'.php';
+                    $include = ROOT.'www/'.$language.isset_get($admin).'/system/'.$pagename.'.php';
 
                     if(isset_get($params['exists'])){
                         return file_exists($include);
@@ -3194,7 +3180,7 @@ function page_show($pagename, $params = null, $get = null){
                     usleep(mt_rand(1, 250));
 
                 }else{
-                    $include = ROOT.'www/'.$language.'/'.$pagename.'.php';
+                    $include = ROOT.'www/'.$language.isset_get($admin).'/'.$pagename.'.php';
 
                     if(isset_get($params['exists'])){
                         return file_exists($include);
