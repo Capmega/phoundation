@@ -2115,14 +2115,31 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
             throw new BException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $alt)), 'no-image');
         }
 
-// :DELETE: All projects should be updated to conform with the new html_img() function and then this check should be dumped with the garbage
-        if(!$width and $height and !is_numeric($height)){
-            if(!$_CONFIG['production'] and $_CONFIG['system']['obsolete_exception']){
-                throw new BException(tr('html_img(): Update html_img() argument order'), 'obsolete');
+        $format = str_rfrom($src, '.');
+
+        if($format === 'jpeg'){
+            $format = 'jpg';
+        }
+
+        if($_CONFIG['html']['images']['auto_convert'][$format]){
+            /*
+             * Automatically convert the image to the specified format for
+             * automatically optimized images
+             */
+            $target = str_runtil($src, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+
+            log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $src, ':target' => $_CONFIG['html']['images']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
+
+            if(!file_exists($target)){
+                log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/cyan');
+
+                load_libs('image');
+                image_convert(array('source' => $src,
+                                    'target' => $target,
+                                    'format' => $_CONFIG['html']['images']['auto_convert'][$format]));
             }
 
-            $more   = $height;
-            $height = 0;
+            $src = $target;
         }
 
         if(!$_CONFIG['production']){
