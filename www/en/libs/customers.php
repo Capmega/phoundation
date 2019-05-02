@@ -56,7 +56,7 @@ function customers_validate($customer){
         $v->isNotEmpty ($customer['name']    , tr('No customers name specified'));
         $v->hasMinChars($customer['name'],  2, tr('Please ensure the customer\'s name has at least 2 characters'));
         $v->hasMaxChars($customer['name'], 64, tr('Please ensure the customer\'s name has less than 64 characters'));
-        $v->isRegex    ($customer['name'], '/^[a-zA-Z- ]{2,32}$/', tr('Please ensure the customer\'s name contains only lower case letters, and dashes'));
+        $v->isRegex    ($customer['name'], '/^[a-zA-Z- ]{2,64}$/', tr('Please ensure the customer\'s name contains only lower case letters, and dashes'));
 
         /*
          * Validate basic data
