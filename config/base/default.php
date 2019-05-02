@@ -179,6 +179,12 @@ $_CONFIG['formats']            = array('force1224'                          => '
                                        'human_datetime'                     => 'd/m/Y H:i:s',
                                        'human_nice_date'                    => 'l, j F Y');
 
+// HTML configuration
+$_CONFIG['html']               = array('images'                             => array('auto_convert'       => array('jpg' => 'webp',         // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
+                                                                                                                   'png' => 'webp',         // If not false, automatically convert png images to the specified format. Supported types are: webp.
+                                                                                                                   'gif' => false)));       // If not false, automatically convert gif images to the specified format. Supported types are: webp.
+
+
 // Init configuration
 $_CONFIG['init']               = array('cli'                                => true,                                                        // Sets if system init can be executed by shell
                                        'http'                               => false);                                                      // Sets if system init can be executed by http (IMPORTANT: This is not supported yet!)
