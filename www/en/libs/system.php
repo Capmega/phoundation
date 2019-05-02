@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.156');
+define('FRAMEWORKCODEVERSION', '2.5.157');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1566,7 +1566,9 @@ function log_sanitize($messages, $color, $filter_double = true, &$class = null){
             $messages = array($messages);
 
         }elseif(is_array($messages)){
-            $messages = $messages;
+            /*
+             * Do nothing, we're good
+             */
 
         }elseif(is_object($messages)){
             if($messages instanceof BException){
@@ -1837,12 +1839,15 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
             }
         }
 
-        $messages = array_force($messages, "\n");
-        $date     = new DateTime();
-        $date     = $date->format('Y/m/d H:i:s');
+        $date = new DateTime();
+        $date = $date->format('Y/m/d H:i:s');
 
         foreach($messages as $key => $message){
             if(count($messages) > 1){
+                /*
+                 * There are multiple messages in this log_file() call. Display
+                 * them all using their keys
+                 */
                 if(!is_scalar($message)){
                     $message = str_log($message);
                 }
@@ -1854,6 +1859,11 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
                 fwrite($h[$file], cli_color($date, 'cyan', null, true).' '.$core->callType().'/'.$core->register['real_script'].' '.$class.$key.' => '.$message."\n");
 
             }else{
+                /*
+                 * There is only one message in this log_file() call, even when
+                 * the log_file() was called with an array, it only contained
+                 * one entry
+                 */
                 if(!empty($color)){
                     $message = cli_color($message, $color, null, true);
                 }

@@ -11,18 +11,24 @@
 try{
     /*
      * Define basic platform constants
+     *
+     * NOTE: System pages may be executed by the uncaught exception handler
+     * which defines these constants by itself. Because of this, first check if
+     * ADMIN is defined. If so, all variables are already defined.
      */
-    define('ADMIN'   , '');
-    define('PWD'     , slash(isset_get($_SERVER['PWD'])));
-    define('STARTDIR', slash(getcwd()));
-    define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : null));
-    define('TEST'    , (getenv('TEST')    ? 'TEST'    : null));
-    define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : null));
-    define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : $_CONFIG['paging']['limit']));
-    define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : null));
-    define('ALL'     , (getenv('ALL')     ? 'ALL'     : null));
-    define('DELETED' , (getenv('DELETED') ? 'DELETED' : null));
-    define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : null));
+    if(!defined('ADMIN')){
+        define('ADMIN'   , '');
+        define('PWD'     , slash(isset_get($_SERVER['PWD'])));
+        define('STARTDIR', slash(getcwd()));
+        define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : null));
+        define('TEST'    , (getenv('TEST')    ? 'TEST'    : null));
+        define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : null));
+        define('LIMIT'   , (getenv('LIMIT')   ? 'LIMIT'   : $_CONFIG['paging']['limit']));
+        define('ORDERBY' , (getenv('ORDERBY') ? 'ORDERBY' : null));
+        define('ALL'     , (getenv('ALL')     ? 'ALL'     : null));
+        define('DELETED' , (getenv('DELETED') ? 'DELETED' : null));
+        define('STATUS'  , (getenv('STATUS')  ? 'STATUS'  : null));
+    }
 
 
 

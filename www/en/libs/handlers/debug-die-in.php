@@ -6,6 +6,11 @@ if(!$message){
 }
 
 if($counter++ >= $count){
+    /*
+     * Ensure that the shutdown function doesn't try to show the 404 page
+     */
+    unregister_shutdown('route_404');
+
     die(str_ends(str_replace('%count%', $count, $message), "\n"));
 }
 ?>

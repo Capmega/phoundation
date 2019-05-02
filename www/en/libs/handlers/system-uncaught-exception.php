@@ -29,7 +29,6 @@
  * For cases like these, uncomment the following lines and you should see your
  * error displayed on your browser.
  */
-
 global $_CONFIG, $core;
 static $executed = false;
 
@@ -228,8 +227,8 @@ try{
 
                         log_console(tr('Exception code    : ":code"'      , array(':code' => $code))                  , 'exception');
                         log_console(tr('Exception location: ":file@:line"', array(':file' => $file, ':line' => $line)), 'exception');
-
                         log_console(tr('Exception messages trace:'), 'exception');
+
                         foreach($messages as $message){
                             log_console('    '.$message, 'exception');
                         }
@@ -238,15 +237,15 @@ try{
                         log_console(tr('Exception function trace:'), 'exception');
 
                         if($trace){
-                            show($trace, null, true);
+                            log_console($trace, 'exception');
 
                         }else{
-                            show('N/A');
+                            log_console(tr('N/A'), 'exception');
                         }
 
                         if($data){
                             log_console(tr('Exception data:'), 'exception');
-                            show($data, null, true);
+                            log_console($data, 'exception');
                         }
                     }
 
@@ -278,6 +277,12 @@ try{
                     header_remove('Expires');
                     header_remove('Content-Type');
                 }
+
+                /*
+                 *
+                 */
+                $core->register['http_code'] = 500;
+                unregister_shutdown('route_404');
 
                 /*
                  * Ensure that required defines are available
@@ -318,7 +323,6 @@ try{
                      * with the right mimetype
                      */
                     if(!headers_sent()){
-                        http_response_code(500);
                         header('Content-Type: text/html', true);
                     }
 

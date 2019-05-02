@@ -25,7 +25,7 @@ try{
     $retval = '';
 
     if(PLATFORM_HTTP){
-        http_headers(200, 0);
+        http_headers(null, 0);
     }
 
     if($_CONFIG['production']){
@@ -104,7 +104,6 @@ try{
 
         echo $retval;
     }
-
 
     return $data;
 

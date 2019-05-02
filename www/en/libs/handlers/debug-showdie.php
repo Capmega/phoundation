@@ -14,6 +14,12 @@ try{
     }
 
     show($data, $trace_offset);
+
+    /*
+     * Ensure that the shutdown function doesn't try to show the 404 page
+     */
+    unregister_shutdown('route_404');
+
     die();
 
 }catch(Exception $e){
