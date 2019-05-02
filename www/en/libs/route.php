@@ -32,6 +32,7 @@ require_once(__DIR__.'/system.php');
  *
  * The third argument is a list (CSV string or array) with flags. Current allowed flags are:
  * Q Allow queries to pass through. If NOT specified, and the URL contains queries, the URL will NOT match!
+ * QKEY;KEY=ACTION Is a ; separated string containing query keys that are allowed, and if specified, what action must be taken when encountered
  * R301 Redirect to the specified page argument using HTTP 301
  * R302 Redirect to the specified page argument using HTTP 302
  * P The request must be POST to match
@@ -246,6 +247,8 @@ function route($regex, $target, $flags = null){
 
                     if(!$_SERVER['REQUEST_URI']){
                         log_file(tr('Specified cloaked URL ":cloak" does not exist, cancelling match', array(':cloak' => $route)), 'route', 'VERYVERBOSE');
+
+                        $count++;
                         return false;
                     }
 
@@ -264,6 +267,8 @@ function route($regex, $target, $flags = null){
                      */
                     if(!empty($_POST)){
                         log_file(tr('Matched route ":route" allows only GET requests, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
+
+                        $count++;
                         return false;
                     }
 
@@ -275,6 +280,8 @@ function route($regex, $target, $flags = null){
                      */
                     if(empty($_POST)){
                         log_file(tr('Matched route ":route" allows only POST requests, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
+
+                        $count++;
                         return false;
                     }
 
@@ -284,7 +291,13 @@ function route($regex, $target, $flags = null){
                     /*
                      * Let GET request queries pass through
                      */
-                    $get = true;
+                    if(strlen($flag) === 1){
+                        $get = true;
+                        break;
+                    }
+
+                    $get = explode(';', substr($flag, 1));
+                    $get = array_flip($get);
                     break;
 
                 case 'R':
@@ -336,7 +349,59 @@ function route($regex, $target, $flags = null){
                  * queries, cancel the match
                  */
                 log_file(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE/yellow');
+
+                $count++;
                 return false;
+            }
+
+        }elseif($get !== true){
+            /*
+             * Only allow specific query keys. First check all allowed query
+             * keys if they have actions specified
+             */
+            foreach($get as $key => $value){
+                if(str_exists($key, '=')){
+                    /*
+                     * Regenerate the key as a $key => $value instead of $key=$value => null
+                     */
+                    $get[str_until($key, '=')] = str_from ($key, '=');
+                    unset($get[$key]);
+                }
+            }
+
+            /*
+             * Go over all $_GET variables and ensure they're allowed
+             */
+            foreach($_GET as $key => $value){
+                /*
+                 * This key must be allowed, or we're done
+                 */
+                if(empty($get[$key])){
+                    log_file(tr('Matched route ":route" contains GET key ":key" which is not specifically allowed, cancelling match', array(':route' => $route, ':key' => $key)), 'route', 'VERYVERBOSE/yellow');
+
+                    $count++;
+                    return false;
+                }
+
+                /*
+                 * Okay, the key is allowed, yay! What action are we going to
+                 * take?
+                 */
+                switch($get[$key]){
+                    case null:
+                        break;
+
+                    case 301:
+                        /*
+                         * Redirect to URL without query
+                         */
+                        $domain = domain(true);
+                        $domain = str_until($domain, '?');
+
+                        log_file(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', array(':route' => $route, ':key' => $key)), 'route', 'VERYVERBOSE/yellow');
+                        unregister_shutdown('route_404');
+                        redirect($domain);
+                }
             }
         }
 
@@ -395,7 +460,9 @@ function route($regex, $target, $flags = null){
                      * Could not find any file, even with potential remapping.
                      * Cancel match
                      */
-                    log_file(tr('Cancelling match'), 'route', 'VERYVERBOSE');
+                    log_file(tr('No pages found, cancelling match'), 'route', 'VERYVERBOSE');
+
+                    $count++;
                     return false;
                 }
 
