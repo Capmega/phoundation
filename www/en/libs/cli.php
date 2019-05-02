@@ -1716,7 +1716,7 @@ function cli_is_builtin($command){
 
     }catch(Exception $e){
         if($e->getRealCode() === '127'){
-            throw new BException(tr('cli_is_builtin(): The specified command ":command" was not found and probably does not exist', array(':command' => $command)), 'not-exists');
+            throw new BException(tr('cli_is_builtin(): The specified command ":command" was not found and probably does not exist', array(':command' => $command)), 'not-installed');
         }
 
         throw new BException('cli_is_builtin(): Failed', $e);
