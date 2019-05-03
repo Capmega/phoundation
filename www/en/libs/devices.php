@@ -1152,11 +1152,16 @@ function devices_scan($types, $server = null, $sudo = false){
             $servers = servers_list(true);
 
             while($server = sql_fetch($servers)){
-                log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
-                $devices = devices_scan($types, $server['id'], $sudo);
+                try{
+                    log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
+                    $devices = devices_scan($types, $server['id'], $sudo);
 
-                if($devices){
-                    $retval[$server['id']] = $devices[$server['id']];
+                    if($devices){
+                        $retval[$server['id']] = $devices[$server['id']];
+                    }
+
+                }catch(Exception $e){
+                    log_console(tr('Failed to scan server ":server" for devices because ":e"', array(':server' => $server['domain'], ':e' => $e)), 'yellow');
                 }
             }
 
