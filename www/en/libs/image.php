@@ -101,10 +101,22 @@ function image_rotate($degrees, $source, $destination = null){
 /*
  * Standard image conversion function
  */
-function image_convert($source, $destination, $params = null){
+function image_convert($source, $target = null, $params = null){
     global $_CONFIG;
 
     try{
+        if(($params === null) and ($target === null) and is_array($source)){
+// :OBSOLETE: Delete this section once all projects have this function call updated
+            /*
+             *
+             */
+            $params = $source;
+            $source = $params['source'];
+            $target = $params['target'];
+
+            notify(new BException(tr('html_img(): Obsolete function call detected'), 'warning/obsolete'));
+        }
+
         /*
          * Validations
          */
@@ -112,8 +124,8 @@ function image_convert($source, $destination, $params = null){
             throw new BException(tr('image_convert(): The specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
-        if(file_exists($destination) and $destination != $source){
-            throw new BException(tr('image_convert(): Destination file ":file" already exists', array(':file' => $destination)), 'exists');
+        if(file_exists($target) and $target != $source){
+            throw new BException(tr('image_convert(): Destination file ":file" already exists', array(':file' => $target)), 'exists');
         }
 
         array_ensure($params, 'log,nice');
@@ -121,12 +133,12 @@ function image_convert($source, $destination, $params = null){
         ///*
         // * Validate format
         // */
-        //if(empty($format) and !empty($destination)){
-        //    $format = substr($destination, -3, 3);
+        //if(empty($format) and !empty($target)){
+        //    $format = substr($target, -3, 3);
         //
-        //}elseif(!empty($format) and !empty($destination)){
-        //    if($format != substr($destination, -3, 3)){
-        //        throw new BException(tr('image_convert(): Specified format ":format1" differ from the given destination format ":format2"', array(':format1' => substr($destination, -3, 3), ':format2' => $format)));
+        //}elseif(!empty($format) and !empty($target)){
+        //    if($format != substr($target, -3, 3)){
+        //        throw new BException(tr('image_convert(): Specified format ":format1" differ from the given destination format ":format2"', array(':format1' => substr($target, -3, 3), ':format2' => $format)));
         //    }
         //}
 
@@ -174,8 +186,8 @@ function image_convert($source, $destination, $params = null){
          */
         $source_path = dirname($source);
         $source_file = basename($source);
-        $dest_path   = dirname($destination);
-        $dest_file   = basename($destination);
+        $dest_path   = dirname($target);
+        $dest_file   = basename($target);
 
         switch($params['format']){
             case 'gif':
@@ -217,7 +229,7 @@ function image_convert($source, $destination, $params = null){
                 throw new BException(tr('image_convert(): Unknown format ":format" specified.', array(':format' => $params['format'])), 'unknown');
         }
 
-        $destination = slash($dest_path).$dest_file;
+        $target = slash($dest_path).$dest_file;
 
         /*
          * Remove the log file so we surely have data from only this session
@@ -418,7 +430,7 @@ function image_convert($source, $destination, $params = null){
                 $arguments[] = '-rotate';
                 $arguments[] = $params['degrees'];
                 $arguments[] = $source;
-                $arguments[] = $destination;
+                $arguments[] = $target;
 
                 safe_exec(array('commands' => array($command, $arguments)));
                 break;
@@ -432,7 +444,7 @@ function image_convert($source, $destination, $params = null){
                 $arguments[] = $params['x'].'x'.$params['y'];
                 $arguments[] = '-flatten';
                 $arguments[] = $source;
-                $arguments[] = $destination;
+                $arguments[] = $target;
 
                 safe_exec(array('commands' => array($command, $arguments)));
                 break;
@@ -442,7 +454,7 @@ function image_convert($source, $destination, $params = null){
                 $arguments[] = $params['x'].'x\>';
                 $arguments[] = '-flatten';
                 $arguments[] = $source;
-                $arguments[] = $destination;
+                $arguments[] = $target;
 
                 safe_exec(array('commands' => array($command, $arguments)));
                 break;
@@ -452,7 +464,7 @@ function image_convert($source, $destination, $params = null){
                 $arguments[] = $params['x'].'x'.$params['y'].'^';
                 $arguments[] = '-flatten';
                 $arguments[] = $source;
-                $arguments[] = $destination;
+                $arguments[] = $target;
 
                 safe_exec(array('commands' => array($command, $arguments)));
                 break;
@@ -478,7 +490,7 @@ function image_convert($source, $destination, $params = null){
                 $arguments2[] = $tmpfname;
                 $arguments2[] = '-draw';
                 $arguments2[] = 'circle '.(floor($params['x'] / 2) - 1).','.(floor($params['y'] / 2) - 1).' '.($params['x']/2).',0';
-                $arguments2[] = $destination;
+                $arguments2[] = $target;
 
                 safe_exec(array('commands' => array($command, $arguments),
                                                     $command, $arguments2));
@@ -491,14 +503,14 @@ function image_convert($source, $destination, $params = null){
                 $arguments[] = cfi($params['w'], false).'x'.cfi($params['h'], false).'+'.cfi($params['x'], false).'+'.cfi($params['y'], false);
                 $arguments[] = '-resize';
                 $arguments[] = cfi($params['to_w'], false).'x'.cfi($params['to_h'], false);
-                $arguments[] = $destination;
+                $arguments[] = $target;
 
                 safe_exec(array('commands' => array($command, $arguments)));
                 break;
 
             case 'custom':
                 $arguments[] = $source;
-                $arguments[] = $destination;
+                $arguments[] = $target;
 
                 safe_exec(array('commands' => array($command, $arguments)));
                 break;
@@ -513,15 +525,15 @@ function image_convert($source, $destination, $params = null){
         /*
          * Verify results
          */
-        if(!file_exists($destination)) {
-            throw new BException(tr('image_convert(): Destination file ":file" not found after conversion', array(':file' => $destination)), 'not-exists');
+        if(!file_exists($target)) {
+            throw new BException(tr('image_convert(): Destination file ":file" not found after conversion', array(':file' => $target)), 'not-exists');
         }
 
         if(!empty($params['updatemode'])){
-            chmod($destination, $params['updatemode']);
+            chmod($target, $params['updatemode']);
         }
 
-        return $destination;
+        return $target;
 
     }catch(Exception $e){
         switch($e->getCode()){
@@ -535,7 +547,7 @@ function image_convert($source, $destination, $params = null){
                     load_libs('linux');
                     linux_install_package(null, 'imagemagick');
 
-                    return image_convert($source, $destination, $params);
+                    return image_convert($source, $target, $params);
 
                 }catch(Exception $f){
                     throw new BException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. Phoundation tried to install the package automatically but this failed. Please install imagemagick yourself. On Debian and derrivates this can be done with the command "sudo apt -y install imagemagick". On Redhat and derrivates this can be done with the command "sudo yum install imagemagick"'), $f);
@@ -558,7 +570,7 @@ function image_convert($source, $destination, $params = null){
                     load_libs('linux');
                     linux_install_package(null, 'webp');
 
-                    return image_convert($source, $destination, $params);
+                    return image_convert($source, $target, $params);
 
                 }catch(Exception $f){
                     throw new BException(tr('image_convert(): The "convert" command failed because webp is not supported. On Debian and derrivates this may require installing webp, which was tried and failed. Please try installing the package manually using "sudo apt -y install webp".'), $f);
