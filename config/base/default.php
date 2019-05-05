@@ -180,8 +180,8 @@ $_CONFIG['formats']            = array('force1224'                          => '
                                        'human_nice_date'                    => 'l, j F Y');
 
 // HTML configuration
-$_CONFIG['html']               = array('images'                             => array('auto_convert'       => array('jpg' => 'webp',         // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
-                                                                                                                   'png' => 'webp',         // If not false, automatically convert png images to the specified format. Supported types are: webp.
+$_CONFIG['html']               = array('images'                             => array('auto_convert'       => array('jpg' => false,          // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
+                                                                                                                   'png' => false,          // If not false, automatically convert png images to the specified format. Supported types are: webp.
                                                                                                                    'gif' => false)));       // If not false, automatically convert gif images to the specified format. Supported types are: webp.
 
 
