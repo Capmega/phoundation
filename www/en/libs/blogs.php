@@ -1977,7 +1977,7 @@ function blogs_photo_description($user, $media_id, $description){
 /*
  * Get a full URL of the photo
  */
-function blogs_photo_url($media, $size, $section = 'blogs/media'){
+function blogs_photo_url($media, $size, $section = ''){
     try{
         load_libs('cdn');
 
