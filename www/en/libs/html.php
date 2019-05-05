@@ -2115,33 +2115,6 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
             throw new BException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $alt)), 'no-image');
         }
 
-        $format = str_rfrom($src, '.');
-
-        if($format === 'jpeg'){
-            $format = 'jpg';
-        }
-
-        if($_CONFIG['html']['images']['auto_convert'][$format]){
-            /*
-             * Automatically convert the image to the specified format for
-             * automatically optimized images
-             */
-            $target = str_runtil($src, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
-
-            log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $src, ':target' => $_CONFIG['html']['images']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
-
-            if(!file_exists($target)){
-                log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/cyan');
-
-                load_libs('image');
-                image_convert(array('source' => $src,
-                                    'target' => $target,
-                                    'format' => $_CONFIG['html']['images']['auto_convert'][$format]));
-            }
-
-            $src = $target;
-        }
-
         if(!$_CONFIG['production']){
             if(!$src){
                 throw new BException(tr('html_img(): No image src specified'), 'not-specified');
@@ -2166,13 +2139,98 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
             }
         }
 
-        $url      = $src;
-        $file_src = $src;
+        /*
+         * Check if the URL comes from this domain. This info will be needed
+         * below
+         */
+        $external = str_exists($src, '://');
 
-        if(($width === null) or ($height === null)){
+        if($external){
+// :TODO: This will fail with the dynamic CDN system!
+            if(str_exists($src, cdn_domain('', ''))){
+                /*
+                 * The src contains the CDN domain
+                 */
+                $file_part = str_starts(str_from($src, cdn_domain('', '')), '/');
+                $file_src  = ROOT.'data/content'.$file_part;
+                $external  = false;
+
+            }elseif(str_exists($src, domain(''))){
+                /*
+                 * Here, mistakenly, the main domain was used for CDN data
+                 */
+                $file_part = str_starts(str_from($src, domain('')), '/');
+                $file_src  = ROOT.'data/content'.$file_part;
+                $external  = false;
+
+                notify(new BException(tr('html_img(): The main domain "" was specified for CDN data', array(':domain' => domain(''))), 'warning/invalid'));
+            }
+
+        }else{
             /*
-             * Try to get width / height from image.
+             * Assume all images are PUB images
              */
+            $file_part = '/pub'.str_starts($src, '/');
+            $file_src  = ROOT.'www/'.LANGUAGE.$file_part;
+            $src       = cdn_domain($src);
+        }
+
+        /*
+         * Check if the image should be auto converted
+         */
+        $format = str_rfrom($src, '.');
+
+        if($format === 'jpeg'){
+            $format = 'jpg';
+        }
+
+        if($_CONFIG['html']['images']['auto_convert'][$format]){
+            if($external){
+                /*
+                 * Download the file locally, convert it, then host it locally
+                 */
+under_construction();
+            }
+
+            /*
+             * Automatically convert the image to the specified format for
+             * automatically optimized images
+             */
+            $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+            $target      = str_runtil($file_src, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+
+            log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['html']['images']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
+
+            try{
+                if(!file_exists($target)){
+                        log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/cyan');
+
+                        load_libs('image');
+                        image_convert(array('method' => 'custom',
+                                            'source' => $file_src,
+                                            'target' => $target,
+                                            'format' => $_CONFIG['html']['images']['auto_convert'][$format]));
+                }
+
+                /*
+                 * Convert src back to URL again
+                 */
+                $src = cdn_domain($target_part, '');
+
+            }catch(Exception $e){
+                /*
+                 * Failed to upgrade image. Use the original image
+                 */
+                $e->makeWarning(true);
+                notify($e);
+            }
+        }
+
+        /*
+         * Atumatically detect width / height of this image, as it is not
+         * specified
+         */
+        if(($width === null) or ($height === null)){
             try{
                 $image = sql_get('SELECT `width`,
                                          `height`
@@ -2183,9 +2241,10 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                                   AND    `createdon` > NOW() - INTERVAL 1 DAY
                                   AND    `status`    IS NULL',
 
-                                  array(':url' => $url));
+                                  array(':url' => $src));
 
             }catch(Exception $e){
+showdie($e);
                 notify($e);
                 $image = null;
             }
@@ -2205,15 +2264,7 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                      * domain (we have to download the files first to analyze
                      * them)
                      */
-                    $full_url = str_exists($src, '://');
-
-                    if(str_exists($url, cdn_domain(''))){
-                        $full_url = false;
-                        $file_src = str_from($url, cdn_domain(''));
-                        $src      = $file_src;
-                    }
-
-                    if($full_url){
+                    if($external){
                         /*
                          * Image comes from a domain, fetch to temp directory to analize
                          */
@@ -2252,11 +2303,8 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                         /*
                          * Local image. Analize directly
                          */
-                        $src      = cdn_domain($src);
-                        $file_src = 'pub'.str_starts($file_src, '/');
-
-                        if(file_exists(ROOT.'www/en/'.$file_src)){
-                            $image = getimagesize(ROOT.'www/en/'.$file_src);
+                        if(file_exists($file_src)){
+                            $image = getimagesize($file_src);
 
                         }else{
                             /*
