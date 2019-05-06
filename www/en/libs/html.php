@@ -2092,12 +2092,26 @@ function html_hidden($source, $key = 'id'){
  * If height / width are not specified, then html_img() will try to get the height / width
  * data itself, and store that data in database for future reference
  */
-function html_img($src, $alt, $width = null, $height = null, $more = ''){
+function html_img($params, $alt = null, $width = null, $height = null, $extra = ''){
     global $_CONFIG;
     static $images;
 
     try{
-        if(!$src){
+// :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
+        if(!is_array($params)){
+            /*
+             * Ensure we have a params array
+             */
+            $params = array('src'    => $params,
+                            'alt'    => $alt,
+                            'width'  => $width,
+                            'height' => $height,
+                            'extra'  => $extra);
+        }
+
+        array_ensure($params, 'src,alt,width,height,extra');
+
+        if(!$params['src']){
             /*
              * No image at all?
              */
@@ -2108,34 +2122,34 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
                 notify(array('code'    => 'not-specified',
                              'groups'  => 'developers',
                              'title'   => tr('No image src specified'),
-                             'message' => tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $alt))));
+                             'message' => tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt']))));
                 return '';
             }
 
-            throw new BException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $alt)), 'no-image');
+            throw new BException(tr('html_img(): No src for image with alt text ":alt"', array(':alt' => $params['alt'])), 'no-image');
         }
 
         if(!$_CONFIG['production']){
-            if(!$src){
+            if(!$params['src']){
                 throw new BException(tr('html_img(): No image src specified'), 'not-specified');
             }
 
-            if(!$alt){
-                throw new BException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $src)), 'not-specified');
+            if(!$params['alt']){
+                throw new BException(tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src'])), 'not-specified');
             }
 
         }else{
-            if(!$src){
+            if(!$params['src']){
                 notify(array('code'   => 'not-specified',
                              'groups' => 'developers',
                              'title'  => tr('html_img(): No image src specified')));
             }
 
-            if(!$alt){
+            if(!$params['alt']){
                 notify(array('code'    => 'not-specified',
                              'groups'  => 'developers',
                              'title'   => tr('No image alt specified'),
-                             'message' => tr('html_img(): No image alt text specified for src ":src"', array(':src' => $src))));
+                             'message' => tr('html_img(): No image alt text specified for src ":src"', array(':src' => $params['src']))));
             }
         }
 
@@ -2143,23 +2157,23 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
          * Check if the URL comes from this domain. This info will be needed
          * below
          */
-        $external = str_exists($src, '://');
+        $external = str_exists($params['src'], '://');
 
         if($external){
 // :TODO: This will fail with the dynamic CDN system!
-            if(str_exists($src, cdn_domain('', ''))){
+            if(str_exists($params['src'], cdn_domain('', ''))){
                 /*
                  * The src contains the CDN domain
                  */
-                $file_part = str_starts(str_from($src, cdn_domain('', '')), '/');
+                $file_part = str_starts(str_from($params['src'], cdn_domain('', '')), '/');
                 $file_src  = ROOT.'data/content'.$file_part;
                 $external  = false;
 
-            }elseif(str_exists($src, domain(''))){
+            }elseif(str_exists($params['src'], domain(''))){
                 /*
                  * Here, mistakenly, the main domain was used for CDN data
                  */
-                $file_part = str_starts(str_from($src, domain('')), '/');
+                $file_part = str_starts(str_from($params['src'], domain('')), '/');
                 $file_src  = ROOT.'data/content'.$file_part;
                 $external  = false;
 
@@ -2170,15 +2184,15 @@ function html_img($src, $alt, $width = null, $height = null, $more = ''){
             /*
              * Assume all images are PUB images
              */
-            $file_part = '/pub'.str_starts($src, '/');
-            $file_src  = ROOT.'www/'.LANGUAGE.$file_part;
-            $src       = cdn_domain($src);
+            $file_part     = '/pub'.str_starts($params['src'], '/');
+            $file_src      = ROOT.'www/'.LANGUAGE.$file_part;
+            $params['src'] = cdn_domain($params['src']);
         }
 
         /*
          * Check if the image should be auto converted
          */
-        $format = str_rfrom($src, '.');
+        $format = str_rfrom($params['src'], '.');
 
         if($format === 'jpeg'){
             $format = 'jpg';
@@ -2215,7 +2229,7 @@ under_construction();
                 /*
                  * Convert src back to URL again
                  */
-                $src = cdn_domain($target_part, '');
+                $params['src'] = cdn_domain($target_part, '');
 
             }catch(Exception $e){
                 /*
@@ -2230,7 +2244,7 @@ under_construction();
          * Atumatically detect width / height of this image, as it is not
          * specified
          */
-        if(($width === null) or ($height === null)){
+        if(($params['width'] === null) or ($params['height'] === null)){
             try{
                 $image = sql_get('SELECT `width`,
                                          `height`
@@ -2241,7 +2255,7 @@ under_construction();
                                   AND    `createdon` > NOW() - INTERVAL 1 DAY
                                   AND    `status`    IS NULL',
 
-                                  array(':url' => $src));
+                                  array(':url' => $params['src']));
 
             }catch(Exception $e){
 showdie($e);
@@ -2253,8 +2267,8 @@ showdie($e);
                 /*
                  * We have that information cached, yay!
                  */
-                $width  = $image['width'];
-                $height = $image['height'];
+                $params['width']  = $image['width'];
+                $params['height'] = $image['height'];
 
             }else{
                 try{
@@ -2310,26 +2324,26 @@ showdie($e);
                             /*
                              * Image doesn't exist.
                              */
-                            log_console(tr('html_img(): Can not analyze image ":src", the local path ":path" does not exist', array(':src' => $src, ':path' => $file_src)), 'yellow');
+                            log_console(tr('html_img(): Can not analyze image ":src", the local path ":path" does not exist', array(':src' => $params['src'], ':path' => $file_src)), 'yellow');
                             $image[0] = -1;
                             $image[1] = -1;
                         }
                     }
 
-                    $width  = $image[0];
-                    $height = $image[1];
+                    $params['width']  = $image[0];
+                    $params['height'] = $image[1];
                     $status = null;
 
                 }catch(Exception $e){
                     notify($e);
 
-                    $width  = 0;
-                    $height = 0;
+                    $params['width']  = 0;
+                    $params['height'] = 0;
                     $status = $e->getCode();
                 }
 
-                if(!$height or !$width){
-                    log_console(tr('html_img(): image ":src" has invalid dimensions with width ":width" and height ":height"', array(':src' => $src, ':width' => $width, ':height' => $height)), 'yellow');
+                if(!$params['height'] or !$params['width']){
+                    log_console(tr('html_img(): image ":src" has invalid dimensions with width ":width" and height ":height"', array(':src' => $params['src'], ':width' => $params['width'], ':height' => $params['height'])), 'yellow');
 
                 }else{
                     try{
@@ -2339,9 +2353,9 @@ showdie($e);
                                    ON DUPLICATE KEY UPDATE `status`    = NULL,
                                                            `createdon` = NOW()',
 
-                                   array(':url'    => $src,
-                                         ':width'  => $width,
-                                         ':height' => $height,
+                                   array(':url'    => $params['src'],
+                                         ':width'  => $params['width'],
+                                         ':height' => $params['height'],
                                          ':status' => $status));
 
                     }catch(Exception $e){
@@ -2351,21 +2365,21 @@ showdie($e);
             }
         }
 
-        if($height){
-            $height = ' height="'.$height.'"';
+        if($params['height']){
+            $params['height'] = ' height="'.$params['height'].'"';
 
         }else{
-            $height = '';
+            $params['height'] = '';
         }
 
-        if($width){
-            $width = ' width="'.$width.'"';
+        if($params['width']){
+            $params['width'] = ' width="'.$params['width'].'"';
 
         }else{
-            $width = '';
+            $params['width'] = '';
         }
 
-        return '<img src="'.$src.'" alt="'.htmlentities($alt).'"'.$width.$height.($more ? ' '.$more : '').'>';
+        return '<img src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
 
     }catch(Exception $e){
         throw new BException('html_img(): Failed', $e);
