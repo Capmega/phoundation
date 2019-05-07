@@ -2088,6 +2088,132 @@ function html_hidden($source, $key = 'id'){
 
 
 /*
+ * Converts the specified src URL by adding the CDN domain if it does not have a domain specified yet. Also converts the image to a different format if configured to do so
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package image
+ * @version 2.5.161: Added function and documentation
+ *
+ * @param string $url The URL for the image
+ * @param string
+ * @param string
+ * @return string The result
+ */
+function html_img_src($src, &$external = null, &$file_src = null){
+    global $_CONFIG;
+
+    try{
+        /*
+         * Check if the URL comes from this domain. This info will be needed
+         * below
+         */
+        $external = str_exists($src, '://');
+
+        if($external){
+// :TODO: This will fail with the dynamic CDN system!
+            if(str_exists($src, cdn_domain('', ''))){
+                /*
+                 * The src contains the CDN domain
+                 */
+                $file_part = str_starts(str_from($src, cdn_domain('', '')), '/');
+                $external  = false;
+
+                if(substr($file_part, 0, 5) === '/pub/'){
+                    $file_src = ROOT.'www/'.LANGUAGE.$file_part;
+
+                }else{
+                    $file_src = ROOT.'data/content'.$file_part;
+                }
+
+            }elseif(str_exists($src, domain(''))){
+                /*
+                 * Here, mistakenly, the main domain was used for CDN data
+                 */
+                $file_part = str_starts(str_from($src, domain('')), '/');
+                $file_src  = ROOT.'data/content'.$file_part;
+                $external  = false;
+
+                notify(new BException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
+            }
+
+        }else{
+            /*
+             * Assume all images are PUB images
+             */
+            $file_part     = '/pub'.str_starts($src, '/');
+            $file_src      = ROOT.'www/'.LANGUAGE.$file_part;
+            $src = cdn_domain($src);
+        }
+
+        /*
+         * Check if the image should be auto converted
+         */
+        $format = str_rfrom($src, '.');
+
+        if($format === 'jpeg'){
+            $format = 'jpg';
+        }
+
+        if($_CONFIG['html']['images']['auto_convert'][$format]){
+            if($external){
+                /*
+                 * Download the file locally, convert it, then host it locally
+                 */
+under_construction();
+            }
+
+            /*
+             * Automatically convert the image to the specified format for
+             * automatically optimized images
+             */
+            $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+            $target      = str_runtil($file_src , '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+
+            log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['html']['images']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
+
+            try{
+                if(!file_exists($target)){
+                    log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/cyan');
+                    load_libs('image');
+
+                    file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $target, $format){
+                        global $_CONFIG;
+
+                        image_convert(array('method' => 'custom',
+                                            'source' => $file_src,
+                                            'target' => $target,
+                                            'format' => $_CONFIG['html']['images']['auto_convert'][$format]));
+                    });
+                }
+
+                /*
+                 * Convert src back to URL again
+                 */
+                $src = cdn_domain($target_part, '');
+
+            }catch(Exception $e){
+                /*
+                 * Failed to upgrade image. Use the original image
+                 */
+                $e->makeWarning(true);
+                $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', array(':src' => $src, ':format' => $_CONFIG['html']['images']['auto_convert'][$format])));
+                notify($e);
+            }
+        }
+
+        return $src;
+
+    }catch(Exception $e){
+        throw new BException('html_img_src(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Create and return an img tag that contains at the least src, alt, height and width
  * If height / width are not specified, then html_img() will try to get the height / width
  * data itself, and store that data in database for future reference
@@ -2154,91 +2280,13 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
         }
 
         /*
-         * Check if the URL comes from this domain. This info will be needed
-         * below
+         * Correct the src parameter if it doesn't contain a domain yet by
+         * adding the CDN domain
+         *
+         * Also check if the file should be automatically converted to a
+         * different format
          */
-        $external = str_exists($params['src'], '://');
-
-        if($external){
-// :TODO: This will fail with the dynamic CDN system!
-            if(str_exists($params['src'], cdn_domain('', ''))){
-                /*
-                 * The src contains the CDN domain
-                 */
-                $file_part = str_starts(str_from($params['src'], cdn_domain('', '')), '/');
-                $file_src  = ROOT.'data/content'.$file_part;
-                $external  = false;
-
-            }elseif(str_exists($params['src'], domain(''))){
-                /*
-                 * Here, mistakenly, the main domain was used for CDN data
-                 */
-                $file_part = str_starts(str_from($params['src'], domain('')), '/');
-                $file_src  = ROOT.'data/content'.$file_part;
-                $external  = false;
-
-                notify(new BException(tr('html_img(): The main domain "" was specified for CDN data', array(':domain' => domain(''))), 'warning/invalid'));
-            }
-
-        }else{
-            /*
-             * Assume all images are PUB images
-             */
-            $file_part     = '/pub'.str_starts($params['src'], '/');
-            $file_src      = ROOT.'www/'.LANGUAGE.$file_part;
-            $params['src'] = cdn_domain($params['src']);
-        }
-
-        /*
-         * Check if the image should be auto converted
-         */
-        $format = str_rfrom($params['src'], '.');
-
-        if($format === 'jpeg'){
-            $format = 'jpg';
-        }
-
-        if($_CONFIG['html']['images']['auto_convert'][$format]){
-            if($external){
-                /*
-                 * Download the file locally, convert it, then host it locally
-                 */
-under_construction();
-            }
-
-            /*
-             * Automatically convert the image to the specified format for
-             * automatically optimized images
-             */
-            $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
-            $target      = str_runtil($file_src, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
-
-            log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['html']['images']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
-
-            try{
-                if(!file_exists($target)){
-                        log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/cyan');
-
-                        load_libs('image');
-                        image_convert(array('method' => 'custom',
-                                            'source' => $file_src,
-                                            'target' => $target,
-                                            'format' => $_CONFIG['html']['images']['auto_convert'][$format]));
-                }
-
-                /*
-                 * Convert src back to URL again
-                 */
-                $params['src'] = cdn_domain($target_part, '');
-
-            }catch(Exception $e){
-                /*
-                 * Failed to upgrade image. Use the original image
-                 */
-                $e->makeWarning(true);
-                notify($e);
-            }
-        }
+        $params['src'] = html_img_src($params['src'], $external, $file_src);
 
         /*
          * Atumatically detect width / height of this image, as it is not
