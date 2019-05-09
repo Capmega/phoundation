@@ -160,6 +160,7 @@ function categories_select($params = null){
         array_default($params, 'class'     , 'form-control');
         array_default($params, 'selected'  , null);
         array_default($params, 'seoparent' , null);
+        array_default($params, 'seoparent' , null);
         array_default($params, 'autosubmit', true);
         array_default($params, 'parents_id', null);
         array_default($params, 'status'    , null);
@@ -300,15 +301,27 @@ function categories_get($category, $column = null, $status = null, $parent = fal
 
         if($parent){
             /*
-             * Explicitly must be a parent category
+             * Explicitly must be a child category
              */
-            $where[] = ' `categories`.`parents_id` IS NULL ';
+            if($parent === true){
+                $where[] = ' `categories`.`parents_id` IS NOT NULL ';
+
+            }else{
+                $parents_id = categories_get($parent, 'id', null, null);
+
+                if(!$parents_id){
+                    throw new BException(tr('categories_get(): Specified parent ":parent" does not exist', array(':parent' => $parent)), 'not-exist');
+                }
+
+                $where[] = ' `categories`.`parents_id` = :parents_id ';
+                $execute[':parents_id'] = $parents_id;
+            }
 
         }elseif($parent === false){
             /*
-             * Explicitly cannot be a parent category
+             * Explicitly must be a parent category, so have no parents itself
              */
-            $where[] = ' `categories`.`parents_id` IS NOT NULL ';
+            $where[] = ' `categories`.`parents_id` IS NULL ';
 
         }else{
             /*
