@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /*
- * This is an empty test script template
+ * This is the images management script. This script can retrieve information from images, optimize and modify them
  */
 $usage = './scripts/base/images parameters [OPTIONS]
 ./scripts/base/images optimize PATH | --all [--recursive] [OPTIONS]
@@ -11,134 +11,229 @@ $usage = './scripts/base/images parameters [OPTIONS]
 
 $help  = 'This script can perform various image actions
 
+
+
 METHODS
 
-retina [FILE | all]          - Will ensure retina files are at least
-                               available by creating symlinks for
-                               all image files
 
-optimize                     - Optimize images using the specified parameters.
-                               Optimization will try to improve (make smaller)
-                               image sizes by recompressing using higher
-                               compression settings, blurring and other
-                               techniques, while retaining image quality
 
-parameters                   - Will show the parameters that will be used to
-                               optimize images. Parameters are taken from
-                               configuration and overridden by command line
-                               options
+retina [FILE | all]         - Will ensure retina files are at least
+                              available by creating symlinks for
+                              all image files
 
-info                         - Shows information about the specified image, or
-                               all images in the specified path (optionally
-                               tree, if --recursive is specified)
+optimize                    - Optimize images using the specified parameters.
+                              Optimization will try to improve (make smaller)
+                              image sizes by recompressing using higher
+                              compression settings, blurring and other
+                              techniques, while retaining image quality
 
-clear-cache                  - Clear the `html_img_cache` cache table that
-                               contains image sizes used by html_img()
+parameters                  - Will show the parameters that will be used to
+                              optimize images. Parameters are taken from
+                              configuration and overridden by command line
+                              options
+
+info                        - Shows information about the specified image, or
+                              all images in the specified path (optionally
+                              tree, if --recursive is specified)
+
+clear-cache                 - Clear the `html_img_cache` cache table that
+                              contains image sizes used by html_img()
 
 
 
 OPTIONS
 
-[--all]                      - Process all project images
+[--all]                     - Process all project images
 
-[--keep-aspectratio]         - Ensure image aspect ratio
+[--keep-aspectratio]        - Ensure image aspect ratio
 
-[--quality QUALITY]          - JPEG Quality factor (0 - 100 [60])
+[--quality QUALITY]         - JPEG Quality factor (0 - 100 [60])
 
-[--interlace VALUE]          - Make image load interlaced (OPTION can be jpeg,
-                               gif, png, none, line, plane, partition,
-                               auto [Line])
+[--interlace VALUE]         - Make image load interlaced (OPTION can be jpeg,
+                              gif, png, none, line, plane, partition,
+                              auto [Line])
 
-[--strip]                    - Strips exif data if specified
+[--strip]                   - Strips exif data if specified
 
-[--blur FACTOR]              - Blur by FACTOR (0x1 - 10x10 [1x3]). The higher
-                               this factor, the lower the image size (as the
-                               image will contain less information) though
-                               this will affect image quality
+[--blur FACTOR]             - Blur by FACTOR (0x1 - 10x10 [1x3]). The higher
+                              this factor, the lower the image size (as the
+                              image will contain less information) though
+                              this will affect image quality
 
-[--mirror [RANDOM]]          - Mirror the image. If RANDOM (0 - 100) is
-                               specified, there will be a RANDOM % chance that
-                               the image will be mirrored.
+[--mirror [RANDOM]]         - Mirror the image. If RANDOM (0 - 100) is
+                              specified, there will be a RANDOM % chance that
+                              the image will be mirrored.
 
-[--flip [RANDOM]]            - Flip the image over its horizontal axis. If
-                               RANDOM (0 - 100) is specified, there will be a
-                               RANDOM % chance that the image will be mirrored.
+[--flip [RANDOM]]           - Flip the image over its horizontal axis. If
+                              RANDOM (0 - 100) is specified, there will be a
+                              RANDOM % chance that the image will be mirrored.
 
-[--skew COORDINATES]         - Distort the image by skewing it with the
-        [+/- RANDOM]]          specified coordinates. If RANDOM is specified,
-                               the actual skewing may be off by
-                               random 0 - RANDOM %
+[--skew COORDINATES]        - Distort the image by skewing it with the
+        [+/- RANDOM]]         specified coordinates. If RANDOM is specified,
+                              the actual skewing may be off by
+                              random 0 - RANDOM %
 
-[--rotate DEGREES            - Rotate the image wiht the specified amount of
-          [+/- RANDOM]]        degrees. If RANDOM is specified, the actual
-                               rotation may be off by random 0 - RANDOM %
+[--rotate DEGREES           - Rotate the image wiht the specified amount of
+          [+/- RANDOM]]       degrees. If RANDOM is specified, the actual
+                              rotation may be off by random 0 - RANDOM %
 
-[--brightness BRIGHTNESS     - Adjust the brightness of the image with the
-              [+/- RANDOM]]    specified amount (-100 - 100). If RANDOM is
-                               specified, the actual applied brightness may be
-                               off by BRIGHTNESS + random(0 +/- RANDOM). For
-                               example, --brightness 0 50 may end up with a
-                               brightness from -50 to + 50
+[--brightness BRIGHTNESS    - Adjust the brightness of the image with the
+              [+/- RANDOM]]   specified amount (-100 - 100). If RANDOM is
+                              specified, the actual applied brightness may be
+                              off by BRIGHTNESS + random(0 +/- RANDOM). For
+                              example, --brightness 0 50 may end up with a
+                              brightness from -50 to + 50
 
-[--contrast CONTRAST         - Adjust the contrast of the image with the
-            [+/- RANDOM]]      specified amount (-100 - 100). If RANDOM is
-                               specified, the actual applied contrast may be
-                               off by CONTRAST + random(0 +/- RANDOM). For
-                               example, --contrast 0 50 may end up with a
-                               contrast from -50 to + 50
+[--contrast CONTRAST        - Adjust the contrast of the image with the
+            [+/- RANDOM]]     specified amount (-100 - 100). If RANDOM is
+                              specified, the actual applied contrast may be
+                              off by CONTRAST + random(0 +/- RANDOM). For
+                              example, --contrast 0 50 may end up with a
+                              contrast from -50 to + 50
 
-[--gamma GAMMA               - Adjust the gamma of the image with the specified
-         [+/- RANDOM]]         amount (-100 - 100). If RANDOM is specified, the
-                               actual applied gamma may be off by
-                               GAMMA + random(0 +/- RANDOM). For example,
-                               --gamma 0 50 may end up with a gamma from
-                               -50 to + 50
+[--gamma GAMMA              - Adjust the gamma of the image with the specified
+         [+/- RANDOM]]        amount (-100 - 100). If RANDOM is specified, the
+                              actual applied gamma may be off by
+                              GAMMA + random(0 +/- RANDOM). For example,
+                              --gamma 0 50 may end up with a gamma from
+                              -50 to + 50
 
---defines                    - imagemagick -defines
+--defines                   - imagemagick -defines
 
---sampling-factor            - Sampling factor. Use 4:2:0 for even smaller
+--sampling-factor           - Sampling factor. Use 4:2:0 for even smaller
                                images which retain relatively good quality
 
---limit-memory               -
+--limit-memory              -
 
---limit-map                  -
+--limit-map                 -
 
---format                     - Force specified format on all images to be
-                               processed
+--format                    - Force specified format on all images to be
+                              processed
 
---method                     - Force specified method on all images to be
-                               processed. Valid methods are thumb, resize-w,
-                               resize, thumb-circle, crop-resize, and custom
-                               (default is custom)
+--method                    - Force specified method on all images to be
+                              processed. Valid methods are thumb, resize-w,
+                              resize, thumb-circle, crop-resize, and custom
+                              (default is custom)
 
---width                      - Force specified width on all images to be
-                               processed
+--width                     - Force specified width on all images to be
+                              processed
 
---height                     - Force specified height on all images to be
-                               processed
+--height                    - Force specified height on all images to be
+                              processed
 
---recursive                  - If specified, process the source path
-                               recursively, processing all images found under
-                               that path
+--recursive                 - If specified, process the source path
+                              recursively, processing all images found under
+                              that path
 
---backup / -b                - (optimize only) Make a backup of each image
-                               before processing it. Backups will have the name
-                               file~Ymd-His
+--backup / -b               - (optimize only) Make a backup of each image
+                              before processing it. Backups will have the name
+                              file~Ymd-His
 
---no-exif / -e               - (info or optimize with -d only) Do not display
-                               EXIF information
+--no-exif / -e              - (info or optimize with -d only) Do not display
+                              EXIF information
 
---display-difference / -d    - When optimizing images, show the differce from
-                               before and after the optimization process
+--display-difference / -d   - When optimizing images, show the differce from
+                              before and after the optimization process
 
---show-images / -s           - Show before / after images. Does NOT work with
-                               --recursive to avoid opening possibly thousands
-                               of image viewers. By default, uses "feh" viewer
-                               since this is the fastes and lightest around
+--show-images / -s          - Show before / after images. Does NOT work with
+                              --recursive to avoid opening possibly thousands
+                              of image viewers. By default, uses "feh" viewer
+                              since this is the fastes and lightest around
 
---no-delete / -n             - (optimize and TEST mode only) Do not delete the
-                               temporary file so that it can be used to view the
-                               visual quality';
+--no-delete / -n            - (optimize and TEST mode only) Do not delete the
+                              temporary file so that it can be used to view the
+                              visual quality
+
+
+
+OPTIONS (WEBP FORMAT ONLY)
+
+--alpha-compression         - encode the alpha plane: 0 = none, 1 = compressed.
+
+--alpha-filtering           - predictive filtering method for alpha plane:
+                              0=none, 1=fast, 2=best.
+
+--alpha-quality             - The compression value for alpha compression
+                              between 0 and 100. Lossless compression of alpha
+                              is achieved using a value of 100, while the lower
+                              values result in a lossy compression. The default
+                              is 100.
+
+--auto-filter               - When enabled, the algorithm spends additional time
+                              optimizing the filtering strength to reach a
+                              well-balanced quality.
+
+--emulate-jpeg-size         - Return a similar compression to that of JPEG but
+                              with less degradation.
+
+--filter-sharpness          - Filter sharpness.
+
+--filter-strength           - The strength of the deblocking filter, between 0
+                              (no filtering) and 100 (maximum filtering). A
+                              value of 0 turns off any filtering. Higher values
+                              increase the strength of the filtering process
+                              applied after decoding the image. The higher the
+                              value, the smoother the image appears. Typical
+                              values are usually in the range of 20 to 50.
+
+--filter-type               - Filter type: 0 = simple, 1 = strong
+
+--image-hint                - The hint about the image type. Value must be one
+                              of default, photo, picture, graph
+
+--lossless                  - Encode the image without any loss
+
+--low-memory                - Reduce memory usage.
+
+--method                    - The compression method to use. It controls the
+                              trade off between encoding speed and the
+                              compressed file size and quality. Possible values
+                              range from 0 to 6. Default value is 4. When higher
+                              values are utilized, the encoder spends more time
+                              inspecting additional encoding possibilities and
+                              decide on the quality gain. Lower value might
+                              result in faster processing time at the expense of
+                              larger file size and lower compression quality.
+
+--preprocessing             - Choose from: 0=none, 1=segment-smooth,
+                              2=pseudo-random dithering.
+
+--partitions                - Progressive decoding: choose 0 to 3.
+
+--partition-limit           - Choose 0 for no quality degradation and 100 for
+                              maximum degradation.
+
+--pass                      - Maximum number of passes to target compression
+                              size or PSNR.
+
+--segment                   - Choose from 1 to 4, the maximum number of segments
+                              to use.
+
+--show-compressed           -
+
+
+--sns-strength              - The amplitude of the spatial noise shaping.
+                              Spatial noise shaping (SNS) refers to a general
+                              collection of built-in algorithms used to decide
+                              which area of the picture should use relatively
+                              less bits, and where else to better transfer these
+                              bits. The possible range goes from 0 (algorithm is
+                              off) to 100 (the maximal effect). The default
+                              value is 80.
+
+
+--target-size               - A target size (in bytes) to try and reach for the
+                              compressed output. The compressor makes several
+                              passes of partial encoding in order to get as
+                              close as possible to this target.
+
+
+--target-psnr               - Desired minimal distortion.
+
+--thread-level              - Enable multi-threaded encoding.
+
+--use-sharp-yuv             - If needed, use sharp (and slow) RGB->YUV
+                              conversion.';
 
 require_once(__DIR__.'/../../libs/startup.php');
 
@@ -162,6 +257,33 @@ $params['method']           = not_empty(cli_argument('--method', true), 'custom'
 $params['backup']           = not_empty(cli_argument('--backup-original'), cli_argument('-b'));
 $params['x']                = not_empty(cli_argument('--width' , true)   , cli_argument('-x', true));
 $params['y']                = not_empty(cli_argument('--height', true)   , cli_argument('-y', true));
+
+/*
+ * Options for webp
+ */
+$params['alpha_compression'] = not_empty(cli_argument('--alpha-compression', true));
+$params['alpha_filtering']   = not_empty(cli_argument('--alpha-filtering'  , true));
+$params['alpha_quality']     = not_empty(cli_argument('--alpha-quality'    , true));
+$params['auto_filter']       = not_empty(cli_argument('--auto-filter'      , true));
+$params['emulate_jpeg_size'] = not_empty(cli_argument('--emulate-jpeg-size', true));
+$params['filter_sharpness']  = not_empty(cli_argument('--filter-sharpness' , true));
+$params['filter_strength']   = not_empty(cli_argument('--filter-strength'  , true));
+$params['filter_type']       = not_empty(cli_argument('--filter-type'      , true));
+$params['image_hint']        = not_empty(cli_argument('--image-hint'       , true));
+$params['lossless']          = not_empty(cli_argument('--lossless'         , true));
+$params['low_memory']        = not_empty(cli_argument('--low-memory'       , true));
+$params['webp_method']       = not_empty(cli_argument('--method'           , true));
+$params['preprocessing']     = not_empty(cli_argument('--preprocessing'    , true));
+$params['partitions']        = not_empty(cli_argument('--partitions'       , true));
+$params['partition_limit']   = not_empty(cli_argument('--partition-limit'  , true));
+$params['pass']              = not_empty(cli_argument('--pass'             , true));
+$params['segment']           = not_empty(cli_argument('--segment'          , true));
+$params['show_compressed']   = not_empty(cli_argument('--show-compressed'  , true));
+$params['sns_strength']      = not_empty(cli_argument('--sns-strength'     , true));
+$params['target_size']       = not_empty(cli_argument('--target-size'      , true));
+$params['target_psnr']       = not_empty(cli_argument('--target-psnr'      , true));
+$params['thread_level']      = not_empty(cli_argument('--thread-level'     , true));
+$params['use_sharp_yuv']     = not_empty(cli_argument('--use-sharp-yuv'    , true));
 
 $now = date_convert(null, 'Ymd-His');
 
@@ -485,7 +607,10 @@ switch(cli_method()){
                                                                     $before = image_info($file, $no_exif);
                                                                 }
 
-                                                                $target = image_convert($file, $target, $params);
+                                                                $params['source'] = $file;
+                                                                $params['target'] = $target;
+
+                                                                $target = image_convert($params);
 
                                                                 if($display_diff){
                                                                     log_console(tr('Before:'), 'white');
