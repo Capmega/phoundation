@@ -457,6 +457,8 @@ function customers_update($customer){
  * @return string HTML for a customers select box within the specified parameters
  */
 function customers_select($params = null){
+    global $_CONFIG;
+
     try{
         array_ensure($params);
         array_default($params, 'name'         , 'seocustomer');
@@ -471,7 +473,7 @@ function customers_select($params = null){
 
         if($params['seocategory']){
             load_libs('categories');
-            $params['categories_id'] = categories_get($params['seocategory'], 'id');
+            $params['categories_id'] = categories_get($params['seocategory'], 'id', null, $_CONFIG['customers']['categories_parent']);
 
             if(!$params['categories_id']){
                 throw new BException(tr('customers_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
