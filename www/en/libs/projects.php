@@ -151,12 +151,12 @@ function projects_validate($project, $reload_only = false){
             $v->hasMaxChars($project['code'], 32, tr('Please ensure the project\'s code has less than 32 characters'));
             $v->isAlphaNumeric($project['code'], tr('Please ensure the project\'s code contains no spaces'), VALIDATE_IGNORE_UNDERSCORE);
 
+            $project['code'] = str_clean($project['code']);
+            $project['code'] = strtoupper($project['code']);
+
         }else{
             $project['code'] = null;
         }
-
-        $project['code'] = str_clean($project['code']);
-        $project['code'] = strtoupper($project['code']);
 
         if($project['api_key']){
             $v->hasMinChars($project['api_key'], 32, tr('Please ensure the project\'s api_key has at least 32 characters'));
