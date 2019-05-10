@@ -109,7 +109,6 @@ function freeradius_sync_server($devices_local){
         $devices_local_mac  = sql_list('SELECT `mac_address` FROM `radius_devices`');
 
         foreach($devices_remote as $device){
-            show($device);
             if(!in_array($device, $devices_local_mac)){
                 radius_delete_device_server(array('mac_address' => $device, 'status' => 'DELETED'));
             }
