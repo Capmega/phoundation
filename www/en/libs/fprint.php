@@ -472,12 +472,14 @@ function fprint_pick_device($category = null){
  *
  * @return
  */
-function fprint_test_device(){
+function fprint_test_device($timeout = 0.5){
    try{
         $device = fprint_pick_device();
 
         fprint_kill($device['servers_id']);
-        servers_exec($device['servers_id'], 'sudo timeout 1 fprintd-enroll test', false, null, 124);
+        servers_exec($device['servers_id'], array('timeout'      => $timeout,
+                                                  'ok_exitcodes' => 124,
+                                                  'commands'     => array('fprintd-enroll', array('sudo' => true, 'test'))));
 
         return $device;
 
