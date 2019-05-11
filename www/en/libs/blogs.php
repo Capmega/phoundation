@@ -1735,7 +1735,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
          *
          */
         $mime_type = file_mimetype($file);
-        $prefix    = ROOT.'data/content/photos/';
+        $prefix    = ROOT.'data/content/';
         $types     = $_CONFIG['blogs']['images'];
 
         if(str_until($mime_type, '/') === 'video'){
@@ -1847,8 +1847,8 @@ function blogs_media_delete($blogs_posts_id){
         }
 
         while($file = sql_fetch($media)){
-            file_delete_tree(dirname(ROOT.'data/content/photos/'.$file['file']));
-            file_clear_path(dirname(ROOT.'data/content/photos/'.$file['file']));
+            file_delete_tree(dirname(ROOT.'data/content/'.$file['file']));
+            file_clear_path(dirname(ROOT.'data/content/'.$file['file']));
         }
 
         sql_query('DELETE FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $blogs_posts_id));
@@ -2468,11 +2468,11 @@ function blogs_post_erase($post){
 
         while($media = sql_fetch($r)){
             foreach($_CONFIG['blogs']['images'] as $type => $config){
-                file_delete(ROOT.'data/content/photos/'.$media['file'].'-'.$type.'.jpg');
+                file_delete(ROOT.'data/content/'.$media['file'].'-'.$type.'.jpg');
             }
         }
 
-        file_clear_path(ROOT.'data/content/photos/'.$media['file']);
+        file_clear_path(ROOT.'data/content/'.$media['file']);
 
         sql_query('DELETE FROM `blogs_media`      WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post));
         sql_query('DELETE FROM `blogs_keywords`   WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post));
@@ -2769,11 +2769,11 @@ function blogs_post_get_img($photo, $params, $tabindex){
         try{
             unset($is_video);
 
-            if(file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.jpg')){
-                $image = getimagesize(ROOT.'www/en/photos/'.$photo['file'].'-large.jpg');
+            if(file_exists(ROOT.'data/content/'.$photo['file'].'-original.jpg')){
+                $image = getimagesize(ROOT.'data/content/'.$photo['file'].'-large.jpg');
 
-            }elseif(file_exists(ROOT.'www/en/photos/'.$photo['file'].'-original.mp4')){
-                $image     = ROOT.'www/en/photos/'.$photo['file'].'-original.mp4';
+            }elseif(file_exists(ROOT.'data/content/'.$photo['file'].'-original.mp4')){
+                $image     = ROOT.'data/content/'.$photo['file'].'-original.mp4';
                 $mime_type = file_mimetype($image);
                 $is_video  = true;
 
@@ -2821,8 +2821,8 @@ function blogs_post_get_img($photo, $params, $tabindex){
             $html .= '              <tr class="form-group blog photo" id="photo'.$photo['id'].'">
                                         <td class="file">
                                             <div>
-                                                <a target="_blank" class="fancy" href="'.domain('pub/photos/'.($photo['file']. '-large.jpg')).'">
-                                                    '.html_img(cdn_domain('photos/'.($photo['file'] . '-small.jpg'), ''), html_safe('('.$image[0].' X '.$image[1].')'), $image[0], $image[1], 'rel="blog-page" class="col-md-1 control-label"').'
+                                                <a target="_blank" class="fancy" href="'.cdn_domain($photo['file'].'-large.jpg').'">
+                                                    '.html_img(cdn_domain($photo['file'].'-small.jpg', ''), html_safe('('.$image[0].' X '.$image[1].')'), $image[0], $image[1], 'rel="blog-page" class="col-md-1 control-label"').'
                                                 </a>
                                             </div>
                                         </td>';
