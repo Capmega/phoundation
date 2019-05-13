@@ -2157,51 +2157,63 @@ function html_img_src($src, &$external = null, &$file_src = null){
             $format = 'jpg';
         }
 
-        if($_CONFIG['html']['images']['auto_convert'][$format]){
-            if($external){
-                /*
-                 * Download the file locally, convert it, then host it locally
-                 */
+        if(!$_CONFIG['html']['images']['auto_convert'][$format]){
+            /*
+             * No auto conversion to be done for this image
+             */
+            return $src;
+        }
+
+        if(!accepts('image/'.$_CONFIG['html']['images']['auto_convert'][$format])){
+            /*
+             * This browser does not accept webp images
+             */
+            return $src;
+        }
+
+        if($external){
+            /*
+             * Download the file locally, convert it, then host it locally
+             */
 under_construction();
+        }
+
+        /*
+         * Automatically convert the image to the specified format for
+         * automatically optimized images
+         */
+        $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+        $target      = str_runtil($file_src , '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+
+        log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['html']['images']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
+
+        try{
+            if(!file_exists($target)){
+                log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/cyan');
+                load_libs('image');
+
+                file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $target, $format){
+                    global $_CONFIG;
+
+                    image_convert(array('method' => 'custom',
+                                        'source' => $file_src,
+                                        'target' => $target,
+                                        'format' => $_CONFIG['html']['images']['auto_convert'][$format]));
+                });
             }
 
             /*
-             * Automatically convert the image to the specified format for
-             * automatically optimized images
+             * Convert src back to URL again
              */
-            $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
-            $target      = str_runtil($file_src , '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+            $src = cdn_domain($target_part, '');
 
-            log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['html']['images']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
-
-            try{
-                if(!file_exists($target)){
-                    log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/cyan');
-                    load_libs('image');
-
-                    file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $target, $format){
-                        global $_CONFIG;
-
-                        image_convert(array('method' => 'custom',
-                                            'source' => $file_src,
-                                            'target' => $target,
-                                            'format' => $_CONFIG['html']['images']['auto_convert'][$format]));
-                    });
-                }
-
-                /*
-                 * Convert src back to URL again
-                 */
-                $src = cdn_domain($target_part, '');
-
-            }catch(Exception $e){
-                /*
-                 * Failed to upgrade image. Use the original image
-                 */
-                $e->makeWarning(true);
-                $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', array(':src' => $src, ':format' => $_CONFIG['html']['images']['auto_convert'][$format])));
-                notify($e);
-            }
+        }catch(Exception $e){
+            /*
+             * Failed to upgrade image. Use the original image
+             */
+            $e->makeWarning(true);
+            $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', array(':src' => $src, ':format' => $_CONFIG['html']['images']['auto_convert'][$format])));
+            notify($e);
         }
 
         return $src;

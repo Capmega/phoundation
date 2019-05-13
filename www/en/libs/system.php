@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.169');
+define('FRAMEWORKCODEVERSION', '2.5.170');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1346,15 +1346,65 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
 
 
 /*
- * Return the first priority of what the client accepts
+ * Returns requested main mimetype, or if requested mimetype is accepted or not
+ *
+ * If $mimetype is specified, the function will return true if the specified mimetype is supported, or false, if not
+ *
+ * If $mimetype is not specified, the function will return the first mimetype that was specified in the HTTP ACCEPT header
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see accepts_languages()
+ * @version 2.4.11: Added function and documentation
+ * @version 2.5.170: Added documentation, added support for $mimetype
+ * @example
+ * code
+ * // This will return true
+ * $result = accepts('image/webp');
+ *
+ * // This will return false
+ * $result = accepts('image/foobar');
+ *
+ * // On a browser, this typically would return text/html
+ * $result = accepts();
+ * /code
+ *
+ * This would return
+ * code
+ * Foo...bar
+ * /code
+ *
+ * @param null string $mimetype If specified, the mimetype that must be tested if accepted by the client
+ * @return mixed If $mimetype was specified, true if the client accepts it, false if not. If $mimetype was not specified, a string will be returned containing the first requested mimetype
  */
-function accepts(){
-    try{
-        $header = isset_get($_SERVER['HTTP_ACCEPT']);
-        $header = array_force($header);
-        $header = array_shift($header);
+function accepts($mimetype = null){
+    static $headers = null;
 
-        return $header;
+    try{
+        if(!$headers){
+            /*
+             * Cleanup the HTTP accept headers (opera aparently puts spaces in
+             * there, wtf?), then convert them to an array where the accepted
+             * headers are the keys so that they are faster to access
+             */
+            $headers = isset_get($_SERVER['HTTP_ACCEPT']);
+            $headers = str_replace(', ', '', $headers);
+            $headers = array_force($headers);
+            $headers = array_flip($headers);
+        }
+
+        if($mimetype){
+            /*
+             * Return if the browser supports the specified mimetype
+             */
+            return isset($headers[$mimetype]);
+        }
+
+        reset($headers);
+        return key($headers);
 
     }catch(Exception $e){
         throw new BException(tr('accepts(): Failed'), $e);
