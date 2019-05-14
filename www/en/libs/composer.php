@@ -36,7 +36,7 @@ function composer_library_init(){
         }
 
         ensure_installed(array('name'     => 'composer',
-                               'callback' => 'composer_install',
+                               'callback' => 'composer_setup',
                                'checks'   => array(ROOT.'www/en/libs/external/composer.phar')));
 
         if(!file_exists(ROOT.'/composer.json')){
@@ -67,26 +67,27 @@ function composer_library_init(){
  * @param params $params
  * @return void
  */
-function composer_install($params){
+function composer_setup($params){
     try{
         file_ensure_path(TMP.'composer');
 
-        $file          = download('https://getcomposer.org/installer', 'composer');
+        $file          = download('https://getcomposer.org/installer');
         $file_hash     = hash_file('SHA384', $file);
-        $required_hash = download('https://composer.github.io/installer.sig');
+        $required_hash = download('https://composer.github.io/installer.sig', true);
+        $required_hash = trim($required_hash);
 
-        if($file_hash != $required_hash){
-            throw new BException(tr('composer_install(): File hash check failed for composer-setup.php'), 'hash-fail');
+        if($file_hash !== $required_hash){
+            throw new BException(tr('composer_setup(): File hash check failed for composer-setup.php'), 'hash-fail');
         }
 
-        file_execute_mode(ROOT.'www/en/libs/external/', 0770, function(){
+        file_execute_mode(ROOT.'www/en/libs/external/', 0770, function() use ($file) {
             safe_exec(array('commands' => array('php', array($file, '--install-dir', ROOT.'www/en/libs/external/', (VERBOSE ? '' : '--quiet')))));
         });
 
         file_delete(TMP.'composer');
 
     }catch(Exception $e){
-        throw new BException('composer_install(): Failed', $e);
+        throw new BException('composer_setup(): Failed', $e);
     }
 }
 
@@ -127,9 +128,11 @@ function composer_init_file(){
  * @param string $package The package to be installed
  * @return void
  */
-function composer_require($package){
+function composer_require($package, $path = ROOT.'libs'){
     try{
-        safe_exec(array('commands' => array(ROOT.'libs/external/composer.phar', array('require', $package))));
+        safe_exec(array('timeout'  => 90,
+                        'commands' => array('cd'                              , array($path),
+                                            ROOT.'libs/external/composer.phar', array('require', $package))));
 
     }catch(Exception $e){
         throw new BException('composer_require(): Failed', $e);
