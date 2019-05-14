@@ -261,7 +261,11 @@ function notifications_validate($notification, $log){
          */
         if($notification['message']){
             $v->hasMinChars($notification['message'], 4, tr('Please ensure that the notification message has more than 4 characters'));
-            $v->hasMaxChars($notification['message'], 4090, tr('Please ensure that the notification message has less than 4090 characters'));
+
+            /*
+             * Force this instead of validating since large error messages will cause endless loops
+             */
+            $notification['message'] = str_truncate($notification['message'], 4090, '...', 'center');
 
         }else{
             $notification['message'] = '';
