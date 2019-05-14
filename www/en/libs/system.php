@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.171');
+define('FRAMEWORKCODEVERSION', '2.5.172');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2235,57 +2235,45 @@ function mapped_domain($url = null, $query = null, $prefix = null, $domain = nul
  * @param null function $callback If specified, download will execute this callback with either the filename or file contents (depending on $section)
  * @return string The downloaded file
  */
-function download($url, $section = false, $callback = null){
+function download($url, $contents = false, $callback = null){
     try{
         $file = str_from($url, '://');
         $file = str_rfrom($url, '/');
         $file = str_until($file, '?');
+        $file = TMP.$file;
 
-        if($section){
-            if(!is_string($section)){
-                throw new BException(tr('download(): Specified section should either be false or a string. However, it is not false, and is of type ":type"', array(':type' => gettype($section))), 'invalid');
-            }
-
-            $file = TMP.$section.'/'.$file;
-
-        }else{
-            $file = TMP.$file;
-        }
-
-        file_ensure_path(TMP.$section, 0770, true);
         load_libs('wget');
-
         wget(array('url'  => $url,
                    'file' => $file));
 
-        if(!$section){
+        if($contents){
             /*
-             * No section was specified, return contents of file instead.
+             * Do not return the filename but the file contents instead
+             * When doing this, automatically delete the file in question, since
+             * the caller will not know the exact file name used
              */
+            $retval = file_get_contents($file);
+            file_delete($file);
+
             if($callback){
-                /*
-                 * Execute the callbacks before returning the data
-                 */
-                $callback($file);
-                file_delete($file);
+                $callback($retval);
             }
 
-            return $file;
+            return $retval;
         }
 
         /*
-         * Do not return the filename but the file contents instead
-         * When doing this, automatically delete the file in question, since
-         * the caller will not know the exact file name used
+         * No section was specified, return contents of file instead.
          */
-        $retval = file_get_contents($file);
-        file_delete($file);
-
         if($callback){
-            $callback($retval);
+            /*
+             * Execute the callbacks before returning the data
+             */
+            $callback($file);
+            file_delete($file);
         }
 
-        return $retval;
+        return $file;
 
     }catch(Exception $e){
         throw new BException('download(): Failed', $e);

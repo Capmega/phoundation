@@ -33,7 +33,7 @@
 function minify_library_init(){
     try{
         ensure_installed(array('name'     => 'minify',
-                               'callback' => 'minify_install',
+                               'callback' => 'minify_setup',
                                'checks'   => array(ROOT.'libs/external/vendor/mrclay/minify')));
 
     }catch(Exception $e){
@@ -58,18 +58,16 @@ function minify_library_init(){
  * @param params $params
  * @return void
  */
-function minify_install($params){
+function minify_setup($params){
     try{
-        load_libs('composer');
-        composer_require('mrclay/minify');
-
-        file_execute_mode(ROOT.'libs/external/', 0770, function(){
-            rename(TMP.'/minify/vendor/', ROOT.'libs/external/');
-            file_delete(TMP.'/minify/vendor/');
+        file_execute_mode(ROOT.'libs/', 0770, function(){
+            load_libs('composer');
+            composer_require('mrclay/minify');
+            safe_exec(array('commands' => array('chmod', array('ug-w,o-rwx', ROOT.'libs/vendor'))));
         });
 
     }catch(Exception $e){
-        throw new BException('minify_install(): Failed', $e);
+        throw new BException('minify_setup(): Failed', $e);
     }
 }
 
@@ -80,11 +78,11 @@ function minify_install($params){
  */
 function minify_html($html){
     try{
-        include_once(ROOT.'libs/external/vendor/mrclay/minify/lib/Minify/HTML.php');
-        include_once(ROOT.'libs/external/vendor/mrclay/minify/lib/Minify/CSS.php');
-        include_once(ROOT.'libs/external/vendor/mrclay/jsmin-php/src/JSMin/JSMin.php');
-        include_once(ROOT.'libs/external/vendor/mrclay/minify/lib/Minify/CSS/Compressor.php');
-        include_once(ROOT.'libs/external/vendor/mrclay/minify/lib/Minify/CommentPreserver.php');
+        include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/HTML.php');
+        include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS.php');
+        include_once(ROOT.'libs/vendor/mrclay/jsmin-php/src/JSMin/JSMin.php');
+        include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/CSS/Compressor.php');
+        include_once(ROOT.'libs/vendor/mrclay/minify/lib/Minify/CommentPreserver.php');
 
         $html = Minify_HTML::minify($html, array('cssMinifier' => array('Minify_CSS'  , 'minify'),
                                                  'jsMinifier'  => array('\JSMin\JSMin', 'minify')));
