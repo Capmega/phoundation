@@ -2143,9 +2143,9 @@ function html_img_src($src, &$external = null, &$file_src = null){
             /*
              * Assume all images are PUB images
              */
-            $file_part     = '/pub'.str_starts($src, '/');
-            $file_src      = ROOT.'www/'.LANGUAGE.$file_part;
-            $src = cdn_domain($src);
+            $file_part = '/pub'.str_starts($src, '/');
+            $file_src  = ROOT.'www/'.LANGUAGE.$file_part;
+            $src       = cdn_domain($src);
         }
 
         /*
@@ -2205,7 +2205,8 @@ under_construction();
             /*
              * Convert src back to URL again
              */
-            $src = cdn_domain($target_part, '');
+            $file_src = $target;
+            $src      = cdn_domain($target_part, '');
 
         }catch(Exception $e){
             /*
@@ -2304,124 +2305,195 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
          * Atumatically detect width / height of this image, as it is not
          * specified
          */
-        if(($params['width'] === null) or ($params['height'] === null)){
+        try{
+            $image = sql_get('SELECT `width`,
+                                     `height`
+
+                              FROM   `html_img_cache`
+
+                              WHERE  `url`       = :url
+                              AND    `createdon` > NOW() - INTERVAL 1 DAY
+                              AND    `status`    IS NULL',
+
+                              array(':url' => $params['src']));
+
+        }catch(Exception $e){
+            notify($e);
+            $image = null;
+        }
+
+        if($image){
+            /*
+             * We have that information cached, yay!
+             */
+            $width  = $image['width'];
+            $height = $image['height'];
+
+        }else{
             try{
-                $image = sql_get('SELECT `width`,
-                                         `height`
-
-                                  FROM   `html_img_cache`
-
-                                  WHERE  `url`       = :url
-                                  AND    `createdon` > NOW() - INTERVAL 1 DAY
-                                  AND    `status`    IS NULL',
-
-                                  array(':url' => $params['src']));
-
-            }catch(Exception $e){
-showdie($e);
-                notify($e);
-                $image = null;
-            }
-
-            if($image){
                 /*
-                 * We have that information cached, yay!
+                 * Check if the URL comes from this domain (so we can
+                 * analyze the files directly on this server) or a remote
+                 * domain (we have to download the files first to analyze
+                 * them)
                  */
-                $params['width']  = $image['width'];
-                $params['height'] = $image['height'];
-
-            }else{
-                try{
+                if($external){
                     /*
-                     * Check if the URL comes from this domain (so we can
-                     * analyze the files directly on this server) or a remote
-                     * domain (we have to download the files first to analyze
-                     * them)
+                     * Image comes from a domain, fetch to temp directory to analize
                      */
-                    if($external){
+                    try{
+                        $file  = file_move_to_target($file_src, TMP, false, true);
+                        $image = getimagesize(TMP.$file);
+
+                    }catch(Exception $e){
+                        switch($e->getCode()){
+                            case 404:
+                                // FALLTHROUGH
+                            case 403:
+                                break;
+
+                            default:
+                                throw $e->makeWarning(true);
+                        }
+
                         /*
-                         * Image comes from a domain, fetch to temp directory to analize
+                         * Image doesnt exist
                          */
-                        try{
-                            $file  = file_move_to_target($file_src, TMP, false, true);
-                            $image = getimagesize(TMP.$file);
+                        notify(array('code'    => 'not-exists',
+                                     'groups'  => 'developers',
+                                     'title'   => tr('Image does not exist'),
+                                     'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
 
-                        }catch(Exception $e){
-                            switch($e->getCode()){
-                                case 404:
-                                    // FALLTHROUGH
-                                case 403:
-                                    break;
+                        $image[0] = -1;
+                        $image[1] = -1;
+                    }
 
-                                default:
-                                    throw $e->makeWarning(true);
-                            }
+                    if(!empty($file)){
+                        file_delete(TMP.$file, true);
+                    }
 
-                            /*
-                             * Image doesnt exist
-                             */
-                            notify(array('code'    => 'not-exists',
-                                         'groups'  => 'developers',
-                                         'title'   => tr('Image does not exist'),
-                                         'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
-
-                            $image[0] = -1;
-                            $image[1] = -1;
-                        }
-
-                        if(!empty($file)){
-                            file_delete(TMP.$file, true);
-                        }
+                }else{
+                    /*
+                     * Local image. Analize directly
+                     */
+                    if(file_exists($file_src)){
+                        $image = getimagesize($file_src);
 
                     }else{
                         /*
-                         * Local image. Analize directly
+                         * Image doesn't exist.
                          */
-                        if(file_exists($file_src)){
-                            $image = getimagesize($file_src);
-
-                        }else{
-                            /*
-                             * Image doesn't exist.
-                             */
-                            log_console(tr('html_img(): Can not analyze image ":src", the local path ":path" does not exist', array(':src' => $params['src'], ':path' => $file_src)), 'yellow');
-                            $image[0] = -1;
-                            $image[1] = -1;
-                        }
+                        log_console(tr('html_img(): Can not analyze image ":src", the local path ":path" does not exist', array(':src' => $params['src'], ':path' => $file_src)), 'yellow');
+                        $image[0] = -1;
+                        $image[1] = -1;
                     }
+                }
 
-                    $params['width']  = $image[0];
-                    $params['height'] = $image[1];
-                    $status = null;
+                $width  = $image[0];
+                $height = $image[1];
+                $status = null;
+
+            }catch(Exception $e){
+                notify($e);
+
+                $width  = 0;
+                $height = 0;
+                $status = $e->getCode();
+            }
+
+            if(!$height or !$width){
+                log_console(tr('html_img(): image ":src" has invalid dimensions with width ":width" and height ":height"', array(':src' => $params['src'], ':width' => $width, ':height' => $height)), 'yellow');
+
+            }else{
+                try{
+                    sql_query('INSERT INTO `html_img_cache` (`status`, `url`, `width`, `height`)
+                               VALUES                       (:status , :url , :width , :height )
+
+                               ON DUPLICATE KEY UPDATE `status`    = NULL,
+                                                       `createdon` = NOW()',
+
+                               array(':url'    => $params['src'],
+                                     ':width'  => $width,
+                                     ':height' => $height,
+                                     ':status' => $status));
 
                 }catch(Exception $e){
                     notify($e);
+                }
+            }
+        }
 
-                    $params['width']  = 0;
-                    $params['height'] = 0;
-                    $status = $e->getCode();
+        if(($params['width'] === null) or ($params['height'] === null)){
+            /*
+             * Use image width and height
+             */
+            $params['width']  = $width;
+            $params['height'] = $height;
+
+        }else{
+            /*
+             * Is the image width and or height larger than specified? If so,
+             * auto rescale!
+             */
+            if(($width > $params['width']) or ($height > $params['height'])){
+                log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
+
+                /*
+                 * Determine the resize dimensions
+                 */
+                if(!$params['height']){
+                    $params['height'] = $height;
                 }
 
-                if(!$params['height'] or !$params['width']){
-                    log_console(tr('html_img(): image ":src" has invalid dimensions with width ":width" and height ":height"', array(':src' => $params['src'], ':width' => $params['width'], ':height' => $params['height'])), 'yellow');
+                if(!$params['width']){
+                    $params['width']  = $width;
+                }
+
+                /*
+                 * Determine the file target name and src
+                 */
+                if(str_exists($params['src'], '@2x')){
+                    $pre    = str_until($params['src'], '@2x');
+                    $post   = str_from ($params['src'], '@2x');
+                    $target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
+
+                    $pre         = str_until($file_src, '@2x');
+                    $post        = str_from ($file_src, '@2x');
+                    $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
 
                 }else{
-                    try{
-                        sql_query('INSERT INTO `html_img_cache` (`status`, `url`, `width`, `height`)
-                                   VALUES                       (:status , :url , :width , :height )
+                    $pre    = str_runtil($params['src'], '.');
+                    $post   = str_rfrom ($params['src'], '.');
+                    $target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
 
-                                   ON DUPLICATE KEY UPDATE `status`    = NULL,
-                                                           `createdon` = NOW()',
-
-                                   array(':url'    => $params['src'],
-                                         ':width'  => $params['width'],
-                                         ':height' => $params['height'],
-                                         ':status' => $status));
-
-                    }catch(Exception $e){
-                        notify($e);
-                    }
+                    $pre         = str_runtil($file_src, '.');
+                    $post        = str_rfrom ($file_src, '.');
+                    $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
                 }
+
+                /*
+                 * Resize or do we have a cached version?
+                 */
+                if(!file_exists($file_target)){
+                    log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
+                    load_libs('image');
+
+                    file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params){
+                        global $_CONFIG;
+
+                        image_convert(array('method' => 'resize',
+                                            'source' => $file_src,
+                                            'target' => $file_target,
+                                            'x'      => $params['width'],
+                                            'y'      => $params['height']));
+                    });
+                }
+
+                /*
+                 * Convert src to the resized target
+                 */
+                $params['src'] = $target;
+                $file_src      = $file_target;
             }
         }
 
