@@ -1708,11 +1708,20 @@ function cli_unzip($file, $target_path = null, $remove = true){
  * @return boolean True if the specified command is built in, false if not
  */
 function cli_is_builtin($command){
+    static $cache = array();
+
     try{
+        if(isset($cache[$command])){
+            return $cache[$command];
+        }
+
         $results = safe_exec(array('commands' => array('type', array($command))));
         $results = array_shift($results);
+        $results = (substr($results, -7, 7) === 'builtin');
 
-        return (substr($results, -7, 7) === 'builtin');
+        $cache[$command] = $results;
+
+        return $results;
 
     }catch(Exception $e){
         if($e->getRealCode() === '127'){
