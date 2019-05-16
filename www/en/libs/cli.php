@@ -729,7 +729,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                      * Multiple command line options were specified, this is not
                      * allowed!
                      */
-                    throw new BException(tr('cli_argument(): Multiple command line arguments ":arguments" for the same option specified. Please specify only one', array(':arguments', array_keys($results))), 'warning/multiple');
+                    throw new BException(tr('cli_argument(): Multiple command line arguments ":arguments" for the same option specified. Please specify only one', array(':arguments' => array_keys($results))), 'warning/multiple');
             }
         }
 
