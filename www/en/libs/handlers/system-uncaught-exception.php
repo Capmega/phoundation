@@ -43,24 +43,29 @@ try{
         }
 
         $executed = true;
-        notify($e, false, false);
 
         if(isset($core)){
             if(empty($core->register['script'])){
                 $core->register('script', 'unknown');
             }
 
-            if(!$core->register['ready']){
+            if($core->register['ready']){
                 log_file(tr('UNCAUGHT EXCEPTION'), 'uncaught-exception', 'exception');
                 log_file($e, 'uncaught-exception', 'exception');
+
+            }else{
+                /*
+                 * System is not ready, we cannot log to syslog
+                 */
+                error_log(tr('*** UNCAUGHT PRE-CORE-READY EXCEPTION ":code" ***', array(':code' => $e->getCode())));
+                error_log($e->getMessage());
+                die(1);
             }
 
         }else{
-            error_log(tr('*** UNCAUGHT PRE-CORE-AVAILABLE EXCEPTION ":code" ***', array(':code' => $e->getCode())), 'uncaught-exception', 'error');
-            error_log($e->getMessage(), 'uncaught-exception', 'error');
-
-            echo tr('*** UNCAUGHT PRE-CORE-AVAILABLE EXCEPTION ":code" ***', array(':code' => $e->getCode()));
-            die();
+            error_log(tr('*** UNCAUGHT PRE-CORE-AVAILABLE EXCEPTION ":code" ***', array(':code' => $e->getCode())));
+            error_log($e->getMessage(), 'uncaught-exception');
+            die(1);
         }
 
         if(!defined('PLATFORM')){
@@ -86,7 +91,6 @@ try{
                                  'VERBOSE'  => ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE' : null),
                                  'QUIET'    => cli_argument('-Q,--quiet'),
                                  'FORCE'    => cli_argument('-F,--force'),
-                                 'NOCOLOR'  => cli_argument('-C,--no-color'),
                                  'TEST'     => cli_argument('-T,--test'),
                                  'LIMIT'    => not_empty(cli_argument('--limit', true), $_CONFIG['paging']['limit']),
                                  'ALL'      => cli_argument('-A,--all'),
@@ -99,6 +103,8 @@ try{
                         define($key, $value);
                     }
                 }
+
+                notify($e, false, false);
 
                 if($e->getCode() === 'parameters'){
                     log_console(trim(str_from($e->getMessage(), '():')), 'warning');
@@ -297,7 +303,6 @@ try{
                                  'PWD'      => slash(isset_get($_SERVER['PWD'])),
                                  'STARTDIR' => slash(getcwd()),
                                  'FORCE'    => (getenv('FORCE')                    ? 'FORCE'   : null),
-                                 'NOCOLOR'  => (getenv('NOCOLOR')                  ? 'NOCOLOR' : null),
                                  'TEST'     => (getenv('TEST')                     ? 'TEST'    : null),
                                  'VERBOSE'  => ((VERYVERBOSE or getenv('VERBOSE')) ? 'VERBOSE' : null),
                                  'QUIET'    => (getenv('QUIET')                    ? 'QUIET'   : null),
@@ -312,6 +317,8 @@ try{
                         define($key, $value);
                     }
                 }
+
+                notify($e, false, false);
 
                 if(!$core->register['ready']){
                     /*

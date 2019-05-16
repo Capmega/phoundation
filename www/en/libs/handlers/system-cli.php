@@ -20,38 +20,66 @@ try{
 
 
     /*
+     * Check what environment we're in
+     */
+    $environment = cli_argument('-E,--env,--environment', true);
+
+    if(empty($environment)){
+        $env = getenv(PROJECT.'_ENVIRONMENT');
+
+        if(empty($env)){
+            echo "\033[0;31mstartup: No required environment specified for project \"".PROJECT."\"\033[0m\n";
+            $core->register['exit_code'] = 2;
+            die(2);
+        }
+
+    }else{
+        $env = $environment;
+    }
+
+    if(strstr($env, '_')){
+        echo "\033[0;31mstartup: Specified environment \"$env\" is invalid, environment names cannot contain the underscore character\033[0m\n";
+        $core->register['exit_code'] = 4;
+        die(4);
+    }
+
+    define('ENVIRONMENT', $env);
+
+    if(!file_exists(ROOT.'config/'.$env.'.php')){
+        echo "\033[0;31mstartup: Configuration file \"ROOT/config/".$env.".php\" for specified environment\"".$env."\" not found\033[0m\n";
+        $core->register['exit_code'] = 5;
+        die(5);
+    }
+
+
+
+    /*
      * Define basic platform constants
      */
-    try{
-        define('ADMIN'      , '');
-        define('PWD'        , slash(isset_get($_SERVER['PWD'])));
-        define('VERYVERBOSE', (cli_argument('-VV,--very-verbose')                               ? 'VERYVERBOSE' : null));
-        define('VERBOSE'    , ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE'     : null));
-        define('QUIET'      , cli_argument('-Q,--quiet'));
-        define('FORCE'      , cli_argument('-F,--force'));
-        define('NOCOLOR'    , cli_argument('-C,--no-color'));
-        define('TEST'       , cli_argument('-T,--test'));
-        define('DELETED'    , cli_argument('--deleted'));
-        define('STATUS'     , cli_argument('-S,--status' , true));
-        define('STARTDIR'   , slash(getcwd()));
-
-    }catch(Exception $e){
-        $e->setCode('parameters');
-        throw new BException(tr('core::startup(): Failed to parse one or more system parameters'), $e);
-    }
+    define('ADMIN'      , '');
+    define('PWD'        , slash(isset_get($_SERVER['PWD'])));
+    define('VERYVERBOSE', (cli_argument('-VV,--very-verbose')                               ? 'VERYVERBOSE' : null));
+    define('VERBOSE'    , ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE'     : null));
+    define('QUIET'      , cli_argument('-Q,--quiet'));
+    define('FORCE'      , cli_argument('-F,--force'));
+    define('NOCOLOR'    , cli_argument('-C,--no-color'));
+    define('TEST'       , cli_argument('-T,--test'));
+    define('DELETED'    , cli_argument('--deleted'));
+    define('STATUS'     , cli_argument('-S,--status' , true));
+    define('STARTDIR'   , slash(getcwd()));
 
 
 
     /*
      * Process basic shell arguments
      */
-    try{
+    if(empty($e)){
         /*
          * Correct $_SERVER['PHP_SELF'], sometimes seems empty
          */
         if(empty($_SERVER['PHP_SELF'])){
             if(!isset($_SERVER['_'])){
-                throw new Exception('No $_SERVER[PHP_SELF] or $_SERVER[_] found', 'not-exists');
+                $e = new Exception('No $_SERVER[PHP_SELF] or $_SERVER[_] found', 'not-exists');
             }
 
              $_SERVER['PHP_SELF'] =  $_SERVER['_'];
@@ -94,7 +122,7 @@ try{
 
                     }else{
                         if(empty($GLOBALS['help'])){
-                            throw new BException(tr('core::startup(): Sorry, this script has no help text defined'), 'warning');
+                            $e = new BException(tr('core::startup(): Sorry, this script has no help text defined'), 'warning');
                         }
 
                         $GLOBALS['help'] = array_force($GLOBALS['help'], "\n");
@@ -121,11 +149,11 @@ try{
                      * Set language to be used
                      */
                     if(isset($language)){
-                        throw new BException(tr('core::startup(): Language has been specified twice'), 'exists');
+                        $e = new BException(tr('core::startup(): Language has been specified twice'), 'exists');
                     }
 
                     if(!isset($GLOBALS['argv'][$argid + 1])){
-                        throw new BException(tr('core::startup(): The "language" argument requires a two letter language core right after it'), 'invalid');
+                        $e = new BException(tr('core::startup(): The "language" argument requires a two letter language core right after it'), 'invalid');
                     }
 
                     $language = $GLOBALS['argv'][$argid + 1];
@@ -134,25 +162,25 @@ try{
                     unset($GLOBALS['argv'][$argid + 1]);
                     break;
 
-                case '-E':
-                    // FALLTHROUGH
-                case '--env':
-                    /*
-                     * Set environment and reset next
-                     */
-                    if(isset($environment)){
-                        throw new BException(tr('core::startup(): Environment has been specified twice'), 'exists');
-                    }
-
-                    if(!isset($GLOBALS['argv'][$argid + 1])){
-                        throw new BException(tr('core::startup(): The "environment" argument requires an existing environment name right after it'), 'invalid');
-                    }
-
-                    $environment = $GLOBALS['argv'][$argid + 1];
-
-                    unset($GLOBALS['argv'][$argid]);
-                    unset($GLOBALS['argv'][$argid + 1]);
-                    break;
+                //case '-E':
+                //    // FALLTHROUGH
+                //case '--env':
+                //    /*
+                //     * Set environment and reset next
+                //     */
+                //    if(isset($environment)){
+                //        $e = new BException(tr('core::startup(): Environment has been specified twice'), 'exists');
+                //    }
+                //
+                //    if(!isset($GLOBALS['argv'][$argid + 1])){
+                //        $e = new BException(tr('core::startup(): The "environment" argument requires an existing environment name right after it'), 'invalid');
+                //    }
+                //
+                //    $environment = $GLOBALS['argv'][$argid + 1];
+                //
+                //    unset($GLOBALS['argv'][$argid]);
+                //    unset($GLOBALS['argv'][$argid + 1]);
+                //    break;
 
                 case '-O':
                     // TALLTHROUGH
@@ -165,7 +193,7 @@ try{
                         /*
                          * The specified column ordering is NOT valid
                          */
-                        throw new BException(tr('core::startup(): The specified orderby argument ":argument" is invalid', array(':argument' => ORDERBY)), 'invalid');
+                        $e = new BException(tr('core::startup(): The specified orderby argument ":argument" is invalid', array(':argument' => ORDERBY)), 'invalid');
                     }
 
                     unset($GLOBALS['argv'][$argid]);
@@ -177,11 +205,11 @@ try{
                      * Set timezone
                      */
                     if(isset($timezone)){
-                        throw new BException(tr('core::startup(): Timezone has been specified twice'), 'exists');
+                        $e = new BException(tr('core::startup(): Timezone has been specified twice'), 'exists');
                     }
 
                     if(!isset($GLOBALS['argv'][$argid + 1])){
-                        throw new BException(tr('core::startup(): The "timezone" argument requires a valid and existing timezone name right after it'), 'invalid');
+                        $e = new BException(tr('core::startup(): The "timezone" argument requires a valid and existing timezone name right after it'), 'invalid');
 
                     }
 
@@ -214,22 +242,6 @@ try{
         if(!defined('ORDERBY')){
             define('ORDERBY', '');
         }
-
-    }catch(Exception $e){
-        echo "startup-cli: Command line parser failed with \"".$e->getMessage()."\"\n";
-        $core->register['exit_code'] = 1;
-        die(1);
-    }
-
-
-
-    /*
-     * Something failed?
-     */
-    if(isset($die)){
-        $core->register['ready']     = true;
-        $core->register['exit_code'] = $die;
-        die($die);
     }
 
 
@@ -242,43 +254,28 @@ try{
 
 
     /*
-     * Check what environment we're in
-     */
-    if(empty($environment)){
-        $env = getenv(PROJECT.'_ENVIRONMENT');
-
-        if(empty($env)){
-            echo "\033[0;31mstartup: No required environment specified for project \"".PROJECT."\"\033[0m\n";
-            $core->register['exit_code'] = 2;
-            die(2);
-        }
-
-    }else{
-        $env = $environment;
-    }
-
-    if(strstr($env, '_')){
-        echo "\033[0;31mstartup: Specified environment \"$env\" is invalid, environment names cannot contain the underscore character\033[0m\n";
-        $core->register['exit_code'] = 4;
-        die(4);
-    }
-
-    define('ENVIRONMENT', $env);
-
-    if(!file_exists(ROOT.'config/'.$env.'.php')){
-        echo "\033[0;31mstartup: Configuration file \"ROOT/config/".$env.".php\" for specified environment\"".$env."\" not found\033[0m\n";
-        $core->register['exit_code'] = 5;
-        die(5);
-    }
-
-
-
-    /*
      * Load basic configuration for the current environment
      * Load cache libraries (done until here since these need configuration @ load time)
      */
     load_config(' ');
     load_libs('cache'.(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
+
+
+
+    /*
+     * Something failed?
+     */
+    if(isset($e)){
+        echo "startup-cli: Command line parser failed with \"".$e->getMessage()."\"\n";
+        $core->register['exit_code'] = 1;
+        die(1);
+    }
+
+    if(isset($die)){
+        $core->register['ready']     = true;
+        $core->register['exit_code'] = $die;
+        die($die);
+    }
 
 
 
