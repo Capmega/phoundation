@@ -22,6 +22,7 @@
  * @category Function reference
  * @package array
  * @see array_ensure()
+ * @note The default value for this function for non assigned values is boolean false, not null. The reason for this is that many of its dependancies use "false" as "do not use" because "null" would be interpreted as "compare to null"
  * @version 2.5.119: Added function and documentation
  *
  * @param params $params A parameters array
@@ -30,7 +31,10 @@
  * @param null $default The default value for the non selected key
  * @return array The specified source, guaranteed as a parameters array
  */
-function array_params(&$params, $string_key = null, $numeric_key = null, $default = null){
+function array_params(&$params, $string_key = null, $numeric_key = null, $default = false){
+    /*
+     * IMPORTANT!! DO NOT CHANGE $default DEFAULT VALUE AWAY FROM FALSE! THIS IS A REQUIREMENT FOR THE sql_simple_list() / sql_simple_get() FUNCTIONS!!
+     */
     try{
         if(is_array($params)){
             array_ensure($params, array($string_key, $numeric_key), $default);
