@@ -457,22 +457,73 @@ function task_test_mysql(){
 
 
 /*
- * Reset the specified task, plus all tasks that have this task as a parent
+ * Set the specified status for the specified task, plus all tasks that have this task as a parent
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package tasks
+ * @see tasks_reset()
+ * @see tasks_abort()
+ * @version 2.5.173: Added function and documentation
+ *
+ * @param natural $tasks_id The task to be updated
+ * @param string null $status The new status value for the task and its children
+ * @param boolean $reset If set to true, the results for this task will be reset
+ * @return natural The amount of tasks that had their status updated
  */
-function tasks_reset($tasks_id){
+function tasks_status($tasks_id, $status, $reset = false){
     try{
-        sql_query('UPDATE `tasks` SET `status` = "new", `results` = null WHERE `id` = :id', array(':id' => $tasks_id));
+        $update = sql_query('UPDATE `tasks` SET `status` = :status '.($reset ? ' , `results` = null ' : '').' WHERE `id` = :id', array(':id' => $tasks_id, ':status' => $status));
+
+        if(!$update->rowCount()){
+            $exists = sql_get('SELECT `id` FROM `tasks` WHERE `id` = :id', true, array(':id' => $tasks_id));
+
+            if($exists){
+                return 0;
+            }
+
+            throw new BException(tr('tasks_status(): Specified tasks id ":id" does not exist', array(':id' => $tasks_id)), 'not-exist');
+        }
 
         $count    = 1;
         $children = sql_query('SELECT `id` FROM `tasks` WHERE `parents_id` = :parents_id', array(':parents_id' => $tasks_id));
 
         while($child = sql_fetch($children, true)){
-            tasks_reset($child);
+            tasks_status($child, $status, $reset);
             $count++;
         }
 
         return $count;
+
+    }catch(Exception $e){
+        throw new BException('tasks_status(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Reset the specified task, plus all tasks that have this task as a parent
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package tasks
+ * @see tasks_status()
+ * @see tasks_abort()
+ * @see tasks_failed()
+ * @version 2.5.173: Added documentation
+ *
+ * @param natural $tasks_id The task to be updated
+ * @return natural The amount of tasks that had their status updated
+ */
+function tasks_reset($tasks_id){
+    try{
+        log_console(tr('Task ":id" and all its children are being reset', array(':id' => $tasks_id)), 'warning');
+        return tasks_status($tasks_id, null, true);
 
     }catch(Exception $e){
         throw new BException('tasks_reset(): Failed', $e);
@@ -482,22 +533,53 @@ function tasks_reset($tasks_id){
 
 
 /*
- * Mark the specified task, plus all tasks that have this task as a parent, as
- * failed
+ * Abort the specified task, plus all tasks that have this task as a parent
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package tasks
+ * @see tasks_status()
+ * @see tasks_abort()
+ * @see tasks_failed()
+ * @version 2.5.173: Added documentation
+ *
+ * @param natural $tasks_id The task to be updated
+ * @return natural The amount of tasks that had their status updated
+ */
+function tasks_abort($tasks_id){
+    try{
+        log_console(tr('Aborting task ":id" and all its children', array(':id' => $tasks_id)), 'warning');
+        return tasks_status($tasks_id, 'aborted');
+
+    }catch(Exception $e){
+        throw new BException('tasks_abort(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Mark the specified task, plus all tasks that have this task as a parent, as failed
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package tasks
+ * @see tasks_status()
+ * @see tasks_abort()
+ * @see tasks_reset()
+ * @version 2.5.173: Added documentation
+ *
+ * @param natural $tasks_id The task to be updated
+ * @return natural The amount of tasks that had their status updated
  */
 function tasks_failed($tasks_id){
     try{
-        sql_query('UPDATE `tasks` SET `status` = "failed" WHERE `id` = :id', array(':id' => $tasks_id));
-
-        $count    = 1;
-        $children = sql_query('SELECT `id` FROM `tasks` WHERE `parents_id` = :parents_id', array(':parents_id' => $tasks_id));
-
-        while($child = sql_fetch($children, true)){
-            tasks_failed($child);
-            $count++;
-        }
-
-        return $count;
+        log_console(tr('Task ":id" failed, updating status for it, and all its children', array(':id' => $tasks_id)), 'warning');
+        return tasks_status($tasks_id, 'failed');
 
     }catch(Exception $e){
         throw new BException('tasks_failed(): Failed', $e);
