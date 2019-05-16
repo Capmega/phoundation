@@ -117,7 +117,7 @@ function fprint_verify($user, $finger = 'auto'){
         fprint_kill($device['servers_id']);
         log_console(tr('Starting fprintd-verify process for user ":user"', array(':user' => $user)), 'VERBOSE/cyan');
 
-        $results = servers_exec($device['servers_id'], array('timeout'  => $_CONFIG['fprint']['timeouts']['verify'],
+        $results = servers_exec($device['servers_id'], array('timeout'  => $_CONFIG['fprint']['timeouts']['authenticate'],
                                                              'commands' => array('fprintd-verify', array('sudo' => true, ($finger ? '-f '.$finger.' ' : ''), $dbuser['id']))));
         $result  = array_pop($results);
 
