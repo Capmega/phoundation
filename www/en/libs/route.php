@@ -110,7 +110,7 @@ function route($regex, $target, $flags = null){
          */
         if(!$init){
             $init = true;
-            log_file(tr('Processing ":domain" routes for ":type" type request ":url"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'route', 'white');
+            log_file(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'])), 'route', 'white');
             register_shutdown('route_404', null);
         }
 
