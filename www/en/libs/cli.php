@@ -1297,81 +1297,90 @@ function cli_pidgrep($pid){
  * @category Function reference
  * @package cli
  *
- * @param natural $pid
- * @param natural $signal
- * @param numeric $signal
+ * @param natural list $pids The process id's that must receive the specified $signal
+ * @param natural $signal The signal to send to the specified processes. By default, signal 15 SIGTERM will be sent. If this signal was sent, and verification shows that the specified process do not terminate, the function will automatically upgrade to signal 9 SIGKILL
+ * @param numeric $verify The amount of verification cycles to wait for a process to terminate, in case signal 15 was sent
  * @param boolean $sudo
- * @return boolean True if the process was killed, false if it wasn't found
+ * @return natural The amount of processes killed. 0 if no processes were killed
  */
-function cli_kill($pid, $signal = 15, $verify = -20, $sudo = false){
+function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
     try{
-        if(!$pid){
-            throw new BException(tr('cli_kill(): No $pid specified'), 'not-specified');
+        if(!$pids){
+            throw new BException(tr('cli_kill(): No process ids specified'), 'not-specified');
         }
 
         if(!$signal){
             $signal = 15;
         }
 
-        /*
-         * pkill returns 1 if process wasn't found, we can ignore that
-         */
-        log_console(tr('Killing PID ":pid" with signal ":signal"', array(':pid' => $pid, ':signal' => $signal)), 'VERBOSE/cyan');
+        $pids  = array_force($pids);
+        $count = 0;
 
-        $results = safe_exec(array('ok_exitcodes' => '0,1',
-                                   'commands'     => array('kill', array('sudo' => $sudo, '-'.$signal, $pid))));
+        foreach($pids as $pid){
+            /*
+             * pkill returns 1 if process wasn't found, we can ignore that
+             */
+            log_console(tr('Killing PID ":pid" with signal ":signal"', array(':pid' => $pid, ':signal' => $signal)), 'VERBOSE/cyan');
 
-        if($results){
-            $results = array_shift($results);
-            $results = strtolower($results);
+            $results = safe_exec(array('ok_exitcodes' => '0,1',
+                                       'commands'     => array('kill', array('sudo' => $sudo, '-'.$signal, $pid))));
 
-            if(str_exists($results, 'no such process')){
-                /*
-                 * Process didn't exist!
-                 */
-                log_console(tr('Could not kill PID ":pid", it does not exist', array(':pid' => $pid)), 'warning');
-                return false;
-            }
-        }
+            if($results){
+                $results = array_shift($results);
+                $results = strtolower($results);
 
-        if($verify){
-            $sigkill = ($verify < 0);
-            $verify  = abs($verify);
-
-            while(--$verify >= 0){
-                usleep(100000);
-
-                /*
-                 * Ensure that the progress is gone
-                 */
-                if(!cli_pidgrep($pid)){
+                if(str_exists($results, 'no such process')){
                     /*
-                     * Killed it softly
+                     * Process didn't exist!
                      */
-                    return true;
-                }
-
-                log_console(tr('Waiting for PID ":pid" to die...', array(':pid' => $pid)), 'cyan');
-                usleep(100000);
-            }
-
-            if($sigkill){
-                /*
-                 * Sigkill it!
-                 */
-                log_console(tr('Killing PID ":pid" with signal ":signal"', array(':pid' => $pid, ':signal' => 9)), 'cyan');
-                $result = cli_kill($pid, 9, 0, $sudo);
-
-                if($result){
-                    /*
-                     * Killed it the hard way!
-                     */
-                    return true;
+                    log_console(tr('Could not kill PID ":pid", it does not exist', array(':pid' => $pid)), 'warning');
+                    continue;
                 }
             }
 
-            throw new BException(tr('cli_kill(): Failed to kill PID ":pid"', array(':pid' => $pid)), 'failed');
+            if($verify){
+                $sigkill = ($verify < 0);
+                $verify  = abs($verify);
+
+                while(--$verify >= 0){
+                    usleep(100000);
+
+                    /*
+                     * Ensure that the progress is gone
+                     */
+                    if(!cli_pidgrep($pid)){
+                        /*
+                         * Killed it softly
+                         */
+                        $count++;
+                        continue 2;
+                    }
+
+                    log_console(tr('Waiting for PID ":pid" to die...', array(':pid' => $pid)), 'cyan');
+                    usleep(100000);
+                }
+
+                if($sigkill){
+                    /*
+                     * Sigkill it!
+                     */
+                    log_console(tr('Killing PID ":pid" with signal ":signal"', array(':pid' => $pid, ':signal' => 9)), 'cyan');
+                    $result = cli_kill($pid, 9, 0, $sudo);
+
+                    if($result){
+                        /*
+                         * Killed it the hard way!
+                         */
+                        $count++;
+                        continue;
+                    }
+                }
+
+                throw new BException(tr('cli_kill(): Failed to kill PID ":pid"', array(':pid' => $pid)), 'failed');
+            }
         }
+
+        return $count;
 
     }catch(Exception $e){
         throw new BException('cli_kill(): Failed', $e);
