@@ -229,14 +229,12 @@ function linux_scandir($server, $path){
  * @param string $path
  * @return void
  */
-// :SECURITY: $pattern is NOT checked!!
 function linux_file_delete($server, $patterns, $clean_path = false, $sudo = false, $restrictions = null){
     try{
         if(!$server){
             return file_delete($patterns, $clean_path, $sudo, $restrictions);
         }
 
-// :TODO: Implement restrictions
         if(!$patterns){
             throw new BException('linux_file_delete(): No files or patterns specified');
         }
@@ -244,11 +242,14 @@ function linux_file_delete($server, $patterns, $clean_path = false, $sudo = fals
         $server = servers_get($server);
 
         foreach(array_force($patterns) as $pattern){
-            servers_exec($server, array('commands' => array('rm', array_merge(array('sudo' => $sudo, '-rf'), $patterns))));
+            linux_restrict($server, $pattern, $restrictions);
+            servers_exec($server, array('commands' => array('rm', array('sudo' => $sudo, $pattern, '-rf'))));
 
             if($clean_path){
-                linux_file_clear_path(dirname($patterns));
+                linux_file_clear_path($server, dirname($pattern), $sudo, $restrictions);
             }
+
+            log_console(tr('Deleted file pattern ":pattern" on server ":server"', array(':pattern' => $pattern, ':server' => $server['domain'])), 'green');
         }
 
     }catch(Exception $e){
@@ -272,7 +273,7 @@ function linux_file_delete($server, $patterns, $clean_path = false, $sudo = fals
  * @param boolean [false] $sudo If specified true, the function will test the path's existence on the server using sudo
  * @return
  */
-function linux_file_clear_path($server, $path, $sudo = false){
+function linux_file_clear_path($server, $path, $sudo = false, $restrictions){
     try{
         $server = servers_get($server);
 
@@ -280,7 +281,7 @@ function linux_file_clear_path($server, $path, $sudo = false){
             /*
              * This section does not exist, jump up to the next section
              */
-            return linux_file_clear_path($server, dirname($path));
+            return linux_file_clear_path($server, dirname($path), $sudo, $restrictions);
         }
 
         if(!is_dir($path)){
@@ -313,8 +314,8 @@ function linux_file_clear_path($server, $path, $sudo = false){
              * Remove this entry and continue;
              */
             try{
-                linux_file_execute_mode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function($path){
-                    linux_file_delete($server, $path);
+                linux_file_execute_mode($server, dirname($path), (linux_is_writable(dirname($path)) ? false : 0770), function($path) use ($restrictions){
+                    linux_file_delete($server, $path, false, false, $restrictions);
                 });
 
             }catch(Exception $e){
@@ -1288,6 +1289,132 @@ function linux_find($server, $params){
 
     }catch(Exception $e){
         throw new BException(tr('linux_find(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Ensure that the specified file on the specified server is not in restricted zones. This applies to real paths, with their symlinks expaned
+ *
+ * Authorized areas, by default, are the following paths. Any other path will be restricted
+ *
+ * /tmp/
+ *
+ * If $params is specified as a string, then the function will assume this is a single path and test it
+ *
+ * If $params is specified as an array, then the function will check for the following keys:
+ *
+ * * source
+ * * target
+ * * file
+ * * path
+ *
+ * Any of these will be assumed to be a file path, and tested.
+ *
+ * If $params[unrestricted] is specified, the function will not test anything
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.4.24: Added function and documentation
+ *
+ * @param mixed $server The server on which to apply the restrictions
+ * @param mixed $params The parameters on which to restrict the specified file or path. May also simply be a file string, in which case the default parameters apply
+ * @param null mixed $params[source]
+ * @param null mixed $params[target]
+ * @param null mixed $params[file]
+ * @param null mixed $params[path]
+ * @param null list $params[restrictions] list of paths to which the specified files must be restricted. This will only be used if $restrictions is NULL
+ * @param null list $restrictions list of paths to which the specified files must be restricted
+ * @return void
+ */
+function linux_restrict($server, $params, $restrictions = null){
+    try{
+        /*
+         * Disable all restrictions?
+         */
+        if(!empty($params['unrestricted']) or ($restrictions === false)){
+            /*
+             * No restrictions required
+             */
+            return false;
+        }
+
+        /*
+         * Determine what restrictions apply. The restrictions is a white list
+         * containing the paths where the calling function is allowed to work
+         */
+        if(!$restrictions){
+            /*
+             * If the file was specified as an array, then the restrictions may
+             * have been included in there for convenience.
+             */
+            if(is_array($params) and isset($params['restrictions'])){
+                $restrictions = $params['restrictions'];
+            }
+
+            if(!$restrictions){
+                /*
+                 * Apply default restrictions
+                 */
+                $restrictions = array('/tmp');
+            }
+
+        }else{
+            /*
+             * Restrictions may have been specified as a CSV list, ensure its an
+             * array so we can process then all
+             */
+            $restrictions = array_force($restrictions);
+        }
+
+        /*
+         * If this is a string containing a single path, then test it
+         */
+        if(is_string($params)){
+            /*
+             * The file or path to be checked must start with the $restriction
+             * Unslash the $restriction to avoid checking a path like "/test/"
+             * against a restriction "/test" and having it fail because of the
+             * missing slash at the end
+             */
+            foreach($restrictions as $restriction){
+                unslash($restriction);
+                if(substr($params, 0, strlen($restriction)) === $restriction){
+                    /*
+                     * Passed!
+                     */
+                    return;
+                }
+            }
+
+            throw new BException(tr('linux_restrict(): The specified file or path ":path" is outside of the authorized paths', array(':path' => $params)), 'access-denied', $restrictions);
+        }
+
+        /*
+         * Search for default fields
+         */
+        $keys = array('source', 'target', 'source_path', 'source_path', 'path');
+
+        foreach($keys as $key){
+            if(isset($params[$key])){
+                /*
+                 * All these must be tested
+                 */
+                try{
+                    linux_restrict($params[$key], $restrictions);
+
+                }catch(Exception $e){
+                    throw new BException(tr('linux_restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
+                }
+            }
+        }
+
+    }catch(Exception $e){
+        throw new BException('linux_restrict(): Failed', $e);
     }
 }
 ?>
