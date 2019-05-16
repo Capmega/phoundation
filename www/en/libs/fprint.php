@@ -61,7 +61,8 @@ function fprint_enroll($users_id, $finger = 'auto'){
         $finger = fprint_verify_finger($finger);
         fprint_kill($device['servers_id']);
 
-        $results = servers_exec($device['servers_id'], 'sudo timeout '.$_CONFIG['fprint']['timeouts']['enroll'].' fprintd-enroll '.($finger ? '-f '.$finger.' ' : '').$users_id);
+        $results = servers_exec($device['servers_id'], array('timeout'  => $_CONFIG['fprint']['timeouts']['enroll'],
+                                                             'commands' => array('fprintd-enroll', array('sudo' => true, ($finger ? '-f '.$finger.' ' : ''), $users_id))));
         $result  = array_pop($results);
 
         if($result == 'Enroll result: enroll-completed'){
@@ -114,17 +115,17 @@ function fprint_verify($user, $finger = 'auto'){
         $device = fprint_pick_device();
 
         fprint_kill($device['servers_id']);
+        log_console(tr('Starting fprintd-verify process for user ":user"', array(':user' => $user)), 'VERBOSE/cyan');
 
-        $results = servers_exec($device['servers_id'], array('commands' => array('fprintd-verify', array('sudo' => true, 'timeout' => $_CONFIG['fprint']['timeouts']['verify'], ($finger ? '-f '.$finger.' ' : ''), $dbuser['id']))));
+        $results = servers_exec($device['servers_id'], array('timeout'  => $_CONFIG['fprint']['timeouts']['verify'],
+                                                             'commands' => array('fprintd-verify', array('sudo' => true, ($finger ? '-f '.$finger.' ' : ''), $dbuser['id']))));
         $result  = array_pop($results);
-
-        log_file(tr('Started fprintd-verify process for user ":user"', array(':user' => $user)), 'fprint');
-        log_file($results, 'fprint');
 
         if($result == 'Verify result: verify-match (done)'){
             return true;
         }
 
+        log_console($results, 'VERYVERBOSE/green');
         return false;
 
     }catch(Exception $e){
@@ -176,7 +177,7 @@ function fprint_list_users(){
 function fprint_list($users){
     try{
         $device  = fprint_pick_device();
-        $results = servers_exec($device['servers_id'], 'sudo fprintd-list'.str_force($users, ' '));
+        $results = servers_exec($device['servers_id'], array('commands' => array('fprintd-list', array('sudo' => true, str_force($users, ' ')))));
 
         return $results;
 
@@ -205,13 +206,14 @@ function fprint_delete($user){
         $device = fprint_pick_device();
 
         if(!linux_file_exists($device['servers_id'], '/var/lib/fprint/'.$user)){
-            throw new BException(tr('fprint_delete(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
+            return false;
         }
 
         /*
          * Delete the directory for this user completely
          */
-        linux_file_delete($device['servers_id'], '/var/lib/fprint/'.$user, false, true);
+        linux_file_delete($device['servers_id'], '/var/lib/fprint/'.$user, false, true, '/var/lib/fprint');
+        return true;
 
     }catch(Exception $e){
         throw new BException('fprint_delete(): Failed', $e);
@@ -558,7 +560,7 @@ function fprint_process_result(){
             throw new BException(tr('fprint_process_result(): Fingerprint files missing'), 'warning/'.$result);
 
         default:
-            throw new BException(tr('fprint_process_result(): Finger print scan process failed'), $result);
+            throw new BException(tr('fprint_process_result(): Unknown fingreprint result ":result" encountered', array(':result' => $result)), 'unknown');
     }
 }
 ?>
