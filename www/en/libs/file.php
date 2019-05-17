@@ -960,7 +960,22 @@ function file_delete($patterns, $clean_path = false, $sudo = false, $restriction
 
         foreach(array_force($patterns) as $pattern){
             file_restrict($pattern, $restrictions);
-            safe_exec(array('commands' => array('rm', array('sudo' => $sudo, '-rf', $pattern))));
+
+            /*
+             * Do not escape this argument
+             */
+            $items = array_force($pattern, '*');
+
+            foreach($items as &$item){
+                $item = escapeshellarg($item);
+            }
+
+            $pattern = implode('*', $items);
+
+            unset($items);
+            unset($item);
+
+            safe_exec(array('commands' => array('rm', array('sudo' => $sudo, '-rf', '-' => $pattern))));
 
             if($clean_path){
                 file_clear_path(dirname($patterns));
