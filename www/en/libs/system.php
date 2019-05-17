@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.176');
+define('FRAMEWORKCODEVERSION', '2.5.177');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -4631,7 +4631,8 @@ class Colors {
             $colored_string = '';
 
             if(!is_scalar($string)){
-                throw new BException(tr('getColoredString(): Specified text ":text" is not a string or scalar', array(':text' => $string)), 'invalid');
+                log_console(tr('[ WARNING ] colors::getColoredString(): Specified text ":text" is not a string or scalar. Forcing text to string', array(':text' => $string)), 'warning');
+                $string = str_log($string);
             }
 
             if(NOCOLOR and !$force){
@@ -4646,7 +4647,7 @@ class Colors {
                     /*
                      * If requested colors do not exist, return no
                      */
-                    log_console(tr('[ WARNING ] getColoredString(): specified foreground color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $foreground_color)), 'warning');
+                    log_console(tr('[ WARNING ] colors::getColoredString(): specified foreground color ":color" for the next line does not exist. The line will be displayed without colors', array(':color' => $foreground_color)), 'warning');
                     return $string;
                 }
 
