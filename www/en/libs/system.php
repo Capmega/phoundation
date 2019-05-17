@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.5.175');
+define('FRAMEWORKCODEVERSION', '2.5.176');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1477,7 +1477,7 @@ function log_flags($color){
                 /*
                  * Remove the VERBOSE
                  */
-                $color = str_from(str_from($color, 'VERBOSE'), '/');
+                $color = str_from(str_from($color, 'VERBOSE', 0, true), '/');
                 break;
 
             case 'VERBOSEDOT':
@@ -1485,7 +1485,7 @@ function log_flags($color){
                     /*
                      * Only log this if we're in verbose mode
                      */
-                    $color = str_from(str_from($color, 'VERYVERBOSE'), '/');
+                    $color = str_from(str_from($color, 'VERBOSEDOT', 0, true), '/');
                     cli_dot(10, $color);
                     return false;
                 }
@@ -1493,7 +1493,7 @@ function log_flags($color){
                 /*
                  * Remove the VERBOSE
                  */
-                $color = str_from(str_from($color, 'VERBOSE'), '/');
+                $color = str_from(str_from($color, 'VERBOSEDOT', 0, true), '/');
                 break;
 
             case 'VERYVERBOSE':
@@ -1507,7 +1507,7 @@ function log_flags($color){
                 /*
                  * Remove the VERYVERBOSE
                  */
-                $color = str_from(str_from($color, 'VERYVERBOSE'), '/');
+                $color = str_from(str_from($color, 'VERYVERBOSE', 0, true), '/');
                 break;
 
             case 'VERYVERBOSEDOT':
@@ -1515,7 +1515,7 @@ function log_flags($color){
                     /*
                      * Only log this if we're in verbose mode
                      */
-                    $color = str_from(str_from($color, 'VERYVERBOSE'), '/');
+                    $color = str_from(str_from($color, 'VERYVERBOSEDOT', 0, true), '/');
                     cli_dot(10, $color);
                     return false;
                 }
@@ -1523,7 +1523,7 @@ function log_flags($color){
                 /*
                  * Remove the VERYVERBOSE
                  */
-                $color = str_from(str_from($color, 'VERYVERBOSE'), '/');
+                $color = str_from(str_from($color, 'VERYVERBOSEDOT', 0, true), '/');
                 break;
 
             case 'QUIET':
@@ -1537,7 +1537,7 @@ function log_flags($color){
                 /*
                  * Remove the QUIET
                  */
-                $color = str_from(str_from($color, 'QUIET'), '/');
+                $color = str_from(str_from($color, 'QUIET', 0, true), '/');
                 break;
 
             case 'VERBOSEDOT':
@@ -1554,7 +1554,7 @@ function log_flags($color){
                 /*
                  * Remove the DOT
                  */
-                $color = str_from(str_from($color, 'VERBOSEDOT'), '/');
+                $color = str_from(str_from($color, 'VERBOSEDOT', 0, true), '/');
                 break;
 
             case 'DEBUG':
@@ -1568,7 +1568,7 @@ function log_flags($color){
                 /*
                  * Remove the QUIET
                  */
-                $color = str_from(str_from($color, 'DEBUG'), '/');
+                $color = str_from(str_from($color, 'DEBUG', 0, true), '/');
         }
 
         return $color;
