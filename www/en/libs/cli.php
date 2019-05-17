@@ -1931,8 +1931,17 @@ function cli_build_commands_string(&$params){
                         }
 
                     }else{
+                        if($special[0] === '-'){
+                            /*
+                             * Do not escape this argument
+                             */
+                            $special = str_starts_not($special, '-');
+
+                        }
+
                         /*
-                         * This is a special argument
+                         * This argument appears to be special, check what to do
+                         * with it
                          */
                         switch($special){
                             case 'background':
