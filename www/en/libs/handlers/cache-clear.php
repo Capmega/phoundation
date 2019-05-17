@@ -79,19 +79,31 @@ try{
 
 
 /*
- * Clear bundler caches
+ * Clear CDN and CDN bundler caches
  */
 try{
-    file_delete(ROOT.'www/en/pub/js/bundle-*'       , false, false, ROOT.'www/en/pub/js/');
-    file_delete(ROOT.'www/en/pub/css/bundle-*'      , false, false, ROOT.'www/en/pub/css/');
-    file_delete(ROOT.'www/en/admin/pub/js/bundle-*' , false, false, ROOT.'www/en/admin/pub/js/');
-    file_delete(ROOT.'www/en/admin/pub/css/bundle-*', false, false, ROOT.'www/en/admin/pub/css/');
+    if(empty($_CONFIG['language']['supported'])){
+        $languages = array('en' => tr('English'));
 
-    log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/pub/js/bundle-*,ROOT/pub/css/bundle-*')), 'green');
+    }else{
+        $languages = $_CONFIG['language']['supported'];
+    }
+
+    /*
+     * Clear cache for all languages
+     */
+    foreach($languages as $code => $name){
+        file_delete(ROOT.'www/'.$code.'/pub/js/cached-*'       , false, false, ROOT.'www/'.$code.'/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/pub/js/bundle-*'       , false, false, ROOT.'www/'.$code.'/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/pub/css/bundle-*'      , false, false, ROOT.'www/'.$code.'/pub/css/');
+        file_delete(ROOT.'www/'.$code.'/admin/pub/js/bundle-*' , false, false, ROOT.'www/'.$code.'/admin/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/admin/pub/css/bundle-*', false, false, ROOT.'www/'.$code.'/admin/pub/css/');
+
+        log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/www/'.$code.'/pub/js/bundle-*,ROOT/www/'.$code.'/pub/css/bundle-*')), 'green');
+    }
 
 }catch(Exception $e){
     notify($e);
 }
 
 log_database('Cleared all caches', 'clearcache');
-?>
