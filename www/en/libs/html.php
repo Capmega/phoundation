@@ -152,7 +152,7 @@ function html_bundler($type){
         $bundle      =  substr(sha1($bundle.FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
         $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
-        $count       = 0;
+        $count       =  0;
 
         /*
          * If we don't find an existing bundle file, then procced with the
@@ -192,6 +192,10 @@ function html_bundler($type){
                 $count++;
                 $orgfile = $file;
                 $file    = $path.$file.$ext;
+
+                if(VERYVERBOSE){
+                    log_file(tr('Adding file ":file" to bundle file ":bundle"', array(':file' => $file, ':bundle' => $bundle_file)), 'bundler', 'cyan');
+                }
 
                 if(!file_exists($file)){
                     notify(array('code'    => 'not-exists',
@@ -1834,8 +1838,20 @@ function html_select_body($params) {
  */
 function html_script($script, $jquery_ready = true, $extra = null, $type = null, $ie = false){
     global $_CONFIG, $core;
+    static $internal = 0;
 
     try{
+        $internal = $_CONFIG['cdn']['js']['internal_to_file'];
+
+        if($script[0] === '!'){
+            /*
+             * Keep this script internal! This is required when script contents
+             * contain session sensitive data, or may even change per page
+             */
+            $script   = substr($script, 1);
+            $internal = false;
+        }
+
         if(is_bool($type)){
             $jquery_ready = $type;
             $type         = null;
@@ -1848,7 +1864,8 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
         /*
          * Event wrapper
          *
-         * On what event should this script be executed? Eithere boolean true for standard "document ready" or your own jQuery
+         * On what event should this script be executed? Eithere boolean true
+         * for standard "document ready" or your own jQuery
          *
          * If false, no event wrapper will be added
          */
@@ -1860,8 +1877,11 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
             $script = str_replace(':script', $script, $jquery_ready);
         }
 
-        if(substr($script, 0, 1) == '>'){
+        if($script[0] === '>'){
             $retval = '<script type="'.$type.'" src="'.cdn_domain().'js/'.substr($script, 1).'"'.($extra ? ' '.$extra : '').'></script>';
+
+        }elseif($internal){
+            $retval = $script;
 
         }else{
             $retval = '<script type="'.$type.'"'.($extra ? ' '.$extra : '').">\n".
@@ -1873,19 +1893,62 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
             $retval = html_iefilter($retval, $ie);
         }
 
-        if(!$_CONFIG['cdn']['js']['load_delayed']){
-            return $retval;
-        }
-
         /*
-         * $core->register[script] tags are added all at the end of the page for faster loading
-         * (and to avoid problems with jQuery not yet being available)
+         * $core->register[script] tags are added all at the end of the page
+         * for faster loading (and to avoid problems with jQuery not yet being
+         * available)
          */
-        if(isset($core->register['script_delayed'])){
-            $core->register['script_delayed'] .= $retval;
+        if($internal){
+            /*
+             * Create the cached file names
+             */
+            $base     = 'cached-'.$internal;
+            $file     = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
+
+            /*
+             * Write the javascript to the cached file
+             */
+            if(!file_exists($file.'.js')){
+                log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
+                file_put_contents($file.'.js', $retval);
+            }
+
+            /*
+             * Always minify the file. On local machines where minification is
+             * turned off this is not a problem, it should take almost zero
+             * resources, and it will immediately test minification for
+             * production as well.
+             */
+            if(!file_exists($file.'.min.js')){
+                load_libs('uglify');
+                uglify_js($file.'.js');
+            }
+
+            /*
+             * Add the file to the html javascript load list
+             */
+            html_load_js($base);
+            $internal++;
 
         }else{
-            $core->register['script_delayed']  = $retval;
+            /*
+             * Javascript is included into the webpage directly
+             */
+            if(!$_CONFIG['cdn']['js']['load_delayed']){
+                return $retval;
+            }
+
+            /*
+             * If delayed, add it to the footer, else return it directly for
+             * inclusion at the point where the html_script() function was
+             * called
+             */
+            if(isset($core->register['script_delayed'])){
+                $core->register['script_delayed'] .= $retval;
+
+            }else{
+                $core->register['script_delayed']  = $retval;
+            }
         }
 
         return '';

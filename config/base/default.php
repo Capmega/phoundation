@@ -79,7 +79,8 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'css'                                => array('post'               => false),                    // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
 
-                                       'js'                                 => array('load_delayed'       => true),                     // If set to true, the JS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
+                                       'js'                                 => array('load_delayed'       => true,                      // If set to true, the JS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
+                                                                                     'internal_to_file'   => true),                     // If set to true, all html_script() output will be sent stored in external files which will be added automatically by html_load_js()
 
                                        'network'                            => array('enabled'            => false),                    // Use CDN network or not
 
