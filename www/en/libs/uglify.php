@@ -451,7 +451,7 @@ function uglify_js($paths = null, $force = false){
             $check = true;
 
             uglify_js_check($npm);
-            log_console(tr('uglify_js(): Compressing all javascript files using uglifyjs'), 'VERBOSE');
+            log_console(tr('uglify_js(): Compressing all specified javascript files using uglifyjs'), 'VERBOSE');
         }
 
         if(empty($paths)){
