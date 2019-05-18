@@ -1838,7 +1838,7 @@ function html_select_body($params) {
  */
 function html_script($script, $jquery_ready = true, $extra = null, $type = null, $ie = false){
     global $_CONFIG, $core;
-    static $internal = 0;
+    static $count = 0;
 
     try{
         $internal = $_CONFIG['cdn']['js']['internal_to_file'];
@@ -1902,8 +1902,8 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
             /*
              * Create the cached file names
              */
-            $base     = 'cached-'.$internal;
-            $file     = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
+            $base = 'cached-'.$count;
+            $file = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
 
             /*
              * Write the javascript to the cached file
@@ -1928,7 +1928,7 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
              * Add the file to the html javascript load list
              */
             html_load_js($base);
-            $internal++;
+            $count++;
 
         }else{
             /*
