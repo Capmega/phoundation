@@ -203,6 +203,3 @@ foreach($deploy_config['modes'] as $type => $modes){
             throw new BException(tr('Unknown mode type ":type" specified', array(':type' => $type)), 'unknown');
     }
 }
-
-cli_run_once_local(true);
-?>

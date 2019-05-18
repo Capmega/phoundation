@@ -204,9 +204,7 @@ if(cli_argument('list')){
         }
     }
 
-    cli_run_once_local(true);
     die();
-
 }
 
 
@@ -1224,5 +1222,3 @@ init_hook('deploy_finish', $nohooks, array('target_user'    => $deploy_config['t
                                            'target_port'    => $deploy_config['target_port'],
                                            'target_server'  => $deploy_config['target_server'],
                                            'target_dir'     => $deploy_config['target_dir']));
-cli_run_once_local(true);
-?>

@@ -17,7 +17,4 @@ load_libs('test');
 //    if($results !== '1'){
 //        throw new BException(tr('script_exec() returned unexpected results. Expected "1" but received ":results" instead', array(':results' => $results)), 'unexpected');
 //    }
-//
-//    cli_run_once_local(true);
 //});
-?>
