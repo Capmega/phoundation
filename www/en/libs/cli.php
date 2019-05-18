@@ -306,11 +306,12 @@ function cli_run_once_local($close = false){
                 /*
                  * Hey, this script is being closed but was never opened?
                  */
-                throw new BException(tr('cli_run_once_local(): The function has been called with close option, but it was never opened'), 'invalid');
+                log_console(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'), 'warning');
             }
 
             file_delete($run_dir.$script);
             $executed = false;
+            return;
         }
 
         if($executed){
