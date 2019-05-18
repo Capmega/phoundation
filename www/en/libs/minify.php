@@ -34,7 +34,7 @@ function minify_library_init(){
     try{
         ensure_installed(array('name'     => 'minify',
                                'callback' => 'minify_setup',
-                               'checks'   => array(ROOT.'libs/external/vendor/mrclay/minify')));
+                               'checks'   => array(ROOT.'libs/vendor/mrclay/minify')));
 
     }catch(Exception $e){
         throw new BException('minify_library_init(): Failed', $e);
@@ -63,7 +63,7 @@ function minify_setup($params){
         file_execute_mode(ROOT.'libs/', 0770, function(){
             load_libs('composer');
             composer_require('mrclay/minify');
-            safe_exec(array('commands' => array('chmod', array('ug-w,o-rwx', ROOT.'libs/vendor'))));
+            safe_exec(array('commands' => array('chmod', array('ug-w,o-rwx', ROOT.'libs/vendor/mrclay/'))));
         });
 
     }catch(Exception $e){
