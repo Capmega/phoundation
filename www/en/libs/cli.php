@@ -306,11 +306,12 @@ function cli_run_once_local($close = false){
                 /*
                  * Hey, this script is being closed but was never opened?
                  */
-                throw new BException(tr('cli_run_once_local(): The function has been called with close option, but it was never opened'), 'invalid');
+                log_console(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'), 'warning');
             }
 
             file_delete($run_dir.$script);
             $executed = false;
+            return;
         }
 
         if($executed){
@@ -1898,6 +1899,17 @@ function cli_build_commands_string(&$params){
                         throw new BException(tr('cli_build_commands_string(): Specified arguments ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
                     }
 
+                    if($special[0] === '-'){
+                        /*
+                         * Do not escape this argument
+                         */
+                        $special = str_starts_not($special, '-');
+
+                        if(!$special){
+                            $special = 0;
+                        }
+                    }
+
                     if(is_numeric($special)){
                         /*
                          * This is a normal argument
@@ -1931,14 +1943,6 @@ function cli_build_commands_string(&$params){
                         }
 
                     }else{
-                        if($special[0] === '-'){
-                            /*
-                             * Do not escape this argument
-                             */
-                            $special = str_starts_not($special, '-');
-
-                        }
-
                         /*
                          * This argument appears to be special, check what to do
                          * with it
