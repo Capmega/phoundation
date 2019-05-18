@@ -3,62 +3,41 @@
 /*
  * This script is a front end to PHP composer
  */
-$usage = "./scripts/base/composer OPTIONS\n".
-         "./scripts/base/composer version\n";
-         "./scripts/base/composer init\n";
-         "./scripts/base/composer install\n";
+$usage = './scripts/base/composer OPTIONS
+./scripts/base/composer version
+./scripts/base/composer init
+./scripts/base/composer install PACKAGE
+./scripts/base/composer install';
 
-$help  = "This is the help contents";
+$help  = 'This is the phoundation composer front-end script';
 
 require_once(__DIR__.'/../../libs/startup.php');
-
 load_libs('composer');
-
-$composer = ROOT.'www/en/libs/external/composer.phar';
-
-if(!file_exists($composer)){
-    throw new bException(tr('composer.phar should be installed but was not found'), 'not-found');
-}
 
 switch(cli_method()){
     case 'init':
         /*
          * Setup a composer JSON data file
          */
-        if(file_exists(ROOT.'composer.json')){
-            if(!FORCE){
-                throw new bException('Composer has already been initialized for this project', 'already-initialized');
-            }
-        }
-
         composer_init_file();
         break;
 
     case 'version':
-        safe_exec(array('function' => 'passthru',
-                        'commands' => array('cd' , array(ROOT),
-                                            'php', array($composer, '-V'))));
+        composer_execute('-V');
         break;
 
     case 'install':
-        safe_exec(array('function' => 'passthru',
-                        'commands' => array('cd' , array(ROOT),
-                                            'php', array($composer, 'install'))));
+        $packages = cli_arguments();
+        composer_install($packages);
         break;
 
     case 'require':
-        safe_exec(array('function' => 'passthru',
-                        'commands' => array('cd' , array(ROOT),
-                                            'php', array($composer, 'require'))));
+        $packages = cli_arguments();
+        composer_require($packages);
         break;
 
     case 'explain':
-        $arguments = array($composer, 'help');
-        $arguments = array_merge($arguments, cli_arguments());
-
-        safe_exec(array('function' => 'passthru',
-                        'commands' => array('cd' , array(ROOT),
-                                            'php', $arguments)));
+        composer_exec(array('help'));
         break;
 
     case 'list':

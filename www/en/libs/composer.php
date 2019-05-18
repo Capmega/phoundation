@@ -28,18 +28,11 @@
  */
 function composer_library_init(){
     try{
-        /*
-         * Do a version check so we're sure this stuff is supported
-         */
-        if(version_compare(PHP_VERSION, '5.3.2') < 0){
-            throw new BException('composer_library_init(): PHP composer requires PHP 5.3.2+', 'notsupported');
-        }
-
         ensure_installed(array('name'     => 'composer',
                                'callback' => 'composer_setup',
-                               'checks'   => array(ROOT.'www/en/libs/external/composer.phar')));
+                               'checks'   => array(ROOT.'www/en/libs/composer.phar')));
 
-        if(!file_exists(ROOT.'/composer.json')){
+        if(!file_exists(ROOT.'/libs/composer.json')){
             composer_init_file();
         }
 
@@ -80,8 +73,8 @@ function composer_setup($params){
             throw new BException(tr('composer_setup(): File hash check failed for composer-setup.php'), 'hash-fail');
         }
 
-        file_execute_mode(ROOT.'www/en/libs/external/', 0770, function() use ($file) {
-            safe_exec(array('commands' => array('php', array($file, '--install-dir', ROOT.'www/en/libs/external/', (VERBOSE ? '' : '--quiet')))));
+        file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($file) {
+            safe_exec(array('commands' => array('php', array($file, '--install-dir', ROOT.'www/en/libs/', (VERBOSE ? '' : '--quiet')))));
         });
 
         file_delete(TMP.'composer');
@@ -98,12 +91,63 @@ function composer_setup($params){
  */
 function composer_init_file(){
     try{
+        if(file_exists(ROOT.'composer.json')){
+            if(!FORCE){
+                throw new bException('Composer has already been initialized for this project', 'already-initialized');
+            }
+        }
+
         file_execute_mode(ROOT, 0770, function(){
-            file_put_contents(ROOT.'composer.json', "{\n}");
+            file_put_contents(ROOT.'www/'.LANGUAGE.'/libs/composer.json', "{\n}");
+            chmod(ROOT.'libs/composer.json', 0660);
         });
 
     }catch(Exception $e){
         throw new BException('composer_init_file(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Execute the specified composer commands
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package composer
+ * @version 2.5.179: Added function and documentation
+ * @see composer_install()
+ * @see composer_require()
+ * @example This will install the mrclay/minify package
+ * code
+ * $result = composer_require('mrclay/minify');
+ * showdie($result);
+ * /code
+ *
+ * @param string $package The package to be installed
+ * @return void
+ */
+function composer_exec($commands){
+    try{
+        if(!$commands){
+            throw new BException(tr('composer_exec(): No commands specified'), 'not-specified');
+        }
+
+        file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands){
+            file_ensure_path(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
+
+            file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands){
+                safe_exec(array('function' => 'passthru',
+                                'timeout'  => 30,
+                                'commands' => array('cd'                                      , array(ROOT.'libs'),
+                                                    ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
+            });
+        });
+
+    }catch(Exception $e){
+        throw new BException('composer_exec(): Failed', $e);
     }
 }
 
@@ -118,7 +162,7 @@ function composer_init_file(){
  * @category Function reference
  * @package composer
  * @version 2.0.3: Added function and documentation
- * @see composer_install()
+ * @see composer_exec()
  * @example This will install the mrclay/minify package
  * code
  * $result = composer_require('mrclay/minify');
@@ -128,11 +172,15 @@ function composer_init_file(){
  * @param string $package The package to be installed
  * @return void
  */
-function composer_require($package, $path = ROOT.'libs'){
+function composer_require($packages){
     try{
-        safe_exec(array('timeout'  => 90,
-                        'commands' => array('cd'                              , array($path),
-                                            ROOT.'libs/external/composer.phar', array('require', $package))));
+        if(!$packages){
+            throw new BException(tr('composer_require(): No package specified'), 'not-specified');
+        }
+
+        foreach($packages as $package){
+            composer_exec(array('require', $package));
+        }
 
     }catch(Exception $e){
         throw new BException('composer_require(): Failed', $e);
@@ -150,7 +198,7 @@ function composer_require($package, $path = ROOT.'libs'){
  * @category Function reference
  * @package composer
  * @version 2.0.3: Added function and documentation
- * @see composer_require()
+ * @see composer_exec()
  * @example This will install the mrclay/minify package
  * code
  * $result = composer_require('mrclay/minify');
@@ -160,9 +208,15 @@ function composer_require($package, $path = ROOT.'libs'){
  * @param string $package The package to be installed
  * @return void
  */
-function composer_install($package){
+function composer_install($packages){
     try{
-        safe_exec(array('commands' => array(ROOT.'libs/external/composer.phar', array('install', $package))));
+        if(!$packages){
+            throw new BException(tr('composer_install(): No package specified'), 'not-specified');
+        }
+
+        foreach($packages as $package){
+            composer_exec(array('install', $package));
+        }
 
     }catch(Exception $e){
         throw new BException('composer_install(): Failed', $e);
