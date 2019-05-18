@@ -226,7 +226,6 @@ switch($method){
                 }
 
                 init($pfrom, $ffrom);
-                cli_run_once_local(true);
 
             }catch(Exception $e){
                 switch($e->getCode()){
@@ -255,4 +254,3 @@ switch($method){
     default:
         throw new BException(tr('Unknown method ":method" specified', array(':method' => $method)), 'unknown-method');
 }
-?>

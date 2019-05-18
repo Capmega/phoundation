@@ -439,5 +439,3 @@ if(!$nobadgescached){
  */
 script_exec(array('timeout'  => 60,
                   'commands' => array('base/fix-permissions')));
-cli_run_once_local(true);
-?>

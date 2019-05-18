@@ -450,8 +450,6 @@ try{
         git_reset();
     }
 
-    cli_run_once_local(true);
-
 }catch(Exception $e){
     log_console(tr('Encountered exception, cleaning up'), 'yellow');
 
@@ -473,4 +471,3 @@ try{
             throw $e;
     }
 }
-?>
