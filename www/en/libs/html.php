@@ -337,6 +337,8 @@ function html_bundler($type){
                         file_append($bundle_file, $data.($_CONFIG['cdn']['min'] ? '' : "\n"));
                     }
                 }
+
+                chmod($bundle_file, $_CONFIG['file']['file_mode']);
             });
 
             /*
