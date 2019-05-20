@@ -2499,12 +2499,12 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
              * auto rescale!
              */
             if(!is_natural($params['width'])){
-                log_console(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $width, ':src' => $params['src'])), 'warning');
+                notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $width, ':src' => $params['src'])), 'warning/invalid'));
                 $params['width'] = $width;
             }
 
             if(!is_natural($params['height'])){
-                log_console(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $height, ':src' => $params['src'])), 'warning');
+                notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $height, ':src' => $params['src'])), 'warning/invalid'));
                 $params['height'] = $height;
             }
 
