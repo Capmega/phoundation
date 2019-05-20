@@ -27,8 +27,8 @@
  */
 function curl_library_init(){
     try{
-        if(!extension_loaded('imap')){
-            throw new BException(tr('email_library_init(): The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'), 'missing-module');
+        if(!extension_loaded('curl')){
+            throw new BException(tr('curl_library_init(): The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
 
         load_config('curl');
