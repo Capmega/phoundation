@@ -113,7 +113,7 @@ function html_iefilter($html, $filter){
 function html_bundler($type){
     global $_CONFIG, $core;
 
-    if(!$_CONFIG['cdn']['bundler']['enabled']){
+    if(!$_CONFIG['cdn']['bundler']){
         /*
          * Bundler has been disabled
          */
@@ -177,7 +177,7 @@ function html_bundler($type){
              * Bundle files are essentially cached files. Ensure the cache is
              * not too old
              */
-            if((filemtime($bundle_file) + $_CONFIG['cdn']['bundler']['max_age']) < time()){
+            if((filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()){
                 file_execute_mode(dirname($bundle_file), 0770, function(){
                     file_delete($bundle_file, false, false, false, ROOT.'pub/'.$typs);
                 });
@@ -472,6 +472,11 @@ function html_generate_css(){
             }
         }
 
+        if($_CONFIG['cdn']['css']['load_delayed']){
+            $core->register['footer'] .= $retval;
+            return null;
+        }
+
         return $retval;
 
     }catch(Exception $e){
@@ -505,7 +510,7 @@ function html_generate_css(){
  * @param list $files The javascript files that should be loaded by the client for this page
  * @return void
  */
-function html_load_js($files){
+function html_load_js($files, $list = 'page'){
     global $_CONFIG, $core;
 
     try{
@@ -568,10 +573,10 @@ function html_load_js($files){
              * Register the file to be loaded
              */
             if($delayed){
-                $core->register['js_footer'][$file] = $async;
+                $core->register['js_footer'.($list ? '_'.$list : '')][$file] = $async;
 
             }else{
-                $core->register['js_header'][$file] = $async;
+                $core->register['js_header'.($list ? '_'.$list : '')][$file] = $async;
             }
         }
 
@@ -607,22 +612,24 @@ function html_load_js($files){
  *
  * @return string The HTML containing <script> tags that is to be included in the <head> tag
  */
-function html_generate_js(){
+function html_generate_js($lists = null){
     global $_CONFIG, $core;
 
     try{
         /*
          * Shortcut to JS configuration
          */
+        $count  = 0;
         $js     = &$_CONFIG['cdn']['js'];
         $min    = ($_CONFIG['cdn']['min'] ? '.min' : '');
         $retval = '';
         $footer = '';
+        $lists  = array('js_header', 'js_footer', 'js_footer_page', 'js_footer_scripts');
 
         /*
          * Load JS libraries
          */
-        foreach(array('js_header', 'js_footer') as $section){
+        foreach($lists as $section){
             html_bundler($section);
 
             foreach($core->register[$section] as $file => $async){
@@ -641,26 +648,26 @@ function html_generate_js(){
                     /*
                      * These are external scripts, hosted by somebody else
                      */
-                    $html = '<script'.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.$file.'"'.($async ? ' async' : '').'></script>';
+                    $html = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.$file.'"'.($async ? ' async' : '').'></script>';
 
                 }else{
                     /*
                      * These are local scripts, hosted by us
                      */
-                    $html = '<script'.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : str_until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
+                    $html = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : str_until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
                 }
 
-                if($section == 'js_footer'){
-                    /*
-                     * Add this script in the footer of the body tag
-                     */
-                    $footer .= $html;
-
-                }else{
+                if($section === 'js_header'){
                     /*
                      * Add this script in the header
                      */
                     $retval .= $html;
+
+                }else{
+                    /*
+                     * Add this script in the footer of the body tag
+                     */
+                    $footer .= $html;
                 }
             }
 
@@ -672,7 +679,7 @@ function html_generate_js(){
          * automatically be added to the end of the <body> tag
          */
         if(!empty($footer)){
-            $core->register['footer'] = $footer.$core->register['footer'].$core->register('script_delayed');
+            $core->register['footer'] .= $footer.$core->register['footer'].$core->register('script_delayed');
             unset($core->register['script_delayed']);
         }
 
@@ -1839,85 +1846,134 @@ function html_select_body($params) {
  * @note Even if $_CONFIG[cdn][js][load_delayed] is true, the return value of this function should always be received in a variable, just in case the setting gets changes for whatever reason
  * @version 1.26.0: Added documentation
  *
- * @param string $script The javascript content
- * @param boolean $jquery_ready If set to true, the $script will be changed to $(document).ready(function(e){ $script });
+ * @param params string $script The javascript content
+ * @param boolean $dom_content_loaded If set to true, the $script will be changed to document.addEventListener("DOMContentLoaded", function(e) { :script });
  * @param string $extra If specified, these extra HTML attributes will be added into the <script> tag
  * @param string $type The <script type="TYPE"> contents. Defaults to "text/javascript"
  * @param boolean $ie
  * @return string The body HTML for a <select> tag, containing all <option> tags
  */
-function html_script($script, $jquery_ready = true, $extra = null, $type = null, $ie = false){
+function html_script($script, $event = 'dom_content', $extra = null, $type = 'text/javascript', $ie = false){
     global $_CONFIG, $core;
     static $count = 0;
 
     try{
-        $internal = $_CONFIG['cdn']['js']['internal_to_file'];
+        array_params($script, 'script');
+        array_default($script, 'event'  , $event);
+        array_default($script, 'extra'  , $extra);
+        array_default($script, 'type'   , $type);
+        array_default($script, 'ie'     , $ie);
+        array_default($script, 'to_file', null);
+        array_default($script, 'list'   , 'scripts');
 
-        if($script[0] === '!'){
+        if($script['to_file'] === null){
             /*
-             * Keep this script internal! This is required when script contents
-             * contain session sensitive data, or may even change per page
+             * The option if this javascript should be written to an external
+             * file should be taken from the configuration
              */
-            $script   = substr($script, 1);
-            $internal = false;
+            $script['to_file'] = $_CONFIG['cdn']['js']['internal_to_file'];
         }
 
-        if(is_bool($type)){
-            $jquery_ready = $type;
-            $type         = null;
+        if(!$script['script']){
+            /*
+             * No javascript was specified, notify developers
+             */
+            notify(new BException(tr('html_script(): No javascript code specified'), 'not-specified'));
+            return '';
         }
 
-        if(is_null($type)){
-            $type = 'text/javascript';
-        }
+        switch($script['script'][0]){
+            case '>':
+                /*
+                 * Keep this script internal! This is required when script contents
+                 * contain session sensitive data, or may even change per page
+                 */
+                $retval            = '<script type="'.$type.'" src="'.cdn_domain('js/'.substr($script['script'], 1)).'"'.($extra ? ' '.$extra : '').'></script>';
+                $script['to_file'] = false;
+                break;
 
-        /*
-         * Event wrapper
-         *
-         * On what event should this script be executed? Eithere boolean true
-         * for standard "document ready" or your own jQuery
-         *
-         * If false, no event wrapper will be added
-         */
-        if($jquery_ready){
-            if($jquery_ready === true){
-                $jquery_ready = '$(document).ready(function(e){ :script });';
-            }
+            case '!':
+                /*
+                 * Keep this script internal! This is required when script contents
+                 * contain session sensitive data, or may even change per page
+                 */
+                $retval            = substr($script['script'], 1);
+                $script['to_file'] = false;
 
-            $script = str_replace(':script', $script, $jquery_ready);
-        }
+                // FALLTHROUGH
 
-        if($script[0] === '>'){
-            $retval = '<script type="'.$type.'" src="'.cdn_domain().'js/'.substr($script, 1).'"'.($extra ? ' '.$extra : '').'></script>';
+            default:
+                /*
+                 * Event wrapper
+                 *
+                 * On what event should this script be executed? Eithere boolean true
+                 * for standard "document ready" or your own jQuery
+                 *
+                 * If false, no event wrapper will be added
+                 */
+                if($script['event']){
+                    switch($script['event']){
+                        case 'dom_content':
+                            $retval = 'document.addEventListener("DOMContentLoaded", function(e) { '.$script['script'].' });';
+                            break;
 
-        }elseif($internal){
-            $retval = $script;
+                        case 'window':
+                            $retval = 'window.addEventListener("load", function(e) { '.$script['script'].' });';
+                            break;
 
-        }else{
-            $retval = '<script type="'.$type.'"'.($extra ? ' '.$extra : '').">\n".
-                            $script.
-                      '</script>';
+                        default:
+                            throw new BException(tr('html_script(): Unknown event value ":value" specified', array(':value' => $script['event'])), 'unknown');
+                    }
+
+                }else{
+                    /*
+                     * Don't wrap the specified script in an event wrapper
+                     */
+                    $retval = $script['script'];
+                }
+
+                if(!$script['to_file']){
+                    $retval = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
+                                    '.$retval.'
+                                </script>';
+                }
         }
 
         if($ie){
+            /*
+             * Add Internet Explorer filters
+             */
             $retval = html_iefilter($retval, $ie);
         }
 
         /*
-         * $core->register[script] tags are added all at the end of the page
-         * for faster loading (and to avoid problems with jQuery not yet being
-         * available)
+         * Store internal script in external files, or keep them internal?
          */
-        if($internal){
+        if($script['to_file']){
             /*
              * Create the cached file names
              */
-            $base = 'cached-'.$count;
+            $base = 'cached'.$count;
             $file = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
 
             /*
              * Write the javascript to the cached file
              */
+            if(file_exists($file.'.js')){
+                if(!filesize($file.'.js')){
+                    /*
+                     * The javascript file is empty
+                     */
+                    file_delete($file.'.js,'.$file.'.min.js', false, false, ROOT.'www/en/pub/js');
+
+                }elseif((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time()){
+                    /*
+                     * External cached file is too old
+                     */
+                    file_delete($file.'.js,'.$file.'.min.js', false, false, ROOT.'www/en/pub/js');
+                }
+            }
+
             if(!file_exists($file.'.js')){
                 log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
                 file_put_contents($file.'.js', $retval);
@@ -1937,12 +1993,15 @@ function html_script($script, $jquery_ready = true, $extra = null, $type = null,
             /*
              * Add the file to the html javascript load list
              */
-            html_load_js($base);
+            html_load_js($base, $script['list']);
             $count++;
 
         }else{
             /*
              * Javascript is included into the webpage directly
+             *
+             * $core->register[script] tags are added all at the end of the page
+             * for faster loading
              */
             if(!$_CONFIG['cdn']['js']['load_delayed']){
                 return $retval;

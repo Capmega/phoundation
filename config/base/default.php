@@ -66,18 +66,20 @@ $_CONFIG['cache']              = array('method'                             => '
 // CDN configuration
 $_CONFIG['cdn']                = array('min'                                => true,                                                    // If set to "true" all CSS and JS files loaded with html_load_js() and html_load_css() will be loaded as file.min.js instead of file.js. Use "true" in production environment, "false" in all other environments
 
+                                       'cache_max_age'                      => 86400,                                                   // Max age of cached CDN files like bundle files, internal js files, etc. before they are deleted and regenerated
+
                                        'enabled'                            => false,                                                   // If set to "true", base will try to use configured CDN servers for the content files. If set to false, files will be used from the local server
 
                                        'is_server'                          => false,                                                   // If set to "true", this server can function as a CDN server
 
                                        'copies'                             => 2,                                                       // Required amount of copies of each files. NOTE: This amount should be lower or equal to the amount of available CDN servers! (would not make sense otherwise)
 
-                                       'domain'                             => '',                                                       // Required amount of copies of each files. NOTE: This amount should be lower or equal to the amount of available CDN servers! (would not make sense otherwise)
+                                       'domain'                             => '',                                                      // Required amount of copies of each files. NOTE: This amount should be lower or equal to the amount of available CDN servers! (would not make sense otherwise)
 
-                                       'bundler'                            => array('enabled'            => true,                      // If JS and CSS bundler should be enabled or not
-                                                                                     'max_age'            => 86400),                    // Max age of bundle files before they are deleted and regenerated
+                                       'bundler'                            => true,                                                    // If JS and CSS bundler should be enabled or not
 
-                                       'css'                                => array('post'               => false),                    // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
+                                       'css'                                => array('load_delayed'       => false,                     // If set to true, the CSS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
+                                                                                     'post'               => false),                    // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
 
                                        'js'                                 => array('load_delayed'       => true,                      // If set to true, the JS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
                                                                                      'internal_to_file'   => true),                     // If set to true, all html_script() output will be sent stored in external files which will be added automatically by html_load_js()
