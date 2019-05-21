@@ -1906,7 +1906,7 @@ function cli_build_commands_string(&$params){
                         $special = str_starts_not($special, '-');
 
                         if(!$special){
-                            $special = 0;
+                            $special = 'nothing';
                         }
                     }
 
@@ -1948,6 +1948,9 @@ function cli_build_commands_string(&$params){
                          * with it
                          */
                         switch($special){
+                            case 'nothing':
+                                break;
+
                             case 'background':
                                 $params['background'] = $argument;
 
