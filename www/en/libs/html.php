@@ -2508,65 +2508,77 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
              * Is the image width and or height larger than specified? If so,
              * auto rescale!
              */
-            if(($width > $params['width']) or ($height > $params['height'])){
-                log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
+            if(!is_natural($params['width'])){
+                notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $width, ':src' => $params['src'])), 'warning/invalid'));
+                $params['width'] = $width;
+            }
 
-                /*
-                 * Determine the resize dimensions
-                 */
-                if(!$params['height']){
-                    $params['height'] = $height;
+            if(!is_natural($params['height'])){
+                notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $height, ':src' => $params['src'])), 'warning/invalid'));
+                $params['height'] = $height;
+            }
+
+            if(!$_CONFIG['html']['images']['auto_resize']){
+                if(($width > $params['width']) or ($height > $params['height'])){
+                    log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
+
+                    /*
+                     * Determine the resize dimensions
+                     */
+                    if(!$params['height']){
+                        $params['height'] = $height;
+                    }
+
+                    if(!$params['width']){
+                        $params['width']  = $width;
+                    }
+
+                    /*
+                     * Determine the file target name and src
+                     */
+                    if(str_exists($params['src'], '@2x')){
+                        $pre    = str_until($params['src'], '@2x');
+                        $post   = str_from ($params['src'], '@2x');
+                        $target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
+
+                        $pre         = str_until($file_src, '@2x');
+                        $post        = str_from ($file_src, '@2x');
+                        $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
+
+                    }else{
+                        $pre    = str_runtil($params['src'], '.');
+                        $post   = str_rfrom ($params['src'], '.');
+                        $target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
+
+                        $pre         = str_runtil($file_src, '.');
+                        $post        = str_rfrom ($file_src, '.');
+                        $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
+                    }
+
+                    /*
+                     * Resize or do we have a cached version?
+                     */
+                    if(!file_exists($file_target)){
+                        log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
+                        load_libs('image');
+
+                        file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params){
+                            global $_CONFIG;
+
+                            image_convert(array('method' => 'resize',
+                                                'source' => $file_src,
+                                                'target' => $file_target,
+                                                'x'      => $params['width'],
+                                                'y'      => $params['height']));
+                        });
+                    }
+
+                    /*
+                     * Convert src to the resized target
+                     */
+                    $params['src'] = $target;
+                    $file_src      = $file_target;
                 }
-
-                if(!$params['width']){
-                    $params['width']  = $width;
-                }
-
-                /*
-                 * Determine the file target name and src
-                 */
-                if(str_exists($params['src'], '@2x')){
-                    $pre    = str_until($params['src'], '@2x');
-                    $post   = str_from ($params['src'], '@2x');
-                    $target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
-
-                    $pre         = str_until($file_src, '@2x');
-                    $post        = str_from ($file_src, '@2x');
-                    $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
-
-                }else{
-                    $pre    = str_runtil($params['src'], '.');
-                    $post   = str_rfrom ($params['src'], '.');
-                    $target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
-
-                    $pre         = str_runtil($file_src, '.');
-                    $post        = str_rfrom ($file_src, '.');
-                    $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
-                }
-
-                /*
-                 * Resize or do we have a cached version?
-                 */
-                if(!file_exists($file_target)){
-                    log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
-                    load_libs('image');
-
-                    file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params){
-                        global $_CONFIG;
-
-                        image_convert(array('method' => 'resize',
-                                            'source' => $file_src,
-                                            'target' => $file_target,
-                                            'x'      => $params['width'],
-                                            'y'      => $params['height']));
-                    });
-                }
-
-                /*
-                 * Convert src to the resized target
-                 */
-                $params['src'] = $target;
-                $file_src      = $file_target;
             }
         }
 

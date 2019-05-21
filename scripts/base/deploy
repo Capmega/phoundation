@@ -428,6 +428,7 @@ if($nobomcheck){
 }else{
     log_console(tr('Executing BOM check'), 'white');
     script_exec(array('function' => 'passthru',
+                      'timeout'  => 30,
                       'commands' => array('base/clearbom')));
 }
 
