@@ -898,7 +898,7 @@ function html_header($params = null, $meta = array()){
          */
         if(!empty($params['fonts'])){
             foreach($params['fonts'] as $font){
-                $retval .= '<link href="'.$font.'" rel="stylesheet" type="text/css">';
+                $retval .= '<link rel="preload" href="'.$font.'" rel="stylesheet" type="text/css">';
             }
         }
 
@@ -2258,7 +2258,7 @@ function html_hidden($source, $key = 'id'){
  * @param string
  * @return string The result
  */
-function html_img_src($src, &$external = null, &$file_src = null){
+function html_img_src($src, &$external = null, &$file_src = null, &$original_src = null){
     global $_CONFIG;
 
     try{
@@ -2307,7 +2307,8 @@ function html_img_src($src, &$external = null, &$file_src = null){
         /*
          * Check if the image should be auto converted
          */
-        $format = str_rfrom($src, '.');
+        $original_src = $file_src;
+        $format       = str_rfrom($src, '.');
 
         if($format === 'jpeg'){
             $format = 'jpg';
@@ -2455,7 +2456,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
          * Also check if the file should be automatically converted to a
          * different format
          */
-        $params['src'] = html_img_src($params['src'], $external, $file_src);
+        $params['src'] = html_img_src($params['src'], $external, $file_src, $original_src);
 
         /*
          * Atumatically detect width / height of this image, as it is not
@@ -2533,7 +2534,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                      * Local image. Analize directly
                      */
                     if(file_exists($file_src)){
-                        $image = getimagesize($file_src);
+                        $image = getimagesize($original_src);
 
                     }else{
                         /*
