@@ -898,7 +898,18 @@ function html_header($params = null, $meta = array()){
          */
         if(!empty($params['fonts'])){
             foreach($params['fonts'] as $font){
-                $retval .= '<link rel="preload" href="'.$font.'" rel="stylesheet" type="text/css">';
+                $extension = str_rfrom($font, '.');
+
+                switch($extension){
+                    case 'woff':
+                        // FALLTHROUGH
+                    case 'woff2':
+                        $retval .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'">';
+                        break;
+
+                    default:
+                        throw new BException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
+                }
             }
         }
 
