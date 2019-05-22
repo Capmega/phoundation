@@ -634,6 +634,11 @@ function html_generate_js($lists = null){
                     continue 2;
 
                 default:
+                    if(empty($core->register[$section])){
+                        unset($lists[$key]);
+                        continue;
+                    }
+
                     $core->register['js_footer'] = array_merge($core->register['js_footer'], $core->register[$section]);
                     unset($lists[$key]);
             }
