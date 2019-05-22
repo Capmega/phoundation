@@ -904,7 +904,7 @@ function html_header($params = null, $meta = array()){
                     case 'woff':
                         // FALLTHROUGH
                     case 'woff2':
-                        $retval .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'">';
+                        $retval .= '<link rel="preload" href="'.$font.'" as="font" type="font/'.$extension.'" crossorigin="anonymous">';
                         break;
 
                     default:
