@@ -107,10 +107,10 @@ function html_iefilter($html, $filter){
  * @see html_minify()
  * @version 1.27.0: Added documentation
  *
- * @param string $type One of "css", "js_header", or "js_footer".  Specified what file list to bundle.  "css" bundles all CSS files, "js_header" bundles all files for the <script> tag in the <head> section, and "js_footer" bundles all files that go in the <script> tag of the footer of the HTML file
+ * @param string $list One of "css", "js_header", or "js_footer".  Specified what file list to bundle.  "css" bundles all CSS files, "js_header" bundles all files for the <script> tag in the <head> section, and "js_footer" bundles all files that go in the <script> tag of the footer of the HTML file
  * @return boolean False if no bundling has been applied, true if bundling was applied
  */
-function html_bundler($type){
+function html_bundler($list){
     global $_CONFIG, $core;
 
     if(!$_CONFIG['cdn']['bundler']){
@@ -121,19 +121,11 @@ function html_bundler($type){
     }
 
     try{
-        switch($type){
-            case 'css':
-                $extension = 'css';
-                break;
+        if($list === 'css'){
+            $extension = 'css';
 
-            case 'js_header':
-                // FALLTHROUGH
-            case 'js_footer':
-                $extension = 'js';
-                break;
-
-            default:
-                throw new BException(tr('html_bundler(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
+        }else{
+            $extension = 'js';
         }
 
         /*
@@ -148,11 +140,11 @@ function html_bundler($type){
          */
         $admin_path  = ($core->callType('admin') ? 'admin/'           : '');
         $ext         = ($_CONFIG['cdn']['min']   ? '.min.'.$extension : '.'.$extension);
-        $bundle      =  str_force(array_keys($core->register[$type]));
+        $bundle      =  str_force(array_keys($core->register[$list]));
         $bundle      =  substr(sha1($bundle.FRAMEWORKCODEVERSION.PROJECTCODEVERSION), 1, 16);
         $path        =  ROOT.'www/'.LANGUAGE.'/'.$admin_path.'pub/'.$extension.'/';
         $bundle_file =  $path.'bundle-'.$bundle.$ext;
-        $count       =  0;
+        $file_count  =  0;
 
         /*
          * If we don't find an existing bundle file, then procced with the
@@ -166,11 +158,11 @@ function html_bundler($type){
              * JS
              */
             if(!filesize($bundle_file)){
-                file_execute_mode(dirname($bundle_file), 0770, function(){
-                    file_delete($bundle_file, false, false, false, ROOT.'pub/'.$typs);
+                file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
+                    file_delete($bundle_file, false, false, false, ROOT.'pub/'.$list);
                 });
 
-                return html_bundler($type);
+                return html_bundler($list);
             }
 
             /*
@@ -178,176 +170,181 @@ function html_bundler($type){
              * not too old
              */
             if((filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()){
-                file_execute_mode(dirname($bundle_file), 0770, function(){
-                    file_delete($bundle_file, false, false, false, ROOT.'pub/'.$typs);
+                file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
+                    file_delete($bundle_file, false, false, false, ROOT.'pub/'.$list);
                 });
 
-                return html_bundler($type);
+                return html_bundler($list);
             }
 
-            $core->register[$type] = array('bundle-'.$bundle => false);
+            $core->register[$list] = array('bundle-'.$bundle => false);
 
         }else{
             /*
-             * Generate new bundle
+             * Generate new bundle file. This requires the pub/$list path to be
+             * writable
              */
-            file_execute_mode(dirname($bundle_file), 0770, function(){
-                foreach($core->register[$type] as $file => $data){
-                    /*
-                     * Check for @imports
-                     */
-                    $count++;
-                    $orgfile = $file;
-                    $file    = $path.$file.$ext;
+            file_execute_mode(dirname($bundle_file), 0770, function() use ($list, &$file_count, $path, $ext, $extension, $bundle_file){
+                global $core, $_CONFIG;
 
-                    if(VERYVERBOSE){
-                        log_file(tr('Adding file ":file" to bundle file ":bundle"', array(':file' => $file, ':bundle' => $bundle_file)), 'bundler', 'cyan');
-                    }
+                if(!empty($core->register[$list])){
+                    foreach($core->register[$list] as $file => $data){
+                        /*
+                         * Check for @imports
+                         */
+                        $file_count++;
+                        $orgfile = $file;
+                        $file    = $path.$file.$ext;
 
-                    if(!file_exists($file)){
-                        notify(array('code'    => 'not-exists',
-                                     'groups'  => 'developers',
-                                     'title'   => tr('Bundler file does not exist'),
-                                     'message' => tr('html_bundler(): The bundler ":extension" file ":file" does not exist', array(':extension' => $extension, ':file' => $file))));
-                        continue;
-                    }
+                        if(VERYVERBOSE){
+                            log_file(tr('Adding file ":file" to bundle file ":bundle"', array(':file' => $file, ':bundle' => $bundle_file)), 'bundler', 'cyan');
+                        }
 
-                    $data = file_get_contents($file);
-                    unset($core->register[$type][$orgfile]);
+                        if(!file_exists($file)){
+                            notify(array('code'    => 'not-exists',
+                                         'groups'  => 'developers',
+                                         'title'   => tr('Bundler file does not exist'),
+                                         'message' => tr('html_bundler(): The bundler ":extension" file ":file" does not exist', array(':extension' => $extension, ':file' => $file))));
+                            continue;
+                        }
 
-                    switch($extension){
-                        case 'js':
-                            /*
-                             * Prevent issues with JS files that do not end in ; or
-                             * that end in an // comment
-                             */
-    //                        $data .= "\n;";
-                            break;
+                        $data = file_get_contents($file);
+                        unset($core->register[$list][$orgfile]);
 
-                        case 'css':
-    // :TODO: ADD SUPPORT FOR RECURSIVE @IMPORT STATEMENTS!! What if the files that are imported with @import contain @import statements themselves!?!?!?
-                            if(preg_match_all('/@import.+?;/', $data, $matches)){
-                                foreach($matches[0] as $match){
+                        switch($extension){
+                            case 'js':
+                                /*
+                                 * Prevent issues with JS files that do not end in ; or
+                                 * that end in an // comment
+                                 */
+        //                        $data .= "\n;";
+                                break;
+
+                            case 'css':
+        // :TODO: ADD SUPPORT FOR RECURSIVE @IMPORT STATEMENTS!! What if the files that are imported with @import contain @import statements themselves!?!?!?
+                                if(preg_match_all('/@import.+?;/', $data, $matches)){
+                                    foreach($matches[0] as $match){
+                                        /*
+                                         * Inline replace each @import with the file
+                                         * contents
+                                         */
+        //                                if(preg_match('/@import\s?(?:url\()?((?:"?.+?"?)|(?:\'.+?\'))\)?/', $match)){
+                                        if(preg_match('/@import\s"|\'.+?"|\'/', $match)){
+        // :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
+                                            $import = str_cut($match, '"', '"');
+
+                                            if(!file_exists($path.$import)){
+                                                notify(array('code'    => 'not-exists',
+                                                             'groups'  => 'developers',
+                                                             'title'   => tr('Bundler file does not exist'),
+                                                             'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
+
+                                                $import = '';
+
+                                            }else{
+                                                $import = file_get_contents($path.$import);
+                                            }
+
+                                        }elseif(preg_match('/@import\surl\(.+?\)/', $match)){
+        // :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
+                                            /*
+                                             * This is an external URL. Get it locally
+                                             * as a temp file, then include
+                                             */
+                                            $import = str_cut($match, '(', ')');
+                                            $import = slash(dirname($file)).unslash($import);
+
+                                            if(!file_exists($import)){
+                                                notify(array('code'    => 'not-exists',
+                                                             'groups'  => 'developers',
+                                                             'title'   => tr('Bundler file does not exist'),
+                                                             'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
+
+                                                $import = '';
+
+                                            }else{
+                                                $import = file_get_contents($import);
+                                            }
+                                        }
+
+                                        $data = str_replace($match, $import, $data);
+                                    }
+                                }
+
+                                $count = substr_count($orgfile, '/');
+
+                                if(!$count){
                                     /*
-                                     * Inline replace each @import with the file
-                                     * contents
+                                     * No URL rewriting required, this file is directly
+                                     * in /css or /js, and not in a sub dir
                                      */
-    //                                if(preg_match('/@import\s?(?:url\()?((?:"?.+?"?)|(?:\'.+?\'))\)?/', $match)){
-                                    if(preg_match('/@import\s"|\'.+?"|\'/', $match)){
-    // :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
-                                        $import = str_cut($match, '"', '"');
+                                    continue;
+                                }
 
-                                        if(!file_exists($path.$import)){
-                                            notify(array('code'    => 'not-exists',
-                                                         'groups'  => 'developers',
-                                                         'title'   => tr('Bundler file does not exist'),
-                                                         'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
-
-                                            $import = '';
-
-                                        }else{
-                                            $import = file_get_contents($path.$import);
+                                if(preg_match_all('/url\((.+?)\)/', $data, $matches)){
+                                    /*
+                                     * Rewrite all URL's to avoid relative URL's failing
+                                     * for files in sub directories
+                                     *
+                                     * e.g.:
+                                     *
+                                     * The bundle file is /pub/css/bundle-1.css,
+                                     * includes a css file /pub/css/foo/bar.css,
+                                     * bar.css includes an image 1.jpg that is in the
+                                     * same directory as bar.css with url("1.jpg")
+                                     *
+                                     * In the bundled file, this should become
+                                     * url("foo/1.jpg")
+                                     */
+                                    foreach($matches[1] as $url){
+                                        if(strtolower(substr($url, 0, 5)) == 'data:'){
+                                            /*
+                                             * This is inline data, nothing we can do so
+                                             * ignore
+                                             */
+                                            continue;
                                         }
 
-                                    }elseif(preg_match('/@import\surl\(.+?\)/', $match)){
-    // :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
-                                        /*
-                                         * This is an external URL. Get it locally
-                                         * as a temp file, then include
-                                         */
-                                        $import = str_cut($match, '(', ')');
-                                        $import = slash(dirname($file)).unslash($import);
-
-                                        if(!file_exists($import)){
-                                            notify(array('code'    => 'not-exists',
-                                                         'groups'  => 'developers',
-                                                         'title'   => tr('Bundler file does not exist'),
-                                                         'message' => tr('html_bundler(): The bundler ":extension" file ":import" @imported by file ":file" does not exist', array(':extension' => $extension, ':import' => $import, ':file' => $file))));
-
-                                            $import = '';
-
-                                        }else{
-                                            $import = file_get_contents($import);
+                                        if(substr($url, 0, 1) == '/'){
+                                            /*
+                                             * Absolute URL, we can ignore these since
+                                             * they already point towards the correct
+                                             * path
+                                             */
                                         }
-                                    }
 
-                                    $data = str_replace($match, $import, $data);
+                                        if(preg_match('/https?:\/\//', $url)){
+                                            /*
+                                             * Absolute domain, ignore because we cannot
+                                             * fix anything here
+                                             */
+                                            continue;
+                                        }
+
+                                        $data = str_replace($url, '"'.str_repeat('../', $count).$url.'"', $data);
+                                    }
                                 }
-                            }
+                        }
 
-                            $count = substr_count($orgfile, '/');
+                        if(debug()){
+                            file_append($bundle_file, "\n/* *** BUNDLER FILE \"".$orgfile."\" *** */\n".$data.($_CONFIG['cdn']['min'] ? '' : "\n"));
 
-                            if(!$count){
-                                /*
-                                 * No URL rewriting required, this file is directly
-                                 * in /css or /js, and not in a sub dir
-                                 */
-                                continue;
-                            }
-
-                            if(preg_match_all('/url\((.+?)\)/', $data, $matches)){
-                                /*
-                                 * Rewrite all URL's to avoid relative URL's failing
-                                 * for files in sub directories
-                                 *
-                                 * e.g.:
-                                 *
-                                 * The bundle file is /pub/css/bundle-1.css,
-                                 * includes a css file /pub/css/foo/bar.css,
-                                 * bar.css includes an image 1.jpg that is in the
-                                 * same directory as bar.css with url("1.jpg")
-                                 *
-                                 * In the bundled file, this should become
-                                 * url("foo/1.jpg")
-                                 */
-                                foreach($matches[1] as $url){
-                                    if(strtolower(substr($url, 0, 5)) == 'data:'){
-                                        /*
-                                         * This is inline data, nothing we can do so
-                                         * ignore
-                                         */
-                                        continue;
-                                    }
-
-                                    if(substr($url, 0, 1) == '/'){
-                                        /*
-                                         * Absolute URL, we can ignore these since
-                                         * they already point towards the correct
-                                         * path
-                                         */
-                                    }
-
-                                    if(preg_match('/https?:\/\//', $url)){
-                                        /*
-                                         * Absolute domain, ignore because we cannot
-                                         * fix anything here
-                                         */
-                                        continue;
-                                    }
-
-                                    $data = str_replace($url, '"'.str_repeat('../', $count).$url.'"', $data);
-                                }
-                            }
+                        }else{
+                            file_append($bundle_file, $data.($_CONFIG['cdn']['min'] ? '' : "\n"));
+                        }
                     }
 
-                    if(debug()){
-                        file_append($bundle_file, "\n/* *** BUNDLER FILE \"".$orgfile."\" *** */\n".$data.($_CONFIG['cdn']['min'] ? '' : "\n"));
-
-                    }else{
-                        file_append($bundle_file, $data.($_CONFIG['cdn']['min'] ? '' : "\n"));
-                    }
+                    chmod($bundle_file, $_CONFIG['file']['file_mode']);
                 }
-
-                chmod($bundle_file, $_CONFIG['file']['file_mode']);
             });
 
             /*
              * Only continue here if we actually added anything to the bundle
              * (some bundles may not have anything, like js_header)
              */
-            if($count){
+            if($file_count){
 // :TODO: Add support for individual bundles that require async loading
-                $core->register[$type]['bundle-'.$bundle] = false;
+                $core->register[$list]['bundle-'.$bundle] = false;
 
                 if($_CONFIG['cdn']['enabled']){
                     load_libs('cdn');
@@ -627,11 +624,34 @@ function html_generate_js($lists = null){
         $lists  = array('js_header', 'js_footer', 'js_footer_page', 'js_footer_scripts');
 
         /*
-         * Load JS libraries
+         * Merge all body file lists into one
+         */
+        foreach($lists as $key => $section){
+            switch($section){
+                case 'js_header':
+                    // FALLTHROUGH
+                case 'js_footer':
+                    continue 2;
+
+                default:
+                    $core->register['js_footer'] = array_merge($core->register['js_footer'], $core->register[$section]);
+                    unset($lists[$key]);
+            }
+        }
+
+        /*
+         * Loop over header and body javascript file lists to generate the HTML
+         * that will load javascript files to client
          */
         foreach($lists as $section){
+            /*
+             * Bundle all files for this list into one?
+             */
             html_bundler($section);
 
+            /*
+             * Generate HTML that will load javascript files to client
+             */
             foreach($core->register[$section] as $file => $async){
                 if(!$file){
                     /*
@@ -867,7 +887,6 @@ function html_header($params = null, $meta = array()){
          * client
          */
         $_CONFIG['cdn']['js']['load_delayed'] = false;
-
 
         /*
          * Add required fonts

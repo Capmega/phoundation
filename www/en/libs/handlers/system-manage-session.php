@@ -122,7 +122,7 @@ try{
      * must be one of "auto" or ".auto"
      */
     switch($_CONFIG['sessions']['domain']){
-        case '':
+        case false:
             /*
              * This domain has no cookies
              */
