@@ -10,23 +10,33 @@
 
 
 
-load_libs('node');
-load_config('deploy');
-
-
-
 /*
- * Ensure that npm is available
+ * Initialize the library, automatically executed by libs_load()
+ *
+ * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @version 2.6.14: Added function and documentation
+ * @category Function reference
+ * @package node
+ *
+ * @return void
  */
-function uglify_check(){
-    global $npm, $node, $node_modules;
-
+function uglify_library_init(){
     try{
-        $node = node_check();
-        $npm  = node_check_npm();
+        load_libs('node');
+        load_config('deploy');
+
+        /*
+         * Find the node commands
+         */
+        node_find();
+        node_find_npm();
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_check(): Failed'), $e);
+        throw new BException('uglify_library_init(): Failed', $e);
     }
 }
 
@@ -35,16 +45,16 @@ function uglify_check(){
 /*
  * Install uglifycss
  */
-function uglify_css_install(){
-    global $npm;
+function uglify_css_setup(){
+    global $core;
 
     try{
-        log_console(tr('uglify_css_install(): Installing uglifycss'), 'VERBOSE/cyan');
-        passthru($npm.' install uglifycss');
-        log_console(tr('uglify_css_install(): Finished installing uglifycss'), 'VERBOSE/green');
+        log_console(tr('uglify_css_setup(): Installing uglifycss'), 'VERBOSE/cyan');
+        safe_exec(array('commands' => array($core->register['npm'], array('install', 'uglifycss'))));
+        log_console(tr('uglify_css_setup(): Finished installing uglifycss'), 'VERBOSE/green');
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_css_install(): Failed'), $e);
+        throw new BException(tr('uglify_css_setup(): Failed'), $e);
     }
 }
 
@@ -53,36 +63,34 @@ function uglify_css_install(){
 /*
  * Check availability of uglifycss installation, and install if needed
  */
-function uglify_css_check(){
-    global $npm, $node_modules;
+function uglify_css_find(){
+    global $core;
 
     try{
-        uglify_check();
-        log_console(tr('uglify_css_check(): Checking uglifycss availability'), 'VERBOSE/cyan');
+        log_console(tr('uglify_css_find(): Checking uglifycss availability'), 'VERBOSE/cyan');
 
         $result = safe_exec(array('ok_exitcodes' => 1,
-                                  'commands'     => array($npm, array('list', 'uglifycss'))));
+                                  'commands'     => array($core->register['npm'], array('list', 'uglifycss'))));
 
         if(empty($result[1])){
-            throw new BException(tr('uglify_js_check(): npm list uglifycss returned invalid results'), 'invalid');
+            throw new BException(tr('uglify_css_find(): npm list uglifycss returned invalid results'), 'invalid');
         }
 
         if(substr($result[1], -7, 7) == '(empty)'){
             /*
              * uglifycss is not available, install it now.
              */
-            log_console(tr('uglify_css_check(): No uglifycss found, trying to install now'), 'VERBOSE/yellow');
-            uglify_css_install($npm);
+            log_console(tr('uglify_css_find(): No uglifycss found, trying to install now'), 'VERBOSE/yellow');
+            uglify_css_setup();
         }
 
         $result[1] = 'uglify'.str_from($result[1], 'uglifycss');
 
-        $node_modules = node_check_modules();
-
-        log_console(tr('uglify_css_check(): Using uglifycss ":file"', array(':file' => $result[1])), 'VERBOSE/green');
+        node_find_modules();
+        log_console(tr('uglify_css_find(): Using uglifycss ":file"', array(':file' => $result[1])), 'VERBOSE/green');
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_css_check(): Failed'), $e);
+        throw new BException(tr('uglify_css_find(): Failed'), $e);
     }
 }
 
@@ -92,14 +100,14 @@ function uglify_css_check(){
  * Uglify all CSS files in www/en/pub/css
  */
 function uglify_css($paths = null, $force = false){
-    global $npm, $node, $node_modules, $_CONFIG;
+    global $core, $_CONFIG;
     static $check;
 
     try{
         if(empty($check)){
             $check = true;
 
-            uglify_css_check($npm);
+            uglify_css_find();
             log_console(tr('uglify_css(): Compressing all CSS files using uglifycss'), 'VERBOSE');
         }
 
@@ -338,7 +346,7 @@ function uglify_css($paths = null, $force = false){
 
                     try{
                         if(filesize($file)){
-                            safe_exec(array('commands' => array($node, array($node_modules.'uglifycss/uglifycss', $file, 'redirect' => substr($file, 0, -4).'.min.css'))));
+                            safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglifycss/uglifycss', $file, 'redirect' => substr($file, 0, -4).'.min.css'))));
 
                         }else{
                             touch(substr($file, 0, -4).'.min.css');
@@ -387,16 +395,16 @@ function uglify_css($paths = null, $force = false){
 /*
  * Install uglify-js
  */
-function uglify_js_install(){
-    global $npm, $node_modules;
+function uglify_js_setup(){
+    global $core;
 
     try{
-        log_console(tr('uglify_js_install(): Installing uglify-js'), 'VERBOSE/cyan');
-        passthru($npm.' install uglify-js');
-        log_console(tr('uglify_js_install(): Finished installing uglify-js'), 'VERBOSE/green');
+        log_console(tr('uglify_js_setup(): Installing uglify-js'), 'VERBOSE/cyan');
+        safe_exec(array('commands' => array($core->register['npm'], array('install', 'uglify-js'))));
+        log_console(tr('uglify_js_setup(): Finished installing uglify-js'), 'VERBOSE/green');
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_js_install(): Failed'), $e);
+        throw new BException(tr('uglify_js_setup(): Failed'), $e);
     }
 }
 
@@ -405,35 +413,34 @@ function uglify_js_install(){
 /*
  * Check availability of uglify-js installation, and install if needed
  */
-function uglify_js_check(){
-    global $npm, $node_modules;
+function uglify_js_find(){
+    global $core;
 
     try{
-        uglify_check();
-        log_console(tr('uglify_js_check(): Checking uglify-js availability'), 'VERBOSE/cyan');
+        log_console(tr('uglify_js_find(): Checking uglify-js availability'), 'VERBOSE/cyan');
 
         $result = safe_exec(array('ok_exitcodes' => 1,
-                                  'commands'     => array($npm, array('list', 'uglify-js'))));
+                                  'commands'     => array($core->register['npm'], array('list', 'uglify-js'))));
 
         if(empty($result[1])){
-            throw new BException(tr('uglify_js_check(): npm list uglify-js returned invalid results'), 'invalid_result');
+            throw new BException(tr('uglify_js_find(): npm list uglify-js returned invalid results'), 'invalid_result');
         }
 
         if(substr($result[1], -7, 7) == '(empty)'){
             /*
              * uglify-js is not available, install it now.
              */
-            log_console(tr('uglify_js_check(): No uglify-js found, trying to install now'), 'VERBOSE/yellow');
-            uglify_js_install($npm);
+            log_console(tr('uglify_js_find(): No uglify-js found, trying to install now'), 'VERBOSE/yellow');
+            uglify_js_setup();
         }
 
-        $result[1]    = 'uglify'.str_from($result[1], 'ugliyfyjs');
-        $node_modules = node_check_modules();
+        $result[1] = 'uglify'.str_from($result[1], 'ugliyfyjs');
 
-        log_console(tr('uglify_js_check(): Using uglify-js ":file"', array(':file' => $result[1])), 'VERBOSE/green');
+        node_find_modules();
+        log_console(tr('uglify_js_find(): Using uglify-js ":file"', array(':file' => $result[1])), 'VERBOSE/green');
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_js_check(): Failed'), $e);
+        throw new BException(tr('uglify_js_find(): Failed'), $e);
     }
 }
 
@@ -443,14 +450,14 @@ function uglify_js_check(){
  * Uglify all js files in www/en/pub/js
  */
 function uglify_js($paths = null, $force = false){
-    global $npm, $node, $node_modules;
+    global $core;
     static $check;
 
     try{
         if(empty($check)){
             $check = true;
 
-            uglify_js_check($npm);
+            uglify_js_find();
             log_console(tr('uglify_js(): Compressing all specified javascript files using uglifyjs'), 'VERBOSE');
         }
 
@@ -682,7 +689,7 @@ function uglify_js($paths = null, $force = false){
 
                     try{
                         if(filesize($file)){
-                            safe_exec(array('commands' => array($node, array($node_modules.'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
+                            safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
 
                         }else{
                             touch(substr($file, 0, -4).'.min.js');
