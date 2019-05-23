@@ -1988,7 +1988,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
             /*
              * Create the cached file names
              */
-            $base = 'cached'.$count;
+            $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.$count;
             $file = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
 
             /*
