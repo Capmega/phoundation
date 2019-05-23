@@ -31,7 +31,7 @@ function node_library_init(){
     try{
         ensure_installed(array('name'     => 'node',
                                'callback' => 'node_setup',
-                               'which'    => array('node')));
+                               'which'    => array('nodejs')));
 
         ensure_installed(array('name'     => 'node',
                                'callback' => 'node_setup_npm',
