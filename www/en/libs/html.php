@@ -2021,8 +2021,18 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
              * production as well.
              */
             if(!file_exists($file.'.min.js')){
-                load_libs('uglify');
-                uglify_js($file.'.js');
+                try{
+                    load_libs('uglify');
+                    uglify_js($file.'.js');
+
+                }catch(Exception $e){
+                    /*
+                     * Minify process failed. Notify and fall back on a plain
+                     * copy
+                     */
+                    notify($e);
+                    copy($file.'.js', $file.'.min.js');
+                }
             }
 
             /*
