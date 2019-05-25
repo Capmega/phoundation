@@ -50,7 +50,7 @@ function uglify_css_setup(){
 
     try{
         log_console(tr('uglify_css_setup(): Installing uglifycss'), 'VERBOSE/cyan');
-        safe_exec(array('commands' => array($core->register['npm'], array('install', 'uglifycss'))));
+        safe_exec(array('commands' => array($core->register['npm'], array('install', '--prefix', ROOT, 'uglifycss'))));
         log_console(tr('uglify_css_setup(): Finished installing uglifycss'), 'VERBOSE/green');
 
     }catch(Exception $e){
@@ -400,7 +400,7 @@ function uglify_js_setup(){
 
     try{
         log_console(tr('uglify_js_setup(): Installing uglify-js'), 'VERBOSE/cyan');
-        safe_exec(array('commands' => array($core->register['npm'], array('install', 'uglify-js'))));
+        safe_exec(array('commands' => array($core->register['npm'], array('install', '--prefix', ROOT, 'uglify-js'))));
         log_console(tr('uglify_js_setup(): Finished installing uglify-js'), 'VERBOSE/green');
 
     }catch(Exception $e){
