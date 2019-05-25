@@ -510,6 +510,10 @@ function html_generate_css(){
 function html_load_js($files, $list = 'page'){
     global $_CONFIG, $core;
 
+    if(!isset($core->register['js_header'])){
+        throw new BException(tr('html_load_js(): Cannot load javascript file(s) ":files", the files list have already been sent to the client', array(':files' => $files)), 'invalid');
+    }
+
     try{
         $config = &$_CONFIG['cdn']['js'];
 
@@ -641,6 +645,7 @@ function html_generate_js($lists = null){
 
                     $core->register['js_footer'] = array_merge($core->register['js_footer'], $core->register[$section]);
                     unset($lists[$key]);
+                    unset($core->register[$section]);
             }
         }
 
@@ -707,6 +712,9 @@ function html_generate_js($lists = null){
             $core->register['footer'] .= $footer.$core->register['footer'].$core->register('script_delayed');
             unset($core->register['script_delayed']);
         }
+
+        unset($core->register['js_header']);
+        unset($core->register['js_footer']);
 
         return $retval;
 
@@ -1000,14 +1008,44 @@ function html_footer(){
             $html .= debug_bar();
         }
 
-        if($core->register['footer']){
-            $html .= $core->register['footer'];
-        }
-
         return $html.'</body></html>';
 
     }catch(Exception $e){
         throw new BException('html_footer(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Generate and return the HTML footer
+ *
+ * This function generates and returns the HTML footer. Any data stored in $core->register[footer] will be added, and if the debug bar is enabled, it will be attached as well
+ *
+ * This function should be called in your c_page() function
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_header()
+ * @version 2.5.9: Added documentation, added debug bar support
+ *
+ * @return string The footer HTML
+ */
+function html_end(){
+    global $core;
+
+    try{
+        if($core->register['footer']){
+            return $core->register['footer'].'</body></html>';
+        }
+
+        return '</body></html>';
+
+    }catch(Exception $e){
+        throw new BException('html_end(): Failed', $e);
     }
 }
 
@@ -1988,7 +2026,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
             /*
              * Create the cached file names
              */
-            $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.$count;
+            $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['real_script'] ? $core->register['real_script'].'-' : '').$count;
             $file = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
 
             /*
@@ -2039,7 +2077,6 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
              * Add the file to the html javascript load list
              */
             html_load_js($base, $script['list']);
-            $count++;
 
         }else{
             /*
@@ -2065,6 +2102,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
             }
         }
 
+        $count++;
         return '';
 
     }catch(Exception $e){
