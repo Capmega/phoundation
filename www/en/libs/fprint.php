@@ -522,12 +522,12 @@ function fprint_process_result(){
         return false;
     }
 
-    $result = isset_get($_SESSION['fprint']['result']);
-    $action = isset_get($_SESSION['fprint']['action']);
-
+    $fprint = isset_get($_SESSION['fprint']);
     unset($_SESSION['fprint']);
 
-    switch($result){
+    array_ensure($fprint, 'result');
+
+    switch($fprint['result']){
         case '':
             /*
              * Nothing happened yet
@@ -535,32 +535,32 @@ function fprint_process_result(){
             return false;
 
         case 'authenticated':
-            return $action;
+            return $fprint;
 
         case 'not-authenticated':
-            throw new BException(tr('fprint_process_result(): Finger print did not match'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Finger print did not match'), 'warning/'.$fprint['result']);
 
         case 'timeout':
-            throw new BException(tr('fprint_process_result(): Finger print scan process timed out'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Finger print scan process timed out'), 'warning/'.$fprint['result']);
 
         case 'no-devices':
-            throw new BException(tr('fprint_process_result(): No finger print scan devices found'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): No finger print scan devices found'), 'warning/'.$fprint['result']);
 
         case 'no-sudo':
             load_libs('process');
-            throw new BException(tr('fprint_process_result(): Current process owner ":owner" cannot execute fprint with sudo without password', array(':owner' => process_get_user())), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Current process owner ":owner" cannot execute fprint with sudo without password', array(':owner' => process_get_user())), 'warning/'.$fprint['result']);
 
         case 'not-exists':
-            throw new BException(tr('fprint_process_result(): User ":user" has no fingerprints registered', array(':user' => name(isset_get($_SESSION['user'])))), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): User ":user" has no fingerprints registered', array(':user' => name(isset_get($_SESSION['user'])))), 'warning/'.$fprint['result']);
 
         case 'no-fprint-file':
-            throw new BException(tr('fprint_process_result(): Fingerprint process failed'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Fingerprint process failed'), 'warning/'.$fprint['result']);
 
         case 'fingerprints-missing':
-            throw new BException(tr('fprint_process_result(): Fingerprint files missing'), 'warning/'.$result);
+            throw new BException(tr('fprint_process_result(): Fingerprint files missing'), 'warning/'.$fprint['result']);
 
         default:
-            throw new BException(tr('fprint_process_result(): Unknown fingreprint result ":result" encountered', array(':result' => $result)), 'unknown');
+            throw new BException(tr('fprint_process_result(): Unknown fingreprint result ":result" encountered', array(':result' => $fprint['result'])), 'unknown');
     }
 }
 ?>
