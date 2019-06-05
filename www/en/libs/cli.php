@@ -1725,6 +1725,13 @@ function cli_is_builtin($command){
             return $cache[$command];
         }
 
+        if(str_exists($command, '/')){
+            /*
+             * This command includes a path, so automatically is external
+             */
+            return $cache[$command] = false;
+        }
+
         $results = safe_exec(array('commands' => array('type', array($command))));
         $results = array_shift($results);
         $results = (substr($results, -7, 7) === 'builtin');
