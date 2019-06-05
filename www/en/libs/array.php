@@ -36,25 +36,15 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
      * IMPORTANT!! DO NOT CHANGE $default DEFAULT VALUE AWAY FROM FALSE! THIS IS A REQUIREMENT FOR THE sql_simple_list() / sql_simple_get() FUNCTIONS!!
      */
     try{
-        if(is_array($params)){
-            array_ensure($params, array($string_key, $numeric_key), $default);
-            return;
-        }
-
         if(!$params){
             /*
              * The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
              */
             $params = array();
+        }
 
-            if($numeric_key){
-                $params[$numeric_key] = $default;
-            }
-
-            if($string_key){
-                $params[$string_key] = $default;
-            }
-
+        if(is_array($params)){
+            array_ensure($params, array($string_key, $numeric_key), $default);
             return;
         }
 
