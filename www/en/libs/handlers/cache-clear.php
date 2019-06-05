@@ -92,12 +92,13 @@ try{
     /*
      * Clear cache for all languages
      */
-    foreach($languages as $code => $name){
-        file_delete(ROOT.'www/'.$code.'/pub/js/cached*'        , false, false, ROOT.'www/'.$code.'/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/pub/js/bundle-*'       , false, false, ROOT.'www/'.$code.'/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/pub/css/bundle-*'      , false, false, ROOT.'www/'.$code.'/pub/css/');
-        file_delete(ROOT.'www/'.$code.'/admin/pub/js/bundle-*' , false, false, ROOT.'www/'.$code.'/admin/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/admin/pub/css/bundle-*', false, false, ROOT.'www/'.$code.'/admin/pub/css/');
+    foreach($languages as $code => $name) {
+        file_delete(ROOT.'www/'.$code.'/pub/js/cached*'          , false, false, ROOT.'www/'.$code.'/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/pub/js/bundle-*'         , false, false, ROOT.'www/'.$code.'/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/pub/css/bundle-*'        , false, false, ROOT.'www/'.$code.'/pub/css/');
+        file_delete(ROOT.'www/'.$code.'/pub/css/p-bundle-*'      , false, false, ROOT.'www/'.$code.'/pub/css/');
+        file_delete(ROOT.'www/'.$code.'/admin/pub/js/bundle-*'   , false, false, ROOT.'www/'.$code.'/admin/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*', false, false, ROOT.'www/'.$code.'/admin/pub/css/');
 
         log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/www/'.$code.'/pub/js/bundle-*,ROOT/www/'.$code.'/pub/css/bundle-*')), 'green');
     }

@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.6.18');
+define('FRAMEWORKCODEVERSION', '2.6.19');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -4408,6 +4408,10 @@ function array_ensure(&$source, $keys = '', $default_value = null, $trim_existin
 
         if($keys){
             foreach(array_force($keys) as $key){
+                if(!$key){
+                    continue;
+                }
+
                 if(array_key_exists($key, $source)){
                     if($trim_existing and is_string($source[$key])){
                         /*
