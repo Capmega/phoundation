@@ -209,6 +209,37 @@ function node_find_npm(){
 
 
 /*
+ * Install specified packages using npm
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package node
+ *
+ * @param string list $packages
+ * @return natural The amount of installed pacakges
+ */
+function node_install_npm($packages){
+    try{
+        $packages = array_force($packages);
+
+        foreach($packages as $package){
+            safe_exec(array('timeout'  => 30,
+                            'commands' => array('cd' , array(ROOT),
+                                                'npm', array('install', $package))));
+        }
+
+        return count($packages);
+
+    }catch(Exception $e){
+        throw new BException('node_find_npm(): Failed', $e);
+    }
+}
+
+
+
+/*
  * OBSOLETE WRAPPER FUNCTIONS
  */
 function node_check(){
