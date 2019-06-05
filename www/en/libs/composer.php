@@ -129,22 +129,32 @@ function composer_init_file(){
  * @param string $package The package to be installed
  * @return void
  */
-function composer_exec($commands){
+function composer_exec($commands, $path = null){
     try{
         if(!$commands){
             throw new BException(tr('composer_exec(): No commands specified'), 'not-specified');
         }
 
-        file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands){
-            file_ensure_path(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
-
-            file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands){
-                safe_exec(array('function' => 'passthru',
+        if($path){
+            file_execute_mode($path, 0770, function() use ($commands, $path){
+                safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                 'timeout'  => 30,
-                                'commands' => array('cd'                                      , array(ROOT.'libs'),
+                                'commands' => array('cd'                                      , array($path),
                                                     ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
             });
-        });
+
+        }else{
+            file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands){
+                file_ensure_path(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
+
+                file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands){
+                    safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
+                                    'timeout'  => 30,
+                                    'commands' => array('cd'                                      , array(ROOT.'libs'),
+                                                        ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
+                });
+            });
+        }
 
     }catch(Exception $e){
         throw new BException('composer_exec(): Failed', $e);
@@ -208,15 +218,13 @@ function composer_require($packages){
  * @param string $package The package to be installed
  * @return void
  */
-function composer_install($packages){
+function composer_install($path){
     try{
-        if(!$packages){
-            throw new BException(tr('composer_install(): No package specified'), 'not-specified');
+        if(!$path){
+            throw new BException(tr('composer_install(): No path specified'), 'not-specified');
         }
 
-        foreach($packages as $package){
-            composer_exec(array('install', $package));
-        }
+        composer_exec(array('install'), $path);
 
     }catch(Exception $e){
         throw new BException('composer_install(): Failed', $e);
