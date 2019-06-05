@@ -161,6 +161,12 @@ function git_exec($path, $arguments, $check_path = true){
 
         git_wait_no_process($path);
 
+        if(!$arguments){
+            $arguments = array();
+        }
+
+        $arguments['timeout'] = 30;
+
         $results = safe_exec(array('commands' => array('cd' , array($path),
                                                        'git', $arguments)));
 
