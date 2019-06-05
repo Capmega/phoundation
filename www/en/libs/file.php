@@ -620,34 +620,50 @@ function file_get_extension($filename){
  * @param null string $name If specified, use ROOT/data/tmp/$name instead of a randomly generated filename
  * @return string The filename for the temp file
  */
-function file_temp($create = true, $name = null){
+function file_temp($create = true, $extension = null, $limit_to_session = true){
     try{
         file_ensure_path(TMP);
 
-        if(!$name){
+        /*
+         * Temp file will contain the session ID
+         */
+        if($limit_to_session){
+            $name = session_id().'-'.substr(hash('sha1', uniqid().microtime()), 0, 12);
+
+        }else{
             $name = substr(hash('sha1', uniqid().microtime()), 0, 12);
         }
 
-        $path = TMP.$name;
+        if($extension){
+            /*
+             * Temp file will have specified extension
+             */
+            $name .= '.'.$extension;
+        }
 
-        if(file_exists($path)){
-    		file_delete($path);
+        $file = TMP.$name;
+
+        /*
+         * Temp file can not exist
+         */
+        if(file_exists($file)){
+    		file_delete($file);
         }
 
         if($create){
             if($create === true){
-                touch($path);
+                touch($file);
 
             }else{
                 if(!is_string($create)){
                     throw new BException(tr('file_temp(): Specified $create variable is of datatype ":type" but should be either false, true, or a data string that should be written to the temp file', array(':type' => gettype($create))), $e);
                 }
 
-                file_put_contents($path, $create);
+                file_put_contents($file, $create);
             }
         }
 
-        return $path;
+        return $file;
 
     }catch(Exception $e){
         throw new BException(tr('file_temp(): Failed'), $e);
@@ -699,7 +715,7 @@ function file_delete_tree($directory, $clean_path = false, $sudo = false, $restr
                         /*
                          * Failed, very very likely access denied, so ATTEMPT to make writable and try again. If fails again, just exception
                          */
-                        file_chmod_tree(dirname($path), 0660, 0770);
+                        file_chmod(dirname($path), 0660, 0770);
                         unlink($path);
                     }
                 }
@@ -1366,7 +1382,7 @@ function file_temp_dir($prefix = '', $mode = null){
  * chmod an entire directory, recursively
  * Copied from http://www.php.net/manual/en/function.chmod.php#84273
  */
-function file_chmod_tree($path, $filemode, $dirmode = 0770){
+function file_chmod($path, $filemode, $dirmode = 0770){
     try{
         if(!is_dir($path)){
             return chmod($path, $filemode);
@@ -1374,7 +1390,7 @@ function file_chmod_tree($path, $filemode, $dirmode = 0770){
 
         $dh = opendir($path);
 
-        while (($file = readdir($dh)) !== false){
+        while(($file = readdir($dh)) !== false){
             if(($file != '.') or ($file != '..')) continue;
 
             $fullpath = $path.'/'.$file;
@@ -1386,27 +1402,27 @@ function file_chmod_tree($path, $filemode, $dirmode = 0770){
 
             }elseif(!is_dir($fullpath)){
                 if(!chmod($fullpath, $filemode)){
-                    throw new BException(tr('file_chmod_tree(): Failed to chmod file ":fullpath" to mode ":filemode"', array(':fullpath' => $fullpath, ':filemode' => $filemode)), 'failed');
+                    throw new BException(tr('file_chmod(): Failed to chmod file ":fullpath" to mode ":filemode"', array(':fullpath' => $fullpath, ':filemode' => $filemode)), 'failed');
                 }
 
             }else{
                 /*
                  * This is a directory, recurse
                  */
-                file_chmod_tree($fullpath, $filemode, $dirmode);
+                file_chmod($fullpath, $filemode, $dirmode);
             }
         }
 
         closedir($dh);
 
         if(!chmod($path, $dirmode)){
-            throw new BException(tr('file_chmod_tree(): Failed to chmod directory ":path" to mode ":mode"', array(':path' => $path, ':mode' => $dirmode)), 'failed');
+            throw new BException(tr('file_chmod(): Failed to chmod directory ":path" to mode ":mode"', array(':path' => $path, ':mode' => $dirmode)), 'failed');
         }
 
         return true;
 
     }catch(Exception $e){
-        throw new BException('file_chmod_tree(): Failed', $e);
+        throw new BException('file_chmod(): Failed', $e);
     }
 }
 
@@ -3260,6 +3276,53 @@ function file_which($command, $whereis = false){
 
     }catch(Exception $e){
         throw new BException('file_which(): Failed', $e);
+    }
+}
+
+
+
+
+
+
+/*
+ * Search / replace the specified file
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @see file_copy_tree()
+ *
+ * @param array string $search The key(s) for which should be searched
+ * @param array string $replace The values that will replace the specified key(s)
+ * @param string $file The file that needs to have the search / replace done
+ * @return string The $file
+ */
+function file_replace($search, $replace, $file){
+    try{
+        $data = file_get_contents($file);
+        $data = str_replace($search, $replace, $file);
+
+        file_put_contents($file, $data);
+        return $file;
+
+    }catch(Exception $e){
+        throw new BException('file_replace(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * DEPRECATED FUNCTIONS
+ */
+function file_chmod_tree($path, $filemode, $dirmode = 0770){
+    try{
+        return file_chmod($path, $filemode, $dirmode = 0770);
+
+    }catch(Exception $e){
+        throw new BException('file_chmod_tree(): Failed', $e);
     }
 }
 ?>
