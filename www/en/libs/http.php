@@ -251,7 +251,7 @@ function http_headers($params, $content_length){
          */
         http_cache_etag();
 
-        array_params($params, null, 'http_code');
+        array_params($params, null, 'http_code', null);
         array_default($params, 'http_code', $core->register['http_code']);
         array_default($params, 'cors'     , false);
         array_default($params, 'mimetype' , $core->register['accepts']);
