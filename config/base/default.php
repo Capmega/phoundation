@@ -98,6 +98,8 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'prefix'                             => '/pub/',                                                 // Prefix for all CDN objects, may be CDN server domain, for example
 
+                                       'purge'                              => true,                                                    // If specified true, the CSS files will be purged  before being sent to the client
+
                                        'shared_key'                         => '');                                                     // Shared encryption key between site servers and CDN servers to send and receive encrypted messages
 
 
