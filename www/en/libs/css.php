@@ -116,7 +116,7 @@ function css_setup($params){
  * @return string The purged CSS file
  */
 function css_purge($html, $css){
-    global $_CONFIG;
+    global $_CONFIG, $core;
 
     try{
         //$purged_css      = 'p-'.$css;
@@ -140,13 +140,30 @@ function css_purge($html, $css){
         /*
          * Add list of selectors that should be whitelisted
          */
-        if($_CONFIG['css']['whitelist']){
+        if(!empty($_CONFIG['css']['whitelist'][$core->register['script']])){
+            /*
+             * Use the whitelist specifically for this page
+             */
+            $whitelist = &$_CONFIG['css']['whitelist'][$core->register['script']];
+
+        }else{
+            /*
+             * Use the default whitelist
+             */
+            $whitelist = &$_CONFIG['css']['whitelist']['default'];
+        }
+
+        if($whitelist){
             $arguments[] = '--whitelist';
 
-            foreach(array_force($_CONFIG['css']['whitelist']) as $selector){
-                $arguments[] = $selector;
+            foreach(array_force($whitelist) as $selector){
+                if($selector){
+                    $arguments[] = $selector;
+                }
             }
         }
+
+        unset($whitelist);
 
         safe_exec(array('commands' => array('cd'        , array(ROOT.'node_modules/.bin'),
                                             './purgecss', $arguments)));
