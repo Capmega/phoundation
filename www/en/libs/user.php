@@ -1398,10 +1398,15 @@ function user_update($user){
                                    ':description' =>  $user['description'],
                                    ':country'     =>  $user['country']));
 
-        user_update_rights($user);
-        user_update_groups($user['id'], $user['groups']);
+        $user['_updated'] = (boolean) $update->rowCount();
 
-        return (boolean) $update->rowCount();
+        user_update_rights($user);
+        $user['_updated'] &= (boolean) $update->rowCount();
+
+        user_update_groups($user['id'], $user['groups']);
+        $user['_updated'] &= (boolean) $update->rowCount();
+
+        return $user;
 
     }catch(Exception $e){
         throw new BException('user_update(): Failed', $e);
