@@ -56,7 +56,21 @@ function meta_add_history($meta_id, $action, $data = null){
         return $meta_id;
 
     }catch(Exception $e){
-        throw new BException('meta_add_history(): Failed', $e);
+        if($e->getCode() != '23000'){
+            throw new BException('meta_add_history(): Failed', $e);
+        }
+
+        /*
+         * SQLSTATE[23000]: Integrity constraint violation
+         *
+         * This could (in theory) only happen when the `createdby` has a
+         * users_id (which points to the `users`.`id`) that no longer exists
+         *
+         * In other words, this user no longer exists. Signout, and reload the
+         * page
+         */
+        user_signout();
+        redirect(true);
     }
 }
 
