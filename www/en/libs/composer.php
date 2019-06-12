@@ -135,26 +135,28 @@ function composer_exec($commands, $path = null){
             throw new BException(tr('composer_exec(): No commands specified'), 'not-specified');
         }
 
-        if($path){
-            file_execute_mode($path, 0770, function() use ($commands, $path){
-                safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
-                                'timeout'  => 30,
-                                'commands' => array('cd'                                      , array($path),
-                                                    ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
-            });
-
-        }else{
-            file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands){
-                file_ensure_path(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
-
-                file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands){
+        file_execute_mode(ROOT, 0770, function() use ($commands, $path){
+            if($path){
+                file_execute_mode($path, 0770, function() use ($commands, $path){
                     safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                     'timeout'  => 30,
-                                    'commands' => array('cd'                                      , array(ROOT.'libs'),
+                                    'commands' => array('cd'                                      , array($path),
                                                         ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
                 });
-            });
-        }
+
+            }else{
+                file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($commands){
+                    file_ensure_path(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
+
+                    file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands){
+                        safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
+                                        'timeout'  => 30,
+                                        'commands' => array('cd'                                      , array(ROOT.'libs'),
+                                                            ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
+                    });
+                });
+            }
+        });
 
     }catch(Exception $e){
         throw new BException('composer_exec(): Failed', $e);

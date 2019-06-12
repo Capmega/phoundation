@@ -224,11 +224,13 @@ function node_install_npm($packages){
     try{
         $packages = array_force($packages);
 
-        foreach($packages as $package){
-            safe_exec(array('timeout'  => 30,
-                            'commands' => array('cd' , array(ROOT),
-                                                'npm', array('install', $package))));
-        }
+        file_execute_mode(ROOT, 0770, function() use ($packages){
+            foreach($packages as $package){
+                safe_exec(array('timeout'  => 30,
+                                'commands' => array('cd' , array(ROOT),
+                                                    'npm', array('install', '--prefix', ROOT, $package))));
+            }
+        });
 
         return count($packages);
 
