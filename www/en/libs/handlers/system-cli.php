@@ -20,6 +20,23 @@ try{
 
 
     /*
+     * Define basic platform constants
+     */
+    define('ADMIN'      , '');
+    define('PWD'        , slash(isset_get($_SERVER['PWD'])));
+    define('VERYVERBOSE', (cli_argument('-VV,--very-verbose')                               ? 'VERYVERBOSE' : null));
+    define('VERBOSE'    , ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE'     : null));
+    define('QUIET'      , cli_argument('-Q,--quiet'));
+    define('FORCE'      , cli_argument('-F,--force'));
+    define('NOCOLOR'    , cli_argument('-C,--no-color'));
+    define('TEST'       , cli_argument('-T,--test'));
+    define('DELETED'    , cli_argument('--deleted'));
+    define('STATUS'     , cli_argument('-S,--status' , true));
+    define('STARTDIR'   , slash(getcwd()));
+
+
+
+    /*
      * Check what environment we're in
      */
     $environment = cli_argument('-E,--env,--environment', true);
@@ -50,23 +67,6 @@ try{
         $core->register['exit_code'] = 5;
         die(5);
     }
-
-
-
-    /*
-     * Define basic platform constants
-     */
-    define('ADMIN'      , '');
-    define('PWD'        , slash(isset_get($_SERVER['PWD'])));
-    define('VERYVERBOSE', (cli_argument('-VV,--very-verbose')                               ? 'VERYVERBOSE' : null));
-    define('VERBOSE'    , ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE'     : null));
-    define('QUIET'      , cli_argument('-Q,--quiet'));
-    define('FORCE'      , cli_argument('-F,--force'));
-    define('NOCOLOR'    , cli_argument('-C,--no-color'));
-    define('TEST'       , cli_argument('-T,--test'));
-    define('DELETED'    , cli_argument('--deleted'));
-    define('STATUS'     , cli_argument('-S,--status' , true));
-    define('STARTDIR'   , slash(getcwd()));
 
 
 
