@@ -19,6 +19,8 @@ $help  = "The fix-permissions script will ensure that all files and directories 
 
 require_once(__DIR__.'/../../libs/startup.php');
 
+
+
 /*
  * Load deployment configuration
  */
@@ -202,4 +204,18 @@ foreach($deploy_config['modes'] as $type => $modes){
         default:
             throw new BException(tr('Unknown mode type ":type" specified', array(':type' => $type)), 'unknown');
     }
+}
+
+
+
+/*
+ * Fix node_modules directory file access
+ */
+if(file_exists(ROOT.'node_modules')){
+    cli_find(array('start' => ROOT.'node_modules',
+                   'exec'  => 'chmod ug-w,o-rwx {}'));
+
+    cli_find(array('start' => ROOT.'node_modules',
+                   'path'  => '*/bin/*',
+                   'exec'  => 'chmod ug+x {}'));
 }
