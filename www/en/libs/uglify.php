@@ -400,7 +400,7 @@ function uglify_js_setup(){
 
     try{
         log_console(tr('uglify_js_setup(): Installing uglify-js'), 'VERBOSE/cyan');
-        safe_exec(array('commands' => array($core->register['npm'], array('install', '--prefix', ROOT, 'uglify-js'))));
+        node_install_npm('uglify-js');
         log_console(tr('uglify_js_setup(): Finished installing uglify-js'), 'VERBOSE/green');
 
     }catch(Exception $e){
