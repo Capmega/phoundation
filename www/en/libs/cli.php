@@ -2138,6 +2138,102 @@ function cli_restart($delay = 1){
 
 
 /*
+ * Front-end function to the linux "find" command
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cli
+ * @note: This function will assume the "find" command is always available, as so far I've never encountered any linux machine that did not have "find" available
+ * @version 2.4.11: Added function and documentation
+ * @see "man find"
+ *
+ * @param params $params A parameters array
+ * @param string $params[start] The path where to search
+ * @param string $params[name] File name to be matched. Is case sensitive. Supports wildcards * and ?
+ * @param string $params[iname] Case insensitive version of $params[name]
+ * @param string $params[path] Match for the entire path, instead of only the file name. NOTE: If only the last part of the directory is important, remember to start the path with a * to be able to make a match! Example: $params[path] = ROOT.'node_modules/*bin/*' to match all files that are in a bin directory within ROOT/node_modules
+ * @param string $params[ipath] Case insensitive version of $params[path]
+ * @param string $params[exec] Execute COMMAND on each found file. Use "{}" to reference the file. Example: $params[exec] = 'chmod ug+w {}';
+ * @param string $params[type] Type of file to find. "b" for block (buffered) special, "c" for character (unbuffered) special, "d" for directory, "p" for named pipe (FIFO), "f" for regular file, "l" for symbolic link; this is never true if the -L option or the -follow option is in effect, unless the symbolic link is broken.  If you want to search for symbolic links when -L is in effect, use -xtype., "s" for socket
+ * @return array The output from the find command
+ */
+
+
+function cli_find($params){
+    try{
+        array_ensure($params, 'sudo,timeout,start');
+        array_default($params, 'timeout', 30);
+
+        if(empty($params['start'])){
+            throw new BException(tr('cli_find(): No start specified'), 'not-specified');
+        }
+
+        if(!file_exists($params['start'])){
+            throw new BException(tr('cli_find(): Specified start path ":start" does not exist', array(':start' => $params['start'])), 'not-specified');
+        }
+
+        foreach($params as $key => $value){
+            if(!$value){
+                continue;
+            }
+
+            switch($key){
+                case 'timeout':
+                    break;
+
+                case 'sudo':
+                    $arguments['sudo'] = true;
+                    break;
+
+                case 'start':
+                    $arguments[] = $params['start'];
+                    break;
+
+                case 'exec':
+                    $arguments[]    = '-exec';
+                    $arguments['-'] = $value;
+                    break;
+
+                case 'path':
+                    // FALLTHROUGH
+                case 'ipath':
+                    // FALLTHROUGH
+                case 'name':
+                    // FALLTHROUGH
+                case 'iname':
+                    // FALLTHROUGH
+                case 'type':
+                    /*
+                     * Build all normal arguments
+                     */
+                    $arguments[] = '-'.$key;
+                    $arguments[] = $value;
+                    break;
+
+                default:
+                    throw new BException(tr('cli_find(): Unknown parameter key ":key" specified', array(':key' => $key)), 'unknown');
+            }
+        }
+
+        if(isset($params['exec'])){
+            $arguments['--'] = '\\;';
+        }
+
+        $results = safe_exec(array('timeout'  => $params['timeout'],
+                                   'commands' => array('find', $arguments)));
+
+        return $results;
+
+    }catch(Exception $e){
+        throw new BException(tr('cli_find(): Failed'), $e);
+    }
+}
+
+
+
+/*
  * WARNING! BELOW HERE BE OBSOLETE FUNCTIONS AND OBSOLETE-BUT-WE-WANT-TO-BE-BACKWARD-COMPATIBLE WRAPPERS
  */
 function cli_exclusive($action = 'exception', $force = false){

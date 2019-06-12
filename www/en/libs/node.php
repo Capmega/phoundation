@@ -250,6 +250,7 @@ function node_check(){
         throw new BException('node_check(): Failed', $e);
     }
 }
+
 function node_check_npm(){
     try{
         node_find_npm();
