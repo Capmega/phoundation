@@ -22,7 +22,7 @@ foreach(scandir(ROOT.'libs/handlers') as $file){
      * Remove files with _
      */
     if(preg_match('/^startup-.+/', $file) or preg_match('/.+_.+/', $file)){
-        file_delete(ROOT.'libs/handlers/'.$file);
+        file_delete(ROOT.'libs/handlers/'.$file, ROOT.'libs/handlers');
         cli_dot();
     }
 }

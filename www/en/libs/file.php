@@ -288,7 +288,7 @@ function file_move_to_target($file, $path, $extension = false, $singledir = fals
 
                 }else{
                     rename($file, $target);
-                    file_clear_path(dirname($file));
+                    file_clear_path(dirname($file), false);
                 }
             }
         }
@@ -403,7 +403,7 @@ function file_ensure_file($file, $mode = null, $path_mode = null){
  * @param boolean $clear If set to true, and the specified path already exists, it will be deleted and then re-created
  * @return string The specified file
  */
-function file_ensure_path($path, $mode = null, $clear = false){
+function file_ensure_path($path, $mode = null, $clear = false, $restrictions = ROOT){
     global $_CONFIG;
 
     try{
@@ -424,7 +424,7 @@ function file_ensure_path($path, $mode = null, $clear = false){
              * Delete the currently existing file so we can  be sure we have an
              * empty directory
              */
-            file_delete($path);
+            file_delete($path, $restrictions);
         }
 
         if(!file_exists(unslash($path))){
@@ -445,8 +445,8 @@ function file_ensure_path($path, $mode = null, $clear = false){
                          * Some normal file is in the way. Delete the file, and
                          * retry
                          */
-                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
-                            file_delete($path);
+                        file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions){
+                            file_delete($path, $restrictions);
                         });
 
                         return file_ensure_path($path, $mode);
@@ -458,8 +458,8 @@ function file_ensure_path($path, $mode = null, $clear = false){
                     /*
                      * This is a dead symlink, delete it
                      */
-                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode){
-                        file_delete($path);
+                    file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($path, $mode, $restrictions){
+                        file_delete($path, $restrictions);
                     });
                 }
 
@@ -490,7 +490,7 @@ function file_ensure_path($path, $mode = null, $clear = false){
              * Ensure that the "file" is not accidentally specified as a
              * directory ending in a /
              */
-            file_delete(str_ends_not($path, '/'));
+            file_delete(str_ends_not($path, '/'), $restrictions);
             return file_ensure_path($path, $mode);
         }
 
@@ -504,15 +504,44 @@ function file_ensure_path($path, $mode = null, $clear = false){
 
 
 /*
- * Delete the path until directory is no longer empty
+ * Delete the path, and each parent directory until a non empty directory is encountered
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @template Function reference
+ * @package files
+ * @see file_restrict() This function uses file location restrictions, see file_restrict() for more information
+ *
+ * @param list $paths A list of path patterns to be cleared
+ * @param null list $params[restrictions] A list of paths to which file_delete() operations will be restricted
+ * @return void
  */
-function file_clear_path($path){
+function file_clear_path($paths, $restrictions = null){
     try{
+        /*
+         * Multiple paths specified, clear all
+         */
+        if(is_array($paths)){
+            foreach($paths as $path){
+                file_clear_path($path, $restrictions);
+            }
+
+            return;
+        }
+
+        $path = $paths;
+
+        /*
+         * Restrict location access
+         */
+        file_restrict($path, $restrictions);
+
         if(!file_exists($path)){
             /*
              * This section does not exist, jump up to the next section
              */
-            return file_clear_path(dirname($path));
+            return file_clear_path(dirname($path), $restrictions);
         }
 
         if(!is_dir($path)){
@@ -544,15 +573,15 @@ function file_clear_path($path){
                 /*
                  * Do not remove anything more, there is contents here!
                  */
-                return true;
+                return;
             }
 
             /*
              * Remove this entry and continue;
              */
             try{
-                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path){
-                    file_delete($path);
+                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path) use ($restrictions){
+                    file_delete($path, $restrictions);
                 });
 
             }catch(Exception $e){
@@ -564,7 +593,7 @@ function file_clear_path($path){
                  * the event and leave it be.
                  */
                 log_console(tr('file_clear_path(): Failed to remove empty path ":path" with exception ":e"', array(':path' => $path, ':e' => $e)), 'failed');
-                return true;
+                return;
             }
         }
 
@@ -572,7 +601,7 @@ function file_clear_path($path){
          * Go one entry up and continue
          */
         $path = str_runtil(unslash($path), '/');
-        file_clear_path($path);
+        file_clear_path($path, $restrictions);
 
     }catch(Exception $e){
         throw new BException(tr('file_clear_path(): Failed'), $e);
@@ -667,66 +696,6 @@ function file_temp($create = true, $extension = null, $limit_to_session = true){
 
     }catch(Exception $e){
         throw new BException(tr('file_temp(): Failed'), $e);
-    }
-}
-
-
-
-/*
- * Tree delete
- *
- * Kindly taken from http://lixlpixel.org/recursive_function/php/recursive_directory_delete/
- * Slightly rewritten and cleaned up by Sven Oostenbrink
- */
-function file_delete_tree($directory, $clean_path = false, $sudo = false, $restrictions = null){
-    try{
-        $directory = unslash($directory);
-
-        if(!file_exists($directory) and !is_link($directory)){
-            /*
-             * The path itself no (longer) exists. Maybe it was already
-             * deleted, but the situation now is exactly how this function is
-             * supposed to leave it behind, so we're okay and done!
-             */
-            return;
-
-        }elseif(is_link($directory) or !is_dir($directory)){
-            /*
-             * This is a file (or symlink), fine, delete it and lets continue!
-             */
-            unlink($directory);
-            return;
-        }
-
-        $handle = opendir($directory);
-
-        while (false !== ($item = readdir($handle))){
-            if(($item != '.') and ($item != '..')){
-                $path = $directory.'/'.$item;
-
-                if(is_dir($path)){
-                    file_delete_tree($path, $clean_path, $sudo, $restrictions);
-
-                }else{
-                    try{
-                        unlink($path);
-
-                    }catch(Exception $e){
-                        /*
-                         * Failed, very very likely access denied, so ATTEMPT to make writable and try again. If fails again, just exception
-                         */
-                        file_chmod(dirname($path), 0660, 0770);
-                        unlink($path);
-                    }
-                }
-            }
-        }
-
-        closedir($handle);
-        file_delete($directory, $clean_path, $sudo, $restrictions);
-
-    }catch(Exception $e){
-        throw new BException(tr('file_delete_tree(): Failed'), $e);
     }
 }
 
@@ -953,32 +922,52 @@ function file_list_tree($path, $pattern = null, $recursive = true){
 
 
 /*
- * Delete a file, weather it exists or not, without error
+ * Delete a file weather it exists or not, without error, using the "rm" command
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference
  * @package files
- * @see file_restrict() This function uses file restrictions, see file_restrict() for more information
+ * @see file_restrict() This function uses file location restrictions, see file_restrict() for more information
  *
- * @param mixed $patterns
- * @param boolean $clean_path
- * @param boolean $sudo
- * @param null list $restrictions A list of paths to which file_delete() operations will be restricted
+ * @param params $params
+ * @param list $params[patterns] A list of path patterns to be deleted
+ * @param null list $params[restrictions] A list of paths to which file_delete() operations will be restricted
+ * @param boolean $params[clean_path] If specified true, all directories above each specified pattern will be deleted as well as long as they are empty. This way, no empty directories will be left laying around
+ * @param boolean $params[sudo] If specified true, the rm command will be executed using sudo
  * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
  */
-function file_delete($patterns, $clean_path = false, $sudo = false, $restrictions = null){
+function file_delete($params, $restrictions = null){
     try{
-        if(!$patterns){
-            throw new BException(tr('file_delete(): No files or patterns specified'), 'not-specified');
+        if(!$params){
+            throw new BException(tr('file_delete(): No files or parameters specified'), 'not-specified');
         }
 
-        foreach(array_force($patterns) as $pattern){
-            file_restrict($pattern, $restrictions);
+        array_params ($params, 'patterns');
+        array_ensure ($params, 'patterns,restrictions,sudo');
+        array_default($params, 'restrictions', $restrictions);
+        array_default($params, 'clean_path'  , true);
+
+        /*
+         * Both patterns and restrictions should be arrays, make them so now to
+         * avoid them being converted multiple times later on
+         */
+        $params['patterns']     = array_force($params['patterns']);
+        $params['restrictions'] = array_force($params['restrictions']);
+
+        /*
+         * Delete all specified patterns
+         */
+        foreach($params['patterns'] as $pattern){
+            /*
+             * Restrict pattern access
+             */
+            file_restrict($pattern, $params['restrictions']);
 
             /*
-             * Do not escape this argument
+             * Escape patterns manually here, safe_exec() will be told NOT to
+             * escape them to avoid issues with *
              */
             $items = array_force($pattern, '*');
 
@@ -986,15 +975,22 @@ function file_delete($patterns, $clean_path = false, $sudo = false, $restriction
                 $item = escapeshellarg($item);
             }
 
-            $pattern = implode('*', $items);
+            $safe_pattern = implode('*', $items);
 
             unset($items);
             unset($item);
 
-            safe_exec(array('commands' => array('rm', array('sudo' => $sudo, '-rf', '-' => $pattern))));
+            /*
+             * Execute the rm command
+             */
+            safe_exec(array('commands' => array('rm', array('sudo' => $params['sudo'], '-rf', '-' => $safe_pattern))));
 
-            if($clean_path){
-                file_clear_path(dirname($patterns));
+            /*
+             * If specified to do so, clear the path upwards from the specified
+             * pattern
+             */
+            if($params['clean_path']){
+                file_clear_path(dirname($pattern), $params['restrictions']);
             }
         }
 
@@ -1021,7 +1017,7 @@ function file_delete($patterns, $clean_path = false, $sudo = false, $restriction
  * set $mode to the default value, specified in $_CONFIG, and then
  * do the same as 0000
  */
-function file_copy_tree($source, $destination, $search = null, $replace = null, $extensions = null, $mode = true, $novalidate = false){
+function file_copy_tree($source, $destination, $search = null, $replace = null, $extensions = null, $mode = true, $novalidate = false, $restrictions = null){
     global $_CONFIG;
 
     try{
@@ -1121,7 +1117,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                         /*
                          * Remove destination file since it would be overwritten
                          */
-                        file_delete($destination);
+                        file_delete($destination, $restrictions);
                     }
                 }
             }
@@ -1165,7 +1161,7 @@ function file_copy_tree($source, $destination, $search = null, $replace = null, 
                             /*
                              * Were overwriting here!
                              */
-                            file_delete($destination.$file);
+                            file_delete($destination.$file, $restrictions);
                         }
                     }
 
@@ -1570,7 +1566,7 @@ function file_session_store($label, $file = null, $path = TMP){
          * Check if a file already exists. If so, remove it, and store this one.
          */
         if(!empty($_SESSION['files'][$label])){
-            file_delete_tree($_SESSION['files'][$label]);
+           file_delete($_SESSION['files'][$label]);
         }
 
         array_ensure($_SESSION, 'files');
@@ -1742,7 +1738,7 @@ function file_http_download($params){
         //header('Expires: -1');
         //header('Cache-Control: public, must-revalidate, post-check=0, pre-check=0');
         header('Content-Type: '.$mimetype);
-        header("Content-length: ".$bytes);
+        header('Content-length: '.$bytes);
 
         if($params['attachment']){
             /*
@@ -2874,7 +2870,7 @@ function file_move_to_backup($path){
              * as the backup was generated less than a second
              * ago
              */
-            file_delete($path);
+            file_delete($path, ROOT.'data/backups');
             return true;
         }
 
@@ -3160,7 +3156,7 @@ function file_cat($params){
  * @param null list $restrictions list of paths to which the specified files must be restricted
  * @return void
  */
-function file_restrict($params, $restrictions = null){
+function file_restrict($params, &$restrictions = null){
     try{
         /*
          * Disable all restrictions?
@@ -3189,7 +3185,7 @@ function file_restrict($params, $restrictions = null){
                 /*
                  * Apply default restrictions
                  */
-                $restrictions = array(ROOT.'data', '/tmp');
+                $restrictions = array(ROOT.'data/tmp', ROOT.'data/cache', '/tmp');
             }
 
         }else{
@@ -3210,15 +3206,19 @@ function file_restrict($params, $restrictions = null){
              * against a restriction "/test" and having it fail because of the
              * missing slash at the end
              */
-            foreach($restrictions as $restriction){
-                unslash($restriction);
+            foreach($restrictions as &$restriction){
+                $restriction = unslash($restriction);
+
                 if(substr($params, 0, strlen($restriction)) === $restriction){
                     /*
                      * Passed!
                      */
+                    unset($restriction);
                     return;
                 }
             }
+
+            unset($restriction);
 
             throw new BException(tr('file_restrict(): The specified file or path ":path" is outside of the authorized paths', array(':path' => $params)), 'access-denied', $restrictions);
         }

@@ -330,7 +330,7 @@ function array_get_random($array){
 /*
  * Implode the array with keys
  */
-function array_implode_with_keys($source, $row_separator, $key_separator = ':', $auto_quote = false, $recurse = true){
+function array_implode_with_keys($source, $row_separator, $key_separator, $auto_quote = false, $recurse = true){
     try{
         if(!is_array($source)){
             throw new BException(tr('array_implode_with_keys(): Specified source is not an array but an ":type"', array(':type' => gettype($source))));

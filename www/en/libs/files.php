@@ -152,7 +152,7 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
         }
 
         sql_query('DELETE FROM `files` WHERE `id` = :id', array(':id' => $dbfile['id']));
-        file_delete(slash($base_path).$dbfile['filename']);
+        file_delete(slash($base_path).$dbfile['filename'], $base_path);
 
         log_console(tr('Deleted files library file ":file"', array(':file' => $dbfile['filename'])), 'green');
 
@@ -296,11 +296,14 @@ function files_search_orphans(){
                                         $file = file_from($entry, $root);
 
                                         /*
-                                         * Ensure that the path for the file exists
-                                         * Ensure that the file itself does not exist
+                                         * Ensure that the path for the file
+                                         * exists
+                                         *
+                                         * Ensure that the file itself does not
+                                         * exist
                                          */
                                         file_ensure_path(dirname($quarantine.$file));
-                                        file_delete($quarantine.$file);
+                                        file_delete($quarantine.$file, ROOT.'data/files/quarantine/orphans/');
 
                                         /*
                                          * Move the file to quarantine
@@ -347,10 +350,9 @@ function files_clear_quarantine($section = null){
             log_console(tr('Clearing all quarantined files'), 'yellow');
         }
 
-        return file_delete($path);
+        return file_delete($path, ROOT.'data/files');
 
     }catch(Exception $e){
         throw new BException(tr('files_clear_quarantine(): Failed'), $e);
     }
 }
-?>

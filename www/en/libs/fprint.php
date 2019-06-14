@@ -212,7 +212,9 @@ function fprint_delete($user){
         /*
          * Delete the directory for this user completely
          */
-        linux_file_delete($device['servers_id'], '/var/lib/fprint/'.$user, false, true, '/var/lib/fprint');
+        linux_file_delete($device['servers_id'], array('patterns'     => '/var/lib/fprint/'.$user,
+                                                       'restrictions' => '/var/lib/fprint',
+                                                       'sudo'         => true));
         return true;
 
     }catch(Exception $e){

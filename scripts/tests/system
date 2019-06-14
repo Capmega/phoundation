@@ -81,7 +81,7 @@ test('load_content()', 'Function call should detect missing markers', function()
         /*
          * W00T, correct!
          */
-        file_clear_path(ROOT.'data/content/en/html/test.html');
+        file_clear_path(ROOT.'data/content/en/html/test.html', ROOT.'data/content');
     }
 });
 ?>

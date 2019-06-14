@@ -285,7 +285,7 @@ if($nodelete){
  */
 if($cleardata){
     log_console(tr('Clearing local content data due to "--clear-data" command line parameter'), 'white');
-    file_delete_tree(ROOT.'data/content');
+    file_delete(ROOT.'data/content', false);
 }
 
 
@@ -319,12 +319,7 @@ if($nofiles){
 
             if($deletesync){
                 log_console(tr('Deleting local path ":path"', array(':path' => $path)), 'white');
-// :TODO: Change this for file_delete();
-                passthru($command = 'rm '.ROOT.$path.' -rf', $exitcode);
-
-                if($exitcode){
-                    throw new BException(tr('Deleting of local path failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
-                }
+                file_delete(ROOT.$path, ROOT.$path);
             }
 
             try{

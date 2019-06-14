@@ -283,7 +283,7 @@ function mysqlr_master_replication_setup($params){
          * SCP dump from master server to local
          */
         log_console(tr('Copying remote dump to SLAVE'), 'VERBOSEDOT');
-        file_delete('/tmp/'.$database['database_name'].'.sql.gz');
+        file_delete('/tmp/'.$database['database_name'].'.sql.gz', '/tmp');
         mysqlr_scp_database($database, '/tmp/'.$database['database_name'].'.sql.gz', '/tmp/', true);
 
         /*
@@ -291,7 +291,7 @@ function mysqlr_master_replication_setup($params){
          */
         linux_delete($slave, '/tmp/'.$database['database_name'].'.sql.gz', true);
         mysqlr_scp_database(array('domain' => $slave), '/tmp/'.$database['database_name'].'.sql.gz', '/tmp/');
-        file_delete('/tmp/'.$database['database_name'].'.sql.gz');
+        file_delete('/tmp/'.$database['database_name'].'.sql.gz', '/tmp');
 
         /*
          * Get the log_file and log_pos
@@ -711,7 +711,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
          * Delete local file key
          */
         chmod($keyfile, 0600);
-        file_delete($keyfile);
+        file_delete($keyfile, ROOT.'data/ssh/keys');
 
     }catch(Exception $e){
         /*
@@ -720,7 +720,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
         try{
             if(!empty($keyfile)){
                 safe_exec(chmod($keyfile, 0600));
-                file_delete($keyfile);
+                file_delete($keyfile, ROOT.'data/ssh/keys');
             }
 
         }catch(Exception $f){
@@ -946,7 +946,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
          */
         $result = safe_exec(array('commands' => array('scp', array($server['arguments'], '-P', $server['port'], '-i', $keyfile, $command))));
         chmod($keyfile, 0600);
-        file_delete($keyfile);
+        file_delete($keyfile, ROOT.'data/ssh/keys');
 
         return $result;
 
@@ -959,7 +959,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
         try{
             if(!empty($keyfile)){
                 chmod($keyfile, 0600);
-                file_delete($keyfile);
+                file_delete($keyfile, ROOT.'data/ssh/keys');
             }
 
         }catch(Exception $e){

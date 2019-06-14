@@ -309,7 +309,7 @@ function cli_run_once_local($close = false){
                 log_console(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'), 'warning');
             }
 
-            file_delete($run_dir.$script);
+            file_delete($run_dir.$script, ROOT.'data/run/');
             $executed = false;
             return;
         }
@@ -356,7 +356,7 @@ function cli_run_once_local($close = false){
              * exist, or is used by a different process. Remove the PID file
              */
             log_console(tr('cli_run_once_local(): Cleaning up stale run file ":file"', array(':file' => $run_dir.$script)), 'VERBOSE/yellow');
-            file_delete($run_dir.$script);
+            file_delete($run_dir.$script, ROOT.'data/run/');
         }
 
         /*
@@ -399,7 +399,7 @@ under_construction();
                 throw new BException(tr('cli_run_max_local(): The cli_run_max_local() has been called with close option, but it was never opened'), 'invalid');
             }
 
-            file_delete($run_dir.$script);
+            file_delete($run_dir.$script, ROOT.'data/run/');
             $executed = false;
             return true;
         }
@@ -446,7 +446,7 @@ under_construction();
              * exist, or is used by a different process. Remove the PID file
              */
             log_console(tr('cli_run_max_local(): Cleaning up stale run file ":file"', array(':file' => $run_dir.$script)), 'yellow');
-            file_delete($run_dir.$script);
+            file_delete($run_dir.$script, ROOT.'data/run/');
         }
 
         /*
@@ -1690,7 +1690,7 @@ function cli_unzip($file, $target_path = null, $remove = true){
         safe_exec(array('commands' => array('cd'   , array($target_path),
                                             'unzip', $arguments)));
 
-        file_delete($target_path.$filename);
+        file_delete($target_path.$filename, $target_path);
         return $target_path;
 
     }catch(Exception $e){

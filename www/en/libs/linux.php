@@ -229,24 +229,35 @@ function linux_scandir($server, $path){
  * @param string $path
  * @return void
  */
-function linux_file_delete($server, $patterns, $clean_path = false, $sudo = false, $restrictions = null){
+function linux_file_delete($server, $params, $restrictions = null){
     try{
         if(!$server){
-            return file_delete($patterns, $clean_path, $sudo, $restrictions);
+            return file_delete($params, $clean_path, $sudo, $restrictions);
         }
 
-        if(!$patterns){
-            throw new BException('linux_file_delete(): No files or patterns specified');
+        if(!$params){
+            throw new BException(tr('file_delete(): No files or parameters specified'), 'not-specified');
         }
+
+        array_params ($params, 'patterns');
+        array_ensure ($params, 'patterns,restrictions,sudo,clean_path');
+        array_default($params, 'restrictions', $restrictions);
+
+        /*
+         * Both patterns and restrictions should be arrays, make them so now to
+         * avoid them being converted multiple times later on
+         */
+        $params['patterns']     = array_force($params['patterns']);
+        $params['restrictions'] = array_force($params['restrictions']);
 
         $server = servers_get($server);
 
-        foreach(array_force($patterns) as $pattern){
-            linux_restrict($server, $pattern, $restrictions);
-            servers_exec($server, array('commands' => array('rm', array('sudo' => $sudo, $pattern, '-rf'))));
+        foreach($params['patterns'] as $pattern){
+            linux_restrict($server, $pattern, $params['restrictions']);
+            servers_exec($server, array('commands' => array('rm', array('sudo' => $params['sudo'], $pattern, '-rf'))));
 
-            if($clean_path){
-                linux_file_clear_path($server, dirname($pattern), $sudo, $restrictions);
+            if($params['clean_path']){
+                linux_file_clear_path($server, dirname($pattern), $params['sudo'], $params['restrictions']);
             }
 
             log_console(tr('Deleted file pattern ":pattern" on server ":server"', array(':pattern' => $pattern, ':server' => $server['domain'])), 'green');
@@ -273,7 +284,7 @@ function linux_file_delete($server, $patterns, $clean_path = false, $sudo = fals
  * @param boolean [false] $sudo If specified true, the function will test the path's existence on the server using sudo
  * @return
  */
-function linux_file_clear_path($server, $path, $sudo = false, $restrictions){
+function linux_file_clear_path($server, $path, $sudo = false, $restrictions = null){
     try{
         $server = servers_get($server);
 
@@ -335,7 +346,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions){
          * Go one entry up and continue
          */
         $path = str_runtil(unslash($path), '/');
-        linux_file_clear_path($server, $path);
+        linux_file_clear_path($server, $path, $sudo, $restrictions);
 
     }catch(Exception $e){
         throw new BException('linux_file_clear_path(): Failed', $e);

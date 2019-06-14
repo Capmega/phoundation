@@ -625,7 +625,7 @@ switch(cli_method()){
                             $patch_file = isset_get($files['patch_file']);
 
                             if($patch_file){
-                                file_delete($patch_file, false, false, array($paths['phoundation'], $paths['toolkit']));
+                                file_delete($patch_file, array($paths['phoundation'], $paths['toolkit']));
                             }
                         }
                     }
@@ -726,7 +726,7 @@ switch(cli_method()){
                                 break;
 
                             case 'created':
-                                file_delete(ROOT.$file, false, false, ROOT);
+                                file_delete(ROOT.$file, ROOT);
                                 break;
 
                             default:

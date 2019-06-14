@@ -1191,7 +1191,7 @@ function ssh_remove_known_host($domain, $port = null){
         }
 
         file_ensure_file(ROOT.'data/ssh/known_hosts', 0640, 0750);
-        file_delete(ROOT.'data/ssh/known_hosts~update');
+        file_delete(ROOT.'data/ssh/known_hosts~update', false);
 
         /*
          * Copy the lines that should not be deleted to the new file
@@ -1221,7 +1221,7 @@ function ssh_remove_known_host($domain, $port = null){
         /*
          * Move the new file in place of the old one
          */
-        file_delete(ROOT.'data/ssh/known_hosts');
+        file_delete(ROOT.'data/ssh/known_hosts', false);
         rename(ROOT.'data/ssh/known_hosts~update', ROOT.'data/ssh/known_hosts');
 
         return $count;
@@ -1366,7 +1366,7 @@ function ssh_rebuild_known_hosts($clear = false){
              * Clear the SSH known hosts file
              */
             log_console(tr('Deleting the known_hosts file "'.ROOT.'data/ssh/known_hosts"'), 'VERBOSE/yellow');
-            file_delete(ROOT.'data/ssh/known_hosts');
+            file_delete(ROOT.'data/ssh/known_hosts', false);
         }
 
         log_console(tr('Rebuilding known_hosts file'), 'VERBOSE/cyan');

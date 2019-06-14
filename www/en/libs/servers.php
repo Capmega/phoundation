@@ -1367,7 +1367,7 @@ function servers_remove_identity_file($identity_file, $background = false){
 
             }else{
                 chmod($identity_file, 0600);
-                file_delete($identity_file);
+                file_delete($identity_file, ROOT.'data/ssh/keys');
             }
         }
 

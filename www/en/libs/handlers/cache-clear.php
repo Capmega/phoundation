@@ -19,20 +19,20 @@ try{
                     /*
                      * Delete only one cache file, and attempt to clear empty directories as possible
                      */
-                    file_clear_path(ROOT.'data/cache/'.slash($namespace).$key);
+                    file_clear_path(ROOT.'data/cache/'.slash($namespace).$key, ROOT.'data/cache');
 
                 }else{
                     /*
                      * Delete specified group
                      */
-                    file_delete_tree(ROOT.'data/cache/'.$namespace);
+                    file_delete(ROOT.'data/cache/'.$namespace, ROOT.'data/cache');
                 }
 
             }elseif($key){
                 /*
                  * Delete only one cache file, and attempt to clear empty directories as possible
                  */
-                file_clear_path(ROOT.'data/cache/'.$key);
+                file_clear_path(ROOT.'data/cache/'.$key, ROOT.'data/cache');
 
             }else{
                 /*
@@ -93,12 +93,12 @@ try{
      * Clear cache for all languages
      */
     foreach($languages as $code => $name) {
-        file_delete(ROOT.'www/'.$code.'/pub/js/cached*'          , false, false, ROOT.'www/'.$code.'/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/pub/js/bundle-*'         , false, false, ROOT.'www/'.$code.'/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/pub/css/bundle-*'        , false, false, ROOT.'www/'.$code.'/pub/css/');
-        file_delete(ROOT.'www/'.$code.'/pub/css/p-bundle-*'      , false, false, ROOT.'www/'.$code.'/pub/css/');
-        file_delete(ROOT.'www/'.$code.'/admin/pub/js/bundle-*'   , false, false, ROOT.'www/'.$code.'/admin/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*', false, false, ROOT.'www/'.$code.'/admin/pub/css/');
+        file_delete(ROOT.'www/'.$code.'/pub/js/cached*'          , ROOT.'www/'.$code.'/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/pub/js/bundle-*'         , ROOT.'www/'.$code.'/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/pub/css/bundle-*'        , ROOT.'www/'.$code.'/pub/css/');
+        file_delete(ROOT.'www/'.$code.'/pub/css/p-bundle-*'      , ROOT.'www/'.$code.'/pub/css/');
+        file_delete(ROOT.'www/'.$code.'/admin/pub/js/bundle-*'   , ROOT.'www/'.$code.'/admin/pub/js/');
+        file_delete(ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*', ROOT.'www/'.$code.'/admin/pub/css/');
 
         log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/www/'.$code.'/pub/js/bundle-*,ROOT/www/'.$code.'/pub/css/bundle-*')), 'green');
     }

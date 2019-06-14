@@ -1026,7 +1026,7 @@ function code_patch($params){
                         git_apply($patch_file);
 
                         if($params['clean']){
-                            file_delete($patch_file, false, false, $params['restrictions']);
+                            file_delete($patch_file, $params['restrictions']);
                         }
                     }
 

@@ -164,7 +164,7 @@ switch(cli_method()){
             $r = sql_query('DELETE FROM `email_files`');
 
             while($file = sql_fetch($r)){
-                file_delete($file);
+                file_delete($file, ROOT.'data/content/emails/');
             }
 
             sql_query('DELETE FROM `email_files`');

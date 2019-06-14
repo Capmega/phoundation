@@ -527,7 +527,12 @@ function upload_check_files($max_uploads = null, $min_uploads = null){
                          * Ensure this file is removed!
                          */
                         if(file_exists($value['tmp_name'])){
-                            file_delete($value['tmp_name']);
+                            /*
+                             * This filename comes directly from PHP. Not sure
+                             * where these files are typically are located, but
+                             * just assume that PHP gives us the right file
+                             */
+                            file_delete($value['tmp_name'], false);
                         }
                 }
             }

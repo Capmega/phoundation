@@ -54,7 +54,7 @@ function storage_files_insert($params){
                      */
                     image_convert($file['filename'], str_runtil($file['filename'], '.').'.jpg', array('method' => 'custom',
                                                                                                       'format' => 'jpg'));
-                    file_delete($file['filename']);
+                    file_delete($file['filename'], ROOT.'data/content');
                     $file['filename'] = str_runtil($file['filename'], '.').'.jpg';
                     break;
 

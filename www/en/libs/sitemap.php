@@ -91,7 +91,7 @@ function sitemap_install_files($files){
                     log_console(tr('Installing sitemap file ":file"', array(':file' => 'www/'.$filename)), 'VERBOSE/cyan');
 
                     file_execute_mode(ROOT.'www/', 0770, function($path) use ($filename){
-                        file_delete(ROOT.'www/'.$filename, false, false, ROOT.'www/');
+                        file_delete(ROOT.'www/'.$filename, ROOT.'www/');
                         rename(TMP.'sitemaps/'.$filename, ROOT.'www/'.$filename);
                     });
 
@@ -117,7 +117,7 @@ function sitemap_install_files($files){
             }
 
             chmod(ROOT.'www/sitemap.xml', 0660);
-            file_delete($target, false, false, ROOT.'www/');
+            file_delete($target, ROOT.'www/');
             rename(TMP.'sitemaps/sitemap.xml', ROOT.'www/sitemap.xml');
             chmod(ROOT.'www/sitemap.xml', $perms);
         });
@@ -736,7 +736,7 @@ function sitemap_make_backup(){
             /*
              * No backup was made, cleanup
              */
-            file_delete_tree($target);
+            file_delete($target, ROOT.'data/backups/sitemaps');
         }
 
     }catch(Exception $e){

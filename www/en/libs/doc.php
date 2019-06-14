@@ -1084,10 +1084,10 @@ function doc_generate($project = null){
         log_console(tr('Generating documentation for project ":project"', array(':project' => $project)), 'white');
         log_console(tr('Deleting old documentation'));
 
-        file_delete(ROOT.'data/doc/pdf');
-        file_delete(ROOT.'data/doc/txt');
-        file_delete(ROOT.'data/doc/html');
-        file_delete(ROOT.'data/doc/include');
+        file_delete(array(ROOT.'data/doc/pdf',
+                          ROOT.'data/doc/txt',
+                          ROOT.'data/doc/html',
+                          ROOT.'data/doc/include'), ROOT.'data/doc');
 
         log_console(tr('Generating documentation in ":format" format', array(':format' => $format)), 'cyan');
 

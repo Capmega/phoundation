@@ -148,7 +148,7 @@ function scanimage($params){
                 /*
                  * Change file format?
                  */
-                file_delete($params['file']);
+                file_delete($params['file'], ROOT);
 
                 switch($params['format']){
                     case 'tiff':
@@ -393,7 +393,7 @@ function scanimage_validate($params){
                     $v->setError(tr('Specified file ":file" already exists', array(':file' => $params['file'])));
 
                 }elseif(is_file($params['file'])){
-                    file_delete($params['file']);
+                    file_delete($params['file'], ROOT);
 
                 }else{
                     if(is_dir($params['file'])){

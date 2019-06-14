@@ -1009,6 +1009,62 @@ function str_boolean($value){
 
 
 
+/*
+ * Convert underscore type variables to camelcase type variables
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package strings
+ * @version 2.6.25: Added function and documentation
+ * @example
+ * code
+ * $result = str_underscore_to_camelcase('this_is_a_test');
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * thisIsATest
+ * /code
+ *
+ * @param string $string The string to convert
+ * @param boolean $first_uppercase If set to true, the first letter will also be uppercase. If set to false, the first letter will be lowercase
+ * @return string The result
+ */
+function str_underscore_to_camelcase($string, $first_uppercase = false){
+    try{
+        while(($pos = strpos($string, '_')) !== false){
+            $character = $string[$pos + 1];
+
+            if(!$pos){
+                /*
+                 * This is the first character
+                 */
+                if($first_uppercase){
+                    $character = strtoupper($character);
+
+                }else{
+                    $character = strtolower($character);
+                }
+
+            }else{
+                $character = strtoupper($character);
+            }
+
+            $string = substr($string, 0, $pos).$character.substr($string, $pos + 2);
+        }
+
+        return $string;
+
+    }catch(Exception $e){
+        throw new BException('str_underscore_to_camelcase(): Failed', $e);
+    }
+}
+
+
+
 /* From http://stackoverflow.com/questions/11151250/how-to-compare-two-very-large-strings, implement?
 $string1 = "This is a sample text to test a script to highlight the differences between 2 strings, so the second string will be slightly different";
 $string2 = "This is 2 s4mple text to test a scr1pt to highlight the differences between 2 strings, so the first string will be slightly different";
@@ -1036,4 +1092,3 @@ echo "$string3". "<br />". $string4;*/
 function str_auto_quote($string, $quote = "'"){
     return str_quote($string, $quote);
 }
-?>

@@ -65,7 +65,7 @@ try{
              * together!
              */
             log_file(tr('Found specified log file ":path" to exist as a directory. Deleting the directory to avoid run_background() not working correctly', array(':path' => $log)), 'run_background');
-            file_delete($log);
+            file_delete($log, ROOT.'data/log');
         }
 
         $command = sprintf('export TERM='.$term.'; (nohup %s >> %s 2>&1 & echo $! >&3) 3> %s', $path.$cmd.' '.$args, $log, ROOT.'data/run-background/'.$cmd);

@@ -298,7 +298,7 @@ function init($projectfrom = null, $frameworkfrom = null){
 
             if($_CONFIG['language']['supported']){
                 foreach($_CONFIG['language']['supported'] as $language => $name){
-                    file_delete(ROOT.'www/'.substr($language, 0, 2).'/data', false, false, ROOT.'www/'.substr($language, 0, 2));
+                    file_delete(ROOT.'www/'.substr($language, 0, 2).'/data', ROOT.'www/'.substr($language, 0, 2));
                 }
             }
 

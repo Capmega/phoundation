@@ -135,7 +135,7 @@ function css_purge($html, $css){
         /*
          * Ensure that any previous version is deleted
          */
-        file_delete($purged_css_file, false, false, ROOT.'www/'.LANGUAGE.'/pub/css');
+        file_delete($purged_css_file, ROOT.'www/'.LANGUAGE.'/pub/css');
 
         /*
          * Add list of selectors that should be whitelisted

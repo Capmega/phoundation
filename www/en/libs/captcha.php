@@ -136,4 +136,3 @@ function captcha_verify_response($captcha){
         throw new BException('captcha_verify_response(): Failed', $e);
     }
 }
-?>

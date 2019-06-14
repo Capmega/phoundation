@@ -1793,7 +1793,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
             // $file   = $post['blog_name'].'/'.file_move_to_target($original_video, $prefix.$post['blog_name'].'/', '-original.' . $video_extension, false, 4);
             // copy($prefix.$file, $prefix.$media.'-original.' . $video_extension);
 
-            file_delete($prefix.$media.'-original.*');
+            file_delete($prefix.$media.'-original.*', ROOT.'data/content/');
             $file   = $post['blog_name'].'/'.file_move_to_target($original_video, $prefix.$post['blog_name'].'/', '-original.mp4', false, 4);
             copy($prefix.$file, $prefix.$media.'-original.mp4');
         }
@@ -1847,8 +1847,7 @@ function blogs_media_delete($blogs_posts_id){
         }
 
         while($file = sql_fetch($media)){
-            file_delete_tree(dirname(ROOT.'data/content/'.$file['file']));
-            file_clear_path(dirname(ROOT.'data/content/'.$file['file']));
+            file_delete(dirname(ROOT.'data/content/'.$file['file']), ROOT.'data/content');
         }
 
         sql_query('DELETE FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $blogs_posts_id));
@@ -2468,11 +2467,11 @@ function blogs_post_erase($post){
 
         while($media = sql_fetch($r)){
             foreach($_CONFIG['blogs']['images'] as $type => $config){
-                file_delete(ROOT.'data/content/'.$media['file'].'-'.$type.'.jpg');
+                file_delete(ROOT.'data/content/'.$media['file'].'-'.$type.'.jpg', ROOT.'data/content/');
             }
         }
 
-        file_clear_path(ROOT.'data/content/'.$media['file']);
+        file_clear_path(ROOT.'data/content/'.$media['file'], ROOT.'data/content/');
 
         sql_query('DELETE FROM `blogs_media`      WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post));
         sql_query('DELETE FROM `blogs_keywords`   WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post));

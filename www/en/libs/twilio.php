@@ -68,8 +68,8 @@ function twilio_install(){
             file_execute_mode(ROOT.'libs/external', 0770, function(){
                 file_ensure_path(ROOT.'libs/external');
                 file_delete(TMP.'twilio_install.zip');
-                file_delete_tree(ROOT.'libs/external/twilio-php-master', false, false, ROOT.'libs/external/');
-                file_delete_tree(ROOT.'libs/external/twilio'           , false, false, ROOT.'libs/external/');
+                file_delete(ROOT.'libs/external/twilio-php-master', ROOT.'libs/external/');
+                file_delete(ROOT.'libs/external/twilio'           , ROOT.'libs/external/');
 
                 /*
                  * Get library zip, unzip it to target, and cleanup

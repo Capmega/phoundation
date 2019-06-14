@@ -32,7 +32,8 @@ if($table){
     /*
      * Dump a temp from the table, and a complete backup of the entire database
      */
-    file_delete($file = TMP.'dropload/'.$database.'.'.$table.'.sql');
+    $file = TMP.'dropload/'.$database.'.'.$table.'.sql';
+    file_delete($file);
 
     log_console('Dumping table ":table" from database ":database"', array(':table' => $table, ':database' => $database), 'cyan');
     safe_exec(array('commands' => array('mysqldump', array('-u', $user, '-p'.$password, '--database', $database, '--table', $table, 'redirect' => ' > '.$file.' 2> /dev/null'))));
@@ -41,7 +42,8 @@ if($table){
     /*
      * Dump a temp from the table, and a complete backup of the entire database
      */
-    file_delete($file = TMP.'tables/'.$database.'.sql');
+    $file = TMP.'tables/'.$database.'.sql';
+    file_delete($file);
 
     log_console(tr('Dumping database ":database"', array(':database' => $database)), 'cyan');
     safe_exec(array('commands' => array('mysqldump', array('-u', $user, '-p'.$password, '--database', $database, '--table', $table, 'redirect' => ' > '.$file))));

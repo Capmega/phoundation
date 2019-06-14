@@ -3,7 +3,7 @@
 /*
  * Clear data store
  */
-file_delete_tree(ROOT.'data/pub');
+file_delete(ROOT.'data/pub', false);
 
 mkdir(ROOT.'data/pub', $_CONFIG['file']['dir_mode'], true);
 

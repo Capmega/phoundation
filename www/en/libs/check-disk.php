@@ -58,9 +58,9 @@ function check_disk($params = null){
              * Perform default recovery actions
              */
             $params['callback'] = function($total, $available, $percentage, $bytes){
-                file_delete(ROOT.'data/tmp');
-                file_delete(ROOT.'data/cache');
-                file_delete(ROOT.'data/log');
+                file_delete(ROOT.'data/tmp'  , ROOT.'data/');
+                file_delete(ROOT.'data/cache', ROOT.'data/');
+                file_delete(ROOT.'data/log'  , ROOT.'data/');
 
                 /*
                  * Regenerate the paths to ensure that they are available

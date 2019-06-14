@@ -56,7 +56,7 @@ function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path =
              * We need to concat these files together
              */
             safe_exec(array('commands' => array('cat', array($file, $path.$box, 'redirect' => ' > '.$path.$box.'~'))));
-            file_delete($path.$box);
+            file_delete($path.$box, false);
             rename($path.$box.'~ ', $path.$box);
 
         }else{
@@ -125,11 +125,11 @@ function mbox_test_access($path){
         }
 
         if(file_exists($path.'base-test')){
-            file_delete($path.'base-test');
+            file_delete($path.'base-test', false);
         }
 
         touch($path.'base-test');
-        file_delete($path.'base-test');
+        file_delete($path.'base-test', false);
 
         return $path;
 

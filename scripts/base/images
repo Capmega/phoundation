@@ -658,9 +658,12 @@ switch(cli_method()){
                                                                 }
                                                             }
 
+                                                            /*
+                                                             *
+                                                             */
                                                             try{
                                                                 if(TEST and !$no_delete){
-                                                                    file_delete($target);
+                                                                    file_delete($target, ROOT);
                                                                 }
 
                                                             }catch(Exception $e){

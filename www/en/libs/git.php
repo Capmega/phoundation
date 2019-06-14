@@ -482,7 +482,7 @@ function git_clone($repository, $path, $clean = false){
             /*
              * Delete the .git repository file, leaving on the working tree
              */
-            file_delete(slash($path).$repository.'/.git');
+            file_delete(slash($path).$repository.'/.git', $path);
         }
 
         return slash($path).$repository;

@@ -39,7 +39,7 @@ sql_query('CREATE TABLE `api_accounts` (`id`           INT(11)       NOT NULL AU
                                        ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
 load_libs('file');
-file_delete(ROOT.'data/cdn');
+file_delete(ROOT.'data/cdn', ROOT.'data');
 
 sql_query('DELETE FROM `cdn_storage`');
 sql_query('DELETE FROM `cdn_projects`');

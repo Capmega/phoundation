@@ -1127,8 +1127,8 @@ function email_load_phpmailer(){
              * Move PHPMailer into its required location. Ensure the path is writable.
              */
             file_execute_mode(ROOT.'libs/external', 0750, function(){ rename(TMP.'PHPMailer-master/src', ROOT.'libs/external/PHPMailer'); });
-            file_delete(TMP.'PHPMailer-master/');
-            file_delete($file);
+            file_delete(array(TMP.'PHPMailer-master/',
+                              $file));
         }
 
         load_libs('external/PHPMailer/PHPMailer,external/PHPMailer/SMTP,external/PHPMailer/Exception');

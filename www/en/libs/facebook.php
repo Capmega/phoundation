@@ -344,16 +344,18 @@ function facebook_get_avatar($user){
             throw new BException('facebook_get_avatar(): No facebook ID specified');
         }
 
-        // Avatars are on http://graph.facebook.com/USERID/picture
+        /*
+         * Avatars are on http://graph.facebook.com/USERID/picture
+         * Create the avatars, and store the base avatar location
+         */
         $file   = TMP.file_move_to_target('http://graph.facebook.com/'.$user.'/picture?type=large', TMP, '.jpg');
-
-        // Create the avatars, and store the base avatar location
         $retval = image_create_avatars($file);
 
-        // Clear the temporary file and cleanup paths
+        /*
+         * Clear the temporary file and cleanup paths
+         * Update the user avatar
+         */
         file_clear_path($file);
-
-        // Update the user avatar
         return user_update_avatar($user, $retval);
 
     }catch(Exception $e){

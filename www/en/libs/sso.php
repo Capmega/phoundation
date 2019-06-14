@@ -38,8 +38,8 @@ function sso_library_init(){
         ensure_installed(array('name'      => 'hybridauth',
                                'project'   => 'hybridauth',
                                'callback'  => 'sso_install',
-                               'checks'    => array(ROOT.'libs/external/hybridauth/Hybrid/Auth.php',
-                                                    ROOT.'libs/external/hybridauth/Hybrid/Auth.php')));
+                               'checks'    => array(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php',
+                                                    ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php')));
 
         load_config('sso');
 
@@ -68,7 +68,8 @@ function sso_library_init(){
 function sso_install($params){
    try{
         /*
-         * Download the hybridauth v2 library, and install it in the external libraries path
+         * Download the hybridauth v2 library, and install it in the vendor
+         * libraries path
          */
         load_libs('cli');
 
@@ -89,9 +90,9 @@ function sso_install($params){
         /*
          * Install library and clean up
          */
-        file_execute_mode(ROOT.'www/en/libs/external', 0770, function(){
-            file_delete(ROOT.'www/en/libs/external/hybridauth');
-            rename($path, ROOT.'www/en/libs/external/hybridauth');
+        file_execute_mode(ROOT.'www/en/libs/vendor', 0770, function(){
+            file_delete(ROOT.'www/en/libs/vendor/hybridauth', ROOT.'www/en/libs/vendor');
+            rename($path, ROOT.'www/en/libs/vendor/hybridauth');
         });
 
         file_delete(TMP.'hybridauth');
@@ -127,8 +128,8 @@ function sso($provider, $method, $redirect, $role = 'user'){
 
         switch($method){
             case 'authorized':
-                include_once(ROOT.'libs/external/hybridauth/Hybrid/Auth.php');
-                include_once(ROOT.'libs/external/hybridauth/Hybrid/Endpoint.php');
+                include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
+                include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Endpoint.php');
 
                 if(isset($_REQUEST['hauth_start']) or isset($_REQUEST['hauth_done'])){
                     Hybrid_Endpoint::process();
@@ -143,7 +144,7 @@ function sso($provider, $method, $redirect, $role = 'user'){
                 break;
 
             case 'signin':
-                include_once(ROOT.'libs/external/hybridauth/Hybrid/Auth.php');
+                include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
 
                 $hybridauth = new Hybrid_Auth(sso_config($provider));
                 $result     = $hybridauth->authenticate(str_capitalize($provider));
@@ -350,7 +351,7 @@ function sso_config($provider){
         if(file_exists($file) and ($_CONFIG['sso']['cache_config'] and ((time() - filemtime($file)) > $_CONFIG['sso']['cache_config']))){
             chmod($path, 0700);
             chmod($file, 0660);
-            file_delete($file);
+            file_delete($file, ROOT.'data/cache/sso');
         }
 
         if(!file_exists($file)){

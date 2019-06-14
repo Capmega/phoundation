@@ -49,7 +49,7 @@ try{
      * Extract the available persons names files.
      */
     log_console('Unpacking synonyms data file "'.$import_path.'"');
-    file_delete($import_path.'*.txt');
+    file_delete($import_path.'*.txt', $import_path);
     safe_exec(array('commands' => array('cd' , array($import_path),
                                         'tar', array('-xvf', 'names.tgz'))));
 
@@ -156,7 +156,7 @@ try{
     /*
      * Dump the data text files
      */
-    file_delete($import_path.'*.txt');
+    file_delete($import_path.'*.txt', $import_path);
     log_console(tr('All done, added ":count" entries', array(':count' => $count)), 'green');
 
 }catch(Exception $e){

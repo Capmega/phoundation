@@ -67,10 +67,10 @@ function fancybox_install($params){
         $css = download('https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.6/dist/jquery.fancybox.min.css');
 
         file_execute_mode(ROOT.'www/en/pub/js', 0770, function(){
-            file_delete(ROOT.'www/en/pub/js/jquery.fancybox.js');
-            file_delete(ROOT.'www/en/pub/css/jquery.fancybox.css');
+            file_delete(array(ROOT.'www/en/pub/js/jquery.fancybox.js',
+                              ROOT.'www/en/pub/css/jquery.fancybox.css'), ROOT.'www/en/pub');
 
-            rename($js ,  ROOT.'www/en/pub/js/jquery.fancybox.js');
+            rename($js , ROOT.'www/en/pub/js/jquery.fancybox.js');
             rename($css, ROOT.'www/en/pub/css/jquery.fancybox.css');
         });
 

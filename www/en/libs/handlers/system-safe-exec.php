@@ -222,7 +222,7 @@ under_construction();
         }
 
         if(isset($exitcode_file)){
-            file_delete(isset_get($exitcode_file));
+            file_delete($exitcode_file);
         }
     }
 

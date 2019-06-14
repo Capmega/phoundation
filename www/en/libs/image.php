@@ -247,7 +247,7 @@ function image_convert($source, $target = null, $params = null){
              * The imagemagic-convert log shows only the last entry
              */
             array_default($params, 'log', ROOT.'data/log/imagemagic-convert');
-            file_delete(ROOT.'data/log/imagemagick-convert');
+            file_delete(ROOT.'data/log/imagemagick-convert', false);
         }
 
         if($params['defaults']){
@@ -1347,9 +1347,12 @@ under_construction();
         load_libs('go');
 
         if(!go_exists('corrupter/corrupter')){
-            log_console('Corrupter program not setup yet, creating now');
             load_libs('git');
-            linux_file_delete($server, ROOT.'data/go/corrupter', false, false, false);
+            log_console('Corrupter program not setup yet, creating now');
+
+            linux_file_delete($server, array('patterns'     => ROOT.'data/go/corrupter',
+                                             'restrictions' => false));
+
             git_clone('https://github.com/r00tman/corrupter', ROOT.'data/go');
             go_build(ROOT.'data/go/corrupter', $server);
         }

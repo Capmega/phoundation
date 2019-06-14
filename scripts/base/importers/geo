@@ -146,7 +146,7 @@ switch(cli_method()){
                                 'timeZones');
 
         foreach($files as $file){
-            file_delete($geoimport_path.$file.'*');
+            file_delete($geoimport_path.$file.'*', $geoimport_path);
         }
 
         if($no_check_certificate){
