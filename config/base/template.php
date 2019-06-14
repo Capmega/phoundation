@@ -21,4 +21,3 @@
  */
 $_CONFIG['template']                                                            = array('bar' => '',
                                                                                         'foo' => true);                 // Blah
-?>

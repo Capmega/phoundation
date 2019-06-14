@@ -159,7 +159,7 @@ function html_bundler($list){
              */
             if(!filesize($bundle_file)){
                 file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
-                    file_delete($bundle_file, false, false, false, ROOT.'pub/'.$list);
+                    file_delete($bundle_file, ROOT.'pub/');
                 });
 
                 return html_bundler($list);
@@ -171,7 +171,7 @@ function html_bundler($list){
              */
             if((filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()){
                 file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
-                    file_delete($bundle_file, false, false, false, ROOT.'pub/'.$list);
+                    file_delete($bundle_file, ROOT.'pub/');
                 });
 
                 return html_bundler($list);
@@ -340,7 +340,7 @@ function html_bundler($list){
                  * Purge the file from duplicate content
                  */
                 if($list === 'css'){
-                    if($_CONFIG['cdn']['purge']){
+                    if($_CONFIG['cdn']['css']['purge']){
                         try{
                             load_libs('css');
 
@@ -1954,6 +1954,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
         array_default($script, 'ie'     , $ie);
         array_default($script, 'to_file', null);
         array_default($script, 'list'   , 'scripts');
+        array_default($script, 'delayed', $_CONFIG['cdn']['js']['load_delayed']);
 
         if($script['to_file'] === null){
             /*
@@ -2010,6 +2011,10 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                             $retval = 'window.addEventListener("load", function(e) { '.$script['script'].' });';
                             break;
 
+                        case 'function':
+                            $retval = '$(function() { '.$script['script'].' });';
+                            break;
+
                         default:
                             throw new BException(tr('html_script(): Unknown event value ":value" specified', array(':value' => $script['event'])), 'unknown');
                     }
@@ -2053,13 +2058,13 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                     /*
                      * The javascript file is empty
                      */
-                    file_delete($file.'.js,'.$file.'.min.js', false, false, ROOT.'www/en/pub/js');
+                    file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/en/pub/js');
 
                 }elseif((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time()){
                     /*
                      * External cached file is too old
                      */
-                    file_delete($file.'.js,'.$file.'.min.js', false, false, ROOT.'www/en/pub/js');
+                    file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/en/pub/js');
                 }
             }
 
@@ -2101,7 +2106,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
              * $core->register[script] tags are added all at the end of the page
              * for faster loading
              */
-            if(!$_CONFIG['cdn']['js']['load_delayed']){
+            if(!$script['delayed']){
                 return $retval;
             }
 
@@ -2389,14 +2394,14 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
             $format = 'jpg';
         }
 
-        if(!$_CONFIG['html']['images']['auto_convert'][$format]){
+        if(!$_CONFIG['cdn']['img']['auto_convert'][$format]){
             /*
              * No auto conversion to be done for this image
              */
             return $src;
         }
 
-        if(!accepts('image/'.$_CONFIG['html']['images']['auto_convert'][$format])){
+        if(!accepts('image/'.$_CONFIG['cdn']['img']['auto_convert'][$format])){
             /*
              * This browser does not accept webp images
              */
@@ -2414,10 +2419,10 @@ under_construction();
          * Automatically convert the image to the specified format for
          * automatically optimized images
          */
-        $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
-        $target      = str_runtil($file_src , '.').'.'.$_CONFIG['html']['images']['auto_convert'][$format];
+        $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
+        $target      = str_runtil($file_src , '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
 
-        log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['html']['images']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
+        log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['cdn']['img']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
 
         try{
             if(!file_exists($target)){
@@ -2430,7 +2435,7 @@ under_construction();
                     image_convert(array('method' => 'custom',
                                         'source' => $file_src,
                                         'target' => $target,
-                                        'format' => $_CONFIG['html']['images']['auto_convert'][$format]));
+                                        'format' => $_CONFIG['cdn']['img']['auto_convert'][$format]));
                 });
             }
 
@@ -2445,7 +2450,7 @@ under_construction();
              * Failed to upgrade image. Use the original image
              */
             $e->makeWarning(true);
-            $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', array(':src' => $src, ':format' => $_CONFIG['html']['images']['auto_convert'][$format])));
+            $e->addMessages(tr('html_img_src(): Failed to auto convert image ":src" to format ":format". Leaving image as-is', array(':src' => $src, ':format' => $_CONFIG['cdn']['img']['auto_convert'][$format])));
             notify($e);
         }
 
@@ -2464,7 +2469,7 @@ under_construction();
  * data itself, and store that data in database for future reference
  */
 function html_img($params, $alt = null, $width = null, $height = null, $extra = ''){
-    global $_CONFIG;
+    global $_CONFIG, $core;
     static $images;
 
     try{
@@ -2477,10 +2482,12 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                             'alt'    => $alt,
                             'width'  => $width,
                             'height' => $height,
+                            'lazy'   => null,
                             'extra'  => $extra);
         }
 
-        array_ensure($params, 'src,alt,width,height,extra');
+        array_ensure ($params, 'src,alt,width,height,extra');
+        array_default($params, 'lazy', $_CONFIG['cdn']['img']['lazy_load']);
 
         if(!$params['src']){
             /*
@@ -2601,7 +2608,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                     }
 
                     if(!empty($file)){
-                        file_delete(TMP.$file, true);
+                        file_delete(TMP.$file);
                     }
 
                 }else{
@@ -2677,7 +2684,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                 $params['height'] = $height;
             }
 
-            if(!$_CONFIG['html']['images']['auto_resize']){
+            if(!$_CONFIG['cdn']['img']['auto_resize']){
                 if(($width > $params['width']) or ($height > $params['height'])){
                     log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
 
@@ -2753,6 +2760,152 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
 
         }else{
             $params['width'] = '';
+        }
+
+        if($params['lazy']){
+            $html = '';
+
+            if(empty($core->register['lazy_img'])){
+                /*
+                 * Use lazy image loading
+                 */
+                if(!file_exists(ROOT.'www/en/pub/js/jquery.lazy/jquery.lazy.js')){
+                    /*
+                     * jquery.lazy is not available, auto install it.
+                     */
+                    $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
+                    $path = cli_unzip($file);
+
+                    file_execute_mode(ROOT.'www/en/pub/js', 0770, function() use ($path){
+                        file_delete(ROOT.'www/en/pub/js/jquery.lazy/', ROOT.'www/en/pub/js/');
+                        rename($path.'jquery.lazy-master/', ROOT.'www/en/pub/js/jquery.lazy');
+                    });
+
+                    file_delete($path);
+                }
+
+                html_load_js('jquery.lazy/jquery.lazy');
+                load_config('lazy_img');
+
+                /*
+                 * Build jquery.lazy options
+                 */
+                $options = array();
+
+                foreach($_CONFIG['lazy_img'] as $key => $value){
+                    if($value === null){
+                        continue;
+                    }
+
+                    switch($key){
+                        /*
+                         * Booleans
+                         */
+                        case 'auto_destroy':
+                            // FALLTHROUGH
+                        case 'chainable':
+                            // FALLTHROUGH
+                        case 'combined':
+                            // FALLTHROUGH
+                        case 'enable_throttle':
+                            // FALLTHROUGH
+                        case 'visible_only':
+                            // FALLTHROUGH
+
+                        /*
+                         * Numbers
+                         */
+                        case 'delay':
+                            // FALLTHROUGH
+                        case 'effect_time':
+                            // FALLTHROUGH
+                        case 'threshold':
+                            // FALLTHROUGH
+                        case 'throttle':
+                            /*
+                             * All these need no quotes
+                             */
+                            $options[str_underscore_to_camelcase($key)] = $value;
+                            break;
+
+                        /*
+                         * Callbacks
+                         */
+                        case 'after_load':
+                            // FALLTHROUGH
+                        case 'on_load':
+                            // FALLTHROUGH
+                        case 'before_load':
+                            // FALLTHROUGH
+                        case 'on_error':
+                            // FALLTHROUGH
+                        case 'on_finished_all':
+                            /*
+                             * All these need no quotes
+                             */
+                            $options[str_underscore_to_camelcase($key)] = 'function(e){'.$value.'}';
+                            break;
+
+                        /*
+                         * Strings
+                         */
+                        case 'append_scroll':
+                            // FALLTHROUGH
+                        case 'bind':
+                            // FALLTHROUGH
+                        case 'default_image':
+                            // FALLTHROUGH
+                        case 'effect':
+                            // FALLTHROUGH
+                        case 'image_base':
+                            // FALLTHROUGH
+                        case 'name':
+                            // FALLTHROUGH
+                        case 'placeholder':
+                            // FALLTHROUGH
+                        case 'retina_attribute':
+                            // FALLTHROUGH
+                        case 'scroll_direction':
+                            /*
+                             * All these need quotes
+                             */
+                            $options[str_underscore_to_camelcase($key)] = '"'.$value.'"';
+                            break;
+
+                        default:
+                            throw new BException(tr('html_img(): Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', array(':key' => $key)), 'unknown');
+                    }
+                }
+
+                $core->register['lazy_img'] = true;
+                $html .= html_script(array('event'  => 'function',
+                                           'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'));
+            }
+
+            if($params['extra']){
+                if(str_exists($params['extra'], 'class="')){
+                    /*
+                     * Add lazy class to the class definition in "extra"
+                     */
+                    $params['extra'] = str_replace('class="', 'class="lazy ', $params['extra']);
+
+                }else{
+                    /*
+                     * Add class definition with "lazy" to extra
+                     */
+                    $params['extra'] = ' class="lazy" '.$params['extra'];
+                }
+
+            }else{
+                /*
+                 * Set "extra" to be class definition with "lazy"
+                 */
+                $params['extra'] = ' class="lazy"';
+            }
+
+            $html .= '<img data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
+
+            return $html;
         }
 
         return '<img src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';

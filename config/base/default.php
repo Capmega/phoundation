@@ -78,8 +78,17 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'bundler'                            => true,                                                    // If JS and CSS bundler should be enabled or not
 
+                                       'img'                                => array('lazy_load'          => false,                     // If set to true, the image will use lazy loading automatically
+
+                                                                                     'auto_convert'       => array('jpg' => false,      // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
+                                                                                                                   'png' => false,      // If not false, automatically convert png images to the specified format. Supported types are: webp.
+                                                                                                                   'gif' => false),     // If not false, automatically convert gif images to the specified format. Supported types are: webp.
+
+                                                                                     'auto_resize'        => false),                    // If not false, automatically resize images that are larger than their specifications
+
                                        'css'                                => array('load_delayed'       => false,                     // If set to true, the CSS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
-                                                                                     'post'               => false),                    // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
+                                                                                     'post'               => false,                     // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
+                                                                                     'purge'              => true),                     // If specified true, the CSS files will be purged  before being sent to the client
 
                                        'js'                                 => array('load_delayed'       => true,                      // If set to true, the JS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
                                                                                      'internal_to_file'   => true),                     // If set to true, all html_script() output will be sent stored in external files which will be added automatically by html_load_js()
@@ -98,7 +107,6 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'prefix'                             => '/pub/',                                                 // Prefix for all CDN objects, may be CDN server domain, for example
 
-                                       'purge'                              => true,                                                    // If specified true, the CSS files will be purged  before being sent to the client
 
                                        'shared_key'                         => '');                                                     // Shared encryption key between site servers and CDN servers to send and receive encrypted messages
 
@@ -183,14 +191,6 @@ $_CONFIG['formats']            = array('force1224'                          => '
                                        'human_time'                         => 'H:i:s',
                                        'human_datetime'                     => 'd/m/Y H:i:s',
                                        'human_nice_date'                    => 'l, j F Y');
-
-// HTML configuration
-$_CONFIG['html']               = array('images'                             => array('auto_convert'       => array('jpg' => false,          // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
-                                                                                                                   'png' => false,          // If not false, automatically convert png images to the specified format. Supported types are: webp.
-                                                                                                                   'gif' => false),         // If not false, automatically convert gif images to the specified format. Supported types are: webp.
-
-                                                                                     'auto_resize'        => false));                       // If not false, automatically resize images that are larger than their specifications
-
 
 // Init configuration
 $_CONFIG['init']               = array('cli'                                => true,                                                        // Sets if system init can be executed by shell
