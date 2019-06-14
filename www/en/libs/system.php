@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.6.24');
+define('FRAMEWORKCODEVERSION', '2.6.25');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2237,20 +2237,15 @@ function mapped_domain($url = null, $query = null, $prefix = null, $domain = nul
  */
 function download($url, $contents = false, $callback = null){
     try{
-        $file = str_from($url, '://');
-        $file = str_rfrom($url, '/');
-        $file = str_until($file, '?');
-        $file = TMP.$file;
-
         load_libs('wget');
-        wget(array('url'  => $url,
-                   'file' => $file));
+
+        $file = wget($url);
 
         if($contents){
             /*
              * Do not return the filename but the file contents instead
-             * When doing this, automatically delete the file in question, since
-             * the caller will not know the exact file name used
+             * When doing this, automatically delete the temporary file in
+             * question, since the caller will not know the exact file name used
              */
             $retval = file_get_contents($file);
             file_delete($file);
@@ -2267,7 +2262,8 @@ function download($url, $contents = false, $callback = null){
          */
         if($callback){
             /*
-             * Execute the callbacks before returning the data
+             * Execute the callbacks before returning the data, delete the
+             * temporary file after
              */
             $callback($file);
             file_delete($file);
@@ -3644,7 +3640,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
          */
         if($delete){
             foreach($files as $url => $file){
-                // file_delete($file, true);
+                file_delete($file, ROOT);
             }
         }
 
