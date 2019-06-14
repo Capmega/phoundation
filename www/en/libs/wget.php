@@ -57,16 +57,19 @@ function wget_library_init(){
  */
 function wget($params){
     try{
+        array_params($params, 'url');
+
         if(empty($params['url'])){
             throw new BException(tr('wget(): No url specified'), 'not-specified');
         }
 
         if(empty($params['file'])){
-            throw new BException(tr('wget(): No file specified'), 'not-specified');
+            file_ensure_path(TMP);
+            $params['file'] = file_temp(false);
         }
 
-        $results = safe_exec(array('commands' => array('wget', array('-O', $params['file'], $params['url'], 'redirect' => ' >> '.ROOT.'data/log/syslog'))));
-    	return $results;
+        safe_exec(array('commands' => array('wget', array('-O', $params['file'], $params['url'], 'redirect' => ' >> '.ROOT.'data/log/syslog'))));
+    	return $params['file'];
 
     }catch(Exception $e){
         switch($e->getRealCode()){
