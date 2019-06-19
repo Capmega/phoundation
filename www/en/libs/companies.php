@@ -191,6 +191,8 @@ function companies_validate($company){
  * @return string HTML for a companies select box within the specified parameters
  */
 function companies_select($params = null){
+    global $_CONFIG;
+
     try{
         array_ensure($params);
         array_default($params, 'name'         , 'seocompany');
@@ -231,6 +233,22 @@ function companies_select($params = null){
 
         }else{
             $where = ' WHERE '.implode(' AND ', $where).' ';
+        }
+
+        if($params['selected'] === null){
+            /*
+             * Select the default company
+             */
+            if($_CONFIG['companies']['defaults']['company']){
+                $params['selected'] = companies_get($_CONFIG['companies']['defaults']['company'], 'seoname');
+
+                if(!$params['selected']){
+                    /*
+                     * Selected default company does not exist, notify
+                     */
+                    notify(new BException(tr('companies_select(): Specified default company ":company" in $_CONFIG[companies][defaults][company] does not exist', array(':company' => $_CONFIG['companies']['defaults']['company'])), 'not-exist'));
+                }
+            }
         }
 
         $query              = 'SELECT `seoname`, `name` FROM `companies` '.$where.' ORDER BY `name`';
@@ -482,6 +500,8 @@ function companies_validate_branch($branch, $reload_only = false){
  * @return string HTML for a companies select box within the specified parameters
  */
 function companies_select_branch($params = null){
+    global $_CONFIG;
+
     try{
         array_ensure($params);
         array_default($params, 'name'        , 'seobranch');
@@ -505,6 +525,51 @@ function companies_select_branch($params = null){
         }
 
         $execute = array();
+
+        if($params['selected'] === null){
+            /*
+             * Select the default branch
+             */
+            if($_CONFIG['companies']['defaults']['branch']){
+                if($params['companies_id'] === null){
+                    /*
+                     * No companies_id specified, likelyl because no company was
+                     * specified yet. Select the default company
+                     */
+                    if(!$_CONFIG['companies']['defaults']['company']){
+                        throw new BException(tr('companies_select_branch(): No default company specified for default branch ":branch", see $_CONFIG[companies][defaults][company]', array(':branch' => $_CONFIG['companies']['defaults']['branch'])), 'not-specified');
+                    }
+
+                    $params['companies_id'] = companies_get($_CONFIG['companies']['defaults']['company'], 'id');
+
+                    /*
+                     * We can only select the default branch if we have the default company selected
+                     */
+                    if(!$params['companies_id']){
+                        /*
+                         * Selected default company does not exist, notify
+                         */
+                        notify(new BException(tr('companies_select_branch(): Specified default company ":company" in $_CONFIG[companies][defaults][company] does not exist', array(':company' => $_CONFIG['companies']['defaults']['company'])), 'not-exist'));
+                    }
+                }
+
+                /*
+                 * We can only select the default branch if we have the default company selected
+                 */
+                $default_companies_id = companies_get($_CONFIG['companies']['defaults']['company'], 'id');
+
+                if($params['companies_id'] == $default_companies_id){
+                    $params['selected'] = companies_get_branch($params['companies_id'], $_CONFIG['companies']['defaults']['branch'], 'seoname');
+
+                    if(!$params['selected']){
+                        /*
+                         * Selected default company does not exist, notify
+                         */
+                        notify(new BException(tr('companies_select_branch(): Specified default branch ":branch" in $_CONFIG[companies][defaults][branch] does not exist', array(':branch' => $_CONFIG['companies']['defaults']['branch'])), 'not-exist'));
+                    }
+                }
+            }
+        }
 
         /*
          * Only show branches per company
@@ -813,6 +878,8 @@ function companies_validate_department($department, $reload_only = false){
  * @return string HTML for a companies select box within the specified parameters
  */
 function companies_select_department($params = null){
+    global $_CONFIG;
+
     try{
         array_ensure($params);
         array_default($params, 'name'        , 'seodepartment');
@@ -846,6 +913,51 @@ function companies_select_department($params = null){
         }
 
         $execute = array();
+
+        if($params['branches_id'] === null){
+            /*
+             * Select the default branch
+             */
+            if($_CONFIG['companies']['defaults']['branch']){
+                if($params['companies_id'] === null){
+                    /*
+                     * No companies_id specified, likelyl because no company was
+                     * specified yet. Select the default company
+                     */
+                    if(!$_CONFIG['companies']['defaults']['company']){
+                        throw new BException(tr('companies_select_branch(): No default company specified for default branch ":branch", see $_CONFIG[companies][defaults][company]', array(':branch' => $_CONFIG['companies']['defaults']['branch'])), 'not-specified');
+                    }
+
+                    $params['companies_id'] = companies_get($_CONFIG['companies']['defaults']['company'], 'id');
+
+                    /*
+                     * We can only select the default branch if we have the default company selected
+                     */
+                    if(!$params['companies_id']){
+                        /*
+                         * Selected default company does not exist, notify
+                         */
+                        notify(new BException(tr('companies_select_branch(): Specified default company ":company" in $_CONFIG[companies][defaults][company] does not exist', array(':company' => $_CONFIG['companies']['defaults']['company'])), 'not-exist'));
+                    }
+                }
+
+                /*
+                 * We can only select the default branch if we have the default company selected
+                 */
+                $default_companies_id = companies_get($_CONFIG['companies']['defaults']['company'], 'id');
+
+                if($params['companies_id'] == $default_companies_id){
+                    $params['branches_id'] = companies_get_branch($params['companies_id'], $_CONFIG['companies']['defaults']['branch'], 'id');
+
+                    if(!$params['branches_id']){
+                        /*
+                         * Selected default company does not exist, notify
+                         */
+                        notify(new BException(tr('companies_select_branch(): Specified default branch ":branch" in $_CONFIG[companies][defaults][branch] does not exist', array(':branch' => $_CONFIG['companies']['defaults']['branch'])), 'not-exist'));
+                    }
+                }
+            }
+        }
 
         if($params['companies_id'] !== false){
             $where[] = ' `companies_id` '.sql_is($params['companies_id'], ':companies_id');
