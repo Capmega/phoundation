@@ -141,21 +141,35 @@ function sql_query($query, $execute = false, $connector_name = null){
         }
 
         if(debug()){
+            /*
+             * Get current function / file@line. If current function is actually
+             * an include then assume this is the actual script that was
+             * executed by route()
+             */
             $current = 1;
 
             if(substr(current_function($current), 0, 4) == 'sql_'){
                 $current = 2;
+
+                if(substr(current_function($current), 0, 4) == 'sql_'){
+                    $current = 3;
+                }
             }
 
             $function = current_function($current);
-            $file     = current_function($current);
-            $line     = current_function($current);
+
+            if($function === 'include'){
+                $function = '-';
+            }
+
+            $file = current_function($current);
+            $line = current_function($current);
 
             $core->executedQuery(array('time'     => microtime(true) - $query_start,
                                        'query'    => debug_sql($query, $execute, true),
-                                       'function' => current_function($current),
-                                       'file'     => current_file($current),
-                                       'line'     => current_line($current)));
+                                       'function' => $function,
+                                       'file'     => $file,
+                                       'line'     => $line));
         }
 
         return $pdo_statement;
