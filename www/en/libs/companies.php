@@ -327,6 +327,40 @@ function companies_get($company, $column = null, $status = null){
 
 
 /*
+ * Return a list of all available companies
+ *
+ * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @customer Function reference
+ * @package customers
+ * @see sql_simple_list()
+ * @version 2.6.27: Added function and documentation
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available customers
+ */
+function companies_list($params){
+    try{
+        array_ensure($params);
+        array_default($params, 'columns', 'seoname,name');
+        array_default($params, 'orderby', array('name' => 'asc'));
+
+        $params['table']     = 'companies';
+        $params['connector'] = 'core';
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException('companies_list(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Validate the specified branch
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -602,6 +636,40 @@ function companies_get_branch($company, $branch, $column = null, $status = null)
 
     }catch(Exception $e){
         throw new BException('companies_get_branch(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return a list of all available branches
+ *
+ * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @customer Function reference
+ * @package customers
+ * @see sql_simple_list()
+ * @version 2.6.27: Added function and documentation
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available customers
+ */
+function companies_list_branches($params){
+    try{
+        array_ensure($params);
+        array_default($params, 'columns', 'seoname,name');
+        array_default($params, 'orderby', array('name' => 'asc'));
+
+        $params['table']     = 'branches';
+        $params['connector'] = 'core';
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException('companies_list_branches(): Failed', $e);
     }
 }
 
@@ -945,6 +1013,40 @@ function companies_get_department($company, $branch, $department, $column = null
 
 
 /*
+ * Return a list of all available departments
+ *
+ * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @customer Function reference
+ * @package customers
+ * @see sql_simple_list()
+ * @version 2.6.27: Added function and documentation
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available customers
+ */
+function companies_list_departments($params){
+    try{
+        array_ensure($params);
+        array_default($params, 'columns', 'seoname,name');
+        array_default($params, 'orderby', array('name' => 'asc'));
+
+        $params['table']     = 'departments';
+        $params['connector'] = 'core';
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException('companies_list_departments(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Validate the specified employee
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1121,6 +1223,7 @@ function companies_select_employee($params = null){
         array_default($params, 'departments_id', null);
         array_default($params, 'status'        , null);
         array_default($params, 'remove'        , null);
+        array_default($params, 'autosubmit'    , true);
         array_default($params, 'empty'         , tr('No employees available'));
         array_default($params, 'none'          , tr('Select an employee'));
         array_default($params, 'orderby'       , '`name`');
@@ -1209,12 +1312,16 @@ function companies_select_employee($params = null){
 function companies_get_employee($params){
     try{
         array_params($params, 'seoname', 'id');
+        array_ensure($params, 'companies_id,branches_id,departments_id,seoname,id');
 
         $params['table']     = 'employees';
         $params['connector'] = 'core';
 
-        array_default($params, 'filters', array('employees.id'      => $params['id'],
-                                                'employees.seoname' => $params['seoname']));
+        array_default($params, 'filters', array('employees.id'             => $params['id'],
+                                                'employees.seoname'        => $params['seoname'],
+                                                'employees.companies_id'   => $params['companies_id'],
+                                                'employees.branches_id'    => $params['branches_id'],
+                                                'employees.departments_id' => $params['departments_id']));
 
         array_default($params, 'joins'  , array('LEFT JOIN `users`
                                                  ON        `users`.`id`       = `employees`.`users_id`
@@ -1271,4 +1378,37 @@ function companies_get_employee($params){
         throw new BException(tr('companies_get_employee(): Failed'), $e);
     }
 }
-?>
+
+
+
+/*
+ * Return a list of all available employees
+ *
+ * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @customer Function reference
+ * @package customers
+ * @see sql_simple_list()
+ * @version 2.6.27: Added function and documentation
+ *
+ * @param params $params The list parameters
+ * @return mixed The list of available customers
+ */
+function companies_list_employees($params){
+    try{
+        array_ensure($params);
+        array_default($params, 'columns', 'seoname,name');
+        array_default($params, 'orderby', array('name' => 'asc'));
+
+        $params['table']     = 'employees';
+        $params['connector'] = 'core';
+
+        return sql_simple_list($params);
+
+    }catch(Exception $e){
+        throw new BException('companies_list_employees(): Failed', $e);
+    }
+}
