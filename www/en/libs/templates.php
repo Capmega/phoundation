@@ -459,4 +459,3 @@ function templates_function($params){
         throw new BException(tr('templates_function(): Failed'), $e);
     }
 }
-?>

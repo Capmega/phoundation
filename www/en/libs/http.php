@@ -679,7 +679,7 @@ function http_validate_get(){
                 /*
                  * The value is NULL
                  */
-                 $value = '';
+                $value = '';
             }
         }
 
