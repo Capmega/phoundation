@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.6.26');
+define('FRAMEWORKCODEVERSION', '2.6.27');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -3291,19 +3291,76 @@ function not_supported($functionality = ''){
 
 
 /*
- * Return NULL if specified variable is considered "empty", like 0, "", array(), etc.
- * If not, return the specified variable unchanged
+ * Return $source if $source is not considered "empty". Return null if specified variable is considered "empty", like 0, "", array(), etc.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see get_empty()
+ * @note This function is a wrapper for get_empty($source, null);
+ * @version 2.6.27: Added documentation
+ * @example
+ * code
+ * $result = get_null(false);
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * null
+ * /code
+ *
+ * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @return mixed Either $source or null, depending on if $source is empty or not
  */
 function get_null($source){
+    try{
+        return get_empty($source, null);
+
+    }catch(Exception $e){
+        throw new BException(tr('get_null(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return $source if $source is not considered "empty". Return $default if specified variable is considered "empty", like 0, "", array(), etc.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see get_null()
+ * @version 2.6.27: Added function and documentation
+ * @example
+ * code
+ * $result = get_empty(null, false);
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * false
+ * /code
+ *
+ * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @param mixed $default The value to be returned if $source evalidates to empty
+ * @return mixed Either $source or $default, depending on if $source is empty or not
+ */
+function get_empty($source, $default){
     try{
         if($source){
             return $source;
         }
 
-        return null;
+        return $default;
 
     }catch(Exception $e){
-        throw new BException(tr('get_null(): Failed'), $e);
+        throw new BException(tr('get_empty(): Failed'), $e);
     }
 }
 
