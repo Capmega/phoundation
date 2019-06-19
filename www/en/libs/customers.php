@@ -625,4 +625,3 @@ function customers_list($params){
         throw new BException('customers_list(): Failed', $e);
     }
 }
-?>
