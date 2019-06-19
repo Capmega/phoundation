@@ -541,7 +541,21 @@ function file_clear_path($paths, $restrictions = null){
             /*
              * This section does not exist, jump up to the next section
              */
-            return file_clear_path(dirname($path), $restrictions);
+            $path = dirname($path);
+
+            try{
+                file_restrict($path, $restrictions);
+                return file_clear_path($path, $restrictions);
+
+            }catch(Exception $e){
+                if($e->getRealCode() === 'access-denied'){
+                    /*
+                     * We no longer have access to move up more, stop here.
+                     */
+                    log_console(tr('file_clear_path(): Stopped recursing upward on path ":path" because filesystem restrictions do not permit to move further up', array(':path' => $path)), 'warning');
+                    return;
+                }
+            }
         }
 
         if(!is_dir($path)){
@@ -598,10 +612,24 @@ function file_clear_path($paths, $restrictions = null){
         }
 
         /*
-         * Go one entry up and continue
+         * Go one entry up, check if we're still within restrictions, and
+         * continue deleting
          */
         $path = str_runtil(unslash($path), '/');
-        file_clear_path($path, $restrictions);
+
+        try{
+            file_restrict($path, $restrictions);
+            file_clear_path($path, $restrictions);
+
+        }catch(Exception $e){
+            if($e->getRealCode() === 'access-denied'){
+                /*
+                 * We no longer have access to move up more, stop here.
+                 */
+                log_console(tr('file_clear_path(): Stopped recursing upward on path ":path" because restrictions do not allow us to move further up', array(':path' => $path)), 'warning');
+                return;
+            }
+        }
 
     }catch(Exception $e){
         throw new BException(tr('file_clear_path(): Failed'), $e);
@@ -3220,7 +3248,7 @@ function file_restrict($params, &$restrictions = null){
 
             unset($restriction);
 
-            throw new BException(tr('file_restrict(): The specified file or path ":path" is outside of the authorized paths', array(':path' => $params)), 'access-denied', $restrictions);
+            throw new BException(tr('file_restrict(): The specified file or path ":path" is outside of the authorized paths ":authorized"', array(':path' => $params, ':authorized' => $restrictions)), 'access-denied', $restrictions);
         }
 
         /*
