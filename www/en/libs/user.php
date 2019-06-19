@@ -2635,7 +2635,17 @@ function user_update_apikey($users_id = null){
  */
 function user_lock($users_id){
     try{
-        $r = sql_query('UPDATE `users` SET `status` = "locked" WHERE `id` = :id', array(':id' => cfi($users_id)));
+        $r = sql_query('UPDATE    `users`
+
+                        LEFT JOIN `employees`
+
+                        SET       `users`.`status`     = "locked"
+                                  `employees`.`status` = "locked"
+
+                        WHERE     `users`.`id`         = :id',
+
+                        array(':id' => cfi($users_id)));
+
         return $r->rowCount();
 
     }catch(Exception $e){
@@ -2669,7 +2679,17 @@ function user_lock($users_id){
  */
 function user_unlock($users_id){
     try{
-        $r = sql_query('UPDATE `users` SET `status` = NULL WHERE `id` = :id', array(':id' => cfi($users_id)));
+        $r = sql_query('UPDATE    `users`
+
+                        LEFT JOIN `employees`
+
+                        SET       `users`.`status`     = NULL
+                                  `employees`.`status` = NULL
+
+                        WHERE     `users`.`id`         = :id',
+
+                        array(':id' => cfi($users_id)));
+
         return (boolean) $r->rowCount();
 
     }catch(Exception $e){
