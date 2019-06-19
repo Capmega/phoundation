@@ -251,18 +251,11 @@ throw new BException('jqueryui_datepair(): This function is not yet implemented'
 /*
  * Creates HTML for a jquery-ui date object
  */
-function jqueryui_date_range($from_selector, $to_selector, $params = null){
+function jqueryui_date_range($params = null){
     global $_CONFIG;
 
     try{
         array_ensure($params);
-        array_default($params, 'labels'          , array('from'    => tr('From'),
-                                                         'until'   => tr('Until')));
-
-        array_default($params, 'placeholders'    , array('from'    => tr('From'),
-                                                         'until'   => tr('Until'),
-                                                         't_from'  => tr('From'),
-                                                         't_until' => tr('Until')));
         array_default($params, 'number_of_months', 1);
         array_default($params, 'change_month'    , true);
         array_default($params, 'change_year'     , true);
@@ -270,11 +263,41 @@ function jqueryui_date_range($from_selector, $to_selector, $params = null){
         array_default($params, 'auto_submit'     , true);
         array_default($params, 'separator'       , '');
         array_default($params, 'extra'           , '');
-        array_default($params, 'class'           , '');
+        array_default($params, 'class'           , 'form-control half-width inline');
         array_default($params, 'label_class'     , '');
         array_default($params, 'time'            , false);
+        array_default($params, 'start_selector'  , 'start');
+        array_default($params, 'stop_selector'   , 'stop');
+        array_default($params, 'start'           , isset_get($_GET['start']));
+        array_default($params, 'stop'            , isset_get($_GET['stop']));
         array_default($params, 'date_format'     , $_CONFIG['jqueryui']['date_format']);
         array_default($params, 'jq_date_format'  , $_CONFIG['jqueryui']['jq_date_format']);
+
+        //array_default($params, 'labels'          , array('start'      => tr('From'),
+        //                                                 'stop'       => tr('Until')));
+
+        array_default($params, 'labels'          , array('start'      => null,
+                                                         'stop'       => null));
+
+        array_default($params, 'placeholders'    , array('start'      => tr('From'),
+                                                         'stop'       => tr('Until'),
+                                                         'time_start' => tr('From'),
+                                                         'time_stop'  => tr('Until')));
+
+        /*
+         * Validate date / time values
+         */
+        if($params['time']){
+            $params['start'] = substr(cfm(isset_get($params['start'], '')), 0, 10);
+            $params['stop']  = substr(cfm(isset_get($params['stop'] , '')), 0, 10);
+
+            $params['start_t'] = substr(cfm(isset_get($params['start_t'], '')), 0, 8);
+            $params['stop_t']  = substr(cfm(isset_get($params['stop_t'] , '')), 0, 8);
+
+        }else{
+            $params['start'] = substr(cfm(isset_get($params['start'], '')), 0, 10);
+            $params['stop']  = substr(cfm(isset_get($params['stop'] , '')), 0, 10);
+        }
 
         if($params['auto_submit']){
             array_default($params, 'on_select', '   function (date) {
@@ -296,64 +319,66 @@ function jqueryui_date_range($from_selector, $to_selector, $params = null){
         }
 
         if($params['time']){
-            $from_t  = $params;
-            $until_t = $params;
+            $start_t = $params;
+            $stop_t  = $params;
 
-            $from_t['default_time']  = isset_get($params['from_t']);
-            $until_t['default_time'] = isset_get($params['until_t']);
+            $start_t['default_time'] = isset_get($params['start_t']);
+            $stop_t['default_time']  = isset_get($params['stop_t']);
 
             if($params['labels']){
-                $html = '   <label class="'.$params['label_class'].'" for="'.$from_selector.'">'.$params['labels']['from'].'</label>
-                            <input class="'.$params['class'].'" type="text" id="'.$from_selector.'" name="'.$from_selector.'" value="'.substr(cfm(isset_get($params['from'], '')), 0, 10).'" placeholder="'.isset_get($params['placeholders']['from']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
-                            '.jqueryui_time($from_selector.'_t', $from_t).' '.$params['separator'].'
-                            <label class="'.$params['label_class'].'" for="'.$to_selector.'">'.$params['labels']['until'].'</label>
-                            <input class="'.$params['class'].'" type="text" id="'.$to_selector.'" name="'.$to_selector.'" value="'.substr(cfm(isset_get($params['until'], '')), 0, 10).'" placeholder="'.isset_get($params['placeholders']['until']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
-                            '.jqueryui_time($to_selector.'_t', $until_t);
+                $html = '   <label class="'.$params['label_class'].'" for="'.$params['start_selector'].'">'.$params['labels']['start'].'</label>
+                            <input class="'.$params['class'].'" type="text" id="'.$params['start_selector'].'" name="'.$params['start_selector'].'" value="'.$params['start'].'" placeholder="'.isset_get($params['placeholders']['start']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
+                            '.jqueryui_time($params['start_selector'].'_t', $start_t).' '.$params['separator'].'
+                            <label class="'.$params['label_class'].'" for="'.$params['stop_selector'].'">'.$params['labels']['stop'].'</label>
+                            <input class="'.$params['class'].'" type="text" id="'.$params['stop_selector'].'" name="'.$params['stop_selector'].'" value="'.$params['stop'].'" placeholder="'.isset_get($params['placeholders']['stop']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
+                            '.jqueryui_time($params['stop_selector'].'_t', $stop_t);
 
             }else{
-                $html = '   <input class="'.$params['class'].'" type="text" id="'.$from_selector.'" name="'.$from_selector.'" value="'.substr(cfm(isset_get($params['from'], '')), 0, 10).'" placeholder="'.isset_get($params['placeholders']['from']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
-                            '.jqueryui_time($from_selector.'_t', $from_t).' '.$params['separator'].'
-                            <input class="'.$params['class'].'" type="text" id="'.$to_selector.'" name="'.$to_selector.'" value="'.substr(cfm(isset_get($params['until'], '')), 0, 10).'" placeholder="'.isset_get($params['placeholders']['until']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
-                            '.jqueryui_time($to_selector.'_t', $until_t);
+                $html = '   <input class="'.$params['class'].'" type="text" id="'.$params['start_selector'].'" name="'.$params['start_selector'].'" value="'.$params['start'].'" placeholder="'.isset_get($params['placeholders']['start']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
+                            '.jqueryui_time($params['start_selector'].'_t', $start_t).' '.$params['separator'].'
+                            <input class="'.$params['class'].'" type="text" id="'.$params['stop_selector'].'" name="'.$params['stop_selector'].'" value="'.$params['stop'].'" placeholder="'.isset_get($params['placeholders']['stop']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
+                            '.jqueryui_time($params['stop_selector'].'_t', $stop_t);
             }
 
         }else{
-            if($params['labels']){
-                $html = '   <label class="'.$params['label_class'].'" for="'.$from_selector.'">'.$params['labels']['from'].'</label>
-                            <input class="'.$params['class'].'" type="text" id="'.$from_selector.'" name="'.$from_selector.'" value="'.date_convert(cfm(isset_get($params['from'], '')), $params['date_format']).'" placeholder="'.isset_get($params['placeholders']['from']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
-                            '.$params['separator'].'
-                            <label class="'.$params['label_class'].'" for="'.$to_selector.'">'.$params['labels']['until'].'</label>
-                            <input class="'.$params['class'].'" type="text" id="'.$to_selector.'" name="'.$to_selector.'" value="'.date_convert(cfm(isset_get($params['until'], '')), $params['date_format']).'" placeholder="'.isset_get($params['placeholders']['until']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>';
+            $html = '';
 
-            }else{
-                $html = '   <input class="'.$params['class'].'" type="text" id="'.$from_selector.'" name="'.$from_selector.'" value="'.date_convert(cfm(isset_get($params['from'], '')), $params['date_format']).'" placeholder="'.isset_get($params['placeholders']['from']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>
-                            '.$params['separator'].'
-                            <input class="'.$params['class'].'" type="text" id="'.$to_selector.'" name="'.$to_selector.'" value="'.date_convert(cfm(isset_get($params['until'], '')), $params['date_format']).'" placeholder="'.isset_get($params['placeholders']['until']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>';
+            if($params['labels']['start']){
+                $html .= '  <label class="'.$params['label_class'].'" for="'.$params['start_selector'].'">'.$params['labels']['start'].'</label>';
             }
+
+            $html .= '      <input class="'.$params['class'].'" type="text" id="'.$params['start_selector'].'" name="'.$params['start_selector'].'" value="'.$params['start'].'" placeholder="'.isset_get($params['placeholders']['start']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>'.
+                            $params['separator'];
+
+            if($params['labels']['stop']){
+                $html .= '  <label class="'.$params['label_class'].'" for="'.$params['stop_selector'].'">'.$params['labels']['stop'].'</label>';
+            }
+
+            $html .= '  <input class="'.$params['class'].' float-right" type="text" id="'.$params['stop_selector'].'" name="'.$params['stop_selector'].'" value="'.$params['stop'].'" placeholder="'.isset_get($params['placeholders']['stop']).'"'.($params['extra'] ? ' '.$params['extra'] : '').'>';
         }
 
         return $html.html_script('$(function() {
-            $( "#'.$from_selector.'" ).datepicker({
-                defaultDate: "'.date_convert(isset_get($params['until'], $params['default_date']), $params['date_format']).'",
+            $( "#'.$params['start_selector'].'" ).datepicker({
+                defaultDate: "'.date_convert(isset_get($params['stop'], $params['default_date']), $params['date_format']).'",
                 changeMonth: '.($params['change_month'] ? 'true' : 'false').',
                 changeYear : '.($params['change_year']  ? 'true' : 'false').',
                 numberOfMonths: '.$params['number_of_months'].',
-                '.(isset_get($params['until'])          ? 'maxDate   : "'.date_convert($params['until'], $params['date_format']).'",' : '').'
+                '.(isset_get($params['stop'])           ? 'maxDate   : "'.$params['stop'].'",' : '').'
                 '.(isset_get($params['jq_date_format']) ? 'dateFormat: "'.$params['jq_date_format'].'",'                              : '').'
                 onClose: function( selectedDate ) {
-                    $("#'.$to_selector.'").datepicker( "option", "minDate", selectedDate );
+                    $("#'.$params['stop_selector'].'").datepicker( "option", "minDate", selectedDate );
                 },
                 onSelect: '.$params['on_select'].'
             });
 
-            $( "#'.$to_selector.'" ).datepicker({
-                defaultDate: "'.date_convert(isset_get($params['from'], $params['default_date']), $params['date_format']).'",
+            $( "#'.$params['stop_selector'].'" ).datepicker({
+                defaultDate: "'.date_convert(isset_get($params['start'], $params['default_date']), $params['date_format']).'",
                 changeMonth: '.($params['change_month'] ? 'true' : 'false').',
                 numberOfMonths: '.$params['number_of_months'].',
-                '.(isset_get($params['from'])           ? 'minDate   : "'.date_convert($params['from'], $params['date_format']).'",' : '').'
+                '.(isset_get($params['start'])          ? 'minDate   : "'.$params['start'].'",' : '').'
                 '.(isset_get($params['jq_date_format']) ? 'dateFormat: "'.$params['jq_date_format'].'",'                             : '').'
                 onClose: function( selectedDate ) {
-                    $("#'.$from_selector.'").datepicker( "option", "maxDate", selectedDate );
+                    $("#'.$params['start_selector'].'").datepicker( "option", "maxDate", selectedDate );
                 },
                 onSelect: '.$params['on_select'].'
             });
