@@ -165,9 +165,11 @@ function css_purge($html, $css){
 
         unset($whitelist);
 
-        safe_exec(array('commands' => array('cd'        , array(ROOT.'node_modules/.bin'),
-                                            './purgecss', $arguments)));
-
+        /*
+         * Purge CSS
+         */
+        load_libs('node');
+        node_exec('./purgecss', $arguments);
         rename(TMP.basename($css_file), $purged_css_file);
 
         return $purged_css;
