@@ -1403,47 +1403,58 @@ function file_temp_dir($prefix = '', $mode = null){
 
 
 /*
- * chmod an entire directory, recursively
- * Copied from http://www.php.net/manual/en/function.chmod.php#84273
+ * Change file mode, optionally recursively
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.6.30: Added function and documentation
+ *
+ * @param params $params A parameters array
+ * @param string $params[path]
+ * @param boolean [false]  $params[recursive] If set to true, recurse into directories
+ * @param octal $params[mode] The mode to apply to files
+ * @param octal $file_mode $params[directory_mode] The mode to apply to directories
+ * @param octal $directory_mode The mode to apply to directories
+ * @return string The result
  */
-function file_chmod($path, $filemode, $dirmode = 0770){
+function file_chmod($params, $mode = null){
     try{
-        if(!is_dir($path)){
-            return chmod($path, $filemode);
+        array_params($params, 'path');
+        array_ensure($params, 'recursive,sudo');
+        array_default($params, 'timeout'     , 30);
+        array_default($params, 'mode'        , $mode);
+        array_default($params, 'restrictions', null);
+
+        if(!($params['mode'])){
+            throw new BException(tr('No file mode specified'), 'not-specified');
         }
 
-        $dh = opendir($path);
-
-        while(($file = readdir($dh)) !== false){
-            if(($file != '.') or ($file != '..')) continue;
-
-            $fullpath = $path.'/'.$file;
-
-            if(is_link($fullpath)){
-                /*
-                 * This is a link. ignore it.
-                 */
-
-            }elseif(!is_dir($fullpath)){
-                if(!chmod($fullpath, $filemode)){
-                    throw new BException(tr('file_chmod(): Failed to chmod file ":fullpath" to mode ":filemode"', array(':fullpath' => $fullpath, ':filemode' => $filemode)), 'failed');
-                }
-
-            }else{
-                /*
-                 * This is a directory, recurse
-                 */
-                file_chmod($fullpath, $filemode, $dirmode);
-            }
+        if(!$params['path']){
+            throw new BException(tr('No path specified'), 'not-specified');
         }
 
-        closedir($dh);
-
-        if(!chmod($path, $dirmode)){
-            throw new BException(tr('file_chmod(): Failed to chmod directory ":path" to mode ":mode"', array(':path' => $path, ':mode' => $dirmode)), 'failed');
+        if(!file_exists($params['path'])){
+            throw new BException(tr('The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exist');
         }
 
-        return true;
+        file_restrict($params['path'], $params['restrictions']);
+
+        $arguments[] = $params['mode'];
+        $arguments[] = $params['path'];
+
+        if($params['recursive']){
+            $arguments[] = '-R';
+        }
+
+        if($params['sudo']){
+            $arguments['sudo'] = $params['sudo'];
+        }
+
+        safe_exec(array('timeout'  => $params['timeout'],
+                        'commands' => array('chmod', $arguments)));
 
     }catch(Exception $e){
         throw new BException('file_chmod(): Failed', $e);
