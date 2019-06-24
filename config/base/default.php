@@ -74,7 +74,7 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'copies'                             => 2,                                                       // Required amount of copies of each files. NOTE: This amount should be lower or equal to the amount of available CDN servers! (would not make sense otherwise)
 
-                                       'domain'                             => '',                                                      // Required amount of copies of each files. NOTE: This amount should be lower or equal to the amount of available CDN servers! (would not make sense otherwise)
+                                       'domain'                             => '',                                                      //
 
                                        'bundler'                            => true,                                                    // If JS and CSS bundler should be enabled or not
 
@@ -106,7 +106,6 @@ $_CONFIG['cdn']                = array('min'                                => t
                                        'path'                               => '',                                                      // Path component for location of CDN files. Useful for debugging multiple CDN servers
 
                                        'prefix'                             => '/pub/',                                                 // Prefix for all CDN objects, may be CDN server domain, for example
-
 
                                        'shared_key'                         => '');                                                     // Shared encryption key between site servers and CDN servers to send and receive encrypted messages
 
