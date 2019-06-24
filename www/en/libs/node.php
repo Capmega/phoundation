@@ -52,7 +52,7 @@ function node_library_init(){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package node
- * @see node_library_init()
+ * @see node_setup_npm()
  * @version 2.6.14: Added function and documentation
  * @note This function typically gets executed automatically by the node_library_init() through the ensure_installed() call, and does not need to be run manually
  *
@@ -78,7 +78,7 @@ function node_setup(){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package node
- * @see node_library_init()
+ * @see node_setup()
  * @version 2.6.14: Added function and documentation
  * @note This function typically gets executed automatically by the node_library_init() through the ensure_installed() call, and does not need to be run manually
  *
@@ -91,6 +91,31 @@ function node_setup_npm(){
 
     }catch(Exception $e){
         throw new BException('node_setup_npm(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Execute the specified node command in a shell
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package node
+ * @see node_find()
+ * @version 2.6.30: Added function and documentation
+ *
+ * @return void
+ */
+function node_exec($command, $arguments){
+    try{
+        return safe_exec(array('commands' => array('cd'         , array(ROOT.'node_modules/.bin'),
+                                                   './'.$command, $arguments)));
+
+    }catch(Exception $e){
+        throw new BException('node_exec(): Failed', $e);
     }
 }
 
@@ -225,11 +250,32 @@ function node_install_npm($packages){
         $packages = array_force($packages);
 
         file_execute_mode(ROOT, 0770, function() use ($packages){
+            if(file_exists(ROOT.'node_modules')){
+                /*
+                 * Ensure this is writable during install
+                 */
+                file_chmod(array('path'         => ROOT.'node_modules',
+                                 'mode'         => 'ug+w',
+                                 'recursive'    => true,
+                                 'restrictions' => false));
+            }
+
             foreach($packages as $package){
                 safe_exec(array('timeout'  => 30,
                                 'commands' => array('cd' , array(ROOT),
                                                     'npm', array('install', '--prefix', ROOT, $package))));
             }
+
+            if(file_exists(ROOT.'node_modules')){
+                /*
+                 * Ensure this is readonly after install
+                 */
+                file_chmod(array('path'         => ROOT.'node_modules',
+                                 'mode'         => 'ug-w',
+                                 'recursive'    => true,
+                                 'restrictions' => false));
+            }
+
         });
 
         return count($packages);
