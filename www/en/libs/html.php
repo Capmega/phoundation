@@ -106,6 +106,8 @@ function html_iefilter($html, $filter){
  * @see html_generate_js()
  * @see html_minify()
  * @version 1.27.0: Added documentation
+ * @version 2.6.16: Added CSS purge support
+ * @version 2.6.30: Fixed CSS purge temp files not being deleted
  *
  * @param string $list One of "css", "js_header", or "js_footer".  Specified what file list to bundle.  "css" bundles all CSS files, "js_header" bundles all files for the <script> tag in the <head> section, and "js_footer" bundles all files that go in the <script> tag of the footer of the HTML file
  * @return boolean False if no bundling has been applied, true if bundling was applied
@@ -159,7 +161,7 @@ function html_bundler($list){
              */
             if(!filesize($bundle_file)){
                 file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
-                    file_delete($bundle_file, ROOT.'pub/');
+                    file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
                 });
 
                 return html_bundler($list);
@@ -171,7 +173,7 @@ function html_bundler($list){
              */
             if((filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()){
                 file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
-                    file_delete($bundle_file, ROOT.'pub/');
+                    file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
                 });
 
                 return html_bundler($list);
@@ -348,11 +350,13 @@ function html_bundler($list){
                             $bundle = css_purge($html, $bundle);
 
                             log_file(tr('Purged not-used CSS rules from bundled file ":file"', array(':file' => $bundle)), 'bundler', 'green');
+                            file_delete($html);
 
                         }catch(Exception $e){
                             /*
                              * The CSS purge failed
                              */
+                            file_delete($html);
                             notify($e);
                         }
                     }
@@ -2058,13 +2062,13 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                     /*
                      * The javascript file is empty
                      */
-                    file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/en/pub/js');
+                    file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
 
                 }elseif((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time()){
                     /*
                      * External cached file is too old
                      */
-                    file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/en/pub/js');
+                    file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
                 }
             }
 
@@ -2769,7 +2773,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                 /*
                  * Use lazy image loading
                  */
-                if(!file_exists(ROOT.'www/en/pub/js/jquery.lazy/jquery.lazy.js')){
+                if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')){
                     /*
                      * jquery.lazy is not available, auto install it.
                      */
@@ -2777,8 +2781,8 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                     $path = cli_unzip($file);
 
                     file_execute_mode(ROOT.'www/en/pub/js', 0770, function() use ($path){
-                        file_delete(ROOT.'www/en/pub/js/jquery.lazy/', ROOT.'www/en/pub/js/');
-                        rename($path.'jquery.lazy-master/', ROOT.'www/en/pub/js/jquery.lazy');
+                        file_delete(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', ROOT.'www/'.LANGUAGE.'/pub/js/');
+                        rename($path.'jquery.lazy-master/', ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
                     });
 
                     file_delete($path);
