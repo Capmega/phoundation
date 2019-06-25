@@ -606,7 +606,7 @@ function file_clear_path($paths, $restrictions = null){
                  * in this directory, so it's no longer empty. Just register
                  * the event and leave it be.
                  */
-                log_console(tr('file_clear_path(): Failed to remove empty path ":path" with exception ":e"', array(':path' => $path, ':e' => $e)), 'failed');
+                log_console(tr('file_clear_path(): Failed to remove empty path ":path" with exception ":e"', array(':path' => $path, ':e' => $e)), 'warning');
                 return;
             }
         }
