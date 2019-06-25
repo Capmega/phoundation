@@ -108,9 +108,9 @@ try{
         /*
          * Delete all auto converted webp images
          */
-        cli_find(array('start' => ROOT,
+        cli_find(array('start' => ROOT.'data/content/',
                        'name'  => '*.webp',
-                       'exec'  => 'rm {}'));
+                       'exec'  => 'delete'));
 
         if(FORCE){
             /*
