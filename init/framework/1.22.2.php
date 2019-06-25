@@ -3,6 +3,8 @@
  * Fix ssh_accounts name, seoname, and username indices, all should be unique
  * First scan for duplicates and remove if required
  */
+sql_column_exists('ssh_accounts', 'username', '!ALTER TABLE `ssh_accounts` ADD COLUMN `username` VARCHAR(64) NULL AFTER `name`');
+
 $delete     = sql_prepare('DELETE FROM `ssh_accounts` WHERE `id` = :id');
 $duplicates = sql_query('SELECT   `ssh_accounts_duplicates`.`name`,
                                   `ssh_accounts_duplicates`.`username`
