@@ -82,14 +82,16 @@ function image_get_text($image) {
 /*
  * Standard image conversion function
  */
-function image_rotate($degrees, $source, $destination = null){
+function image_rotate($degrees, $source, $target = null){
     try{
-        if(!$destination){
-            $destination = $source;
+        if(!$target){
+            $target = $source;
         }
 
-        return image_convert($source, $destination, array('method'  => 'rotate',
-                                                          'degrees' => $degrees));
+        return image_convert(array('spurce'  => $source,
+                                   'target'  => $target,
+                                   'method'  => 'rotate',
+                                   'degrees' => $degrees));
 
     }catch(Exception $e){
         throw new BException(tr('image_rotate(): Failed'), $e);
@@ -101,21 +103,15 @@ function image_rotate($degrees, $source, $destination = null){
 /*
  * Standard image conversion function
  */
-function image_convert($source, $target = null, $params = null){
+function image_convert($params){
     global $_CONFIG;
 
     try{
-        if(($params === null) and ($target === null) and is_array($source)){
-// :OBSOLETE: Delete this section once all projects have this function call updated
-            /*
-             *
-             */
-            $params = $source;
-            $source = $params['source'];
-            $target = $params['target'];
-
-            notify(new BException(tr('html_img(): Obsolete function call detected'), 'warning/obsolete'));
-        }
+        /*
+         * Extract source and target
+         */
+        $source = $params['source'];
+        $target = $params['target'];
 
         /*
          * Validations
@@ -547,7 +543,7 @@ function image_convert($source, $target = null, $params = null){
                     load_libs('linux');
                     linux_install_package(null, 'imagemagick');
 
-                    return image_convert($source, $target, $params);
+                    return image_convert($params);
 
                 }catch(Exception $f){
                     throw new BException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. Phoundation tried to install the package automatically but this failed. Please install imagemagick yourself. On Debian and derrivates this can be done with the command "sudo apt -y install imagemagick". On Redhat and derrivates this can be done with the command "sudo yum install imagemagick"'), $f);
@@ -570,7 +566,7 @@ function image_convert($source, $target = null, $params = null){
                     load_libs('linux');
                     linux_install_package(null, 'webp');
 
-                    return image_convert($source, $target, $params);
+                    return image_convert($params);
 
                 }catch(Exception $f){
                     throw new BException(tr('image_convert(): The "convert" command failed because webp is not supported. On Debian and derrivates this may require installing webp, which was tried and failed. Please try installing the package manually using "sudo apt -y install webp".'), $f);
@@ -711,9 +707,11 @@ function image_create_avatars($file){
                 throw new BException('image_create_avatar(): Invalid avatar type configuration for type "'.str_log($name).'"', 'invalid/config');
             }
 
-            image_convert($file['tmp_name'][0], ROOT.'www/avatars/'.$destination.'_'.$name.'.'.file_get_extension($file['name'][0]), array('x'      => $type[0],
-                                                                                                                                           'y'      => $type[1],
-                                                                                                                                           'method' => $type[2]));
+            image_convert(array('source' => $file['tmp_name'][0],
+                                'target' => ROOT.'www/avatars/'.$destination.'_'.$name.'.'.file_get_extension($file['name'][0]),
+                                'x'      => $type[0],
+                                'y'      => $type[1],
+                                'method' => $type[2]));
         }
 
         return $destination;

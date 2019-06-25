@@ -1758,10 +1758,12 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
          */
         foreach($types as $type => $params){
             if($params['method'] and (!empty($post[$type.'_x']) or !empty([$type.'_y']))){
-                $params['x'] = $post[$type.'_x'];
-                $params['y'] = $post[$type.'_y'];
+                $params['x']      = $post[$type.'_x'];
+                $params['y']      = $post[$type.'_y'];
+                $params['source'] = $prefix.$file;
+                $params['target'] = $prefix.$media.'-'.$type.'.jpg';
 
-                image_convert($prefix.$file, $prefix.$media.'-'.$type.'.jpg', $params);
+                image_convert($params);
                 $files['media/'.$media.'-'.$type.'.jpg'] = $prefix.$media.'-'.$type.'.jpg';
 
             }else{
@@ -1770,10 +1772,12 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
 
             if($post['retina']){
                 if($params['method'] and (!empty($post[$type.'_x']) or !empty($post[$type.'_y']))){
-                    $params['x'] = $post[$type.'_x'] * 2;
-                    $params['y'] = $post[$type.'_y'] * 2;
+                    $params['x']      = $post[$type.'_x'] * 2;
+                    $params['y']      = $post[$type.'_y'] * 2;
+                    $params['source'] = $prefix.$file;
+                    $params['target'] = $prefix.$media.'-'.$type.'@2x.jpg';
 
-                    image_convert($prefix.$file, $prefix.$media.'-'.$type.'@2x.jpg', $params);
+                    image_convert($params);
 
                 }else{
                     symlink($prefix.$media.'-'.$type.'@2x.jpg', $prefix.$media.'-'.$type.'@2x.jpg');

@@ -52,8 +52,11 @@ function storage_files_insert($params){
                     /*
                      * Convert to JPEG
                      */
-                    image_convert($file['filename'], str_runtil($file['filename'], '.').'.jpg', array('method' => 'custom',
-                                                                                                      'format' => 'jpg'));
+                    image_convert(array('source' => $file['filename'],
+                                        'target' => str_runtil($file['filename'], '.').'.jpg',
+                                        'method' => 'custom',
+                                        'format' => 'jpg'));
+
                     file_delete($file['filename'], ROOT.'data/content');
                     $file['filename'] = str_runtil($file['filename'], '.').'.jpg';
                     break;

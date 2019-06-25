@@ -272,22 +272,25 @@ switch(cli_method()){
                     }
 
                     if($format != $source_type){
-                        $format_data['x'] = get_null($blog[$format.'_x']);
-                        $format_data['y'] = get_null($blog[$format.'_y']);
+                        $format_data['x']      = get_null($blog[$format.'_x']);
+                        $format_data['y']      = get_null($blog[$format.'_y']);
+                        $format_data['source'] = $source_file;
+                        $format_data['target'] = $file;
 
                         file_delete($file, ROOT.'data/content/photos/');
-                        image_convert($source_file, $file, $format_data);
+                        image_convert($format_data);
                     }
 
 
                     if($format.'@2x' != $source_type){
-                        $format_data['x'] = get_null($blog[$format.'_x']) * 2;
-                        $format_data['y'] = get_null($blog[$format.'_y']) * 2;
+                        $format_data['x']      = get_null($blog[$format.'_x']) * 2;
+                        $format_data['y']      = get_null($blog[$format.'_y']) * 2;
+                        $format_data['source'] = $source_file;
+                        $format_data['target'] = $filex2;
 
                         file_delete($filex2, ROOT.'data/content/photos/');
-                        image_convert($source_file, $filex2, $format_data);
+                        image_convert($format_data);
                     }
-
 
                     usleep(5000);
                 }

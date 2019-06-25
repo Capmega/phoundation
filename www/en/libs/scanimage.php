@@ -165,8 +165,10 @@ function scanimage($params){
                         /*
                          * We have to convert it to a JPG file
                          */
-                        image_convert($file, $params['file'], array('method' => 'custom',
-                                                                    'format' => 'jpg'));
+                        image_convert(array('source' => $file,
+                                            'target' => $params['file'],
+                                            'method' => 'custom',
+                                            'format' => 'jpg'));
 
                         break;
                 }
