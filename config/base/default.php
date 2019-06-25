@@ -78,6 +78,10 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'bundler'                            => true,                                                    // If JS and CSS bundler should be enabled or not
 
+                                       'css'                                => array('load_delayed'       => false,                     // If set to true, the CSS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
+                                                                                     'post'               => false,                     // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
+                                                                                     'purge'              => true),                     // If specified true, the CSS files will be purged  before being sent to the client
+
                                        'img'                                => array('lazy_load'          => false,                     // If set to true, the image will use lazy loading automatically
 
                                                                                      'auto_convert'       => array('jpg' => false,      // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
@@ -85,10 +89,6 @@ $_CONFIG['cdn']                = array('min'                                => t
                                                                                                                    'gif' => false),     // If not false, automatically convert gif images to the specified format. Supported types are: webp.
 
                                                                                      'auto_resize'        => false),                    // If not false, automatically resize images that are larger than their specifications
-
-                                       'css'                                => array('load_delayed'       => false,                     // If set to true, the CSS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
-                                                                                     'post'               => false,                     // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
-                                                                                     'purge'              => true),                     // If specified true, the CSS files will be purged  before being sent to the client
 
                                        'js'                                 => array('load_delayed'       => true,                      // If set to true, the JS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
                                                                                      'internal_to_file'   => true),                     // If set to true, all html_script() output will be sent stored in external files which will be added automatically by html_load_js()
