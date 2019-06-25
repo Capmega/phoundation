@@ -112,6 +112,13 @@ try{
                        'name'  => '*.webp',
                        'exec'  => 'rm {}'));
 
+        if(FORCE){
+            /*
+             * Delete external / vendor libraries too
+             */
+            file_delete(ROOT.'node_modules', ROOT);
+        }
+
         log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/www/'.$code.'/pub/js/bundle-*,ROOT/www/'.$code.'/pub/css/bundle-*')), 'green');
     }
 
