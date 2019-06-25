@@ -2192,8 +2192,19 @@ function cli_find($params){
                     break;
 
                 case 'exec':
-                    $arguments[]    = '-exec';
-                    $arguments['-'] = $value;
+                    switch(isset_get($params['exec'])){
+                        case '':
+                            break;
+
+                        case 'delete':
+                            $arguments[]    = '-delete';
+                            break;
+
+                        default:
+                            $arguments[]    = '-exec';
+                            $arguments['-'] = $value;
+                    }
+
                     break;
 
                 case 'path':
@@ -2217,8 +2228,15 @@ function cli_find($params){
             }
         }
 
-        if(isset($params['exec'])){
-            $arguments['--'] = '\\;';
+        switch(isset_get($params['exec'])){
+            case '':
+                break;
+
+            case 'delete':
+                break;
+
+            default:
+                $arguments['--'] = '\\;';
         }
 
         $results = safe_exec(array('timeout'  => $params['timeout'],
