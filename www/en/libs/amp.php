@@ -145,12 +145,46 @@ function amp_page($params){
 
 
 /*
- * Return <amp-img> tag, using <html_img>
+ * Return <amp-img> tag using html_img()
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package amp
+ * @see amp_video()
+ * @version 2.6.33: Added function and documentation
+ *
+ * @param params $params A parameters array
+ * @param string $params[src]
+ * @param string $params[alt]
+ * @param string $params[width]
+ * @param string $params[height]
+ * @param string $params[lazy]
+ * @param string $params[extra]
+ * @param string $alt
+ * @param string $width
+ * @param string $height
+ * @param string $extra
+ * @return string The <amp-img> tag
  */
-function amp_img($src, $alt, $width = null, $height = null, $more = 'layout="responsive"'){
+function amp_img($params, $alt = null, $width = null, $height = null, $extra = 'layout="responsive"'){
     try{
-        $img = html_img($src, $alt, $width, $height, $more);
-        $img = '<amp-img'.substr($img, 4);
+// :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
+        if(!is_array($params)){
+            /*
+             * Ensure we have a params array
+             */
+            $params = array('src'    => $params,
+                            'alt'    => $alt,
+                            'width'  => $width,
+                            'height' => $height,
+                            'lazy'   => null,
+                            'extra'  => $extra);
+        }
+
+        $img  = html_img($params);
+        $img  = '<amp-img'.substr($img, 4);
         $img .= '</amp-img>';
 
         return $img;
