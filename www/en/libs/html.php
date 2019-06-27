@@ -2915,7 +2915,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
         return '<img src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
 
     }catch(Exception $e){
-        throw new BException('html_img(): Failed', $e);
+        throw new BException(tr('html_img(): Failed for src ":src"', array(':src' => isset_get($params['src']))), $e);
     }
 }
 
