@@ -27,15 +27,13 @@ try{
         $from = $_SESSION['user'];
 
         /*
-         * Optionally, load extra data
+         * Load employee data
          */
-        if($user['employees_id']){
-            /*
-             * Load employee data
-             */
-            load_libs('companies');
-            $user['employee'] = companies_get_employee($user['employees_id']);
+        load_libs('companies');
+        $user['employee'] = companies_get_employee(array('filters' => array('users_id' => $user['id'],
+                                                                            'status'   => null)));
 
+        if($user['employee']){
             if($user['employee']['customers_id']){
                 /*
                  * Load customers data
