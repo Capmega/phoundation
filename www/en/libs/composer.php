@@ -190,7 +190,7 @@ function composer_require($packages){
             throw new BException(tr('composer_require(): No package specified'), 'not-specified');
         }
 
-        foreach($packages as $package){
+        foreach(array_force($packages) as $package){
             composer_exec(array('require', $package));
         }
 
