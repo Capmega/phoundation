@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.6.35');
+define('FRAMEWORKCODEVERSION', '2.6.36');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -3205,7 +3205,7 @@ function page_show($pagename, $params = null, $get = null){
                         return file_exists($include);
                     }
 
-                    log_file(tr('Showing ":language" language system page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'VERBOSE/cyan');
+                    log_file(tr('Showing ":language" language system page ":page"', array(':page' => $pagename, ':language' => $language)), 'page-show', 'warning');
 
                     /*
                      * Wait a small random time to avoid timing attacks on
