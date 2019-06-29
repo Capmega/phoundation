@@ -31,9 +31,7 @@ function freeradius_library_init(){
     try{
         ensure_installed(array('name'      => 'freeradius',
                                'callback'  => 'freeradius_install',
-                               'checks'    => ROOT.'libs/external/freeradius/freeradius,'.ROOT.'libs/external/freeradius/foobar',
-                               'functions' => 'freeradius,foobar',
-                               'which'     => 'freeradius,foobar'));
+                               'which'     => 'freeradius'));
 
     }catch(Exception $e){
         throw new BException('freeradius_library_init(): Failed', $e);
@@ -57,11 +55,13 @@ function freeradius_library_init(){
  */
 function freeradius_install($params){
     try{
-        load_libs('apt');
-        apt_install('freeradius');
-
-        load_libs('apt');
-        apt_install('freeradius');
+        if(!file_which('freeradius')){
+            /*
+             * Install freeradius
+             */
+            load_libs('apt');
+            apt_install('freeradius');
+        }
 
     }catch(Exception $e){
         throw new BException('freeradius_install(): Failed', $e);
