@@ -2430,7 +2430,7 @@ under_construction();
 
         try{
             if(!file_exists($target)){
-                log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/cyan');
+                log_file(tr('Modified format target ":target" does not exist, converting original source', array(':target' => $target)), 'html', 'VERYVERBOSE/warning');
                 load_libs('image');
 
                 file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $target, $format){
