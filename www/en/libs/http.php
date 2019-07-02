@@ -372,6 +372,22 @@ function http_headers($params, $content_length){
             die();
         }
 
+        switch($params['http_code']){
+            case 304:
+                /*
+                 * 304 requests indicate the browser to use it's local cache,
+                 * send nothing
+                 */
+                // FALLTHROUGH
+
+            case 429:
+                /*
+                 * 429 Tell the client that it made too many requests, send
+                 * nothing
+                 */
+                die();
+        }
+
         return true;
 
     }catch(Exception $e){
@@ -477,6 +493,46 @@ function http_cache_etag(){
 
     }catch(Exception $e){
         throw new BException('http_cache_etag(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Test HTTP caching headers
+ *
+ * Sends out 304 - Not modified header if ETag matches
+ *
+ * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
+ * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
+ */
+function http_cache_test($etag = null){
+    global $_CONFIG, $core;
+
+    try{
+        $core->register['etag'] = md5(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$etag);
+
+        if(!$_CONFIG['cache']['http']['enabled']){
+            return false;
+        }
+
+        if($core->callType('ajax') or $core->callType('api')){
+            return false;
+        }
+
+        if((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']){
+            if(empty($core->register['flash'])){
+                /*
+                 * The client sent an etag which is still valid, no body (or anything else) necesary
+                 */
+                http_headers(304, 0);
+            }
+        }
+
+        return true;
+
+    }catch(Exception $e){
+        throw new bException('http_cache_test(): Failed', $e);
     }
 }
 
