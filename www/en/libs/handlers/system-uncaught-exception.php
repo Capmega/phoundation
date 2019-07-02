@@ -243,7 +243,7 @@ try{
                         log_console(tr('Exception function trace:'), 'exception');
 
                         if($trace){
-                            log_console($trace, 'exception');
+                            log_console(str_log($trace), 'exception');
 
                         }else{
                             log_console(tr('N/A'), 'exception');
@@ -251,7 +251,7 @@ try{
 
                         if($data){
                             log_console(tr('Exception data:'), 'exception');
-                            log_console($data, 'exception');
+                            log_console(str_log($data), 'exception');
                         }
                     }
 
