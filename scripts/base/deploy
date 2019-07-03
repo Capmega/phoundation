@@ -940,7 +940,7 @@ foreach($targets as $target_environment){
                 passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mkdir '.$deploy_config['target_dir'].'\'', $exitcode);
             }
 
-            safe_exec(array('timeout'  => 90,
+            safe_exec(array('timeout'  => 120,
                             'commands' => array('ssh', array('-t', '-p', $target_port, $deploy_config['target_user'].$deploy_config['target_server'], $sudo.'rm '.$deploy_config['target_dir'].$tilde.' -rf; '.$sudo.'cp '.($deploy_config['preserve_owner_group'] ? '-a' : '--no-dereference --recursive --preserve=mode,links,xattr').' '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde))));
         }
 
