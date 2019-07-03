@@ -402,7 +402,7 @@ function image_convert($params){
         if(!$params['x'] or !$params['y']){
             $size = getimagesize($source);
 
-            if($params['keep_aspectratio']){
+            if($params['keep_aspectratio'] and $size[0] and $size[1]){
                 $ar = $size[1] / $size[0];
 
             }else{

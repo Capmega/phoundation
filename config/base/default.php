@@ -84,9 +84,10 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'img'                                => array('lazy_load'          => false,                     // If set to true, the image will use lazy loading automatically
 
-                                                                                     'auto_convert'       => array('jpg' => false,      // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
-                                                                                                                   'png' => false,      // If not false, automatically convert png images to the specified format. Supported types are: webp.
-                                                                                                                   'gif' => false),     // If not false, automatically convert gif images to the specified format. Supported types are: webp.
+                                                                                     'auto_convert'       => array('jpg'  => false,     // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
+                                                                                                                   'gif'  => false,     // If not false, automatically convert gif images to the specified format. Supported types are: webp.
+                                                                                                                   'png'  => false,     // If not false, automatically convert png images to the specified format. Supported types are: webp.
+                                                                                                                   'webp' => false),    // If not false, automatically convert webp images to the specified format. Supported types are: webp.
 
                                                                                      'auto_resize'        => false),                    // If not false, automatically resize images that are larger than their specifications
 
