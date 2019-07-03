@@ -175,7 +175,8 @@ function amp_img($params, $alt = null, $width = null, $height = null, $extra = '
             /*
              * Ensure we have a params array
              */
-            $params = array('src'    => $params,
+            $params = array('tag'    => 'amp-img',
+                            'src'    => $params,
                             'alt'    => $alt,
                             'width'  => $width,
                             'height' => $height,
@@ -183,11 +184,7 @@ function amp_img($params, $alt = null, $width = null, $height = null, $extra = '
                             'extra'  => $extra);
         }
 
-        $img  = html_img($params);
-        $img  = '<amp-img'.substr($img, 4);
-        $img .= '</amp-img>';
-
-        return $img;
+        return html_img($params).'</amp-img>';
 
     }catch(Exception $e){
         throw new BException('amp_img(): Failed', $e);

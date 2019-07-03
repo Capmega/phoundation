@@ -2492,6 +2492,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
 
         array_ensure ($params, 'src,alt,width,height,extra');
         array_default($params, 'lazy', $_CONFIG['cdn']['img']['lazy_load']);
+        array_default($params, 'tag' , 'img');
 
         if(!$params['src']){
             /*
@@ -2907,12 +2908,12 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                 $params['extra'] = ' class="lazy"';
             }
 
-            $html .= '<img data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
+            $html .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
 
             return $html;
         }
 
-        return '<img src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
+        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
 
     }catch(Exception $e){
         throw new BException(tr('html_img(): Failed for src ":src"', array(':src' => isset_get($params['src']))), $e);
