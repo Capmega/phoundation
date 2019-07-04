@@ -2608,8 +2608,8 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                                      'title'   => tr('Image does not exist'),
                                      'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
 
-                        $image[0] = -1;
-                        $image[1] = -1;
+                        $image[0] = 0;
+                        $image[1] = 0;
                     }
 
                     if(!empty($file)){
@@ -2628,8 +2628,8 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                          * Image doesn't exist.
                          */
                         log_console(tr('html_img(): Can not analyze image ":src", the local path ":path" does not exist', array(':src' => $params['src'], ':path' => $file_src)), 'yellow');
-                        $image[0] = -1;
-                        $image[1] = -1;
+                        $image[0] = 0;
+                        $image[1] = 0;
                     }
                 }
 
