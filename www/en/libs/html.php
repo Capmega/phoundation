@@ -2434,12 +2434,14 @@ under_construction();
                 load_libs('image');
 
                 file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $target, $format){
-                    global $_CONFIG;
+                    file_execute_mode($file_src, 0660, function() use ($file_src, $target, $format){
+                        global $_CONFIG;
 
-                    image_convert(array('method' => 'custom',
-                                        'source' => $file_src,
-                                        'target' => $target,
-                                        'format' => $_CONFIG['cdn']['img']['auto_convert'][$format]));
+                        image_convert(array('method' => 'custom',
+                                            'source' => $file_src,
+                                            'target' => $target,
+                                            'format' => $_CONFIG['cdn']['img']['auto_convert'][$format]));
+                    });
                 });
             }
 
