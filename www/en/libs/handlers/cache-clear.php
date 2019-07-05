@@ -117,11 +117,14 @@ try{
         /*
          * Delete all auto converted webp images
          */
-        file_execute_mode(ROOT.'data/content/', 0770, function() use ($code){
-            cli_find(array('start' => ROOT.'data/content/',
-                           'name'  => '*.webp',
-                           'exec'  => 'delete'));
-        });
+        $files = cli_find(array('start' => ROOT.'data/content/',
+                                'name'  => '*.webp'));
+
+        foreach($files as $file){
+            file_execute_mode(dirname($file), 0770, function() use ($file){
+                file_delete($file, ROOT.'data/content/');
+            });
+        }
 
         if(FORCE){
             /*
