@@ -117,15 +117,19 @@ try{
         /*
          * Delete all auto converted webp images
          */
-        cli_find(array('start' => ROOT.'data/content/',
-                       'name'  => '*.webp',
-                       'exec'  => 'delete'));
+        file_execute_mode(ROOT.'data/content/', 0770, function() use ($code){
+            cli_find(array('start' => ROOT.'data/content/',
+                           'name'  => '*.webp',
+                           'exec'  => 'delete'));
+        });
 
         if(FORCE){
             /*
              * Delete external / vendor libraries too
              */
-            file_delete(ROOT.'node_modules', ROOT);
+            file_execute_mode(ROOT.'node_modules/', 0770, function() use ($code){
+                file_delete(ROOT.'node_modules/', ROOT);
+            });
         }
 
         log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/www/'.$code.'/pub/js/bundle-*,ROOT/www/'.$code.'/pub/css/bundle-*')), 'green');
