@@ -98,12 +98,21 @@ try{
          * Delete all bundle files
          * Delete all purged bundle files
          */
-        file_delete(ROOT.'www/'.$code.'/pub/js/cached*'          , ROOT.'www/'.$code.'/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/pub/js/bundle-*'         , ROOT.'www/'.$code.'/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/pub/css/bundle-*'        , ROOT.'www/'.$code.'/pub/css/');
-        file_delete(ROOT.'www/'.$code.'/pub/css/p-bundle-*'      , ROOT.'www/'.$code.'/pub/css/');
-        file_delete(ROOT.'www/'.$code.'/admin/pub/js/bundle-*'   , ROOT.'www/'.$code.'/admin/pub/js/');
-        file_delete(ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*', ROOT.'www/'.$code.'/admin/pub/css/');
+        file_execute_mode(ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code){
+            file_execute_mode(ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code){
+                file_delete(ROOT.'www/'.$code.'/pub/js/cached*'          , ROOT.'www/'.$code.'/pub/js/');
+                file_delete(ROOT.'www/'.$code.'/pub/js/bundle-*'         , ROOT.'www/'.$code.'/pub/js/');
+                file_delete(ROOT.'www/'.$code.'/pub/css/bundle-*'        , ROOT.'www/'.$code.'/pub/css/');
+                file_delete(ROOT.'www/'.$code.'/pub/css/p-bundle-*'      , ROOT.'www/'.$code.'/pub/css/');
+            });
+        });
+
+        file_execute_mode(ROOT.'www/'.$code.'/admin/pub/js/', 0770, function() use ($code){
+            file_execute_mode(ROOT.'www/'.$code.'/admin/pub/css/', 0770, function() use ($code){
+                file_delete(ROOT.'www/'.$code.'/admin/pub/js/bundle-*'   , ROOT.'www/'.$code.'/admin/pub/js/');
+                file_delete(ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*', ROOT.'www/'.$code.'/admin/pub/css/');
+            });
+        });
 
         /*
          * Delete all auto converted webp images
