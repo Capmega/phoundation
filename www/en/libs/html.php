@@ -2769,6 +2769,31 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
             $params['width'] = '';
         }
 
+        if($params['extra']){
+            if(str_exists($params['extra'], 'class="')){
+                /*
+                 * Add lazy class to the class definition in "extra"
+                 */
+                $params['extra'] = str_replace('class="', 'class="lazy ', $params['extra']);
+
+            }else{
+                /*
+                 * Add class definition with "lazy" to extra
+                 */
+                $params['extra'] = ' class="lazy" '.$params['extra'];
+            }
+
+        }else{
+            /*
+             * Set "extra" to be class definition with "lazy"
+             */
+            $params['extra'] = ' class="lazy"';
+        }
+
+        if(isset($params['style'])){
+            $params['extra'] .= ' style="'.$params['style'].'"';
+        }
+
         if($params['lazy']){
             $html = '';
 
@@ -2889,33 +2914,12 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                                            'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'));
             }
 
-            if($params['extra']){
-                if(str_exists($params['extra'], 'class="')){
-                    /*
-                     * Add lazy class to the class definition in "extra"
-                     */
-                    $params['extra'] = str_replace('class="', 'class="lazy ', $params['extra']);
-
-                }else{
-                    /*
-                     * Add class definition with "lazy" to extra
-                     */
-                    $params['extra'] = ' class="lazy" '.$params['extra'];
-                }
-
-            }else{
-                /*
-                 * Set "extra" to be class definition with "lazy"
-                 */
-                $params['extra'] = ' class="lazy"';
-            }
-
-            $html .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
+            $html .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
 
             return $html;
         }
 
-        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].($params['extra'] ? ' '.$params['extra'] : '').'>';
+        return '<'.$params['tag'].' src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
 
     }catch(Exception $e){
         throw new BException(tr('html_img(): Failed for src ":src"', array(':src' => isset_get($params['src']))), $e);
