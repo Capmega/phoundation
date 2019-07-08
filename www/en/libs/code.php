@@ -274,6 +274,17 @@ function code_phoundation_pull($remote = 'origin', $branch = null){
         return $results;
 
     }catch(Exception $e){
+        $data = $e->getData();
+
+        if($data){
+            $data  = implode(' ', $data);
+            $match = preg_match('/You asked to pull from the remote \'[a-z0-9-_]+\', but did not specify a branch\. Because this is not the default configured remote for your current branch, you must specify a branch on the command line\./', $data);
+
+            if($match){
+                throw new BException(tr('code_phoundation_pull(): No remote branch was specified and the current branch ":branch" has no upstream / default remote branch specified', array(':branch' => git_branch())), 'not-specified');
+            }
+        }
+
         throw new BException('code_phoundation_pull(): Failed', $e);
     }
 }
