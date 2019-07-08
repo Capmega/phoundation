@@ -168,7 +168,7 @@ try{
     /*
      * Ensure phoundation can do updates, and get the latest tags and branches
      */
-    if(code_phoundation_status() AND !FORCE) {
+    if(code_phoundation_status() AND !$ignore and !FORCE) {
         throw new BException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
     }
 
