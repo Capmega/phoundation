@@ -610,9 +610,20 @@ switch(cli_method()){
                                                                 $params['source'] = $file;
                                                                 $params['target'] = $target;
 
+                                                                if($params['format']){
+                                                                    $format = str_rfrom($params['source'], '.');
+
+                                                                    if($format !== $params['format']){
+                                                                        /*
+                                                                         * Target file is different from source file, ensure that it doesn't exist
+                                                                         */
+                                                                        $params['target'] = str_runtil($params['source'], '.').'.'.$params['format'];
+                                                                        file_delete($params['target'], false);
+                                                                    }
+                                                                }
+
                                                                 file_execute_mode(dirname($params['target']), 0770, function() use ($params){
                                                                     file_execute_mode($params['source'], 0660, function() use ($params){
-                                                                        file_delete($params['target']);
                                                                         $target = image_convert($params);
                                                                     });
                                                                 });
