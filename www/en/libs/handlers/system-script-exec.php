@@ -81,4 +81,3 @@ try{
 }catch(Exception $e){
     throw new bException(tr('script_exec(): Failed'), $e);
 }
-?>

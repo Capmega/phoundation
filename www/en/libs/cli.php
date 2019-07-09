@@ -980,11 +980,16 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
 
             $arguments   = array('sudo' => 'sudo -Eu \''.get_current_user().'\'');
             $arguments   = array_merge($arguments, $argv);
-            $arguments[] = '-T';
-            $arguments[] = $core->register['timeout'];
 
-            script_exec(array('timeout'  => $core->register['timeout'],
-                              'delay'    => 1,
+            /*
+             * Ensure --timeout is added to the script
+             */
+            if(!in_array('--timeout', $arguments)){
+                $arguments[] = '--timeout';
+                $arguments[] = $core->register['timeout'];
+            }
+
+            script_exec(array('delay'    => 1,
                               'function' => 'passthru',
                               'commands' => array($core->register['real_script'], $arguments)));
             die();
@@ -1878,10 +1883,10 @@ function cli_build_commands_string(&$params){
             $params['background'] = false;
 
             if($params['timeout']){
-                $timeout  = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
+                $timeout = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
 
             }else{
-                $timeout  = '';
+                $timeout = '';
             }
 
             if($value){
@@ -2020,6 +2025,7 @@ function cli_build_commands_string(&$params){
                                     case 'connect':
                                         throw new BException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified, maybe should be "connector" ?', array(':argument' => $special)), 'invalid');
                                 }
+
                                 throw new BException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified', array(':argument' => $special)), 'invalid');
                         }
                     }

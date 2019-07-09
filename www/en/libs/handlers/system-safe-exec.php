@@ -10,7 +10,7 @@ try{
         throw new BException(tr('safe_exec(): Specified $params is invalid, should be an array but is an ":type"', array(':type' => gettype($params))), 'invalid');
     }
 
-    array_default($params, 'path'           , $_CONFIG['exec']['path']);
+    array_default($params, 'path'            , $_CONFIG['exec']['path']);
     array_default($params, 'domain'          , null);
     array_default($params, 'function'        , 'exec');
     array_default($params, 'ok_exitcodes'    , 0);
