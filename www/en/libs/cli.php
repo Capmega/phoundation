@@ -978,10 +978,13 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
             $argv = $core->register['argv'];
             array_shift($argv);
 
-            $arguments = array('sudo' => 'sudo -Eu \''.get_current_user().'\'');
-            $arguments = array_merge($arguments, $argv);
+            $arguments   = array('sudo' => 'sudo -Eu \''.get_current_user().'\'');
+            $arguments   = array_merge($arguments, $argv);
+            $arguments[] = '-T';
+            $arguments[] = $core->register['timeout'];
 
-            script_exec(array('delay'    => 1,
+            script_exec(array('timeout'  => $core->register['timeout'],
+                              'delay'    => 1,
                               'function' => 'passthru',
                               'commands' => array($core->register['real_script'], $arguments)));
             die();
@@ -1766,12 +1769,12 @@ function cli_is_builtin($command){
  * @return string The command string
  */
 function cli_build_commands_string(&$params){
-    global $_CONFIG;
+    global $_CONFIG, $core;
 
     try{
         $retval = '';
 
-        array_default($params, 'timeout'     , $_CONFIG['exec']['timeout']);
+        array_default($params, 'timeout'     , $core->register['timeout']);
         array_default($params, 'route_errors', true);
         array_default($params, 'function'    , 'exec');
         array_default($params, 'background'  , false);
@@ -2257,4 +2260,3 @@ function cli_find($params){
 function cli_exclusive($action = 'exception', $force = false){
     return cli_run_once($action, $force);
 }
-?>

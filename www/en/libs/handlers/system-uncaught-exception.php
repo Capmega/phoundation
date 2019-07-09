@@ -86,13 +86,15 @@ try{
                     define('VERYVERBOSE', (cli_argument('-VV,--very-verbose') ? 'VERYVERBOSE' : null));
                 }
 
+                set_timeout(1);
+
                 $defines = array('ADMIN'    => '',
                                  'PWD'      => slash(isset_get($_SERVER['PWD'])),
                                  'VERBOSE'  => ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE' : null),
                                  'QUIET'    => cli_argument('-Q,--quiet'),
                                  'FORCE'    => cli_argument('-F,--force'),
                                  'TEST'     => cli_argument('-T,--test'),
-                                 'LIMIT'    => not_empty(cli_argument('--limit', true), $_CONFIG['paging']['limit']),
+                                 'LIMIT'    => not_empty(cli_argument('--limit'  , true), $_CONFIG['paging']['limit']),
                                  'ALL'      => cli_argument('-A,--all'),
                                  'DELETED'  => cli_argument('--deleted'),
                                  'STATUS'   => cli_argument('-S,--status' , true),
@@ -523,6 +525,5 @@ try{
     /*
      * Well, we tried. Here we just give up all together
      */
-    die('Fatal error. check ROOT/data/syslog, application server logs, or webserver logs for more information');
+    die("Fatal error. check ROOT/data/syslog, application server logs, or webserver logs for more information\n");
 }
-?>

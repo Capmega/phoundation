@@ -10,6 +10,7 @@
 
 try{
     /*
+     * Set timeout
      * Define basic platform constants
      *
      * NOTE: System pages may be executed by the uncaught exception handler
@@ -17,6 +18,8 @@ try{
      * ADMIN is defined. If so, all variables are already defined.
      */
     if(!defined('ADMIN')){
+        set_timeout();
+
         define('ADMIN'   , '');
         define('PWD'     , slash(isset_get($_SERVER['PWD'])));
         define('STARTDIR', slash(getcwd()));
@@ -200,4 +203,3 @@ try{
 }catch(Exception $e){
     throw new BException(tr('core::system(): Failed'), $e);
 }
-?>

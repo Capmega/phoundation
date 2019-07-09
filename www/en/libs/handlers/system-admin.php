@@ -10,9 +10,11 @@
 
 try{
     /*
-     * Load admin configuration
+     * Set timeout
+     * Load admin configuration and set timeout
      */
     load_config('admin');
+    set_timeout();
 
 
 
@@ -185,4 +187,3 @@ try{
 }catch(Exception $e){
     throw new BException(tr('core::admin(): Failed'), $e);
 }
-?>

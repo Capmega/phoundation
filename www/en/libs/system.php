@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.4');
+define('FRAMEWORKCODEVERSION', '2.7.5');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -266,6 +266,11 @@ class Core{
             }
 
             require('handlers/system-'.$this->callType.'.php');
+
+            /*
+             * Set timeout for this request
+             */
+            set_timeout();
 
             /*
              * Verify project data integrity
@@ -1822,9 +1827,17 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
  */
 function log_file($messages, $class = 'syslog', $color = null, $filter_double = true){
     global $_CONFIG, $core;
-    static $h = array();
+    static $h   = array(),
+           $log = true;
 
     try{
+        if(!$log){
+            /*
+             * Do not log!
+             */
+            return false;
+        }
+
         /*
          * Process logging flags embedded in the log text color
          */
@@ -1879,7 +1892,12 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
         if(empty($h[$file])){
             file_ensure_path(ROOT.'data/log');
 
-            $h[$file] = fopen(slash(ROOT.'data/log').$file, 'a+');
+            try{
+                $h[$file] = @fopen(slash(ROOT.'data/log').$file, 'a+');
+
+            }catch(Exception $e){
+                throw new BException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), $e);
+            }
 
             if(!$h[$file]){
                 throw new BException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), 'failed');
@@ -1922,6 +1940,23 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
         return $messages;
 
     }catch(Exception $e){
+        /*
+         * We encountered an exception trying to log, don't log ever again
+         */
+        $log = false;
+
+        if(empty($file)){
+            throw new BException('log_file(): Failed before $file was determined', $e, array('message' => $messages));
+        }
+
+        if(!is_writable(slash(ROOT.'data/log').$file)){
+            if(PLATFORM_HTTP){
+                error_log(tr('log_file() failed because log file ":file" is not writable', array(':file' => $file)));
+            }
+
+            throw new BException(tr('log_file(): Failed because log file ":file" is not writable', array(':file' => $file)), $e);
+        }
+
         /*
          * If log_file() fails, assume we cannot log to data/log/, log to PHP error instead
          */
@@ -5699,6 +5734,39 @@ function unregister_shutdown($name){
 
 
 /*
+ * Set the timeout value for this script
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see set_time_limit()
+ * @version 2.7.5: Added function and documentation
+ *
+ * @param null natural $timeout The amount of seconds this script can run until it is aborted automatically
+ * @return void
+ */
+
+function set_timeout($timeout = null){
+    global $core, $_CONFIG;
+
+    try{
+        if($timeout === null){
+            $timeout = getenv('TIMEOUT') ? getenv('TIMEOUT') : $_CONFIG['exec']['timeout'];
+        }
+
+        $core->register['timeout'] = $timeout;
+        set_time_limit($timeout);
+
+    }catch(Exception $e){
+        throw new BException(tr('set_timeout(): Failed'), $e);
+    }
+}
+
+
+
+/*
  * BELOW FOLLOW OBSOLETE FUNCTIONS
  */
 
@@ -5724,4 +5792,3 @@ function get_config($file = null, $environment = null){
         throw new BException('get_config(): Failed', $e);
     }
 }
-?>

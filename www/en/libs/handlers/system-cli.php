@@ -16,6 +16,7 @@ try{
      * Make sure we have the original arguments available
      */
     $core->register['argv'] = $GLOBALS['argv'];
+    putenv('TIMEOUT='.cli_argument('--timeout', true));
 
 
 
@@ -31,7 +32,7 @@ try{
     define('NOCOLOR'    , cli_argument('-C,--no-color'));
     define('TEST'       , cli_argument('-T,--test'));
     define('DELETED'    , cli_argument('--deleted'));
-    define('STATUS'     , cli_argument('-S,--status' , true));
+    define('STATUS'     , cli_argument('-S,--status', true));
     define('STARTDIR'   , slash(getcwd()));
 
 
@@ -256,9 +257,11 @@ try{
     /*
      * Load basic configuration for the current environment
      * Load cache libraries (done until here since these need configuration @ load time)
+     * Set timeout
      */
     load_config(' ');
     load_libs('cache'.(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
+    set_timeout();
 
 
 
@@ -478,4 +481,3 @@ try{
 }catch(Exception $e){
     throw new BException(tr('core::cli(): Failed'), $e);
 }
-?>

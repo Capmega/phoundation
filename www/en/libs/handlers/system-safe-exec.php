@@ -232,4 +232,3 @@ under_construction();
 
     throw new BException(tr('safe_exec(): Failed'), $e);
 }
-?>

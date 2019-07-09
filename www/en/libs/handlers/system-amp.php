@@ -10,8 +10,11 @@
 
 try{
     /*
+     * Set timeout
      * Define basic platform constants
      */
+    set_timeout();
+
     define('ADMIN'   , '');
     define('PWD'     , slash(isset_get($_SERVER['PWD'])));
     define('STARTDIR', slash(getcwd()));
@@ -188,4 +191,3 @@ try{
 }catch(Exception $e){
     throw new BException(tr('core::amp(): Failed'), $e);
 }
-?>
