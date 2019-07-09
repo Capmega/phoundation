@@ -3198,16 +3198,6 @@ function file_cat($params){
 function file_restrict($params, &$restrictions = null){
     try{
         /*
-         * Disable all restrictions?
-         */
-        if(!empty($params['unrestricted']) or ($restrictions === false)){
-            /*
-             * No restrictions required
-             */
-            return false;
-        }
-
-        /*
          * Determine what restrictions apply. The restrictions is a white list
          * containing the paths where the calling function is allowed to work
          */
@@ -3221,6 +3211,16 @@ function file_restrict($params, &$restrictions = null){
             }
 
             if(!$restrictions){
+                /*
+                 * Disable all restrictions?
+                 */
+                if($restrictions === false){
+                    /*
+                     * No restrictions required
+                     */
+                    return false;
+                }
+
                 /*
                  * Apply default restrictions
                  */
@@ -3246,6 +3246,10 @@ function file_restrict($params, &$restrictions = null){
              * missing slash at the end
              */
             foreach($restrictions as &$restriction){
+                if($restriction === false){
+                    return false;
+                }
+
                 $restriction = unslash($restriction);
 
                 if(substr($params, 0, strlen($restriction)) === $restriction){
