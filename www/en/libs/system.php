@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.3');
+define('FRAMEWORKCODEVERSION', '2.7.4');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -4522,7 +4522,7 @@ function array_ensure(&$source, $keys = '', $default_value = null, $trim_existin
  */
 function array_force($source, $separator = ','){
     try{
-        if(!$source){
+        if(($source === '') or ($source === null)){
             return array();
         }
 
