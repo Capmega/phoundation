@@ -194,7 +194,6 @@ function html_bundler($list){
                         /*
                          * Check for @imports
                          */
-                        $file_count++;
                         $orgfile = $file;
                         $file    = $path.$file.$ext;
 
@@ -209,6 +208,8 @@ function html_bundler($list){
                                          'message' => tr('html_bundler(): The bundler ":extension" file ":file" does not exist', array(':extension' => $extension, ':file' => $file))));
                             continue;
                         }
+
+                        $file_count++;
 
                         $data = file_get_contents($file);
                         unset($core->register[$list][$orgfile]);
@@ -327,7 +328,9 @@ function html_bundler($list){
                         }
                     }
 
-                    chmod($bundle_file, $_CONFIG['file']['file_mode']);
+                    if($file_count){
+                        chmod($bundle_file, $_CONFIG['file']['file_mode']);
+                    }
                 }
             });
 
