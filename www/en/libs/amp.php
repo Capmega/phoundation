@@ -180,7 +180,7 @@ function amp_img($params, $alt = null, $width = null, $height = null, $extra = '
                             'alt'    => $alt,
                             'width'  => $width,
                             'height' => $height,
-                            'lazy'   => null,
+                            'lazy'   => false,
                             'extra'  => $extra);
         }
 
@@ -287,6 +287,7 @@ function amp_content($html){
          * First we make sure we don't have forbbiden html tags in our html
          */
         $html = amp_html_cleanup($html);
+
         /*
          * Turn video tags into amp-video tags
          */
