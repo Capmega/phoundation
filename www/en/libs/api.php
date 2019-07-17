@@ -34,6 +34,24 @@ function api_library_init(){
 
 /*
  * Validate API account
+ *
+ * This function will validate all relevant fields in the specified $account array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package api
+ *
+ * @param params $account
+ * @param string $account[customer]
+ * @param string $account[server]
+ * @param string $account[name]
+ * @param string $account[description]
+ * @param string $account[baseurl]
+ * @param string $account[apikey]
+ * @param string $account[verify_ssl]
+ * @return string HTML for a categories select box within the specified parameters
  */
 function api_validate_account($account){
 
@@ -429,7 +447,11 @@ function api_call_base($account, $call, $data = array(), $files = null){
                                        'post'           => array('PHPSESSID' => $account_data['apikey'])));
 
                 if(!$json){
-                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'not-exists');
+                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'empty');
+                }
+
+                if(!$json['data']){
+                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no data in response', array(':account' => $account)), 'empty');
                 }
 
                 $result = json_decode_custom($json['data']);
@@ -448,19 +470,19 @@ function api_call_base($account, $call, $data = array(), $files = null){
             }catch(Exception $e){
                 switch($e->getCode()){
                     case 'HTTP403':
-                        throw new BException(tr('api_call_base(): [403] API URL gave access denied'), $e);
+                        throw new BException(tr('api_call_base(): [403] API URL ":url" gave access denied', array(':url' => $account_data['baseurl'])), $e);
 
                     case 'HTTP404':
                         throw new BException(tr('api_call_base(): [404] API URL ":url" was not found', array(':url' => str_starts_not($account_data['baseurl'], '/').'/authenticate')), $e);
 
                     case 'HTTP500':
-                        throw new BException(tr('api_call_base(): [500] API server encountered an internal server error'), $e);
+                        throw new BException(tr('api_call_base(): [500] API server encountered an internal server error on URL ":url"', array(':url' => $account_data['baseurl'])), $e);
 
                     case 'HTTP503':
-                        throw new BException(tr('api_call_base(): [503] API server is in maintenance mode'), $e);
+                        throw new BException(tr('api_call_base(): [503] API server is in maintenance mode on URL ":url"', array(':url' => $account_data['baseurl'])), $e);
 
                     default:
-                        throw new BException(tr('api_call_base(): [:code] Failed to authenticate', array(':code' => $e->getCode())), $e);
+                        throw new BException(tr('api_call_base(): [:code] Failed to authenticate on URL ":url"', array(':code' => $e->getCode(), ':url' => $account_data['baseurl'])), $e);
                 }
             }
         }
@@ -473,7 +495,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
              */
             $count = 0;
 
-            foreach($files as $url => $file){
+            foreach(array_force($files) as $url => $file){
                 $data['file'.$count++] =  curl_file_create($file, file_mimetype($file), str_replace('/', '_', str_replace('_', '', $url)));
             }
         }
