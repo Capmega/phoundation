@@ -440,6 +440,7 @@ function json_encode_custom($source = false, $internal = true){
         }
 
     }catch(Exception $e){
+        $e->setData($source);
         throw new BException('json_encode_custom(): Failed', $e);
     }
 }
@@ -489,7 +490,7 @@ function json_decode_custom($json, $as_array = true){
         return $retval;
 
     }catch(Exception $e){
+        $e->setData($json);
         throw new BException('json_decode_custom(): Failed', $e);
     }
 }
-?>
