@@ -102,6 +102,8 @@ function redirect($target = '', $http_code = null, $clear_session_redirect = tru
  */
 function redirect_url($url = null){
     try{
+        load_libs('inet');
+
         if(!$url){
             /*
              * Default to this page
