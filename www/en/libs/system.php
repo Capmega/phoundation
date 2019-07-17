@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.10');
+define('FRAMEWORKCODEVERSION', '2.7.11');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -3738,6 +3738,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
         /*
          * In what servers are we going to store these files?
          */
+        $files       = array_force($files);
         $servers     = cdn_assign_servers();
         $file_insert = sql_prepare('INSERT IGNORE INTO `cdn_files` (`servers_id`, `section`, `group`, `file`)
                                     VALUES                         (:servers_id , :section , :group , :file )');
@@ -3747,7 +3748,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
          * files there
          */
         foreach($servers as $servers_id => $server){
-            foreach(array_force($files) as $url => $file){
+            foreach($files as $url => $file){
                 log_file(tr('cdn_add_files(): Added file ":file" with url ":url" to CDN server ":server"', array(':file' => $file, ':url' => $url, ':server' => $server)), 'DEBUG/cdn');
 
                 $file_insert->execute(array(':servers_id' => $servers_id,
