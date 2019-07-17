@@ -1392,4 +1392,106 @@ function notifications_messenger($notification, $method){
         throw new BException('notifications_messenger(): Failed', $e);
     }
 }
-?>
+
+
+
+/*
+ * Send HTML5 notifications
+ *
+ * @author    Camilo Rodriguez <crodriguez@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license   http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category  Function reference
+ * @package   desktop_notification
+ *
+ * @param $server      File on the server that verifies notifications
+ * @param $check_every Set each when must check if there are new notifications in milliseconds
+ * @param $icon        Icon used in notifications
+ * @param $js_client    If you want to receive notifications even if the browser tab is open
+ * @param $time        Time the notification is displayed not work in firefox, firefox close notification in 4 seconds, 0 means never close
+ * @return array
+ */
+function notifications_webpush($server, $check_every, $icon, $js_client = '', $time = 4000){
+    global $_CONFIG;
+
+    try{
+        if ($js_client != '') {
+            html_script('
+            this.onpush = function(event) {
+              console.log(event.data);
+              // From here we can write the data to IndexedDB, send it to any open
+              // windows, display a notification, etc.
+            }
+
+            navigator.serviceWorker.register("'.$js_client.'").then(
+              function(serviceWorkerRegistration) {
+                serviceWorkerRegistration.pushManager.subscribe().then(
+                  function(pushSubscription) {
+                    console.log(pushSubscription.subscriptionId);
+                    console.log(pushSubscription.endpoint);
+                    // The push subscription details needed by the application
+                    // server are now available, and can be sent to it using,
+                    // for example, an XMLHttpRequest.
+                  }, function(error) {
+                    // During development it often helps to log errors to the
+                    // console. In a production environment it might make sense to
+                    // also report information about errors back to the
+                    // application server.
+                    console.log(error);
+                  }
+                );
+              });
+            ');
+        }
+        html_script('
+             function showNotify(title,text, link = ""){
+                 if(Notification.permission !== "granted"){
+                     Notification.requestPermission();
+                 }else{
+                     var notification = new Notification(title,
+                         {
+                             icon: "'.$icon.'",
+                             body: text
+                         }
+                     );
+
+                     if(link!=""){
+                         notification.onclick = function(){
+                             window.open(link);
+                         }
+                     }
+                     '.($time>0?'setTimeout(notification.close.bind(notification), '.$time.');':'').'
+
+                 }
+             }
+
+            // switch(){
+            //
+            // }
+
+             if(Notification.permission !== "granted"){
+                 Notification.requestPermission();
+
+             }else if(Notification.permission == "granted"){
+                 setInterval(function(){
+                     $.ajax({
+                         method: "GET",
+                         dataType: "json",
+                         url: "'.$server.'",
+                     })
+                     .done(function( data ) {
+                         $.each(data["data"], function(i, item) {
+                             showNotify(item.title, item.message, item.link);
+                         });
+                     });
+                 }, '.$check_every.');
+
+             }else{
+
+             }
+        ');
+
+    }catch(Exception $e){
+        throw new BException('notifications_webpush(): Failed', $e);
+    }
+}
