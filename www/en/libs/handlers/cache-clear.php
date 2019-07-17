@@ -8,6 +8,8 @@ try{
     /*
      * Clear normal cache
      */
+    log_console(tr('Clearing all cache'), 'VERBOSE/cyan');
+
     switch($_CONFIG['cache']['method']){
         case 'file':
             if($key){
@@ -98,6 +100,14 @@ try{
          * Delete all bundle files
          * Delete all purged bundle files
          */
+        if(!file_exists(ROOT.'www/'.$code)){
+            /*
+             * This language doesn't have a web directory, ignore it
+             */
+            log_console(tr('Skipping cache clearing www directory for language ":language" as the directory "www/:code" does not exist', array(':language' => $name, ':code' => $code)), 'yellow');
+            continue;
+        }
+
         file_execute_mode(ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code){
             file_execute_mode(ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code){
                 file_delete(ROOT.'www/'.$code.'/pub/js/cached*'          , ROOT.'www/'.$code.'/pub/js/');
