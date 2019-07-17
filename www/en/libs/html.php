@@ -360,7 +360,7 @@ function html_bundler($list){
                              * The CSS purge failed
                              */
                             file_delete($html);
-                            notify($e);
+                            notify($e->makeWarning(true));
                         }
                     }
                 }
