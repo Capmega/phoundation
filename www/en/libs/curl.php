@@ -273,12 +273,12 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
         array_default($params, 'verify_ssl'     , true);
         array_default($params, 'user_pwd'       , false);
         array_default($params, 'proxies'        , $_CONFIG['curl']['proxies']);
-        array_default($params, 'simulation'     , false);   // false, partial, or full
-        array_default($params, 'sleep'          , 1000);    // Sleep howmany microseconds between retries
+        array_default($params, 'simulation'     , false);                               // false, partial, or full
+        array_default($params, 'sleep'          , 1000);                                // Sleep howmany microseconds between retries
         array_default($params, 'retries'        , $_CONFIG['curl']['retries']);         // Retry howmany time on HTTP0 failures
         array_default($params, 'timeout'        , $_CONFIG['curl']['timeout']);         // # of seconds for cURL functions to execute
         array_default($params, 'connect_timeout', $_CONFIG['curl']['connect_timeout']); // # of seconds before connection try will fail
-        array_default($params, 'log'            , $_CONFIG['curl']['log']); // # of seconds before connection try will fail
+        array_default($params, 'log'            , $_CONFIG['curl']['log']);             // Log the output of cURL
 
         if($params['simulation']){
             log_console(tr('Simulating cURL request to URL ":url"', array(':url' => $params['url'])), 'VERBOSE/cyan');
