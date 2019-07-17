@@ -201,7 +201,7 @@ function notifications_validate($notification, $log){
                                       'exception' => true,
                                       'message'   => implode("\n", $notification->getMessages()),
                                       'data'      => $notification->getData(),
-                                      'code'      => ($notification->isWarning() ? 'warning' : 'bexception'));
+                                      'code'      => ($notification->isWarning() ? 'warning' : 'error'));
 
                 if($log){
                     log_file($notification['title']  , 'notification-'.strtolower($notification['code']), $notification['code']);
