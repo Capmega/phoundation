@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.8');
+define('FRAMEWORKCODEVERSION', '2.7.9');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -63,96 +63,132 @@ set_exception_handler('uncaught_exception');
 
 
 
-/*
- * Create the core object and load the basic libraries
- */
-$core = new Core();
+try{
+    /*
+     * Create the core object and load the basic libraries
+     */
+    $core = new Core();
 
 
 
-/*
- * Check what platform we're in
- */
-switch(php_sapi_name()){
-    case 'cli':
-        define('PLATFORM'     , 'cli');
-        define('PLATFORM_HTTP', false);
-        define('PLATFORM_CLI' , true);
+    /*
+     * Check what platform we're in
+     */
+    switch(php_sapi_name()){
+        case 'cli':
+            define('PLATFORM'     , 'cli');
+            define('PLATFORM_HTTP', false);
+            define('PLATFORM_CLI' , true);
 
-        $core->register['script']      = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-        $core->register['real_script'] = $core->register['script'];
+            $core->register['script']      = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+            $core->register['real_script'] = $core->register['script'];
 
-        if(substr($_SERVER['PHP_SELF'], -(strlen($core->register['script']) + 5), 4) === 'base'){
+            if(substr($_SERVER['PHP_SELF'], -(strlen($core->register['script']) + 5), 4) === 'base'){
+                /*
+                 * This is a phoundation script
+                 */
+                $core->register['real_script'] = 'base/'.$core->register['real_script'];
+            }
+
             /*
-             * This is a phoundation script
+             * Load basic libraries for command line interface
+             * All scripts will execute cli_done() automatically once done
              */
-            $core->register['real_script'] = 'base/'.$core->register['real_script'];
-        }
+            load_libs('cli,http,strings,array,sql,mb,meta,file,json');
+            register_shutdown_function('cli_done');
+            break;
 
-        /*
-         * Load basic libraries for command line interface
-         * All scripts will execute cli_done() automatically once done
-         */
-        load_libs('cli,http,strings,array,sql,mb,meta,file,json');
-        register_shutdown_function('cli_done');
-        break;
+        default:
+            define('PLATFORM'     , 'http');
+            define('PLATFORM_HTTP', true);
+            define('PLATFORM_CLI' , false);
+            define('NOCOLOR'      ,  (getenv('NOCOLOR') ? 'NOCOLOR' : null));
 
-    default:
-        define('PLATFORM'     , 'http');
-        define('PLATFORM_HTTP', true);
-        define('PLATFORM_CLI' , false);
-        define('NOCOLOR'      ,  (getenv('NOCOLOR') ? 'NOCOLOR' : null));
-
-        /*
-         * Define what the current script
-         * Detect requested language
-         */
-        $core->register['http_code']         = 200;
-        $core->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-        $core->register['real_script']       = $core->register['script'];
-        $core->register['accepts']           = accepts();
-        $core->register['accepts_languages'] = accepts_languages();
-
-        /*
-         * Load basic libraries
-         * All scripts will execute http_done() automatically once done
-         */
-        load_libs('http,strings,array,sql,mb,meta,file,json');
-        register_shutdown_function('http_done');
-
-        /*
-         * Check what environment we're in
-         */
-        $env = getenv(PROJECT.'_ENVIRONMENT');
-
-        if(empty($env)){
             /*
-             * No environment set in ENV, maybe given by parameter?
+             * Define what the current script
+             * Detect requested language
              */
-            die('startup: Required environment not specified for project "'.PROJECT.'"');
+            $core->register['http_code']         = 200;
+            $core->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+            $core->register['real_script']       = $core->register['script'];
+            $core->register['accepts']           = accepts();
+            $core->register['accepts_languages'] = accepts_languages();
+
+            /*
+             * Load basic libraries
+             * All scripts will execute http_done() automatically once done
+             */
+            load_libs('http,strings,array,sql,mb,meta,file,json');
+            register_shutdown_function('http_done');
+
+            /*
+             * Check what environment we're in
+             */
+            $env = getenv(PROJECT.'_ENVIRONMENT');
+
+            if(empty($env)){
+                /*
+                 * No environment set in ENV, maybe given by parameter?
+                 */
+                die('startup: Required environment not specified for project "'.PROJECT.'"');
+            }
+
+            if(strstr($env, '_')){
+                die('startup: Specified environment "'.$env.'" is invalid, environment names cannot contain the underscore character');
+            }
+
+            define('ENVIRONMENT', $env);
+
+            /*
+             * Load basic configuration for the current environment
+             * Load cache libraries (done until here since these need configuration @ load time)
+             */
+            load_config(' ');
+            $core->register['ready'] = true;
+
+            /*
+             * Define VERBOSE / VERYVERBOSE here because we need debug() data
+             */
+            define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
+            define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
+            break;
+    }
+
+}catch(Exception $e){
+    /*
+     * Startup failed miserably, we will NOT have log_file() or exception
+     * handler available!
+     *
+     * Unregister shutdown handler by kicking the entire array to avoid issues
+     * with those shutdown handlers!
+     */
+    if(isset($core)){
+        $core->register = array();
+    }
+
+    if(defined('PLATFORM_HTTP')){
+        if(PLATFORM_HTTP){
+            /*
+             * Died in browser
+             */
+            error_log('startup: Failed with "'.$e->getMessage().'"');
+            die('startup: Failed, see web server error log');
         }
 
-        if(strstr($env, '_')){
-            die('startup: Specified environment "'.$env.'" is invalid, environment names cannot contain the underscore character');
-        }
-
-        define('ENVIRONMENT', $env);
-
         /*
-         * Load basic configuration for the current environment
-         * Load cache libraries (done until here since these need configuration @ load time)
+         * Died in CLI
          */
-        load_config(' ');
-        $core->register['ready'] = true;
+        die('startup: Failed with "'.$e->getMessage().'"');
+    }
 
-        /*
-         * Define VERBOSE / VERYVERBOSE here because we need debug() data
-         */
-        define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
-        define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
-
-        break;
+    /*
+     * We died even before PLATFORM_HTTP was defined? How?
+     */
+    error_log('startup: Failed with "'.$e->getMessage().'"');
+    die('startup: Failed, see error log');
 }
+
+
 
 /*
  * Set protocol
