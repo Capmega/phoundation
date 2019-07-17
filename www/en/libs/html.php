@@ -205,7 +205,7 @@ function html_bundler($list){
                             notify(array('code'    => 'not-exists',
                                          'groups'  => 'developers',
                                          'title'   => tr('Bundler file does not exist'),
-                                         'message' => tr('html_bundler(): The bundler ":extension" file ":file" does not exist', array(':extension' => $extension, ':file' => $file))));
+                                         'message' => tr('html_bundler(): The requested ":extension" type file ":file" should be bundled but does not exist', array(':extension' => $extension, ':file' => $file))));
                             continue;
                         }
 
@@ -939,7 +939,11 @@ function html_header($params, $meta, &$html){
                         break;
 
                     default:
-                        throw new BException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
+                        if(!str_exists($font, 'fonts.googleapis.com')){
+                            throw new BException(tr('html_header(): Unknown font type ":type" specified for font ":font"', array(':type' => $extension, ':font' => $font)), 'unknown');
+                        }
+
+                        $retval .= '<link rel="preload" href="'.$font.'" as="font" type="text/css" crossorigin="anonymous">';
                 }
             }
         }
@@ -2380,6 +2384,10 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
                 $external  = false;
 
                 notify(new BException(tr('html_img(): The main domain ":domain" was specified for CDN data, please correct this issue', array(':domain' => domain(''))), 'warning/invalid'));
+
+            }else{
+                $file_src  = $src;
+                $external  = true;
             }
 
         }else{
@@ -2401,7 +2409,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
             $format = 'jpg';
         }
 
-        if(!$_CONFIG['cdn']['img']['auto_convert'][$format]){
+        if(empty($_CONFIG['cdn']['img']['auto_convert'][$format])){
             /*
              * No auto conversion to be done for this image
              */
@@ -2597,11 +2605,15 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                     }catch(Exception $e){
                         switch($e->getCode()){
                             case 404:
-                                // FALLTHROUGH
+                                log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
+                                break;
+
                             case 403:
+                                log_file(tr('html_img(): Specified image ":src" got access denied', array(':src' => $file_src)));
                                 break;
 
                             default:
+                                log_file(tr('html_img(): Specified image ":src" got error ":e"', array(':src' => $file_src, ':e' => $e->getMessage())));
                                 throw $e->makeWarning(true);
                         }
 
@@ -2694,7 +2706,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                 $params['height'] = $height;
             }
 
-            if(!$_CONFIG['cdn']['img']['auto_resize']){
+            if(!$_CONFIG['cdn']['img']['auto_resize'] and !$external){
                 if(($width > $params['width']) or ($height > $params['height'])){
                     log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
 
