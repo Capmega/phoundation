@@ -128,6 +128,13 @@ function init($projectfrom = null, $frameworkfrom = null){
         }
 
         /*
+         * Clear all cache
+         */
+        load_libs('cache');
+        cache_clear();
+        log_console(tr('Cleared cache'), 'green');
+
+        /*
          * From this point on, we are doing an init
          */
         if(FORCE){
@@ -148,13 +155,6 @@ function init($projectfrom = null, $frameworkfrom = null){
             }else{
                 log_console('Starting '.$init.' for "'.$_CONFIG['name'].'" using PHP "'.phpversion().'"', 'white');
             }
-
-            /*
-             * Clear all cache
-             */
-            load_libs('cache');
-            cache_clear();
-            log_console(tr('Cleared cache'), 'green');
 
             define('INITPATH', slash(realpath(ROOT.'init')));
 
