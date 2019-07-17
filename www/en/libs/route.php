@@ -326,9 +326,10 @@ function route($regex, $target, $flags = null){
                      * We are going to redirect so we no longer need to default
                      * to 404
                      */
+                    load_libs('inet');
                     log_file(tr('Redirecting to ":route" with HTTP code ":code"', array(':route' => $route, ':code' => $http_code)), 'route', 'VERYVERBOSE/cyan');
                     unregister_shutdown('route_404');
-                    redirect($route, $http_code);
+                    redirect(url_add_query($route, $_GET), $http_code);
 
                 case 'X':
                     /*
