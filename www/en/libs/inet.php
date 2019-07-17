@@ -286,8 +286,16 @@ function url_add_query($url){
             }
 
             if(is_array($query)){
-                foreach($query as $part){
-                    $url = url_add_query($url, $part);
+                foreach($query as $key => $value){
+                    if(is_numeric($key)){
+                        /*
+                         * $value should contain key=value
+                         */
+                        $url = url_add_query($url, $value);
+
+                    }else{
+                        $url = url_add_query($url, $key.'='.$value);
+                    }
                 }
 
                 continue;
