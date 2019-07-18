@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.11');
+define('FRAMEWORKCODEVERSION', '2.7.12');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2309,7 +2309,6 @@ function mapped_domain($url = null, $query = null, $prefix = null, $domain = nul
 function download($url, $contents = false, $callback = null){
     try{
         load_libs('wget');
-
         $file = wget($url);
 
         if($contents){

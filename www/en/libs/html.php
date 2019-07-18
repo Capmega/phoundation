@@ -2437,7 +2437,7 @@ under_construction();
         $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
         $target      = str_runtil($file_src , '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
 
-        log_file(tr('Automatically changing ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['cdn']['img']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
+        log_file(tr('Automatically converting ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['cdn']['img']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
 
         try{
             if(!file_exists($target)){
@@ -2816,117 +2816,126 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                 /*
                  * Use lazy image loading
                  */
-                if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')){
+                try{
+                    if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/jquery.lazy.js')){
+                        /*
+                         * jquery.lazy is not available, auto install it.
+                         */
+                        $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
+                        $path = cli_unzip($file);
+
+                        file_execute_mode(ROOT.'www/en/pub/js', 0770, function() use ($path){
+                            file_delete(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', ROOT.'www/'.LANGUAGE.'/pub/js/');
+                            rename($path.'jquery.lazy-master/', ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
+                        });
+
+                        file_delete($path);
+                    }
+
+                    html_load_js('jquery.lazy/jquery.lazy');
+                    load_config('lazy_img');
+
                     /*
-                     * jquery.lazy is not available, auto install it.
+                     * Build jquery.lazy options
                      */
-                    $file = download('https://github.com/eisbehr-/jquery.lazy/archive/master.zip');
-                    $path = cli_unzip($file);
+                    $options = array();
 
-                    file_execute_mode(ROOT.'www/en/pub/js', 0770, function() use ($path){
-                        file_delete(ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy/', ROOT.'www/'.LANGUAGE.'/pub/js/');
-                        rename($path.'jquery.lazy-master/', ROOT.'www/'.LANGUAGE.'/pub/js/jquery.lazy');
-                    });
+                    foreach($_CONFIG['lazy_img'] as $key => $value){
+                        if($value === null){
+                            continue;
+                        }
 
-                    file_delete($path);
-                }
+                        switch($key){
+                            /*
+                             * Booleans
+                             */
+                            case 'auto_destroy':
+                                // FALLTHROUGH
+                            case 'chainable':
+                                // FALLTHROUGH
+                            case 'combined':
+                                // FALLTHROUGH
+                            case 'enable_throttle':
+                                // FALLTHROUGH
+                            case 'visible_only':
+                                // FALLTHROUGH
 
-                html_load_js('jquery.lazy/jquery.lazy');
-                load_config('lazy_img');
+                            /*
+                             * Numbers
+                             */
+                            case 'delay':
+                                // FALLTHROUGH
+                            case 'effect_time':
+                                // FALLTHROUGH
+                            case 'threshold':
+                                // FALLTHROUGH
+                            case 'throttle':
+                                /*
+                                 * All these need no quotes
+                                 */
+                                $options[str_underscore_to_camelcase($key)] = $value;
+                                break;
 
-                /*
-                 * Build jquery.lazy options
-                 */
-                $options = array();
+                            /*
+                             * Callbacks
+                             */
+                            case 'after_load':
+                                // FALLTHROUGH
+                            case 'on_load':
+                                // FALLTHROUGH
+                            case 'before_load':
+                                // FALLTHROUGH
+                            case 'on_error':
+                                // FALLTHROUGH
+                            case 'on_finished_all':
+                                /*
+                                 * All these need no quotes
+                                 */
+                                $options[str_underscore_to_camelcase($key)] = 'function(e){'.$value.'}';
+                                break;
 
-                foreach($_CONFIG['lazy_img'] as $key => $value){
-                    if($value === null){
-                        continue;
+                            /*
+                             * Strings
+                             */
+                            case 'append_scroll':
+                                // FALLTHROUGH
+                            case 'bind':
+                                // FALLTHROUGH
+                            case 'default_image':
+                                // FALLTHROUGH
+                            case 'effect':
+                                // FALLTHROUGH
+                            case 'image_base':
+                                // FALLTHROUGH
+                            case 'name':
+                                // FALLTHROUGH
+                            case 'placeholder':
+                                // FALLTHROUGH
+                            case 'retina_attribute':
+                                // FALLTHROUGH
+                            case 'scroll_direction':
+                                /*
+                                 * All these need quotes
+                                 */
+                                $options[str_underscore_to_camelcase($key)] = '"'.$value.'"';
+                                break;
+
+                            default:
+                                throw new BException(tr('html_img(): Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', array(':key' => $key)), 'unknown');
+                        }
                     }
 
-                    switch($key){
-                        /*
-                         * Booleans
-                         */
-                        case 'auto_destroy':
-                            // FALLTHROUGH
-                        case 'chainable':
-                            // FALLTHROUGH
-                        case 'combined':
-                            // FALLTHROUGH
-                        case 'enable_throttle':
-                            // FALLTHROUGH
-                        case 'visible_only':
-                            // FALLTHROUGH
+                    $core->register['lazy_img'] = true;
+                    $html .= html_script(array('event'  => 'function',
+                                               'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'));
 
-                        /*
-                         * Numbers
-                         */
-                        case 'delay':
-                            // FALLTHROUGH
-                        case 'effect_time':
-                            // FALLTHROUGH
-                        case 'threshold':
-                            // FALLTHROUGH
-                        case 'throttle':
-                            /*
-                             * All these need no quotes
-                             */
-                            $options[str_underscore_to_camelcase($key)] = $value;
-                            break;
-
-                        /*
-                         * Callbacks
-                         */
-                        case 'after_load':
-                            // FALLTHROUGH
-                        case 'on_load':
-                            // FALLTHROUGH
-                        case 'before_load':
-                            // FALLTHROUGH
-                        case 'on_error':
-                            // FALLTHROUGH
-                        case 'on_finished_all':
-                            /*
-                             * All these need no quotes
-                             */
-                            $options[str_underscore_to_camelcase($key)] = 'function(e){'.$value.'}';
-                            break;
-
-                        /*
-                         * Strings
-                         */
-                        case 'append_scroll':
-                            // FALLTHROUGH
-                        case 'bind':
-                            // FALLTHROUGH
-                        case 'default_image':
-                            // FALLTHROUGH
-                        case 'effect':
-                            // FALLTHROUGH
-                        case 'image_base':
-                            // FALLTHROUGH
-                        case 'name':
-                            // FALLTHROUGH
-                        case 'placeholder':
-                            // FALLTHROUGH
-                        case 'retina_attribute':
-                            // FALLTHROUGH
-                        case 'scroll_direction':
-                            /*
-                             * All these need quotes
-                             */
-                            $options[str_underscore_to_camelcase($key)] = '"'.$value.'"';
-                            break;
-
-                        default:
-                            throw new BException(tr('html_img(): Unknown lazy_img option ":key" specified. Please check the $_CONFIG[lazy_img] configuration!', array(':key' => $key)), 'unknown');
-                    }
+                }catch(Exception $e){
+                    /*
+                     * Oops, jquery.lazy failed to install or load. Notify, and
+                     * ignore, we will just continue without lazy loading.
+                     */
+                    notify(new BException(tr('html_img(): Failed to install or load jquery.lazy'), $e));
                 }
-
-                $core->register['lazy_img'] = true;
-                $html .= html_script(array('event'  => 'function',
-                                           'script' => '$(".lazy").Lazy({'.array_implode_with_keys($options, ',', ':').'});'));
             }
 
             $html .= '<'.$params['tag'].' data-src="'.$params['src'].'" alt="'.htmlentities($params['alt']).'"'.$params['width'].$params['height'].$params['extra'].'>';
