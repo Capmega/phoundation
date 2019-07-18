@@ -685,7 +685,12 @@ function file_temp($create = true, $extension = null, $limit_to_session = true){
          * Temp file will contain the session ID
          */
         if($limit_to_session){
-            $name = session_id().'-'.substr(hash('sha1', uniqid().microtime()), 0, 12);
+            $session_id = session_id();
+            $name       = substr(hash('sha1', uniqid().microtime()), 0, 12);
+
+            if($session_id){
+                $name = $session_id.'-'.$name;
+            }
 
         }else{
             $name = substr(hash('sha1', uniqid().microtime()), 0, 12);
