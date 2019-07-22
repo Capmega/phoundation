@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.12');
+define('FRAMEWORKCODEVERSION', '2.7.13');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2149,9 +2149,25 @@ function get_domain(){
  * @return void
  */
 function domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
-    global $_CONFIG;
+    global $_CONFIG, $core;
 
     try{
+        /*
+         * Only map if routemap has been set
+         */
+        if(!empty($core->register['routemap'])){
+            $language = get_language($language);
+
+            /*
+             * Only map if routemap has been set for the requested language
+             */
+            if(!empty($core->register['routemap'][$language])){
+                foreach($core->register['routemap'][$language] as $english => $foreign){
+                    $url = str_replace($english, $foreign, $url);
+                }
+            }
+        }
+
         if(preg_match('/(?:(?:https?)|(?:ftp):)?\/\//', $url)){
             return $url;
         }
@@ -2222,57 +2238,6 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
 
     }catch(Exception $e){
         throw new BException('domain(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Front-end function to domain(), but will pull the URL to the route map table
- *
- * This function will take the specified URL and pull it through the $core->register[routemap] table in the requested language. If the specified word is found it will be replaced, creating foreign language URLs
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package system
- * @see domain()
- * @see cdn_domain()
- * @see get_domain()
- * @version 2.0.7: Added function and documentation
- *
- * @param string $url The URL to create the domain URL from
- * @param string $query
- * @param string $prefix
- * @param string $domain
- * @param string $language
- * @return string The domain from domain() after being mapped
- */
-function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
-    global $core;
-
-    try{
-        /*
-         * Only map if routemap has been set
-         */
-        if(!empty($core->register['routemap'])){
-            $language = get_language($language);
-
-            /*
-             * Only map if routemap has been set for the requested language
-             */
-            if(!empty($core->register['routemap'][$language])){
-                foreach($core->register['routemap'][$language] as $english => $foreign){
-                    $url = str_replace($english, $foreign, $url);
-                }
-            }
-        }
-
-        return domain($url, $query, $prefix, $domain, $language, $allow_url_cloak);
-
-    }catch(Exception $e){
-        throw new BException('mapped_domain(): Failed', $e);
     }
 }
 
@@ -5826,5 +5791,14 @@ function get_config($file = null, $environment = null){
 
     }catch(Exception $e){
         throw new BException('get_config(): Failed', $e);
+    }
+}
+
+function mapped_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
+    try{
+        return domain($url, $query, $prefix, $domain, $language, $allow_url_cloak);
+
+    }catch(Exception $e){
+        throw new BException('mapped_domain(): Failed', $e);
     }
 }

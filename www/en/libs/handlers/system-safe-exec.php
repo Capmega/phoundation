@@ -7,7 +7,7 @@ try{
     }
 
     if(!is_array($params)){
-        throw new BException(tr('safe_exec(): Specified $params is invalid, should be an array but is an ":type"', array(':type' => gettype($params))), 'invalid');
+        throw new BException(tr('safe_exec(): Specified $params ":params" is a ":datatype" but should be a params array', array(':params' => $params, ':datatype' => gettype($params))), 'invalid');
     }
 
     array_default($params, 'path'            , $_CONFIG['exec']['path']);
@@ -210,24 +210,26 @@ under_construction();
     return $output;
 
 }catch(Exception $e){
-    /*
-     * Store the output in the data property of the exception
-     */
-    if($params['function'] === 'passthru'){
+    if(!is_string($params)){
         /*
-         * passthru method creates temp files. Ensure they are deleted
+         * Store the output in the data property of the exception
          */
-        if(isset($exitcode_file)){
-            file_delete($exitcode_file);
+        if($params['function'] === 'passthru'){
+            /*
+             * passthru method creates temp files. Ensure they are deleted
+             */
+            if(isset($exitcode_file)){
+                file_delete($exitcode_file);
+            }
+
+            if(isset($exitcode_file)){
+                file_delete($exitcode_file);
+            }
         }
 
-        if(isset($exitcode_file)){
-            file_delete($exitcode_file);
+        if($e->getRealCode() === 124){
+            throw new BException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);
         }
-    }
-
-    if($e->getRealCode() === 124){
-        throw new BException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);
     }
 
     throw new BException(tr('safe_exec(): Failed'), $e);

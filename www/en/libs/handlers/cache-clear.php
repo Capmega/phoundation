@@ -108,21 +108,31 @@ try{
             continue;
         }
 
-        file_execute_mode(ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code){
-            file_execute_mode(ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code){
+        if(file_exists(ROOT.'www/'.$code.'/pub/js/')){
+            file_execute_mode('*'.ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code){
                 file_delete(ROOT.'www/'.$code.'/pub/js/cached*'          , ROOT.'www/'.$code.'/pub/js/');
                 file_delete(ROOT.'www/'.$code.'/pub/js/bundle-*'         , ROOT.'www/'.$code.'/pub/js/');
+            });
+        }
+
+        if(file_exists(ROOT.'www/'.$code.'/pub/css/')){
+            file_execute_mode('*'.ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code){
                 file_delete(ROOT.'www/'.$code.'/pub/css/bundle-*'        , ROOT.'www/'.$code.'/pub/css/');
                 file_delete(ROOT.'www/'.$code.'/pub/css/p-bundle-*'      , ROOT.'www/'.$code.'/pub/css/');
             });
-        });
+        }
 
-        file_execute_mode(ROOT.'www/'.$code.'/admin/pub/js/', 0770, function() use ($code){
-            file_execute_mode(ROOT.'www/'.$code.'/admin/pub/css/', 0770, function() use ($code){
+        if(file_exists(ROOT.'www/'.$code.'/admin/pub/js/')){
+            file_execute_mode('*'.ROOT.'www/'.$code.'/admin/pub/js/', 0770, function() use ($code){
                 file_delete(ROOT.'www/'.$code.'/admin/pub/js/bundle-*'   , ROOT.'www/'.$code.'/admin/pub/js/');
+            });
+        }
+
+        if(file_exists(ROOT.'www/'.$code.'/admin/pub/js/')){
+            file_execute_mode('*'.ROOT.'www/'.$code.'/admin/pub/css/', 0770, function() use ($code){
                 file_delete(ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*', ROOT.'www/'.$code.'/admin/pub/css/');
             });
-        });
+        }
 
         /*
          * Delete all auto converted webp images
@@ -131,7 +141,7 @@ try{
                                 'name'  => '*.webp'));
 
         foreach($files as $file){
-            file_execute_mode(dirname($file), 0770, function() use ($file){
+            file_execute_mode('*'.dirname($file), 0770, function() use ($file){
                 file_delete($file, ROOT.'data/content/');
             });
         }
@@ -140,15 +150,18 @@ try{
             /*
              * Delete external / vendor libraries too
              */
-            file_execute_mode(ROOT.'node_modules/', 0770, function() use ($code){
-                file_delete(ROOT.'node_modules/', ROOT);
-            });
+            if(file_exists(ROOT.'node_modules/')){
+                file_execute_mode('*'.ROOT.'node_modules/', 0770, function() use ($code){
+                    file_delete(ROOT.'node_modules/', ROOT);
+                });
+            }
         }
 
         log_console(tr('Cleared bundler caches from paths ":path"', array(':path' => 'ROOT/www/'.$code.'/pub/js/bundle-*,ROOT/www/'.$code.'/pub/css/bundle-*')), 'green');
     }
 
 }catch(Exception $e){
+    $e->addMessages(tr('clear_cache(): Failed'));
     notify($e);
 }
 
