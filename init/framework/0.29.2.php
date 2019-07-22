@@ -27,7 +27,8 @@ if(file_exists(ROOT.'data/content/photos')){
         rename($file, str_replace('_big.', '_large.', $file));
     }
 
-    $files = safe_exec('find '.ROOT.'data/content/photos -name "*_big@2x.jpg"');
+    $files = cli_find(array('start' => ROOT.'data/content/photos',
+                            'name'  => '*_big@2x.jpg'));
 
     foreach($files as $file){
         unlink($file);
