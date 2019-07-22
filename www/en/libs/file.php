@@ -2718,14 +2718,36 @@ function file_root($path){
 
 /*
  * Execute the specified callback after setting the specified mode on the
- * specified path. Once the callback has finished, return to the original file
- * mode.
+ * specified path. Once the callback has finished, the path will have its
+ * original file mode applied again
  *
- * The callback function signature is like this:
- * $callback($path, $params, $mode)
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @see file_ensure_path()
+ * @version 2.7.13: Added function and documentation
+ * @note: If the specified path has an asterix (*) in front of it, ALL sub directories will be updated with the specified mode, and each will have their original file mode restored after
+ *
+ * @param string array $path The path that will have its mode updated. When * is added in front of the path, ALL sub directories will be updated with the new mode as well, and placed back with their old modes after the command has executed
+ * @param string $mode The mode to which the specified directory should be set during execution
+ * @param function $callback The function to be executed after the file mode of the specified path has been updated
+ * @return string The result from the callback function
  */
 function file_execute_mode($path, $mode, $callback, $params = null){
     try{
+        /*
+         * Apply to all directories below?
+         */
+        if($path[0] === '*'){
+            $path  = substr($path, 1);
+            $multi = true;
+
+        }else{
+            $multi = false;
+        }
+
         if(!file_exists($path)){
             throw new BException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
@@ -2740,19 +2762,37 @@ function file_execute_mode($path, $mode, $callback, $params = null){
         }
 
         if(is_dir($path)){
-            $path = slash($path);
+            if($multi){
+                $paths = cli_find(array('type'  => 'd',
+                                        'start' => $path));
+
+                foreach($paths as $path){
+                    $modes[$path] = fileperms($path);
+                    chmod($path, $mode);
+                }
+
+            }else{
+                $path = slash($path);
+            }
         }
 
         $retval = $callback($path, $params, $mode);
 
         if($mode){
-            chmod($path, $original_mode);
+            if($multi){
+                foreach($modes as $path => $mode){
+                    chmod($path, $mode);
+                }
+
+            }else{
+                chmod($path, $original_mode);
+            }
         }
 
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('file_execute_mode(): Failed for path ":path"', array(':path' => $path)), $e);
+        throw new BException(tr('file_execute_mode(): Failed for path(s) ":path"', array(':path' => $path)), $e);
     }
 }
 
