@@ -2183,6 +2183,9 @@ function cli_find($params){
             throw new BException(tr('cli_find(): Specified start path ":start" does not exist', array(':start' => $params['start'])), 'not-specified');
         }
 
+        $arguments[] = $params['start'];
+        unset($params['start']);
+
         foreach($params as $key => $value){
             if(!$value){
                 continue;
@@ -2194,10 +2197,6 @@ function cli_find($params){
 
                 case 'sudo':
                     $arguments['sudo'] = true;
-                    break;
-
-                case 'start':
-                    $arguments[] = $params['start'];
                     break;
 
                 case 'exec':
