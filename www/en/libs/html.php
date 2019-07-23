@@ -2784,32 +2784,32 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
             $params['width'] = '';
         }
 
-        if($params['extra']){
-            if(str_exists($params['extra'], 'class="')){
-                /*
-                 * Add lazy class to the class definition in "extra"
-                 */
-                $params['extra'] = str_replace('class="', 'class="lazy ', $params['extra']);
-
-            }else{
-                /*
-                 * Add class definition with "lazy" to extra
-                 */
-                $params['extra'] = ' class="lazy" '.$params['extra'];
-            }
-
-        }else{
-            /*
-             * Set "extra" to be class definition with "lazy"
-             */
-            $params['extra'] = ' class="lazy"';
-        }
-
         if(isset($params['style'])){
             $params['extra'] .= ' style="'.$params['style'].'"';
         }
 
         if($params['lazy']){
+            if($params['extra']){
+                if(str_exists($params['extra'], 'class="')){
+                    /*
+                     * Add lazy class to the class definition in "extra"
+                     */
+                    $params['extra'] = str_replace('class="', 'class="lazy ', $params['extra']);
+
+                }else{
+                    /*
+                     * Add class definition with "lazy" to extra
+                     */
+                    $params['extra'] = ' class="lazy" '.$params['extra'];
+                }
+
+            }else{
+                /*
+                 * Set "extra" to be class definition with "lazy"
+                 */
+                $params['extra'] = ' class="lazy"';
+            }
+
             $html = '';
 
             if(empty($core->register['lazy_img'])){
