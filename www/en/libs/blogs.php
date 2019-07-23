@@ -1999,7 +1999,7 @@ function blogs_photo_url($media, $size, $section = ''){
                 /*
                  * Valid
                  */
-                return cdn_domain('/'.$media.'-'.$size.'.jpg', $section);
+                return cdn_domain('/'.$media.'-'.$size.'.jpg', 'photos');
 
             default:
                 throw new BException(tr('blogs_photo_url(): Unknown size ":size" specified', array(':size' => $size)), 'unknown');
@@ -2759,32 +2759,40 @@ function blogs_post_down($id, $object, $view){
     }
 }
 
-/**
+/*
  * generate html code
  * @param  array  $photo is the current row from SQL
  * @return string the code html for generate img
  */
-function blogs_post_get_img($photo, $params, $tabindex){
-    $html = '';
-    /*
+function blogs_post_get_atlant_media_html($photo, $params, &$tabindex){
+    try{
+        /*
          * Get photo dimensions
          */
         try{
-            unset($is_video);
+            $file   = ROOT.'data/content/photos/'.$photo['file'].'-original.jpg';
+            $exists = file_exists($file);
 
-            if(file_exists(ROOT.'data/content/'.$photo['file'].'-original.jpg')){
-                $image = getimagesize(ROOT.'data/content/'.$photo['file'].'-large.jpg');
-
-            }elseif(file_exists(ROOT.'data/content/'.$photo['file'].'-original.mp4')){
-                $image     = ROOT.'data/content/'.$photo['file'].'-original.mp4';
-                $mime_type = file_mimetype($image);
-                $is_video  = true;
+            if($exists){
+                $image    = getimagesize($file);
+                $is_video = false;
 
             }else{
-                throw new BException(tr('blogs_post_get_img(): Media file ":file" does not exists', array(':file' => $photo['file'])), 'not-exists');
+                $file   = ROOT.'data/content/videos/'.$photo['file'].'-original.mp4';
+                $exists = file_exists($file);
+
+                if($exists){
+                    $image     = $file;
+                    $mime_type = file_mimetype($image);
+                    $is_video  = true;
+
+                }else{
+                    throw new BException(tr('blogs_post_get_atlant_media_html(): Media file ":file" does not exists', array(':file' => $photo['file'])), 'not-exists');
+                }
             }
 
         }catch(Exception $e){
+            notify($e);
             $image = false;
         }
 
@@ -2792,12 +2800,16 @@ function blogs_post_get_img($photo, $params, $tabindex){
             $image = array(tr('Invalid image'), tr('Invalid image'));
         }
 
-        if (isset($is_video)) {
-            $html .= '              <tr class="form-group blog photo" id="photo'.$photo['id'].'">
+        if($is_video){
+            $html = '               <tr class="form-group blog photo" id="photo'.$photo['id'].'">
                                         <td class="file">
                                             <div>
                                                 <a style="cursor:pointer;" type="button" data-toggle="modal" data-target="#modal-'.$photo['id'].'">
-                                                    '.html_img(blogs_photo_url($photo['file'], 'small'), html_safe('('.$image[0].' X '.$image[1].')'), $image[0], $image[1], 'rel="blog-page" class="col-md-1 control-label"').'
+                                                    '.html_img(array('src'    => blogs_photo_url($photo['file'], 'small', isset_get($params['blog'])),
+                                                                     'alt'    => html_safe('('.$image[0].' X '.$image[1].')'),
+                                                                     'width'  => $image[0],
+                                                                     'height' => $image[1],
+                                                                     'extra'  => 'rel="blog-page" class="col-md-1 control-label"')).'
                                                 </a>
                                                 <div id="modal-'.$photo['id'].'" class="modal fade" role="dialog">
                                                     <div class="modal-dialog">
@@ -2820,20 +2832,25 @@ function blogs_post_get_img($photo, $params, $tabindex){
                                                 </div>
                                             </div>
                                         </td>';
-        } else {
-            $html .= '              <tr class="form-group blog photo" id="photo'.$photo['id'].'">
+
+        }else{
+            $html = '               <tr class="form-group blog photo" id="photo'.$photo['id'].'">
                                         <td class="file">
                                             <div>
-                                                <a target="_blank" class="fancy" href="'.cdn_domain($photo['file'].'-large.jpg').'">
-                                                    '.html_img(cdn_domain($photo['file'].'-small.jpg', ''), html_safe('('.$image[0].' X '.$image[1].')'), $image[0], $image[1], 'rel="blog-page" class="col-md-1 control-label"').'
+                                                <a target="_blank" class="fancy" href="'.blogs_photo_url($photo['file'], 'large', isset_get($params['blog'])).'">
+                                                    '.html_img(array('src'    => blogs_photo_url($photo['file'], 'small', isset_get($params['blog'])),
+                                                                     'alt'    => html_safe('('.$image[0].' X '.$image[1].')'),
+                                                                     'width'  => $image[0],
+                                                                     'height' => $image[1],
+                                                                     'extra'  => 'rel="blog-page" class="col-md-1 control-label"')).'
                                                 </a>
                                             </div>
                                         </td>';
         }
 
-        if(isset_get($params['file_types'],false)){
+        if(!empty($params['file_types'])){
             try{
-                $html .= '              <td class="buttons">
+                $html .= '              <td class="form-group blog photo" id="photo'.$photo['id'].'">
                                             <div>
                                                 '.html_select(array('name'     => 'file_status['.$photo['id'].']',
                                                                     'class'    => 'btn blogpost photo type',
@@ -2841,29 +2858,32 @@ function blogs_post_get_img($photo, $params, $tabindex){
                                                                     'selected' => $photo['type'],
                                                                     'none'     => tr('Unspecified type'),
                                                                     'resource' => $params['file_types'])).'
-                                                </a>
                                             </div>
                                         </td>';
 
             }catch(Exception $e){
-                throw new BException(tr('blog-post: file type section failed'), $e);
+                throw new BException(tr('blogs_post_get_atlant_media_html(): File type section failed'), $e);
             }
         }
 
         $html .= '                      <td class="buttons">
                                             <div>
-                                                <a class="col-md-5 btn btn-success blogpost photo up button">'.tr('Up').'</a>
-                                                <a class="col-md-5 btn btn-success blogpost photo down button">'.tr('Down').'</a>
-                                                <a class="col-md-5 btn btn-danger blogpost photo delete button">'.tr('Delete').'</a>
+                                                <a tabindex="'.++$tabindex.'" class="col-md-5 btn btn-success blogpost photo up button">'.tr('Up').'</a>
+                                                <a tabindex="'.++$tabindex.'" class="col-md-5 btn btn-success blogpost photo down button">'.tr('Down').'</a>
+                                                <a tabindex="'.++$tabindex.'" class="col-md-5 btn btn-danger blogpost photo delete button">'.tr('Delete').'</a>
                                             </div>
                                         </td>
                                         <td class="description">
                                             <div>
-                                                <textarea class="blogpost photo description form-control" placeholder="'.tr('Description of this photo').'">'.$photo['description'].'</textarea>
+                                                <textarea tabindex="'.++$tabindex.'" class="blogpost photo description form-control" placeholder="'.tr('Description of this photo').'">'.$photo['description'].'</textarea>
                                             </div>
                                         </td>
                                     </tr>';
         return $html;
+
+    }catch(Exception $e){
+        throw new BException('blogs_post_get_atlant_media_html(): Failed', $e);
+    }
 }
 
 
