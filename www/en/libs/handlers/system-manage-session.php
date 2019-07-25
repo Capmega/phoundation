@@ -62,7 +62,7 @@ try{
              * white label domains are disabled, so the requested domain
              * MUST match the configured domain
              */
-            log_file(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
+            log_file(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'yellow');
             redirect(PROTOCOL.$_CONFIG['domain']);
 
         }elseif($_CONFIG['whitelabels'] === 'all'){
