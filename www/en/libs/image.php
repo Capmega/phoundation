@@ -553,7 +553,7 @@ function image_convert($params){
         /*
          * webp support missing?
          */
-        if($params['format'] === 'webp'){
+        if(isset_get($params['format']) === 'webp'){
             $line = $e->getData();
             $line = array_pop($line);
 
