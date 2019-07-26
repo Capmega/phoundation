@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.17');
+define('FRAMEWORKCODEVERSION', '2.7.18');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2152,22 +2152,6 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
     global $_CONFIG, $core;
 
     try{
-        /*
-         * Only map if routemap has been set
-         */
-        if(!empty($core->register['routemap'])){
-            $language = get_language($language);
-
-            /*
-             * Only map if routemap has been set for the requested language
-             */
-            if(!empty($core->register['routemap'][$language])){
-                foreach($core->register['routemap'][$language] as $english => $foreign){
-                    $url = str_replace($english, $foreign, $url);
-                }
-            }
-        }
-
         if(preg_match('/(?:(?:https?)|(?:ftp):)?\/\//', $url)){
             return $url;
         }
@@ -2190,12 +2174,6 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             $domain = $_SERVER['HTTP_HOST'];
         }
 
-        $language = get_language($language);
-
-        if($language){
-            $language .= '/';
-        }
-
         if($prefix === null){
 // :COMPATIBILITY:  Remove "root" support after 2019-04-01
             if(!empty($_CONFIG['url_prefix'])){
@@ -2206,17 +2184,34 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             }
         }
 
-        $prefix = str_starts_not(str_ends($prefix, '/'), '/');
-        $domain = slash($domain);
+        $prefix       = str_starts_not(str_ends($prefix, '/'), '/');
+        $domain       = slash($domain);
+        $use_language = get_language($language);
 
         if(!$url){
-            $retval = PROTOCOL.$domain.$language.$prefix;
+            $retval = PROTOCOL.$domain.$use_language.'/'.$prefix;
 
         }elseif($url === true){
             $retval = PROTOCOL.$domain.str_starts_not($_SERVER['REQUEST_URI'], '/');
 
         }else{
-            $retval = PROTOCOL.$domain.$language.$prefix.str_starts_not($url, '/');
+            $retval = PROTOCOL.$domain.$use_language.'/'.$prefix.str_starts_not($url, '/');
+        }
+
+        /*
+         * Only map if routemap has been set
+         */
+        if(!empty($core->register['routemap']) and $language and ($language !== 'en')){
+            /*
+             * Only map if routemap has been set for the requested language
+             */
+            if(!empty($core->register['routemap'][$language])){
+                $retval = str_replace('en/', $language.'/', $retval);
+
+                foreach($core->register['routemap'][$language] as $english => $foreign){
+                    $retval = str_replace($english, $foreign, $retval);
+                }
+            }
         }
 
         if($query){
