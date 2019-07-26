@@ -333,7 +333,7 @@ function uglify_css($paths = null, $force = false){
                             /*
                              * Do not compress, just continue with next file
                              */
-                            log_console(tr('uglify_css(): NOT Compressing CSS file ":file", file has not changed'), 'VERBOSE/yellow');
+                            log_console(tr('uglify_css(): NOT Compressing CSS file ":file", file has not changed', array(':file' => $file)), 'VERBOSE/yellow');
                             continue;
                         }
                     }
@@ -346,7 +346,7 @@ function uglify_css($paths = null, $force = false){
 
                     try{
                         if(filesize($file)){
-                            safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglifycss/uglifycss', $file, 'redirect' => substr($file, 0, -4).'.min.css'))));
+                            safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglifycss/uglifycss', $file, 'redirect' => '> '.substr($file, 0, -4).'.min.css'))));
 
                         }else{
                             touch(substr($file, 0, -4).'.min.css');
