@@ -2503,7 +2503,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                             'extra'  => $extra);
         }
 
-        array_ensure ($params, 'src,alt,width,height,extra');
+        array_ensure ($params, 'src,alt,width,height,class,extra');
         array_default($params, 'lazy', $_CONFIG['cdn']['img']['lazy_load']);
         array_default($params, 'tag' , 'img');
 
@@ -2786,6 +2786,10 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
 
         if(isset($params['style'])){
             $params['extra'] .= ' style="'.$params['style'].'"';
+        }
+
+        if(isset($params['class'])){
+            $params['extra'] .= ' class="'.$params['class'].'"';
         }
 
         if($params['lazy']){
