@@ -48,7 +48,7 @@ require_once(__DIR__.'/system.php');
  * @category Function reference
  * @package route
  * @see route_404()
- * @see route_send()
+ * @see route_exec()
  * @see mapped_domain()
  * @table: `route`
  * @version 1.27.0: Added function and documentation
@@ -158,30 +158,47 @@ function route($regex, $target, $flags = null){
             foreach(array_shift($variables) as $variable){
                 switch($variable){
                     case 'PROTOCOL':
+                        /*
+                         * The protocol used in the current request
+                         */
                         $route = str_replace(':PROTOCOL', $_SERVER['REQUEST_SCHEME'].'://', $route);
                         break;
 
                     case 'DOMAIN':
+                        /*
+                         * The domain used in the current request
+                         */
                         $route = str_replace(':DOMAIN', $_SERVER['HTTP_HOST'], $route);
                         break;
 
                     case 'LANGUAGE':
+                        /*
+                         * The language specified in the current request
+                         */
                         $route = str_replace(':LANGUAGE', LANGUAGE, $route);
                         break;
 
                     case 'REQUESTED_LANGUAGE':
+                        /*
+                         * The language requested in the current request
+                         */
                         $requested = array_first($core->register['accepts_languages']);
                         $route     = str_replace(':REQUESTED_LANGUAGE', $requested['language'], $route);
                         break;
 
                     case 'PORT':
                         // FALLTHROUGH
-
                     case 'SERVER_PORT':
+                        /*
+                         * The port used in the current request
+                         */
                         $route = str_replace(':PORT', $_SERVER['SERVER_PORT'], $route);
                         break;
 
                     case 'REMOTE_PORT':
+                        /*
+                         * The port used by the client
+                         */
                         $route = str_replace(':REMOTE_PORT', $_SERVER['REMOTE_PORT'], $route);
                         break;
 
@@ -259,7 +276,7 @@ function route($regex, $target, $flags = null){
 
                     $count = 1;
                     unset($flags[$flags_id]);
-                    route_send(current_file(1), $attachment, $restrictions);
+                    route_exec(current_file(1), $attachment, $restrictions);
 
                 case 'G':
                     /*
@@ -513,7 +530,7 @@ function route($regex, $target, $flags = null){
         }
 
         unset($map);
-        route_send($page, $attachment, $restrictions);
+        route_exec($page, $attachment, $restrictions);
 
     }catch(Exception $e){
         if(substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():'){
@@ -555,15 +572,16 @@ function route($regex, $target, $flags = null){
  * @param boolean $attachment If specified as true, will send the file as an downloadable attachement, to be written to disk instead of displayed on the browser. If set to false, the file will be sent as a file to be displayed in the browser itself.
  * @return void
  */
-function route_send($target, $attachment, $restrictions){
+function route_exec($target, $attachment, $restrictions){
     global $_CONFIG, $core;
 
     try{
         if(substr($target, -3, 3) === 'php'){
             if($attachment){
-                throw new BException(tr('route_send(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
+                throw new BException(tr('route_exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
             }
 
+            $core->register['route_exec'] = $target;
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
             include($target);
 
@@ -580,7 +598,7 @@ function route_send($target, $attachment, $restrictions){
         die();
 
     }catch(Exception $e){
-        throw new BException(tr(tr('route_send(): Failed to execute page ":target"', array(':target' => $target))), $e);
+        throw new BException(tr(tr('route_exec(): Failed to execute page ":target"', array(':target' => $target))), $e);
     }
 }
 
