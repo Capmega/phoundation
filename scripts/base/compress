@@ -11,11 +11,14 @@ $help  = "This script can compress both CSS and JS files using the uglify-css an
 
 OPTIONS
 
---css                          -
+--css                          - Compress only CSS type files
 
---js                           -
+--js                           - Compress only javascript type files
 
---all                          -
+--all                          - Compress all file types
+
+--force-compress, -f           - Compress all files, even when the source has
+                                 not changed
 ";
 
 require_once(__DIR__.'/../../libs/startup.php');
@@ -24,9 +27,9 @@ cli_only();
 load_libs('uglify');
 
 $js    = cli_argument('--js');
-$all   = cli_argument('--all') or cli_argument('-a');
+$all   = cli_argument('--all,-a');
 $css   = cli_argument('--css');
-$force = cli_argument('--force-compress');
+$force = cli_argument('--force-compress,-f');
 
 if(TEST){
     $path = arguments();
@@ -60,4 +63,3 @@ if(TEST){
         log_console(tr('Finished compressing javascript files'), 'green');
     }
 }
-?>
