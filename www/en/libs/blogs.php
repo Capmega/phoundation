@@ -121,20 +121,27 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
     global $_CONFIG;
 
     try{
-        if($blog){
-            /*
-             * Verify the specified blog
-             */
-            if(is_numeric($blog)){
-                $blogs_id = sql_get('SELECT `id` FROM `blogs` WHERE `id`      = :blog AND `status` IS NULL', 'id', array(':blog' => $blog));
+        if(!$blog){
+            throw new BException(tr('blogs_post_get(): No blog specified'), 'not-specified');
+        }
+
+        /*
+         * Verify the specified blog
+         */
+        if(is_numeric($blog)){
+            $blogs_id = $blog;
+
+        }else{
+            if(is_array($blog)){
+                $blogs_id = $blog['id'];
 
             }else{
                 $blogs_id = sql_get('SELECT `id` FROM `blogs` WHERE `seoname` = :blog AND `status` IS NULL', 'id', array(':blog' => $blog));
             }
+        }
 
-            if(!$blogs_id){
-                throw new BException(tr('blogs_post_get(): Specified blog ":blog" does not exist, or is not available because of its status', array(':blog' => $blog)), 'not-exists');
-            }
+        if(!$blogs_id){
+            throw new BException(tr('blogs_post_get(): Specified blog ":blog" does not exist, or is not available because of its status', array(':blog' => $blog)), 'not-exists');
         }
 
         if(!$post){
