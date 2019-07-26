@@ -131,10 +131,17 @@ try{
      * this will be LANGUAGECODE/libs/handlers/system-webpage.php
      */
     try{
-        /*
-         * Language is defined by the www/LANGUAGE dir that is used.
-         */
-        $language = substr(__DIR__, -16, 2);
+        if($_CONFIG['language']['supported']){
+            /*
+             * Language is defined by the www/LANGUAGE dir that is used.
+             */
+            $language = substr($core->register['route_exec'], 0, 2);
+
+            if(!array_key_exists($language, $_CONFIG['language']['supported'])){
+                log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)));
+                $language = $_CONFIG['language']['default'];
+            }
+        }
 
         define('LANGUAGE', $language);
         define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
