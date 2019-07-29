@@ -34,4 +34,3 @@
 define('SEED'              , '');
 define('PROJECT'           , '');
 define('PROJECTCODEVERSION', '0.0.0');
-?>

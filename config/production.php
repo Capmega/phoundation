@@ -12,6 +12,14 @@ $_CONFIG['db']['core']['user']                                                  
 $_CONFIG['db']['core']['pass']                                                  = 'base';
 $_CONFIG['db']['core']['timezone']                                              = 'UTC';
 
+// CDN configuration
+$_CONFIG['cdn']['css']['load_delayed']                                          = true;
+$_CONFIG['cdn']['domain']                                                       = 'cdn.phoundation.org';
+$_CONFIG['cdn']['js']['internal_to_file']                                       = true;
+$_CONFIG['cdn']['img']['lazy_load']                                             = true;
+$_CONFIG['cdn']['img']['auto_convert']['jpg']                                   = 'webp';
+$_CONFIG['cdn']['img']['auto_convert']['png']                                   = 'webp';
+
 //domain
 $_CONFIG['domain']                                                              = 'phoundation.org';
 
@@ -42,4 +50,6 @@ $_CONFIG['shutdown']['log_rotate']['interval']                                  
 
 // Title
 $_CONFIG['title']                                                               = 'Phoundation project';
-?>
+
+// Whitelabel CDN
+$_CONFIG['whitelabels']                                                         = 'cdn.phoundation.org';

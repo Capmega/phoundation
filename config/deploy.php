@@ -61,4 +61,3 @@ $_CONFIG['deploy']['production'] = array('target_user'         => '',
                                                                         'data/content',
                                                                         'data/cache',
                                                                         'data/backups'));
-?>

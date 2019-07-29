@@ -15,4 +15,3 @@
 $_CONFIG['translate']['mode']                                                   = 'most';
 $_CONFIG['translate']['url']                                                    = 'https://MY-PHOUNDATION-TRANSLATION-SERVER.com/api/translate';
 $_CONFIG['translate']['api_key']                                                = '';
-?>

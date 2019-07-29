@@ -35,4 +35,6 @@ $_CONFIG['sessions']['secure']                                                  
 // Shutdown configuration
 $_CONFIG['shutdown']['check_disk']['interval']                                  = 0;
 $_CONFIG['shutdown']['log_rotate']['interval']                                  = 0;
-?>
+
+// Whitelabel CDN
+$_CONFIG['whitelabels']                                                         = 'cdn.phoundation.org';

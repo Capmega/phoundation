@@ -13,4 +13,3 @@
  * @package update
  */
 $_CONFIG['update']['local']['port'] = 22;                                       // The SSH port to use to connect to your update server
-?>
