@@ -20,7 +20,7 @@ function c_page($params, $meta, $html){
         array_default($params, 'cache_namespace', 'htmlpage');
         array_default($params, 'cache_key'      , null);
 
-        $page = c_html_header($params, $meta).$html.c_html_footer($params);
+        $page = c_html_header($params, $meta, $html).$html.c_html_footer($params);
 
         http_headers($params, strlen($page));
 
@@ -36,7 +36,7 @@ function c_page($params, $meta, $html){
 /*
  * Create and return the page header
  */
-function c_html_header($params = null, $meta = null){
+function c_html_header($params, $meta, $html){
     global $_CONFIG;
 
     try{
@@ -46,7 +46,7 @@ function c_html_header($params = null, $meta = null){
         html_load_css('style');
         html_load_js('');
 
-        return html_header($params, $meta).c_page_header($params);
+        return html_header($params, $meta, $html).c_page_header($params);
 
     }catch(Exception $e){
         throw new bException('c_html_header(): Failed', $e);
