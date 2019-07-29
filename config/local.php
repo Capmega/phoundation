@@ -11,7 +11,7 @@ $_CONFIG['content']['autocreate']                                               
 
 // CDN configuration
 $_CONFIG['cdn']['min']                                                          = false;
-$_CONFIG['cdn']['bundler']['enabled']                                           = false;
+$_CONFIG['cdn']['bundler']                                                      = false;
 
 // Mail configuration
 $_CONFIG['mail']['developer']                                                   = 'support@capmega.com';

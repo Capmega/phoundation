@@ -11,7 +11,7 @@ $_CONFIG['content']['autocreate']                                               
 
 // Always use NON minimized files for development!
 $_CONFIG['cdn']['min']                                                          = false;
-$_CONFIG['cdn']['bundler']['enabled']                                           = false;
+$_CONFIG['cdn']['bundler']                                                      = false;
 
 //domain
 $_CONFIG['domain']                                                              = 'phoundation.org.t.cpamega.com';
