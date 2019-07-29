@@ -119,6 +119,9 @@ $_CONFIG['encoding']           = array('charset'                            => '
 $_CONFIG['check_disk']         = array('percentage'                         => 20,                                                      // The default minimum required available disk space for the filesystem for ROOT in %
                                        'bytes'                              => 0);                                                      // The default minimum required available disk space for the filesystem for ROOT in bytes
 
+// CLI configuration
+$_CONFIG['cli']                = array('timeout'                            => '30');                                                   // Default timeout for programs running on the CLI
+
 // Client configuration
 $_CONFIG['client']             = array('detect'                             => false);                                                  // If client detection should be performed. false if not, one of "full", "normal" or "lite" if detection should happen, and what type of detection
 

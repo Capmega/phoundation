@@ -1779,7 +1779,7 @@ function cli_build_commands_string(&$params){
     try{
         $retval = '';
 
-        array_default($params, 'timeout'     , $core->register['timeout']);
+        array_default($params, 'timeout'     , isset_get($core->register['timeout'], $_CONFIG['cli']['timeout']));
         array_default($params, 'route_errors', true);
         array_default($params, 'function'    , 'exec');
         array_default($params, 'background'  , false);
