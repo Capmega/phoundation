@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.21');
+define('FRAMEWORKCODEVERSION', '2.7.22');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2201,15 +2201,58 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
         /*
          * Only map if routemap has been set
          */
-        if(!empty($core->register['routemap']) and $language and ($language !== 'en')){
-            /*
-             * Only map if routemap has been set for the requested language
-             */
-            if(!empty($core->register['routemap'][$language])){
-                $retval = str_replace('en/', $language.'/', $retval);
+        if(!empty($core->register['routemap']) and $language){
+            if(LANGUAGE !== 'en'){
+                /*
+                 * Current language is NOT English, so URL may not be English
+                 * either. Translate possible non-English URL to English
+                 */
+                if(empty($core->register['routemap'][LANGUAGE.'-rev'])){
+                    /*
+                     * Reverse map doesn't exist yet, create it now
+                     */
+                    if(empty($core->register['routemap'][LANGUAGE])){
+                        notify(new BException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $language)), 'not-specified'));
 
-                foreach($core->register['routemap'][$language] as $english => $foreign){
-                    $retval = str_replace($english, $foreign, $retval);
+                    }else{
+                        try{
+                            $core->register['routemap'][LANGUAGE.'-rev'] = array_flip($core->register['routemap'][LANGUAGE]);
+
+                        }catch(Exception $e){
+                            notify(new BException(tr('domain(): Failed to generate reverse language map for url ":url", specified language routemap for requested language ":language" appears to be invalid', array(':url' => $retval, ':language' => $language)), $e));
+                        }
+                    }
+                }
+
+                /*
+                 * We should have a reverse language map available here.
+                 */
+                $retval = str_replace(LANGUAGE.'/', 'en/', $retval);
+
+                foreach($core->register['routemap'][LANGUAGE.'-rev'] as $foreign => $english){
+                    $retval = str_replace($foreign, $english, $retval);
+                }
+            }
+
+            /*
+             * From here the URL *SHOULD* be in English. If the URL is not
+             * English here, then conversion from local language to English
+             * right above failed
+             */
+            if($language !== 'en'){
+                /*
+                 * Map the english URL to the requested non-english URL
+                 * Only map if routemap has been set for the requested language
+                 */
+                if(empty($core->register['routemap'][$language])){
+                    notify(new BException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $language)), 'not-specified'));
+
+                }else{
+                    $retval = str_replace('en/', $language.'/', $retval);
+
+                    foreach($core->register['routemap'][$language] as $english => $foreign){
+                        $retval = str_replace($english, $foreign, $retval);
+                    }
                 }
             }
         }
