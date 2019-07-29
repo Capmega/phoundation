@@ -1,0 +1,576 @@
+#!/usr/bin/php
+<?php
+/*
+ * This script can translate php code
+ *
+ * @copyright Sven Oostenbrink <support@capmega.com>, Johan Geuze
+ *
+ * INFO:
+ * If curl causes an exception due to an HTTP100 response
+ * it is probably caused by Apache having issues with Expect headers
+ * as it's explained in
+ * http://stackoverflow.com/questions/3889574/apache-and-mod-proxy-not-handling-http-100-continue-from-client-http-417
+ *
+ * The solution is to add
+ * <IfModule mod_headers.c>
+ *    RequestHeader unset Expect early
+ * </IfModule>
+ * in the translation server apache configuration
+ */
+$usage = './scipts/base/translate clear
+./scipts/base/translate test
+./scipts/base/translate scan
+./scipts/base/translate translate';
+
+$help = 'The translate script can translate the www/en directory to configured languages using the remote translation server
+
+
+
+METHODS
+
+
+
+clear                                   - Delete all www/LANGUAGE trees except
+                                          www/en
+
+scan                                    - Scan www/en for translatable strings
+                                          and submit these strings to the
+                                          translator
+
+test                                    - tests the connection with the
+                                          configured translation server
+
+translate                               - Actually translate www/en to the
+                                          configured target languages
+
+    -m / --mode [strict|full|most|none] - Translation mode.
+
+                                          "strict" will fail when a single entry
+                                          has not been translated for this
+                                          project
+
+                                          "full" will translate everything but
+                                          when a text is not translated for this
+                                          project, yet is translated for a
+                                          different project, that translation
+                                          from that different project will be
+                                          used instead. If no translations at
+                                          all have been found, "full" will fail
+
+                                          "most" will try to translate as much
+                                          as possible, and never fail. If texts
+                                          are not translated for this project,
+                                          yet have been translated for another
+                                          project, that translation from that
+                                          other project will be used. If no
+                                          translations were found at all, the
+                                          original English text will remain.
+
+                                          "none" will not translate anything at
+                                          all
+
+
+
+ARGUMENTS
+
+
+
+--ignore-php                            - Ignores translations that contain PHP
+                                          code
+
+--ignore-html                           - Ignores translations that contain
+                                          HTML
+
+-l / --languages                        - Specify the supported languages,
+                                          otherwise
+                                          $_CONFIG[language][supported] is used
+
+--no-utf / --no-utf8 / --no-utf8-check  - Do not perform file content UTF8
+                                          checks
+
+--no-update                             - Do not send updated translations back
+                                          to the translation server (NOT YET
+                                          IMPLEMENTED)';
+
+require_once(__DIR__.'/../../libs/startup.php');
+load_libs('inet,curl');
+load_config('translate');
+
+
+
+$available_modes = array('strict',
+                         'full',
+                         'most',
+                         'none');
+
+
+
+/*
+ *
+ */
+$languages = cli_argument('-l,--languages', 'all');
+
+
+
+/*
+ * Validate command line parameters
+ */
+if($languages === null){
+    if($_CONFIG['language']['supported']){
+        $languages = array_keys($_CONFIG['language']['supported']);
+    }
+
+    if(empty($languages)){
+        throw new BException(tr('This project is not a multi-lingual project. Please check the $_CONFIG[language][supported] configuration, or specify languages on the command line'), 'warning/not-specified');
+    }
+
+    log_console(tr('Using configured languages ":languages"', array(':languages' => implode(', ', $languages))));
+
+}else{
+    if(empty($languages)){
+        throw new BException(tr('Please specify languages when using -l or --languages'), 'warning/not-specified');
+    }
+
+    log_console(tr('Using specified languages ":languages"', array(':languages' => implode(', ', $languages))));
+}
+
+
+
+
+/*
+ * Validate requested languages
+ */
+foreach($languages as $language){
+    if(!preg_match('/^[a-z]{2}$/', $language)){
+        throw new BException(tr('Specified language ":language" is invalid, please use a ISO 639-2 compatible language code', array(':language' => $language)), 'validation');
+    }
+}
+
+
+
+/*
+ * Process requested actions
+ */
+switch(cli_method()){
+    case 'clear':
+        cli_no_arguments_left();
+
+        foreach($languages as $language){
+            if($language == 'en'){
+                continue;
+            }
+
+            log_console(tr('Deleting ":language"', array(':language' => $language)));
+            file_delete(ROOT.'www/'.$language, ROOT.'www');
+        }
+
+        break;
+
+    case 'test':
+        cli_no_arguments_left();
+        log_console(tr('Testing connection to translation server ":server"', array(':server' => $_CONFIG['translate']['url'])), 'cyan');
+
+        try{
+            $response = curl_get(array('url'            => url_add_query($_CONFIG['translate']['url'], 'test=1'),
+                                       'getdata'        => true,
+                                       'proxies'        => false,
+                                       'getheaders'     => false,
+                                       'posturlencoded' => true,
+                                       'timeout'        => 300,
+                                       'post'           => array('method' => 'test'),
+                                       'httpheaders'    => false));
+
+            if(TEST){
+                show($response);
+            }
+
+            if($response['data'] !== 'OK'){
+                throw new BException(tr('Failed test connection with translation server ":url"', array(':url' => $_CONFIG['translate']['url'])), 'failed');
+            }
+
+            log_console(tr('Successfully tested connection with translation server ":url"', array(':url' => $_CONFIG['translate']['url'])), 'green');
+
+        }catch(Exception $e){
+            if(substr($e->getCode(), 0, 4) == 'HTTP'){
+                $server_message = $e->getData()['data'];
+                $code           = $e->getCode();
+
+                throw new BException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_message, ':url' => $_CONFIG['translate']['url'])), $e);
+            }
+
+            throw new BException(tr('Test failed'), $e);
+        }
+
+        break;
+
+    case 'scan':
+        // fALLTHROUGH
+    case 'translate':
+        $ignore_php  = cli_argument('--ignore-php');
+        $ignore_html = cli_argument('--ignore-html');
+        $mode        = cli_argument('--mode', true, $_CONFIG['translate']['mode']);
+
+        if(cli_method() == 'translate'){
+            $noutf8check = (cli_argument('--no-utf') or cli_argument('--no-utf8')   or cli_argument('--no-utf8-check'));
+
+            if(!in_array($mode, $available_modes)){
+                throw new BException(tr('Unknown mode ":mode" specified', array(':mode' => $mode)), 'warning/unknown');
+            }
+
+        }else{
+            $noutf8check = (cli_argument('--no-utf') or cli_argument('--no-utf8')   or cli_argument('--no-utf8-check'));
+
+            log_console(tr('Scanning for translatable strings'), 'white');
+        }
+
+        cli_no_arguments_left();
+
+        if($noutf8check){
+            log_console(tr('Skipping UTF8 check due to "noutf8check" command line parameter'), 'yellow');
+        }
+
+        foreach($languages as $id => $language){
+            if(!preg_match('/\w{2}/', $language)){
+                throw new BException(tr('Invalid language ":language" specified', array(':language' => $language)), 'warning/invalid');
+            }
+
+            if($language == 'en'){
+                unset($languages[$id]);
+                log_console(tr('Ignoring language "en - English"'), 'yellow');
+            }
+        }
+
+        $results = array('translations' => array(),
+                         'failed_html'  => array(),
+                         'failed_php'   => array(),
+                         'count'        => 0);
+
+        file_tree_execute(array('path'      => ROOT.'www/en',
+                                'recursive' => true,
+                                'params'    => array('noutf8check' => $noutf8check),
+                                'callback'  => function($file, $type, $params) use (&$results){
+
+            global $_CONFIG;
+
+            $extension = file_get_extension($file);
+
+//            if(($extension != 'php') and ($extension != 'js')){
+            if($extension != 'php'){
+                /*
+                 * Only translate PHP and JS files
+                 */
+                return;
+            }
+
+            log_console(tr('Scanning file ":file"', array(':file' => $file)), 'VERYVERBOSE');
+            $content = file_get_contents($file);
+
+            /*
+             * UTF8 check!
+             */
+            if(!$params['noutf8check']){
+                if(!str_is_utf8($content)){
+                    /*
+                     * Crap, this file is not UTF8 and will bork the translator. Update file contents, and safe file to force all files be UTF8
+                     */
+                    $content = utf8_encode($content);
+                    file_put_contents($file, $content);
+
+                    $forcedutf8[str_replace(ROOT, '', $file)] = true;
+
+                    cli_dot();
+                }
+            }
+
+//            preg_match_all('/tr\([\'"](.*?)[\'"](:?\s*,\s*array\((.*)\))?\)/iu', $content , $matches, PREG_PATTERN_ORDER);
+            preg_match_all('/tr\([\'"](.*?)[\'"](:?\s*,\s*array\((.*)\))?\)/iu', $content , $matches, PREG_PATTERN_ORDER);
+
+            if(!empty($matches[1])){
+                foreach($matches[1] as $key => $value){
+                    if(strip_tags($value, isset_get($_CONFIG['translate']['allowed_tags'])) != $value){
+                        /*
+                         * Translation string contains HTML!
+                         */
+                        $results['failed_html'][$value] = $file;
+
+                    }elseif(strstr($value,'.$')){
+                        /*
+                         * Translation string contains PHP variables!
+                         */
+                        $results['failed_php'][$value] = $file;
+
+                    }else{
+                        /*
+                         * Translation string is ok
+                         */
+                        $short_file = str_replace(ROOT, '', $file);
+                        $results['translations'][$short_file][$value] = '';
+                        $results['count']++;
+                    }
+                }
+            }
+        }));
+
+        cli_dot(false);
+
+
+
+        /*
+         *
+         */
+        if(count($results['failed_html']) > 0){
+            $crash = false;
+
+            foreach($results['failed_html'] as $string => $file){
+                if($ignore_html){
+                    log_console(tr('Ignoring file ":file" because of HTML', array(':file' => str_from($file, ROOT))), 'VERBOSE/yellow');
+
+                }else{
+                    log_console(tr('Found HTML code ":html" in file ":file"', array(':html' => preg_replace('/<br\s*\/?>/', '.<.b.r.>. ', $string), ':file' => str_from($file, ROOT))), 'red');
+                    $crash = true;
+                }
+            }
+
+            if(!empty($crash)){
+                throw new BException(tr('Translatable strings with disallowed HTML tags found'), 'warning/not-allowed');
+            }
+
+            log_console(tr('Ignored ":count" files because of HTML', array(':count' => count($results['failed_html']))), 'yellow');
+        }
+
+
+
+        /*
+         *
+         */
+        if(count($results['failed_php']) > 0){
+            $crash = false;
+
+            foreach($results['failed_php'] as $string => $file){
+                if($ignore_php){
+                    log_console(tr('Ignoring file ":file" because of PHP', array(':file' => str_from($file, ROOT))), 'VERBOSE/yellow');
+
+                }else{
+                    log_console(tr('Found PHP code ":php" in file ":file"', array(':php' => preg_replace('/<br\s*\/?>/', '.<.b.r.>. ', $string), ':file' => str_from($file, ROOT))), 'red');
+                    $crash = true;
+                }
+            }
+
+            if(!empty($crash)){
+                throw new BException(tr('Translatable strings with PHP code found'), 'warning/not-allowed');
+            }
+
+            log_console(tr('Ignored ":count" files because of PHP', array(':count' => count($results['failed_php']))), 'yellow');
+        }
+
+
+
+        /*
+         *
+         */
+        if(cli_method() == 'scan'){
+            log_console(tr('Found ":count" strings in ":files" files', array(':count' => number_format($results['count']), ':files' => number_format(count($results['translations'])))), 'green');
+            log_console(tr('Sending translatable strings to server ":server" (This might take a little bit)', array(':server' => $_CONFIG['translate']['url'])), 'cyan');
+
+            try{
+                $response = curl_get(array('url'            => $_CONFIG['translate']['url'],
+                                           'getdata'        => true,
+                                           'proxies'        => false,
+                                           'getheaders'     => false,
+                                           'posturlencoded' => true,
+                                           'timeout'        => 300,
+                                           'post'           => array('project'      => PROJECT,
+                                                                     'api_key'      => $_CONFIG['translate']['api_key'],
+                                                                     'method'       => 'post',
+                                                                     'options'      => array('mode' => $mode),
+                                                                     'translations' => json_encode_custom($results['translations'])),
+                                           'httpheaders'    => false));
+
+            }catch(Exception $e){
+                if(substr($e->getCode(), 0, 4) == 'HTTP'){
+                    $server_message = $e->getData()['data'];
+                    $code           = $e->getCode();
+
+                    switch(substr($e->getCode(), 4)){
+                        case 403:
+                            throw new BException(tr('Translation server said that access to project ":project" was denied', array(':project' => PROJECT)), 'warning');
+
+                        case 404:
+                            throw new BException(tr('Translation server said that project ":project" does not exist', array(':project' => PROJECT)), 'warning');
+
+                        default:
+                            throw new BException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_message, ':url' => $_CONFIG['translate']['url'])), $e);
+                    }
+                }
+
+                throw new BException(tr('Error trying to connect with server : ":error"', array(':error' => $e->getMessage())), $e);
+            }
+
+            if(empty($response['status'])){
+                throw new BException(tr('Error trying to connect with server'), $response['status']);
+            }
+
+            $result = json_decode_custom($response['data']);
+
+            if(TEST){
+                show($result);
+            }
+
+            if($result['status'] != 'success'){
+                throw new BException(tr('Failed to send translatable strings'), $result['status'], $result);
+            }
+
+            log_console(tr('Scan method finished successfully'), 'green');
+            log_console(tr('Translation server processed data for ":count" translation strings from ":files" files', array(':count' => $result['stats']['strings_received'], ':files' => $result['stats']['files_received'])));
+            log_console(tr('Translation server added ":count" new translation strings', array(':count' => $result['stats']['strings_added'])));
+            log_console(tr('Translation server noted that for this project, ":done" translations have been done, and ":missing" are missing', array(':done' => $result['stats']['translations_done'], ':missing' => $result['stats']['translations_missing'])));
+            die();
+        }
+
+
+
+        /*
+         * Translate to specified languages
+         */
+        foreach($languages as $language){
+            $source_dir = ROOT.'www/en';
+            $target_dir = ROOT.'www/'.$language;
+
+            log_console(tr('Translating language ":language"', array(':language' => $language)), 'white');
+            log_console(tr('Requesting translations from server url":url" (This might take a little bit)', array(':url' => $_CONFIG['translate']['url'])), 'cyan');
+
+            try{
+                $response = curl_get(array('url'            => $_CONFIG['translate']['url'],
+                                           'getdata'        => true,
+                                           'proxies'        => false,
+                                           'getheaders'     => false,
+                                           'posturlencoded' => true,
+                                           'timeout'        => 300,
+                                           'post'           => array('project'         => PROJECT,
+                                                                     'api_key'         => $_CONFIG['translate']['api_key'],
+                                                                     'target_language' => $language,
+                                                                     'method'          => 'get',
+                                                                     'options'         => array('mode' => $mode),
+                                                                     'translations'    => json_encode_custom($results['translations'])),
+                                           'httpheaders'    => false));
+
+            }catch(Exception $e){
+                if(substr($e->getCode(), 0, 4) == 'HTTP'){
+                    $server_message = $e->getData()['data'];
+                    $code           = $e->getCode();
+
+                    switch(substr($e->getCode(), 4)){
+                        case 403:
+                            throw new BException(tr('Translation server said that access to project ":project" was denied', array(':project' => PROJECT)), 'warning');
+
+                        case 404:
+                            throw new BException(tr('Translation server said that project ":project" does not exist', array(':project' => PROJECT)), 'warning');
+
+                        default:
+                            throw new BException(tr('Translation server gave HTTP code ":code" on URL ":url" with server message ":message"', array(':code' => $code, ':message' => $server_message, ':url' => $_CONFIG['translate']['url'])), $e);
+                    }
+                }
+
+                throw new BException(tr('Error trying to connect with server : ":error"', array(':error' => $e->getMessage())), $e);
+            }
+
+            if(empty($response['status'])){
+                throw new BException(tr('Error trying to connect with server'), $response['status']);
+            }
+
+            $retval = json_decode_custom($response['data']);
+
+            if(TEST){
+                show($retval);
+            }
+
+            if(!is_array($retval) or (isset_get($retval['status']) != 'success') or (!is_array(isset_get($retval['translations'])))){
+                throw new BException(tr('Failed to receive translations', 'error'));
+            }
+
+            $count = 0;
+
+            foreach($retval['translations'] as $translations){
+                $count += count($translations);
+            }
+
+            log_console(tr('Received ":count" translations for ":files" files from translation server', array(':count' => $count, ':files' => count($retval['translations']))), 'green');
+
+
+
+            /*
+             * Translations ready, start processing.
+             * Delete target dir
+             */
+            try{
+                log_console(tr('Deleting target path ":path"', array(':path' => $target_dir)), 'VERBOSE');
+                shell_exec('rm -rf '.$target_dir);
+
+                // Copy english to target dir
+                log_console(tr('Copying ":source" to ":target"', array(':source' => $source_dir, ':target' => $target_dir)));
+                shell_exec('cp -a '.$source_dir.' '.$target_dir);
+
+                // :DELETE: Its not going to save too much space, and doesnt make sense
+                //          to only link css and forgot about js, images, etc
+                // // CSS should be symlink since it wont change between languages
+                // file_delete(slash($target_dir).'pub/css');
+                // symlink('../../en/pub/css', slash($target_dir).'pub/css');
+
+                log_console(tr('Applying translations'), '', true);
+
+                foreach($retval['translations'] as $short_file => $data){
+                    log_console(tr('Translating ":file"', array(':file' => $short_file)), 'VERBOSEDOT/cyan');
+
+                    if(!empty($forcedutf8[$short_file])){
+                        log_console(tr('*FORCED-UTF8* '), 'VERBOSE/yellow');
+                    }
+
+                    if(!file_exists(ROOT.$short_file)){
+                        log_console(tr('File ":file" not found', array(':file' => ROOT.$short_file)), 'yellow');
+                        continue;
+                    }
+
+                    if(file_path_contains_symlink($short_file, ROOT)){
+                        log_console(tr('File ":file" contains a symlink and will be ignored', array(':file' => $short_file)), 'VERBOSEDOT/yellow');
+                        continue;
+                    }
+
+                    //store new file
+                    $filedata    = file_get_contents(ROOT.$short_file);
+                    $target_file = str_replace($source_dir, $target_dir, ROOT.$short_file);
+
+                    //replace strings
+                    foreach($data as $source => $translation){
+                        cli_dot();
+
+                        $from     = array('tr("'.$source.'"'     , "tr('".$source."'");
+                        $to       = array('tr("'.$translation.'"', "tr('".$translation."'");
+                        $filedata = str_replace($from, $to, $filedata);
+                    }
+
+                    file_put_contents($target_file, $filedata);
+                    log_console(tr('Saved file ":file"', array(':file' => $target_file)), 'VERBOSE/green');
+                }
+
+                cli_dot(false);
+
+                if($retval['stats']['translations_missing'] > 0){
+                    log_console(tr('Missing ":count" translations', array(':count' => number_format($retval['stats']['translations_missing']))), 'yellow');
+                }
+
+                log_console(tr('Successfully translated ":count" sections', array(':count' => number_format($retval['stats']['translations_done']))), 'green');
+
+            }catch(Exception $e){
+                throw new BException(tr('Error applying ":lang" translations', array(':lang' => $language)), $e);
+            }
+        }
+
+        break;
+
+    case '':
+        throw new BException(tr('No method specified, please specify one of "clear", "scan", or "translate"'), 'no-method');
+
+    default:
+        throw new BException(tr('Unknown method ":method" specified, please specify one of "clear", "scan", or "translate"', array(':method' => cli_method())), 'unknown');
+}
+?>

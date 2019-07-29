@@ -644,7 +644,7 @@ if($notranslate){
         }
 
         script_exec(array('function' => 'passthru',
-                          'commands' => array('base/translate', $options)));
+                          'commands' => array('base/languages', $options)));
         init_hook('deploy_post_translation', $nohooks, array('languages' => $_CONFIG['language']['supported']));
 
     }else{
