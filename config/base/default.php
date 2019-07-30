@@ -351,7 +351,7 @@ $_CONFIG['sessions']           = array('enabled'                            => t
                                                                                      'redirect'      => 'index.php'));                      //
 
 // Shutdown configuration
-$_CONFIG['shutdown']           = array('check-disk' => array('interval' => 10,                                                              // Execute this function every INTERVAL / 100 times
+$_CONFIG['shutdown']           = array('check-disk' => array('interval' => 2,                                                               // Execute this function every INTERVAL / 100 times
                                                              'library'  => 'check-disk',                                                    // To execute the function, load this library
                                                              'function' => 'check_disk'),                                                   // The function to execute
 
