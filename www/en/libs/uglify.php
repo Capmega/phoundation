@@ -147,20 +147,22 @@ function uglify_css($paths = null, $force = false){
                 }
 
                 if(is_link($file)){
-                    if(substr($file, -7, 7) == '.min.js'){
-                        /*
-                         * If is minified then we have to copy
-                         * from no-minified to minified
-                         */
-                        copy(substr($file, 0, -7).'.js', $file);
+                    file_execute_mode(dirname($file), 0770, function() use ($file){
+                        if(substr($file, -7, 7) == '.min.js'){
+                            /*
+                             * If is minified then we have to copy
+                             * from no-minified to minified
+                             */
+                            copy(substr($file, 0, -7).'.js', $file);
 
-                    }elseif(substr($file, -3, 3) == '.js'){
-                        /*
-                         * If is no-minified then we have to copy
-                         * from minified to no-minified
-                         */
-                        copy(substr($file, 0, -3).'.min.js', $file);
-                    }
+                        }elseif(substr($file, -3, 3) == '.js'){
+                            /*
+                             * If is no-minified then we have to copy
+                             * from minified to no-minified
+                             */
+                            copy(substr($file, 0, -3).'.min.js', $file);
+                        }
+                    });
                 }
             }
 
@@ -341,23 +343,27 @@ function uglify_css($paths = null, $force = false){
                     /*
                      * Compress file
                      */
-                    log_console(tr('uglify_css(): Minifying CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                    file_delete(substr($file, 0, -4).'.min.css', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
+                    file_execute_mode(dirname($file), 0770, function() use ($file){
+                        global $core;
 
-                    try{
-                        if(filesize($file)){
-                            safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglifycss/uglifycss', $file, 'redirect' => '> '.substr($file, 0, -4).'.min.css'))));
+                        log_console(tr('uglify_css(): Minifying CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
+                        file_delete(substr($file, 0, -4).'.min.css', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
 
-                        }else{
-                            touch(substr($file, 0, -4).'.min.css');
+                        try{
+                            if(filesize($file)){
+                                safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglifycss/uglifycss', $file, 'redirect' => '> '.substr($file, 0, -4).'.min.css'))));
+
+                            }else{
+                                touch(substr($file, 0, -4).'.min.css');
+                            }
+
+                        }catch(Exception $e){
+                            /*
+                             * If uglify fails then make a copy of min file
+                             */
+                            copy($file, substr($file, 0, -4).'.min.css');
                         }
-
-                    }catch(Exception $e){
-                        /*
-                         * If uglify fails then make a copy of min file
-                         */
-                        copy($file, substr($file, 0, -4).'.min.css');
-                    }
+                    });
 
                     $processed[str_rfrom($file, '/')] = true;
 
@@ -493,20 +499,22 @@ function uglify_js($paths = null, $force = false){
              */
             foreach(file_list_tree($path) as $file){
                 if(is_link($file)){
-                    if(substr($file, -7, 7) == '.min.js'){
-                        /*
-                         * If is minified then we have to copy
-                         * from no-minified to minified
-                         */
-                        copy(substr($file, 0, -7).'.js', $file);
+                    file_execute_mode(dirname($file), 0770, function() use ($file){
+                        if(substr($file, -7, 7) == '.min.js'){
+                            /*
+                             * If is minified then we have to copy
+                             * from no-minified to minified
+                             */
+                            copy(substr($file, 0, -7).'.js', $file);
 
-                    }elseif(substr($file, -3, 3) == '.js'){
-                        /*
-                         * If is no-minified then we have to copy
-                         * from minified to no-minified
-                         */
-                        copy(substr($file, 0, -3).'.min.js', $file);
-                    }
+                        }elseif(substr($file, -3, 3) == '.js'){
+                            /*
+                             * If is no-minified then we have to copy
+                             * from minified to no-minified
+                             */
+                            copy(substr($file, 0, -3).'.min.js', $file);
+                        }
+                    });
                 }
             }
 
@@ -684,23 +692,27 @@ function uglify_js($paths = null, $force = false){
                     /*
                      * Compress file
                      */
-                    log_console(tr('uglify_js(): Minifying javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                    file_delete(substr($file, 0, -3).'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
+                    file_execute_mode(dirname($file), 0770, function() use ($file){
+                        global $core;
 
-                    try{
-                        if(filesize($file)){
-                            safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
+                        log_console(tr('uglify_js(): Minifying javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
+                        file_delete(substr($file, 0, -3).'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
 
-                        }else{
-                            touch(substr($file, 0, -4).'.min.js');
+                        try{
+                            if(filesize($file)){
+                                safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
+
+                            }else{
+                                touch(substr($file, 0, -4).'.min.js');
+                            }
+
+                        }catch(Exception $e){
+                            /*
+                             * If uglify fails then make a copy of min file
+                             */
+                            copy($file, substr($file, 0, -3).'.min.js');
                         }
-
-                    }catch(Exception $e){
-                        /*
-                         * If uglify fails then make a copy of min file
-                         */
-                        copy($file, substr($file, 0, -3).'.min.js');
-                    }
+                    });
 
                     $processed[str_rfrom($file, '/')] = true;
 
