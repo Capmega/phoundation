@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.24');
+define('FRAMEWORKCODEVERSION', '2.7.25');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1929,10 +1929,17 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
             file_ensure_path(ROOT.'data/log');
 
             try{
-                $h[$file] = @fopen(slash(ROOT.'data/log').$file, 'a+');
+                $h[$file] = @fopen(ROOT.'data/log/'.$file, 'a+');
 
             }catch(Exception $e){
                 throw new BException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), $e);
+            }
+
+            try{
+                chmod(ROOT.'data/log/'.$file, 0660);
+
+            }catch(Exception $e){
+                notify(new BException(tr('log_file(): Failed to set mode 0660 on logfile ":file"', array(':file' => $file)), $e));
             }
 
             if(!$h[$file]){

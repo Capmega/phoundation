@@ -80,7 +80,7 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'css'                                => array('load_delayed'       => false,                     // If set to true, the CSS files will by default NOT be loaded in the <head> tag but at the end of the HTML <body> code so that the site will load faster. This may require some special site design to avoid problems though!
                                                                                      'post'               => false,                     // The default last CSS file to be loaded (after all others have been loaded, so that this one can override any CSS rule if needed)
-                                                                                     'purge'              => true),                     // If specified true, the CSS files will be purged  before being sent to the client
+                                                                                     'purge'              => false),                    // If specified true, the CSS files will be purged  before being sent to the client
 
                                        'img'                                => array('lazy_load'          => false,                     // If set to true, the image will use lazy loading automatically
 
