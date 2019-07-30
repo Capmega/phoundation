@@ -115,7 +115,7 @@ function uglify_css($paths = null, $force = false){
             /*
              * Start at the base css path
              */
-            $paths = ROOT.'www/en/pub/css/,'.ROOT.'www/en/admin/pub/css/';
+            $paths = ROOT.'www/'.LANGUAGE.'/pub/css/,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css/';
         }
 
         foreach(array_force($paths) as $path){
@@ -342,7 +342,7 @@ function uglify_css($paths = null, $force = false){
                      * Compress file
                      */
                     log_console(tr('uglify_css(): Minifying CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                    file_delete(substr($file, 0, -4).'.min.css', ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css,'.ROOT.'www/en/admin/pub/js,'.ROOT.'www/en/admin/pub/css');
+                    file_delete(substr($file, 0, -4).'.min.css', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
 
                     try{
                         if(filesize($file)){
@@ -465,7 +465,7 @@ function uglify_js($paths = null, $force = false){
             /*
              * Start at the base js path
              */
-            $paths = ROOT.'www/en/pub/js/,'.ROOT.'www/en/admin/pub/js/';
+            $paths = ROOT.'www/'.LANGUAGE.'/pub/js/,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js/';
         }
 
         foreach(array_force($paths) as $path){
@@ -685,7 +685,7 @@ function uglify_js($paths = null, $force = false){
                      * Compress file
                      */
                     log_console(tr('uglify_js(): Minifying javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                    file_delete(substr($file, 0, -3).'.min.js', ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css,'.ROOT.'www/en/admin/pub/js,'.ROOT.'www/en/admin/pub/css');
+                    file_delete(substr($file, 0, -3).'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
 
                     try{
                         if(filesize($file)){
