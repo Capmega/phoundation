@@ -108,7 +108,7 @@ function uglify_css($paths = null, $force = false){
             $check = true;
 
             uglify_css_find();
-            log_console(tr('uglify_css(): Compressing all CSS files using uglifycss'), 'VERBOSE');
+            log_console(tr('uglify_css(): Minifying all CSS files using uglifycss'), 'VERBOSE');
         }
 
         if(empty($paths)){
@@ -121,16 +121,16 @@ function uglify_css($paths = null, $force = false){
         foreach(array_force($paths) as $path){
             if(!file_exists($path)) continue;
 
-            log_console(tr('uglify_css(): Compressing all CSS files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
+            log_console(tr('uglify_css(): Minifying all CSS files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             if(is_dir($path)){
                 $path = slash($path);
 
-                log_console(tr('uglify_css(): Compressing all CSS files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
+                log_console(tr('uglify_css(): Minifying all CSS files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
                 file_check_dir($path);
 
             }elseif(is_file($path)){
-                log_console(tr('uglify_css(): Compressing CSS file ":path"', array(':path' => $path)), 'VERBOSEDOT');
+                log_console(tr('uglify_css(): Minifying CSS file ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             }else{
                 throw new BException(tr('uglify_css(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
@@ -327,13 +327,13 @@ function uglify_css($paths = null, $force = false){
                     if(file_exists($minfile)){
                         /*
                          * Compare filemtimes, if they match then we will assume that
-                         * the file has not changed, so we can skip compressing
+                         * the file has not changed, so we can skip minifying
                          */
                         if((filemtime($minfile) == filemtime($file)) and !$force){
                             /*
-                             * Do not compress, just continue with next file
+                             * Do not minify, just continue with next file
                              */
-                            log_console(tr('uglify_css(): NOT Compressing CSS file ":file", file has not changed', array(':file' => $file)), 'VERBOSE/yellow');
+                            log_console(tr('uglify_css(): NOT Minifying CSS file ":file", file has not changed', array(':file' => $file)), 'VERBOSE/yellow');
                             continue;
                         }
                     }
@@ -341,7 +341,7 @@ function uglify_css($paths = null, $force = false){
                     /*
                      * Compress file
                      */
-                    log_console(tr('uglify_css(): Compressing CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
+                    log_console(tr('uglify_css(): Minifying CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
                     file_delete(substr($file, 0, -4).'.min.css', ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css,'.ROOT.'www/en/admin/pub/js,'.ROOT.'www/en/admin/pub/css');
 
                     try{
@@ -380,7 +380,7 @@ function uglify_css($paths = null, $force = false){
                     }
 
                 }catch(Exception $e){
-                    log_console(tr('Failed to compress CSS file ":file" because ":e"', array(':file' => $file, ':e' => $e->getMessage())), 'yellow');
+                    log_console(tr('Failed to minify CSS file ":file" because ":e"', array(':file' => $file, ':e' => $e->getMessage())), 'yellow');
                 }
             }
         }
@@ -458,7 +458,7 @@ function uglify_js($paths = null, $force = false){
             $check = true;
 
             uglify_js_find();
-            log_console(tr('uglify_js(): Compressing all specified javascript files using uglifyjs'), 'VERBOSE');
+            log_console(tr('uglify_js(): minifying all specified javascript files using uglifyjs'), 'VERBOSE');
         }
 
         if(empty($paths)){
@@ -471,16 +471,16 @@ function uglify_js($paths = null, $force = false){
         foreach(array_force($paths) as $path){
             if(!file_exists($path)) continue;
 
-            log_console(tr('uglify_js(): Compressing all javascript files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
+            log_console(tr('uglify_js(): Minifying all javascript files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             if(is_dir($path)){
                 $path = slash($path);
 
-                log_console(tr('uglify_js(): Compressing all javascript files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
+                log_console(tr('uglify_js(): Minifying all javascript files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
                 file_check_dir($path);
 
             }elseif(is_file($path)){
-                log_console(tr('uglify_js(): Compressing javascript file ":path"', array(':path' => $path)), 'VERBOSEDOT');
+                log_console(tr('uglify_js(): Minifying javascript file ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             }else{
                 throw new BException(tr('uglify_js(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
@@ -670,13 +670,13 @@ function uglify_js($paths = null, $force = false){
                     if(file_exists($minfile)){
                         /*
                          * Compare filemtimes, if they match then we will assume that
-                         * the file has not changed, so we can skip compressing
+                         * the file has not changed, so we can skip minifying
                          */
                         if((filemtime($minfile) == filemtime($file)) and !$force){
                             /*
-                             * Do not compress, just continue with next file
+                             * Do not minify, just continue with next file
                              */
-                            log_console(tr('uglify_js(): NOT Compressing javascript file ":file", file has not changed', array(':file' => $file)), 'VERBOSE/yellow');
+                            log_console(tr('uglify_js(): NOT Minifying javascript file ":file", file has not changed', array(':file' => $file)), 'VERBOSE/yellow');
                             continue;
                         }
                     }
@@ -684,7 +684,7 @@ function uglify_js($paths = null, $force = false){
                     /*
                      * Compress file
                      */
-                    log_console(tr('uglify_js(): Compressing javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
+                    log_console(tr('uglify_js(): Minifying javascript file ":file"', array(':file' => $file)), 'VERBOSEDOT');
                     file_delete(substr($file, 0, -3).'.min.js', ROOT.'www/en/pub/js,'.ROOT.'www/en/pub/css,'.ROOT.'www/en/admin/pub/js,'.ROOT.'www/en/admin/pub/css');
 
                     try{
@@ -710,8 +710,8 @@ function uglify_js($paths = null, $force = false){
                     $time = time();
 
                     if(empty($_CONFIG['deploy'][ENVIRONMENT]['sudo'])){
-                        touch(str_runtil($file, '.').'.css'    , $time, $time);
-                        touch(str_runtil($file, '.').'.min.css', $time, $time);
+                        touch(str_runtil($file, '.').'.js'    , $time, $time);
+                        touch(str_runtil($file, '.').'.min.js', $time, $time);
 
                     }else{
                         $time = date_convert($time, 'Y-m-d H:i:s');
@@ -721,8 +721,7 @@ function uglify_js($paths = null, $force = false){
                     }
 
                 }catch(Exception $e){
-                    log_console(tr('Failed to compress javascript file ":file" because ":e"', array(':file' => $file, ':e' => $e->getMessage())), 'yellow');
-
+                    log_console(tr('Failed to minify javascript file ":file" because ":e"', array(':file' => $file, ':e' => $e->getMessage())), 'yellow');
                 }
             }
         }
