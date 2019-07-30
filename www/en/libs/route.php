@@ -623,6 +623,7 @@ function route_404(){
     global $core;
 
     try{
+        $core->register['route_exec']  = 'en/404.php';
         $core->register['script_path'] = 'system/404';
         $core->register['script']      = 404;
 
