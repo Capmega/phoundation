@@ -2422,7 +2422,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
 
         if(!accepts('image/'.$_CONFIG['cdn']['img']['auto_convert'][$format])){
             /*
-             * This browser does not accept webp images
+             * This browser does not accept the specified image format
              */
             return $src;
         }
@@ -2701,16 +2701,34 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
              * auto rescale!
              */
             if(!is_natural($params['width'])){
-                notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $width, ':src' => $params['src'])), 'warning/invalid'));
-                $params['width'] = $width;
+                if(!$width){
+                    notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', array(':width' => $params['width'], ':src' => $params['src'])), 'warning/invalid'));
+                    $params['width'] = null;
+
+                }else{
+                    notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $width, ':src' => $params['src'])), 'warning/invalid'));
+                    $params['width'] = $width;
+                }
             }
 
             if(!is_natural($params['height'])){
-                notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $height, ':src' => $params['src'])), 'warning/invalid'));
-                $params['height'] = $height;
+                if(!$height){
+                    notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', array(':height' => $params['height'], ':src' => $params['src'])), 'warning/invalid'));
+                    $params['height'] = null;
+
+                }else{
+                    notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $height, ':src' => $params['src'])), 'warning/invalid'));
+                    $params['height'] = $height;
+                }
             }
 
-            if(!$_CONFIG['cdn']['img']['auto_resize'] and !$external){
+            /*
+             * If the image is not an external image, and we have a specified
+             * width and height for the image, and we should auto resize then
+             * check if the real image dimensions fall within the specified
+             * dimensions. If not, automatically resize the image
+             */
+            if(!$_CONFIG['cdn']['img']['auto_resize'] and !$external and $params['width'] and $params['height']){
                 if(($width > $params['width']) or ($height > $params['height'])){
                     log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
 
@@ -2750,26 +2768,36 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                     /*
                      * Resize or do we have a cached version?
                      */
-                    if(!file_exists($file_target)){
-                        log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
-                        load_libs('image');
+                    try{
+                        if(!file_exists($file_target)){
+                            log_file(tr('Resized version of ":src" does not yet exist, converting', array(':src' => $params['src'])), 'html', 'VERBOSE/cyan');
+                            load_libs('image');
 
-                        file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params){
-                            global $_CONFIG;
+                            file_execute_mode(dirname($file_src), 0770, function() use ($file_src, $file_target, $params){
+                                global $_CONFIG;
 
-                            image_convert(array('method' => 'resize',
-                                                'source' => $file_src,
-                                                'target' => $file_target,
-                                                'x'      => $params['width'],
-                                                'y'      => $params['height']));
-                        });
+                                image_convert(array('method' => 'resize',
+                                                    'source' => $file_src,
+                                                    'target' => $file_target,
+                                                    'x'      => $params['width'],
+                                                    'y'      => $params['height']));
+                            });
+                        }
+
+                        /*
+                         * Convert src to the resized target
+                         */
+                        $params['src'] = $target;
+                        $file_src      = $file_target;
+
+                    }catch(Exception $e){
+                        /*
+                         * Failed to auto resize the image. Notify and stay with
+                         * the current version meanwhile.
+                         */
+                        $e->addMessage(tr('html_img(): Failed to auto resize image ":image", using non resized image with incorrect width / height instead', array(':image' => $file_src)));
+                        notify($e->makeWarning(true));
                     }
-
-                    /*
-                     * Convert src to the resized target
-                     */
-                    $params['src'] = $target;
-                    $file_src      = $file_target;
                 }
             }
         }
