@@ -99,7 +99,7 @@ function route($regex, $target, $flags = null){
     try{
         if($regex === 'map'){
             log_file(tr('Setting URL map'), 'route', 'VERYVERBOSE/cyan');
-            $core->register['routemap'] = $target;
+            $core->register['route_map'] = $target;
             return true;
         }
 
@@ -430,59 +430,79 @@ function route($regex, $target, $flags = null){
         $get  = str_from($route , '?', 0, true);
 
         /*
+         * Translate the route?
+         */
+        if(isset($core->register['route_map'])){
+            /*
+             * Found mapping configuration. Find language match. Assume
+             * that $matches[1] contains the language, unless specified
+             * otherwise
+             */
+            if(isset($core->register['route_map']['language'])){
+                $language = isset_get($matches[$core->register['route_map']['language']][0]);
+
+            }else{
+                $language = isset_get($matches[1][0]);
+            }
+
+            if($language !== 'en'){
+                /*
+                 * Requested page is in a non-English language. This means that
+                 * the entire URL MUST be in that language. Translate the URL to
+                 * its English counterpart
+                 */
+                $translated = false;
+
+                /*
+                 * Check if route map has the requested language
+                 */
+                if(empty($core->register['route_map'][$language])){
+                    log_file(tr('Requested language ":language" does not have a language map available', array(':language' => $language)), 'route', 'yellow');
+                    unregister_shutdown('route_404');
+                    route_404();
+
+                }else{
+                    /*
+                     * Found a map for the requested language
+                     */
+                    log_file(tr('Attempting to remap for language ":language"', array(':language' => $language)), 'route', 'VERBOSE/cyan');
+
+                    foreach($core->register['route_map'][$language] as $unknown => $remap){
+                        if(strpos($page, $unknown) !== false){
+                            $translated = true;
+                            $page       = str_replace($unknown, $remap, $page);
+                        }
+                    }
+
+                    if(!file_exists($page)){
+                        log_file(tr('Language remapped page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
+                        unregister_shutdown('route_404');
+                        route_404();
+                    }
+
+                    log_file(tr('Found remapped page ":page"', array(':page' => $page)), 'route', 'VERBOSE/green');
+                }
+
+                if(!$translated){
+                    /*
+                     * Page was not translated, ie its still the original and
+                     * no translation was found.
+                     */
+                    log_file(tr('Requested language ":language" does not have a translation available in the language map for page ":page"', array(':language' => $language, ':page' => $page)), 'route', 'yellow');
+                    unregister_shutdown('route_404');
+                    route_404();
+                }
+            }
+        }
+
+        /*
          * Check if configured page exists
          */
         if(!file_exists($page)){
             if(isset($dynamic_pagematch)){
                 log_file(tr('Dynamically matched page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
-                $cancel = true;
-
-                /*
-                 * Page doesn't exist. Maybe a URL section is mapped?
-                 */
-                if(isset($core->register['routemap'])){
-                    /*
-                     * Found mapping configuration. Find language match. Assume
-                     * that $matches[1] contains the language, unless specified
-                     * otherwise
-                     */
-                    if(isset($core->register['routemap']['language'])){
-                        $match = isset_get($matches[$core->register['routemap']['language']][0]);
-
-                    }else{
-                        $match = isset_get($matches[1][0]);
-                    }
-
-                    if(isset($core->register['routemap'][$match])){
-                        /*
-                         * Found a map for the requested language
-                         */
-                        log_file(tr('Attempting to remap for language ":language"', array(':language' => $match)), 'route', 'VERBOSE/cyan');
-
-                        foreach($core->register['routemap'][$match] as $unknown => $remap){
-                            $page = str_replace($unknown, $remap, $page);
-                        }
-
-                        if(file_exists($page)){
-                            log_file(tr('Found remapped page ":page"', array(':page' => $page)), 'route', 'VERBOSE/green');
-                            $cancel = false;
-
-                        }else{
-                            log_file(tr('Remapped page ":page" does not exist either', array(':page' => $page)), 'route', 'VERBOSE/yellow');
-                        }
-                    }
-                }
-
-                if($cancel){
-                    /*
-                     * Could not find any file, even with potential remapping.
-                     * Cancel match
-                     */
-                    log_file(tr('No pages found, cancelling match'), 'route', 'VERYVERBOSE');
-
-                    $count++;
-                    return false;
-                }
+                $count++;
+                return false;
 
             }else{
                 /*
@@ -523,8 +543,8 @@ function route($regex, $target, $flags = null){
         $core->register['script']      = str_rfrom($page, '/');
         $core->register['real_script'] = $core->register['script'];
 
-        if(isset($core->register['routemap'])){
-            foreach($core->register['routemap'] as $code => &$map){
+        if(isset($core->register['route_map'])){
+            foreach($core->register['route_map'] as $code => &$map){
                 $map = array_flip($map);
             }
         }
