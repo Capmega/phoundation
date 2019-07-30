@@ -2080,8 +2080,6 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
             }
 
             if(!file_exists($file.'.js')){
-                $file .= '.js';
-
                 file_execute_mode(dirname($file), 0770, function() use ($file, $retval){
                     log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
                     file_put_contents($file.'.js', $retval);
