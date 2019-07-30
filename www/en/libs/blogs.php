@@ -1742,7 +1742,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
          *
          */
         $mime_type = file_mimetype($file);
-        $prefix    = ROOT.'data/content/';
+        $prefix    = ROOT.'data/content/photos/';
         $types     = $_CONFIG['blogs']['images'];
 
         if(str_until($mime_type, '/') === 'video'){
@@ -2799,8 +2799,13 @@ function blogs_post_get_atlant_media_html($photo, $params, &$tabindex){
             }
 
         }catch(Exception $e){
-            notify($e);
-            $image = false;
+            if($e->getRealCode() !== 'not-exists'){
+                throw $e;
+            }
+
+            notify($e->makeWarning(true));
+            $image    = false;
+            $is_video = false;
         }
 
         if(!$image){
