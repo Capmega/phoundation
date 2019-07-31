@@ -603,6 +603,14 @@ function route_exec($target, $attachment, $restrictions){
 
             $core->register['route_exec'] = $target;
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
+
+            /*
+             * Auto start the phoundation core if configured to do so
+             */
+            if(!empty($GLOBALS['route_start'])){
+                $core->startup();
+            }
+
             include($target);
 
         }else{
@@ -646,6 +654,13 @@ function route_404(){
         $core->register['route_exec']  = 'en/404.php';
         $core->register['script_path'] = 'system/404';
         $core->register['script']      = 404;
+
+        /*
+         * Auto start the phoundation core if configured to do so
+         */
+        if(!empty($GLOBALS['route_start'])){
+            $core->startup();
+        }
 
         page_show(404);
 
