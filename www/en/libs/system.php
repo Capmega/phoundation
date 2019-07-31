@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.35');
+define('FRAMEWORKCODEVERSION', '2.7.36');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2208,32 +2208,11 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
         if(!empty($core->register['route_map']) and ($domain !== $_CONFIG['cdn']['domain'].'/')){
             if(LANGUAGE !== 'en'){
                 /*
-                 * Current language is NOT English, so URL may not be English
-                 * either. Translate possible non-English URL to English
-                 */
-                if(empty($core->register['route_map'][LANGUAGE.'-rev'])){
-                    /*
-                     * Reverse map doesn't exist yet, create it now
-                     */
-                    if(empty($core->register['route_map'][LANGUAGE])){
-                        notify(new BException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $language)), 'not-specified'));
-
-                    }else{
-                        try{
-                            $core->register['route_map'][LANGUAGE.'-rev'] = array_flip($core->register['route_map'][LANGUAGE]);
-
-                        }catch(Exception $e){
-                            notify(new BException(tr('domain(): Failed to generate reverse language map for url ":url", specified language routemap for requested language ":language" appears to be invalid', array(':url' => $retval, ':language' => $language)), $e));
-                        }
-                    }
-                }
-
-                /*
-                 * We should have a reverse language map available here.
+                 * Translate the current non-English URL to English first
                  */
                 $retval = str_replace(LANGUAGE.'/', 'en/', $retval);
 
-                foreach($core->register['route_map'][LANGUAGE.'-rev'] as $foreign => $english){
+                foreach($core->register['route_map'][LANGUAGE] as $english => $foreign){
                     $retval = str_replace($foreign, $english, $retval);
                 }
             }
@@ -2243,6 +2222,7 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
              * English here, then conversion from local language to English
              * right above failed
              */
+
             if($language !== 'en'){
                 /*
                  * Map the english URL to the requested non-english URL
