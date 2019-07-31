@@ -789,9 +789,7 @@ function html_header($params, $meta, &$html){
     global $_CONFIG, $core;
 
     try{
-        array_ensure($meta);
         array_ensure($params, 'title,links,extra');
-
         array_default($params, 'http'          , 'html');
         array_default($params, 'captcha'       , false);
         array_default($params, 'doctype'       , '<!DOCTYPE html>');
@@ -820,37 +818,50 @@ function html_header($params, $meta, &$html){
             }
         }
 
-        if(empty($meta['description'])){
-            throw new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified');
-        }
+        try{
+            array_ensure($meta);
 
-        if(empty($meta['keywords'])){
-            throw new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified');
-        }
+            if(empty($meta['description'])){
+                throw new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'not-specified');
+            }
 
-        if(!empty($meta['noindex'])){
-            $meta['robots'] = 'noindex';
-            unset($meta['noindex']);
-        }
+            if(empty($meta['keywords'])){
+                throw new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'not-specified');
+            }
 
-        if(!empty($_CONFIG['meta'])){
+            if(!empty($meta['noindex'])){
+                $meta['robots'] = 'noindex';
+                unset($meta['noindex']);
+            }
+
+            if(!empty($_CONFIG['meta'])){
+                /*
+                 * Add default configured meta tags
+                 */
+                $meta = array_merge($_CONFIG['meta'], $meta);
+            }
+
             /*
-             * Add default configured meta tags
+             * Add viewport meta tag for mobile devices
              */
-            $meta = array_merge($_CONFIG['meta'], $meta);
+            if(empty($meta['viewport'])){
+                $meta['viewport'] = isset_get($_CONFIG['mobile']['viewport']);
+            }
+
+            if(!$meta['viewport']){
+                throw new BException(tr('html_header(): Meta viewport tag is not specified'), 'not-specified');
+            }
+
+        }catch(Exception $e){
+            /*
+             * Only notify since this is not a huge issue on production
+             */
+            notify($e);
         }
 
         /*
-         * Add viewport meta tag for mobile devices
+         * AMP page? Canonical page?
          */
-        if(empty($meta['viewport'])){
-            $meta['viewport'] = isset_get($_CONFIG['mobile']['viewport']);
-        }
-
-        if(!$meta['viewport']){
-            throw new BException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified');
-        }
-
         if(!empty($params['amp'])){
             $params['links'] .= '<link rel="amphtml" href="'.domain('/amp'.$_SERVER['REQUEST_URI']).'">';
         }
@@ -858,11 +869,6 @@ function html_header($params, $meta, &$html){
         if(!empty($params['canonical'])){
             $params['links'] .= '<link rel="canonical" href="'.$params['canonical'].'">';
         }
-
-//:DELETE: Above is already a meta-viewport
-        //if(!empty($_CONFIG['bootstrap']['enabled'])){
-        //    array_ensure($meta, 'viewport', $_CONFIG['bootstrap']['viewport']);
-        //}
 
         /*
          * Add meta tag no-index for non production environments and admin pages
@@ -948,6 +954,9 @@ function html_header($params, $meta, &$html){
             }
         }
 
+        /*
+         * Add meta data, favicon, and <body> tag
+         */
         $retval .= html_meta($meta);
         $retval .= html_favicon($params['favicon']).$params['extra'];
         $retval .= '</head>'.$params['body'];
@@ -955,14 +964,7 @@ function html_header($params, $meta, &$html){
         return $retval;
 
     }catch(Exception $e){
-        if($_CONFIG['production'] and !$e->isWarning()){
-            throw new BException('html_header(): Failed', $e);
-        }
-
-        /*
-         * Only notify
-         */
-        notify($e);
+        throw new BException('html_header(): Failed', $e);
     }
 }
 
