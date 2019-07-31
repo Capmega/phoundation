@@ -821,11 +821,11 @@ function html_header($params, $meta, &$html){
         }
 
         if(empty($meta['description'])){
-            throw new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
+            throw new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified');
         }
 
         if(empty($meta['keywords'])){
-            throw new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), '');
+            throw new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified');
         }
 
         if(!empty($meta['noindex'])){
@@ -848,7 +848,7 @@ function html_header($params, $meta, &$html){
         }
 
         if(!$meta['viewport']){
-            throw new BException(tr('html_header(): Meta viewport tag is not specified'), 'not-specified');
+            throw new BException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified');
         }
 
         if(!empty($params['amp'])){
@@ -955,7 +955,14 @@ function html_header($params, $meta, &$html){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('html_header(): Failed', $e);
+        if($_CONFIG['production'] and !$e->isWarning()){
+            throw new BException('html_header(): Failed', $e);
+        }
+
+        /*
+         * Only notify
+         */
+        notify($e);
     }
 }
 
