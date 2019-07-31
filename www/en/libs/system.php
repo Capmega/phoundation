@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.36');
+define('FRAMEWORKCODEVERSION', '2.7.37');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -281,6 +281,9 @@ class Core{
                         $this->callType = 'ajax';
 
                     }elseif(strstr($file, '/api/')){
+                        $this->callType = 'api';
+
+                    }elseif(substr($_SERVER['SERVER_NAME'], 0, 4)){
                         $this->callType = 'api';
 
                     }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
@@ -3238,7 +3241,7 @@ function page_show($pagename, $params = null, $get = null){
                 return include($include);
 
             case 'api':
-                $include = ROOT.'www/api/'.$pagename.'.php';
+                $include = ROOT.'www/api/'.(is_numeric($pagename) ? 'system/' : '').$pagename.'.php';
 
                 if(isset_get($params['exists'])){
                     return file_exists($include);
