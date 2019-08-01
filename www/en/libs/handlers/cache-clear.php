@@ -21,30 +21,36 @@ try{
                     /*
                      * Delete only one cache file, and attempt to clear empty directories as possible
                      */
-                    file_clear_path(ROOT.'data/cache/'.slash($namespace).$key, ROOT.'data/cache');
+                    file_delete(array('patterns'     => ROOT.'data/cache/'.slash($namespace).$key,
+                                      'restrictions' => ROOT.'data/cache/',
+                                      'clean_path'   => false));
 
                 }else{
                     /*
                      * Delete specified group
                      */
-                    file_delete(ROOT.'data/cache/'.$namespace, ROOT.'data/cache');
+                    file_delete(array('patterns'     => ROOT.'data/cache/'.$namespace,
+                                      'restrictions' => ROOT.'data/cache/',
+                                      'clean_path'   => false));
                 }
 
             }elseif($key){
                 /*
                  * Delete only one cache file, and attempt to clear empty directories as possible
                  */
-                file_clear_path(ROOT.'data/cache/'.$key, ROOT.'data/cache');
+                file_clear_path(ROOT.'data/cache/'.$key, ROOT.'data/cache/');
 
             }else{
                 /*
                  * Delete all cache
                  */
-                safe_exec(array('commands' => array('rm', array(ROOT.'/data/cache/', '-rf'))));
+                file_delete(array('patterns'     => ROOT.'data/cache/',
+                                  'restrictions' => ROOT.'data/',
+                                  'clean_path'   => false));
             }
 
             file_ensure_path(ROOT.'data/cache');
-            log_console(tr('Cleared file caches from path ":path"', array(':path' => 'ROOT/data/cache')));
+            log_console(tr('Cleared file caches from path ":path"', array(':path' => ROOT.'data/cache')), 'green');
             break;
 
         case 'memcached':
@@ -74,16 +80,19 @@ try{
             throw new BException(tr('cache_clear(): Unknown cache method ":method" specified', array('%method' => $_CONFIG['cache']['method'])), 'unknown');
     }
 
-}catch(Exception $e){
-    notify($e);
-}
+    /*
+     * Clear the tmp directory
+     */
+    file_delete(array('patterns'    => ROOT.'data/tmp/',
+                      'restrictions' => ROOT.'data/',
+                      'clean_path'   => false));
 
+    file_ensure_path(ROOT.'data/tmp');
+    log_console(tr('Cleared data/tmp'), 'green');
 
-
-/*
- * Clear CDN and CDN bundler caches
- */
-try{
+    /*
+     * Clear CDN and CDN bundler caches
+     */
     if(empty($_CONFIG['language']['supported'])){
         $languages = array('en' => tr('English'));
 
