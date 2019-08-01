@@ -1445,7 +1445,7 @@ function file_chmod($params, $mode = null){
             throw new BException(tr('The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exist');
         }
 
-        foreach($params['path'] as $path){
+        foreach(array_force($params['path']) as $path){
             file_restrict($path, $params['restrictions']);
 
             $arguments[] = $params['mode'];
