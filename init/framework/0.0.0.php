@@ -71,16 +71,3 @@ sql_query('CREATE TABLE `users` (`id`           INT(11)      NOT NULL AUTO_INCRE
                                  UNIQUE(`fb_id`)
 
                                 ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
-
-/*
- * Check MySQL timezone availability
- */
-if(!sql_get('SELECT CONVERT_TZ("2012-06-07 12:00:00", "GMT", "America/New_York") AS `time`', 'time')){
-    log_console('No timezone data found in MySQL, importing timezone data files now', 'white');
-    log_console('Please fill in MySQL root password in the following "Enter password:" request', 'white');
-    log_console('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages', 'yellow');
-
-    safe_exec(array('commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
-                                        'mysql'              , array('-p', '-u', 'root', 'mysql'))));
-}
-?>
