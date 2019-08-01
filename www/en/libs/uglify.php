@@ -50,7 +50,7 @@ function uglify_css_setup(){
 
     try{
         log_console(tr('uglify_css_setup(): Installing uglifycss'), 'VERBOSE/cyan');
-        safe_exec(array('commands' => array($core->register['npm'], array('install', '--prefix', ROOT, 'uglifycss'))));
+        node_install_npm('uglifycss');
         log_console(tr('uglify_css_setup(): Finished installing uglifycss'), 'VERBOSE/green');
 
     }catch(Exception $e){
@@ -80,7 +80,7 @@ function uglify_css_find(){
             /*
              * uglifycss is not available, install it now.
              */
-            log_console(tr('uglify_css_find(): No uglifycss found, trying to install now'), 'VERBOSE/yellow');
+            log_console(tr('uglify_css_find(): No uglifycss found, trying to install now'), 'yellow');
             uglify_css_setup();
         }
 
@@ -436,7 +436,7 @@ function uglify_js_find(){
             /*
              * uglify-js is not available, install it now.
              */
-            log_console(tr('uglify_js_find(): No uglify-js found, trying to install now'), 'VERBOSE/yellow');
+            log_console(tr('uglify_js_find(): No uglify-js found, trying to install now'), 'yellow');
             uglify_js_setup();
         }
 
