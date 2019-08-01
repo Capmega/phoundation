@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.47');
+define('FRAMEWORKCODEVERSION', '2.7.48');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2212,8 +2212,12 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             if(LANGUAGE !== 'en'){
                 /*
                  * Translate the current non-English URL to English first
+                 * Add a / in front of $retval before replacing to ensure we
+                 * don't accidentally replace sections like "services/" with
+                 * "servicen/"
                  */
-                $retval = str_replace(LANGUAGE.'/', 'en/', $retval);
+                $retval = str_replace('/'.LANGUAGE.'/', '/en/', '/'.$retval);
+                $retval = substr($retval, 1);
 
                 foreach($core->register['route_map'][LANGUAGE] as $english => $foreign){
                     $retval = str_replace($foreign, $english, $retval);
