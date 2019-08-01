@@ -2756,41 +2756,47 @@ function file_execute_mode($path, $mode, $callback, $params = null){
             throw new BException(tr('file_execute_mode(): Specified callback ":callback" is invalid, it should be a string or a callable function', array(':callback' => $callback)), 'invalid');
         }
 
+        /*
+         * Set the requested mode
+         */
         try{
-            if($mode){
-                $original_mode = fileperms($path);
-                chmod($path, $mode);
+            if(is_dir($path) and $multi){
+                $paths = cli_find(array('type'  => 'd',
+                                        'start' => $path));
+
+                foreach($paths as $subpath){
+                    $modes[$subpath] = fileperms($subpath);
+                    chmod($subpath, $mode);
+                }
+
+            }else{
+                if($mode){
+                    $original_mode = fileperms($path);
+                    chmod($path, $mode);
+                }
             }
 
         }catch(Exception $e){
+            if(is_dir($path) and $multi){
+                throw new BException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified sub path ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
+            }
+
             if(!is_writable($path)){
-                throw new BException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", the path is readonly', array(':mode' => decoct($mode), ':path' => $path)), $e);
+                throw new BException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
             }
 
             throw $e;
         }
 
-        if(is_dir($path)){
-            if($multi){
-                $paths = cli_find(array('type'  => 'd',
-                                        'start' => $path));
-
-                foreach($paths as $path){
-                    $modes[$path] = fileperms($path);
-                    chmod($path, $mode);
-                }
-
-            }else{
-                $path = slash($path);
-            }
-        }
-
         $retval = $callback($path, $params, $mode);
 
+        /*
+         * Return the original mode
+         */
         if($mode){
             if($multi){
-                foreach($modes as $path => $mode){
-                    chmod($path, $mode);
+                foreach($modes as $subpath => $mode){
+                    chmod($subpath, $mode);
                 }
 
             }else{
