@@ -290,8 +290,8 @@ $_CONFIG['redirects']          = array('auto'                               => '
                                                                                'aftersignout'     => 'index.html');
 
 
-// Root URL of the website
-$_CONFIG['url_prefix']         = '';                                                                                                        //
+// Real ROOT path
+$_CONFIG['root']               = '';                                                                                                        // Real ROOT path of the entire project (in case phoundation is installed a sub directory of another framework). Used for deployment, code script, etc. Leave empty if Phoundation is the only framework used for your website
 
 // Security configuration
 $_CONFIG['security']           = array('signin'                             => array('save_password'    => true,                            // Allow the browser client to save the passwords. If set to false, different form names will be used to stop browsers from saving passwords
@@ -382,4 +382,6 @@ $_CONFIG['users']              = array('type_filter'                        => n
                                        'duplicate_reference_codes'          => false);
 
 $_CONFIG['whitelabels']        = false;                                                                                                     // Either false (No whitelabel domains, only the normal site FQDN allowed), "list" (only default and registered FQDNs allowed), "sub" (only default FQDN and its sub domains allowed), "all" (All domains allowed), or the specific FQDN that is allowed
-?>
+
+// Root URL of the website
+$_CONFIG['url_prefix']         = '';                                                                                                        //
