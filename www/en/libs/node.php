@@ -177,7 +177,7 @@ function node_find_modules(){
         /*
          * Search for node_modules path
          */
-        foreach(array($home, ROOT, getcwd()) as $path){
+        foreach(array(ROOT, getcwd(), $home) as $path){
             if($found){
                 break;
             }
@@ -191,11 +191,39 @@ function node_find_modules(){
         }
 
         if(!$found){
-            throw new BException('node_find_modules(): node_modules path not found', 'path_not_found');
+            /*
+             * Initialize the node_modules path
+             */
+            file_execute_mode(ROOT, 0770, function() use (&$found){
+                log_console(tr('node_find_modules(): node_modules path not found, initializing now with ROOT/node_modules'), 'yellow');
+
+                $found = ROOT.'node_modules/';
+                file_ensure_path($found, 0550);
+            });
         }
 
-        log_console(tr('node_find_modules(): Using node_modules ":path"', array(':path' => $home)), 'green');
+        log_console(tr('node_find_modules(): Using node_modules ":path"', array(':path' => $found)), 'green');
         $core->register['node_modules'] = slash($found);
+
+        /*
+         * Delete the package-lock file if there
+         */
+// :TODO: Improve this part. If the package-lock file exists, that means that a node install at least WAS busy, or still is busy in perhaps a parrallel process? Check if node is active, if not THEN delete and continue
+        if(file_exists(slash(dirname($found)).'package-lock.json')){
+            file_execute_mode(slash(dirname($found)), 0770, function() use ($found){
+                /*
+                 * Delete the package-lock.json file. It's okay to use the
+                 * variable dirname($found) here for restrictions as $found can
+                 * be only one of ROOT, CWD, or the users home directory, and we
+                 * are specifically deleting the package-lock.json file
+                 */
+                file_chmod(array('path'         => slash(dirname($found)).'package-lock.json',
+                                 'mode'         => 0660,
+                                 'restrictions' => dirname($found)));
+
+                file_delete(slash(dirname($found)).'package-lock.json', dirname($found));
+            });
+        }
 
     }catch(Exception $e){
         if($e->getCode() == 1){
@@ -249,39 +277,41 @@ function node_install_npm($packages){
     try{
         $packages = array_force($packages);
 
+        log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERBOSE/cyan');
+
         file_execute_mode(ROOT, 0770, function() use ($packages){
-            if(file_exists(ROOT.'node_modules')){
-                /*
-                 * Ensure this is writable during install
-                 */
-                file_chmod(array('path'         => ROOT.'node_modules',
-                                 'mode'         => 'ug+w',
-                                 'recursive'    => true,
-                                 'restrictions' => false));
-            }
+            file_ensure_path(ROOT.'node_modules');
+
+            /*
+             * Force everything in the node_modules directory to be writable
+             * for updates
+             */
+            file_chmod(array('path'         => ROOT.'node_modules',
+                             'mode'         => 'ug+w',
+                             'recursive'    => true,
+                             'restrictions' => false));
 
             foreach($packages as $package){
-                safe_exec(array('timeout'  => 30,
+                log_console(tr('node_install_npm(): Installing packages ":packages"', array(':packages' => $packages)), 'VERYVERBOSE/cyan');
+
+                safe_exec(array('timeout'  => 45,
                                 'commands' => array('cd' , array(ROOT),
                                                     'npm', array('install', '--prefix', ROOT, $package))));
             }
 
-            if(file_exists(ROOT.'node_modules')){
-                /*
-                 * Ensure this is readonly after install
-                 */
-                file_chmod(array('path'         => ROOT.'node_modules',
-                                 'mode'         => 'ug-w',
-                                 'recursive'    => true,
-                                 'restrictions' => false));
-            }
-
+            /*
+             * Force everything in the node_modules directory to always be readonly
+             */
+            file_chmod(array('path'         => ROOT.'node_modules',
+                             'mode'         => 'ug-w',
+                             'recursive'    => true,
+                             'restrictions' => false));
         });
 
         return count($packages);
 
     }catch(Exception $e){
-        throw new BException('node_find_npm(): Failed', $e);
+        throw new BException('node_install_npm(): Failed', $e);
     }
 }
 
