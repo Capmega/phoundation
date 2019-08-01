@@ -164,7 +164,8 @@ function init($projectfrom = null, $frameworkfrom = null){
                 log_console('Please fill in MySQL root password in the following "Enter password:" request', 'white');
                 log_console('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages', 'yellow');
 
-                safe_exec(array('commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
+                safe_exec(array('timeout'  => 90,
+                                'commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
                                                     'mysql'              , array('-p', '-u', 'root', 'mysql'))));
             }
             define('INITPATH', slash(realpath(ROOT.'init')));
