@@ -142,8 +142,11 @@ try{
             /*
              * Delete the temp files
              */
-            file_delete($output_file);
-            file_delete($exitcode_file);
+            file_delete(array('patterns'   => $output_file,
+                              'clean_path' => false));
+
+            file_delete(array('patterns'   => $exitcode_file,
+                              'clean_path' => false));
             break;
 
         case 'system':
@@ -219,11 +222,13 @@ under_construction();
              * passthru method creates temp files. Ensure they are deleted
              */
             if(isset($exitcode_file)){
-                file_delete($exitcode_file);
+                file_delete(array('patterns'   => $exitcode_file,
+                                  'clean_path' => false));
             }
 
             if(isset($exitcode_file)){
-                file_delete($exitcode_file);
+                file_delete(array('patterns'   => $exitcode_file,
+                                  'clean_path' => false));
             }
         }
 
