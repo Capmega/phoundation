@@ -309,7 +309,9 @@ function cli_run_once_local($close = false){
                 log_console(tr('The cli_run_once_local() function has been called with close option, but it was already closed or never opened.'), 'warning');
             }
 
-            file_delete($run_dir.$script, ROOT.'data/run/');
+            file_delete(array('patterns'     => $run_dir.$script,
+                              'restrictions' => ROOT.'data/run/',
+                              'clean_path'   => false));
             $executed = false;
             return;
         }
@@ -356,7 +358,9 @@ function cli_run_once_local($close = false){
              * exist, or is used by a different process. Remove the PID file
              */
             log_console(tr('cli_run_once_local(): Cleaning up stale run file ":file"', array(':file' => $run_dir.$script)), 'VERBOSE/yellow');
-            file_delete($run_dir.$script, ROOT.'data/run/');
+            file_delete(array('patterns'     => $run_dir.$script,
+                              'restrictions' => ROOT.'data/run/',
+                              'clean_path'   => false));
         }
 
         /*
@@ -399,7 +403,10 @@ under_construction();
                 throw new BException(tr('cli_run_max_local(): The cli_run_max_local() has been called with close option, but it was never opened'), 'invalid');
             }
 
-            file_delete($run_dir.$script, ROOT.'data/run/');
+            file_delete(array('patterns'     => $run_dir.$script,
+                              'restrictions' => ROOT.'data/run/',
+                              'clean_path'   => false));
+
             $executed = false;
             return true;
         }
@@ -446,7 +453,9 @@ under_construction();
              * exist, or is used by a different process. Remove the PID file
              */
             log_console(tr('cli_run_max_local(): Cleaning up stale run file ":file"', array(':file' => $run_dir.$script)), 'yellow');
-            file_delete($run_dir.$script, ROOT.'data/run/');
+            file_delete(array('patterns'     => $run_dir.$script,
+                              'restrictions' => ROOT.'data/run/',
+                              'clean_path'   => false));
         }
 
         /*
