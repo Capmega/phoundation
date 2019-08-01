@@ -997,7 +997,7 @@ foreach($targets as $target_environment){
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'chmod ug+w '.$deploy_config['target_dir'].' -R 2> /dev/null\'', $contentoutput, $return);
 
         log_console(tr('Deploying project to target server ":server" on path ":path"', array(':server' => $deploy_config['target_server'], ':path' => $deploy_config['target_dir'])), 'white');
-        passthru('rsync -rlpDczvAXHS'.($deploy_config['preserve_owner_group'] ? 'tog' : '').' --progress --force --delete '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.$_CONFIG['root'].' '.$deploy_config['target_user'].$deploy_config['target_server'].':'.$deploy_config['target_dir'].' '.$include.' '.$exclude, $exitcode);
+        passthru('rsync -rlpDczvAXHS'.($deploy_config['preserve_owner_group'] ? 'tog' : '').' --progress --force --delete '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($_CONFIG['root'] ? $_CONFIG['root'] : ROOT).' '.$deploy_config['target_user'].$deploy_config['target_server'].':'.$deploy_config['target_dir'].' '.$include.' '.$exclude, $exitcode);
 
         log_console(tr('Setting ROOT/data/system/last-deploy'));
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mkdir -p '.$deploy_config['target_dir'].'/data/system 2> /dev/null; '.$sudo.'touch '.$deploy_config['target_dir'].'/data/system/last-deploy\'', $contentoutput, $return);
