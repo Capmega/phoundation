@@ -135,6 +135,9 @@ try{
                 log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)));
                 $language = $_CONFIG['language']['default'];
             }
+
+        }else{
+            $language = $_CONFIG['language']['default'];
         }
 
         define('LANGUAGE', $language);
