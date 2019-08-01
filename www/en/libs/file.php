@@ -1423,7 +1423,7 @@ function file_temp_dir($prefix = '', $mode = null){
  * @param octal $params[mode] The mode to apply to files
  * @param octal $file_mode $params[directory_mode] The mode to apply to directories
  * @param octal $directory_mode The mode to apply to directories
- * @return string The result
+ * @return void
  */
 function file_chmod($params, $mode = null){
     try{
@@ -1445,21 +1445,23 @@ function file_chmod($params, $mode = null){
             throw new BException(tr('The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exist');
         }
 
-        file_restrict($params['path'], $params['restrictions']);
+        foreach($params['path'] as $path){
+            file_restrict($path, $params['restrictions']);
 
-        $arguments[] = $params['mode'];
-        $arguments[] = $params['path'];
+            $arguments[] = $params['mode'];
+            $arguments[] = $params['path'];
 
-        if($params['recursive']){
-            $arguments[] = '-R';
+            if($params['recursive']){
+                $arguments[] = '-R';
+            }
+
+            if($params['sudo']){
+                $arguments['sudo'] = $params['sudo'];
+            }
+
+            safe_exec(array('timeout'  => $params['timeout'],
+                            'commands' => array('chmod', $arguments)));
         }
-
-        if($params['sudo']){
-            $arguments['sudo'] = $params['sudo'];
-        }
-
-        safe_exec(array('timeout'  => $params['timeout'],
-                        'commands' => array('chmod', $arguments)));
 
     }catch(Exception $e){
         throw new BException('file_chmod(): Failed', $e);
