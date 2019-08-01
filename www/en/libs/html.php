@@ -2079,14 +2079,22 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                      * The javascript file is empty
                      */
                     log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
-                    file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+
+                    file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function(){
+                        file_chmod ($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                        file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                    });
 
                 }elseif((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time()){
                     /*
                      * External cached file is too old
                      */
                     log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', array(':file' => $file.'.js')), 'html-script', 'yellow');
-                    file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+
+                    file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function(){
+                        file_chmod ($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                        file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                    });
                 }
             }
 
