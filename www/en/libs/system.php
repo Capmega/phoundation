@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.45');
+define('FRAMEWORKCODEVERSION', '2.7.46');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -283,7 +283,7 @@ class Core{
                     }elseif(strstr($file, '/api/')){
                         $this->callType = 'api';
 
-                    }elseif(substr($_SERVER['SERVER_NAME'], 0, 4)){
+                    }elseif(substr($_SERVER['SERVER_NAME'], 0, 4) === 'api.'){
                         $this->callType = 'api';
 
                     }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
