@@ -1418,20 +1418,22 @@ function file_temp_dir($prefix = '', $mode = null){
  * @version 2.6.30: Added function and documentation
  *
  * @param params $params A parameters array
+ * @param string $mode
+ * @param list $restrictions
  * @param string $params[path]
- * @param boolean [false]  $params[recursive] If set to true, recurse into directories
- * @param octal $params[mode] The mode to apply to files
- * @param octal $file_mode $params[directory_mode] The mode to apply to directories
- * @param octal $directory_mode The mode to apply to directories
+ * @param boolean $params[recursive] If set to true, apply specified mode to the specified path and all files below by recursion
+ * @param octal string $params[mode] The mode to apply to the specified path (and all files below if recursive is specified)
+ * @param list $params[restrictions]
+ * @param natural $params[timeout]
  * @return void
  */
-function file_chmod($params, $mode = null){
+function file_chmod($params, $mode = null, $restrictions = null){
     try{
         array_params($params, 'path');
         array_ensure($params, 'recursive,sudo');
         array_default($params, 'timeout'     , 30);
         array_default($params, 'mode'        , $mode);
-        array_default($params, 'restrictions', null);
+        array_default($params, 'restrictions', $restrictions);
 
         if(!($params['mode'])){
             throw new BException(tr('No file mode specified'), 'not-specified');
@@ -1441,15 +1443,16 @@ function file_chmod($params, $mode = null){
             throw new BException(tr('No path specified'), 'not-specified');
         }
 
-        if(!file_exists($params['path'])){
-            throw new BException(tr('The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exist');
-        }
-
         foreach(array_force($params['path']) as $path){
+            if(!file_exists($path)){
+                throw new BException(tr('The specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+            }
+
             file_restrict($path, $params['restrictions']);
 
+            $arguments   = array();
             $arguments[] = $params['mode'];
-            $arguments[] = $params['path'];
+            $arguments[] = $path;
 
             if($params['recursive']){
                 $arguments[] = '-R';
