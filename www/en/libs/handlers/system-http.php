@@ -129,11 +129,23 @@ try{
             /*
              * Language is defined by the www/LANGUAGE dir that is used.
              */
-            $language = substr($this->register['route_exec'], 0, 2);
+            if(empty($this->register['route_exec'])){
+                $url      = $_SERVER['REQUEST_URI'];
+                $url      = str_starts_not($url, '/');
+                $language = str_until($url, '/');
 
-            if(!array_key_exists($language, $_CONFIG['language']['supported'])){
-                log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)));
-                $language = $_CONFIG['language']['default'];
+                if(!array_key_exists($language, $_CONFIG['language']['supported'])){
+                    log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)), 'VERBOSE/warning');
+                    $language = $_CONFIG['language']['default'];
+                }
+
+            }else{
+                $language = substr($this->register['route_exec'], 0, 2);
+
+                if(!array_key_exists($language, $_CONFIG['language']['supported'])){
+                    log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)), 'VERBOSE/warning');
+                    $language = $_CONFIG['language']['default'];
+                }
             }
 
         }else{
@@ -151,6 +163,7 @@ try{
         }
 
     }catch(Exception $e){
+log_file($e);
         /*
          * Language selection failed
          */

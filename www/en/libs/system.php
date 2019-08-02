@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.52');
+define('FRAMEWORKCODEVERSION', '2.7.53');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2180,20 +2180,21 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             $domain = $_SERVER['HTTP_HOST'];
         }
 
+        /*
+         * Use url_prefix, for URL's like domain.com/en/admin/page.html, where
+         * "/admin/" is the prefix
+         */
         if($prefix === null){
-// :COMPATIBILITY:  Remove "root" support after 2019-04-01
-            if(!empty($_CONFIG['url_prefix'])){
-                $prefix = $_CONFIG['url_prefix'];
-
-            }else{
-                $prefix = $_CONFIG['url_prefix'];
-            }
+            $prefix = $_CONFIG['url_prefix'];
         }
 
         $prefix   = str_starts_not(str_ends($prefix, '/'), '/');
         $domain   = slash($domain);
         $language = get_language($language);
 
+        /*
+         * Build up the URL part
+         */
         if(!$url){
             $retval = PROTOCOL.$domain.$language.'/'.$prefix;
 
