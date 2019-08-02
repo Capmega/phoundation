@@ -291,6 +291,13 @@ function route($regex, $target, $flags = null){
 
                     break;
 
+                case 'L':
+                    /*
+                     * Disable language support
+                     */
+                    $disable_language = true;
+                    break;
+
                 case 'P':
                     /*
                      * MUST be a POST reqest, NO EMPTY POST data allowed!
@@ -432,7 +439,7 @@ function route($regex, $target, $flags = null){
         /*
          * Translate the route?
          */
-        if(isset($core->register['route_map'])){
+        if(isset($core->register['route_map']) and empty($disable_language)){
             /*
              * Found mapping configuration. Find language match. Assume
              * that $matches[1] contains the language, unless specified
@@ -596,12 +603,13 @@ function route_exec($target, $attachment, $restrictions){
     global $_CONFIG, $core;
 
     try{
+        $core->register['route_exec'] = $target;
+
         if(substr($target, -3, 3) === 'php'){
             if($attachment){
                 throw new BException(tr('route_exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
             }
 
-            $core->register['route_exec'] = $target;
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
 
             /*
@@ -614,13 +622,29 @@ function route_exec($target, $attachment, $restrictions){
             include($target);
 
         }else{
-            $target = file_absolute(unslash($target), ROOT.'www/');
+            if($attachment){
+                /*
+                 * Upload the file to the client as an attachment
+                 */
+                $target = file_absolute(unslash($target), ROOT.'www/');
 
-            log_file(tr('Sending file ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
-            file_http_download(array('restrictions' => $restrictions,
-                                     'attachment'   => $attachment,
-                                     'file'         => $target,
-                                     'filename'     => basename($target)));
+                log_file(tr('Sending file ":target" as attachment', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
+                file_http_download(array('restrictions' => $restrictions,
+                                         'attachment'   => $attachment,
+                                         'file'         => $target,
+                                         'filename'     => basename($target)));
+
+            }else{
+                log_file(tr('Sending contents of file ":target" directly', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
+
+                $mimetype = mime_content_type($target);
+                $bytes    = filesize($target);
+
+                header('Content-Type: '.$mimetype);
+                header('Content-length: '.$bytes);
+
+                include($target);
+            }
         }
 
         die();
