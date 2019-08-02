@@ -190,7 +190,8 @@ switch(cli_method()){
                 try{
                     log_console(tr('Current framework version of this project is behind the found Phoundation framework version. Updating first'), 'yellow');
                     git_stash();
-                    script_exec(array('function' => 'passthru',
+                    script_exec(array('timeout'  => 90,
+                                      'function' => 'passthru',
                                       'commands' => array('base/update', array('--branch', $current_version_line))));
 
                 }catch(Exception $e){
