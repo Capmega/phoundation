@@ -237,6 +237,7 @@ function blogs_post_get($blog = null, $post = null, $language = null, $alternati
                                          `blogs_posts`.`language`,
                                          `blogs_posts`.`url`,
                                          `blogs_posts`.`urlref`,
+                                         `blogs_posts`.`code`,
                                          `blogs_posts`.`name`,
                                          `blogs_posts`.`seoname`,
                                          `blogs_posts`.`body`,
@@ -435,6 +436,11 @@ function blogs_post_update($post, $params = null){
         if($params['label_status']){
             $updates[] = ' `status` = :status ';
             $execute[':status'] = $post['status'];
+        }
+
+        if($params['label_code']){
+            $updates[] = ' `code` = :code ';
+            $execute[':code'] = $post['code'];
         }
 
         if($post['urlref']){
@@ -1291,7 +1297,7 @@ function blogs_validate_post($post, $params = null){
         /*
          * Validate input
          */
-        $v = new ValidateForm($post, 'id,name,featured_until,assigned_to,seocategory1,seocategory2,seocategory3,category1,category2,category3,body,keywords,description,language,level,urlref,status');
+        $v = new ValidateForm($post, 'id,name,code,featured_until,assigned_to,seocategory1,seocategory2,seocategory3,category1,category2,category3,body,keywords,description,language,level,urlref,status');
 
         for($i = 1; $i <= 3; $i++){
             /*
@@ -1382,6 +1388,11 @@ function blogs_validate_post($post, $params = null){
                     $v->setError(tr('A post with the name ":name" already exists', array(':name' => $post['name'])), $params['object_name']);
                 }
             }
+        }
+
+        if($params['label_code']){
+            $v->hasMaxChars($post['code'], 32, tr('Please provide a code less than 32 characters for your :objectname', array(':objectname' => $params['object_name'])));
+            $v->isAlphaNumeric($post['code'], tr('Please provide a valid code for your :objectname', array(':objectname' => $params['object_name'])));
         }
 
         if(!empty($params['label_append'])){
