@@ -2064,95 +2064,106 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
          * Store internal script in external files, or keep them internal?
          */
         if($script['to_file']){
-            /*
-             * Create the cached file names
-             */
-            $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['real_script'] ? $core->register['real_script'].'-' : '').$count;
-            $file = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
+            try{
+                /*
+                 * Create the cached file names
+                 */
+                $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['real_script'] ? $core->register['real_script'].'-' : '').$count;
+                $file = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
 
-            /*
-             * Write the javascript to the cached file
-             */
-            if(file_exists($file.'.js')){
-                if(!filesize($file.'.js')){
-                    /*
-                     * The javascript file is empty
-                     */
-                    log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
+                /*
+                 * Write the javascript to the cached file
+                 */
+                if(file_exists($file.'.js')){
+                    if(!filesize($file.'.js')){
+                        /*
+                         * The javascript file is empty
+                         */
+                        log_file(tr('Deleting externally cached javascript file ":file" because the file is 0 bytes', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                    file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file){
-                        file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', ROOT.'www/'.LANGUAGE.'/pub/js');
-                        file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
-                    });
+                        file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file){
+                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', ROOT.'www/'.LANGUAGE.'/pub/js');
+                            file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                        });
 
-                }elseif((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time()){
-                    /*
-                     * External cached file is too old
-                     */
-                    log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', array(':file' => $file.'.js')), 'html-script', 'yellow');
+                    }elseif($_CONFIG['cdn']['cache_max_age'] and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())){
+                        /*
+                         * External cached file is too old
+                         */
+                        log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
-                    file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file){
-                        file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', ROOT.'www/'.LANGUAGE.'/pub/js');
-                        file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                        file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file){
+                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', ROOT.'www/'.LANGUAGE.'/pub/js');
+                            file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                        });
+                    }
+                }
+
+                if(!file_exists($file.'.js')){
+                    file_execute_mode(dirname($file), 0770, function() use ($file, $retval){
+                        log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
+                        file_put_contents($file.'.js', $retval);
                     });
                 }
-            }
 
-            if(!file_exists($file.'.js')){
-                file_execute_mode(dirname($file), 0770, function() use ($file, $retval){
-                    log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
-                    file_put_contents($file.'.js', $retval);
-                });
-            }
+                /*
+                 * Always minify the file. On local machines where minification is
+                 * turned off this is not a problem, it should take almost zero
+                 * resources, and it will immediately test minification for
+                 * production as well.
+                 */
+                if(!file_exists($file.'.min.js')){
+                    try{
+                        load_libs('uglify');
+                        uglify_js($file.'.js');
 
-            /*
-             * Always minify the file. On local machines where minification is
-             * turned off this is not a problem, it should take almost zero
-             * resources, and it will immediately test minification for
-             * production as well.
-             */
-            if(!file_exists($file.'.min.js')){
-                try{
-                    load_libs('uglify');
-                    uglify_js($file.'.js');
-
-                }catch(Exception $e){
-                    /*
-                     * Minify process failed. Notify and fall back on a plain
-                     * copy
-                     */
-                    notify($e);
-                    copy($file.'.js', $file.'.min.js');
+                    }catch(Exception $e){
+                        /*
+                         * Minify process failed. Notify and fall back on a plain
+                         * copy
+                         */
+                        notify($e);
+                        copy($file.'.js', $file.'.min.js');
+                    }
                 }
-            }
 
-            /*
-             * Add the file to the html javascript load list
-             */
-            html_load_js($base, $script['list']);
+                /*
+                 * Add the file to the html javascript load list
+                 */
+                html_load_js($base, $script['list']);
+
+                $count++;
+                return '';
+
+            }catch(Exception $e){
+                /*
+                 * Moving internal javascript to external files failed, notify
+                 * developers
+                 */
+                notify($e);
+            }
+        }
+
+        /*
+         * Javascript is included into the webpage directly
+         *
+         * $core->register[script] tags are added all at the end of the page
+         * for faster loading
+         */
+        if(!$script['delayed']){
+            return $retval;
+        }
+
+        /*
+         * If delayed, add it to the footer, else return it directly for
+         * inclusion at the point where the html_script() function was
+         * called
+         */
+        if(isset($core->register['script_delayed'])){
+            $core->register['script_delayed'] .= $retval;
 
         }else{
-            /*
-             * Javascript is included into the webpage directly
-             *
-             * $core->register[script] tags are added all at the end of the page
-             * for faster loading
-             */
-            if(!$script['delayed']){
-                return $retval;
-            }
-
-            /*
-             * If delayed, add it to the footer, else return it directly for
-             * inclusion at the point where the html_script() function was
-             * called
-             */
-            if(isset($core->register['script_delayed'])){
-                $core->register['script_delayed'] .= $retval;
-
-            }else{
-                $core->register['script_delayed']  = $retval;
-            }
+            $core->register['script_delayed']  = $retval;
         }
 
         $count++;
