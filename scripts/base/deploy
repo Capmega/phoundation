@@ -149,6 +149,22 @@ load_libs('init,deploy,git');
 
 
 /*
+ * Calculate the path difference between ROOT and ROOT.$_CONFIG[root]
+ */
+$root = realpath(ROOT.$_CONFIG['root']);
+
+if(strlen($root) > strlen(ROOT)){
+    $rootdiff = str_from($root, ROOT);
+
+}else{
+    $rootdiff = str_from(ROOT, $root);
+}
+
+$rootdiff = str_ends_not($rootdiff, '/');
+
+
+
+/*
  * Ensure we're not running on the production environment.
  * Deployment is always done to targets, and production is always a target, we cannot deploy from a target to a target
  */
@@ -997,7 +1013,7 @@ foreach($targets as $target_environment){
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'chmod ug+w '.$deploy_config['target_dir'].' -R 2> /dev/null\'', $contentoutput, $return);
 
         log_console(tr('Deploying project to target server ":server" on path ":path"', array(':server' => $deploy_config['target_server'], ':path' => $deploy_config['target_dir'])), 'white');
-        passthru('rsync -rlpDczvAXHS'.($deploy_config['preserve_owner_group'] ? 'tog' : '').' --progress --force --delete '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($_CONFIG['root'] ? $_CONFIG['root'] : ROOT).' '.$deploy_config['target_user'].$deploy_config['target_server'].':'.$deploy_config['target_dir'].' '.$include.' '.$exclude, $exitcode);
+        passthru('rsync -rlpDczvAXHS'.($deploy_config['preserve_owner_group'] ? 'tog' : '').' --progress --force --delete '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.ROOT.$_CONFIG['root'].' '.$deploy_config['target_user'].$deploy_config['target_server'].':'.$deploy_config['target_dir'].' '.$include.' '.$exclude, $exitcode);
 
         log_console(tr('Setting ROOT/data/system/last-deploy'));
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mkdir -p '.$deploy_config['target_dir'].'/data/system 2> /dev/null; '.$sudo.'touch '.$deploy_config['target_dir'].'/data/system/last-deploy\'', $contentoutput, $return);
@@ -1024,10 +1040,10 @@ foreach($targets as $target_environment){
         log_console(tr('Executing structure fix'), 'white');
 
         if(!empty($deploy_config['rsync_parrallel'])){
-            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/fix-structure --env '.$target_environment.' \'', $exitcode);
+            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/fix-structure --env '.$target_environment.' \'', $exitcode);
 
         }else{
-            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/fix-structure --env '.$target_environment.' \'', $exitcode);
+            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/fix-structure --env '.$target_environment.' \'', $exitcode);
         }
 
         if($exitcode){
@@ -1056,10 +1072,10 @@ foreach($targets as $target_environment){
             log_console(tr('Executing file permission fix'), 'white');
 
             if(!empty($deploy_config['rsync_parrallel'])){
-                passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
+                passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
 
             }else{
-                passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
+                passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
             }
 
             if($exitcode){
@@ -1111,7 +1127,7 @@ foreach($targets as $target_environment){
 
     }else{
         log_console(tr('Executing init on target server with environment ":env"', array(':env' => $target_environment)), 'white');
-        passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/init --env '.$target_environment.' \'', $exitcode);
+        passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/init --env '.$target_environment.' \'', $exitcode);
 
         if($exitcode){
             throw new BException('Target version init failed with exit code "'.str_log($exitcode).'"', 'warning/init');
@@ -1134,7 +1150,7 @@ foreach($targets as $target_environment){
     //}else{
     //    log_console(tr('Executing sitemap scan and deploy on target server'), 'white');
     //
-    //    passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].'/scripts/base/sitemap scan --env '.$target_environment.' \'', $exitcode);
+    //    passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap scan --env '.$target_environment.' \'', $exitcode);
     //
     //    if($exitcode){
     //        throw new BException('Target sitemap scan failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_scan');
@@ -1142,19 +1158,19 @@ foreach($targets as $target_environment){
     //
     //    if($_CONFIG['language']['supported']){
     //        foreach($_CONFIG['language']['supported'] as $language){
-    //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].'/scripts/base/sitemap deploy   html '.$language.' --env '.$target_environment.' \'', $exitcode);
+    //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy   html '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if($exitcode){
     //                throw new BException('Target sitemap HTML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_html');
     //            }
     //
-    //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].'/scripts/base/sitemap deploy    xml '.$language.' --env '.$target_environment.' \'', $exitcode);
+    //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy    xml '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if($exitcode){
     //                throw new BException('Target sitemap XML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_xml');
     //            }
     //
-    //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].'/scripts/base/sitemap deploy robots '.$language.' --env '.$target_environment.' \'', $exitcode);
+    //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy robots '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if($exitcode){
     //                throw new BException('Target sitemap robots build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_robots');
@@ -1194,7 +1210,7 @@ foreach($targets as $target_environment){
     }else{
         log_console(tr('Executing cache clear'), 'white');
 
-        passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].'/scripts/base/cache clear --env '.$target_environment.'\'', $exitcode);
+        passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/cache clear --env '.$target_environment.'\'', $exitcode);
 
         if($exitcode){
             throw new BException('Cache clear failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
