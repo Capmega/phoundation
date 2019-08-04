@@ -3479,7 +3479,7 @@ function html_loader_screen($params){
     try{
         array_params($params);
         array_default($params, 'page_selector'        , '#main-container');
-        array_default($params, 'image_src'            , html_img_src('img/loader_screen.jpg'));
+        array_default($params, 'image_src'            , false);
         array_default($params, 'image_alt'            , tr('Loader screen'));
         array_default($params, 'image_width'          , null);
         array_default($params, 'image_height'         , null);
@@ -3510,8 +3510,8 @@ function html_loader_screen($params){
                 /*
                  * Hide the loader screen and show the main page wrapper
                  */
-                $html .= html_script('jQuery("#loader-screen").fadeOut('.$params['transition_duration'].', function(){ jQuery("#loader-screen").remove(); });
-                                      jQuery("'.$params['page_selector'].'").show('.$params['transition_duration'].');');
+                $html .= html_script('jQuery("'.$params['page_selector'].'").show('.$params['transition_duration'].');
+                                      jQuery("#loader-screen").fadeOut('.$params['transition_duration'].', function(){ jQuery("#loader-screen").remove(); });');
 
                 return $html;
             }
