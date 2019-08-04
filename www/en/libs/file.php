@@ -969,6 +969,7 @@ function file_list_tree($path, $pattern = null, $recursive = true){
  * @param null list $params[restrictions] A list of paths to which file_delete() operations will be restricted
  * @param boolean $params[clean_path] If specified true, all directories above each specified pattern will be deleted as well as long as they are empty. This way, no empty directories will be left laying around
  * @param boolean $params[sudo] If specified true, the rm command will be executed using sudo
+ * @param boolean $params[force_writable] If specified true, the function will first execute chmod ug+w on each specified patterns before deleting them
  * @return natural The amount of orphaned files, and orphaned `files` entries found and processed
  */
 function file_delete($params, $restrictions = null){
@@ -979,8 +980,9 @@ function file_delete($params, $restrictions = null){
 
         array_params ($params, 'patterns');
         array_ensure ($params, 'patterns,restrictions,sudo');
-        array_default($params, 'restrictions', $restrictions);
-        array_default($params, 'clean_path'  , true);
+        array_default($params, 'restrictions'  , $restrictions);
+        array_default($params, 'clean_path'    , true);
+        array_default($params, 'force_writable', false);
 
         /*
          * Both patterns and restrictions should be arrays, make them so now to
@@ -1012,6 +1014,20 @@ function file_delete($params, $restrictions = null){
 
             unset($items);
             unset($item);
+
+            if(!file_exists($safe_pattern)){
+                /*
+                 * This pattern doesn't exist, we can ignore it
+                 */
+                continue;
+            }
+
+            if($params['force_writable']){
+                file_chmod(array('path'         => $safe_pattern,
+                                 'mode'         => 'ug+w',
+                                 'recursive'    => true,
+                                 'recursive'    => $params['restrictions']));
+            }
 
             /*
              * Execute the rm command
