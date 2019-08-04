@@ -347,7 +347,7 @@ function json_message($message, $data = null){
 /*
  * Custom JSON encoding function
  */
-function json_encode_custom($source = false, $internal = true){
+function json_encode_custom($source, $internal = true){
     try{
         if($internal){
             $source = json_encode($source);
@@ -357,16 +357,16 @@ function json_encode_custom($source = false, $internal = true){
                     break;
 
                 case JSON_ERROR_DEPTH:
-                    throw new BException('json_decode_custom(): Maximum stack depth exceeded', 'invalid');
+                    throw new BException('json_encode_custom(): Maximum stack depth exceeded'      , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_STATE_MISMATCH:
-                    throw new BException('json_decode_custom(): Underflow or the modes mismatch', 'invalid');
+                    throw new BException('json_encode_custom(): Underflow or the modes mismatch'   , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_CTRL_CHAR:
-                    throw new BException('json_decode_custom(): Unexpected control character found', 'invalid');
+                    throw new BException('json_encode_custom(): Unexpected control character found', 'invalid', print_r($source, true));
 
                 case JSON_ERROR_SYNTAX:
-                    throw new BException('json_decode_custom(): Syntax error, malformed JSON', 'invalid', $json);
+                    throw new BException('json_encode_custom(): Syntax error, malformed JSON'      , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_UTF8:
                     /*
@@ -375,8 +375,24 @@ function json_encode_custom($source = false, $internal = true){
                     load_libs('mb');
                     return json_encode_custom(mb_utf8ize($source), true);
 
+                case JSON_ERROR_RECURSION:
+                    throw new BException('json_encode_custom(): One or more recursive references in the value to be encoded', 'invalid', print_r($source, true));
+
+                case JSON_ERROR_INF_OR_NAN:
+                    throw new BException('json_encode_custom(): One or more NAN or INF values in the value to be encoded'   , 'invalid', print_r($source, true));
+
+                case JSON_ERROR_UNSUPPORTED_TYPE:
+                    throw new BException('json_encode_custom(): A value of a type that cannot be encoded was given'         , 'invalid', print_r($source, true));
+
+                case JSON_ERROR_INVALID_PROPERTY_NAME:
+                    throw new BException('json_encode_custom(): A property name that cannot be encoded was given'           , 'invalid', print_r($source, true));
+
+                case JSON_ERROR_UTF16:
+                    throw new BException('json_encode_custom(): Malformed UTF-16 characters, possibly incorrectly encoded'  , 'invalid', print_r($source, true));
+
+
                 default:
-                    throw new BException('json_decode_custom(): Unknown JSON error occured', 'error');
+                    throw new BException('json_encode_custom(): Unknown JSON error occured', 'error');
             }
 
             return $source;
@@ -441,7 +457,7 @@ function json_encode_custom($source = false, $internal = true){
 
     }catch(Exception $e){
         $e->setData($source);
-        throw new BException('json_encode_custom(): Failed', $e);
+        throw new BException(tr('json_encode_custom(): Failed with ":message"', array(':message' => json_last_error_msg())), $e);
     }
 }
 
