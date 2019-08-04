@@ -171,7 +171,7 @@ function html_bundler($list){
              * Bundle files are essentially cached files. Ensure the cache is
              * not too old
              */
-            if((filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()){
+            if(($_CONFIG['cdn']['cache_max_age'] > 60) and (filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()){
                 file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
                     file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
                 });
@@ -2072,7 +2072,7 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                 $file = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
 
                 /*
-                 * Write the javascript to the cached file
+                 * Check if the cached file exists and is not too old.
                  */
                 if(file_exists($file.'.js')){
                     if(!filesize($file.'.js')){
@@ -2083,22 +2083,30 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
 
                         file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file){
                             file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', ROOT.'www/'.LANGUAGE.'/pub/js');
-                            file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                            file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
+                                              'force_writable' => true,
+                                              'restrictions'   => ROOT.'www/'.LANGUAGE.'/pub/js'));
                         });
 
-                    }elseif($_CONFIG['cdn']['cache_max_age'] and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())){
+                    }elseif(($_CONFIG['cdn']['cache_max_age'] > 60) and ((filemtime($file.'.js') + $_CONFIG['cdn']['cache_max_age']) < time())){
                         /*
                          * External cached file is too old
                          */
                         log_file(tr('Deleting externally cached javascript file ":file" because the file cache time expired', array(':file' => $file.'.js')), 'html-script', 'yellow');
 
                         file_execute_mode(ROOT.'www/'.LANGUAGE.'/pub/js', 0770, function() use ($file){
-                            file_chmod($file.'.js,'.$file.'.min.js', 'ug+w', ROOT.'www/'.LANGUAGE.'/pub/js');
-                            file_delete($file.'.js,'.$file.'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js');
+                            file_delete(array('patterns'       => $file.'.js,'.$file.'.min.js',
+                                              'force_writable' => true,
+                                              'restrictions'   => ROOT.'www/'.LANGUAGE.'/pub/js'));
                         });
                     }
                 }
 
+                /*
+                 * If file does not exist, create it now. Check again if it
+                 * exist, because the previous function may have possibly
+                 * deleted it
+                 */
                 if(!file_exists($file.'.js')){
                     file_execute_mode(dirname($file), 0770, function() use ($file, $retval){
                         log_file(tr('Writing internal javascript to externally cached file ":file"', array(':file' => $file.'.js')), 'html-script', 'cyan');
