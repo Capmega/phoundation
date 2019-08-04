@@ -1001,6 +1001,8 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
             script_exec(array('delay'    => 1,
                               'function' => 'passthru',
                               'commands' => array($core->register['real_script'], $arguments)));
+
+            log_console(tr('Finished reexecuted script ":script"', array(':script' => $core->register['script'])), 'VERYVERBOSE/green');
             die();
         }
 
