@@ -804,6 +804,7 @@ function html_header($params, $meta, &$html){
         array_default($params, 'title'         , isset_get($meta['title']));
         array_default($params, 'favicon'       , true);
         array_default($params, 'amp'           , false);
+        array_default($params, 'style'         , '');
         array_default($params, 'prefetch_dns'  , $_CONFIG['prefetch']['dns']);
         array_default($params, 'prefetch_files', $_CONFIG['prefetch']['files']);
 
@@ -893,6 +894,10 @@ function html_header($params, $meta, &$html){
                   '<title>'.$title.'</title>';
 
         unset($meta['title']);
+
+        if($params['style']){
+            $retval .= '<style>'.$params['style'].'</style>';
+        }
 
         if($params['links']){
             if(is_string($params['links'])){
