@@ -4,7 +4,7 @@
  *
  * DO NOT MODIFY THIS FILE!
  *
- * This file contains default valuesthat may be overwritten when you perform a
+ * This file contains default values that may be overwritten when you perform a
  * system update! Always update the following configuration files if you need to
  * make configuration changes
  *
