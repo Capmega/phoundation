@@ -79,49 +79,8 @@ function c_html_footer($params){
 function c_menu(){
     try{
         $html = '   <li>
-                        <a href="'.domain('/').'"><span class="fa fa-dashboard"></span> <span class="xn-text">'.tr('Dashboard').'</span></a>
-                    </li>
-                    <li class="xn-openable">
-                        <a href="#"><span class="fa fa-user"></span> <span class="xn-text">'.tr('My Account').'</span></a>
-                        <ul>
-                            <li><a href="'.domain('/my-profile.html').'"><span class="fa fa-pencil"></span> <span class="xn-text">'.tr('My Profile').'</span></a></li>
-                        </ul>
-                    </li>
-                    <li>
                         <a href="https://google.com" target="_blank"><span class="fa fa-book"></span> <span class="xn-text">'.tr('External link').'</span></a>
-                    </li>
-                    '.return_with_rights('blogs', '
-                    <li>
-                        <a href="'.domain('/blogs.html').'"><span class="fa fa-book"></span> <span class="xn-text">'.tr('Blogs').'</span></a>
-                    </li>').'
-                    '.return_with_rights('admin', '
-                    <li class="xn-openable">
-                        <a href="#"><span class="fa fa-cog"></span> <span class="xn-text">'.tr('System').'</span></a>
-                        <ul>
-                            '.return_with_rights('accounts', '
-                            <li class="xn-openable">
-                                <a href="#"><span class="fa fa-users"></span> <span class="xn-text">'.tr('Accounts').'</span></a>
-                                <ul>
-                                    <li><a href="'.domain('/users.html').'"><span class="fa fa-users"></span> <span class="xn-text">'.tr('Users').'</span></a></li>
-                                    <li><a href="'.domain('/roles.html').'"><span class="fa fa-cog"></span> <span class="xn-text">'.tr('Roles').'</span></a></li>
-                                    <li><a href="'.domain('/rights.html').'"><span class="fa fa-lock"></span> <span class="xn-text">'.tr('Rights').'</span></a></li>
-                                    <li><a href="'.domain('/user-switches.html').'"><span class="fa fa-exchange"></span> <span class="xn-text">'.tr('User switches').'</span></a></li>
-                                </ul>
-                            </li>').'
-                            <li><a href="'.domain('/configuration.html').'"><span class="fa fa-cogs"></span> <span class="xn-text">'.tr('Configuration').'</span></a></li>
-                            <li><a href="'.domain('/activity-log.html').'"><span class="fa fa-edit"></span> <span class="xn-text">'.tr('Activity log').'</span></a></li>
-                            <li><a href="'.domain('/statistics.html').'"><span class="fa fa-line-chart"></span> <span class="xn-text">'.tr('Statistics').'</span></a></li>
-                            <li><a href="'.domain('/ip-locking.html').'"><span class="fa fa-lock"></span> <span class="xn-text">'.tr('IP locking').'</span></a></li>
-                            '.return_with_rights('cache', '
-                                <li class="xn-openable">
-                                    <a href="#"><span class="fa fa-database"></span> <span class="xn-text">'.tr('Cache').'</span></a>
-                                    <ul>
-                                        <li><a href="'.domain('/cache-manager.html').'"><span class="fa fa-database"></span> <span class="xn-text">'.tr('Manager').'</span></a></li>
-                                        <li><a href="'.domain('/cache-viewer.html').'"><span class="fa fa-database"></span> <span class="xn-text">'.tr('Viewer').'</span></a></li>
-                                    </ul>
-                                </li>').'
-                        </ul>
-                    </li>');
+                    </li>';
 
         return $html;
 
