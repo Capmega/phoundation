@@ -532,7 +532,7 @@ function html_load_js($files, $list = 'page'){
     global $_CONFIG, $core;
 
     if(!isset($core->register['js_header'])){
-        throw new BException(tr('html_load_js(): Cannot load javascript file(s) ":files", the files list have already been sent to the client', array(':files' => $files)), 'invalid');
+        throw new BException(tr('html_load_js(): Cannot load javascript file(s) ":files", the files list have already been sent to the client by html_header()', array(':files' => $files)), 'invalid');
     }
 
     try{
@@ -3444,4 +3444,87 @@ function html_filter_tags($html, $tags, $exception = false){
         throw new BException('html_filter_tags(): Failed', $e);
     }
 }
-?>
+
+
+
+/*
+ * Returns HTML for a loader screen that will hide the buildup of the web page behind it. Once the page is loaded, the loader screen will automatically disappear.
+ *
+ * This function typically should be executed in the c_page_header() call, and the HTML output of this function should be inserted at the beginning of the HTML that that function generates. This way, the loader screen will be the first thing (right after the <body> tag) that the browser will render, hiding all the other elements that are buiding up.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @version 2.5.57: Added function and documentation
+ * @note: If the page_selector is specified, the loader screen will assume its hidden and try to show it. If it is not specified, the loader screen will assume its visible (but behind the loader screen) and once the page is loaded it will only attempt to hide itself.
+ *
+ * @param params $params A parameters array
+ * @param string $params[page_selector] The selector required to show the main page wrapper, if it is hidden and must be shown when the loader screen is hidden
+ * @param string $params[image_src] The src for the image to be displayed on the loader screen
+ * @param string $params[image_alt] The alt text for the loader image
+ * @param string $params[image_width] The required width for the loader image
+ * @param string $params[image_height] The required height for the loader image
+ * @param string $params[transition_duration] The time in msec that the loader screen transition should take until the web page itself is visible
+ * @param string $params[screen_line_height] The "line-height" setting for the loader screen style attribute
+ * @param string $params[screen_background] The "background" setting for the loader screen style attribute
+ * @param string $params[screen_text_align] The "text-align" setting for the loader screen style attribute
+ * @param string $params[screen_vertical_align] The "vertical-align" setting for the loader screen style attribute
+ * @param string $params[screen_style_extra] If specified, the entire string will be added in the style="" attribute
+ * @param string $params[test_loader_screen] If set to true, the loader screen will not hide and be removed, instead it will show indefinitely so that the contents can be checked and tested
+ * @return string The HTML for the loader screen.
+ */
+function html_loader_screen($params){
+    try{
+        array_params($params);
+        array_default($params, 'page_selector'        , '#main-container');
+        array_default($params, 'image_src'            , html_img_src('img/loader_screen.jpg'));
+        array_default($params, 'image_alt'            , tr('Loader screen'));
+        array_default($params, 'image_width'          , null);
+        array_default($params, 'image_height'         , null);
+        array_default($params, 'image_style'          , null);
+        array_default($params, 'transition_duration'  , 300);
+        array_default($params, 'screen_line_height'   , 40);
+        array_default($params, 'screen_background'    , 'white');
+        array_default($params, 'screen_text_align'    , 'center');
+        array_default($params, 'screen_vertical_align', 'middle');
+        array_default($params, 'screen_style_extra'   , '');
+        array_default($params, 'test_loader_screen'   , false);
+
+        $html = '   <div id="loader-screen" style="position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; z-index: 2147483647; display: block; line-height: '.$params['screen_line_height'].'; background: '.$params['screen_background'].'; text-align: '.$params['screen_text_align'].'; vertical-align: '.$params['screen_vertical_align'].'; '.$params['screen_style_extra'].'">';
+
+        if($params['image_src']){
+            $html .=    html_img(array('src'    => $params['image_src'],
+                                       'alt'    => $params['image_alt'],
+                                       'lazy'   => false,
+                                       'width'  => $params['image_width'],
+                                       'height' => $params['image_height'],
+                                       'style'  => $params['image_style']));
+        }
+
+        $html .= '  </div>';
+
+        if(!$params['test_loader_screen']){
+            if($params['page_selector']){
+                /*
+                 * Hide the loader screen and show the main page wrapper
+                 */
+                $html .= html_script('jQuery("#loader-screen").fadeOut('.$params['transition_duration'].', function(){ jQuery("#loader-screen").remove(); });
+                                      jQuery("'.$params['page_selector'].'").show('.$params['transition_duration'].');');
+
+                return $html;
+            }
+
+            /*
+             * Only hide the loader screen
+             */
+            $html .= html_script('jQuery("#loader-screen").fadeOut('.$params['transition_duration'].', function(){ jQuery("#loader-screen").remove(); });');
+        }
+
+        return $html;
+
+    }catch(Exception $e){
+        throw new BException('html_loader_screen(): Failed', $e);
+    }
+}
