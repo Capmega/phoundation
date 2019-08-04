@@ -66,7 +66,7 @@ function array_params(&$params, $string_key = null, $numeric_key = null, $defaul
             return;
         }
 
-        throw new BException(tr('array_params(): Specified $params ":params" is invalid. It is an ":datatype" should be either one of array, integer, or string', array(':datatype' => gettype($params), ':params' => $params)), 'invalid');
+        throw new BException(tr('array_params(): Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', array(':datatype' => gettype($params), ':params' => (is_resource($params) ? '{php resource}' : $params))), 'invalid');
 
     }catch(Exception $e){
         throw new BException(tr('array_params(): Failed'), $e);
