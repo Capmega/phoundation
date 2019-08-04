@@ -962,7 +962,9 @@ function file_list_tree($path, $pattern = null, $recursive = true){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference
  * @package files
+ * @see file_safe_pattern()
  * @see file_restrict() This function uses file location restrictions, see file_restrict() for more information
+ * @version 2.7.60: Fixed safe file pattern issues
  *
  * @param params $params
  * @param list $params[patterns] A list of path patterns to be deleted
@@ -1000,39 +1002,35 @@ function file_delete($params, $restrictions = null){
              */
             file_restrict($pattern, $params['restrictions']);
 
-            /*
-             * Escape patterns manually here, safe_exec() will be told NOT to
-             * escape them to avoid issues with *
-             */
-            $items = array_force($pattern, '*');
-
-            foreach($items as &$item){
-                $item = escapeshellarg($item);
-            }
-
-            $safe_pattern = implode('*', $items);
-
-            unset($items);
-            unset($item);
-
-            if(!file_exists($safe_pattern)){
-                /*
-                 * This pattern doesn't exist, we can ignore it
-                 */
-                continue;
-            }
-
             if($params['force_writable']){
-                file_chmod(array('path'         => $safe_pattern,
-                                 'mode'         => 'ug+w',
-                                 'recursive'    => true,
-                                 'recursive'    => $params['restrictions']));
+                try{
+                    /*
+                     * First ensure that the files to be deleted are writable
+                     */
+                    file_chmod(array('path'         => $pattern,
+                                     'mode'         => 'ug+w',
+                                     'recursive'    => true,
+                                     'restrictions' => $params['restrictions']));
+
+                }catch(Exception $e){
+                    /*
+                     * If chmod failed because the pattern doesn't exist, then
+                     * ignore the issue, and continue as the files have to be
+                     * deleted anyway
+                     */
+                    $data = $e->getData();
+                    $data = array_shift($data);
+
+                    if(preg_match('/chmod: cannot access .+?: No such file or directory/', $data)){
+                        continue;
+                    }
+                }
             }
 
             /*
              * Execute the rm command
              */
-            safe_exec(array('commands' => array('rm', array('sudo' => $params['sudo'], '-rf', '-' => $safe_pattern))));
+            safe_exec(array('commands' => array('rm', array('sudo' => $params['sudo'], '-rf', '-' => file_safe_pattern($pattern)))));
 
             /*
              * If specified to do so, clear the path upwards from the specified
@@ -1045,6 +1043,42 @@ function file_delete($params, $restrictions = null){
 
     }catch(Exception $e){
         throw new BException(tr('file_delete(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Returns a safe version of the specified pattern
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @see file_delete()
+ * @see file_chown()
+ * @version 2.7.60: Added function and documentation
+ *
+ * @param string $pattern The pattern to make safe
+ * @return string The safe pattern
+ */
+function file_safe_pattern($pattern){
+    try{
+        /*
+         * Escape patterns manually here, safe_exec() will be told NOT to
+         * escape them to avoid issues with *
+         */
+        $items = array_force($pattern, '*');
+
+        foreach($items as &$item){
+            $item = escapeshellarg($item);
+        }
+
+        return implode('*', $items);
+
+    }catch(Exception $e){
+        throw new BException(tr('file_safe_pattern(): Failed'), $e);
     }
 }
 
@@ -1431,7 +1465,9 @@ function file_temp_dir($prefix = '', $mode = null){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package file
+ * @see file_safe_pattern()
  * @version 2.6.30: Added function and documentation
+ * @version 2.7.60: Fixed safe file pattern issues
  *
  * @param params $params A parameters array
  * @param string $mode
@@ -1460,15 +1496,11 @@ function file_chmod($params, $mode = null, $restrictions = null){
         }
 
         foreach(array_force($params['path']) as $path){
-            if(!file_exists($path)){
-                throw new BException(tr('The specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
-            }
-
             file_restrict($path, $params['restrictions']);
 
-            $arguments   = array();
-            $arguments[] = $params['mode'];
-            $arguments[] = $path;
+            $arguments      = array();
+            $arguments[]    = $params['mode'];
+            $arguments['-'] = file_safe_pattern($path);
 
             if($params['recursive']){
                 $arguments[] = '-R';
