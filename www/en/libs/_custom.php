@@ -20,7 +20,9 @@ function c_page($params, $meta, $html){
         array_default($params, 'cache_namespace', 'htmlpage');
         array_default($params, 'cache_key'      , null);
 
-        $page = c_html_header($params, $meta, $html).$html.c_html_footer($params);
+        $html .= c_html_footer($params);
+        $html  = c_html_header($params, $meta, $html).$html.html_end();
+        $html  = html_minify($html);
 
         http_headers($params, strlen($page));
 
@@ -43,10 +45,15 @@ function c_html_header($params, $meta, $html){
         array_params($params);
         array_default($params, '', '');
 
+        array_params($meta);
+        array_default($meta, '', '');
+
         html_load_css('style');
         html_load_js('');
 
-        return html_header($params, $meta, $html).c_page_header($params);
+        $html = c_page_header($params);
+
+        return html_header($params, $meta, $html).$html;
 
     }catch(Exception $e){
         throw new bException('c_html_header(): Failed', $e);
