@@ -69,10 +69,12 @@ try{
         }
 
         $command = sprintf('export TERM='.$term.'; (nohup %s >> %s 2>&1 & echo $! >&3) 3> %s', $path.$cmd.' '.$args, $log, ROOT.'data/run-background/'.$cmd);
+        log_console(tr('Executing background command ":command"', array(':command' => $command)), 'VERBOSE/cyan');
         exec($command);
 
     }else{
         $command = sprintf('export TERM='.$term.'; (nohup %s > /dev/null 2>&1 & echo $! >&3) 3> %s', $path.$cmd.' '.$args, ROOT.'data/run-background/'.$cmd);
+        log_console(tr('Executing background command ":command"', array(':command' => $command)), 'VERBOSE/cyan');
         exec($command);
     }
 

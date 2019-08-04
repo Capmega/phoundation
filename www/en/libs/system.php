@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.57');
+define('FRAMEWORKCODEVERSION', '2.7.58');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -4439,6 +4439,11 @@ function str_log($source, $truncate = 8187, $separator = ', '){
         return str_nodouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', str_truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
 
     }catch(Exception $e){
+        if($e->getRealCode() === 'invalid'){
+            notify($e->makeWarning(true));
+            return "Data converted using print_r() instead of json_encode() because json_encode_custom() failed on this data: ".print_r($source, true);
+        }
+
         throw new BException('str_log(): Failed', $e);
     }
 }
