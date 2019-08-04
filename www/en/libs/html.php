@@ -659,11 +659,17 @@ function html_generate_js($lists = null){
                     continue 2;
 
                 default:
+                    /*
+                     *
+                     */
                     if(empty($core->register[$section])){
                         unset($lists[$key]);
-                        continue;
+                        continue 2;
                     }
 
+                    /*
+                     *
+                     */
                     $core->register['js_footer'] = array_merge($core->register['js_footer'], $core->register[$section]);
                     unset($lists[$key]);
                     unset($core->register[$section]);
@@ -1044,7 +1050,7 @@ function html_footer(){
             $html .= debug_bar();
         }
 
-        return $html.'</body></html>';
+        return $html;
 
     }catch(Exception $e){
         throw new BException('html_footer(): Failed', $e);
@@ -2070,6 +2076,8 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                  */
                 $base = 'cached-'.substr($core->register['script'], 0, -4).'-'.($core->register['real_script'] ? $core->register['real_script'].'-' : '').$count;
                 $file = ROOT.'www/'.LANGUAGE.'/pub/js/'.$base;
+
+                log_file(tr('Creating externally cached javascript file ":file"', array(':file' => $file.'.js')), 'html-script', 'VERYVERBOSE/cyan');
 
                 /*
                  * Check if the cached file exists and is not too old.
@@ -3486,8 +3494,8 @@ function html_filter_tags($html, $tags, $exception = false){
 function html_loader_screen($params){
     try{
         array_params($params);
-        array_default($params, 'page_selector'        , '#main-container');
-        array_default($params, 'image_src'            , false);
+        array_default($params, 'page_selector'        , '');
+        array_default($params, 'image_src'            , '');
         array_default($params, 'image_alt'            , tr('Loader screen'));
         array_default($params, 'image_width'          , null);
         array_default($params, 'image_height'         , null);
