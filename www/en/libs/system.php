@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.59');
+define('FRAMEWORKCODEVERSION', '2.7.60');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5650,6 +5650,8 @@ function shutdown(){
         /*
          * Do we need to run other shutdown functions?
          */
+        log_console(tr('Starting shutdown procedure for script ":script"', array(':script' => $core->register['script'])), 'VERYVERBOSE/cyan');
+
         foreach($core->register as $key => $value){
             try{
                 if(substr($key, 0, 9) !== 'shutdown_'){
