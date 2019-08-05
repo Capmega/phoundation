@@ -3504,18 +3504,52 @@ function html_loader_screen($params){
         array_default($params, 'image_alt'            , tr('Loader screen'));
         array_default($params, 'image_width'          , null);
         array_default($params, 'image_height'         , null);
-        array_default($params, 'image_style'          , null);
+        array_default($params, 'image_top'            , '100px');
+        array_default($params, 'image_left'           , null);
+        array_default($params, 'image_right'          , null);
+        array_default($params, 'image_bottom'         , null);
+        array_default($params, 'image_style'          , 'position:relative;');
         array_default($params, 'transition_duration'  , 300);
-        array_default($params, 'screen_line_height'   , 40);
+        array_default($params, 'screen_line_height'   , 0);
         array_default($params, 'screen_background'    , 'white');
         array_default($params, 'screen_text_align'    , 'center');
         array_default($params, 'screen_vertical_align', 'middle');
         array_default($params, 'screen_style_extra'   , '');
         array_default($params, 'test_loader_screen'   , false);
 
-        $html = '   <div id="loader-screen" style="position: fixed; top: 0px; bottom: 0px; left: 0px; right: 0px; z-index: 2147483647; display: block; line-height: '.$params['screen_line_height'].'; background: '.$params['screen_background'].'; text-align: '.$params['screen_text_align'].'; vertical-align: '.$params['screen_vertical_align'].'; '.$params['screen_style_extra'].'">';
+        $extra = '';
+
+        if($params['screen_line_height']){
+            $extra .= 'line-height:'.$params['screen_line_height'].';';
+        }
+
+        if($params['screen_vertical_align']){
+            $extra .= 'vertical-align:'.$params['screen_vertical_align'].';';
+        }
+
+        if($params['screen_text_align']){
+            $extra .= 'text-align:'.$params['screen_text_align'].';';
+        }
+
+        $html  = '  <div id="loader-screen" style="position:fixed;top:0px;bottom:0px;left:0px;right:0px;z-index:2147483647;display:block;background:'.$params['screen_background'].';text-align: '.$params['screen_text_align'].';'.$extra.'" '.$params['screen_style_extra'].'>';
 
         if($params['image_src']){
+            if($params['image_top']){
+                $params['image_style'] .= 'top:'.$params['image_top'].';';
+            }
+
+            if($params['image_left']){
+                $params['image_style'] .= 'left:'.$params['image_left'].';';
+            }
+
+            if($params['image_right']){
+                $params['image_style'] .= 'right:'.$params['image_right'].';';
+            }
+
+            if($params['image_bottom']){
+                $params['image_style'] .= 'bottom:'.$params['image_bottom'].';';
+            }
+
             $html .=    html_img(array('src'    => $params['image_src'],
                                        'alt'    => $params['image_alt'],
                                        'lazy'   => false,
