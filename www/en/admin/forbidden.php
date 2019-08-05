@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__).'/../libs/startup.php');
+require_once(__DIR__.'/../libs/startup.php');
 header('HTTP/1.0 403 Forbidden');
 
 if(empty($_GET['page'])){

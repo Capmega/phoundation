@@ -43,7 +43,7 @@
 //$_POST["From"]          = "+18443385112";
 //$_POST["ApiVersion"]    = "2010-04-01";
 
-require_once(dirname(__FILE__).'/libs/startup.php');
+require_once(__DIR__.'/libs/startup.php');
 
 try{
     load_libs('validate,twilio,sms');

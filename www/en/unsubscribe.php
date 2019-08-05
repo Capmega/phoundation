@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__).'/libs/startup.php');
+require_once(__DIR__.'/libs/startup.php');
 
 html_load_css();
 html_load_js();

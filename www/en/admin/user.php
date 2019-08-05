@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__).'/../libs/startup.php');
+require_once(__DIR__.'/../libs/startup.php');
 
 if(empty($profile)){
     rights_or_access_denied('admin,users,modify');

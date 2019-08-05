@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__).'/../libs/startup.php');
+require_once(__DIR__.'/../libs/startup.php');
 
 page_404();
 
@@ -46,5 +46,5 @@ $params['subtitle']        = tr('Project tickets');
 $params['title']           = tr('Project management');
 $params['class']           = 'project';
 
-require_once(dirname(__FILE__).'/blogs_posts.php');
+require_once(__DIR__.'/blogs_posts.php');
 ?>

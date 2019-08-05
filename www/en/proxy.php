@@ -2,7 +2,7 @@
 /*
  * This file should be copied to any website that is on a server with multiple ips, this file should not load any external libraries.
  */
-require_once(dirname(__FILE__).'/libs/startup.php');
+require_once(__DIR__.'/libs/startup.php');
 
 $url        = isset_get($_GET['url']);
 $contains   = isset_get($_GET['contains']);

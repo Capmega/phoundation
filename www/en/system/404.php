@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__).'/libs/startup.php');
+require_once(__DIR__.'/libs/startup.php');
 
 if(substr(isset_get($_SERVER['REQUEST_URI']), 0, 7) == '/admin/'){
 /*

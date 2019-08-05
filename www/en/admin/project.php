@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__FILE__).'/../libs/startup.php');
+require_once(__DIR__.'/../libs/startup.php');
 
 page_404();
 
@@ -50,5 +50,5 @@ $params['errors']['body_required']     = tr('Please provide the body text of you
 $params['errors']['status_required']   = tr('Please select the status of your ticket');
 $params['errors']['group_required']    = tr('Please select a tracker for your ticket');
 
-require_once(dirname(__FILE__).'/blogs_post.php');
+require_once(__DIR__.'/blogs_post.php');
 ?>
