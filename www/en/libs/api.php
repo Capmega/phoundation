@@ -468,21 +468,23 @@ function api_call_base($account, $call, $data = array(), $files = null){
                 $signin = true;
 
             }catch(Exception $e){
+                $url = str_starts_not($account_data['baseurl'], '/').'/authenticate';
+
                 switch($e->getCode()){
                     case 'HTTP403':
-                        throw new BException(tr('api_call_base(): [403] API URL ":url" gave access denied', array(':url' => $account_data['baseurl'])), $e);
+                        throw new BException(tr('api_call_base(): [403] API authentication URL ":url" gave access denied', array(':url' => $url)), $e);
 
                     case 'HTTP404':
-                        throw new BException(tr('api_call_base(): [404] API URL ":url" was not found', array(':url' => str_starts_not($account_data['baseurl'], '/').'/authenticate')), $e);
+                        throw new BException(tr('api_call_base(): [404] API authentication URL ":url" was not found', array(':url' => $url)), $e);
 
                     case 'HTTP500':
-                        throw new BException(tr('api_call_base(): [500] API server encountered an internal server error on URL ":url"', array(':url' => $account_data['baseurl'])), $e);
+                        throw new BException(tr('api_call_base(): [500] API server encountered an internal server error on authentication URL ":url"', array(':url' => $url)), $e);
 
                     case 'HTTP503':
-                        throw new BException(tr('api_call_base(): [503] API server is in maintenance mode on URL ":url"', array(':url' => $account_data['baseurl'])), $e);
+                        throw new BException(tr('api_call_base(): [503] API server is in maintenance mode on authentication URL ":url"', array(':url' => $url)), $e);
 
                     default:
-                        throw new BException(tr('api_call_base(): [:code] Failed to authenticate on URL ":url"', array(':code' => $e->getCode(), ':url' => $account_data['baseurl'])), $e);
+                        throw new BException(tr('api_call_base(): [:code] Failed to authenticate on authentication URL ":url"', array(':code' => $e->getCode(), ':url' => $url)), $e);
                 }
             }
         }
@@ -503,47 +505,73 @@ function api_call_base($account, $call, $data = array(), $files = null){
         /*
          * Make the API call
          */
-        $json = curl_get(array('url'        => str_starts_not($account_data['baseurl'], '/').str_starts($call, '/'),
-                               'verify_ssl' => isset_get($account_data['verify_ssl']),
-                               'getheaders' => false,
-                               'post'       => $data));
+        try{
+            $json = curl_get(array('url'        => str_starts_not($account_data['baseurl'], '/').str_starts($call, '/'),
+                                   'verify_ssl' => isset_get($account_data['verify_ssl']),
+                                   'getheaders' => false,
+                                   'post'       => $data));
 
-        if(!$json){
-            throw new BException(tr('api_call_base(): API call ":call" on account ":account" returned no response', array(':account' => $account, ':call' => $call)), 'not-response');
-        }
+            if(!$json){
+                throw new BException(tr('api_call_base(): API call ":call" on account ":account" returned no response', array(':account' => $account, ':call' => $call)), 'empty');
+            }
 
-        $result = json_decode_custom($json['data']);
+            if(!$json['data']){
+                throw new BException(tr('api_call_base(): API call ":call" on account ":account" returned no data in response', array(':account' => $account, ':call' => $call)), 'empty');
+            }
 
-        switch(isset_get($result['result'])){
-            case 'OK':
-                /*
-                 * All ok!
-                 */
-                return isset_get($result['data']);
+            $result = json_decode_custom($json['data']);
 
-            case 'SIGNIN':
-                /*
-                 * Session key is not valid
-                 * Remove session key, signin, and try again
-                 */
-                if(isset($signin)){
+            switch(isset_get($result['result'])){
+                case 'OK':
                     /*
-                     * Oops, we already tried to signin, and that signin failed
-                     * with a signin request which, in this case, would cause
-                     * endless recursion
+                     * All ok!
                      */
-                    throw new BException(tr('api_call_base(): API call ":call" on ":api" required auto signin but that failed with a request to signin as well. Stopping to avoid endless signin loop', array(':api' => $api, ':call' => $call)), 'failed');
-                }
+                    return isset_get($result['data']);
 
-                unset($_SESSION['api']['session_keys'][$account]);
-                return api_call_base($account, $call, $data);
+                case 'SIGNIN':
+                    /*
+                     * Session key is not valid
+                     * Remove session key, signin, and try again
+                     */
+                    if(isset($signin)){
+                        /*
+                         * Oops, we already tried to signin, and that signin failed
+                         * with a signin request which, in this case, would cause
+                         * endless recursion
+                         */
+                        throw new BException(tr('api_call_base(): API call ":call" on ":api" required auto signin but that failed with a request to signin as well. Stopping to avoid endless signin loop', array(':api' => $api, ':call' => $call)), 'failed');
+                    }
 
-            default:
-                throw new BException(tr('api_call_base(): API call ":call" on account ":account" returned result ":result"', array(':account' => $account, ':call' => $call, ':result' => $result['result'])), 'failed', $result);
+                    unset($_SESSION['api']['session_keys'][$account]);
+                    return api_call_base($account, $call, $data);
+
+                default:
+                    throw new BException(tr('api_call_base(): API call ":call" on account ":account" returned result ":result"', array(':account' => $account, ':call' => $call, ':result' => $result['result'])), 'failed', $result);
+            }
+
+        }catch(Exception $e){
+            $url = str_starts_not($account_data['baseurl'], '/').str_starts($call, '/');
+
+            switch($e->getCode()){
+                case 'HTTP403':
+                    throw new BException(tr('api_call_base(): [403] API URL ":url" gave access denied', array(':url' => $url)), $e);
+
+                case 'HTTP404':
+                    throw new BException(tr('api_call_base(): [404] API URL ":url" was not found', array(':url' => $url)), $e);
+
+                case 'HTTP500':
+                    throw new BException(tr('api_call_base(): [500] API server encountered an internal server error on URL ":url"', array(':url' => $url)), $e);
+
+                case 'HTTP503':
+                    throw new BException(tr('api_call_base(): [503] API server is in maintenance mode on URL ":url"', array(':url' => $url)), $e);
+
+                default:
+                    throw new BException(tr('api_call_base(): [:code] Failed to call API on URL ":url"', array(':code' => $e->getCode(), ':url' => $url)), $e);
+            }
         }
 
     }catch(Exception $e){
-//showdie($e);
+showdie($e);
         if($account_data){
             sql_query('UPDATE `api_accounts` SET `last_error` = :last_error WHERE `id` = :id', array(':id' => $account_data['id'], ':last_error' => print_r($e, true)));
         }
