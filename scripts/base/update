@@ -435,7 +435,8 @@ try{
 
     }else{
         log_console(tr('Excuting system init'), 'white');
-        script_exec(array('function' => 'passthru',
+        script_exec(array('timeout'  => 90,
+                          'function' => 'passthru',
                           'commands' => array('base/init')));
     }
 
