@@ -553,14 +553,15 @@ function html_load_js($files, $list = 'page'){
 
                     notify(array('code'    => 'not-exists',
                                  'groups'  => 'developers',
-                                 'title'   => tr('Bundler file does not exist'),
+                                 'title'   => tr('html_load_js() issue detected'),
                                  'message' => tr('html_load_js(): File ":file" was specified with ".js"', array(':file' => $file))));
 
                 }elseif(substr($file, -7, 7) == '.min.js'){
                     $file = substr($file, 0, -7);
+
                     notify(array('code'    => 'not-exists',
                                  'groups'  => 'developers',
-                                 'title'   => tr('Bundler file does not exist'),
+                                 'title'   => tr('html_load_js() issue detected'),
                                  'message' => tr('html_load_js(): File ":file" was specified with ".min.js"', array(':file' => $file))));
                 }
             }
@@ -650,7 +651,7 @@ function html_generate_js($lists = null){
         $min    = ($_CONFIG['cdn']['min'] ? '.min' : '');
         $retval = '';
         $footer = '';
-        $lists  = array('js_header', 'js_footer', 'js_footer_page', 'js_footer_scripts');
+        $lists  = array('js_header', 'js_header_page', 'js_footer', 'js_footer_page', 'js_footer_scripts');
 
         /*
          * Merge all body file lists into one
@@ -663,8 +664,10 @@ function html_generate_js($lists = null){
                     continue 2;
 
                 default:
+                    $main = str_runtil($section, '_');
+
                     /*
-                     *
+                     * If the sub list is empty then ignore it and continue
                      */
                     if(empty($core->register[$section])){
                         unset($lists[$key]);
@@ -672,9 +675,9 @@ function html_generate_js($lists = null){
                     }
 
                     /*
-                     *
+                     * Merge the sublist in the main list
                      */
-                    $core->register['js_footer'] = array_merge($core->register['js_footer'], $core->register[$section]);
+                    $core->register[$main] = array_merge($core->register[$main], $core->register[$section]);
                     unset($lists[$key]);
                     unset($core->register[$section]);
             }
