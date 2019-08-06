@@ -594,8 +594,11 @@ function file_clear_path($paths, $restrictions = null){
              * Remove this entry and continue;
              */
             try{
-                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function($path) use ($restrictions){
-                    file_delete($path, $restrictions);
+                file_execute_mode(dirname($path), (is_writable(dirname($path)) ? false : 0770), function() use ($restrictions, $path){
+                    file_delete(array('patterns'       => $path,
+                                      'clean_path'     => false,
+                                      'force_writable' => true,
+                                      'restrictions'   => $restrictions));
                 });
 
             }catch(Exception $e){
@@ -615,10 +618,9 @@ function file_clear_path($paths, $restrictions = null){
          * Go one entry up, check if we're still within restrictions, and
          * continue deleting
          */
-        $path = str_runtil(unslash($path), '/');
+        $path = dirname($path);
 
         try{
-            file_restrict($path, $restrictions);
             file_clear_path($path, $restrictions);
 
         }catch(Exception $e){
@@ -3369,13 +3371,11 @@ function file_restrict($params, &$restrictions = null){
                     /*
                      * Passed!
                      */
-                    unset($restriction);
                     return;
                 }
             }
 
             unset($restriction);
-
             throw new BException(tr('file_restrict(): The specified file or path ":path" is outside of the authorized paths ":authorized"', array(':path' => $params, ':authorized' => $restrictions)), 'access-denied', $restrictions);
         }
 
