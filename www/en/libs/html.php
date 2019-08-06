@@ -431,7 +431,7 @@ function html_load_css($files = '', $media = null){
                                                   'media' => $media);
         }
 
-}catch(Exception $e){
+    }catch(Exception $e){
         throw new BException('html_load_css(): Failed', $e);
     }
 }
