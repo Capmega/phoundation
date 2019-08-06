@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.69');
+define('FRAMEWORKCODEVERSION', '2.7.70');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -274,7 +274,7 @@ class Core{
                      * Auto detect what http call type we're on from the script
                      * being executed
                      */
-                    if(substr($file, 2, 7) == '/admin/'){
+                    if(strstr($file, '/admin/')){
                         $this->callType = 'admin';
 
                     }elseif(strstr($file, '/ajax/')){
