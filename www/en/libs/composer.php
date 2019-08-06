@@ -149,10 +149,20 @@ function composer_exec($commands, $path = null){
                     file_ensure_path(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0550);
 
                     file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs/vendor', 0770, function() use ($commands){
+                        file_chmod(array('path'         => ROOT.'www/'.LANGUAGE.'/libs/vendor',
+                                         'mode'         => 'ug+w',
+                                         'recursive'    => true,
+                                         'restrictions' => ROOT.'www/'.LANGUAGE.'/libs/vendor'));
+
                         safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                         'timeout'  => 30,
                                         'commands' => array('cd'                                      , array(ROOT.'libs'),
                                                             ROOT.'www/'.LANGUAGE.'/libs/composer.phar', $commands)));
+
+                        file_chmod(array('path'         => ROOT.'www/'.LANGUAGE.'/libs/vendor',
+                                         'mode'         => 'ug-w',
+                                         'recursive'    => true,
+                                         'restrictions' => ROOT.'www/'.LANGUAGE.'/libs/vendor'));
                     });
                 });
             }
