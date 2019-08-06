@@ -1750,7 +1750,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
         }
 
         /*
-         *
+         * Move the media file to its target location
          */
         $mime_type = file_mimetype($file);
         $prefix    = ROOT.'data/content/photos/';
