@@ -478,7 +478,11 @@ function html_generate_css(){
         foreach($core->register['css'] as $file => $meta){
             if(!$file) continue;
 
-            $html = '<link rel="stylesheet" type="text/css" href="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? str_until($file, '.min').'.min.css' : $file.'.css')).'">';
+            if(!str_exists(substr($file, 0, 8), '//')){
+                $file = cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? str_until($file, '.min').'.min.css' : $file.'.css'));
+            }
+
+            $html = '<link rel="stylesheet" type="text/css" href="'.$file.'">';
 
             if(substr($file, 0, 2) == 'ie'){
                 $html = html_iefilter($html, str_until(str_from($file, 'ie'), '.'));
