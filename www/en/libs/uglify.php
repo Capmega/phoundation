@@ -115,7 +115,12 @@ function uglify_css($paths = null, $force = false){
             /*
              * Start at the base css path
              */
-            $paths = ROOT.'www/'.LANGUAGE.'/pub/css/,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css/';
+            foreach($_CONFIG['language']['supported'] as $code => $language){
+                $paths[] = ROOT.'www/'.$code.'/pub/css/';
+                $paths[] = ROOT.'www/'.$code.'/admin/pub/css/';
+            }
+
+            $paths = implode(',', $paths);
         }
 
         foreach(array_force($paths) as $path){
