@@ -11,7 +11,7 @@ $usage   = './scripts/base/importers/geo
 ./scripts/base/importers/geo import countries&|states&|counties&|cities | all country (COUNTRY,COUNTRYCODE,etc...)
 ./scripts/base/importers/geo fix-errors';
 
-$help    = 'The geo importer script can import geo data like countries, states, counties and cities from the geoname database repository
+$help = 'The geo importer script can import geo data like countries, states, counties and cities from the geoname database repository
 
 
 
@@ -124,6 +124,7 @@ switch(cli_method()){
         break;
 
     case 'download':
+        set_time_limit(300);
         log_console(tr('DOWNLOAD'), 'white');
         log_console(tr('Deleting old data...'));
 
@@ -192,6 +193,7 @@ switch(cli_method()){
         break;
 
     case 'load-data':
+        set_time_limit(300);
         log_console(tr('LOADDATA'), 'white');
 
         /*
@@ -293,6 +295,7 @@ switch(cli_method()){
         break;
 
     case 'fix-data':
+        set_time_limit(300);
         log_console(tr('FIXDATA'), 'white');
 
         $geosql = new PDO('mysql:dbname='.$database.';host=localhost', $username, $password);
@@ -346,6 +349,7 @@ switch(cli_method()){
         break;
 
     case 'import':
+        set_time_limit(300);
         if(!$country_list = cli_argument('country', true)){
             throw new BException('No country list specified to import data from. Please specify "country COUNTRY,COUNTRY,COUNTRY"', 'not-specified');
         }
