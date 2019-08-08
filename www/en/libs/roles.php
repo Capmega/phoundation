@@ -87,7 +87,7 @@ function roles_validate($role){
 
         $v = new ValidateForm($role, 'name,description');
 
-        $v->isNatural($role['id'], tr('Invalid role id specified'));
+        $v->isNatural($role['id'], 1, tr('Invalid role id specified'));
         $v->isNotEmpty($role['name'], tr('No roles name specified'));
         $v->isRegex($role['name'], '/[a-z-]{2,32}/', tr('Please ensure the role\'s name is valid. It can only contain a-z and -, and no spaces'));
 
