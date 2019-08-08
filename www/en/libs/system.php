@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.73');
+define('FRAMEWORKCODEVERSION', '2.7.74');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -85,7 +85,7 @@ try{
             $file = str_from($file, ROOT.'scripts/');
 
             $core->register['script']      = $file;
-            $core->register['real_script'] = $file;
+            $core->register['real_script'] = str_rfrom($file, '/');
 
             unset($file);
 
