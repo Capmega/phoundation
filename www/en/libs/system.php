@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.77');
+define('FRAMEWORKCODEVERSION', '2.7.78');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -87,13 +87,6 @@ try{
             $core->register['script']      = str_rfrom($file, '/');
 
             unset($file);
-
-            if(substr($_SERVER['PHP_SELF'], -(strlen($core->register['script']) + 5), 4) === 'base'){
-                /*
-                 * This is a phoundation script
-                 */
-                $core->register['real_script'] = 'base/'.$core->register['real_script'];
-            }
 
             /*
              * Load basic libraries for command line interface
