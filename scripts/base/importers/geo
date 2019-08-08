@@ -124,7 +124,7 @@ switch(cli_method()){
         break;
 
     case 'download':
-        set_time_limit(300);
+        set_time_limit(600);
         log_console(tr('DOWNLOAD'), 'white');
         log_console(tr('Deleting old data...'));
 
@@ -193,7 +193,7 @@ switch(cli_method()){
         break;
 
     case 'load-data':
-        set_time_limit(300);
+        set_time_limit(600);
         log_console(tr('LOADDATA'), 'white');
 
         /*
@@ -295,7 +295,7 @@ switch(cli_method()){
         break;
 
     case 'fix-data':
-        set_time_limit(300);
+        set_time_limit(600);
         log_console(tr('FIXDATA'), 'white');
 
         $geosql = new PDO('mysql:dbname='.$database.';host=localhost', $username, $password);
@@ -349,7 +349,7 @@ switch(cli_method()){
         break;
 
     case 'import':
-        set_time_limit(300);
+        set_time_limit(600);
         if(!$country_list = cli_argument('country', true)){
             throw new BException('No country list specified to import data from. Please specify "country COUNTRY,COUNTRY,COUNTRY"', 'not-specified');
         }
@@ -557,7 +557,10 @@ switch(cli_method()){
                      */
                     if(strtolower(trim($country_data['code'])) == 'us'){
                         $parents_id = sql_fetch($geosql->query('SELECT `geonameid` FROM `geonames` WHERE `fcode` = "ZN" AND `name` = "New England Region"'), 'geonameid');
-                        $geosql->query('UPDATE `geonames` SET `parents_id` = '.$country_data['geonames_id'].' WHERE `parents_id` = '.$parents_id);
+
+                        if($parents_id){
+                            $geosql->query('UPDATE `geonames` SET `parents_id` = '.$country_data['geonames_id'].' WHERE `parents_id` = '.$parents_id);
+                        }
                     }
 
                     log_console(tr('Importing states for country "'.$country_data['name'].'"...'));
