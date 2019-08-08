@@ -359,15 +359,15 @@ function init_process_version_diff(){
 
     try{
         switch($core->register['script']){
-            case 'info':
+            case 'base/info':
                 // FALLTHROUGH
-            case 'init':
+            case 'base/init':
                 // FALLTHROUGH
-            case 'sync':
+            case 'base/sync':
                 // FALLTHROUGH
-            case 'update':
+            case 'base/update':
                 // FALLTHROUGH
-            case 'version':
+            case 'base/version':
                 return false;
         }
 

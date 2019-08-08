@@ -299,7 +299,7 @@ function cli_run_once_local($close = false){
         $run_dir = ROOT.'data/run/';
         $script  = cli_current_script();
 
-        file_ensure_path($run_dir);
+        file_ensure_path(dirname($run_dir.$script));
 
         if($close){
             if(!$executed){
@@ -506,7 +506,7 @@ function cli_run_once($action = 'exception', $force = false){
 
             $process = str_until(str_rfrom($matches[1], '/'), ' ');
 
-            if($process == $core->register['script']){
+            if($process == $core->register['real_script']){
                 if(++$count >= 2){
                     switch($action){
                         case 'exception':
