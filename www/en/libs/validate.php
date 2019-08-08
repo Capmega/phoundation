@@ -379,6 +379,13 @@ class ValidateForm {
      */
     function __construct(&$source = null, $columns = null, $default_value = null){
         try{
+            if(!is_array($source)){
+                /*
+                 * Specified source has an invalid data source!
+                 */
+                throw new BException(tr('ValidateForm::__construct(): Specified source ":source" has datatype ":type" while array datatype is expected', array(':source' => $source, ':type' => gettype($source))), 'validation');
+            }
+
             array_ensure($source, $columns, $default_value, true);
 
         }catch(Exception $e){
@@ -905,6 +912,10 @@ class ValidateForm {
             }
 
             if($this->not xor !is_natural($this->testValue, $start)){
+                if(!is_numeric($start)){
+                    throw new BException(tr('ValidateForm::isNatural(): Invalid $start ":start" specified for test ":message", it should be an integer number (and probably) 0 or higher', array(':start' => $start, ':message' => $message)), 'invalid');
+                }
+
                 return $this->setError($message);
             }
 
