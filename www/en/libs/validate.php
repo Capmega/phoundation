@@ -377,7 +377,7 @@ class ValidateForm {
     /*
      *
      */
-    function __construct(&$source = null, $columns = null, $default_value = null){
+    function __construct(&$source = null, $columns = null, $default_value = null, $invalidate_more_columns = false){
         try{
             if(!is_array($source)){
                 /*
@@ -387,6 +387,25 @@ class ValidateForm {
             }
 
             array_ensure($source, $columns, $default_value, true);
+
+            if($invalidate_more_columns){
+                /*
+                 * If any other columns beyond the ones specified in $columns
+                 * exist, invalidate everything
+                 */
+                $columns = array_force($columns);
+                $columns = array_flip($columns);
+
+                foreach($source as $key => $value){
+                    if(!array_key_exists($key, $columns)){
+                        $unknown[] = $key;
+                   }
+                }
+
+                if(isset($unknown)){
+                    throw new BException(tr('ValidateForm::__construct(): Specified source ":source" contains unknown columns ":unknown"', array(':source' => $source, ':unknown' => $unknown)), 'validation');
+                }
+            }
 
         }catch(Exception $e){
             throw new BException('ValidateForm::__construct(): Failed', $e);
