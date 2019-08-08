@@ -1261,7 +1261,7 @@ function user_create($user, $options){
 /*
  * Add a new user
  */
-function user_signup($user, $options){
+function user_signup($user, $options = null){
     global $_CONFIG;
 
     try{
@@ -1274,21 +1274,20 @@ function user_signup($user, $options){
         $user       = user_validate($user, $options);
         $user['id'] = sql_random_id('users');
 
-        sql_query('INSERT INTO `users` (`id`, `meta_id`, `status`, `createdby`, `username`, `password`, `name`, `email`, `employees_id`, `roles_id`, `role`, `timezone`)
-                   VALUES              (:id , :meta_id , :status , :createdby , :username , :password , :name , :email , :employees_id , :roles_id , :role , :timezone )',
+        sql_query('INSERT INTO `users` (`id`, `meta_id`, `status`, `createdby`, `username`, `password`, `name`, `email`, `roles_id`, `role`, `timezone`)
+                   VALUES              (:id , :meta_id , :status , :createdby , :username , :password , :name , :email , :roles_id , :role , :timezone )',
 
-                   array(':id'           => $user['id'],
-                         ':createdby'    => isset_get($_SESSION['user']['id']),
-                         ':meta_id'      => meta_action(),
-                         ':username'     => $user['username'],
-                         ':status'       => $user['status'],
-                         ':name'         => $user['name'],
-                         ':password'     => (empty($user['password']) ? '' : (($user['status'] === '_new') ? '' : get_hash($user['password'], $_CONFIG['security']['passwords']['hash']))),
-                         ':email'        => $user['email'],
-                         ':role'         => $user['role'],
-                         ':roles_id'     => $user['roles_id'],
-                         ':employees_id' => $user['employees_id'],
-                         ':timezone'     => $user['timezone']));
+                   array(':id'        => $user['id'],
+                         ':createdby' => isset_get($_SESSION['user']['id']),
+                         ':meta_id'   => meta_action(),
+                         ':username'  => $user['username'],
+                         ':status'    => $user['status'],
+                         ':name'      => $user['name'],
+                         ':password'  => (empty($user['password']) ? '' : (($user['status'] === '_new') ? '' : get_hash($user['password'], $_CONFIG['security']['passwords']['hash']))),
+                         ':email'     => $user['email'],
+                         ':role'      => $user['role'],
+                         ':roles_id'  => $user['roles_id'],
+                         ':timezone'  => $user['timezone']));
 
         /*
          * Return data from database with the given $user merged over it.
@@ -1968,7 +1967,7 @@ function user_validate($user, $options = array()){
         array_default($options, 'no_validation'      , false);
 
         load_libs('validate');
-        $v = new ValidateForm($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone,groups,keywords,employees_id');
+        $v = new ValidateForm($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone,groups,keywords');
 
         $user['email2'] = $user['email'];
         $user['terms']  = true;
@@ -2013,7 +2012,7 @@ function user_validate($user, $options = array()){
             $exists = sql_query('SELECT `id` FROM `users` WHERE `username` = :username AND `id` != :id', array(':id' => isset_get($user['id']), ':username' => $user['username']));
 
             if($exists->rowCount()){
-                $v->setError(tr('The username ":username" is already taken by user ":user"', array(':username' => $user['username'], ':user' => '<a target="_blank" href="'.domain('/user.html?user='.$user['id']).'">'.name($user).'</a>')));
+                $v->setError(tr('The username ":username" is already taken', array(':username' => $user['username'])));
             }
 
         }else{
@@ -2036,7 +2035,7 @@ function user_validate($user, $options = array()){
             $exists = sql_get('SELECT `id` FROM `users` WHERE `email` = :email AND `id` != :id', true, array(':email' => $user['email'], ':id' => isset_get($user['id'], 0)));
 
             if($exists){
-                $v->setError(tr('The email address ":email" is already taken by user ":user"', array(':email' => $user['email'], ':user' => '<a target="_blank" href="'.domain('/user.html?user='.$user['id']).'">'.name($user).'</a>')));
+                $v->setError(tr('The email address ":email" is already taken', array(':email' => $user['email'])));
             }
         }else{
             $user['email'] = null;
@@ -2055,7 +2054,7 @@ function user_validate($user, $options = array()){
                 $exists = sql_get('SELECT `id` FROM `users` WHERE `nickname` = :nickname AND `id` != :id', true, array(':id' => $user['id'], ':nickname' => $user['nickname']));
 
                 if($exists){
-                    $v->setError(tr('The nickname ":nickname" is already taken by user ":user"', array(':nickname' => $user['nickname'], ':user' => '<a target="_blank" href="'.domain('/user.html?user='.$user['id']).'">'.name($user).'</a>')));
+                    $v->setError(tr('The nickname ":nickname" is already taken', array(':nickname' => $user['nickname'])));
                 }
             }
         }
@@ -2325,7 +2324,6 @@ function users_get($user, $column = null, $status = null, $parent = false){
                                       `mailings`,
                                       `role`,
                                       `roles_id`,
-                                      `employees_id`,
                                       `priority`,
                                       `type`,
                                       `keywords`,
