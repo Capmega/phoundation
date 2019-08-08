@@ -243,28 +243,6 @@ function cli_readline($prompt = '', $hidden = false, $question_fore_color = null
 
 
 /*
- * Returns the current script that is running. script_exec() allows other
- * scripts to be run from the first, original, $core->register['script'], this function returns the
- * script currently running from script_exec()
- */
-function cli_current_script(){
-    global $core;
-
-    try{
-        if(empty($core->register['scripts'])){
-            return $core->register['script'];
-        }
-
-        return str_rfrom(end($core->register['scripts']), '/');
-
-    }catch(Exception $e){
-        throw new BException('cli_current_script(): Failed', $e);
-    }
-}
-
-
-
-/*
  * Ensure that the current script file cannot be run twice
  *
  * This function will ensure that the current script file cannot be run twice. In order to do this, it will create a run file in data/run/SCRIPTNAME with the current process id. If, upon starting, the script file already exists, it will check if the specified process id is available, and if its process name matches the current script name. If so, then the system can be sure that this script is already running, and the function will throw an exception
@@ -297,7 +275,7 @@ function cli_run_once_local($close = false){
 
     try{
         $run_dir = ROOT.'data/run/';
-        $script  = cli_current_script();
+        $script  = $core->register['script'];
 
         file_ensure_path(dirname($run_dir.$script));
 
@@ -345,7 +323,7 @@ function cli_run_once_local($close = false){
                 $name = array_pop($name);
 
                 if($name){
-                    preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.$script.')/', $name, $matches);
+                    preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
 
                     if(!empty($matches[1][0])){
                         throw new BException(tr('cli_run_once_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
@@ -391,9 +369,9 @@ function cli_run_max_local($processes){
 under_construction();
     try{
         $run_dir = ROOT.'data/run/';
-        $script  = cli_current_script();
+        $script  = $core->register['script'];
 
-        file_ensure_path($run_dir);
+        file_ensure_path(dirmode($run_dir.$script));
 
         if($processes === false){
             if(!$executed){
@@ -440,7 +418,7 @@ under_construction();
                 $name = array_pop($name);
 
                 if($name){
-                    preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.$script.')/', $name, $matches);
+                    preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
 
                     if(!empty($matches[1][0])){
                         throw new BException(tr('cli_run_max_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');

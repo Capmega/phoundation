@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.75');
+define('FRAMEWORKCODEVERSION', '2.7.76');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -80,12 +80,11 @@ try{
             define('PLATFORM_HTTP', false);
             define('PLATFORM_CLI' , true);
 
-            $file = slash($_SERVER['PWD']).str_from($_SERVER['PHP_SELF'], '/');
-            $file = realpath($file);
+            $file = realpath(ROOT.'scripts/'.str_from($argv[0], 'scripts/'));
             $file = str_from($file, ROOT.'scripts/');
 
-            $core->register['script']      = $file;
-            $core->register['real_script'] = str_rfrom($file, '/');
+            $core->register['real_script'] = $file;
+            $core->register['script']      = str_rfrom($file, '/');
 
             unset($file);
 
@@ -395,30 +394,6 @@ class Core{
         }
 
         return $this->register[$key] = $value;
-    }
-
-
-
-    /*
-     * This method returns $core->register[script], or if $script is specified, it will return true if $script is equal to $core->register[script], or false if not.
-     *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     *
-     * @param string $script The key for the value that needs to be stored
-     * @return mixed If $script is specified, this function will return true if $script matches $core->register[script], or false if it does not. If $script is not specified, it will return $core->register[script]
-     */
-    public function script($script = null){
-        global $core;
-
-        if($script === null){
-            return $core->register['script'];
-        }
-
-        return $core->register['script'] === $script;
     }
 
 
