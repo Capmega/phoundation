@@ -1265,7 +1265,14 @@ function user_signup($user, $options = null){
     global $_CONFIG;
 
     try{
-        array_ensure($options, 'no_password');
+        array_ensure($options, 'no_password,role');
+
+        if($options['role']){
+            /*
+             * This option forces the user to be the specified role
+             */
+            $user['role'] = $options['role'];
+        }
 
         if(empty($user['password']) and (isset_get($user['status']) !== '_new') and !$options['no_password']){
             throw new BException(tr('user_signup(): Please specify a password'), 'not-specified');
