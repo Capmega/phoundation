@@ -852,6 +852,10 @@ function git_status($path = ROOT, $filters = null){
                     $status = 'modified indexed';
                     break;
 
+                case 'MM':
+                    $status = 'modified and modified on index';
+                    break;
+
                 case '??':
                     $status = 'not tracked';
                     break;
