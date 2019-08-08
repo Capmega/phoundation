@@ -982,7 +982,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
             /*
              * Re-execute this command as the specified user
              */
-            log_console(tr('Current user ":user" is not authorized to execute this script, reexecuting script as user ":reuser"', array(':user' => cli_get_process_uid(), ':reuser' => getmyuid())), 'yellow', true, false, false);
+            log_console(tr('Current user ":user" is not authorized to execute this script, re-executing script as user ":reuser"', array(':user' => cli_get_process_uid(), ':reuser' => getmyuid())), 'yellow', true, false, false);
 
             $argv = $core->register['argv'];
             array_shift($argv);

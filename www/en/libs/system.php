@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.72');
+define('FRAMEWORKCODEVERSION', '2.7.73');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -80,8 +80,14 @@ try{
             define('PLATFORM_HTTP', false);
             define('PLATFORM_CLI' , true);
 
-            $core->register['script']      = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
-            $core->register['real_script'] = $core->register['script'];
+            $file = slash($_SERVER['PWD']).str_from($_SERVER['PHP_SELF'], '/');
+            $file = realpath($file);
+            $file = str_from($file, ROOT.'scripts/');
+
+            $core->register['script']      = $file;
+            $core->register['real_script'] = $file;
+
+            unset($file);
 
             if(substr($_SERVER['PHP_SELF'], -(strlen($core->register['script']) + 5), 4) === 'base'){
                 /*
