@@ -230,7 +230,7 @@ function api_authenticate($apikey){
             $user = sql_get('SELECT * FROM `users` WHERE `apikey` = :apikey', array(':apikey' => $apikey));
 
             if(!$user){
-                throw new BException(tr('api_authenticate(): Specified apikey is not valid'), 'access-denied');
+                throw new BException(tr('api_authenticate(): Specified apikey does not exist'), 'access-denied');
             }
 
         }else{
@@ -238,7 +238,7 @@ function api_authenticate($apikey){
              * Use one system wide API key
              */
             if($apikey !== $_CONFIG['api']['apikey']){
-                throw new BException(tr('api_authenticate(): Specified auth key is not valid'), 'access-denied');
+                throw new BException(tr('api_authenticate(): Specified auth key does not match configured api key'), 'access-denied');
             }
         }
 
@@ -295,7 +295,7 @@ function api_start_session($sessionkey){
          * Yay, we have an actual token, create session!
          */
         session_write_close();
-        session_id(isset_get($_POST['PHPSESSID']));
+        session_id($sessionkey);
         session_start();
 
         if(empty($_SESSION['api']['session_start'])){
@@ -303,7 +303,6 @@ function api_start_session($sessionkey){
              * Not a valid session!
              */
             session_destroy();
-
             json_reply(tr('api_start_session(): Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
         }
 
