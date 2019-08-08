@@ -2110,20 +2110,9 @@ function cli_restart($delay = 1){
             throw new BException(tr('cli_restart(): This function can only be run from a CLI platform'), $e);
         }
 
-        $command = array_shift($core->register['argv']);
-        $script  = str_rfrom($command, '/');
-        $command = str_runtil($command, '/'.$script);
-
-        if(substr($command, -4, 4) == 'base'){
-            /*
-             * This is a bas command
-             */
-            $script = 'base/'.$script;
-        }
-
         $pid = script_exec(array('background' => true,
                                  'delay'      => $delay,
-                                 'commands'   => array($script, $core->register['argv'])));
+                                 'commands'   => array($core->register['real_script'], $core->register['argv'])));
 
         log_console(tr('Restarted script ":script" in background with pid ":pid" with ":delay" seconds delay', array(':pid' => $pid, ':script' => $script, '::delay' => $delay)), 'green');
         die();
