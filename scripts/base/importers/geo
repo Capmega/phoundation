@@ -864,27 +864,32 @@ switch(cli_method()){
                                     }
 
                                 }else{
-                                    sql_query('INSERT INTO `geo_cities` (`is_city`, `geonames_id`, `countries_id`, `country_code`, `states_id`, `timezones_id`, `timezone`, `name`, `seoname`, `alternate_names`, `latitude`, `longitude`, `population`, `elevation`, `admin1`, `admin2`, `feature_code`, `moddate`)
-                                               VALUES                   (true     , :geonames_id , :countries_id , :country_code , :states_id , :timezones_id , :timezone , :name , :seoname , :alternate_names , :latitude , :longitude , :population , :elevation , :admin1 , :admin2 , :feature_code , :moddate )',
+                                    try{
+                                        sql_query('INSERT INTO `geo_cities` (`is_city`, `geonames_id`, `countries_id`, `country_code`, `states_id`, `timezones_id`, `timezone`, `name`, `seoname`, `alternate_names`, `latitude`, `longitude`, `population`, `elevation`, `admin1`, `admin2`, `feature_code`, `moddate`)
+                                                   VALUES                   (true     , :geonames_id , :countries_id , :country_code , :states_id , :timezones_id , :timezone , :name , :seoname , :alternate_names , :latitude , :longitude , :population , :elevation , :admin1 , :admin2 , :feature_code , :moddate )',
 
-                                               array(':geonames_id'     => $row['geonameid'],
-                                                     ':countries_id'    => $countries_id,
-                                                     ':country_code'    => $country_data['code'],
-                                                     ':states_id'       => $states_id,
-                                                     ':timezone'        => $row['timezone'],
-                                                     ':timezones_id'    => isset_get($timezones[$row['timezone']]),
-                                                     ':name'            => $row['name'],
-                                                     ':seoname'         => seo_unique(array('seoname'   => $row['name'],
-                                                                                                   'states_id' => $states_id), 'geo_cities'),
-                                                     ':alternate_names' => $row['alternatenames'],
-                                                     ':latitude'        => $row['latitude'],
-                                                     ':longitude'       => $row['longitude'],
-                                                     ':population'      => $row['population'],
-                                                     ':elevation'       => $row['elevation'],
-                                                     ':feature_code'    => $row['fcode'],
-                                                     ':admin1'          => $row['admin1'],
-                                                     ':admin2'          => $row['admin2'],
-                                                     ':moddate'         => $row['moddate']));
+                                                   array(':geonames_id'     => $row['geonameid'],
+                                                         ':countries_id'    => $countries_id,
+                                                         ':country_code'    => $country_data['code'],
+                                                         ':states_id'       => $states_id,
+                                                         ':timezone'        => $row['timezone'],
+                                                         ':timezones_id'    => isset_get($timezones[$row['timezone']]),
+                                                         ':name'            => $row['name'],
+                                                         ':seoname'         => seo_unique(array('seoname'   => $row['name'],
+                                                                                                       'states_id' => $states_id), 'geo_cities'),
+                                                         ':alternate_names' => $row['alternatenames'],
+                                                         ':latitude'        => $row['latitude'],
+                                                         ':longitude'       => $row['longitude'],
+                                                         ':population'      => $row['population'],
+                                                         ':elevation'       => $row['elevation'],
+                                                         ':feature_code'    => $row['fcode'],
+                                                         ':admin1'          => $row['admin1'],
+                                                         ':admin2'          => $row['admin2'],
+                                                         ':moddate'         => $row['moddate']));
+
+                                    }catch(Exception $e){
+                                        notify($e->makeWarning(true));
+                                    }
                                 }
 
                                 sql_query('COMMIT;');
@@ -933,28 +938,33 @@ switch(cli_method()){
                                         }
 
                                     }else{
-                                        sql_query('INSERT INTO `geo_cities` (`is_city`, `geonames_id`, `countries_id`, `country_code`, `states_id`, `counties_id`, `timezones_id`, `timezone`, `name`, `seoname`, `alternate_names`, `latitude`, `longitude`, `population`, `elevation`, `admin1`, `admin2`, `feature_code`, `moddate`)
-                                                   VALUES                   (true     , :geonames_id , :countries_id , :country_code , :states_id , :counties_id , :timezones_id , :timezone , :name , :seoname , :alternate_names , :latitude , :longitude , :population , :elevation , :admin1 , :admin2 , :feature_code , :moddate )',
+                                        try{
+                                            sql_query('INSERT INTO `geo_cities` (`is_city`, `geonames_id`, `countries_id`, `country_code`, `states_id`, `counties_id`, `timezones_id`, `timezone`, `name`, `seoname`, `alternate_names`, `latitude`, `longitude`, `population`, `elevation`, `admin1`, `admin2`, `feature_code`, `moddate`)
+                                                       VALUES                   (true     , :geonames_id , :countries_id , :country_code , :states_id , :counties_id , :timezones_id , :timezone , :name , :seoname , :alternate_names , :latitude , :longitude , :population , :elevation , :admin1 , :admin2 , :feature_code , :moddate )',
 
-                                                   array(':geonames_id'     => $row['geonameid'],
-                                                         ':countries_id'    => $countries_id,
-                                                         ':country_code'    => $country_data['code'],
-                                                         ':states_id'       => $states_id,
-                                                         ':counties_id'     => $counties_id,
-                                                         ':timezone'        => $row['timezone'],
-                                                         ':timezones_id'    => isset_get($timezones[$row['timezone']]),
-                                                         ':name'            => $row['name'],
-                                                         ':seoname'         => seo_unique(array('seoname'   => $row['name'],
-                                                                                                       'states_id' => $states_id), 'geo_cities'),
-                                                         ':alternate_names' => $row['alternatenames'],
-                                                         ':latitude'        => $row['latitude'],
-                                                         ':longitude'       => $row['longitude'],
-                                                         ':population'      => $row['population'],
-                                                         ':elevation'       => $row['elevation'],
-                                                         ':feature_code'    => $row['fcode'],
-                                                         ':admin1'          => $row['admin1'],
-                                                         ':admin2'          => $row['admin2'],
-                                                         ':moddate'         => $row['moddate']));
+                                                       array(':geonames_id'     => $row['geonameid'],
+                                                             ':countries_id'    => $countries_id,
+                                                             ':country_code'    => $country_data['code'],
+                                                             ':states_id'       => $states_id,
+                                                             ':counties_id'     => $counties_id,
+                                                             ':timezone'        => $row['timezone'],
+                                                             ':timezones_id'    => isset_get($timezones[$row['timezone']]),
+                                                             ':name'            => $row['name'],
+                                                             ':seoname'         => seo_unique(array('seoname'   => $row['name'],
+                                                                                                           'states_id' => $states_id), 'geo_cities'),
+                                                             ':alternate_names' => $row['alternatenames'],
+                                                             ':latitude'        => $row['latitude'],
+                                                             ':longitude'       => $row['longitude'],
+                                                             ':population'      => $row['population'],
+                                                             ':elevation'       => $row['elevation'],
+                                                             ':feature_code'    => $row['fcode'],
+                                                             ':admin1'          => $row['admin1'],
+                                                             ':admin2'          => $row['admin2'],
+                                                             ':moddate'         => $row['moddate']));
+
+                                        }catch(Exception $e){
+                                            notify($e->makeWarning(true));
+                                        }
                                     }
                                 }
                             }
