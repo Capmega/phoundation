@@ -3598,7 +3598,7 @@ function html_loader_screen($params){
                          * Hide the loader screen and show the main page wrapper
                          */
                         $html .= html_script('$("'.$params['page_selector'].'").show('.$params['transition_time'].');
-                                              $("#loader-screen").fadeOut('.$params['transition_time'].($params['screen_remove'] ? ', function(){ $("#loader-screen").remove(); }' : '').');');
+                                              $("#loader-screen").fadeOut('.$params['transition_time'].', function(){ $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
 
                         return $html;
                     }
@@ -3606,11 +3606,11 @@ function html_loader_screen($params){
                     /*
                      * Only hide the loader screen
                      */
-                    $html .= html_script('$("#loader-screen").fadeOut('.$params['transition_time'].($params['screen_remove'] ? ', function(){ $("#loader-screen").remove(); }' : '').');');
+                    $html .= html_script('$("#loader-screen").fadeOut('.$params['transition_time'].', function(){ $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
                     break;
 
                 case 'slide':
-                    $html .= html_script('var height = $("#loader-screen").height(); $("#loader-screen").animate({ top: height }, '.$params['transition_time'].($params['screen_remove'] ? ', function(){ $("#loader-screen").remove(); }' : '').');');
+                    $html .= html_script('var height = $("#loader-screen").height(); $("#loader-screen").animate({ top: height }, '.$params['transition_time'].', function(){ $("#loader-screen").css("display", "none"); '.($params['screen_remove'] ? '$("#loader-screen").remove();' : '').' });');
                     break;
 
                 default:
