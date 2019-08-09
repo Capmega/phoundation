@@ -930,11 +930,18 @@ class ValidateForm {
                 return true;
             }
 
-            if($this->not xor !is_natural($this->testValue, $start)){
-                if(!is_numeric($start)){
-                    throw new BException(tr('ValidateForm::isNatural(): Invalid $start ":start" specified for test ":message", it should be an integer number (and probably) 0 or higher', array(':start' => $start, ':message' => $message)), 'invalid');
-                }
+            if(!is_numeric($start)){
+                /*
+                 * Assume the developer messed up and forgot to specify the $start value
+                 */
+                notify(new BException(tr('ValidateForm::isNatural(): Invalid $start ":start" specified for test ":message", it should be an integer number (and probably) 0 or higher', array(':start' => $start, ':message' => $message)), 'warning/invalid'););
 
+                $flags   = $message;
+                $message = $start;
+                $start   = 1;
+            }
+
+            if($this->not xor !is_natural($this->testValue, $start)){
                 return $this->setError($message);
             }
 
