@@ -2157,11 +2157,18 @@ function cli_find($params){
             throw new BException(tr('cli_find(): No start specified'), 'not-specified');
         }
 
-        if(!file_exists($params['start'])){
-            throw new BException(tr('cli_find(): Specified start path ":start" does not exist', array(':start' => $params['start'])), 'not-specified');
+        /*
+         * Escape each path section
+         */
+        $params['start'] = array_force($params['start'], ',');
+
+        foreach($params['start'] as &$item){
+            $item = escapeshellarg($item);
         }
 
-        $arguments[] = $params['start'];
+        $params['start'] = implode(' ', $params['start']);
+
+        $arguments['-'] = $params['start'];
         unset($params['start']);
 
         foreach($params as $key => $value){
@@ -2193,6 +2200,10 @@ function cli_find($params){
 
                     break;
 
+                case 'iregex':
+                    // FALLTHROUGH
+                case 'regex':
+                    // FALLTHROUGH
                 case 'path':
                     // FALLTHROUGH
                 case 'ipath':
