@@ -1071,13 +1071,13 @@ function file_safe_pattern($pattern){
          * Escape patterns manually here, safe_exec() will be told NOT to
          * escape them to avoid issues with *
          */
-        $items = array_force($pattern, '*');
+        $pattern = array_force($pattern, '*');
 
-        foreach($items as &$item){
+        foreach($pattern as &$item){
             $item = escapeshellarg($item);
         }
 
-        return implode('*', $items);
+        return implode('*', $pattern);
 
     }catch(Exception $e){
         throw new BException(tr('file_safe_pattern(): Failed'), $e);
