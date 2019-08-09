@@ -2146,8 +2146,6 @@ function cli_restart($delay = 1){
  * @param string $params[type] Type of file to find. "b" for block (buffered) special, "c" for character (unbuffered) special, "d" for directory, "p" for named pipe (FIFO), "f" for regular file, "l" for symbolic link; this is never true if the -L option or the -follow option is in effect, unless the symbolic link is broken.  If you want to search for symbolic links when -L is in effect, use -xtype., "s" for socket
  * @return array The output from the find command
  */
-
-
 function cli_find($params){
     try{
         array_ensure($params, 'sudo,timeout,start');
@@ -2194,8 +2192,8 @@ function cli_find($params){
                             break;
 
                         default:
-                            $arguments[]    = '-exec';
-                            $arguments['#'] = $value;
+                            $arguments[]     = '-exec';
+                            $arguments['##'] = $value;
                     }
 
                     break;
@@ -2233,7 +2231,7 @@ function cli_find($params){
                 break;
 
             default:
-                $arguments['##'] = '\\;';
+                $arguments['###'] = '\\;';
         }
 
         $results = safe_exec(array('timeout'  => $params['timeout'],
