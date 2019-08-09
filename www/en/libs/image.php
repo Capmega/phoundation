@@ -346,6 +346,10 @@ function image_convert($params){
                     $arguments[] = '-strip';
                     break;
 
+                case 'flatten':
+                    $arguments[] = '-flatten';
+                    break;
+
                 case 'background':
                     if($value){
                         $arguments[] = '-background';
@@ -438,7 +442,6 @@ function image_convert($params){
                 $arguments[] = 'center';
                 $arguments[] = '-extent';
                 $arguments[] = $params['x'].'x'.$params['y'];
-                $arguments[] = '-flatten';
                 $arguments[] = $source;
                 $arguments[] = $target;
 
@@ -448,7 +451,6 @@ function image_convert($params){
             case 'resize-w':
                 $arguments[] = '-resize';
                 $arguments[] = $params['x'].'x\>';
-                $arguments[] = '-flatten';
                 $arguments[] = $source;
                 $arguments[] = $target;
 
@@ -458,7 +460,6 @@ function image_convert($params){
             case 'resize':
                 $arguments[] = '-resize';
                 $arguments[] = $params['x'].'x'.$params['y'].'^';
-                $arguments[] = '-flatten';
                 $arguments[] = $source;
                 $arguments[] = $target;
 
@@ -475,7 +476,6 @@ function image_convert($params){
                 $arguments[] = $params['x'].'x'.$params['y'];
                 $arguments[] = '-background';
                 $arguments[] = 'white';
-                $arguments[] = '-flatten';
                 $arguments[] = $source;
                 $arguments[] = $tmpfname;
 
