@@ -2042,15 +2042,21 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                 if($script['event']){
                     switch($script['event']){
                         case 'dom_content':
-                            $retval = 'document.addEventListener("DOMContentLoaded", function(e) { '.$script['script'].' });';
+                            $retval = 'document.addEventListener("DOMContentLoaded", function(e) {
+                                          '.$script['script'].'
+                                       });';
                             break;
 
                         case 'window':
-                            $retval = 'window.addEventListener("load", function(e) { '.$script['script'].' });';
+                            $retval = 'window.addEventListener("load", function(e) {
+                                          '.$script['script'].'
+                                       });';
                             break;
 
                         case 'function':
-                            $retval = '$(function() { '.$script['script'].' });';
+                            $retval = '$(function() {
+                                          '.$script['script'].'
+                                       });';
                             break;
 
                         default:
@@ -3494,7 +3500,8 @@ function html_filter_tags($html, $tags, $exception = false){
  * @param string $params[image_alt] The alt text for the loader image
  * @param string $params[image_width] The required width for the loader image
  * @param string $params[image_height] The required height for the loader image
- * @param string $params[transition_duration] The time in msec that the loader screen transition should take until the web page itself is visible
+ * @param string $params[transition_time] The time in msec that the loader screen transition should take until the web page itself is visible
+ * @param string $params[transition_style] The style of the transition from loader screen to webpage that should be used
  * @param string $params[screen_line_height] The "line-height" setting for the loader screen style attribute
  * @param string $params[screen_background] The "background" setting for the loader screen style attribute
  * @param string $params[screen_text_align] The "text-align" setting for the loader screen style attribute
@@ -3507,6 +3514,8 @@ function html_loader_screen($params){
     try{
         array_params($params);
         array_default($params, 'page_selector'        , '');
+        array_default($params, 'text'                 , '');
+        array_default($params, 'text_style'           , '');
         array_default($params, 'image_src'            , '');
         array_default($params, 'image_alt'            , tr('Loader screen'));
         array_default($params, 'image_width'          , null);
@@ -3516,12 +3525,14 @@ function html_loader_screen($params){
         array_default($params, 'image_right'          , null);
         array_default($params, 'image_bottom'         , null);
         array_default($params, 'image_style'          , 'position:relative;');
-        array_default($params, 'transition_duration'  , 300);
         array_default($params, 'screen_line_height'   , 0);
         array_default($params, 'screen_background'    , 'white');
+        array_default($params, 'screen_remove'        , true);
         array_default($params, 'screen_text_align'    , 'center');
         array_default($params, 'screen_vertical_align', 'middle');
         array_default($params, 'screen_style_extra'   , '');
+        array_default($params, 'transition_time'      , 300);
+        array_default($params, 'transition_style'     , 'fade');
         array_default($params, 'test_loader_screen'   , false);
 
         $extra = '';
@@ -3540,6 +3551,18 @@ function html_loader_screen($params){
 
         $html  = '  <div id="loader-screen" style="position:fixed;top:0px;bottom:0px;left:0px;right:0px;z-index:2147483647;display:block;background:'.$params['screen_background'].';text-align: '.$params['screen_text_align'].';'.$extra.'" '.$params['screen_style_extra'].'>';
 
+        /*
+         * Show loading text
+         */
+        if($params['text']){
+            $html .=    '<div style="'.$params['text_style'].'">
+                         '.$params['text'].'
+                         </div>';
+        }
+
+        /*
+         * Show loading image
+         */
         if($params['image_src']){
             if($params['image_top']){
                 $params['image_style'] .= 'top:'.$params['image_top'].';';
@@ -3568,20 +3591,31 @@ function html_loader_screen($params){
         $html .= '  </div>';
 
         if(!$params['test_loader_screen']){
-            if($params['page_selector']){
-                /*
-                 * Hide the loader screen and show the main page wrapper
-                 */
-                $html .= html_script('jQuery("'.$params['page_selector'].'").show('.$params['transition_duration'].');
-                                      jQuery("#loader-screen").fadeOut('.$params['transition_duration'].', function(){ jQuery("#loader-screen").remove(); });');
+            switch($params['transition_style']){
+                case 'fade':
+                    if($params['page_selector']){
+                        /*
+                         * Hide the loader screen and show the main page wrapper
+                         */
+                        $html .= html_script('$("'.$params['page_selector'].'").show('.$params['transition_time'].');
+                                              $("#loader-screen").fadeOut('.$params['transition_time'].($params['screen_remove'] ? ', function(){ $("#loader-screen").remove(); }' : '').');');
 
-                return $html;
+                        return $html;
+                    }
+
+                    /*
+                     * Only hide the loader screen
+                     */
+                    $html .= html_script('$("#loader-screen").fadeOut('.$params['transition_time'].($params['screen_remove'] ? ', function(){ $("#loader-screen").remove(); }' : '').');');
+                    break;
+
+                case 'slide':
+                    $html .= html_script('var height = $("#loader-screen").height(); $("#loader-screen").animate({ top: height }, '.$params['transition_time'].($params['screen_remove'] ? ', function(){ $("#loader-screen").remove(); }' : '').');');
+                    break;
+
+                default:
+                    throw new BException(tr('html_loader_screen(): Unknown screen transition value ":value" specified', array(':value' => $params['test_loader_screen'])), 'unknown');
             }
-
-            /*
-             * Only hide the loader screen
-             */
-            $html .= html_script('jQuery("#loader-screen").fadeOut('.$params['transition_duration'].', function(){ jQuery("#loader-screen").remove(); });');
         }
 
         return $html;
