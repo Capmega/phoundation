@@ -182,6 +182,22 @@ try{
         });
     }
 
+    log_console(tr('Cleared all automatically converted webp files'), 'green');
+
+    /*
+     * Delete all auto resized images
+     */
+    $files = cli_find(array('start' => ROOT.'data/content/,'.ROOT.'www/',
+                            'regex' => '.+@[0-9]+x[0-9]+\..*'));
+
+    foreach($files as $file){
+        file_execute_mode('*'.dirname($file), 0770, function() use ($file){
+            file_delete($file, ROOT.'data/content/,'.ROOT.'www/');
+        });
+    }
+
+    log_console(tr('Cleared all automatically resized image files'), 'green');
+
     if(FORCE){
         /*
          * Delete external / vendor libraries too
@@ -191,9 +207,9 @@ try{
                 file_delete(ROOT.'node_modules/', ROOT);
             });
         }
-    }
 
-    log_console(tr('Cleared node_modules path ":path"', array(':path' => ROOT.'node_modules/')), 'green');
+        log_console(tr('Cleared node_modules path ":path"', array(':path' => ROOT.'node_modules/')), 'green');
+    }
 
 }catch(Exception $e){
     $e->addMessages(tr('cache_clear(): Failed'));
