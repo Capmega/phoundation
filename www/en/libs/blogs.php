@@ -1152,7 +1152,7 @@ function blogs_validate($blog){
          * Validate input
          */
         $v = new ValidateForm($blog, 'id,name,url_template,keywords,slogan,description');
-        $v->isNatural($blog['id'], tr('Please ensure that the specified post id is a natural number; numeric, integer, and > 0'));
+        $v->isNatural($blog['id'], 1, tr('Please ensure that the specified post id is a natural number; numeric, integer, and > 0'));
 
         if(is_numeric($blog['name'])){
             throw new BException(tr('Blog post name can not be numeric'), 'invalid');
@@ -1345,7 +1345,7 @@ function blogs_validate_post($post, $params = null){
             throw new BException(tr('Blog post has no id specified'), 'not-specified');
         }
 
-        $v->isNatural($post['id'], tr('Please ensure that the specified post id is a natural number; numeric, integer, and > 0'));
+        $v->isNatural($post['id'], 1, tr('Please ensure that the specified post id is a natural number; numeric, integer, and > 0'));
 
         if(is_numeric($post['name'])){
             throw new BException(tr('Blog post name can not be numeric'), 'invalid');
