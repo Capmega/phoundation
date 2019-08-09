@@ -1903,11 +1903,11 @@ function cli_build_commands_string(&$params){
                         throw new BException(tr('cli_build_commands_string(): Specified arguments ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
                     }
 
-                    if($special[0] === '-'){
+                    if($special[0] === '#'){
                         /*
                          * Do not escape this argument
                          */
-                        $special = str_starts_not($special, '-');
+                        $special = str_starts_not($special, '#');
 
                         if(!$special){
                             $special = 'nothing';
@@ -2166,10 +2166,10 @@ function cli_find($params){
             $item = escapeshellarg($item);
         }
 
-        $params['start'] = implode(' ', $params['start']);
+        $arguments['#'] = implode(' ', $params['start']);
 
-        $arguments['-'] = $params['start'];
         unset($params['start']);
+        unset($item);
 
         foreach($params as $key => $value){
             if(!$value){
@@ -2195,7 +2195,7 @@ function cli_find($params){
 
                         default:
                             $arguments[]    = '-exec';
-                            $arguments['-'] = $value;
+                            $arguments['#'] = $value;
                     }
 
                     break;
@@ -2233,7 +2233,7 @@ function cli_find($params){
                 break;
 
             default:
-                $arguments['--'] = '\\;';
+                $arguments['##'] = '\\;';
         }
 
         $results = safe_exec(array('timeout'  => $params['timeout'],

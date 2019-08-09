@@ -1032,7 +1032,7 @@ function file_delete($params, $restrictions = null){
             /*
              * Execute the rm command
              */
-            safe_exec(array('commands' => array('rm', array('sudo' => $params['sudo'], '-rf', '-' => file_safe_pattern($pattern)))));
+            safe_exec(array('commands' => array('rm', array('sudo' => $params['sudo'], '-rf', '#' => file_safe_pattern($pattern)))));
 
             /*
              * If specified to do so, clear the path upwards from the specified
@@ -1502,7 +1502,7 @@ function file_chmod($params, $mode = null, $restrictions = null){
 
             $arguments      = array();
             $arguments[]    = $params['mode'];
-            $arguments['-'] = file_safe_pattern($path);
+            $arguments['#'] = file_safe_pattern($path);
 
             if($params['recursive']){
                 $arguments[] = '-R';
