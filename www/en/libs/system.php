@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.90');
+define('FRAMEWORKCODEVERSION', '2.7.91');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1012,6 +1012,10 @@ function load_libs($libraries){
             }
         }
 
+    }catch(Error $e){
+        $e = new BException(tr('load_libs(): Failed to load library ":library"', array(':library' => $library)), $e);
+        throw $e->setCode('load-libs-fail');
+
     }catch(Exception $e){
         if(empty($library)){
             throw new BException(tr('load_libs(): Failed to load one or more of libraries ":libraries"', array(':libraries' => $libraries)), $e);
@@ -1021,7 +1025,7 @@ function load_libs($libraries){
             throw new BException(tr('load_libs(): Failed to load library ":library", the library does not exist', array(':library' => $library)), $e);
         }
 
-        throw new BException(tr('load_libs(): Failed to load one or more of libraries ":libraries", probably ":library"', array(':libraries' => $libraries, ':library' => $library)), $e);
+        throw new BException(tr('load_libs(): Failed to load library ":library" from the requested libraries list ":libraries"', array(':libraries' => $libraries, ':library' => $library)), $e);
     }
 }
 
