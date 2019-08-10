@@ -352,7 +352,7 @@ function uglify_css($paths = null, $force = false){
                         global $core;
 
                         log_console(tr('uglify_css(): Minifying CSS file ":file"', array(':file' => $file)), 'VERBOSEDOT');
-                        file_delete(substr($file, 0, -4).'.min.css', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
+                        file_delete(substr($file, 0, -4).'.min.css', dirname($file));
 
                         try{
                             if(filesize($file)){
