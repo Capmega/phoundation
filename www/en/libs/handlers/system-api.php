@@ -54,7 +54,6 @@ try{
     umask($_CONFIG['security']['umask']);
 
 
-
     /*
      * Setup locale and character encoding
      */
@@ -181,7 +180,24 @@ try{
     load_libs('custom');
     http_validate_get();
 
+    /*
+     * Get $_POST data from RAW JSON?
+     */
+    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+        if(trim(isset_get($_SERVER["CONTENT_TYPE"])) === 'application/json'){
+            /*
+             * Check for RAW input
+             */
+            try{
+                $json  = file_get_contents('php://input');
+                $_POST = json_decode_custom($json);
 
+            }catch(Exception $e){
+                $e->setCode(400);
+                throw new BException(tr('Core::system_api(): Failed to process application/json request'), $e);
+            }
+        }
+    }
 
     /*
      * Did the startup sequence encounter reasons for us to actually show another
