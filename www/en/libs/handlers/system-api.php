@@ -184,18 +184,19 @@ try{
      * Get $_POST data from RAW JSON?
      */
     if($_SERVER['REQUEST_METHOD'] === 'POST'){
-        if(trim(isset_get($_SERVER["CONTENT_TYPE"])) === 'application/json'){
-            /*
-             * Check for RAW input
-             */
-            try{
-                $json  = file_get_contents('php://input');
-                $_POST = json_decode_custom($json);
+        /*
+         * Check for RAW input
+         */
+        try{
+            $json = file_get_contents('php://input');
 
-            }catch(Exception $e){
-                $e->setCode(400);
-                throw new BException(tr('Core::system_api(): Failed to process application/json request'), $e);
+            if($json){
+                $_POST = json_decode_custom($json);
             }
+
+        }catch(Exception $e){
+            $e->setCode(400);
+            throw new BException(tr('Core::system_api(): Failed to process application/json request'), $e);
         }
     }
 
