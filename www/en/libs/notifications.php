@@ -183,9 +183,11 @@ function notifications_validate($notification, $log){
             /*
              * This is a PHP Error. Weird, but not impossible, I guess
              */
+            $e            = $notification;
             $notification = array('title'     => tr('PHP Error'),
                                   'exception' => true,
                                   'message'   => $notification->getMessage(),
+                                  'real_code' => $notification->getRealCode(),
                                   'code'      => 'error');
 
             if($log){
@@ -197,10 +199,12 @@ function notifications_validate($notification, $log){
                 /*
                  * Notify about a BException
                  */
+                $e            = $notification;
                 $notification = array('title'     => ($notification->isWarning() ? tr('Phoundation warning') : tr('Phoundation exception')),
                                       'exception' => true,
                                       'message'   => implode("\n", $notification->getMessages()),
                                       'data'      => $notification->getData(),
+                                      'real_code' => $notification->getRealCode(),
                                       'code'      => ($notification->isWarning() ? 'warning' : 'error'));
 
                 if($log){
@@ -232,6 +236,19 @@ function notifications_validate($notification, $log){
 
             if($log){
                 log_file(not_empty($notification['title'].' '.$notification['message'], tr('No message specified')), 'notification-'.strtolower($notification['code']), 'yellow');
+            }
+        }
+
+        if(isset_get($e) and $e->getRealCode() === 'load-libs-fail'){
+            /*
+             * A library failed to load. If this is the validation library,
+             * then the next ValidateForm thing will mess us up badly!
+             */
+            if(array_search('load_libs(): Failed to load library "validate"', $e->getMessages())){
+                /*
+                 * Yeah, validate library hasn't been loaded, so panic
+                 */
+                throw new BException(tr('notifications_validate(): Failed to validate notification, the validate library failed to load'), $e);
             }
         }
 
