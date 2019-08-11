@@ -330,10 +330,38 @@ function blogs_post_get_key_values($blogs_posts_id, $seovalues = false){
  * $params specified what columns are used for this blog post
  */
 function blogs_post_update($post, $params = null){
+    global $_CONFIG;
+
     try{
         array_ensure($params);
         array_default($params, 'sitemap_priority'        , 1);
         array_default($params, 'sitemap_change_frequency', 'weekly');
+        array_default($params, 'label_code'              , '');
+        array_default($params, 'label_assigned_to'       , tr('Assigned to'));
+        array_default($params, 'label_category1'         , false);
+        array_default($params, 'label_category2'         , false);
+        array_default($params, 'label_category3'         , false);
+        array_default($params, 'label_createdon'         , tr('Created on'));
+        array_default($params, 'label_parent'            , false);
+        array_default($params, 'label_blog'              , false);
+        array_default($params, 'label_media'             , tr('Attached media files and links for this post'));
+        array_default($params, 'label_attach'            , tr('Attach files'));
+        array_default($params, 'label_media_attached'    , tr('This post has no attached media'));
+        array_default($params, 'label_media_description' , tr('These are the media files'));
+        array_default($params, 'label_level'             , tr('Priority'));
+        array_default($params, 'label_title'             , tr('Title'));
+        array_default($params, 'label_keywords'          , tr('Keywords'));
+        array_default($params, 'label_description'       , tr('Description'));
+        array_default($params, 'label_featured'          , tr('Featured until'));
+        array_default($params, 'label_url'               , tr('URL'));
+        array_default($params, 'label_status'            , tr('Status'));
+        array_default($params, 'label_map'               , false);
+        array_default($params, 'label_timereleased'      , false);
+        array_default($params, 'label_language'          , ($_CONFIG['language']['supported'] ? tr('Language') : ''));
+        array_default($params, 'status_list'             , array('deleted'     => tr('Deleted'),
+                                                                 'erased'      => tr('Erased'),
+                                                                 'unpublished' => tr('Unpublished'),
+                                                                 'published'   => tr('Published')));
 
         $post = blogs_validate_post($post, $params);
 
@@ -1276,11 +1304,14 @@ function blogs_validate_post($post, $params = null){
         array_default($params, 'force_id'         , false);
         array_default($params, 'use_id'           , false);
         array_default($params, 'namemax'          , 64);
-        array_default($params, 'bodymin'          , 100);
+        array_default($params, 'bodymin'          , 0);
         array_default($params, 'label_keywords'   , true);
         array_default($params, 'label_category1'  , false);
         array_default($params, 'label_category2'  , false);
         array_default($params, 'label_category3'  , false);
+        array_default($params, 'category1'        , null);
+        array_default($params, 'category2'        , null);
+        array_default($params, 'category3'        , null);
         array_default($params, 'level'            , 1);
         array_default($params, 'change_frequency' , 'weekly');
         array_default($params, 'status_default'   , 'unpublished');
@@ -1418,7 +1449,7 @@ function blogs_validate_post($post, $params = null){
                 }
 
                 $v->hasMinChars($post['body'], $params['bodymin'], tr('Please ensure that the body text has a minimum of :bodymin characters', array(':bodymin' => $params['bodymin'])));
-                $v->isNotEmpty ($post['body']                    , tr('Please provide the body text of your :objectname', array(':objectname' => $params['object_name'])));
+//                $v->isNotEmpty ($post['body']                    , tr('Please provide the body text of your :objectname', array(':objectname' => $params['object_name'])));
             }
         }
 
