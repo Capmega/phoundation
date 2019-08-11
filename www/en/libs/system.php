@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.94');
+define('FRAMEWORKCODEVERSION', '2.7.95');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2187,7 +2187,7 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
          * Only map if routemap has been set
          */
 // :TODO: This will fail when using multiple CDN servers
-        if(!empty($core->register['route_map']) and ($domain !== $_CONFIG['cdn']['domain'].'/')){
+        if(!empty($_CONFIG['language']['supported']) and ($domain !== $_CONFIG['cdn']['domain'].'/')){
             if(LANGUAGE !== 'en'){
                 /*
                  * Translate the current non-English URL to English first
@@ -2198,8 +2198,10 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
                 $retval = str_replace('/'.LANGUAGE.'/', '/en/', '/'.$retval);
                 $retval = substr($retval, 1);
 
-                foreach($core->register['route_map'][LANGUAGE] as $english => $foreign){
-                    $retval = str_replace($foreign, $english, $retval);
+                if(!empty($core->register['route_map'])){
+                    foreach($core->register['route_map'][LANGUAGE] as $english => $foreign){
+                        $retval = str_replace($foreign, $english, $retval);
+                    }
                 }
             }
 
@@ -2208,20 +2210,27 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
              * English here, then conversion from local language to English
              * right above failed
              */
-
             if($language !== 'en'){
                 /*
                  * Map the english URL to the requested non-english URL
                  * Only map if routemap has been set for the requested language
                  */
-                if(empty($core->register['route_map'][$language])){
-                    notify(new BException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $language)), 'not-specified'));
-
-                }else{
+                if(empty($core->register['route_map'])){
+                    /*
+                     * No route_map was set, only translate language selector
+                     */
                     $retval = str_replace('en/', $language.'/', $retval);
 
-                    foreach($core->register['route_map'][$language] as $english => $foreign){
-                        $retval = str_replace($english, $foreign, $retval);
+                }else{
+                    if(empty($core->register['route_map'][$language])){
+                        notify(new BException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $language)), 'not-specified'));
+
+                    }else{
+                        $retval = str_replace('en/', $language.'/', $retval);
+
+                        foreach($core->register['route_map'][$language] as $english => $foreign){
+                            $retval = str_replace($english, $foreign, $retval);
+                        }
                     }
                 }
             }

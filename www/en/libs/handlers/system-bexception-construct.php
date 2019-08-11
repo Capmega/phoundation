@@ -53,7 +53,7 @@ if(is_object($code)){
     $this->data = array_force($data);
 }
 
-if(!$messages){
+if(!$messages and !isset($e)){
     throw new Exception(tr('BException: No exception message specified in file ":file" @ line ":line"', array(':file' => current_file(1), ':line' => current_line(1))));
 }
 
