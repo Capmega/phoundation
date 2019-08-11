@@ -69,6 +69,7 @@ function meta_add_history($meta_id, $action, $data = null){
          * In other words, this user no longer exists. Signout, and reload the
          * page
          */
+        load_libs('user');
         user_signout();
         redirect(true);
     }
