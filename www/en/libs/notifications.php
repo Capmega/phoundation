@@ -183,11 +183,11 @@ function notifications_validate($notification, $log){
             /*
              * This is a PHP Error. Weird, but not impossible, I guess
              */
-            $e            = $notification;
+            $e            = new BException('', $notification);
             $notification = array('title'     => tr('PHP Error'),
                                   'exception' => true,
                                   'message'   => $notification->getMessage(),
-                                  'real_code' => $notification->getRealCode(),
+                                  'real_code' => $notification->getCode(),
                                   'code'      => 'error');
 
             if($log){
