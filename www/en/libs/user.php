@@ -907,7 +907,7 @@ function user_authentication_requires_captcha($failures = null){
  * @param boolean $extended
  * @param boolean $redirect
  * @param boolean $html_flash
- * @return void
+ * @return params The specified users parameters array
  */
 function user_signin($user, $extended = false, $redirect = null, $html_flash = null, $coupon = null) {
     global $_CONFIG;
@@ -1025,6 +1025,8 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
         }
 
         log_database(tr('user_signin(): Signed in user ":user"', array(':user' => name($user))), 'signin/success');
+
+        return $_SESSION['user'];
 
     }catch(Exception $e){
         log_database(tr('user_signin(): User sign in failed for user ":user" because ":message"', array(':user' => name($user), ':message' => $e->getMessage())), 'signin/failed');
@@ -1923,7 +1925,7 @@ function user_password_strength($password, $check_banned = true, $exception = tr
 
         log_console(tr('Password strength is ":strength"', array(':strength' => number_format($strength, 2))), 'VERBOSE');
 
-        if($strength < $_CONFIG['users']['password_minumum_strength']){
+        if($_CONFIG['users']['password_minumum_strength'] and ($strength < $_CONFIG['users']['password_minumum_strength'])){
             if($exception){
                 throw new BException(tr('user_password_strength(): The specified password is too weak, please use a better password. Use more characters, add numbers, special characters, caps characters, etc. On a scale of 1-10, current strength is ":strength"', array(':strength' => $strength)), 'validation');
             }
