@@ -1580,8 +1580,20 @@ function blogs_validate_post($post, $params = null){
         /*
          * Set extra parameters
          */
-        $post['seoname']  = seo_unique($post['name'], 'blogs_posts', $id);
-        $post['url']      = blogs_post_url($post);
+        $post['seoname'] = seo_string($post['name']);
+        $count           = 0;
+
+        while(true){
+            $exists = sql_get('SELECT `id` FROM `blogs_posts` WHERE `blogs_id` = :blogs_id AND `seoname` = :seoname AND `language` = :language', array(':blogs_id' => $post['blogs_id'], ':seoname' => $post['seoname'], ':language' => $post['language']));
+
+            if(!$exists){
+                break;
+            }
+
+            $post['seoname'] .= ++$count;
+        }
+
+        $post['url'] = blogs_post_url($post);
 
         /*
          * Append post to current body?
