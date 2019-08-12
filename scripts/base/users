@@ -279,7 +279,7 @@ switch(cli_method()){
 
     case 'modify':
         $users_id = cli_argument(1);
-        $user     = cli_arguments('--name,--email,--username,--latitude,--longitude,--redirect,--domain,--nickname');
+        $user     = cli_arguments('--name,--email,--username,--latitude,--longitude,--redirect,--domain,--role,--nickname');
 
         if(!$users_id){
             $v->setError(tr('No user specified'));
@@ -328,6 +328,17 @@ switch(cli_method()){
 
         if(!$db_user){
             throw new BException(tr('Specified user ":user" does not exist', array(':user' => $users_id)), 'warning/not-exist');
+        }
+
+        if(isset($user['role'])){
+            load_libs('roles');
+            $role = roles_get($user['role']);
+
+            if(!$role){
+                throw new BException(tr('Specified role ":role" does not exist'), 'not-exist');
+            }
+
+            $user['roles_id'] = $role['id'];
         }
 
         $user    = sql_merge($db_user, $user);
