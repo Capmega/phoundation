@@ -1547,7 +1547,7 @@ function file_get_local($file, &$is_downloaded = false, $context = null){
 
             if(is_uploaded_file($file)){
                 $tmp  = file_get_uploaded($file);
-                $file = file_temp($file);
+                $file = file_temp($file, null, false);
 
                 rename($tmp, $file);
             }
