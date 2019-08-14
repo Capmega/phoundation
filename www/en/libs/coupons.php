@@ -141,7 +141,7 @@ function coupons_insert($coupon){
         $coupon = coupons_validate($coupon);
 
         sql_query('INSERT INTO `coupons` (`createdby`, `meta_id`, `categories_id`, `code`, `seocode`, `reward`, `description`, `count`, `expires`)
-                   VALUES                (:createdby , :meta_id , :categories_id , :code , :seocode , :reward , :description , :count , :expires)',
+                   VALUES                (:createdby , :meta_id , :categories_id , :code , :seocode , :reward , :description , :count , :expires )',
 
                    array(':createdby'     => isset_get($_SESSION['user']['id']),
                          ':meta_id'       => meta_action(),
@@ -272,10 +272,12 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
 
         if($status !== false){
             $where[] = ' `coupons`.`status` '.sql_is($status, ':status');
+            $execute[':status'] = $status;
         }
 
         if($categories_id !== false){
             $where[] = ' `coupons`.`categories_id` '.sql_is($categories_id, ':categories_id');
+            $execute[':categories_id'] = $categories_id;
         }
 
         if($available){
@@ -513,4 +515,3 @@ function coupons_add_to_wallet($amount){
         throw new bException('coupons_add_to_wallet(): Failed', $e);
     }
 }
-?>
