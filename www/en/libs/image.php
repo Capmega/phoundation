@@ -107,6 +107,8 @@ function image_convert($params){
     global $_CONFIG;
 
     try{
+        array_ensure($params, 'source,target,format');
+
         /*
          * Extract source and target
          */
@@ -548,6 +550,10 @@ function image_convert($params){
                 }catch(Exception $f){
                     throw new BException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. Phoundation tried to install the package automatically but this failed. Please install imagemagick yourself. On Debian and derrivates this can be done with the command "sudo apt -y install imagemagick". On Redhat and derrivates this can be done with the command "sudo yum install imagemagick"'), $f);
                 }
+        }
+
+        if(!is_array($params)){
+            throw new BException(tr('image_convert(): Invalid parameters specified, expected params array but received ":params"', array(':params' => $params)), 'invalid');
         }
 
         /*
