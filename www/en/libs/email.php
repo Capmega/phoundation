@@ -919,9 +919,7 @@ function email_send($email, $smtp = null, $account = null){
         array_default($email, 'validate'    , true);
         array_default($email, 'smtp_host'   , false);
 
-        if($email['validate']){
-            $email = email_validate($email);
-        }
+        $email = email_validate($email);
 
         if($email['delayed']){
             /*
@@ -1169,9 +1167,9 @@ function email_load_phpmailer(){
 function email_validate($email){
     try{
         load_libs('validate');
-        array_default($email, 'validate_sender', false);
 
-        $v = new ValidateForm($email, 'body,subject,to,from');
+        $v     = new ValidateForm($email, 'validate_sender,body,subject,to,from');
+        $email = email_prepare($email);
 
         $v->isNotEmpty($email['to']     , tr('Please specify an email destination'));
         $v->isNotEmpty($email['from']   , tr('Please specify an email source'));
@@ -1202,7 +1200,7 @@ function email_validate($email){
 
         $v->isValid();
 
-        return email_prepare($email);
+        return $email;
 
     }catch(Exception $e){
         throw new BException(tr('email_validate(): Failed'), $e);
@@ -1218,28 +1216,37 @@ function email_prepare($email){
     global $_CONFIG;
 
     try{
-        array_default($email, 'replace' , true);
-        array_default($email, 'header'  , isset_get($_CONFIG['email']['header']));
-        array_default($email, 'footer'  , isset_get($_CONFIG['email']['footer']));
-        array_default($email, 'template', '');
+        array_ensure($email, 'replace,template');
+        array_ensure($email['replace']);
+
+        array_default($email, 'header', isset_get($_CONFIG['email']['header']));
+        array_default($email, 'footer', isset_get($_CONFIG['email']['footer']));
 
         /*
          * Which format are we using?
          */
-        if(!empty($params['template'])){
+        if(empty($email['template'])){
+            $email['template'] = null;
+
+        }else{
             /*
              * Ensure that the specified type exists on configuration
              */
-            if(empty($_CONFIG['email']['templates'][$params['template']])){
-                throw new BException(tr('email_prepare(): Unkown template ":template"', array(':template' => $params['template'])), 'unkown');
+            if(empty($_CONFIG['email']['templates'][$email['template']])){
+                throw new BException(tr('email_prepare(): Unkown template ":template"', array(':template' => $email['template'])), 'unkown');
             }
 
-            $replace = array(':body' => $email['body']);
+            array_ensure($_CONFIG['email']['templates'][$email['template']], 'subject,file');
 
-            $email['body'] = load_content($_CONFIG['email']['templates'][$email['template']]['file'], $replace, LANGUAGE);
+            /*
+             * Apply the design template, and the specific template
+             */
+            $email['replace']['###BODY###'] = load_content('emails/'.$_CONFIG['email']['templates'][$email['template']]['file'], $email['replace'], LANGUAGE);
+            $email['body']                  = load_content('emails/'.$_CONFIG['email']['templates']['design']                  , $email['replace'], LANGUAGE);
 
-        }else{
-            $params['template'] = null;
+            if(empty($email['subject'])){
+                $email['subject'] = $_CONFIG['email']['templates'][$email['template']]['subject'];
+            }
         }
 
 // :DELETE: I'm not even going to pretend I understand why this is needed, or what it is supposed to be used for...
@@ -1280,8 +1287,6 @@ function email_prepare($email){
             $email['html'] = $email['html'].$_CONFIG['email']['footer'];
         }
 
-
-
         /*
          *
          */
@@ -1301,8 +1306,6 @@ function email_prepare($email){
             $email['from_name'] = '';
         }
 
-
-
         /*
          * Do search / replace over the email body
          */
@@ -1312,9 +1315,9 @@ function email_prepare($email){
             switch(gettype($email['replace'])){
                 case 'boolean':
                     $email['replace'] = array(//':toname' => (empty($email['user_name']) ? $email['user_username'] : $email['user_name']),
-                                              ':user'   => name($_SESSION['user']),
-                                              ':email'  => isset_get($_SESSION['user']['email']),
-                                              ':domain' => domain());
+                                              '###USER###'   => name($_SESSION['user']),
+                                              '###EMAIL###'  => isset_get($_SESSION['user']['email']),
+                                              '###DOMAIN###' => domain());
                 case 'array':
                     break;
 
@@ -1322,7 +1325,7 @@ function email_prepare($email){
                     throw new BException(tr('email_prepare(): Invalid "replace" specified, is a ":type" but should be either true, false, or an array containing the from => to values', array(':type' => gettype($email['replace']))), 'invalid');
             }
 
-            $email['text'] = str_replace(array_keys($email['replace']), array_values($email['replace']), $email['text']);
+            $email['body'] = str_replace(array_keys($email['replace']), array_values($email['replace']), $email['body']);
         }
 
         return $email;
