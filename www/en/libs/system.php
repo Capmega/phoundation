@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.96');
+define('FRAMEWORKCODEVERSION', '2.7.97');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -1269,6 +1269,9 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
             }else{
                 $language = LANGUAGE.'/';
             }
+
+        }else{
+            $language = slash($language);
         }
 
         if(!isset($replace['###SITENAME###'])){
@@ -1276,7 +1279,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
         }
 
         if(!isset($replace['###DOMAIN###'])){
-            $replace['###DOMAIN###']   = isset_get($_SESSION['domain']);
+            $replace['###DOMAIN###'] = isset_get($_SESSION['domain']);
         }
 
         /*
@@ -1294,12 +1297,12 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
             /*
              * Make sure no replace markers are left
              */
-            if($validate and preg_match('/###.*?###/i', $retval, $matches)){
+            if($validate and preg_match('/###[a-z]+?###/i', $retval, $matches)){
                 /*
                  * Oops, specified $from array does not contain all replace markers
                  */
                 if(!$_CONFIG['production']){
-                    throw new BException('load_content(): Missing markers "'.str_log($matches).'" for content file "'.str_log($realfile).'"', 'missingmarkers');
+                    throw new BException(tr('load_content(): Missing markers ":markers" for content file ":file"', array(':markers' => $matches, ':file' => $realfile)), 'missingmarkers');
                 }
             }
 
@@ -1925,6 +1928,15 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
         $date = $date->format('Y/m/d H:i:s');
 
         foreach($messages as $key => $message){
+            if(!is_scalar($message)){
+                if(is_array($message) or is_object($message)){
+                    $message = json_encode_custom($message);
+
+                }else{
+                    $message = '* '.gettype($message).' *';
+                }
+            }
+
             if(count($messages) > 1){
                 /*
                  * There are multiple messages in this log_file() call. Display
