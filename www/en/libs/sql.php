@@ -2134,10 +2134,16 @@ function sql_simple_execute($column, $values, $extra = null){
  * @param string $table The table for which these colums will be setup
  * @return string The WHERE string
  */
-function sql_get_where_string($filters, &$execute, $table, $combine = 'AND'){
+function sql_get_where_string($filters, &$execute, $table, $combine = null){
     try{
+        $where = '';
+
         if(!is_array($filters)){
             throw new BException(tr('sql_get_where_string(): The specified filters are invalid, it should be a key => value array'), 'invalid');
+        }
+
+        if(!$combine){
+            $combine = 'AND';
         }
 
         /*
@@ -2156,10 +2162,11 @@ function sql_get_where_string($filters, &$execute, $table, $combine = 'AND'){
                 continue;
             }
 
-            $like       = false;
-            $array      = false;
-            $not_string = '';
-            $not        = '';
+            $like        = false;
+            $array       = false;
+            $not_string  = '';
+            $not         = '';
+            $use_combine = $combine;
 
             /*
              * Check for modifiers in the keys
@@ -2168,6 +2175,16 @@ function sql_get_where_string($filters, &$execute, $table, $combine = 'AND'){
              */
             while(true){
                 switch($key[0]){
+                    case '&':
+                        $key         = substr($key, 1);
+                        $use_combine = 'AND';
+                        break;
+
+                    case '|':
+                        $key         = substr($key, 1);
+                        $use_combine = 'OR';
+                        break;
+
                     case '~':
                         /*
                          * LIKE
@@ -2207,7 +2224,7 @@ function sql_get_where_string($filters, &$execute, $table, $combine = 'AND'){
 
             if($like){
                 if(is_string($value)){
-                    $where[] = ' '.$column.' '.$not.'LIKE :'.$key.' ';
+                    $filter = ' '.$column.' '.$not.'LIKE :'.$key.' ';
                     $execute[':'.$key] = $value;
 
                 }else{
@@ -2229,37 +2246,46 @@ function sql_get_where_string($filters, &$execute, $table, $combine = 'AND'){
             }else{
                 if(is_array($value)){
                     if($array){
-                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" contains an array, whcih is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" contains an array, which is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
                     }
 
-                    $value   = sql_in($value);
-                    $where[] = ' '.$column.' '.$not_string.'IN ('.sql_in_columns($value).') ';
-                    $execute = array_merge($execute, $value);
+                    /*
+                     * The $value may be specified as an empty array, which then
+                     * will be ignored
+                     */
+                    if($value){
+                        $value   = sql_in($value);
+                        $filter  = ' '.$column.' '.$not_string.'IN ('.sql_in_columns($value).') ';
+                        $execute = array_merge($execute, $value);
+                    }
 
                 }elseif(is_bool($value)){
-                    $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
+                    $filter = ' '.$column.' '.$not.'= :'.$key.' ';
                     $execute[':'.$key] = (integer) $value;
 
                 }elseif(is_string($value)){
-                    $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
+                    $filter = ' '.$column.' '.$not.'= :'.$key.' ';
                     $execute[':'.$key] = $value;
 
                 }elseif(is_numeric($value)){
-                    $where[] = ' '.$column.' '.$not.'= :'.$key.' ';
+                    $filter = ' '.$column.' '.$not.'= :'.$key.' ';
                     $execute[':'.$key] = $value;
 
                 }elseif($value === null){
-                    $where[] = ' '.$column.' IS'.$not_string.' :'.$key.' ';
+                    $filter = ' '.$column.' IS'.$not_string.' :'.$key.' ';
                     $execute[':'.$key] = $value;
 
                 }else{
                     throw new BException(tr('sql_get_where_string(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
                 }
             }
-        }
 
-        if(isset($where)){
-            $where = ' WHERE '.implode(' '.$combine.' ', $where);
+            if($where){
+                $where .= ' '.$use_combine.' '.$filter;
+
+            }else{
+                $where = ' WHERE '.$filter;
+            }
         }
 
         return $where;
@@ -2441,7 +2467,7 @@ function sql_simple_list($params){
             /*
              * Automatically ensure we only get entries with the auto status
              */
-            $params['filters'][$params['table'].'.status'] = $params['auto_status'];
+            $params['filters']['&'.$params['table'].'.status'] = $params['auto_status'];
         }
 
         $columns  = sql_get_columns_string($params['columns'], $params['table']);
@@ -2507,7 +2533,7 @@ function sql_simple_list($params){
  */
 function sql_simple_get($params){
     try{
-        array_ensure($params, 'joins,debug');
+        array_ensure($params, 'joins,debug,combine');
 
         if(empty($params['table'])){
             throw new BException(tr('sql_simple_get(): No table specified'), 'not-specified');
@@ -2532,7 +2558,7 @@ function sql_simple_get($params){
             /*
              * Automatically ensure we only get entries with the auto status
              */
-            $params['filters'][$params['table'].'.status'] = $params['auto_status'];
+            $params['filters']['&'.$params['table'].'.status'] = $params['auto_status'];
         }
 
         if((count($params['columns']) === 1) and ($params['single'] !== false)){
@@ -2545,7 +2571,7 @@ function sql_simple_get($params){
 
         $columns = sql_get_columns_string($params['columns'], $params['table']);
         $joins   = str_force($params['joins'], ' ');
-        $where   = sql_get_where_string($params['filters'], $execute, $params['table']);
+        $where   = sql_get_where_string($params['filters'], $execute, $params['table'], $params['combine']);
 
         return sql_get(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where, $execute, $params['single'], $params['connector']);
 
