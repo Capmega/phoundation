@@ -380,10 +380,14 @@ class ValidateForm {
     function __construct(&$source = null, $columns = null, $invalidate_more_columns = false, $default_value = null){
         try{
             if(!is_array($source)){
-                /*
-                 * Specified source has an invalid data source!
-                 */
-                throw new BException(tr('ValidateForm::__construct(): Specified source ":source" has datatype ":type" while array datatype is expected', array(':source' => $source, ':type' => gettype($source))), 'validation');
+                if($source !== null){
+                    /*
+                     * Specified source has an invalid data source!
+                     */
+                    throw new BException(tr('ValidateForm::__construct(): Specified source ":source" has datatype ":type" while array datatype is expected', array(':source' => $source, ':type' => gettype($source))), 'validation');
+                }
+
+                $source = array();
             }
 
             array_ensure($source, $columns, $default_value, true);
