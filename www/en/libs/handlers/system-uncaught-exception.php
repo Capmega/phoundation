@@ -456,22 +456,27 @@ try{
                     showdie($e);
                 }
 
+                /*
+                 * We're not in debug mode.
+                 */
                 notify($e, false, false);
 
                 switch($core->callType()){
                     case 'api':
                         // FALLTHROUGH
                     case 'ajax':
-                        $code = 500;
-
-                        if(is_numeric($e->getCode()) and ($e->getCode() > 100)){
-                            $code = $e->getCode();
+                        if($e instanceof BException){
+                            json_message($e->getRealCode(), array('reason' => ($e->isWarning() ? trim(str_from($e->getMessage(), ':')) : '')));
                         }
 
-                        json_error(tr('Something went wrong, please try again later'), '', '', $code);
+                        /*
+                         * Assume that all non BException exceptions are not
+                         * warnings!
+                         */
+                        json_message($e->getCode(), array('reason' => ''));
                 }
 
-                page_show(500);
+                page_show($code);
         }
 
     }catch(Exception $f){

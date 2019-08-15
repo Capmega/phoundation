@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.98');
+define('FRAMEWORKCODEVERSION', '2.7.99');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5821,7 +5821,7 @@ function set_timeout($timeout = null){
 function limit_request_method($method){
     try{
         if($_SERVER['REQUEST_METHOD'] !== $method){
-            throw new BException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but is only allowed over HTTP method ":method"', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])));
+            throw new BException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
         }
 
     }catch(Exception $e){
