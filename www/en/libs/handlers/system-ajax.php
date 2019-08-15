@@ -32,7 +32,7 @@ try{
     /*
      * Load basic libraries
      */
-    load_libs('html,inet,cache'.(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
+    load_libs('html,inet,validate,cache'.(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
 
 
 

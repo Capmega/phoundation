@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.97');
+define('FRAMEWORKCODEVERSION', '2.7.98');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5798,6 +5798,34 @@ function set_timeout($timeout = null){
 
     }catch(Exception $e){
         throw new BException(tr('set_timeout(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Limit the HTTP request to the specified request type, typically GET or POST
+ *
+ * If the HTTP request is not of the specified type, this function will throw an exception
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @version 2.7.98: Added function and documentation
+ *
+ * @param params $params A parameters array
+ * @return void
+ */
+function limit_request_method($method){
+    try{
+        if($_SERVER['REQUEST_METHOD'] !== $method){
+            throw new BException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but is only allowed over HTTP method ":method"', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])));
+        }
+
+    }catch(Exception $e){
+        throw new BException(tr('limit_request_method(): Failed'), $e);
     }
 }
 
