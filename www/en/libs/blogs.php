@@ -45,6 +45,9 @@ function blogs_get($blog = null, $column = null){
 
     try{
         if($column){
+            $query = 'SELECT `'.$column.'` FROM `blogs` ';
+
+        }else{
             $query = 'SELECT    `blogs`.`id`,
                                 `blogs`.`name`,
                                 `blogs`.`status`,
@@ -69,9 +72,6 @@ function blogs_get($blog = null, $column = null){
 
                       LEFT JOIN `users` as `modifiedby`
                       ON        `blogs`.`modifiedby`    = `modifiedby`.`id`';
-
-        }else{
-            $query = 'SELECT `'.$column.'` FROM `blogs` ';
         }
 
         if($blog){
