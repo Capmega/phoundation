@@ -230,93 +230,105 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
 /*
  *
  */
-function json_message($message, $data = null){
+function json_message($code, $data = null){
     global $_CONFIG;
 
     try{
-        if(is_object($message)){
+        if(is_object($code)){
             /*
              * This is (presumably) an exception
              */
-            $message = $message->getRealCode();
+            $code = $code->getRealCode();
         }
 
-        switch($message){
+        if(str_exists($code, '_')){
+            /*
+             * Codes should always use -, never _
+             */
+            notify(new BException(tr('json_message(): Specified code ":code" contains an _ which should never be used, always use a -', array(':code' => $code)), 'warning/invalid'));
+        }
+
+        switch($code){
             case 301:
                 // FALLTHROUGH
             case 'redirect':
                 json_error(null, array('location' => $data), 'REDIRECT', 301);
 
             case 302:
-                // FALLTHROUGH
+                json_error(null, array('location' => domain($_CONFIG['redirects']['signin'])), 'REDIRECT', 302);
+
             case 'signin':
                 json_error(null, array('location' => domain($_CONFIG['redirects']['signin'])), 'SIGNIN', 302);
 
-            case 304:
-                // FALLTHROUGH
-            case 'not-modified':
-                json_error(null, null, ($data ? $data : 'BAD-REQUEST'), 304);
-
             case 400:
-                // FALLTHROUGH
-            case 'unknown':
                 // FALLTHROUGH
             case 'invalid':
                 // FALLTHROUGH
             case 'validation':
-                json_error(null, null, ($data ? $data : 'BAD-REQUEST'), 400);
+                json_error(null, $data, 'BAD-REQUEST', 400);
+
+            case 'locked':
+                json_error(null, $data, 'LOCKED', 403);
 
             case 403:
                 // FALLTHROUGH
             case 'forbidden':
                 // FALLTHROUGH
             case 'access-denied':
-                json_error(null, null, ($data ? $data : 'FORBIDDEN'), 403);
+                json_error(null, $data, 'FORBIDDEN', 403);
 
             case 404:
                 // FALLTHROUGH
+            case 'not-found':
+                json_error(null, $data, 'NOT-FOUND', 404);
+
             case 'not-exists':
-                json_error(null, null, ($data ? $data : 'not-exists'), 404);
+                json_error(null, $data, 'NOT-EXISTS', 404);
+
+            case 405:
+                // FALLTHROUGH
+            case 'method-not-allowed':
+                json_error(null, $data, 'METHOD-NOT-ALLOWED', 405);
 
             case 406:
                 // FALLTHROUGH
             case 'not-acceptable':
-                json_error(null, null, ($data ? $data : 'NOT-ACCEPTABLE'), 406);
+                json_error(null, $data, 'NOT-ACCEPTABLE', 406);
 
             case 408:
                 // FALLTHROUGH
             case 'timeout':
-                json_error(null, null, ($data ? $data : 'TIMEOUT'), 408);
+                json_error(null, $data, 'TIMEOUT', 408);
 
             case 409:
                 // FALLTHROUGH
             case 'conflict':
-                json_error(null, null, ($data ? $data : 'CONFLICT'), 409);
+                json_error(null, $data, 'CONFLICT', 409);
 
             case 412:
                 // FALLTHROUGH
             case 'expectation-failed':
-                json_error(null, null, ($data ? $data : 'EXPECTATION-FAILED'), 412);
+                json_error(null, $data, 'EXPECTATION-FAILED', 412);
 
             case 418:
                 // FALLTHROUGH
             case 'im-a-teapot':
-                json_error(null, null, ($data ? $data : 'IM-A-TEAPOT'), 418);
+                json_error(null, $data, 'IM-A-TEAPOT', 418);
 
             case 429:
                 // FALLTHROUGH
             case 'too-many-requests':
-                json_error(null, null, ($data ? $data : 'TOO-MANY-REQUESTS'), 429);
+                json_error(null, $data, 'TOO-MANY-REQUESTS', 429);
 
             case 451:
                 // FALLTHROUGH
             case 'unavailable-for-legal-reasons':
-                json_error(null, null, ($data ? $data : 'UNAVAILABLE-FOR-LEGAL-REASONS'), 451);
+                json_error(null, $data, 'UNAVAILABLE-FOR-LEGAL-REASONS', 451);
 
             case 500:
                 // FALLTHROUGH
             case 'error':
-                json_error(null, (debug() ? $data : null), 'ERROR', 500);
+                json_error(null, $data, 'ERROR', 500);
 
             case 503:
                 // FALLTHROUGH
@@ -325,6 +337,11 @@ function json_message($message, $data = null){
             case 'service-unavailable':
                 json_error(null, null, 'SERVICE-UNAVAILABLE', 503);
 
+            case 504:
+                // FALLTHROUGH
+            case 'gateway-timeout':
+                json_error(null, null, 'GATEWAY-TIMEOUT', 504);
+
             case 'reload':
                 json_reply(null, 'RELOAD');
 
@@ -332,7 +349,7 @@ function json_message($message, $data = null){
                 notify(array('code'    => 'unknown',
                              'groups'  => 'developers',
                              'title'   => tr('Unknown message specified'),
-                             'message' => tr('json_message(): Unknown message ":message" specified', array(':message' => $message))));
+                             'message' => tr('json_message(): Unknown code ":code" specified', array(':message' => $code))));
 
                 json_error(null, (debug() ? $data : null), 'ERROR', 500);
         }
