@@ -377,7 +377,7 @@ class ValidateForm {
     /*
      *
      */
-    function __construct(&$source = null, $columns = null, $default_value = null, $invalidate_more_columns = false){
+    function __construct(&$source = null, $columns = null, $invalidate_more_columns = false, $default_value = null){
         try{
             if(!is_array($source)){
                 /*
@@ -389,12 +389,20 @@ class ValidateForm {
             array_ensure($source, $columns, $default_value, true);
 
             if($invalidate_more_columns){
+                if(!is_bool($invalidate_more_columns)){
+                    /*
+                     * Also automatically limit REQUEST_METHOD
+                     */
+                    limit_request_method($invalidate_more_columns);
+                }
+
                 /*
                  * If any other columns beyond the ones specified in $columns
                  * exist, invalidate everything
                  */
-                $columns = array_force($columns);
-                $columns = array_flip($columns);
+                $columns          = array_force($columns);
+                $columns          = array_flip($columns);
+                $columns['limit'] = true;
 
                 foreach($source as $key => $value){
                     if(!array_key_exists($key, $columns)){
