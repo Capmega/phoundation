@@ -668,8 +668,8 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         }
 
         if($password != str_rfrom($user['password'], '*')){
-            log_database(tr('user_authenticate(): Specified password does not match stored password for user ":username"', array(':username' => $username)), 'authentication/failed');
-            throw new BException(tr('user_authenticate(): Specified password does not match stored password'), 'warning/password');
+            log_file(tr('user_authenticate(): Specified password does not match stored password for user ":username"', array(':username' => $username)), 'authentication-failed');
+            throw new BException(tr('user_authenticate(): Specified password does not match stored password'), 'access-denied');
         }
 
 
@@ -1974,6 +1974,7 @@ function user_validate($user, $options = array()){
         array_default($options, 'validation_password', true);
         array_default($options, 'role'               , true);
         array_default($options, 'no_validation'      , false);
+        array_default($options, 'no_password'        , false);
 
         load_libs('validate');
         $v = new ValidateForm($user, 'name,username,nickname,email,password,password2,redirect,description,role,roles_id,commentary,gender,latitude,longitude,language,country,fb_id,fb_token,gp_id,gp_token,ms_id,ms_token_authentication,ms_token_access,tw_id,tw_token,yh_id,yh_token,status,validated,avatar,phones,type,domain,title,priority,reference_codes,timezone,groups,keywords');
@@ -2132,7 +2133,9 @@ function user_validate($user, $options = array()){
 
         if($options['password']){
             if(empty($user['password'])){
-                $v->setError(tr('Please specify a password'));
+                if(!$options['no_password']){
+                    $v->setError(tr('Please specify a password'));
+                }
 
             }else{
                 /*
