@@ -2134,7 +2134,7 @@ function sql_simple_execute($column, $values, $extra = null){
  * @param string $table The table for which these colums will be setup
  * @return string The WHERE string
  */
-function sql_get_where_string($filters, &$execute, $table){
+function sql_get_where_string($filters, &$execute, $table, $combine = 'AND'){
     try{
         if(!is_array($filters)){
             throw new BException(tr('sql_get_where_string(): The specified filters are invalid, it should be a key => value array'), 'invalid');
@@ -2259,7 +2259,7 @@ function sql_get_where_string($filters, &$execute, $table){
         }
 
         if(isset($where)){
-            $where = ' WHERE '.implode(' AND ', $where);
+            $where = ' WHERE '.implode(' '.$combine.' ', $where);
         }
 
         return $where;
@@ -2418,7 +2418,7 @@ function sql_get_orderby_string($orderby){
  */
 function sql_simple_list($params){
     try{
-        array_ensure($params, 'joins,debug,limit,page');
+        array_ensure($params, 'joins,debug,limit,page,combine');
 
         if(empty($params['table'])){
             throw new BException(tr('sql_simple_list(): No table specified'), 'not-specified');
@@ -2446,7 +2446,7 @@ function sql_simple_list($params){
 
         $columns  = sql_get_columns_string($params['columns'], $params['table']);
         $joins    = str_force($params['joins'], ' ');
-        $where    = sql_get_where_string($params['filters'], $execute, $params['table']);
+        $where    = sql_get_where_string($params['filters'], $execute, $params['table'], $params['combine']);
         $orderby  = sql_get_orderby_string($params['orderby']);
         $limit    = sql_limit($params['limit'], $params['page']);
         $resource = sql_query(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where.$orderby.$limit, $execute, $params['connector']);
