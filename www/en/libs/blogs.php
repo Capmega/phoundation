@@ -40,34 +40,39 @@ function blogs_library_init(){
 /*
  * Return requested data for specified blog
  */
-function blogs_get($blog = null){
+function blogs_get($blog = null, $column = null){
     global $_CONFIG;
 
     try{
-        $query = 'SELECT    `blogs`.`id`,
-                            `blogs`.`name`,
-                            `blogs`.`status`,
-                            `blogs`.`slogan`,
-                            `blogs`.`seoname`,
-                            `blogs`.`keywords`,
-                            `blogs`.`createdon`,
-                            `blogs`.`createdby`,
-                            `blogs`.`modifiedon`,
-                            `blogs`.`description`,
-                            `blogs`.`url_template`,
+        if($column){
+            $query = 'SELECT    `blogs`.`id`,
+                                `blogs`.`name`,
+                                `blogs`.`status`,
+                                `blogs`.`slogan`,
+                                `blogs`.`seoname`,
+                                `blogs`.`keywords`,
+                                `blogs`.`createdon`,
+                                `blogs`.`createdby`,
+                                `blogs`.`modifiedon`,
+                                `blogs`.`description`,
+                                `blogs`.`url_template`,
 
-                            `createdby`.`name`   AS `createdby_name`,
-                            `createdby`.`email`  AS `createdby_email`,
-                            `modifiedby`.`name`  AS `modifiedby_name`,
-                            `modifiedby`.`email` AS `modifiedby_email`
+                                `createdby`.`name`   AS `createdby_name`,
+                                `createdby`.`email`  AS `createdby_email`,
+                                `modifiedby`.`name`  AS `modifiedby_name`,
+                                `modifiedby`.`email` AS `modifiedby_email`
 
-                  FROM      `blogs`
+                      FROM      `blogs`
 
-                  LEFT JOIN `users` as `createdby`
-                  ON        `blogs`.`createdby`     = `createdby`.`id`
+                      LEFT JOIN `users` as `createdby`
+                      ON        `blogs`.`createdby`     = `createdby`.`id`
 
-                  LEFT JOIN `users` as `modifiedby`
-                  ON        `blogs`.`modifiedby`    = `modifiedby`.`id`';
+                      LEFT JOIN `users` as `modifiedby`
+                      ON        `blogs`.`modifiedby`    = `modifiedby`.`id`';
+
+        }else{
+            $query = 'SELECT `'.$column.'` FROM `blogs` ';
+        }
 
         if($blog){
             if(!is_string($blog)){
@@ -103,6 +108,10 @@ function blogs_get($blog = null){
 
                 return blogs_get($blog);
             }
+        }
+
+        if($column){
+            return $retval[$column];
         }
 
         return $retval;
