@@ -202,7 +202,7 @@ function api_encode($data){
 /*
  *
  */
-function api_authenticate($apikey){
+function api_authenticate($api_key){
     global $_CONFIG;
 
     try{
@@ -216,7 +216,7 @@ function api_authenticate($apikey){
             }
         }
 
-        if(empty($apikey)){
+        if(empty($api_key)){
             throw new BException(tr('api_authenticate(): No auth key specified'), 'not-specified');
         }
 
@@ -227,7 +227,7 @@ function api_authenticate($apikey){
             /*
              * Check in database if the authorization key exists
              */
-            $user = sql_get('SELECT * FROM `users` WHERE `apikey` = :apikey', array(':apikey' => $apikey));
+            $user = sql_get('SELECT * FROM `users` WHERE `apikey` = :apikey', array(':apikey' => $api_key));
 
             if(!$user){
                 throw new BException(tr('api_authenticate(): Specified apikey does not exist'), 'access-denied');
@@ -237,38 +237,18 @@ function api_authenticate($apikey){
             /*
              * Use one system wide API key
              */
-            if($apikey !== $_CONFIG['api']['apikey']){
+            if($api_key !== $_CONFIG['api']['apikey']){
                 throw new BException(tr('api_authenticate(): Specified auth key does not match configured api key'), 'access-denied');
             }
         }
 
-        /*
-         * Yay, auth worked, create session and send client the session token
-         */
-        if(session_id()){
-            if($_CONFIG['api']['signin_reset_session']){
-                session_destroy();
-                session_start();
-            }
+        $session_id = api_generate_key();
+        $session    = api_insert_session(array('createdby'   => $user['id'],
+                                               'ip'          => $_SERVER['REMOTE_ADDR'],
+                                               'sessions_id' => $session_id,
+                                               'apikey'      => $api_key));
 
-        }else{
-            session_start();
-        }
-
-        session_regenerate_id();
-
-        sql_query('INSERT INTO `api_sessions` (`createdby`, `ip`, `apikey`)
-                   VALUES                     (:createdby , :ip , :apikey )',
-
-                   array('createdby' => isset_get($_SESSION['user']['id']),
-                         'ip'        => $_SERVER['REMOTE_ADDR'],
-                         'apikey'    => $apikey));
-
-        $_SESSION['user'] = $user;
-        $_SESSION['api']  = array('session_start' => time(),
-                                  'session_id'    => sql_insert_id());
-
-        return session_id();
+        return $session['sessions_id'];
 
     }catch(Exception $e){
         throw new BException('api_authenticate(): Failed', $e);
@@ -280,44 +260,57 @@ function api_authenticate($apikey){
 /*
  *
  */
-function api_start_session($sessionkey){
-    global $_CONFIG;
+function api_start_session($session_id){
+    global $_CONFIG, $core;
 
     try{
         load_libs('validate');
 
-        if(!$sessionkey){
-            $sessionkey = $_POST['sessions_id'];
+        if(!$session_id){
+            switch($_SERVER['REQUEST_METHOD']){
+                case 'GET':
+                    $session_id = isset_get($_GET['sessions_id']);
+                    break;
+
+                case 'POST':
+                    $session_id = isset_get($_POST['sessions_id']);
+            }
         }
 
-        $v->isNotEmpty($_POST['sessions_id'], tr('Please specify a sessions_id'));
-        $v->hasMaxChars($_POST['sessions_id'], 64, tr('Please specify a valid sessions_id'));
-        $v->hasMaxChars($_POST['sessions_id'], 64, tr('Please specify a valid sessions_id'));
+        $v = new ValidateForm();
+        $v->isNotEmpty($session_id, tr('Please specify a sessions_id'));
+        $v->hasMaxChars($session_id, 64, tr('Please specify a valid sessions_id'));
+        $v->hasMaxChars($session_id, 64, tr('Please specify a valid sessions_id'));
         $v->isValid();
 
         /*
          * Check session token
          */
-        if(empty($sessionkey)){
+        if(empty($session_id)){
             throw new BException(tr('api_start_session(): No auth key specified'), 'not-specified');
         }
 
         /*
-         * Yay, we have an actual token, create session!
+         * Yay, we have an valid token, check if it has a session
          */
-        session_write_close();
-        session_id($sessionkey);
-        session_start();
+        $session = api_get_session($session_id);
 
-        if(empty($_SESSION['api']['session_start'])){
-            /*
-             * Not a valid session!
-             */
-            session_destroy();
-            json_reply(tr('api_start_session(): Specified token ":token" has no session', array(':token' => isset_get($_POST['PHPSESSID']))), 'signin');
+        if(!$session){
+            throw new BException(tr('api_start_session(): The specified session_id key ":session_id" does not exist', array(':session_id' => $session_id)), 'access-denied');
         }
 
-        return session_id();
+        if($session['closedon']){
+            throw new BException(tr('api_start_session(): The session for the session_id key ":session_id" has already been closed', array(':session_id' => $session_id)), 'sign-in');
+        }
+
+        /*
+         * Update the last start column to now
+         */
+        sql_query('UPDATE `api_sessions` SET `last` = NOW() WHERE `id` = :id', array(':id' => $session['id']));
+
+        $core->register['session'] = $session;
+
+        return $session;
 
     }catch(Exception $e){
         throw new BException('api_start_session(): Failed', $e);
@@ -327,24 +320,40 @@ function api_start_session($sessionkey){
 
 
 /*
+ * Close the currently open session
  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package api
+ * @version 2.7.99: Added function and documentation
+ *
+ * @param params $session The session params
+ * @param params $session[createdby]
+ * @param params $session[key]
+ * @param params $session[ip]
+ * @param params $session[apikey]
+ * @return params The specified $session params with the database id added
  */
 function api_stop_session(){
-    global $_CONFIG;
+    global $_CONFIG, $core;
 
     try{
-        /*
-         * Yay, we have an actual token, create session!
-         */
+        if(!isset($core->register['session'])){
+            throw new BException(tr('api_stop_session(): Currently there is no open session'), 'sign-in');
+        }
+
         sql_query('UPDATE `api_sessions`
 
-                   SET    `closedon` = NOW()
+                   SET    `closedon`    = NOW()
 
-                   WHERE  `id`       = :id',
+                   WHERE  `sessions_id` = :sessions_id',
 
-                   array('id' => isset_get($_SESSION['api']['sessions_id'])));
+                   array('sessions_id' => isset_get($core->register['session']['sessions_id'])));
 
-        session_destroy();
+        unset($core->register['session']);
+
         return true;
 
     }catch(Exception $e){
@@ -379,14 +388,14 @@ function api_call($call, $result = null){
 
                        array('sessions_id' => isset_get($_SESSION['user']['id']),
                              'ip'          => $_SESSION['api']['session_id'],
-                             'apikey'      => $apikey));
+                             'apikey'      => $api_key));
 
             $time = microtime(true);
             $id   = sql_insert_id();
         }
 
     }catch(Exception $e){
-        throw new BException('api_session(): Failed', $e);
+        throw new BException('api_call(): Failed', $e);
     }
 }
 
@@ -614,5 +623,106 @@ function api_generate_key($bytes = 32){
 
     }catch(Exception $e){
         throw new BException(tr('api_generate_key(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Returns the session data for the specified sessions_id key supplied by the client
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package api
+ * @version 2.7.99: Added function and documentation
+ *
+ * @param string $sessions_id The session_id specified by the client
+ * @return params A parameter array containing all the session data
+ */
+function api_get_session($sessions_id){
+    try{
+        $session = sql_get('SELECT `id`,
+                                   `createdon`,
+                                   `createdby`,
+                                   `closedon`,
+                                   `last`,
+                                   `ip`,
+                                   `sessions_id`,
+                                   `apikey`
+
+                            FROM   `api_sessions`
+
+                            WHERE  `sessions_id` = :sessions_id',
+
+                            array(':sessions_id' => $sessions_id));
+
+        return $session;
+
+    }catch(Exception $e){
+        throw new BException(tr('api_get_session(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Insert the specified session params array into the database
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package api
+ * @version 2.7.99: Added function and documentation
+ *
+ * @param params $session The session params
+ * @param params $session[createdby]
+ * @param params $session[key]
+ * @param params $session[ip]
+ * @param params $session[apikey]
+ * @return params The specified $session params with the database id added
+ */
+function api_insert_session($session){
+    try{
+        sql_query('INSERT INTO `api_sessions` (`createdby`, `sessions_id`, `ip`, `apikey`)
+                   VALUES                     (:createdby , :sessions_id , :ip , :apikey )',
+
+                   array(':createdby'   => $session['createdby'],
+                         ':ip'          => $session['ip'],
+                         ':sessions_id' => $session['sessions_id'],
+                         ':apikey'      => $session['apikey']));
+
+        $session['id'] = sql_insert_id();
+
+        return $session;
+
+    }catch(Exception $e){
+        throw new BException(tr('api_insert_session(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Close all API sessions for the specified users_id
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package api
+ * @version 2.7.99: Added function and documentation
+ *
+ * @param natural $users_id The ID of the user for which all sessions must be closed
+ * @return void
+ */
+function api_close_all($users_id){
+    try{
+        sql_query('UPDATE `api_sessions` SET `closedon` = NOW WHERE `createdby` = :createdby AND `closedon` IS NULL', array(':createdby' => $users_id));
+
+    }catch(Exception $e){
+        throw new BException(tr('api_close_all(): Failed'), $e);
     }
 }
