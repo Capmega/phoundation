@@ -284,6 +284,17 @@ function api_start_session($sessionkey){
     global $_CONFIG;
 
     try{
+        load_libs('validate');
+
+        if(!$sessionkey){
+            $sessionkey = $_POST['sessions_id'];
+        }
+
+        $v->isNotEmpty($_POST['sessions_id'], tr('Please specify a sessions_id'));
+        $v->hasMaxChars($_POST['sessions_id'], 64, tr('Please specify a valid sessions_id'));
+        $v->hasMaxChars($_POST['sessions_id'], 64, tr('Please specify a valid sessions_id'));
+        $v->isValid();
+
         /*
          * Check session token
          */
@@ -581,4 +592,27 @@ showdie($e);
         throw new BException(tr('api_call_base(): Failed for account ":account"', array(':account' => $account)), $e);
     }
 }
-?>
+
+
+
+/*
+ * Return a new, cryptographically secure API key in hexadecimal format
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package api
+ * @note: Since this function returns the API key in HEX format, the amount of bytes used will be twice the bytes specified!
+ * @version 2.7.98: Added function and documentation
+ *
+ * @return string The generated API key
+ */
+function api_generate_key($bytes = 32){
+    try{
+        return bin2hex(random_bytes($bytes));
+
+    }catch(Exception $e){
+        throw new BException(tr('api_generate_key(): Failed'), $e);
+    }
+}
