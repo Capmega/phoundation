@@ -1218,4 +1218,40 @@ function array_hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDE
         throw new BException('array_merge_null(): Failed', $e);
     }
 }
-?>
+
+
+
+/*
+ * Rename the specified old key to the new key
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package array
+ * @version 2.7.100: Added function and documentation
+ *
+ * @param array $source
+ * @param string $old_key
+ * @param string $new_key
+ * @return string The array with the specified key renamed
+ */
+function array_rename_key($source, $old_key, $new_key){
+    try{
+        if(!is_array($source)){
+            throw new BException(tr('array_rename_key(): Specified source is not an array'), $e);
+        }
+
+        if(!array_key_exists($source, $old_key)){
+            throw new BException(tr('array_rename_key(): Specified $old_key does not exist in the specified source array'), $e);
+        }
+
+        $array[$new_key] = $array[$old_key];
+        unset($array[$old_key]);
+
+        return $source;
+
+    }catch(Exception $e){
+        throw new BException(tr('array_rename_key(): Failed'), $e);
+    }
+}
