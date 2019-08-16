@@ -2548,6 +2548,7 @@ function sql_simple_get($params){
         array_default($params, 'filters'    , array('status' => null));
         array_default($params, 'auto_status', null);
         array_default($params, 'page'       , null);
+        array_default($params, 'template'   , false);
 
         $params['columns'] = array_force($params['columns']);
 
@@ -2572,8 +2573,24 @@ function sql_simple_get($params){
         $columns = sql_get_columns_string($params['columns'], $params['table']);
         $joins   = str_force($params['joins'], ' ');
         $where   = sql_get_where_string($params['filters'], $execute, $params['table'], $params['combine']);
+        $retval  = sql_get(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where, $execute, $params['single'], $params['connector']);
 
-        return sql_get(($params['debug'] ? ' ' : '').'SELECT '.$columns.' FROM  `'.$params['table'].'` '.$joins.$where, $execute, $params['single'], $params['connector']);
+        if($retval){
+            return $retval;
+        }
+
+        if($params['template']){
+            /*
+             * Return a "template" result
+             */
+            $retval = array();
+
+            foreach($params['columns'] as $column){
+                $retval[$column] = null;
+            }
+        }
+
+        return $retval;
 
     }catch(Exception $e){
         throw new BException(tr('sql_simple_get(): Failed'), $e);
