@@ -1242,12 +1242,12 @@ function array_rename_key($source, $old_key, $new_key){
             throw new BException(tr('array_rename_key(): Specified source is not an array'), $e);
         }
 
-        if(!array_key_exists($source, $old_key)){
+        if(!array_key_exists($old_key, $source)){
             throw new BException(tr('array_rename_key(): Specified $old_key does not exist in the specified source array'), $e);
         }
 
-        $array[$new_key] = $array[$old_key];
-        unset($array[$old_key]);
+        $source[$new_key] = $source[$old_key];
+        unset($source[$old_key]);
 
         return $source;
 
