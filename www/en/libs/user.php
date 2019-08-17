@@ -1280,13 +1280,12 @@ function user_signup($user, $options = null){
             throw new BException(tr('user_signup(): Please specify a password'), 'not-specified');
         }
 
-        $user       = user_validate($user, $options);
-        $user['id'] = sql_random_id('users');
+        $user = user_validate($user, $options);
 
         sql_query('INSERT INTO `users` (`id`, `meta_id`, `status`, `createdby`, `username`, `password`, `name`, `email`, `roles_id`, `role`, `timezone`)
                    VALUES              (:id , :meta_id , :status , :createdby , :username , :password , :name , :email , :roles_id , :role , :timezone )',
 
-                   array(':id'        => $user['id'],
+                   array(':id'        => sql_random_id('users'),
                          ':createdby' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => meta_action(),
                          ':username'  => $user['username'],
