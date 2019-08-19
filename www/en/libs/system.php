@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.101');
+define('FRAMEWORKCODEVERSION', '2.7.102');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -2267,6 +2267,82 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
 
     }catch(Exception $e){
         throw new BException('domain(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return complete URL for the specified API URL section with HTTP and all
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see domain()
+ * @see cdn_domain()
+ * @version 2.7.102: Added function and documentation
+ *
+ * @param null string $url
+ * @param null string $query
+ * @param null string $prefix
+ * @param null string $domain
+ * @param null string $language
+ * @param null boolean $allow_url_cloak
+ * @return string the URL
+ */
+function api_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
+    try{
+        load_config('api');
+        return domain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
+
+    }catch(Exception $e){
+        throw new BException('api_domain(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Return complete URL for the specified AJAX URL section with HTTP and all
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see domain()
+ * @see cdn_domain()
+ * @version 2.7.102: Added function and documentation
+ *
+ * @param null string $url
+ * @param null string $query
+ * @param null string $prefix
+ * @param null string $domain
+ * @param null string $language
+ * @param null boolean $allow_url_cloak
+ * @return string the URL
+ */
+function ajax_domain($url = null, $query = null, $language = null, $allow_url_cloak = true){
+    global $_CONFIG;
+
+    try{
+        if($_CONFIG['ajax']['prefix']){
+            $prefix = $_CONFIG['ajax']['prefix'];
+
+        }else{
+            $prefix = null;
+        }
+
+        if($_CONFIG['ajax']['domain']){
+            return domain($url, $query, $prefix, $_CONFIG['ajax']['domain'], $language, $allow_url_cloak);
+        }
+
+        return domain($url, $query, $prefix, null, $language, $allow_url_cloak);
+
+    }catch(Exception $e){
+        throw new BException('ajax_domain(): Failed', $e);
     }
 }
 

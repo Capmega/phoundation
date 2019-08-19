@@ -27,7 +27,9 @@ $_CONFIG['debug']              = array('enabled'                            => f
 // AJAX configuration
 $_CONFIG['ajax']               = array('autosuggest'                        => array('min_characters'     => 2,
                                                                                      'default_results'    => 5,
-                                                                                     'max_results'        => 15));
+                                                                                     'max_results'        => 15),
+                                       'domain'                             => '',
+                                       'prefix'                             => 'ajax/');
 
 // Google AMP configuration
 $_CONFIG['amp']                = array('enabled'                            => false);
