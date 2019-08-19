@@ -123,7 +123,7 @@ function cli_die($exitcode, $message = '', $color = ''){
                  * Do NOT die!!
                  */
                 if($exitcode){
-                    throw new BException(tr('cli_die(): Script failed with exit code ":code"', array(':code' => str_log($exitcode))), $exitcode);
+                    throw new BException(tr('cli_die(): Script failed with exit code ":code"', array(':code' => $exitcode)), $exitcode);
                 }
 
                 return $exitcode;
