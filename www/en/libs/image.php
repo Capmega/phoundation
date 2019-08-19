@@ -687,7 +687,7 @@ function image_is_valid($file, $min_width = 0, $min_height = 0) {
         }
 
         if(($img_size[0] < $min_width) or ($img_size[1] < $min_height)) {
-            throw new BException(tr('image_is_valid(): File ":file" has width x height ":actual" where a minimum wxh of ":required" is required', array(':file' => $file, ':actual' => $img_size[0].' x '.$img_size[1], ':required' => $min_width.' x '.$min_height)));
+            throw new BException(tr('image_is_valid(): File ":file" has width x height ":actual" where a minimum wxh of ":required" is required', array(':file' => $file, ':actual' => $img_size[0].' x '.$img_size[1], ':required' => $min_width.' x '.$min_height)), 'invalid');
         }
 
         return $mimetype;
