@@ -92,7 +92,23 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
 
 
 /*
- * Send correct JSON reply
+ * Send JSON error to client
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package json
+ * @see json_reply()
+ * @see json_message()
+ * @version 2.7.102: Added function and documentation
+ * @note Uses json_reply() to send the error to the client
+ *
+ * @param string $message
+ * @param mixed $data
+ * @param mixed $result
+ * @param natural $http_code The HTTP code to send out with json_reply()
+ * @return void (dies)
  */
 function json_error($message, $data = null, $result = null, $http_code = 500){
     global $_CONFIG;
