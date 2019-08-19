@@ -110,6 +110,10 @@ function upload_multi($params){
 
     try{
         array_ensure($params);
+        array_default($params, 'id'        , 'fileUpload');
+        array_default($params, 'class'     , 'fileUpload hidden');
+        array_default($params, 'name'      , 'files[]');
+        array_default($params, 'accepts'   , 'image/jpeg,image/png');
         array_default($params, 'selector'  , '');
         array_default($params, 'url'       , '');
         array_default($params, 'done'      , '');
@@ -117,6 +121,7 @@ function upload_multi($params){
         array_default($params, 'complete'  , '');
         array_default($params, 'process'   , '');
         array_default($params, 'processall', '');
+        array_default($params, 'html'      , false);
         array_default($params, 'post'      , null);
         array_default($params, 'iframe'    , false);
 
@@ -144,7 +149,7 @@ function upload_multi($params){
             throw new BException(tr('upload_multi(): No "url" specified'), 'not-specified');
         }
 
-        html_load_js('jquery-ui/jquery-ui,base/base');
+        html_load_js('jquery-ui,base/base,base/strings');
 
         if($params['iframe']){
             html_load_js('jfu/jquery.iframe-transport');
@@ -167,23 +172,22 @@ function upload_multi($params){
                 $("#progress_nr").html(progress + "%");';
         }
 
-        return html_script('$("'.$params['selector'].'").fileupload({
-                url      : "'.$params['url'].'",
-                '.
+        $html = html_script('$("'.$params['selector'].'").fileupload({  url      : "'.$params['url'].'",'.
+                                                                        ($params['complete'] ?   'complete     : '.$params['complete'].','                                  : '').
+                                                                        ($params['fail']     ? "\n".'fail      : '.$params['fail'].','                                      : '').
+                                                                        ($params['post']     ? "\n".'formData  : '.json_encode_custom(array_to_object($params['post'])).',' : '').'
+                                                                        progress: function (e, data) {
+                                                                            '.$params['process'].'
+                                                                        },
+                                                                        progressall: function (e, data) {
+                                                                            '.$params['processall'].'
+                                                                        }
+                                                                     });');
+        if($params['html']){
+            $html .= '<input id="'.$params['id'].'" class="'.$params['class'].'" type="file" name="'.$params['name'].'" accept="'.$params['accept'].'">';
+        }
 
-                ($params['complete'] ?   'complete     : '.$params['complete'].','                                  : '').
-
-                ($params['fail']     ? "\n".'fail      : '.$params['fail'].','                                      : '').
-
-                ($params['post']     ? "\n".'formData  : '.json_encode_custom(array_to_object($params['post'])).',' : '').'
-
-                progress: function (e, data) {
-                    '.$params['process'].'
-                },
-                progressall: function (e, data) {
-                    '.$params['processall'].'
-                }
-            });');
+        return $html;
 
     }catch(Exception $e){
         throw new BException('upload_multi(): Failed', $e);
