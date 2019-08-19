@@ -25,7 +25,8 @@ $_CONFIG['debug']              = array('enabled'                            => f
                                        'bar'                                => 'limited'); // true|false|"limited" If set to true, base will display a debug bar that with CSS can be positioned @ the bottom of the screen. When set to limited, only authenticated users with the right "debug" will be able to see the debug bar
 
 // AJAX configuration
-$_CONFIG['ajax']               = array('autosuggest'                        => array('min_characters'     => 2,
+$_CONFIG['ajax']               = array('domain'                             => '',
+                                       'autosuggest'                        => array('min_characters'     => 2,
                                                                                      'default_results'    => 5,
                                                                                      'max_results'        => 15),
                                        'domain'                             => '',
@@ -85,6 +86,8 @@ $_CONFIG['cdn']                = array('min'                                => t
                                                                                      'purge'              => false),                    // If specified true, the CSS files will be purged  before being sent to the client
 
                                        'img'                                => array('lazy_load'          => false,                     // If set to true, the image will use lazy loading automatically
+
+                                                                                     'default'            => 'img/default.jpg',         // The default image to show if a requested image was not found on the CDN system
 
                                                                                      'auto_convert'       => array('jpg'  => false,     // If not false, automatically convert jpg images to the specified format. Supported types are: webp.
                                                                                                                    'gif'  => false,     // If not false, automatically convert gif images to the specified format. Supported types are: webp.
