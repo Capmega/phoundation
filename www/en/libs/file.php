@@ -219,7 +219,7 @@ function file_move_to_target($file, $path, $extension = false, $singledir = fals
             /*
              * We always MUST have a filename
              */
-            $filename = uniqid();
+            $filename = bin2hex(random_bytes(32));
         }
 
         /*
