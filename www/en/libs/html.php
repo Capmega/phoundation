@@ -530,6 +530,7 @@ function html_generate_css(){
  * /code
  *
  * @param list $files The javascript files that should be loaded by the client for this page
+ * @param string $list What javascript file list it should be added to. Typical valid options are "" and "page". The "" list will be loaded before the "page" list
  * @return void
  */
 function html_load_js($files, $list = 'page'){
