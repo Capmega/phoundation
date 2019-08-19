@@ -338,9 +338,9 @@ $(document).ready(function(){
 
 
     // Register that the page is unloading, and another page is being loaded
-    $(window).unload(
-        function() {$.unloading = true;}
-    );
+    $(window).on("beforeunload", function() {
+        $.unloading = true;
+    });
 });
 
 
