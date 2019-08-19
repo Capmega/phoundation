@@ -590,7 +590,9 @@ function api_call_base($account, $call, $data = array(), $files = null){
         }
 
     }catch(Exception $e){
+show($json);
 showdie($e);
+
         if($account_data){
             sql_query('UPDATE `api_accounts` SET `last_error` = :last_error WHERE `id` = :id', array(':id' => $account_data['id'], ':last_error' => print_r($e, true)));
         }

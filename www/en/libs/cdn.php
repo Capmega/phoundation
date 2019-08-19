@@ -341,7 +341,7 @@ function cdn_validate_project($project, $insert = true){
 
 
 /*
- * Test specified CDN server
+ *
  */
 function cdn_get_api_account($server){
     try{
