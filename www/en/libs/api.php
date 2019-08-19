@@ -202,7 +202,7 @@ function api_encode($data){
 /*
  *
  */
-function api_authenticate($api_key){
+function api_authenticate($api_key = null){
     global $_CONFIG;
 
     try{
@@ -217,7 +217,19 @@ function api_authenticate($api_key){
         }
 
         if(empty($api_key)){
-            throw new BException(tr('api_authenticate(): No auth key specified'), 'not-specified');
+            /*
+             * Search for the API key
+             */
+            if(!isset($_POST['api_key'])){
+                if(!isset($_POST['apikey'])){
+                    throw new BException(tr('api_authenticate(): No api key specified'), 'not-specified');
+                }
+
+                $api_key = isset_get($_POST['apikey']);
+
+            }else{
+                $api_key = isset_get($_POST['api_key']);
+            }
         }
 
         /*
@@ -287,7 +299,7 @@ function api_start_session($session_id){
          * Check session token
          */
         if(empty($session_id)){
-            throw new BException(tr('api_start_session(): No auth key specified'), 'not-specified');
+            throw new BException(tr('api_start_session(): No session key specified'), 'not-specified');
         }
 
         /*
@@ -463,7 +475,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
                                        'posturlencoded' => true,
                                        'verify_ssl'     => isset_get($account_data['verify_ssl']),
                                        'getheaders'     => false,
-                                       'post'           => array('PHPSESSID' => $account_data['apikey'])));
+                                       'post'           => array('api_key' => $account_data['apikey'])));
 
                 if(!$json){
                     throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'empty');
@@ -508,7 +520,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
             }
         }
 
-        $data['PHPSESSID'] = $_SESSION['api']['session_keys'][$account];
+        $data['sessions_id'] = $_SESSION['api']['session_keys'][$account];
 
         if($files){
             /*
@@ -548,6 +560,8 @@ function api_call_base($account, $call, $data = array(), $files = null){
                     return isset_get($result['data']);
 
                 case 'SIGNIN':
+                    // FALLTHROUGH
+                case 'SIGN-IN':
                     /*
                      * Session key is not valid
                      * Remove session key, signin, and try again
@@ -558,7 +572,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
                          * with a signin request which, in this case, would cause
                          * endless recursion
                          */
-                        throw new BException(tr('api_call_base(): API call ":call" on ":api" required auto signin but that failed with a request to signin as well. Stopping to avoid endless signin loop', array(':api' => $api, ':call' => $call)), 'failed');
+                        throw new BException(tr('api_call_base(): API call ":call" on ":api" required auto signin but that failed with a request to signin as well. Stopping to avoid endless signin loop', array(':api' => $account, ':call' => $call)), 'failed');
                     }
 
                     unset($_SESSION['api']['session_keys'][$account]);
@@ -590,8 +604,8 @@ function api_call_base($account, $call, $data = array(), $files = null){
         }
 
     }catch(Exception $e){
-show($json);
-showdie($e);
+//show(isset_get($json));
+//showdie($e);
 
         if($account_data){
             sql_query('UPDATE `api_accounts` SET `last_error` = :last_error WHERE `id` = :id', array(':id' => $account_data['id'], ':last_error' => print_r($e, true)));
