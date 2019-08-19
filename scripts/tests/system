@@ -74,7 +74,7 @@ test('load_content()', 'Function call should detect missing markers', function()
         load_content('html/test', array('###BBBB###'), array("TEST"), null, null, true);
 
     }catch(Exception $e){
-        if($e->getCode() !== 'missingmarkers'){
+        if($e->getCode() !== 'missing-markers'){
             throw $e;
         }
 
