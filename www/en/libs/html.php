@@ -2705,7 +2705,36 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                      * Local image. Analize directly
                      */
                     if(file_exists($file_src)){
-                        $image = getimagesize($original_src);
+                        try{
+                            $file  = file_move_to_target($file_src, TMP, false, true);
+                            $image = getimagesize(TMP.$file);
+
+                        }catch(Exception $e){
+                            switch($e->getCode()){
+                                case 404:
+                                    log_file(tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src)));
+                                    break;
+
+                                case 403:
+                                    log_file(tr('html_img(): Specified image ":src" got access denied', array(':src' => $file_src)));
+                                    break;
+
+                                default:
+                                    log_file(tr('html_img(): Specified image ":src" got error ":e"', array(':src' => $file_src, ':e' => $e->getMessage())));
+                                    throw $e->makeWarning(true);
+                            }
+
+                            /*
+                             * Image doesnt exist
+                             */
+                            notify(array('code'    => 'not-exists',
+                                         'groups'  => 'developers',
+                                         'title'   => tr('Image does not exist'),
+                                         'message' => tr('html_img(): Specified image ":src" does not exist', array(':src' => $file_src))));
+
+                            $image[0] = 0;
+                            $image[1] = 0;
+                        }
 
                     }else{
                         /*
