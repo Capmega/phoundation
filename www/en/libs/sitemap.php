@@ -40,6 +40,73 @@ function sitemap_library_init(){
 
 
 /*
+ * Regenerate (all) sitemap file(s) for the specified languages
+ *
+ * If sitemap database does not contain any "file" data then only the
+ * sitemap.xml will be created. If it does, the sitemap.xml will be the index
+ * file, and the other sitemap files will be auto generated one by one
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sitemap
+ * @see sitemap_generate_index_file()
+ * @see sitemap_get_index_xml()
+ * @see sitemap_generate_xml_file()
+ *
+ * @return natural The amount of sitemap files generated
+ */
+function sitemap_generate(){
+    global $_CONFIG;
+
+    try{
+        $files = sitemap_list_files();
+
+        foreach($files as &$file){
+            if(!file_exists(ROOT.'www/'.$file['language'])){
+                log_console(tr('Skipped sitemap generation for language ":language1", the "www/:language2" directory does not exist. Check the $_CONFIG[language][supported] configuration', array(':language1' => $file['language'], ':language2' => $file['language'])), 'yellow');
+                continue;
+            }
+
+            $file['tmp'] = sitemap_generate_xml_file($file['language'], $file['file']);
+        }
+
+        unset($file);
+        $files['index'] = array('tmp'  => sitemap_generate_index_file($files),
+                                'path' => ROOT.'www/sitemap.xml');
+
+        return sitemap_install_files($files);
+
+    }catch(Exception $e){
+        /*
+         * Remove temporary files
+         */
+        if(!empty($files)){
+            try{
+                foreach($files as $file){
+                    if(empty($file['tmp'])){
+                        continue;
+                    }
+
+                    file_delete($file['tmp']);
+                }
+
+            }catch(Exception $f){
+                /*
+                 * Deleting temp files failed too, oh noes!
+                 */
+                $e->addMessage($f->getMessages());
+            }
+        }
+
+        throw new BException('sitemap_generate(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Install all generated sitemap files in the correct locations
  *
  * Data will first be written to a new temp file, and then be moved over the
@@ -67,113 +134,47 @@ function sitemap_install_files($files){
              * Install the sub sitemap files
              */
             foreach($files as $file){
-                file_execute_mode(ROOT.'www/'.$file['language'], 0770, function($path) use ($insert, $file){
-                    /*
-                     * Move sub sitemap files in place
-                     */
-                    if($file['file']){
-                        if($file['language']){
-                            $filename = $file['language'].'/sitemap-'.$file['file'].'.xml';
+                if(empty($file['tmp'])){
+                    continue;
+                }
+
+                file_execute_mode(ROOT.'www/', 0770, function($path) use ($insert, $file){
+                    file_execute_mode(ROOT.'www/'.isset_get($file['language']), 0770, function($path) use ($insert, $file){
+                        /*
+                         * Move sub sitemap files in place
+                         */
+                        if(empty($file['file'])){
+                            if($file['language']){
+                                $filename = $file['language'].'/sitemap.xml';
+
+                            }else{
+                                $filename = '/sitemap.xml';
+                            }
 
                         }else{
-                            $filename = '/sitemap-'.$file['file'].'.xml';
+                            if($file['language']){
+                                $filename = $file['language'].'/sitemap-'.$file['file'].'.xml';
+
+                            }else{
+                                $filename = '/sitemap-'.$file['file'].'.xml';
+                            }
                         }
 
-                    }else{
-                        if($file['language']){
-                            $filename = $file['language'].'/sitemap.xml';
+                        log_console(tr('Installing sitemap file ":file"', array(':file' => 'www/'.$filename)), 'VERBOSE/cyan');
 
-                        }else{
-                            $filename = '/sitemap.xml';
-                        }
-                    }
-
-                    log_console(tr('Installing sitemap file ":file"', array(':file' => 'www/'.$filename)), 'VERBOSE/cyan');
-
-                    file_execute_mode(ROOT.'www/', 0770, function($path) use ($filename){
                         file_delete(ROOT.'www/'.$filename, ROOT.'www/');
-                        rename(TMP.'sitemaps/'.$filename, ROOT.'www/'.$filename);
+                        rename($file['tmp'], ROOT.'www/'.$filename);
+                        chmod(ROOT.'www/'.$filename, 0440);
+                        $insert->execute(array(':language' => $file['language']));
                     });
-
-                    chmod(ROOT.'www/'.$filename, 0440);
-                    $insert->execute(array(':language' => $file['language']));
                 });
             }
         }
 
-        /*
-         * Install the index file
-         */
-        log_console(tr('Installing sitemap index file ":file"', array(':file' => 'www/sitemap.xml')), 'VERBOSE/cyan');
-
-        file_execute_mode(ROOT.'www/', 0770, function($path){
-            $target = ROOT.'www/sitemap.xml';
-
-            if(file_exists($target)){
-                $perms = fileperms($target);
-
-            }else{
-                $perms = 0440;
-            }
-
-            chmod(ROOT.'www/sitemap.xml', 0660);
-            file_delete($target, ROOT.'www/');
-            rename(TMP.'sitemaps/sitemap.xml', ROOT.'www/sitemap.xml');
-            chmod(ROOT.'www/sitemap.xml', $perms);
-        });
-
-    }catch(Exception $e){
-        throw new BException('sitemap_install_files(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Regenerate (all) sitemap file(s) for the specified languages
- *
- * If sitemap database does not contain any "file" data then only the
- * sitemap.xml will be created. If it does, the sitemap.xml will be the index
- * file, and the other sitemap files will be auto generated one by one
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @package sitemap
- * @see sitemap_generate_index_file()
- * @see sitemap_get_index_xml()
- * @see sitemap_generate_xml_file()
- *
- * @return natural The amount of sitemap files generated
- */
-function sitemap_generate(){
-    global $_CONFIG;
-
-    try{
-        file_delete(TMP.'sitemaps');
-        file_ensure_path(TMP.'sitemaps');
-
-        $files = sitemap_list_files();
-
-        foreach($files as $file){
-            if(!file_exists(ROOT.'www/'.$file['language'])){
-                log_console(tr('Skipped sitemap generation for language ":language1", the "www/:language2" directory does not exist. Check the $_CONFIG[language][supported] configuration', array(':language1' => $file['language'], ':language2' => $file['language'])), 'yellow');
-                continue;
-            }
-
-            sitemap_generate_xml_file($file['language'], $file['file']);
-        }
-
-        sitemap_generate_index_file($files);
-        sitemap_install_files($files);
-        file_delete(TMP.'sitemaps');
-
         return count($files);
 
     }catch(Exception $e){
-        file_delete(TMP.'sitemaps');
-        throw new BException('sitemap_generate(): Failed', $e);
+        throw new BException('sitemap_install_files(): Failed', $e);
     }
 }
 
@@ -224,14 +225,14 @@ function sitemap_generate_index_file($files){
             }
 
             $xml .= "</sitemapindex>";
-            $file = file_temp(false, 'sitemaps/sitemap.xml');
+            $file = file_temp(false, 'xml');
 
             file_put_contents($file, $xml);
             chmod($file, 0440);
             cli_dot(false);
         }
 
-        return true;
+        return $file;
 
     }catch(Exception $e){
         throw new BException('sitemap_generate_index_file(): Failed', $e);
@@ -260,7 +261,6 @@ function sitemap_generate_xml_file($language = null, $file = null){
     global $_CONFIG;
 
     try{
-        $sitemap = TMP;
         $execute = array(':language' => $language);
         $query   = 'SELECT `id`,
                            `url`,
@@ -275,22 +275,21 @@ function sitemap_generate_xml_file($language = null, $file = null){
                     AND    `language` = :language ';
 
         if($file){
-            $sitemap .= 'sitemaps/'.$language.'/sitemap-'.$file.'.xml';
             $query   .= ' AND `file` = :file ';
             $execute[':file'] = $file;
 
         }else{
-            $sitemap .= 'sitemaps/'.$language.'/sitemap.xml';
             $query   .= ' AND `file` IS NULL ';
         }
 
         $entries = sql_query($query.' ORDER BY (`file` IS NOT NULL), `file` DESC, (`priority` IS NOT NULL), `priority` DESC', $execute);
         $count   = 0;
+        $file    = file_temp(true, 'xml');
 
         $xml  = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".
                 "   <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">\n";
 
-        log_console(tr('Generating sitemap ":file" for language ":language"', array(':file' => str_replace(ROOT, '', $sitemap), ':language' => $language)), 'cyan');
+        log_console(tr('Generating sitemap ":file" for language ":language"', array(':file' => str_replace(ROOT, '', $file), ':language' => $language)), 'cyan');
 
         while($entry = sql_fetch($entries)){
             $count++;
@@ -300,11 +299,10 @@ function sitemap_generate_xml_file($language = null, $file = null){
 
         $xml .= "</urlset>\n";
 
-        log_console(tr('Generated ":count" entries', array(':count' => $count)), 'green');
-        file_ensure_path(dirname($sitemap));
-        file_put_contents($sitemap, $xml);
+        log_console(tr('Generated ":count" entries in file ":file"', array(':count' => $count, ':file' => str_replace(ROOT, '', $file))), 'green');
+        file_put_contents($file, 'GODVER');
 
-        return $count;
+        return $file;
 
     }catch(Exception $e){
         throw new BException('sitemap_generate_xml_file(): Failed', $e);
@@ -631,16 +629,16 @@ function sitemap_insert_entry($entry){
                              ':priority'                => $entry['priority'],
                              ':page_modifiedon'         => date_convert($entry['page_modifiedon'], 'c'),
                              ':change_frequency'        => $entry['change_frequency'],
-                             ':language'                => get_null($entry['language']),
+                             ':language'                => $entry['language'],
                              ':group'                   => $entry['group'],
-                             ':file'                    => get_null($entry['file']),
+                             ':file'                    => $entry['file'],
                              ':url_update'              => $entry['url'],
                              ':modifiedby_update'       => isset_get($_SESSION['user']['id']),
                              ':priority_update'         => $entry['priority'],
                              ':page_modifiedon_update'  => date_convert($entry['page_modifiedon'], 'c'),
                              ':change_frequency_update' => $entry['change_frequency'],
-                             ':language_update'         => get_null($entry['language']),
-                             ':file_update'             => get_null($entry['file']),
+                             ':language_update'         => $entry['language'],
+                             ':file_update'             => $entry['file'],
                              ':group_update'            => $entry['group']));
 
         }else{
@@ -661,15 +659,15 @@ function sitemap_insert_entry($entry){
                              ':url'                     => $entry['url'],
                              ':priority'                => $entry['priority'],
                              ':change_frequency'        => $entry['change_frequency'],
-                             ':language'                => get_null($entry['language']),
+                             ':language'                => $entry['language'],
                              ':group'                   => $entry['group'],
-                             ':file'                    => get_null($entry['file']),
+                             ':file'                    => $entry['file'],
                              ':url_update'              => $entry['url'],
                              ':modifiedby_update'       => isset_get($_SESSION['user']['id']),
                              ':priority_update'         => $entry['priority'],
                              ':change_frequency_update' => $entry['change_frequency'],
-                             ':language_update'         => get_null($entry['language']),
-                             ':file_update'             => get_null($entry['file']),
+                             ':language_update'         => $entry['language'],
+                             ':file_update'             => $entry['file'],
                              ':group_update'            => $entry['group']));
         }
 
@@ -793,4 +791,3 @@ function sitemap_validate_entry($entry){
         throw new BException('sitemap_validate_entry(): Failed', $e);
     }
 }
-?>
