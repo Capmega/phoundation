@@ -352,7 +352,7 @@ try{
                     $e->setCode(400);
                 }
 
-                if(($e instanceof BException) and is_numeric($e->getRealCode()) and page_show($e->getRealCode(), array('exists' => true))){
+                if(($e instanceof BException) and is_numeric($e->getRealCode()) and ($e->getRealCode() > 100) and page_show($e->getRealCode(), array('exists' => true))){
                     if($e->isWarning()){
                         html_flash_set($e->getMessage(), 'warning', $e->getRealCode());
                     }
@@ -476,7 +476,7 @@ try{
                         json_message($e->getCode(), array('reason' => ''));
                 }
 
-                page_show($code);
+                page_show($e->getCode());
         }
 
     }catch(Exception $f){
