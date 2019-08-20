@@ -50,7 +50,7 @@ try{
             }
 
             if($core->register['ready']){
-                log_file(tr('UNCAUGHT EXCEPTION'), 'uncaught-exception', 'exception');
+                log_file(tr('*** UNCAUGHT EXCEPTION ":code" IN ":type" TYPE SCRIPT ":script" ***', array(':code' => $e->getCode(), ':type' => $core->callType(), ':script' => isset_get($core->register['script']))), 'uncaught-exception', 'exception');
                 log_file($e, 'uncaught-exception', 'exception');
 
             }else{

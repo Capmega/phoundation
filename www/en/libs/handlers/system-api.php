@@ -187,16 +187,18 @@ try{
         /*
          * Check for RAW input
          */
-        try{
-            $json = file_get_contents('php://input');
+        if(empty($_POST)){
+            try{
+                $json = file_get_contents('php://input');
 
-            if($json){
-                $_POST = json_decode_custom($json);
+                if($json){
+                    $_POST = json_decode_custom($json);
+                }
+
+            }catch(Exception $e){
+                $e->setCode(400);
+                throw new BException(tr('Core::system_api(): Failed to process application/json request'), $e);
             }
-
-        }catch(Exception $e){
-            $e->setCode(400);
-            throw new BException(tr('Core::system_api(): Failed to process application/json request'), $e);
         }
     }
 

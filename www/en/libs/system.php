@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.105');
+define('FRAMEWORKCODEVERSION', '2.7.106');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -249,6 +249,14 @@ class Core{
         global $_CONFIG, $core;
 
         try{
+            if(isset($this->register['startup'])){
+                /*
+                 * Core already started up
+                 */
+                log_file(tr('Core already started @ ":time", not starting again', array(':time' => $this->register['startup'])), 'core::startup', 'error');
+                return false;
+            }
+
             /*
              * Detect platform and execute specific platform startup sequence
              */
@@ -262,26 +270,29 @@ class Core{
                      * in $this->register['script_path'] instead
                      */
                     if(isset($this->register['script_path'])){
-                        $file = $this->register['script_path'];
+                        $file = '/'.$this->register['script_path'];
 
                     }else{
-                        $file = $_SERVER['PHP_SELF'];
+                        $file = '/'.$_SERVER['PHP_SELF'];
                     }
 
                     /*
                      * Auto detect what http call type we're on from the script
                      * being executed
                      */
-                    if(strstr($file, '/admin/')){
+                    if(str_exists($file, '/admin/')){
                         $this->callType = 'admin';
 
-                    }elseif(strstr($file, '/ajax/')){
+                    }elseif(str_exists($file, '/ajax/')){
                         $this->callType = 'ajax';
 
-                    }elseif(strstr($file, '/api/')){
+                    }elseif(str_exists($file, '/api/')){
                         $this->callType = 'api';
 
-                    }elseif(substr($_SERVER['SERVER_NAME'], 0, 4) === 'api.'){
+                    }elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'api') and preg_match('/^api-?[0-9]+\./', $_SERVER['SERVER_NAME'])){
+                        $this->callType = 'api';
+
+                    }elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'cdn') and preg_match('/^cdn-?[0-9]+\./', $_SERVER['SERVER_NAME'])){
                         $this->callType = 'api';
 
                     }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
@@ -301,6 +312,8 @@ class Core{
                     $this->callType = 'cli';
                     break;
             }
+
+            $this->register['startup'] = microtime(true);
 
             require('handlers/system-'.$this->callType.'.php');
 
@@ -1302,7 +1315,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
                  * Oops, specified $from array does not contain all replace markers
                  */
                 if(!$_CONFIG['production']){
-                    throw new BException(tr('load_content(): Missing markers ":markers" for content file ":file"', array(':markers' => $matches, ':file' => $realfile)), 'missingmarkers');
+                    throw new BException(tr('load_content(): Missing markers ":markers" for content file ":file"', array(':markers' => $matches, ':file' => $realfile)), 'missing-markers');
                 }
             }
 
@@ -1328,7 +1341,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
         }
 
         if(!$autocreate){
-            throw new BException('load_content(): Specified file "'.str_log($file).'" does not exist for language "'.str_log($language).'"', 'not-exists');
+            throw new BException(tr('load_content(): Specified file ":file" does not exist for language ":language"', array(':file' => $file, ':language' => $language)), 'not-exists');
         }
 
         /*
@@ -1351,15 +1364,15 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
         notify($e);
 
         switch($e->getCode()){
-            case 'notexist':
+            case 'not-exist':
                 log_file(tr('load_content(): File ":language/:file" does not exist', array(':language' => $language, ':file' => $file)), 'warning');
                 break;
 
-            case 'missingmarkers':
+            case 'missing-markers':
                 log_file(tr('load_content(): File ":language/:file" still contains markers after replace', array(':language' => $language, ':file' => $file)), 'warning');
                 break;
 
-            case 'searchreplacecounts':
+            case 'search-replace-counts':
                 log_file(tr('load_content(): Search count does not match replace count'), 'warning');
                 break;
         }
@@ -2139,7 +2152,13 @@ function get_domain(){
  * @see mapped_domain()
  * @package system
  *
- * @return void
+ * @param null string $url
+ * @param null string $query
+ * @param null string $prefix
+ * @param null string $domain
+ * @param null string $language
+ * @param null boolean $allow_url_cloak
+ * @return string the URL
  */
 function domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
     global $_CONFIG, $core;
@@ -2955,6 +2974,20 @@ function check_csrf(){
     global $_CONFIG, $core;
 
     try{
+        if(empty($_CONFIG['security']['csrf']['enabled'])){
+            /*
+             * CSRF check system has been disabled
+             */
+            return false;
+        }
+
+        if(!$core->callType('http') and !$core->callType('admin')){
+            /*
+             * CSRF only works for HTTP or ADMIN requests
+             */
+            return false;
+        }
+
         if(!empty($core->register['csrf_ok'])){
             /*
              * CSRF check has already been executed for this post, all okay!
@@ -2969,14 +3002,8 @@ function check_csrf(){
             return false;
         }
 
-        if(empty($_CONFIG['security']['csrf']['enabled'])){
-            /*
-             * CSRF check system has been disabled
-             */
-            return false;
-        }
-
         if(empty($_POST['csrf'])){
+log_file($core->callType());
             throw new BException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
         }
 
@@ -3030,7 +3057,8 @@ function check_csrf(){
                 unset($_POST[$key]);
             }
         }
-
+log_file('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+log_file($core->callType('http'));
         log_file($e);
         html_flash_set(tr('The form data was too old, please try again'), 'warning');
     }
@@ -3865,11 +3893,11 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
  *
  * @params string $file
  * @params string $section
- * @params boolean $false_on_not_exist
+ * @params string $default If specified, use this default image if the specified file has not been found
  * @params boolean $force_cdn
  * @return string The result
  */
-function cdn_domain($file = '', $section = 'pub', $false_on_not_exist = false, $force_cdn = false){
+function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = false){
     global $_CONFIG;
 
     try{
@@ -3928,6 +3956,7 @@ function cdn_domain($file = '', $section = 'pub', $false_on_not_exist = false, $
          */
         $url = sql_get('SELECT    `cdn_files`.`file`,
                                   `cdn_files`.`servers_id`,
+
                                   `cdn_servers`.`baseurl`
 
                         FROM      `cdn_files`
@@ -3952,13 +3981,14 @@ function cdn_domain($file = '', $section = 'pub', $false_on_not_exist = false, $
         }
 
         /*
-         * The specified file is not found in the CDN system
+         * The specified file is not found in the CDN system, return a default
+         * image instead
          */
-        if($false_on_not_exist){
-            return false;
+        if(!$default){
+            $default = $_CONFIG['cdn']['img']['default'];
         }
 
-        return domain($file, null, null, null, null, false);
+        return cdn_domain($default, 'pub');
 
 // :TODO: What why where?
         ///*
