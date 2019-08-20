@@ -613,9 +613,9 @@ function route_exec($target, $attachment, $restrictions){
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
 
             /*
-             * Auto start the phoundation core if configured to do so
+             * Auto start the phoundation core
              */
-            if(!empty($GLOBALS['route_start'])){
+            if(empty($core->register['startup'])){
                 $core->startup();
             }
 
