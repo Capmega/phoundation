@@ -305,29 +305,28 @@ function api_start_session($session_id){
         /*
          * Yay, we have an valid token, check if it has a session
          */
-        $session = api_get_session($session_id);
+        $_SESSION = api_get_session($session_id);
 
-        if(!$session){
+        if(!$_SESSION){
             throw new BException(tr('api_start_session(): The specified session_id key ":session_id" does not exist', array(':session_id' => $session_id)), 'access-denied');
         }
 
-        if($session['closedon']){
+        if($_SESSION['closedon']){
             throw new BException(tr('api_start_session(): The session for the session_id key ":session_id" has already been closed', array(':session_id' => $session_id)), 'sign-in');
         }
 
         /*
          * Update the last start column to now
          */
-        sql_query('UPDATE `api_sessions` SET `last` = NOW() WHERE `id` = :id', array(':id' => $session['id']));
+        sql_query('UPDATE `api_sessions` SET `last` = NOW() WHERE `id` = :id', array(':id' => $_SESSION['id']));
 
-        $session['user'] = user_get($session['createdby']);
+        $_SESSION['user'] = user_get($_SESSION['createdby']);
 
-        if(!$session['user']){
-            throw new BException(tr('api_start_session(): Session ":sessions_id" was created by users_id ":users_id" but that apparently does not exist', array(':sessions_id' => $session_id, ':users_id' => $session['createdby'])), 'not-exists');
+        if(!$_SESSION['user']){
+            throw new BException(tr('api_start_session(): Session ":sessions_id" was created by users_id ":users_id" but that apparently does not exist', array(':sessions_id' => $session_id, ':users_id' => $_SESSION['createdby'])), 'not-exists');
         }
 
-        $core->register['session'] = $session;
-        return $session;
+        return $_SESSION;
 
     }catch(Exception $e){
         throw new BException('api_start_session(): Failed', $e);
