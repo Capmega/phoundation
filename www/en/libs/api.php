@@ -276,7 +276,7 @@ function api_start_session($session_id){
     global $_CONFIG, $core;
 
     try{
-        load_libs('validate');
+        load_libs('validate,user');
 
         if(!$session_id){
             switch($_SERVER['REQUEST_METHOD']){
@@ -320,8 +320,13 @@ function api_start_session($session_id){
          */
         sql_query('UPDATE `api_sessions` SET `last` = NOW() WHERE `id` = :id', array(':id' => $session['id']));
 
-        $core->register['session'] = $session;
+        $session['user'] = user_get($session['createdby']);
 
+        if(!$session['user']){
+            throw new BException(tr('api_start_session(): Session ":sessions_id" was created by users_id ":users_id" but that apparently does not exist', array(':sessions_id' => $session_id, ':users_id' => $session['createdby'])), 'not-exists');
+        }
+
+        $core->register['session'] = $session;
         return $session;
 
     }catch(Exception $e){
