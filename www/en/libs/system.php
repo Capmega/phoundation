@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.107');
+define('FRAMEWORKCODEVERSION', '2.7.108');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5798,7 +5798,7 @@ function shutdown(){
             }
 
             foreach($_CONFIG['shutdown'] as $name => $parameters){
-                if($level < $parameters['interval']){
+                if($parameters['interval'] and ($level < $parameters['interval'])){
                     log_file(tr('Executing periodical shutdown function ":function()"', array(':function' => $name)), 'shutdown', 'cyan');
                     load_libs($parameters['library']);
                     $parameters['function']();

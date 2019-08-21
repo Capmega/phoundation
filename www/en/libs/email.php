@@ -43,7 +43,7 @@ function email_library_init(){
 
         load_config('email');
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException('email_library_init(): Failed', $e);
     }
 }
@@ -103,7 +103,7 @@ function email_connect($userdata, $mail_box = null){
 
         return $connection;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_connect(): Failed'), $e);
     }
 }
@@ -344,7 +344,7 @@ function email_poll($params){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         log_console(tr('Failed to poll email data for account ":account" because ":e"', array(':account' => $params['account'], ':e' => $e->getMessages())), 'yellow');
         throw new BException(tr('email_poll(): Failed'), $e);
     }
@@ -419,7 +419,7 @@ function email_get_attachments($imap, $email, $data, $flags){
                 $data['img'.$i]['file'] = $file_name;
                 file_put_contents(TMP.$file_name, $img);
 
-            }catch(Exception $e){
+            }catch(\Exception $e){
                 /*
                  * An image failed, just continue
                  */
@@ -430,7 +430,7 @@ function email_get_attachments($imap, $email, $data, $flags){
 
        return $data;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_attachments(): Failed'), $e);
     }
 }
@@ -494,7 +494,7 @@ function email_get_conversation($email){
 
         return $conversation;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_conversation(): Failed'), $e);
     }
 }
@@ -540,7 +540,7 @@ function email_update_conversation($email, $direction){
             try{
                 $conversation['last_messages'] = json_decode_custom($conversation['last_messages']);
 
-            }catch(Exception $e){
+            }catch(\Exception $e){
                 /*
                  * Ups, JSON decode failed!
                  */
@@ -627,7 +627,7 @@ function email_update_conversation($email, $direction){
                              ':last_messages' => $last_messages));
         }
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_update_conversation(): Failed'), $e);
     }
 }
@@ -740,7 +740,7 @@ function email_update_message($email, $direction){
 
         return $email;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_update_message(): Failed'), $e);
     }
 }
@@ -770,7 +770,7 @@ function email_cleanup($email){
 
         return $email;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_cleanup(): Failed'), $e);
     }
 }
@@ -816,7 +816,7 @@ function email_check_images($email){
             $i++;
         }
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_check_images(): Failed'), $e);
     }
 }
@@ -834,7 +834,7 @@ function email_get_reply_to_id($email){
 
         return sql_get('SELECT `id` FROM `email_messages` WHERE `conversations_id` = :conversations_id LIMIT 1', 'id', array(':conversations_id' => $email['conversation']['id']));
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_reply_to_id(): Failed'), $e);
     }
 }
@@ -865,7 +865,7 @@ function email_get_users_id($email){
          */
         return sql_get('SELECT `id` FROM `users` WHERE `email` = :from', 'id', array(':from' => $email['from']));
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_users_id(): Failed'), $e);
     }
 }
@@ -896,7 +896,7 @@ function email_get_accounts_id($email){
          */
         return sql_get('SELECT `id` FROM `email_client_accounts` WHERE `email` = :from', 'id', array(':from' => $email['from']));
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_accounts_id(): Failed'), $e);
     }
 }
@@ -1039,7 +1039,7 @@ function email_send($email, $smtp = null, $account = null){
             email_update_conversation($email, 'sent');
         }
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_send(): Failed'), $e);
     }
 }
@@ -1095,7 +1095,7 @@ function email_from_exists($email){
 
         return !empty($_CONFIG['email']['users'][$email]);
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_from_exists(): Failed'), $e);
     }
 }
@@ -1154,7 +1154,7 @@ function email_load_phpmailer(){
 
         return new PHPMailer(true);
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_load_phpmailer(): Failed'), $e);
     }
 }
@@ -1180,6 +1180,20 @@ function email_validate($email){
             $v->setError(tr('Specified source email ":email" does not exist', array(':email' => $email['from'])));
         }
 
+        if(!$email['body']){
+            if($email['html']){
+                $email['body']   = $email['html'];
+                $email['format'] = 'html';
+
+            }elseif($email['html']){
+                $email['body']   = $email['text'];
+                $email['format'] = 'text';
+
+            }else{
+                $v->setError(tr('No body, text, or html specified'));
+            }
+        }
+
         switch(isset_get($email['format'])){
             case '':
                 $email['format'] = 'text';
@@ -1202,7 +1216,7 @@ function email_validate($email){
 
         return $email;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_validate(): Failed'), $e);
     }
 }
@@ -1330,7 +1344,7 @@ function email_prepare($email){
 
         return $email;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_prepare(): Failed'), $e);
     }
 }
@@ -1396,7 +1410,7 @@ function email_get_account($email, $columns = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_account(): Failed'), $e);
     }
 }
@@ -1465,7 +1479,7 @@ function email_get_client_account($email, $columns = null){
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_client_account(): Failed'), $e);
     }
 }
@@ -1515,7 +1529,7 @@ function email_get_domain($email_or_domain, $columns = null, $table = 'email_dom
 
         return $retval;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_domain(): Failed'), $e);
     }
 }
@@ -1529,7 +1543,7 @@ function email_client_get_domain($email_or_domain, $columns = null){
     try{
         return email_get_domain($email_or_domain, $columns, 'email_client_domains');
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_client_get_domain(): Failed'), $e);
     }
 }
@@ -1572,7 +1586,7 @@ function email_delay($email){
 
         return sql_insert_id();
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_delay(): Failed'), $e);
     }
 }
@@ -1638,12 +1652,12 @@ function email_send_unsent(){
                  */
                 email_send($email);
 
-            }catch(Exception $e){
+            }catch(\Exception $e){
                 /*
                  * Error ocurred ! ... Notify and continue sending emails
                  */
                 notify($e->makeWarning(true));
-                log_console(tr('Failed to send email to user ":user" because of previous exception'), 'warning');
+                log_console(tr('Failed to send email with subject ":subject" to ":to" because of previous exception', array(':to' => $email['to'], ':subject' => $email['subject'])), 'warning');
             }
 
             /*
@@ -1659,7 +1673,7 @@ function email_send_unsent(){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_send_unsent(): Failed'), $e);
     }
 }
@@ -1679,7 +1693,7 @@ function email_get_encryption_key(){
 
         return $_CONFIG['email']['encryption_key'];
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_get_encryption_key(): Failed'), $e);
     }
 }
@@ -1726,7 +1740,7 @@ function email_validate_domain($domain, $table = 'email_domains'){
 
         return $domain;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_validate_domain(): Failed'), $e);
     }
 }
@@ -1785,7 +1799,7 @@ function email_validate_account($account, $client){
 
         return $account;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_validate_account(): Failed'), $e);
     }
 }
@@ -1835,7 +1849,7 @@ function email_delete($params){
                 $date = new DateTime();
                 $date->sub(new DateInterval('P'.$params['filters']['old']));
 
-            }catch(Exception $e){
+            }catch(\Exception $e){
                 throw new BException(tr('email_delete(): Invalid datetime interval ":interval" specified for the --old filter. See http://php.net/manual/en/dateinterval.construct.php on how to construct these.', array(':interval' => 'P'.$params['filters']['old'])), 'invalid');
             }
 
@@ -1916,7 +1930,7 @@ function email_delete($params){
 
         return $count;
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_delete(): Failed'), $e);
     }
 }
@@ -1943,7 +1957,7 @@ showdie($data);
 
         return count($mails);
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
 showdie($e);
         throw new BException(tr('email_test_account(): Failed'), $e);
     }
@@ -1959,7 +1973,7 @@ function email_get_user($email, $columns = null){
     try{
         return email_get_client_account($email, $columns = null);
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_delete(): Failed'), $e);
     }
 }
@@ -1968,7 +1982,7 @@ function email_validate_user($user){
     try{
         return email_validate_account($user);
 
-    }catch(Exception $e){
+    }catch(\Exception $e){
         throw new BException(tr('email_validate_user(): Failed'), $e);
     }
 }
