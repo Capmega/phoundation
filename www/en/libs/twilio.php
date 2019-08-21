@@ -345,7 +345,8 @@ function twilio_add_image($messages_id, $url, $mimetype){
  */
 function twilio_download_image($messages_id, $url){
     try{
-        $file = file_move_to_target($url, ROOT.'data/sms/images', 'jpg');
+        $file = download($url);
+        $file = file_move_to_target($file, ROOT.'data/sms/images', 'jpg');
 
         sql_query('UPDATE `sms_images`
 
@@ -1093,4 +1094,3 @@ function twilio_select_number($params){
         throw new BException('twilio_select_number(): Failed', $e);
     }
 }
-?>
