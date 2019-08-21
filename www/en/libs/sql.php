@@ -2162,11 +2162,13 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
                 continue;
             }
 
+            $use_value   = true;
             $like        = false;
             $array       = false;
             $not_string  = '';
             $not         = '';
             $use_combine = $combine;
+            $comparison  = '=';
 
             /*
              * Check for modifiers in the keys
@@ -2175,6 +2177,42 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
              */
             while(true){
                 switch($key[0]){
+                    case '*':
+                        /*
+                         * Do not use value, key only
+                         */
+                        $key       = substr($key, 1);
+                        $use_value = false;
+                        break;
+
+                    case '<':
+                        /*
+                         * Smaller than
+                         */
+                        if($not){
+                            $comparison = '>=';
+
+                        }else{
+                            $comparison = '<';
+                        }
+
+                        $key = substr($key, 1);
+                        break;
+
+                    case '>':
+                        /*
+                         * larger than
+                         */
+                        if($not){
+                            $comparison = '<=';
+
+                        }else{
+                            $comparison = '>';
+                        }
+
+                        $key = substr($key, 1);
+                        break;
+
                     case '&':
                         $key         = substr($key, 1);
                         $use_combine = 'AND';
@@ -2198,9 +2236,23 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
                         /*
                          * NOT
                          */
-                        $key        = substr($key, 1);
-                        $not_string = ' NOT ';
-                        $not        = '!';
+                        $key = substr($key, 1);
+
+                        switch($comparison){
+                            case '<':
+                                $comparison = '>=';
+                                $not        = '';
+                                break;
+
+                            case '>':
+                                $comparison = '<=';
+                                $not        = '';
+                                break;
+
+                            default:
+                                $not_string = ' NOT ';
+                                $not        = '!';
+                        }
                         break;
 
                     case '#':
@@ -2215,14 +2267,23 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
                 }
             }
 
-            if(strpos($key, '.') === false){
-                $key = $table.'.'.$key;
+            if($use_value){
+                if(strpos($key, '.') === false){
+                    $key = $table.'.'.$key;
+                }
+
+                $column = '`'.str_replace('.', '`.`', trim($key)).'`';
+                $key    = str_replace('.', '_', $key);
+
+            }else{
+                $column = trim($key);
             }
 
-            $column = '`'.str_replace('.', '`.`', trim($key)).'`';
-            $key    = str_replace('.', '_', $key);
-
             if($like){
+                if(!$use_value){
+                    throw new BException(tr('sql_get_where_string(): The specified filter key ":key" specified * to not use value, but also # to use LIKE which cannot work together', array(':key' => $key)), 'invalid');
+                }
+
                 if(is_string($value)){
                     $filter = ' '.$column.' '.$not.'LIKE :'.$key.' ';
                     $execute[':'.$key] = $value;
@@ -2245,6 +2306,10 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
 
             }else{
                 if(is_array($value)){
+                    if(!$use_value){
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" specified * to not use value, but the value contains an array while "null" is required', array(':key' => $key)), 'invalid');
+                    }
+
                     if($array){
                         throw new BException(tr('sql_get_where_string(): The specified filter key ":key" contains an array, which is not allowed. Specify the key as "#:array" to allow arrays', array(':key' => $key, ':array' => $key)), 'invalid');
                     }
@@ -2260,20 +2325,41 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
                     }
 
                 }elseif(is_bool($value)){
+                    if(!$use_value){
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" specified * to not use value, but the value contains a boolean while "null" is required', array(':key' => $key)), 'invalid');
+                    }
+
                     $filter = ' '.$column.' '.$not.'= :'.$key.' ';
                     $execute[':'.$key] = (integer) $value;
 
                 }elseif(is_string($value)){
-                    $filter = ' '.$column.' '.$not.'= :'.$key.' ';
+                    if(!$use_value){
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" specified * to not use value, but the value contains a string while "null" is required', array(':key' => $key)), 'invalid');
+                    }
+
+                    $filter = ' '.$column.' '.$not.$comparison.' :'.$key.' ';
                     $execute[':'.$key] = $value;
 
                 }elseif(is_numeric($value)){
-                    $filter = ' '.$column.' '.$not.'= :'.$key.' ';
+                    if(!$use_value){
+                        throw new BException(tr('sql_get_where_string(): The specified filter key ":key" specified * to not use value, but the value contains a number while "false" is required', array(':key' => $key)), 'invalid');
+                    }
+
+                    $filter = ' '.$column.' '.$not.$comparison.' :'.$key.' ';
                     $execute[':'.$key] = $value;
 
                 }elseif($value === null){
-                    $filter = ' '.$column.' IS'.$not_string.' :'.$key.' ';
-                    $execute[':'.$key] = $value;
+                    if(!$use_value){
+                        /*
+                         * Do NOT use a value, so also don't add an execute
+                         * value
+                         */
+                        $filter = ' '.$column.' ';
+
+                    }else{
+                        $filter = ' '.$column.' IS'.$not_string.' :'.$key.' ';
+                        $execute[':'.$key] = $value;
+                    }
 
                 }else{
                     throw new BException(tr('sql_get_where_string(): Specified value ":value" is of invalid datatype ":datatype"', array(':value' => $value, ':datatype' => gettype($value))), 'invalid');
