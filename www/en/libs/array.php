@@ -1239,11 +1239,11 @@ function array_hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDE
 function array_rename_key($source, $old_key, $new_key){
     try{
         if(!is_array($source)){
-            throw new BException(tr('array_rename_key(): Specified source is not an array'), $e);
+            throw new BException(tr('array_rename_key(): Specified source is not an array'), 'invalid');
         }
 
         if(!array_key_exists($old_key, $source)){
-            throw new BException(tr('array_rename_key(): Specified $old_key does not exist in the specified source array'), $e);
+            throw new BException(tr('array_rename_key(): Specified $old_key does not exist in the specified source array'), 'not-exists');
         }
 
         $source[$new_key] = $source[$old_key];
