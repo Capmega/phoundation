@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.108');
+define('FRAMEWORKCODEVERSION', '2.7.109');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -289,10 +289,10 @@ class Core{
                     }elseif(str_exists($file, '/api/')){
                         $this->callType = 'api';
 
-                    }elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'api') and preg_match('/^api-?[0-9]+\./', $_SERVER['SERVER_NAME'])){
+                    }elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'api') and preg_match('/^api(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])){
                         $this->callType = 'api';
 
-                    }elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'cdn') and preg_match('/^cdn-?[0-9]+\./', $_SERVER['SERVER_NAME'])){
+                    }elseif((substr($_SERVER['SERVER_NAME'], 0, 3) === 'cdn') and preg_match('/^cdn(?:-[0-9]+)?\./', $_SERVER['SERVER_NAME'])){
                         $this->callType = 'api';
 
                     }elseif($_CONFIG['amp']['enabled'] and !empty($_GET['amp'])){
@@ -1576,23 +1576,6 @@ function log_flags($color){
                  * Remove the QUIET
                  */
                 $color = str_from(str_from($color, 'QUIET', 0, true), '/');
-                break;
-
-            case 'VERBOSEDOT':
-                if(!VERBOSE){
-                    if(PLATFORM_CLI){
-                        /*
-                         * Only show a dot instead of the text
-                         */
-                        cli_dot('.', str_replace('VERBOSEDOT', '', $color));
-                        return false;
-                    }
-                }
-
-                /*
-                 * Remove the DOT
-                 */
-                $color = str_from(str_from($color, 'VERBOSEDOT', 0, true), '/');
                 break;
 
             case 'DEBUG':
