@@ -173,35 +173,41 @@ try{
     /*
      * Delete all auto converted webp images
      */
-    $files = cli_find(array('start' => ROOT.'data/content/',
-                            'name'  => '*.webp'));
+    foreach(array(ROOT.'data/content/', ROOT.'www/') as $path){
+        if(!file_exists(ROOT.'data/content/')){
+            continue;
+        }
 
-    foreach($files as $file){
-        file_execute_mode('*'.dirname($file), 0770, function() use ($file){
-            file_delete($file, ROOT.'data/content/');
-        });
+        $files = cli_find(array('start' => $path,
+                                'name'  => '*.webp'));
+
+        foreach($files as $file){
+            file_execute_mode('*'.dirname($file), 0770, function() use ($file){
+                file_delete($file, $path);
+            });
+        }
+
+        log_console(tr('Cleared all automatically converted webp files'), 'green');
+
+        /*
+         * Delete all auto resized images
+         */
+        $files = cli_find(array('start' => $path,
+                                'regex' => '.+@[0-9]+x[0-9]+\..*'));
+
+        foreach($files as $file){
+            file_execute_mode('*'.dirname($file), 0770, function() use ($file){
+                file_delete($file, $path);
+            });
+        }
+
+        log_console(tr('Cleared all automatically resized image files'), 'green');
     }
-
-    log_console(tr('Cleared all automatically converted webp files'), 'green');
 
     /*
-     * Delete all auto resized images
+     * Delete external / vendor libraries too
      */
-    $files = cli_find(array('start' => ROOT.'data/content/,'.ROOT.'www/',
-                            'regex' => '.+@[0-9]+x[0-9]+\..*'));
-
-    foreach($files as $file){
-        file_execute_mode('*'.dirname($file), 0770, function() use ($file){
-            file_delete($file, ROOT.'data/content/,'.ROOT.'www/');
-        });
-    }
-
-    log_console(tr('Cleared all automatically resized image files'), 'green');
-
     if(FORCE){
-        /*
-         * Delete external / vendor libraries too
-         */
         if(file_exists(ROOT.'node_modules/')){
             file_execute_mode('*'.ROOT.'node_modules/', 0770, function() use ($code){
                 file_delete(ROOT.'node_modules/', ROOT);
