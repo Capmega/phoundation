@@ -115,7 +115,14 @@ function uglify_css($paths = null, $force = false){
             /*
              * Start at the base css path
              */
-            foreach($_CONFIG['language']['supported'] as $code => $language){
+            if($_CONFIG['language']['supported']){
+                $languages = $_CONFIG['language']['supported'];
+
+            }else{
+                $languages = array($_CONFIG['language']['default'] => tr('Default'));
+            }
+
+            foreach($languages as $code => $language){
                 $paths[] = ROOT.'www/'.$code.'/pub/css/';
                 $paths[] = ROOT.'www/'.$code.'/admin/pub/css/';
             }
