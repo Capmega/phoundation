@@ -2416,7 +2416,7 @@ function html_hidden($source, $key = 'id'){
  * @param string
  * @return string The result
  */
-function html_img_src($src, &$external = null, &$file_src = null, &$original_src = null){
+function html_img_src($src, &$external = null, &$file_src = null, &$original_src = null, $section = 'pub'){
     global $_CONFIG;
 
     try{
@@ -2463,7 +2463,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
              */
             $file_part = '/pub'.str_starts($src, '/');
             $file_src  = ROOT.'www/'.LANGUAGE.$file_part;
-            $src       = cdn_domain($src);
+            $src       = cdn_domain($src, $section);
         }
 
         /*
@@ -2570,7 +2570,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                             'extra'  => $extra);
         }
 
-        array_ensure ($params, 'src,alt,width,height,class,extra');
+        array_ensure ($params, 'src,alt,width,height,class,extra,section');
         array_default($params, 'lazy', $_CONFIG['cdn']['img']['lazy_load']);
         array_default($params, 'tag' , 'img');
 
@@ -2623,7 +2623,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
          * Also check if the file should be automatically converted to a
          * different format
          */
-        $params['src'] = html_img_src($params['src'], $external, $file_src, $original_src);
+        $params['src'] = html_img_src($params['src'], $external, $file_src, $original_src, $params['section']);
 
         /*
          * Atumatically detect width / height of this image, as it is not
