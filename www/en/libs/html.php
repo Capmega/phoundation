@@ -2887,7 +2887,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                          * Failed to auto resize the image. Notify and stay with
                          * the current version meanwhile.
                          */
-                        $e->addMessage(tr('html_img(): Failed to auto resize image ":image", using non resized image with incorrect width / height instead', array(':image' => $file_src)));
+                        $e->addMessages(tr('html_img(): Failed to auto resize image ":image", using non resized image with incorrect width / height instead', array(':image' => $file_src)));
                         notify($e->makeWarning(true));
                     }
                 }
@@ -3557,6 +3557,7 @@ function html_loader_screen($params){
         array_default($params, 'image_style'          , 'position:relative;');
         array_default($params, 'screen_line_height'   , 0);
         array_default($params, 'screen_background'    , 'white');
+        array_default($params, 'screen_color'         , 'black');
         array_default($params, 'screen_remove'        , true);
         array_default($params, 'screen_text_align'    , 'center');
         array_default($params, 'screen_vertical_align', 'middle');
@@ -3579,7 +3580,7 @@ function html_loader_screen($params){
             $extra .= 'text-align:'.$params['screen_text_align'].';';
         }
 
-        $html  = '  <div id="loader-screen" style="position:fixed;top:0px;bottom:0px;left:0px;right:0px;z-index:2147483647;display:block;background:'.$params['screen_background'].';text-align: '.$params['screen_text_align'].';'.$extra.'" '.$params['screen_style_extra'].'>';
+        $html  = '  <div id="loader-screen" style="position:fixed;top:0px;bottom:0px;left:0px;right:0px;z-index:2147483647;display:block;background:'.$params['screen_background'].';color: '.$params['screen_color'].';text-align: '.$params['screen_text_align'].';'.$extra.'" '.$params['screen_style_extra'].'>';
 
         /*
          * Show loading text
