@@ -309,9 +309,9 @@ function url_add_query($url){
                 /*
                  * Remove this query instead of adding it
                  */
-                $url = preg_replace(substr($query, 1), '', $url);
-                $url = str_replace('&&'              , '', $url);
-                $url = str_ends_not($url             , '?');
+                $url = preg_replace('/'.substr($query, 1).'/', '', $url);
+                $url = str_replace('&&'                      , '', $url);
+                $url = str_ends_not($url                     , '?');
 
                 continue;
             }
