@@ -50,7 +50,7 @@ function meta_add_history($meta_id, $action, $data = null){
 
                    array(':createdby' => isset_get($_SESSION['user']['id']),
                          ':meta_id'   => $meta_id,
-                         ':action'    => not_empty($action, tr('Unknown')),
+                         ':action'    => not_empty($action, tr('unknown')),
                          ':data'      => json_encode($data)), 'core');
 
         return $meta_id;
