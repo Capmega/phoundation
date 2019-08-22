@@ -273,8 +273,7 @@ $_CONFIG['paging']             = array('limit'                              => 5
                                                                                        20 => tr('Show 20 entries'),
                                                                                        50 => tr('Show 50 entries'),
                                                                                       100 => tr('Show 100 entries'),
-                                                                                      500 => tr('Show 500 entries'),
-                                                                                     null => tr('Show all entries')));
+                                                                                      500 => tr('Show 500 entries')));
 
 // Prefetch
 $_CONFIG['prefetch']           = array('dns'                                => array('facebook.com',
