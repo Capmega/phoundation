@@ -43,6 +43,10 @@ function pages_list($params){
             }
 
             foreach($params['filters'] as $key => $value){
+                if(empty($value)){
+                    continue;
+                }
+
                 if(($key === 'name') and !str_exists($page, $value)){
                     continue;
                 }
