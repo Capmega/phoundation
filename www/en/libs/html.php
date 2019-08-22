@@ -2554,7 +2554,7 @@ under_construction();
  */
 function html_img($params, $alt = null, $width = null, $height = null, $extra = ''){
     global $_CONFIG, $core;
-    static $images;
+    static $images, $cache = array();
 
     try{
 // :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
@@ -2570,9 +2570,10 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                             'extra'  => $extra);
         }
 
-        array_ensure ($params, 'src,alt,width,height,class,extra,section');
-        array_default($params, 'lazy', $_CONFIG['cdn']['img']['lazy_load']);
-        array_default($params, 'tag' , 'img');
+        array_ensure ($params, 'src,alt,width,height,class,extra');
+        array_default($params, 'lazy'   , $_CONFIG['cdn']['img']['lazy_load']);
+        array_default($params, 'tag'    , 'img');
+        array_default($params, 'section', 'pub');
 
         if(!$params['src']){
             /*
@@ -2630,30 +2631,38 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
          * specified
          */
         try{
-            $image = sql_get('SELECT `width`,
-                                     `height`
+// :TODO: Add support for memcached
+            if(isset($cache[$params['src']])){
+                $image = $cache[$params['src']];
 
-                              FROM   `html_img_cache`
+            }else{
+                $image = sql_get('SELECT `width`,
+                                         `height`
 
-                              WHERE  `url`       = :url
-                              AND    `createdon` > NOW() - INTERVAL 1 DAY
-                              AND    `status`    IS NULL',
+                                  FROM   `html_img_cache`
 
-                              array(':url' => $params['src']));
+                                  WHERE  `url`       = :url
+                                  AND    `createdon` > NOW() - INTERVAL 1 DAY
+                                  AND    `status`    IS NULL',
+
+                                  array(':url' => $params['src']));
+
+                if($image){
+                    /*
+                     * Database cache found, add it to local cache
+                     */
+                    $cache[$params['src']] = array('width'  => $image['width'],
+                                                   'height' => $image['height']);
+
+                }
+            }
 
         }catch(Exception $e){
             notify($e);
             $image = null;
         }
 
-        if($image){
-            /*
-             * We have that information cached, yay!
-             */
-            $width  = $image['width'];
-            $height = $image['height'];
-
-        }else{
+        if(!$image){
             try{
                 /*
                  * Check if the URL comes from this domain (so we can
@@ -2746,23 +2755,30 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                     }
                 }
 
-                $width  = $image[0];
-                $height = $image[1];
-                $status = null;
+                $image['width']  = $image[0];
+                $image['height'] = $image[1];
+                $status          = null;
 
             }catch(Exception $e){
                 notify($e);
 
-                $width  = 0;
-                $height = 0;
-                $status = $e->getCode();
+                $image['width']  = 0;
+                $image['height'] = 0;
+                $status          = $e->getCode();
             }
 
-            if(!$height or !$width){
-                log_console(tr('html_img(): image ":src" has invalid dimensions with width ":width" and height ":height"', array(':src' => $params['src'], ':width' => $width, ':height' => $height)), 'yellow');
+            if(!$image['height'] or !$image['width']){
+                log_console(tr('html_img(): image ":src" has invalid dimensions with width ":width" and height ":height"', array(':src' => $params['src'], ':width' => $image['width'], ':height' => $image['height'])), 'yellow');
 
             }else{
                 try{
+                    /*
+                     * Store image info in local and db cache
+                     */
+// :TODO: Add support for memcached
+                    $cache[$params['src']] = array('width'  => $image['width'],
+                                                   'height' => $image['height']);
+
                     sql_query('INSERT INTO `html_img_cache` (`status`, `url`, `width`, `height`)
                                VALUES                       (:status , :url , :width , :height )
 
@@ -2770,8 +2786,8 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                                                        `createdon` = NOW()',
 
                                array(':url'    => $params['src'],
-                                     ':width'  => $width,
-                                     ':height' => $height,
+                                     ':width'  => $image['width'],
+                                     ':height' => $image['height'],
                                      ':status' => $status));
 
                 }catch(Exception $e){
@@ -2780,12 +2796,12 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
             }
         }
 
-        if(($params['width'] === null) or ($params['height'] === null)){
+        if(!$params['width'] or !$params['height']){
             /*
              * Use image width and height
              */
-            $params['width']  = $width;
-            $params['height'] = $height;
+            $params['width']  = $image['width'];
+            $params['height'] = $image['height'];
 
         }else{
             /*
@@ -2793,24 +2809,24 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
              * auto rescale!
              */
             if(!is_natural($params['width'])){
-                if(!$width){
+                if(!$image['width']){
                     notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', array(':width' => $params['width'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['width'] = null;
 
                 }else{
-                    notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $width, ':src' => $params['src'])), 'warning/invalid'));
-                    $params['width'] = $width;
+                    notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", forcing real image width ":real" instead', array(':width' => $params['width'], ':real' => $image['width'], ':src' => $params['src'])), 'warning/invalid'));
+                    $params['width'] = $image['width'];
                 }
             }
 
             if(!is_natural($params['height'])){
-                if(!$height){
+                if(!$image['height']){
                     notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', array(':height' => $params['height'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['height'] = null;
 
                 }else{
-                    notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $height, ':src' => $params['src'])), 'warning/invalid'));
-                    $params['height'] = $height;
+                    notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", forcing real image height ":real" instead', array(':height' => $params['height'], ':real' => $image['height'], ':src' => $params['src'])), 'warning/invalid'));
+                    $params['height'] = $image['height'];
                 }
             }
 
@@ -2821,18 +2837,18 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
              * dimensions. If not, automatically resize the image
              */
             if(!$_CONFIG['cdn']['img']['auto_resize'] and !$external and $params['width'] and $params['height']){
-                if(($width > $params['width']) or ($height > $params['height'])){
+                if(($image['width'] > $params['width']) or ($image['height'] > $params['height'])){
                     log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
 
                     /*
                      * Determine the resize dimensions
                      */
                     if(!$params['height']){
-                        $params['height'] = $height;
+                        $params['height'] = $image['height'];
                     }
 
                     if(!$params['width']){
-                        $params['width']  = $width;
+                        $params['width']  = $image['width'];
                     }
 
                     /*
