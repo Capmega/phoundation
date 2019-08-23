@@ -502,7 +502,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null){
             foreach($file as $key => &$value){
                 switch(isset_get($value['error'])){
                     case 0:
-                        continue;
+                        continue 2;
 
                     case 6: // UPLOAD_ERR_NO_TMP_DIR
                         // FALLTHROUGH
