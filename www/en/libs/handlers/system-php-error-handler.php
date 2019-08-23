@@ -5,7 +5,7 @@ if(!isset($core)){
     throw new BException(tr('Pre core available PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
 }
 
-if(!$core->register['ready']){
+if(empty($core->register['ready'])){
     throw new BException(tr('Pre core ready PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
 }
 
@@ -20,4 +20,3 @@ notify(array('code'    => 'PHP-ERROR-'.$errno,
              'message' => tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline))));
 
 throw new BException(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
-?>

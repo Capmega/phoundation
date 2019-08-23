@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.117');
+define('FRAMEWORKCODEVERSION', '2.7.118');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5729,7 +5729,7 @@ function get_yes_no($value){
  * @package system
  *
  * @param boolean $value The true or false value to be asserted
- * @return string "yes" for boolean true, "no" for boolean false
+ * @return void
  */
 function shutdown(){
     global $core, $_CONFIG;
@@ -5738,6 +5738,11 @@ function shutdown(){
         /*
          * Do we need to run other shutdown functions?
          */
+        if(empty($core->register['script'])){
+           error_log(tr('Shutdown procedure started before $core->register[script] was ready, possibly on script ":script"', array(':script' => $_SERVER['PHP_SELF'])));
+           return;
+       }
+
         log_console(tr('Starting shutdown procedure for script ":script"', array(':script' => $core->register['script'])), 'VERYVERBOSE/cyan');
 
         foreach($core->register as $key => $value){
