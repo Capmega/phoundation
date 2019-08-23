@@ -1535,36 +1535,36 @@ function file_extension($file){
 /*
  * If the specified file is an HTTP, HTTPS, or FTP URL, then get it locally as a temp file
  */
-function file_get_local($file, &$is_downloaded = false, $context = null){
+function file_get_local($url, &$is_downloaded = false, $context = null){
     try{
         $context = file_create_stream_context($context);
-        $file    = trim($file);
+        $url     = trim($url);
 
-        if((stripos($file, 'http:') === false) and (stripos($file, 'https:') === false) and (stripos($file, 'ftp:') === false)){
-            if(!file_exists($file)){
-                throw new BException(tr('file_get_local(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+        if((stripos($url, 'http:') === false) and (stripos($url, 'https:') === false) and (stripos($url, 'ftp:') === false)){
+            if(!file_exists($url)){
+                throw new BException(tr('file_get_local(): Specified file ":file" does not exist', array(':file' => $url)), 'not-exists');
             }
 
-            if(is_uploaded_file($file)){
-                $tmp  = file_get_uploaded($file);
-                $file = file_temp($file, null, false);
+            if(is_uploaded_file($url)){
+                $tmp  = file_get_uploaded($url);
+                $file = file_temp($url, null, false);
 
                 rename($tmp, $file);
+                return $file;
             }
 
-            return $file;
+            return $url;
         }
 
         /*
          * First download the file to a temporary location
          */
-        $orgfile       = $file;
-        $file          = str_replace(array('://', '/'), '-', $file);
+        $file          = str_replace(array('://', '/'), '-', $url);
         $file          = file_temp($file);
         $is_downloaded = true;
 
         file_ensure_path(dirname($file));
-        file_put_contents($file, file_get_contents($orgfile, false, $context));
+        file_put_contents($file, file_get_contents($url, false, $context));
 
         return $file;
 
@@ -1573,14 +1573,14 @@ function file_get_local($file, &$is_downloaded = false, $context = null){
         $message = strtolower($message);
 
         if(str_exists($message, '404 not found')){
-            throw new BException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $file)), 'file-404');
+            throw new BException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $url)), 'file-404');
         }
 
         if(str_exists($message, '400 bad request')){
-            throw new BException(tr('file_get_local(): URL ":file" is invalid', array(':file' => $file)), 'file-400');
+            throw new BException(tr('file_get_local(): URL ":file" is invalid', array(':file' => $url)), 'file-400');
         }
 
-        throw new BException(tr('file_get_local(): Failed for file ":file"', array(':file' => $file)), $e);
+        throw new BException(tr('file_get_local(): Failed for file ":file"', array(':file' => $url)), $e);
     }
 }
 
