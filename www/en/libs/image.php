@@ -679,21 +679,22 @@ function image_is_valid($file, $min_width = 0, $min_height = 0) {
         $mimetype = file_mimetype($file);
 
         if(str_until($mimetype, '/') !== 'image'){
-            throw new BException(tr('image_is_valid(): Specified file ":file" is not an image but an ":mimetype"', array(':file' => $file, ':mimetype' => $mimetype)));
+            throw new BException(tr('image_is_valid(): Specified file ":file" is not an image but an ":mimetype"', array(':file' => $file, ':mimetype' => $mimetype)), 'invalid');
         }
 
         if(!$img_size = getimagesize($file)){
-            throw new BException(tr('image_is_valid(): Failed to get width / height data from specified image ":file"', array(':file' => $file)));
+            throw new BException(tr('image_is_valid(): Failed to get width / height data from specified image ":file"', array(':file' => $file)), 'failed');
         }
 
         if(($img_size[0] < $min_width) or ($img_size[1] < $min_height)) {
-            throw new BException(tr('image_is_valid(): File ":file" has width x height ":actual" where a minimum wxh of ":required" is required', array(':file' => $file, ':actual' => $img_size[0].' x '.$img_size[1], ':required' => $min_width.' x '.$min_height)), 'invalid');
+            throw new BException(tr('image_is_valid(): File ":file" has width x height ":actual" where a minimum wxh of ":required" is required', array(':file' => $file, ':actual' => $img_size[0].' x '.$img_size[1], ':required' => $min_width.' x '.$min_height)), 'rejected');
         }
 
         return $mimetype;
 
     }catch(Exception $e){
-        throw new BException('image_is_valid(): Failed', $e);
+        log_file(new BException('image_is_valid(): Failed', $e->makeWarning(true)), 'image-is-valid', 'warning');
+        return false;
     }
 }
 
