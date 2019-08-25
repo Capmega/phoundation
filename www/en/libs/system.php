@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.120');
+define('FRAMEWORKCODEVERSION', '2.7.121');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 

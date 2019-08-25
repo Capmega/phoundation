@@ -2715,8 +2715,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                      */
                     if(file_exists($file_src)){
                         try{
-                            $file  = file_move_to_target($file_src, TMP, false, true);
-                            $image = getimagesize(TMP.$file);
+                            $image = getimagesize($file_src);
 
                         }catch(Exception $e){
                             switch($e->getCode()){
