@@ -182,7 +182,7 @@ try{
                                 'name'  => '*.webp'));
 
         foreach($files as $file){
-            file_execute_mode('*'.dirname($file), 0770, function() use ($file){
+            file_execute_mode('*'.dirname($file), 0770, function() use ($file, $path){
                 file_delete($file, $path);
             });
         }
