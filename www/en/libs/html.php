@@ -837,11 +837,11 @@ function html_header($params, $meta, &$html){
             array_ensure($meta);
 
             if(empty($meta['description'])){
-                throw new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'not-specified');
+                throw new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified');
             }
 
             if(empty($meta['keywords'])){
-                throw new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'not-specified');
+                throw new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified');
             }
 
             if(!empty($meta['noindex'])){
@@ -864,7 +864,7 @@ function html_header($params, $meta, &$html){
             }
 
             if(!$meta['viewport']){
-                throw new BException(tr('html_header(): Meta viewport tag is not specified'), 'not-specified');
+                throw new BException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified');
             }
 
         }catch(Exception $e){
