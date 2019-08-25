@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.7.121');
+define('FRAMEWORKCODEVERSION', '2.7.122');
 define('PHP_MINIMUM_VERSION' , '5.5.9');
 
 
@@ -5218,7 +5218,7 @@ function get_global_data_path($section = '', $writable = true){
  * @param string $term
  * @return natural The PID of the background process executing the requested command
  */
-function run_background($cmd, $log = true, $single = true, $term = 'xterm'){
+function run_background($cmd, $log = true, $single = true, $term = 'xterm', $wait = 0){
     return include(__DIR__.'/handlers/system-run-background.php');
 }
 

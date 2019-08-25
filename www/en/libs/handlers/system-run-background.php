@@ -8,6 +8,17 @@ try{
 
     load_libs('process');
 
+    if(!is_numeric($wait)){
+        if($wait){
+            throw new BException(tr('run_background(): Invalid wait ":wait" specified, must be a positive number', array(':wait' => $wait)), 'invalid');
+        }
+
+        $wait = 0;
+
+    }elseif($wait < 0){
+        throw new BException(tr('run_background(): Invalid wait ":wait" specified, must be a positive number', array(':wait' => $wait)), 'invalid');
+    }
+
     if($path == './'){
         $path = ROOT.'scripts/';
 
@@ -68,12 +79,12 @@ try{
             file_delete($log, ROOT.'data/log');
         }
 
-        $command = sprintf('export TERM='.$term.'; (nohup %s >> %s 2>&1 & echo $! >&3) 3> %s', $path.$cmd.' '.$args, $log, ROOT.'data/run-background/'.$cmd);
+        $command = sprintf('export TERM='.$term.'; (nohup %s >> %s 2>&1 & echo $! >&3) 3> %s', 'sleep '.$wait.';'.$path.$cmd.' '.$args, $log, ROOT.'data/run-background/'.$cmd);
         log_console(tr('Executing background command ":command"', array(':command' => $command)), 'VERBOSE/cyan');
         exec($command);
 
     }else{
-        $command = sprintf('export TERM='.$term.'; (nohup %s > /dev/null 2>&1 & echo $! >&3) 3> %s', $path.$cmd.' '.$args, ROOT.'data/run-background/'.$cmd);
+        $command = sprintf('export TERM='.$term.'; (nohup %s > /dev/null 2>&1 & echo $! >&3) 3> %s', 'sleep '.$wait.';'.$path.$cmd.' '.$args, ROOT.'data/run-background/'.$cmd);
         log_console(tr('Executing background command ":command"', array(':command' => $command)), 'VERBOSE/cyan');
         exec($command);
     }
