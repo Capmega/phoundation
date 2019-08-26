@@ -3670,3 +3670,56 @@ function html_loader_screen($params){
         throw new BException('html_loader_screen(): Failed', $e);
     }
 }
+
+
+
+/*
+ * Strip tags or attributes from all HTML tags
+ *
+ * This function will strip all attributes except for those attributes specified in $allowed_attributes
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see strip_tags()
+ * @note Requires php-xml package to be installed as it uses the DOMDocument() class
+ * @version 2.7.121: Added function and documentation
+ *
+ * @param string $source The source string to be processed
+ * @param list $allowed_attributes The HTML tag attributes that are allowed to remain
+ * @return string The source string with all HTML attributes filtered except for those specified in $allowed_attributes
+ */
+function html_strip_attributes($source, $allowed_attributes = null){
+    try{
+        $allowed_attributes = array_force($allowed_attributes);
+
+        /*
+         * If specified source string is empty, then we're done right away
+         */
+        if(!$source){
+            return '';
+        }
+
+        $xml = new DOMDocument();
+
+        if($xml->loadHTML($source, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)){
+            foreach($xml->getElementsByTagName("*") as $tag){
+                /*
+                 * Filter attributes
+                 */
+                foreach($tag->attributes as $attr){
+                    if(!in_array($attr->nodeName, $allowed_attributes)){
+                        $tag->removeAttribute($attr->nodeName);
+                    }
+                }
+            }
+        }
+
+        return $xml->saveHTML();
+
+    }catch(Exception $e){
+        throw new BException(tr('html_strip_attributes(): Failed'), $e);
+    }
+}
