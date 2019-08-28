@@ -1065,6 +1065,76 @@ function str_underscore_to_camelcase($string, $first_uppercase = false){
 
 
 
+/*
+ * Trim empty HTML elements from the specified HTML string, and <br> elements from the beginning and end of each of these elements as well
+ *
+ * This function will remove all empty <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <div>, <p>, and <span> elements
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package strings
+ * @see simple-dom
+ * @note: This function requires the simple-dom library
+ * @version 2.8.2: Added function and documentation
+ * @example
+ * code
+ * $result = str_trim_html('<p></p><p>test!</p><p></p>');
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * <p>test!</p>
+ * /code
+ *
+ * @param string $html The HTML to be stripped
+ * @return string The specified source string with empty HTML tags stripped
+ */
+function str_trim_html($html){
+    try{
+        if(!$html){
+            return '';
+        }
+
+        if(!is_string($html)){
+            throw new BException(tr('str_trim_html(): Specified $html ":html" is not a string', array(':html' => $html)), 'invalid');
+        }
+
+        load_libs('simple-dom');
+
+        $html          = str_get_html($html);
+        $element_types = array('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'p', 'span');
+
+        foreach($element_types as $element_type){
+            $elements = $html->find($element_type);
+
+            foreach($elements as $element){
+                $plaintext = trim($element->plaintext);
+                $plaintext = trim($plaintext, '<br>');
+                $plaintext = trim($plaintext, '<br/>');
+                $plaintext = trim($plaintext, '<br />');
+
+                if($plaintext == ''){
+                    // Remove an element, set it's outertext as an empty string
+                    $element->outertext = '';
+
+                }else{
+                    $element->innertext = $plaintext;
+                }
+            }
+        }
+
+        return $html->save();
+
+    }catch(Exception $e){
+        throw new BException(tr('str_trim_html(): Failed'), $e);
+    }
+}
+
+
+
 /* From http://stackoverflow.com/questions/11151250/how-to-compare-two-very-large-strings, implement?
 $string1 = "This is a sample text to test a script to highlight the differences between 2 strings, so the second string will be slightly different";
 $string2 = "This is 2 s4mple text to test a scr1pt to highlight the differences between 2 strings, so the first string will be slightly different";
