@@ -2807,7 +2807,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
              * Is the image width and or height larger than specified? If so,
              * auto rescale!
              */
-            if(!is_natural($params['width'])){
+            if(!is_numeric($params['width']) and ($params['width'] > 0)){
                 if(!$image['width']){
                     notify(new BException(tr('Detected invalid "width" parameter specification for image ":src", and failed to get real image width too, ignoring "width" attribute', array(':width' => $params['width'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['width'] = null;
@@ -2818,7 +2818,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                 }
             }
 
-            if(!is_natural($params['height'])){
+            if(!is_numeric($params['height']) and ($params['height'] > 0)){
                 if(!$image['height']){
                     notify(new BException(tr('Detected invalid "height" parameter specification for image ":src", and failed to get real image height too, ignoring "height" attribute', array(':height' => $params['height'], ':src' => $params['src'])), 'warning/invalid'));
                     $params['height'] = null;
@@ -2835,7 +2835,7 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
              * check if the real image dimensions fall within the specified
              * dimensions. If not, automatically resize the image
              */
-            if(!$_CONFIG['cdn']['img']['auto_resize'] and !$external and $params['width'] and $params['height']){
+            if($_CONFIG['cdn']['img']['auto_resize'] and !$external and $params['width'] and $params['height']){
                 if(($image['width'] > $params['width']) or ($image['height'] > $params['height'])){
                     log_file(tr('Image src ":src" is larger than its specification, sending resized image instead', array(':src' => $params['src'])), 'html', 'warning');
 
