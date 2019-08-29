@@ -205,6 +205,12 @@ try{
     }
 
     /*
+     * Delete all static routes
+     */
+    sql_query('DELETE FROM `routes_static`');
+    log_console(tr('Cleared all static routes'), 'green');
+
+    /*
      * Delete external / vendor libraries too
      */
     if(FORCE){

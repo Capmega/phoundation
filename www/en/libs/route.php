@@ -31,13 +31,22 @@ require_once(__DIR__.'/system.php');
  * The second argument is the page you wish to execute and the variables that should be sent to it. If your regular expression captured variables, you may use these variables here. If the page name itself is a variable, then route() will try to find that page, and execute it if it exists
  *
  * The third argument is a list (CSV string or array) with flags. Current allowed flags are:
- * Q Allow queries to pass through. If NOT specified, and the URL contains queries, the URL will NOT match!
- * QKEY;KEY=ACTION Is a ; separated string containing query keys that are allowed, and if specified, what action must be taken when encountered
- * R301 Redirect to the specified page argument using HTTP 301
- * R302 Redirect to the specified page argument using HTTP 302
- * P The request must be POST to match
- * G The request must be GET to match
- * C Use URL cloaking. A cloaked URL is basically a random string that the route() function can look up in the `cloak` table. domain() and its related functions will generate these URL's automatically. See the "url" library, and domain() and related functions for more information
+ * A                Process the target as an attachement (i.e. Send the file so that the browser client can download it)
+ * B                Block. Return absolutely nothing
+ * C                Use URL cloaking. A cloaked URL is basically a random string that the route() function can look up in the `cloak` table. domain() and its related functions will generate these URL's automatically. See the "url" library, and domain() and related functions for more information
+ * D                Add HTTP_HOST to the REQUEST_URI before applying the match
+ * G                The request must be GET to match
+ * H                If the routing rule matches, the router will add a *POSSIBLE HACK ATTEMPT DETECTED* log entry for later processing
+ * L                Disable language support for this specific URL
+ * P                The request must be POST to match
+ * M                Add queries into the REQUEST_URI before applying the match, autmatically implies Q
+ * N                Do not check for permanent routing rules
+ * Q                Allow queries to pass through. If NOT specified, and the URL contains queries, the URL will NOT match!
+ * QKEY;KEY=ACTION  Is a ; separated string containing query keys that are allowed, and if specified, what action must be taken when encountered
+ * R301             Redirect to the specified page argument using HTTP 301
+ * R302             Redirect to the specified page argument using HTTP 302
+ * S$SECONDS$       Store the specified rule for this IP and apply it for $SECONDS$ amount of seconds. $SECONDS$ is optional, and defaults to 86400 seconds (1 day). This works well to auto 404 IP's that are doing naughty things for at least a day
+ * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to ROOT.'www,'.ROOT.'data/content/downloads'
  *
  * The $verbose and $veryverbose variables here are to set the system in VERBOSE or VERYVERBOSE mode, but ONLY if the system runs in debug mode. The former will add extra log output in the data/log files, the latter will add LOADS of extra log data in the data/log files, so please use with care and only if you cannot resolve the problem
  *
@@ -50,7 +59,7 @@ require_once(__DIR__.'/system.php');
  * @see route_404()
  * @see route_exec()
  * @see mapped_domain()
- * @table: `route`
+ * @table: `routes_static`
  * @version 1.27.0: Added function and documentation
  * @version 2.0.7: Now uses route_404() to display 404 pages
  * @version 2.5.63: Improved documentation
@@ -125,8 +134,73 @@ function route($regex, $target, $flags = null){
          * Cleanup the request URI by removing all GET requests and the leading
          * slash
          */
-        $uri = str_starts_not($_SERVER['REQUEST_URI'], '/');
-        $uri = str_until($uri                        , '?');
+        $uri   = str_starts_not($_SERVER['REQUEST_URI'], '/');
+        $uri   = str_until($uri                        , '?');
+        $query = str_from($_SERVER['REQUEST_URI']      , '?');
+
+        /*
+         * Apply pre-matching flags. Depending on individual flags we may do
+         * different things
+         */
+        $flags  = strtoupper($flags);
+        $flags  = array_force($flags);
+        $store  = false;    // Do not store this rule
+        $block  = false;    // Do not block this request
+        $static = true;     // Do check for static rules, if configured so
+
+        foreach($flags as $flags_id => $flag){
+            switch($flag[0]){
+                case 'D':
+                    /*
+                     * Include domain in match
+                     */
+                    $uri = $_SERVER['HTTP_HOST'].$uri;
+                    log_file(tr('Adding complete HTTP_HOST in match for URI ":uri"', array(':uri' => $uri)), 'route', 'VERYVERBOSE/green');
+                    break;
+
+                case 'M':
+                    $uri .= '?'.$query;
+                    log_file(tr('Adding query to URI ":uri"', array(':uri' => $uri)), 'route', 'VERYVERBOSE/green');
+
+                    if(!str_exists(str_force($flags), 'Q')){
+                        /*
+                         * Auto imply Q
+                         */
+                        $flags[] = 'Q';
+                    }
+
+                    break;
+
+                case 'N':
+                    $static = false;
+            }
+        }
+
+        if(($count === 1) and $_CONFIG['route']['static']){
+            if($static){
+                /*
+                 * Check if remote IP is registered for special routing
+                 */
+                $exists = sql_get('SELECT `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP'])));
+
+                if($exists){
+                    /*
+                     * Apply semi-permanent routing for this IP
+                     */
+                    log_file(tr('Found active static routing for this IP, continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', array(':uri' => $exists['uri'], ':regex' => $exists['regex'], ':target' => $exists['target'], ':flags' => $exists['flags'])), 'route', 'yellow');
+
+                    $uri    = $exists['uri'];
+                    $regex  = $exists['regex'];
+                    $target = $exists['target'];
+                    $flags  = array_force($exists['flags']);
+
+                    unset($exists);
+                }
+
+            }else{
+                log_file(tr('Not checking for static routes per N flag'), 'route', 'VERBOSE/yellow');
+            }
+        }
 
         /*
          * Match the specified regex. If there is no match, there is nothing
@@ -239,18 +313,32 @@ function route($regex, $target, $flags = null){
         }
 
         /*
-         * Apply specified flags. Depending on individual flags we may do
-         * different things
+         * Apply specified post matching flags. Depending on individual flags we
+         * may do different things
          */
-        $flags = array_force($flags);
-
         foreach($flags as $flags_id => $flag){
+            if(!$flag){
+                /*
+                 * Completely ignore empty flags
+                 */
+                continue;
+            }
+
             switch($flag[0]){
                 case 'A':
                     /*
                      * Send the file as a downloadable attachment
                      */
                     $attachment = true;
+                    break;
+
+                case 'B':
+                    /*
+                     * Block this request, send nothing
+                     */
+                    log_file(tr('Blocking request as per B flag'), 'route', 'warning');
+                    unregister_shutdown('route_404');
+                    $block = true;
                     break;
 
                 case 'C':
@@ -289,6 +377,10 @@ function route($regex, $target, $flags = null){
                         return false;
                     }
 
+                    break;
+
+                case 'H':
+                    log_file(tr('*POSSIBLE HACK ATTEMPT DETECTED*'), 'route', 'yellow');
                     break;
 
                 case 'L':
@@ -355,11 +447,26 @@ function route($regex, $target, $flags = null){
                     unregister_shutdown('route_404');
                     redirect(url_add_query($route, $_GET), $http_code);
 
+                case 'S':
+                    $store = substr($flag, 1);
+
+                    if($store and !is_natural($store)){
+                        notify(new BException(tr('route(): Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', array(':value' => $store)), 'warning/invalid'));
+                        $store = null;
+                    }
+
+                    if(!$store){
+                        $store = 86400;
+                    }
+
+                    break;
+
                 case 'X':
                     /*
                      * Restrict access to the specified path list
                      */
                     $restrictions = substr($flag, 1);
+                    $restrictions = str_replace(';', ',', $restrictions);
                     break;
             }
         }
@@ -557,6 +664,56 @@ function route($regex, $target, $flags = null){
         }
 
         unset($map);
+
+        if($store){
+            /*
+             * Store the request as a static rule
+             */
+            $ip = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
+
+            /*
+             * Apply semi-permanent routing for this IP
+             *
+             * Remove the "S" flag since we don't want to store the rule again
+             * in subsequent loads
+             *
+             * Remove the "H" flag since subsequent requests may not be a hack
+             * attempt. Since we are going to act as if the static rule AND URI
+             * apply, we don't know really, avoid unneeded red flags
+             */
+            $flags = array_force($flags);
+
+            foreach($flags as $id => $flag){
+                switch($flag[0]){
+                    case 'H':
+                        // FALLTHROUGH
+                    case 'S':
+                        unset($flags[$id]);
+                        break;
+                }
+            }
+
+            log_file(tr('Storing static routing rule ":rule" for IP ":ip"', array(':rule' => $target, ':ip' => $ip)), 'route', 'VERYVERBOSE/cyan');
+
+            sql_query('INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
+                       VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
+
+                       array(':expiredon' => $store,
+                             ':meta_id'   => meta_action(),
+                             ':ip'        => $ip,
+                             ':uri'       => $uri,
+                             ':regex'     => $regex,
+                             ':target'    => $target,
+                             ':flags'     => str_force($flags)));
+        }
+
+        if($block){
+            /*
+             * Block the request by dying
+             */
+            die();
+        }
+
         route_exec($page, $attachment, $restrictions);
 
     }catch(Exception $e){
@@ -597,6 +754,7 @@ function route($regex, $target, $flags = null){
  *
  * @param string $target The target file that should be executed or sent to the client
  * @param boolean $attachment If specified as true, will send the file as an downloadable attachement, to be written to disk instead of displayed on the browser. If set to false, the file will be sent as a file to be displayed in the browser itself.
+ * @param list $restrictions If specified, apply the specified file system restrictions, which may block the request if the requested file is outside of these restrictions
  * @return void
  */
 function route_exec($target, $attachment, $restrictions){

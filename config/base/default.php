@@ -297,6 +297,9 @@ $_CONFIG['redirects']          = array('auto'                               => '
 // Real ROOT path
 $_CONFIG['root']               = '';                                                                                                        // Real ROOT path of the entire project (in case phoundation is installed a sub directory of another framework). Used for deployment, code script, etc. Leave empty if Phoundation is the only framework used for your website
 
+// Routing configuration
+$_CONFIG['route']             = array('static'                              => true);                                                       // If set to true, support for static routes for IPs is added. This is useful to auto block IP's with 404's, or block them completely after the routing table detected fishy actions
+
 // Security configuration
 $_CONFIG['security']           = array('signin'                             => array('save_password'    => true,                            // Allow the browser client to save the passwords. If set to false, different form names will be used to stop browsers from saving passwords
                                                                                      'ip_lock'          => false,                           // Either "false", "true" or number n (which makes it lock to users with the right ip_lock), or "ip address" or array("ip address", "ip address", ...). If specified as true, only 1 IP will be allowed. If specified as number N, up to N IP addresses will be allowed. If specified as "ip address", only that IP address will be allowed. If specified as array("ip address", ...) all IP addresses in that array will be allowed
