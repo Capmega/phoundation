@@ -26,7 +26,7 @@ require_once(__DIR__.'/system.php');
  *
  * The route() call requires 3 arguments; $regex, $target, and $flags.
  *
- * The first argument is the regular expression that will match the URL you wish to route to a page. This regular expression may capture variables
+ * The first argument is the PERL compatible regular expression that will match the URL you wish to route to a page. Note that this must be a FULL regular expression with opening and closing tags. / is recommended for these tags, but not required. See https://www.php.net/manual/en/function.preg-match.php for more information about PERL compatible regular expressions. This regular expression may capture variables which then can be used in the target as $1, $2 for the first and second variable respectitively. Regular expression flags like i (case insensitive matches), u (unicode matches), etc. may be added after the trailing / of this variable
  *
  * The second argument is the page you wish to execute and the variables that should be sent to it. If your regular expression captured variables, you may use these variables here. If the page name itself is a variable, then route() will try to find that page, and execute it if it exists
  *
@@ -37,7 +37,7 @@ require_once(__DIR__.'/system.php');
  * D                Add HTTP_HOST to the REQUEST_URI before applying the match
  * G                The request must be GET to match
  * H                If the routing rule matches, the router will add a *POSSIBLE HACK ATTEMPT DETECTED* log entry for later processing
- * L                Disable language support for this specific URL
+ * L                Disable language map requirements for this specific URL (Use this with non language URLs on a multi lingual site)
  * P                The request must be POST to match
  * M                Add queries into the REQUEST_URI before applying the match, autmatically implies Q
  * N                Do not check for permanent routing rules
@@ -50,6 +50,8 @@ require_once(__DIR__.'/system.php');
  *
  * The $verbose and $veryverbose variables here are to set the system in VERBOSE or VERYVERBOSE mode, but ONLY if the system runs in debug mode. The former will add extra log output in the data/log files, the latter will add LOADS of extra log data in the data/log files, so please use with care and only if you cannot resolve the problem
  *
+ * Once all route() calls have passed without result, the system will shut down. The shutdown() call will then automatically execute route_404() which will display the 404 page
+ *
  * The translation map helps route() to detect URL's where the language is native. For example; http://phoundation.org/about.html and http://phoundation.org/nosotros.html should both route to about.php, and maybe you wish to add multiple languages for this. The routing table basically says what static words should be translated to their native language counterparts. The mapped_domain() function use this table as well when generating URL's. See mapped_domain() for more information
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -59,16 +61,39 @@ require_once(__DIR__.'/system.php');
  * @see route_404()
  * @see route_exec()
  * @see mapped_domain()
+ * @see https://www.php.net/manual/en/function.preg-match.php
+ * @see https://regularexpressions.info/ NOTE: The site currently has broken SSL, but is one of the best resources out there to learn regular expressions
  * @table: `routes_static`
  * @version 1.27.0: Added function and documentation
  * @version 2.0.7: Now uses route_404() to display 404 pages
  * @version 2.5.63: Improved documentation
  * @example
  * code
- * route('/\//'                                            , 'index'                                , '');     // This would NOT allow queries, and the match would fail
- * route('/\//'                                            , 'index'                                , 'Q');    // This would allow queries
- * route('/^([a-z]{2})\/page\/([a-z-]+)?(?:-(\d+))?.html$/', '$1/$2.php?page=$3'                    , 'Q');    // This would map a URL like en/page/users-4.html to ROOT/en/users.php?page=4 while also allowing queries to be passed as well.
+ *
+ * // This will take phoundation.org/ and execute the index page, but not allow queries.
+ * route('/\//'                                            , 'index.php'                            , '');
+ *
+ * // This will take phoundation.org/?test=1 and execute the index page, and allow the query.
+ * route('/\//'                                            , 'index.php'                            , 'Q');
+ *
+ * // This rule will take phoundation.org/en/page/users-1.html and execute en/users.php?page=1
+ * route('/^([a-z]{2})\/page\/([a-z-]+)?(?:-(\d+))?.html$/', '$1/$2.php?page=$3'                    , 'Q');
+ *
+ * // This rule will redirect phoundation.org/ to phoundation.org/en/
  * route(''                                                , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/', 'R301'); // This will HTTP 301 redirect the user to a page with the same protocol, same domain, but the language that their browser requested. So for example, http://domain.com with HTTP header "accept-language:en" would HTTP 301 redirect to http://domain.com/en/
+ *
+ * // These are some examples for blocking hacking attempts
+ * route('/\/\.well-known\//i'  , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/\/acme-challenge\//i', 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/C=S;O=A/i'           , 'en/system/404.php', 'B,H,L,M,S'); // If you request this query, you will be 404-ing for a good while
+ * route('/wp-admin/i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/libs\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/scripts\//i'         , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/config\//i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/init\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/www\//i'             , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/data\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+ * route('/public\//i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
  * /code
  *
  * The following example code will set a language route map where the matched word "from" would be translated to "to" and "foor" to "bar" for the language "es"
