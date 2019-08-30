@@ -8,6 +8,7 @@ try{
     /*
      * Clear normal cache
      */
+    load_libs('sql-exists');
     log_console(tr('Clearing all cache'), 'VERBOSE/cyan');
 
     switch($_CONFIG['cache']['method']){
@@ -207,7 +208,7 @@ try{
     /*
      * Delete all static routes
      */
-    sql_query('DELETE FROM `routes_static`');
+    sql_table_exists('routes_static', 'DELETE FROM `routes_static`');
     log_console(tr('Cleared all static routes'), 'green');
 
     /*
