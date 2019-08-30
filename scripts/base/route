@@ -1,0 +1,89 @@
+#!/usr/bin/php
+<?php
+/*
+ * This is an empty test script template
+ */
+$usage = './scripts/base/route
+./scripts/base/route static reset IP
+./scripts/base/route static list';
+
+$help  = 'This is the URL routing management script
+
+
+METHODS
+
+static                      - Manage static routes
+
+    reset IP [IP]           - Reset static routes for the specified IP
+                              address(es)';
+
+require_once(__DIR__.'/../../libs/startup.php');
+cli_only();
+
+switch(cli_method()){
+    case 'static':
+        switch(cli_method(1)){
+            case 'list':
+                /*
+                 * List all static routing IP's
+                 */
+                $routes = sql_query('SELECT `id`, `status`, `createdon`, `expiredon`, `ip`, `uri`, `target`, `regex`, `flags` FROM `routes_static` ORDER BY `createdon`');
+
+                if(!$routes->rowCount()){
+                        log_console(tr('There are currently no static routes registered'), 'QUIET/yellow');
+
+                }else{
+                    log_console(str_size(tr('#id'), 7).str_size(tr('Status'), 11).str_size(tr('Created on'), 20).str_size(tr('Expires on'), 20).str_size(tr('IP address'), 16).str_size(tr('uri'), 33).str_size(tr('Target'), 33).str_size(tr('Regular expression'), 33).str_size(tr('Flags'), 16), 'QUIET/cyan');
+
+                    while($route = sql_fetch($routes)){
+                        log_console(str_size($route['id'], 6, ' ', true).' '.cli_status_color(str_size(status($route['status']), 10)).' '.date_convert($route['createdon'], 'human_datetime').' '.date_convert($route['expiredon'], 'human_datetime').' '.str_size($route['ip'], 15).' '.str_size($route['uri'], 32).' '.str_size($route['target'], 32).' '.str_size($route['regex'], 33).' '.str_size($route['flags'], 16));
+                    }
+                }
+
+                break;
+
+            case 'reset':
+                /*
+                 * Validate all specified IP's, then reset their static routes
+                 */
+                load_libs('validate');
+                $v = new ValidateForm($argv);
+
+                foreach($argv as $ip){
+                    $v->isFilter($ip, FILTER_VALIDATE_IP, tr('Specified value ":value" is not a valid IP address', array(':value' => $ip)));
+                }
+
+                $v->isValid();
+
+                foreach($argv as $ip){
+                    $v->isFilter($ip, FILTER_VALIDATE_IP, tr('Specified value ":value" is not a valid IP address', array(':value' => $ip)));
+                }
+
+                $argv     = sql_in($argv);
+                $resource = sql_query('UPDATE `routes_static` SET `status` = "reset" WHERE `ip` IN ('.sql_in_columns($argv).') AND `status` IS NULL', $argv);
+                $count    = $resource->rowCount();
+
+                if($count){
+                    log_console(tr('Reset a total of ":count" routes', array(':count' => $count)), 'green');
+
+                }else{
+                    log_console(tr('No routes were reset'), 'yellow');
+                }
+
+                break;
+
+            case '':
+                throw new bException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'no-method');
+
+            default:
+                throw new bException(tr('Unknown submethod ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+        }
+
+        break;
+
+    case '':
+        throw new BException(tr('No method specified'), 'no-method');
+
+    default:
+        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+}
