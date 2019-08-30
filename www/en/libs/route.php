@@ -52,7 +52,8 @@ require_once(__DIR__.'/system.php');
  *
  * Once all route() calls have passed without result, the system will shut down. The shutdown() call will then automatically execute route_404() which will display the 404 page
  *
- * The translation map helps route() to detect URL's where the language is native. For example; http://phoundation.org/about.html and http://phoundation.org/nosotros.html should both route to about.php, and maybe you wish to add multiple languages for this. The routing table basically says what static words should be translated to their native language counterparts. The mapped_domain() function use this table as well when generating URL's. See mapped_domain() for more information
+ * To use translation mapping, first set the language map using route_map()
+ *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -60,7 +61,9 @@ require_once(__DIR__.'/system.php');
  * @package route
  * @see route_404()
  * @see route_exec()
- * @see mapped_domain()
+ * @see domain()
+ * @see route_map()
+ * @see route_insert_static()
  * @see https://www.php.net/manual/en/function.preg-match.php
  * @see https://regularexpressions.info/ NOTE: The site currently has broken SSL, but is one of the best resources out there to learn regular expressions
  * @table: `routes_static`
@@ -69,7 +72,6 @@ require_once(__DIR__.'/system.php');
  * @version 2.5.63: Improved documentation
  * @example
  * code
- *
  * // This will take phoundation.org/ and execute the index page, but not allow queries.
  * route('/\//'                                            , 'index.php'                            , '');
  *
@@ -131,13 +133,13 @@ function route($regex, $target, $flags = null){
            $init  = false;
 
     try{
+// :LEGACY: 2.9 and up will have this functionality removed and only route_map() will function
         if($regex === 'map'){
-            log_file(tr('Setting URL map'), 'route', 'VERYVERBOSE/cyan');
-            $core->register['route_map'] = $target;
-            return true;
+            return route_map($target);
         }
 
         $type = ($_POST ?  'POST' : 'GET');
+        $ip   = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
 
         /*
          * Ensure the 404 shutdown function is registered
@@ -157,11 +159,12 @@ function route($regex, $target, $flags = null){
 
         /*
          * Cleanup the request URI by removing all GET requests and the leading
-         * slash
+         * slash, URIs cannot be longer than 255 characters
          */
+        $query = str_from($_SERVER['REQUEST_URI']      , '?');
         $uri   = str_starts_not($_SERVER['REQUEST_URI'], '/');
         $uri   = str_until($uri                        , '?');
-        $query = str_from($_SERVER['REQUEST_URI']      , '?');
+        $uri   = substr($uri, 0, 255);
 
         /*
          * Apply pre-matching flags. Depending on individual flags we may do
@@ -169,9 +172,9 @@ function route($regex, $target, $flags = null){
          */
         $flags  = strtoupper($flags);
         $flags  = array_force($flags);
-        $store  = false;    // Do not store this rule
-        $block  = false;    // Do not block this request
-        $static = true;     // Do check for static rules, if configured so
+        $until  = false;    // By default, do not store this rule
+        $block  = false;    // By default, do not block this request
+        $static = true;     // By default, do check for static rules, if configured so
 
         foreach($flags as $flags_id => $flag){
             switch($flag[0]){
@@ -206,13 +209,13 @@ function route($regex, $target, $flags = null){
                 /*
                  * Check if remote IP is registered for special routing
                  */
-                $exists = sql_get('SELECT `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP'])));
+                $exists = sql_get('SELECT `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => $ip));
 
                 if($exists){
                     /*
                      * Apply semi-permanent routing for this IP
                      */
-                    log_file(tr('Found active static routing for this IP, continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', array(':uri' => $exists['uri'], ':regex' => $exists['regex'], ':target' => $exists['target'], ':flags' => $exists['flags'])), 'route', 'yellow');
+                    log_file(tr('Found active static routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', array(':ip' => $ip, ':uri' => $exists['uri'], ':regex' => $exists['regex'], ':target' => $exists['target'], ':flags' => $exists['flags'])), 'route', 'yellow');
 
                     $uri    = $exists['uri'];
                     $regex  = $exists['regex'];
@@ -406,6 +409,13 @@ function route($regex, $target, $flags = null){
 
                 case 'H':
                     log_file(tr('*POSSIBLE HACK ATTEMPT DETECTED*'), 'route', 'yellow');
+                    notify(array('code'    => 'hack',
+                                 'class'   => 'hack',
+                                 'title'   => tr('*Possible hack attempt detected*'),
+                                 'message' => tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', array(':ip'      => $ip,
+                                                                                                                                                                                                ':request' => $uri,
+                                                                                                                                                                                                ':regex'   => $regex,
+                                                                                                                                                                                                ':flags'   => $flags))));
                     break;
 
                 case 'L':
@@ -473,15 +483,15 @@ function route($regex, $target, $flags = null){
                     redirect(url_add_query($route, $_GET), $http_code);
 
                 case 'S':
-                    $store = substr($flag, 1);
+                    $until = substr($flag, 1);
 
-                    if($store and !is_natural($store)){
-                        notify(new BException(tr('route(): Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', array(':value' => $store)), 'warning/invalid'));
-                        $store = null;
+                    if($until and !is_natural($until)){
+                        notify(new BException(tr('route(): Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', array(':value' => $until)), 'warning/invalid'));
+                        $until = null;
                     }
 
-                    if(!$store){
-                        $store = 86400;
+                    if(!$until){
+                        $until = 86400;
                     }
 
                     break;
@@ -690,13 +700,10 @@ function route($regex, $target, $flags = null){
 
         unset($map);
 
-        if($store){
+        if($until){
             /*
-             * Store the request as a static rule
-             */
-            $ip = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
-
-            /*
+             * Store the request as a static rule until it expires
+             *
              * Apply semi-permanent routing for this IP
              *
              * Remove the "S" flag since we don't want to store the rule again
@@ -718,18 +725,12 @@ function route($regex, $target, $flags = null){
                 }
             }
 
-            log_file(tr('Storing static routing rule ":rule" for IP ":ip"', array(':rule' => $target, ':ip' => $ip)), 'route', 'VERYVERBOSE/cyan');
-
-            sql_query('INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
-                       VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
-
-                       array(':expiredon' => $store,
-                             ':meta_id'   => meta_action(),
-                             ':ip'        => $ip,
-                             ':uri'       => $uri,
-                             ':regex'     => $regex,
-                             ':target'    => $target,
-                             ':flags'     => str_force($flags)));
+            route_insert_static(array('expiredon' => $until,
+                                      'target'    => $target,
+                                      'regex'     => $regex,
+                                      'flags'     => $flags,
+                                      'uri'       => $uri,
+                                      'ip'        => $ip));
         }
 
         if($block){
@@ -893,4 +894,169 @@ function route_404(){
         die();
     }
 }
-?>
+
+
+
+/*
+ * Specify a language routing map for multi lingual websites
+ *
+ * The translation map helps route() to detect URL's where the language is native. For example; http://phoundation.org/about.html and http://phoundation.org/nosotros.html should both route to about.php, and maybe you wish to add multiple languages for this. The routing table basically says what static words should be translated to their native language counterparts. The domain() function uses this table as well when generating URL's. See domain() for more information
+ *
+ * The translation mapping table should have the following format:
+ *
+ * array(FIRST_LANGUAGE_CODE => array(ENGLISH_WORD => FIRST_LANGUAGE_CODE_WORD,
+ *                                    ENGLISH_WORD => FIRST_LANGUAGE_CODE_WORD,
+ *                                    ENGLISH_WORD => FIRST_LANGUAGE_CODE_WORD,
+ *                                    ENGLISH_WORD => ...),
+ *
+ *       SECOND_LANGUAGE_CODE => array(ENGLISH_WORD => SECOND_LANGUAGE_CODE_WORD,
+ *                                     ENGLISH_WORD => SECOND_LANGUAGE_CODE_WORD,
+ *                                     ENGLISH_WORD => SECOND_LANGUAGE_CODE_WORD,
+ *                                     ENGLISH_WORD => ...),
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package route
+ * @see route()
+ * @version 2.8.4: Added function and documentation
+ * @example This example configures a language map for spanish (es) and dutch (nl)
+ * code
+ * route('map', array('es' => array('portafolio'   => 'portfolio',
+ *                                  'servicios'    => 'services',
+ *                                  'contacto'     => 'contact',
+ *                                  'nosotros'     => 'about',
+ *                                  'index'        => 'index'),
+ *
+ *                    'nl' => array('portefeuille' => 'portfolio',
+ *                                  'diensten'     => 'services',
+ *                                  'contact'      => 'contact',
+ *                                  'over-ons'     => 'about',
+ *                                  'index'        => 'index')));
+ *
+ * /code
+ *
+ * @param array $map The language mapping array
+ * @return void
+ */
+function route_map($map){
+    global $core;
+
+    try{
+        log_file(tr('Setting URL map'), 'route', 'VERYVERBOSE/cyan');
+        $core->register['route_map'] = $map;
+
+    }catch(Exception $e){
+        throw new BException(tr('route_map(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Insert a static route
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package route
+ * @see route()
+ * @see date_convert() Used to convert the sitemap entry dates
+ * @table: `template`
+ * @note: This is a note
+ * @version 2.5.38: Added function and documentation
+ * @example This example configures a language map for spanish (es) and dutch (nl)
+ * code
+ * route('map', array('es' => array('portafolio'   => 'portfolio',
+ *                                  'servicios'    => 'services',
+ *                                  'contacto'     => 'contact',
+ *                                  'nosotros'     => 'about',
+ *                                  'index'        => 'index'),
+ *
+ *                    'nl' => array('portefeuille' => 'portfolio',
+ *                                  'diensten'     => 'services',
+ *                                  'contact'      => 'contact',
+ *                                  'over-ons'     => 'about',
+ *                                  'index'        => 'index')));
+ *
+ * /code
+ *
+ * @param params $params A parameters array
+ * @param string $params[foo]
+ * @param string $params[bar]
+ * @return string The result
+ */
+function route_insert_static($route){
+    try{
+        $route = route_validate_static($route);
+
+        log_file(tr('Storing static routing rule ":rule" for IP ":ip"', array(':rule' => $route['target'], ':ip' => $route['ip'])), 'route', 'VERYVERBOSE/cyan');
+
+        sql_query('INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
+                   VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
+
+                   array(':expiredon' => $route['expiredon'],
+                         ':meta_id'   => meta_action(),
+                         ':ip'        => $route['ip'],
+                         ':uri'       => $route['uri'],
+                         ':regex'     => $route['regex'],
+                         ':target'    => $route['target'],
+                         ':flags'     => $route['flags']));
+
+    }catch(Exception $e){
+        throw new BException(tr('route_insert_static(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Validate a static route
+ *
+ * This function will validate all relevant fields in the specified $route array
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package categories
+ *
+ * @param array $route
+ * @return string HTML for a categories select box within the specified parameters
+ */
+function route_validate_static($route){
+    try{
+        load_libs('validate,seo');
+
+        $v = new ValidateForm($route, 'uri,regex,target,until,ip');
+
+        $route['flags'] = str_force($route['flags']);
+
+        $v->hasMaxChars($route['uri'], 255, tr('Please ensure uri is less than 255 characters'));
+        $v->isFilter($route['ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address'));
+        $v->hasMaxChars($route['flags'], 16, tr('Please ensure the flags is less than 16 characters'));
+
+        if($route['regex']){
+            $v->hasMaxChars($route['regex'], 255, tr('Please ensure regex is less than 255 characters'));
+
+        }else{
+            $route['regex'] = '';
+        }
+
+        if($route['target']){
+            $v->hasMaxChars($route['target'], 255, tr('Please ensure target is less than 255 characters'));
+
+        }else{
+            $route['target'] = '';
+        }
+
+        $v->isValid();
+
+        return $route;
+
+    }catch(Exception $e){
+        throw new BException(tr('route_validate_static(): Failed'), $e);
+    }
+}
