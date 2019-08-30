@@ -160,11 +160,21 @@ function route($regex, $target, $flags = null){
         /*
          * Cleanup the request URI by removing all GET requests and the leading
          * slash, URIs cannot be longer than 255 characters
+         *
+         * Deny URI's larger than 255 characters. If these are specified,
+         * automatically 404 because this is a hard coded limit. The reason for
+         * this is that the routes_static table columns currently only hold 255
+         * characters and at the moment I see no reason why anyone would want
+         * more than 255 characters in their URL.
          */
         $query = str_from($_SERVER['REQUEST_URI']      , '?');
         $uri   = str_starts_not($_SERVER['REQUEST_URI'], '/');
         $uri   = str_until($uri                        , '?');
-        $uri   = substr($uri, 0, 255);
+
+        if(strlen($uri) > 255){
+            log_file(tr('Requested URI ":uri" has ":count" characters, where 255 is a hardcoded limit (See route() function). 404-ing the request', array(':uri' => $uri, ':count' => strlen($uri))), 'route', 'yellow');
+            route_404();
+        }
 
         /*
          * Apply pre-matching flags. Depending on individual flags we may do
