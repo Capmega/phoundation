@@ -370,16 +370,30 @@ try{
     /*
      * Get required language.
      */
-    $language = not_empty(cli_argument('--language'), cli_argument('L'), $_CONFIG['language']['default']);
+    try{
+        $language = not_empty(cli_argument('--language'), cli_argument('L'), $_CONFIG['language']['default']);
 
-    if($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])){
-        throw new BException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
+        if($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])){
+            throw new BException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
+        }
+
+        define('LANGUAGE', $language);
+        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
+
+        $_SESSION['language'] = $language;
+
+    }catch(Exception $e){
+        /*
+         * Language selection failed
+         */
+        if(!defined('LANGUAGE')){
+            define('LANGUAGE', 'en');
+        }
+
+        $e = new BException('core::startup(): Language selection failed', $e);
     }
 
-    define('LANGUAGE', $language);
-    define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
-
-    $_SESSION['language'] = $language;
+    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
 
 
 

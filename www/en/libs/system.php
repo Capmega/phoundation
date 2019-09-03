@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.9');
+define('FRAMEWORKCODEVERSION', '2.8.10');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -995,7 +995,8 @@ function load_libs($libraries){
 
         foreach(array_force($libraries) as $library){
             if(!$library){
-                throw new BException('load_libs(): Empty library specified', 'emptyspecified');
+                notify(new BException('load_libs(): Empty library specified', 'warning/not-specified'));
+                continue;
             }
 
             if(isset($loaded[$library])){
@@ -1010,6 +1011,7 @@ function load_libs($libraries){
                  * These are system libraries that are always loaded. Do not
                  * load them again
                  */
+                notify(new BException(tr('load_libs(): Library ":library" was already loaded during system startup, not loading again', array(':library' => $library)), 'warning/already-done'));
                 continue;
             }
 
@@ -1026,7 +1028,13 @@ function load_libs($libraries){
         }
 
     }catch(Error $e){
-        $e = new BException(tr('load_libs(): Failed to load library ":library"', array(':library' => $library)), $e);
+        if(isset($library)){
+            $e = new BException(tr('load_libs(): Failed to load library ":library"', array(':library' => $library)), $e);
+
+        }else{
+            $e = new BException(tr('load_libs(): Failed to load libraries ":libraries"', array(':libraries' => $libraries)), $e);
+        }
+
         throw $e->setCode('load-libs-fail');
 
     }catch(Exception $e){

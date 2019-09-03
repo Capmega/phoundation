@@ -163,7 +163,6 @@ try{
         }
 
     }catch(Exception $e){
-log_file($e);
         /*
          * Language selection failed
          */
@@ -173,6 +172,8 @@ log_file($e);
 
         $e = new BException('core::startup(): Language selection failed', $e);
     }
+
+    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
 
 
 

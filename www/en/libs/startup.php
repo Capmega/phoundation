@@ -67,7 +67,6 @@
  * library, in which case they will both be loaded from /en/.
  */
 if(!class_exists('core')){
-    define('LIBS', __DIR__.'/');
     require_once(__DIR__.'/system.php');
 }
 

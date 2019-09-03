@@ -170,6 +170,8 @@ try{
         $e = new BException('core::startup(): Language selection failed', $e);
     }
 
+    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
+
 
 
     /*
