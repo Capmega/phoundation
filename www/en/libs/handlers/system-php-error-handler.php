@@ -17,6 +17,7 @@ notify(array('code'    => 'PHP-ERROR-'.$errno,
              'groups'  => 'developers',
              'title'   => tr('PHP ERROR ":errno"', array(':errno' => $errno)),
              'data'    => $trace,
+             'throw'   => false,
              'message' => tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline))));
 
 throw new BException(tr('PHP ERROR [:errno] ":errstr" in ":errfile@:errline"', array(':errstr' => $errstr, ':errno' => $errno, ':errfile' => $errfile, ':errline' => $errline)), 'PHP'.$errno);
