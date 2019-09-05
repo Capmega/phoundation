@@ -290,7 +290,7 @@ switch(cli_method()){
                     case 'modified':
                         // FALLTHROUGH
                     case 'not tracked':
-                       continue;
+                       continue 2;
                 }
 
                 if(preg_match('/sitemap.*?.xml/', $file)){
