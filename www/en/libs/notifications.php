@@ -83,13 +83,13 @@ function notifications($notification, $log, $throw){
          * Add the notification to the database for later lookup
          */
         if($core->register['script'] === 'init'){
-            $notification = notifications_validate($notification, $log);
+            $notification = notifications_validate($notification, $log, $throw);
 
         }else{
             $notification = notifications_insert($notification, $log);
         }
 
-        if($notification['exception'] and !$_CONFIG['production'] and $throw){
+        if($notification['exception'] and !$_CONFIG['production'] and $notification['throw']){
             /*
              * Exception in non production environments, don't send
              * notifications since we're working on this project!
@@ -170,7 +170,7 @@ function notifications($notification, $log, $throw){
  * @param boolean $log If set to true, will log the notification
  * @return return void()
  */
-function notifications_validate($notification, $log){
+function notifications_validate($notification, $log, $throw = null){
     global $_CONFIG;
 
     try{
@@ -181,11 +181,12 @@ function notifications_validate($notification, $log){
          */
         if(is_object($notification) and ($notification instanceof Error)){
             /*
-             * This is a PHP Error. Weird, but not impossible, I guess
+             * This is a PHP Error.
              */
             $e            = new BException('', $notification);
             $notification = array('title'     => tr('PHP Error'),
                                   'exception' => true,
+                                  'throw'     => $throw,
                                   'message'   => $notification->getMessage(),
                                   'real_code' => $notification->getCode(),
                                   'code'      => 'error');
@@ -202,6 +203,7 @@ function notifications_validate($notification, $log){
                 $e            = $notification;
                 $notification = array('title'     => ($notification->isWarning() ? tr('Phoundation warning') : tr('Phoundation exception')),
                                       'exception' => true,
+                                      'throw'     => $throw,
                                       'message'   => implode("\n", $notification->getMessages()),
                                       'data'      => $notification->getData(),
                                       'real_code' => $notification->getRealCode(),
@@ -217,6 +219,7 @@ function notifications_validate($notification, $log){
                  * Notify about another PHP exception
                  */
                 $notification = array('title'     => tr('PHP Exception'),
+                                      'throw'     => $throw,
                                       'exception' => true,
                                       'message'   => $notification->getMessage(),
                                       'code'      => 'exception');
@@ -230,7 +233,7 @@ function notifications_validate($notification, $log){
             /*
              * This is a normal notification
              */
-            array_ensure($notification, 'code,priority,title,message,data');
+            array_ensure($notification, 'code,priority,title,message,data,throw');
 
             $notification['exception'] = false;
 
