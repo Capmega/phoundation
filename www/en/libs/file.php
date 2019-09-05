@@ -2832,12 +2832,23 @@ function file_execute_mode($path, $mode, $callback, $params = null){
             }
 
         }catch(Exception $e){
-            if(is_dir($path) and $multi){
-                throw new BException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified sub path ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
+            if(empty($subpath)){
+                if(!is_writable($path)){
+                    throw new BException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
+                }
+
+            }else{
+                if(!is_writable($subpath)){
+                    throw new BException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified subpath ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
+                }
             }
 
-            if(!is_writable($path)){
-                throw new BException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
+            $message = $e->getmessages();
+            $message = array_shift($message);
+            $message = strtolower($message);
+
+            if(str_exists($message, 'operation not permitted')){
+                throw new BException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", operation not permitted', array(':mode' => decoct($mode), ':path' => $path)), $e);
             }
 
             throw $e;
