@@ -2851,11 +2851,25 @@ function file_execute_mode($path, $mode, $callback, $params = null){
         if($mode){
             if($multi){
                 foreach($modes as $subpath => $mode){
-                    chmod($subpath, $mode);
+                    /*
+                     * Path may have been deleted by the callback (for example,
+                     * a file_delete() call may have cleaned up the path) so
+                     * ensure the path still exists
+                     */
+                    if(file_exists($subpath)){
+                        chmod($subpath, $mode);
+                    }
                 }
 
             }else{
-                chmod($path, $original_mode);
+                /*
+                 * Path may have been deleted by the callback (for example,
+                 * a file_delete() call may have cleaned up the path) so
+                 * ensure the path still exists
+                 */
+                if(file_exists($path)){
+                    chmod($path, $original_mode);
+                }
             }
         }
 
