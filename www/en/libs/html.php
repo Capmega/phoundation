@@ -1978,10 +1978,9 @@ function html_select_body($params) {
  * @param boolean $dom_content_loaded If set to true, the $script will be changed to document.addEventListener("DOMContentLoaded", function(e) { :script });
  * @param string $extra If specified, these extra HTML attributes will be added into the <script> tag
  * @param string $type The <script type="TYPE"> contents. Defaults to "text/javascript"
- * @param boolean $ie
  * @return string The body HTML for a <select> tag, containing all <option> tags
  */
-function html_script($script, $event = 'dom_content', $extra = null, $type = 'text/javascript', $ie = false){
+function html_script($script, $event = 'dom_content', $extra = null, $type = 'text/javascript'){
     global $_CONFIG, $core;
     static $count = 0;
 
@@ -1990,7 +1989,6 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
         array_default($script, 'event'  , $event);
         array_default($script, 'extra'  , $extra);
         array_default($script, 'type'   , $type);
-        array_default($script, 'ie'     , $ie);
         array_default($script, 'to_file', null);
         array_default($script, 'list'   , 'scripts');
         array_default($script, 'delayed', $_CONFIG['cdn']['js']['load_delayed']);
@@ -2071,18 +2069,14 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                     $retval = $script['script'];
                 }
 
-                if(!$script['to_file']){
-                    $retval = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
-                                    '.$retval.'
-                                </script>';
-                }
-        }
+                if($script['to_file']){
+                    $retval .= ';';
 
-        if($ie){
-            /*
-             * Add Internet Explorer filters
-             */
-            $retval = html_iefilter($retval, $ie);
+                }else{
+                    $retval  = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
+                                     '.$retval.'
+                                 </script>';
+                }
         }
 
         /*
@@ -2176,6 +2170,14 @@ function html_script($script, $event = 'dom_content', $extra = null, $type = 'te
                  * developers
                  */
                 notify($e);
+
+                /*
+                 * Add a <script> element because now we'll include it into the
+                 * HTML anyway
+                 */
+                $retval = ' <script type="'.$type.'"'.($extra ? ' '.$extra : '').'>
+                                '.$retval.'
+                            </script>';
             }
         }
 
