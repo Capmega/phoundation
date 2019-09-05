@@ -137,6 +137,7 @@ switch(cli_method()){
             log_console(tr('No blog page URL\'s have been updated'), 'warning');
         }
 
+        cache_clear();
         break;
 
     case 'reprocess-images':
