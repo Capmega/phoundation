@@ -16,24 +16,3 @@ sql_column_exists('blogs', 'medium_y', '!ALTER TABLE `blogs` ADD COLUMN `medium_
 
 sql_column_exists('blogs', 'small_x' , '!ALTER TABLE `blogs` ADD COLUMN `small_x`  INT(11) NOT NULL AFTER `medium_y`;');
 sql_column_exists('blogs', 'small_y' , '!ALTER TABLE `blogs` ADD COLUMN `small_y`  INT(11) NOT NULL AFTER `small_x`;');
-
-/*
- * Rename all images from big > large!
- */
-if(file_exists(ROOT.'data/content/photos')){
-    $files = safe_exec(array('commands' => array('find', array(ROOT.'data/content/photos', '-name', '*_big.jpg'))));
-
-    foreach($files as $file){
-        rename($file, str_replace('_big.', '_large.', $file));
-    }
-
-    $files = cli_find(array('start' => ROOT.'data/content/photos',
-                            'name'  => '*_big@2x.jpg'));
-
-    foreach($files as $file){
-        unlink($file);
-        symlink(str_replace('_big@2x', '_large', $file), str_replace('_big@2x.', '_large@2x.', $file));
-
-    }
-}
-?>
