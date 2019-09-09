@@ -502,7 +502,12 @@ function notifications_insert($notification, $log){
         return $notification;
 
     }catch(Exception $e){
-        throw new BException('notifications_insert(): Failed', $e);
+        error_log(tr('PHOUNDATION WARNING (":project"): Failed to store notification ":message" in notifications table', array(':project' => PROJECT, ':message' => $notification['message'])));
+
+        /*
+         * WARNING! Do NOT propagate this exception! Notify should not cause
+         * exceptions for failures in its own systems
+         */
     }
 }
 
