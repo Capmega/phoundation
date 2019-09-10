@@ -163,4 +163,104 @@ function date_interval($date, $interval, $format = null){
         throw new BException('date_interval(): Failed', $e);
     }
 }
-?>
+
+
+
+/*
+ * Translate the specified day and month names
+ *
+ * Translate the date
+ * Seriously PHP, you couldn't add either translatable dates to
+ * date() or have strftime() have the same format? strftime() lacks
+ * loads of items, so it cant be used, and date() cannot have
+ * translated dates. Great!
+ *
+ * So for now we have this barf solution
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package date
+ * @see date_convert() Uses this function to add multilingual support
+ * @version 2.8.15: Added function and documentation
+ * @example When executed with LANGUAGE "es"
+ * code
+ * $result = date_translate('Saturday, 14 September 2019');
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * Sabado, 18 Septiembre 2019
+ * /code
+ *
+ * @param string $date
+ * @return string The result
+ */
+function date_translate($date){
+    try{
+        /*
+         * First check if there are any translatable words in the specified date
+         */
+        if(!is_string($date)){
+            throw new BException(tr('date_translate(): The specified date should be a string but is a ":type"', array(':type' => gettype($date))), 'invalid');
+        }
+
+        if(!preg_match('/[a-z]/', $date)){
+            return $date;
+        }
+
+        /*
+         * Date contains translatable text, translate all possible words
+         */
+        $words = array('January'   => tr('January'),
+                       'February'  => tr('February'),
+                       'March'     => tr('March'),
+                       'April'     => tr('April'),
+                       'May'       => tr('May'),
+                       'June'      => tr('June'),
+                       'July'      => tr('July'),
+                       'August'    => tr('August'),
+                       'September' => tr('September'),
+                       'October'   => tr('October'),
+                       'November'  => tr('November'),
+                       'December'  => tr('December'),
+                       'Jan'       => tr('Jan'),
+                       'Feb'       => tr('Feb'),
+                       'Mar'       => tr('Mar'),
+                       'Apr'       => tr('Apr'),
+                       'May'       => tr('May'),
+                       'Jun'       => tr('Jun'),
+                       'Jul'       => tr('Jul'),
+                       'Aug'       => tr('Aug'),
+                       'Sep'       => tr('Sep'),
+                       'Oct'       => tr('Oct'),
+                       'Nov'       => tr('Nov'),
+                       'Dec'       => tr('Dec'),
+                       'Sunday'    => tr('Sunday'),
+                       'Monday'    => tr('Monday'),
+                       'Tuesday'   => tr('Tuesday'),
+                       'Wednesday' => tr('Wednesday'),
+                       'Thursday'  => tr('Thursday'),
+                       'Friday'    => tr('Friday'),
+                       'Saturday'  => tr('Saturday'),
+                       'Sun'       => tr('Sun'),
+                       'Mon'       => tr('Mon'),
+                       'Tue'       => tr('Tue'),
+                       'Wed'       => tr('Wed'),
+                       'Thu'       => tr('Thu'),
+                       'Fri'       => tr('Fri'),
+                       'Sat'       => tr('Sat'));
+
+        foreach($words as $english => $translation){
+            $date = str_replace($english, $translation, $date);
+        }
+
+        return $date;
+
+    }catch(Exception $e){
+        throw new BException(tr('date_translate(): Failed'), $e);
+    }
+}
+
