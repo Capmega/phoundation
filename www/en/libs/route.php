@@ -829,10 +829,10 @@ function route_exec($target, $attachment, $restrictions){
                                          'filename'     => basename($target)));
 
             }else{
-                log_file(tr('Sending contents of file ":target" directly', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
-
                 $mimetype = mime_content_type($target);
                 $bytes    = filesize($target);
+
+                log_file(tr('Sending contents of file ":target" with mime-type ":type" directly to client', array(':target' => $target, ':type' => $mimetype)), 'route', 'VERYVERBOSE/cyan');
 
                 header('Content-Type: '.$mimetype);
                 header('Content-length: '.$bytes);
