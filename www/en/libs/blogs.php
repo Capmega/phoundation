@@ -2196,8 +2196,16 @@ function blogs_validate_parent($blog_post_id, $blogs_id){
  */
 function blogs_post_url($post){
     global $_CONFIG;
+    static $config;
 
     try{
+        if(!$config){
+            /*
+             * Read configuration, required for the domain() call
+             */
+            $config = read_config('');
+        }
+
         /*
          * What URL template to use?
          */
@@ -2274,7 +2282,6 @@ function blogs_post_url($post){
             return $url;
         }
 
-        $config = read_config('');
         return domain($url, null, $config['url_prefix'], null, $post['language']);
 
     }catch(Exception $e){
@@ -2528,7 +2535,7 @@ function blogs_post_erase($post){
         $r = sql_query('SELECT `file` FROM `blogs_media` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post));
 
         while($media = sql_fetch($r)){
-            foreach($_CONFIG['blogs']['images'] as $type => $config){
+            foreach($_CONFIG['blogs']['images'] as $type => $image_config){
                 file_delete(ROOT.'data/content/'.$media['file'].'-'.$type.'.jpg', ROOT.'data/content/');
             }
         }
