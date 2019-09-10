@@ -238,7 +238,25 @@ function http_get_to_post($keys, $overwrite = true){
 
 
 /*
- * Send HTTP header for the specified code
+ * Send HTTP headers to the client
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package http
+ * @see html_header()
+ * @note This function will set the LANGUAGE constant in case it hasn't been defined yet. This can happen in certain instances (For example with errors during Phoundation startup, show() or showdie() being used before the startup finishes, etc) and would cause more errors if left undefined
+ * @version 2.8.20: Added function and documentation
+ *
+ * @param params $params The HTTP header parameters
+ * @param null natural $params[http_code]
+ * @param null string $params[mimetype]
+ * @param null array $params[headers]
+ * @param boolean $params[cors]
+ * @param array $params[cache]
+ * @param null date $params[last_modified]
+ * @param natural $content_length The length of the content sent to the client
  */
 function http_headers($params, $content_length){
     global $_CONFIG, $core;
@@ -246,6 +264,17 @@ function http_headers($params, $content_length){
 
     if($sent) return false;
     $sent = true;
+
+    /*
+     * Ensure that from this point on we have a language configuration available
+     *
+     * The startup systems already configures languages but if the startup
+     * itself fails, or if a show() or showdie() was issued before the startup
+     * finished, then this could leave the system without defined language
+     */
+    if(!defined('LANGUAGE')){
+        define('LANGUAGE', isset_get($_CONFIG['language']['default'], 'en'));
+    }
 
     try{
         /*
@@ -273,10 +302,7 @@ function http_headers($params, $content_length){
         }
 
         $headers[] = 'Content-Type: '.$params['mimetype'].'; charset='.$_CONFIG['encoding']['charset'];
-
-        if(defined('LANGUAGE')){
-            $headers[] = 'Content-Language: '.LANGUAGE;
-        }
+        $headers[] = 'Content-Language: '.LANGUAGE;
 
         if($content_length){
             $headers[] = 'Content-Length: '.$content_length;
