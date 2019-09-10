@@ -62,69 +62,6 @@ try{
 
 
     /*
-     * Setup locale and character encoding
-     */
-    ini_set('default_charset', $_CONFIG['encoding']['charset']);
-
-    foreach($_CONFIG['locale'] as $key => $value){
-        if($value){
-            setlocale($key, $value);
-        }
-    }
-
-
-
-    /*
-     * Prepare for unicode usage
-     */
-    if($_CONFIG['encoding']['charset'] = 'UTF-8'){
-        mb_init(not_empty($_CONFIG['locale'][LC_CTYPE], $_CONFIG['locale'][LC_ALL]));
-
-        if(function_exists('mb_internal_encoding')){
-            mb_internal_encoding('UTF-8');
-        }
-    }
-
-
-
-    /*
-     * Check for configured maintenance mode
-     */
-    if($_CONFIG['maintenance']){
-        /*
-         * We are in maintenance mode, have to show mainenance page.
-         */
-        page_show(503);
-    }
-
-
-
-    /*
-     * Set cookie, start session where needed, etc.
-     */
-    include(ROOT.'libs/handlers/system-manage-session.php');
-
-
-
-    /*
-     * Set timezone
-     * See http://www.php.net/manual/en/timezones.php for more info
-     */
-    try{
-        date_default_timezone_set($_CONFIG['timezone']['system']);
-
-    }catch(Exception $e){
-        /*
-         * Users timezone failed, use the configured one
-         */
-        notify($e);
-    }
-
-    define('TIMEZONE', isset_get($_SESSION['user']['timezone'], $_CONFIG['timezone']['display']));
-
-
-
-    /*
      * Set language data
      *
      * This is normally done by checking the current dirname of the startup file,
@@ -180,6 +117,65 @@ try{
     }
 
     define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
+
+
+
+    /*
+     * Setup locale and character encoding
+     */
+    ini_set('default_charset', $_CONFIG['encoding']['charset']);
+    set_locale();
+
+
+
+
+    /*
+     * Prepare for unicode usage
+     */
+    if($_CONFIG['encoding']['charset'] = 'UTF-8'){
+        mb_init(not_empty($_CONFIG['locale'][LC_CTYPE], $_CONFIG['locale'][LC_ALL]));
+
+        if(function_exists('mb_internal_encoding')){
+            mb_internal_encoding('UTF-8');
+        }
+    }
+
+
+
+    /*
+     * Check for configured maintenance mode
+     */
+    if($_CONFIG['maintenance']){
+        /*
+         * We are in maintenance mode, have to show mainenance page.
+         */
+        page_show(503);
+    }
+
+
+
+    /*
+     * Set cookie, start session where needed, etc.
+     */
+    include(ROOT.'libs/handlers/system-manage-session.php');
+
+
+
+    /*
+     * Set timezone
+     * See http://www.php.net/manual/en/timezones.php for more info
+     */
+    try{
+        date_default_timezone_set($_CONFIG['timezone']['system']);
+
+    }catch(Exception $e){
+        /*
+         * Users timezone failed, use the configured one
+         */
+        notify($e);
+    }
+
+    define('TIMEZONE', isset_get($_SESSION['user']['timezone'], $_CONFIG['timezone']['display']));
 
 
 

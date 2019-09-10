@@ -62,15 +62,69 @@ try{
 
 
     /*
-     * Setup locale and character encoding
+     * Set language data
+     *
+     * This is normally done by checking the current dirname of the startup file,
+     * this will be LANGUAGECODE/libs/handlers/system-webpage.php
+     */
+    try{
+        if($_CONFIG['language']['supported']){
+            /*
+             * Language is defined by the www/LANGUAGE dir that is used.
+             */
+            if(empty($this->register['route_exec'])){
+                $url      = $_SERVER['REQUEST_URI'];
+                $url      = str_starts_not($url, '/');
+                $language = str_until($url, '/');
+
+                if(!array_key_exists($language, $_CONFIG['language']['supported'])){
+                    log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)), 'VERBOSE/warning');
+                    $language = $_CONFIG['language']['default'];
+                }
+
+            }else{
+                $language = substr($this->register['route_exec'], 0, 2);
+
+                if(!array_key_exists($language, $_CONFIG['language']['supported'])){
+                    log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)), 'VERBOSE/warning');
+                    $language = $_CONFIG['language']['default'];
+                }
+            }
+
+        }else{
+            $language = $_CONFIG['language']['default'];
+        }
+
+        define('LANGUAGE', $language);
+        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.strtoupper($_SESSION['location']['country']['code'])));
+
+        /*
+         * Ensure $_SESSION['language'] available
+         */
+        if(empty($_SESSION['language'])){
+            $_SESSION['language'] = LANGUAGE;
+        }
+
+    }catch(Exception $e){
+        /*
+         * Language selection failed
+         */
+        if(!defined('LANGUAGE')){
+            define('LANGUAGE', 'en');
+        }
+
+        $e = new BException('core::startup(): Language selection failed', $e);
+    }
+
+    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
+
+
+
+    /*
+     * Setup character encoding and locale
      */
     ini_set('default_charset', $_CONFIG['encoding']['charset']);
-
-    foreach($_CONFIG['locale'] as $key => $value){
-        if($value){
-            setlocale($key, $value);
-        }
-    }
+    set_locale();
 
 
 
@@ -121,65 +175,6 @@ try{
     }
 
     define('TIMEZONE', isset_get($_SESSION['user']['timezone'], $_CONFIG['timezone']['display']));
-
-
-
-    /*
-     * Set language data
-     *
-     * This is normally done by checking the current dirname of the startup file,
-     * this will be LANGUAGECODE/libs/handlers/system-webpage.php
-     */
-    try{
-        if($_CONFIG['language']['supported']){
-            /*
-             * Language is defined by the www/LANGUAGE dir that is used.
-             */
-            if(empty($this->register['route_exec'])){
-                $url      = $_SERVER['REQUEST_URI'];
-                $url      = str_starts_not($url, '/');
-                $language = str_until($url, '/');
-
-                if(!array_key_exists($language, $_CONFIG['language']['supported'])){
-                    log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)), 'VERBOSE/warning');
-                    $language = $_CONFIG['language']['default'];
-                }
-
-            }else{
-                $language = substr($this->register['route_exec'], 0, 2);
-
-                if(!array_key_exists($language, $_CONFIG['language']['supported'])){
-                    log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)), 'VERBOSE/warning');
-                    $language = $_CONFIG['language']['default'];
-                }
-            }
-
-        }else{
-            $language = $_CONFIG['language']['default'];
-        }
-
-        define('LANGUAGE', $language);
-        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
-
-        /*
-         * Ensure $_SESSION['language'] available
-         */
-        if(empty($_SESSION['language'])){
-            $_SESSION['language'] = LANGUAGE;
-        }
-
-    }catch(Exception $e){
-        /*
-         * Language selection failed
-         */
-        if(!defined('LANGUAGE')){
-            define('LANGUAGE', 'en');
-        }
-
-        $e = new BException('core::startup(): Language selection failed', $e);
-    }
-
-    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
 
 
 

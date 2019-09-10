@@ -218,7 +218,7 @@ $_CONFIG['language']           = array('default'                            => '
                                                                                      'nl'                 => 'Nederlands'));
 
 // Locale configuration
-$_CONFIG['locale']             = array(LC_ALL                               => 'en_US.UTF8',
+$_CONFIG['locale']             = array(LC_ALL                               => ':LANGUAGE_:COUNTRY.UTF8',
                                        LC_COLLATE                           => null,
                                        LC_CTYPE                             => null,
                                        LC_MONETARY                          => null,
@@ -227,7 +227,8 @@ $_CONFIG['locale']             = array(LC_ALL                               => '
                                        LC_MESSAGES                          => null);
 
 // Location configuration
-$_CONFIG['location']           = array('detect'                             => false);                                                      // Attempt auto location detect if current session doesn't have location information
+$_CONFIG['location']           = array('default_country'                    => 'US',
+                                       'detect'                             => false);                                                      // Attempt auto location detect if current session doesn't have location information
 
 //Log configuration
 $_CONFIG['log']                = array('single'                             => true);                                                       // All file logs will go to one and the same file

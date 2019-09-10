@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.16');
+define('FRAMEWORKCODEVERSION', '2.8.17');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -1477,26 +1477,48 @@ function accepts_languages(){
     global $_CONFIG;
 
     try{
-        $headers = isset_get($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-        $headers = array_force($headers, ',');
-        $default = array_shift($headers);
-        $retval  = array('1.0' => array('language' => str_until($default, '-'),
-                                        'locale'   => (str_exists($default, '-') ? str_from($default, '-') : null)));
+        if(empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])){
+            /*
+             * No accept language headers were specified
+             */
+            $retval  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
+                                            'locale'   => str_cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 
-        foreach($headers as $header){
-            $requested =  str_until($header, ';');
-            $requested =  array('language' => str_until($requested, '-'),
-                                'locale'   => (str_exists($requested, '-') ? str_from($requested, '-') : null));
+        }else{
+            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+            $headers = array_force($headers, ',');
+            $default = array_shift($headers);
+            $retval  = array('1.0' => array('language' => str_until($default, '-'),
+                                            'locale'   => (str_exists($default, '-') ? str_from($default, '-') : null)));
 
-            if(empty($_CONFIG['language']['supported'][$requested['language']])){
-                continue;
+            if(empty($retval['1.0']['language'])){
+                /*
+                 * Specified accept language headers contain no language
+                 */
+                $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
             }
 
-            $retval[str_from(str_from($header, ';'), 'q=')] = $requested;
+            if(empty($retval['1.0']['locale'])){
+                /*
+                 * Specified accept language headers contain no locale
+                 */
+                $retval['1.0']['locale'] = str_cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+            }
+
+            foreach($headers as $header){
+                $requested =  str_until($header, ';');
+                $requested =  array('language' => str_until($requested, '-'),
+                                    'locale'   => (str_exists($requested, '-') ? str_from($requested, '-') : null));
+
+                if(empty($_CONFIG['language']['supported'][$requested['language']])){
+                    continue;
+                }
+
+                $retval[str_from(str_from($header, ';'), 'q=')] = $requested;
+            }
         }
 
         krsort($retval);
-
         return $retval;
 
     }catch(Exception $e){
@@ -5096,7 +5118,14 @@ function date_convert($date = null, $requested_format = 'human_datetime', $to_ti
                 return $date;
             }
 
-            return $date->format($format);
+            $retval = $date->format($format);
+
+            if(LANGUAGE === 'en'){
+                return $retval;
+            }
+
+            load_libs('date');
+            return date_translate($retval);
 
         }catch(Exception $e){
             throw new BException(tr('date_convert(): Invalid format ":format" specified', array(':format' => $format)), 'invalid');
@@ -5928,6 +5957,101 @@ function limit_request_method($method){
 
     }catch(Exception $e){
         throw new BException(tr('limit_request_method(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Set PHP locale data from specified configuration. If no configuration was specified, use $_CONFIG[locale] instead
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @version 2.8.15: Added function and documentation
+ * @note If LC_ALL is specified, it will be applied first to set the default value for all other parameters. Then all the other parameters will be applied, if specified
+ * @note Each LC_* value can contain a :LANGUAGE and :COUNTRY tag. These tags will be replaced with an ISO_639-1 language code / ISO 3166-1 alpha-2 country code respectitively
+ * @note If LANGUAGE is not available, the default language in $_CONFIG[language][default] will be used
+ * @note If the current country is not available, the default country code US will be assumed
+ *
+ * @param params $params A parameters array
+ * @param optional $string LC_ALL      Default value for all locale parameters
+ * @param optional $string LC_COLLATE  Default value for LC_COLLATE parameter
+ * @param optional $string LC_CTYPE    Default value for LC_CTYPE parameter
+ * @param optional $string LC_MONETARY Default value for LC_MONETARY parameter
+ * @param optional $string LC_NUMERIC  Default value for LC_NUMERIC parameter
+ * @param optional $string LC_TIME     Default value for all LC_TIME parameter
+ * @param optional $string LC_MESSAGES Default value for LC_MESSAGES parameter
+ * @return void
+ */
+function set_locale($data = null){
+    global $_CONFIG;
+
+    try{
+        if(!$data){
+            $data = $_CONFIG['locale'];
+        }
+
+        if(!is_array($data)){
+            throw new BException(tr('set_locale(): Specified $data should be an array but is an ":type"', array(':type' => gettype($data))), 'invalid');
+        }
+
+        /*
+         * Determine language and location
+         */
+        if(defined('LANGUAGE')){
+            $language = LANGUAGE;
+
+        }else{
+            $language = $_CONFIG['language']['default'];
+        }
+
+        if(isset($_SESSION['location']['country']['code'])){
+            $country = strtoupper($_SESSION['location']['country']['code']);
+
+        }else{
+            $country = $_CONFIG['location']['default_country'];
+        }
+
+        /*
+         * First set LC_ALL as a baseline, then each individual entry
+         */
+        if(isset($data[LC_ALL])){
+            $data[LC_ALL] = str_replace(':LANGUAGE', $language, $data[LC_ALL]);
+            $data[LC_ALL] = str_replace(':COUNTRY' , $country , $data[LC_ALL]);
+
+            setlocale(LC_ALL, $data[LC_ALL]);
+            unset($data[LC_ALL]);
+        }
+
+        /*
+         * Apply all parameters
+         */
+        foreach($data as $key => $value){
+            if($key === 'country'){
+                /*
+                 * Ignore this key
+                 */
+                continue;
+            }
+
+            if($value){
+                /*
+                 * Ignore this empty value
+                 */
+                continue;
+            }
+
+            $value = str_replace(':LANGUAGE', $language, $value);
+            $value = str_replace(':COUNTRY' , $country , $value);
+
+            setlocale($key, $value);
+        }
+
+    }catch(Exception $e){
+        throw new BException(tr('set_locale(): Failed'), $e);
     }
 }
 

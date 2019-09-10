@@ -323,15 +323,40 @@ try{
 
 
     /*
+     * Get required language.
+     */
+    try{
+        $language = not_empty(cli_argument('--language'), cli_argument('L'), $_CONFIG['language']['default']);
+
+        if($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])){
+            throw new BException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
+        }
+
+        define('LANGUAGE', $language);
+        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
+
+        $_SESSION['language'] = $language;
+
+    }catch(Exception $e){
+        /*
+         * Language selection failed
+         */
+        if(!defined('LANGUAGE')){
+            define('LANGUAGE', 'en');
+        }
+
+        $e = new BException('core::startup(): Language selection failed', $e);
+    }
+
+    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
+
+
+
+    /*
      * Setup locale and character encoding
      */
     ini_set('default_charset', $_CONFIG['encoding']['charset']);
-
-    foreach($_CONFIG['locale'] as $key => $value){
-        if($value){
-            setlocale($key, $value);
-        }
-    }
+    set_locale();
 
 
 
@@ -364,36 +389,6 @@ try{
 
     define('TIMEZONE', $_CONFIG['timezone']['display']);
     $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
-
-
-
-    /*
-     * Get required language.
-     */
-    try{
-        $language = not_empty(cli_argument('--language'), cli_argument('L'), $_CONFIG['language']['default']);
-
-        if($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])){
-            throw new BException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
-        }
-
-        define('LANGUAGE', $language);
-        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
-
-        $_SESSION['language'] = $language;
-
-    }catch(Exception $e){
-        /*
-         * Language selection failed
-         */
-        if(!defined('LANGUAGE')){
-            define('LANGUAGE', 'en');
-        }
-
-        $e = new BException('core::startup(): Language selection failed', $e);
-    }
-
-    define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
 
 
 
