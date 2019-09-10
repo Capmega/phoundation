@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.17');
+define('FRAMEWORKCODEVERSION', '2.8.18');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -5851,12 +5851,13 @@ function shutdown(){
  * @see shutdown()
  * @see unregister_shutdown()
  * @version 1.27.0: Added function and documentation
+ * @version 2.8.18: $value is now optional, defaults to null
  *
  * @param string $name The function name to be executed
- * @param mixed $value The value to be sent to the shutdown function. If $value is an array, and the function was already regsitered, the previous and current array will be mixed. See shutdown() for more on this subject
+ * @param null mixed $value The value to be sent to the shutdown function. If $value is an array, and the function was already regsitered, the previous and current array will be mixed. See shutdown() for more on this subject
  * @return mixed The value as it is registered with the specified shutdown function. If the function name was already registered before, and the specified value was an array, then the return value will now contain the specified array merged with the already existing array
  */
-function register_shutdown($name, $value){
+function register_shutdown($name, $value = null){
     global $core;
 
     try{

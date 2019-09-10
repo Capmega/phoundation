@@ -70,6 +70,7 @@ require_once(__DIR__.'/system.php');
  * @version 1.27.0: Added function and documentation
  * @version 2.0.7: Now uses route_404() to display 404 pages
  * @version 2.5.63: Improved documentation
+ * @version 2.8.18: Now registers route_shutdown() as a shutdown function instead of route_404()
  * @example
  * code
  * // This will take phoundation.org/ and execute the index page, but not allow queries.
@@ -147,7 +148,7 @@ function route($regex, $target, $flags = null){
         if(!$init){
             $init = true;
             log_file(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: '.$_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
-            register_shutdown('route_404', null);
+            register_shutdown('route_shutdown');
         }
 
         if(!$regex){
@@ -375,7 +376,7 @@ function route($regex, $target, $flags = null){
                      * Block this request, send nothing
                      */
                     log_file(tr('Blocking request as per B flag'), 'route', 'warning');
-                    unregister_shutdown('route_404');
+                    unregister_shutdown('route_shutdown');
                     $block = true;
                     break;
 
@@ -489,7 +490,7 @@ function route($regex, $target, $flags = null){
                      */
                     load_libs('inet');
                     log_file(tr('Redirecting to ":route" with HTTP code ":code"', array(':route' => $route, ':code' => $http_code)), 'route', 'VERYVERBOSE/cyan');
-                    unregister_shutdown('route_404');
+                    unregister_shutdown('route_shutdown');
                     redirect(url_add_query($route, $_GET), $http_code);
 
                 case 'S':
@@ -576,7 +577,7 @@ function route($regex, $target, $flags = null){
                         $domain = str_until($domain, '?');
 
                         log_file(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', array(':route' => $route, ':key' => $key)), 'route', 'VERYVERBOSE/yellow');
-                        unregister_shutdown('route_404');
+                        unregister_shutdown('route_shutdown');
                         redirect($domain);
                 }
             }
@@ -617,7 +618,7 @@ function route($regex, $target, $flags = null){
                  */
                 if(empty($core->register['route_map'][$language])){
                     log_file(tr('Requested language ":language" does not have a language map available', array(':language' => $language)), 'route', 'yellow');
-                    unregister_shutdown('route_404');
+                    unregister_shutdown('route_shutdown');
                     route_404();
 
                 }else{
@@ -635,7 +636,7 @@ function route($regex, $target, $flags = null){
 
                     if(!file_exists($page)){
                         log_file(tr('Language remapped page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
-                        unregister_shutdown('route_404');
+                        unregister_shutdown('route_shutdown');
                         route_404();
                     }
 
@@ -648,7 +649,7 @@ function route($regex, $target, $flags = null){
                      * no translation was found.
                      */
                     log_file(tr('Requested language ":language" does not have a translation available in the language map for page ":page"', array(':language' => $language, ':page' => $page)), 'route', 'yellow');
-                    unregister_shutdown('route_404');
+                    unregister_shutdown('route_shutdown');
                     route_404();
                 }
             }
@@ -657,7 +658,7 @@ function route($regex, $target, $flags = null){
         /*
          * Check if configured page exists
          */
-        if(!file_exists($page)){
+        if(!file_exists($page) and !$block){
             if(isset($dynamic_pagematch)){
                 log_file(tr('Dynamically matched page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
                 $count++;
@@ -668,7 +669,7 @@ function route($regex, $target, $flags = null){
                  * The hardcoded file for the regex does not exist, oops!
                  */
                 log_file(tr('Matched hard coded page ":page" does not exist', array(':page' => $page)), 'route', 'yellow');
-                unregister_shutdown('route_404');
+                unregister_shutdown('route_shutdown');
                 route_404();
             }
         }
@@ -688,7 +689,7 @@ function route($regex, $target, $flags = null){
          * We are going to show the matched page so we no longer need to default
          * to 404
          */
-        unregister_shutdown('route_404');
+        unregister_shutdown('route_shutdown');
 
         /*
          * Execute the page specified in $target (from here, $route)
@@ -859,14 +860,54 @@ function route_exec($target, $attachment, $restrictions){
  * @category Function reference
  * @package route
  * @see route()
+ * @see route_404()
  * @note: This function typically would only need to be called by the route() function.
+ * @version 2.8.18: Added function and documentation
+ *
+ * @return void
+ */
+function route_shutdown(){
+    global $_CONFIG;
+
+    try{
+        /*
+         * Test the URI for known hacks. If so, apply configured response
+         */
+        if($_CONFIG['route']['known_hacks']){
+            log_console(tr('Applying known hacking rules'), 'VERBOSE/yellow');
+
+            foreach($_CONFIG['route']['known_hacks'] as $hacks){
+                route($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
+            }
+        }
+
+        route_404();
+
+    }catch(Exception $e){
+        throw new BException(tr(tr('route_shutdown(): Failed')), $e);
+    }
+}
+
+
+
+/*
+ * Show the 404 page
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package route
+ * @see route()
+ * @see route_shutdown()
+ * @note: This function typically would only need to be called by the route() or route_shutdown()functions.
  * @note: This function dies
  * @version 2.0.5: Added function and documentation
  *
  * @return void
  */
 function route_404(){
-    global $core;
+    global $core, $_CONFIG;
 
     try{
         $core->register['route_exec']  = 'en/404.php';
