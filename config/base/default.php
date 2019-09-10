@@ -301,23 +301,25 @@ $_CONFIG['root']               = '';                                            
 // Routing configuration
 $_CONFIG['route']             = array('static'                              => true,                                                        // If set to true, support for static routes for IPs is added. This is useful to auto block IP's with 404's, or block them completely after the routing table detected fishy actions
 
-                                      'known_hacks' => array(array('regex' => '/cgi-bin/i',                                                 // Requesting cgi-bin directories is bad
-                                                                   'flags' => 'B,H,L,S'),
+                                      'known_hacks'   => array(array('regex' => '/cgi-bin/i',                                                 // Requesting cgi-bin directories is bad
+                                                                     'flags' => 'B,H,L,S'),
 
-                                                             array('regex' => '/(?:\.well-known|acme-challenge)\//i',                       // Requesting cgi-bin directories is bad
-                                                                   'flags' => 'B,H,L,S'),
+                                                               array('regex' => '/(?:\.well-known|acme-challenge)\//i',                       // Requesting cgi-bin directories is bad
+                                                                     'flags' => 'B,H,L,S'),
 
-                                                             array('regex' => '/wp-(?:admin|login)/i',                                      // Known wordpress file sections
-                                                                   'flags' => 'B,H,L,S'),
+                                                               array('regex' => '/wp-(?:admin|login)/i',                                      // Known wordpress file sections
+                                                                     'flags' => 'B,H,L,S'),
 
-                                                             array('regex' => '/(?:www|data|public|init|config|scripts|libs)\//i',          // Directories in the phoundation structure or structure of other frameworks like laravel that should never be requested by anybody
-                                                                   'flags' => 'B,H,L,S'),
+                                                               array('regex' => '/(?:www|data|public|init|config|scripts|libs)\//i',          // Directories in the phoundation structure or structure of other frameworks like laravel that should never be requested by anybody
+                                                                     'flags' => 'B,H,L,S'),
 
-                                                             array('regex' => '/\.\./i',                                                    // URL's containing ..
-                                                                   'flags' => 'B,H,L,S'),
+                                                               array('regex' => '/\.\./i',                                                    // URL's containing ..
+                                                                     'flags' => 'B,H,L,S'),
 
-                                                             array('regex' => '/C=S;O=A/i',                                                 // HTTP query variables that apparently cause issues on some systems
-                                                                   'flags' => 'B,H,L,S,M')));
+                                                               array('regex' => '/C=S;O=A/i',                                                 // HTTP query variables that apparently cause issues on some systems
+                                                                     'flags' => 'B,H,L,S,M')),
+
+                                      'languages_map' => null);
 
 
 // Security configuration

@@ -22,6 +22,13 @@ require_once(__DIR__.'/system.php');
 
 
 /*
+ * Setup configured URL translations map
+ */
+route_map();
+
+
+
+/*
  * Route the request uri from the client to the correct php file
  *
  * The route() call requires 3 arguments; $regex, $target, and $flags.
@@ -703,14 +710,6 @@ function route($regex, $target, $flags = null){
         $core->register['script']      = str_rfrom($page, '/');
         $core->register['real_script'] = $core->register['script'];
 
-        if(isset($core->register['route_map'])){
-            foreach($core->register['route_map'] as $code => &$map){
-                $map = array_flip($map);
-            }
-        }
-
-        unset($map);
-
         if($until){
             /*
              * Store the request as a static rule until it expires
@@ -972,6 +971,7 @@ function route_404(){
  * @package route
  * @see route()
  * @version 2.8.4: Added function and documentation
+ * @version 2.8.19: Can now use pre-configured language maps
  * @example This example configures a language map for spanish (es) and dutch (nl)
  * code
  * route('map', array('es' => array('portafolio'   => 'portfolio',
@@ -988,15 +988,29 @@ function route_404(){
  *
  * /code
  *
- * @param array $map The language mapping array
+ * @param null array $map The language mapping array
  * @return void
  */
-function route_map($map){
-    global $core;
+function route_map($map = null){
+    global $core, $_CONFIG;
 
     try{
-        log_file(tr('Setting URL map'), 'route', 'VERYVERBOSE/cyan');
-        $core->register['route_map'] = $map;
+        if(empty($map)){
+            /*
+             * Set configured language map, if exists
+             */
+            if($_CONFIG['route']['languages_map']){
+                log_file(tr('Setting configured URL map'), 'route', 'VERYVERBOSE/cyan');
+                $core->register['route_map'] = $_CONFIG['route']['languages_map'];
+            }
+
+        }else{
+            /*
+             * Set specific language map
+             */
+            log_file(tr('Setting specified URL map'), 'route', 'VERYVERBOSE/cyan');
+            $core->register['route_map'] = $map;
+        }
 
     }catch(Exception $e){
         throw new BException(tr('route_map(): Failed'), $e);
