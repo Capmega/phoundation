@@ -487,6 +487,12 @@ try{
         page_show($core->register['page_show']);
     }
 
+    /*
+     * Setup language map in case domain() calls are used
+     */
+    load_libs('route');
+    route_map();
+
 }catch(Exception $e){
     throw new BException(tr('core::cli(): Failed'), $e);
 }

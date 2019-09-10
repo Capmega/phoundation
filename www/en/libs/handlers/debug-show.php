@@ -112,7 +112,7 @@ try{
         /*
          * Show the error message with a conventional die() call
          */
-        die($e->getMessage());
+        die(tr('show() command at ":file@:line" failed with ":e"', array(':file' => current_file($trace_offset), ':line' => current_line($trace_offset), ':e' => $e->getMessage())));
     }
 
     try{

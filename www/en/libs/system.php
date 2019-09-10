@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.18');
+define('FRAMEWORKCODEVERSION', '2.8.19');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -2170,21 +2170,36 @@ function get_domain(){
  * @param null string $prefix
  * @param null string $domain
  * @param null string $language
- * @param null boolean $allow_url_cloak
+ * @param null boolean $allow_cloak
  * @return string the URL
  */
-function domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true){
+function domain($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true){
     global $_CONFIG, $core;
 
     try{
-        if(preg_match('/^(?:(?:https?)|(?:ftp):)?\/\//i', $url)){
+        if(!is_array($url_params)){
+            if(!is_string($url_params) and !is_bool($url_params) and ($url_params !== null)){
+                throw new BException(tr('domain(): Specified $url_params should be either null, a string, or a parameters array but is an ":type"', array(':type' => gettype($url_params))), 'invalid');
+            }
+
+            $url_params = array('url'           => $url_params,
+                                'query'         => $query,
+                                'prefix'        => $prefix,
+                                'domain'        => $domain,
+                                'language'      => $language,
+                                'allow_cloak'   => $allow_cloak);
+        }
+
+        array_default($url_params, 'from_language', LANGUAGE);
+
+        if(preg_match('/^(?:(?:https?)|(?:ftp):)?\/\//i', $url_params['url'])){
             /*
              * Absolute URL specified, don't modify
              */
-            return $url;
+            return $url_params['url'];
         }
 
-        if(!$domain){
+        if(!$url_params['domain']){
             /*
              * Use current domain.
              * Current domain MAY not be the same as the configured domain, so
@@ -2193,57 +2208,61 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
              * example). In that case, fall back on the configured domain
              * $_CONFIG[domain]
              */
-            $domain = get_domain();
+            $url_params['domain'] = get_domain();
 
-        }elseif($domain === true){
+        }elseif($url_params['domain'] === true){
             /*
              * Use current domain name
              */
-            $domain = $_SERVER['HTTP_HOST'];
+            $url_params['domain'] = $_SERVER['HTTP_HOST'];
         }
 
         /*
          * Use url_prefix, for URL's like domain.com/en/admin/page.html, where
          * "/admin/" is the prefix
          */
-        if($prefix === null){
-            $prefix = $_CONFIG['url_prefix'];
+        if($url_params['prefix'] === null){
+            $url_params['prefix'] = $_CONFIG['url_prefix'];
         }
 
-        $prefix   = str_starts_not(str_ends($prefix, '/'), '/');
-        $domain   = slash($domain);
-        $language = get_language($language);
+        $url_params['prefix']   = str_starts_not(str_ends($url_params['prefix'], '/'), '/');
+        $url_params['domain']   = slash($url_params['domain']);
+        $url_params['language'] = get_language($url_params['language']);
 
         /*
          * Build up the URL part
          */
-        if(!$url){
-            $retval = PROTOCOL.$domain.($language ? $language.'/' : '').$prefix;
+        if(!$url_params['url']){
+            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'];
 
-        }elseif($url === true){
-            $retval = PROTOCOL.$domain.str_starts_not($_SERVER['REQUEST_URI'], '/');
+        }elseif($url_params['url'] === true){
+            $retval = PROTOCOL.$url_params['domain'].str_starts_not($_SERVER['REQUEST_URI'], '/');
 
         }else{
-            $retval = PROTOCOL.$domain.($language ? $language.'/' : '').$prefix.str_starts_not($url, '/');
+            $retval = PROTOCOL.$url_params['domain'].($url_params['language'] ? $url_params['language'].'/' : '').$url_params['prefix'].str_starts_not($url_params['url'], '/');
         }
 
         /*
-         * Only map if routemap has been set
+         * Do language mapping, but only if routemap has been set
          */
-// :TODO: This will fail when using multiple CDN servers
-        if(!empty($_CONFIG['language']['supported']) and ($domain !== $_CONFIG['cdn']['domain'].'/')){
-            if(LANGUAGE !== 'en'){
+// :TODO: This will fail when using multiple CDN servers (WHY?)
+        if(!empty($_CONFIG['language']['supported']) and ($url_params['domain'] !== $_CONFIG['cdn']['domain'].'/')){
+            if($url_params['from_language'] !== 'en'){
                 /*
                  * Translate the current non-English URL to English first
-                 * Add a / in front of $retval before replacing to ensure we
-                 * don't accidentally replace sections like "services/" with
-                 * "servicen/"
+                 * because the specified could be in dutch whilst we want to end
+                 * up with Spanish. So translate always
+                 * FOREIGN1 > English > Foreign2.
+                 *
+                 * Also add a / in front of $retval before replacing to ensure
+                 * we don't accidentally replace sections like "services/" with
+                 * "servicen/" with Spanish URL's
                  */
-                $retval = str_replace('/'.LANGUAGE.'/', '/en/', '/'.$retval);
+                $retval = str_replace('/'.$url_params['from_language'].'/', '/en/', '/'.$retval);
                 $retval = substr($retval, 1);
 
                 if(!empty($core->register['route_map'])){
-                    foreach($core->register['route_map'][LANGUAGE] as $english => $foreign){
+                    foreach($core->register['route_map'][$url_params['from_language']] as $foreign => $english){
                         $retval = str_replace($foreign, $english, $retval);
                     }
                 }
@@ -2254,7 +2273,7 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
              * English here, then conversion from local language to English
              * right above failed
              */
-            if($language !== 'en'){
+            if($url_params['language'] !== 'en'){
                 /*
                  * Map the english URL to the requested non-english URL
                  * Only map if routemap has been set for the requested language
@@ -2263,16 +2282,16 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
                     /*
                      * No route_map was set, only translate language selector
                      */
-                    $retval = str_replace('en/', $language.'/', $retval);
+                    $retval = str_replace('en/', $url_params['language'].'/', $retval);
 
                 }else{
-                    if(empty($core->register['route_map'][$language])){
-                        notify(new BException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $language)), 'not-specified'));
+                    if(empty($core->register['route_map'][$url_params['language']])){
+                        notify(new BException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $url_params['language'])), 'not-specified'));
 
                     }else{
-                        $retval = str_replace('en/', $language.'/', $retval);
+                        $retval = str_replace('en/', $url_params['language'].'/', $retval);
 
-                        foreach($core->register['route_map'][$language] as $english => $foreign){
+                        foreach($core->register['route_map'][$url_params['language']] as $foreign => $english){
                             $retval = str_replace($english, $foreign, $retval);
                         }
                     }
@@ -2280,15 +2299,15 @@ function domain($url = null, $query = null, $prefix = null, $domain = null, $lan
             }
         }
 
-        if($query){
+        if($url_params['query']){
             load_libs('inet');
-            $retval = url_add_query($retval, $query);
+            $retval = url_add_query($retval, $url_params['query']);
 
-        }elseif($query === false){
+        }elseif($url_params['query'] === false){
             $retval = str_until($retval, '?');
         }
 
-        if($allow_url_cloak and $_CONFIG['security']['url_cloaking']['enabled']){
+        if($url_params['allow_cloak'] and $_CONFIG['security']['url_cloaking']['enabled']){
             /*
              * Cloak the URL before returning it
              */
@@ -5128,7 +5147,7 @@ function date_convert($date = null, $requested_format = 'human_datetime', $to_ti
             return date_translate($retval);
 
         }catch(Exception $e){
-            throw new BException(tr('date_convert(): Invalid format ":format" specified', array(':format' => $format)), 'invalid');
+            throw new BException(tr('date_convert(): Failed to convert to format ":format" because ":e"', array(':format' => $format, ':e' => $e)), 'invalid');
         }
 
     }catch(Exception $e){
