@@ -49,7 +49,7 @@ import                          -
 
 fix-errors                      - ';
 
-require_once(__DIR__.'/../../../libs/startup.php');
+require_once(__DIR__.'/../../libs/startup.php');
 cli_exclusive();
 cli_only();
 
