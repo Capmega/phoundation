@@ -1589,7 +1589,7 @@ function blogs_validate_post($post, $params = null){
         /*
          * Set extra parameters
          */
-        $post['seoname'] = seo_unique($post['name'], 'blogs_posts', isset_get($post['id']));
+        $post['seoname'] = seo_unique(array('seoname' => $post['name'], 'language' => $post['language']), 'blogs_posts', isset_get($post['id']));
         $post['url']     = blogs_post_url($post);
 
         /*
