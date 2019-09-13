@@ -210,23 +210,38 @@ function inet_get_domain($strip = array('www', 'dev', 'm')){
 
 
 /*
- * Get subdomain from domain (when knowing what the domain is)
+ * Get subdomain from FQDN relative to the $_SESSION['domain']
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package inet
+ * @version 2.8.21: Added documentation, improved function
+ *
+ * @param null string $fqdn The entire domain to test
+ * @param null string $root The root part of the domain to test
+ * @return string The subdomain, if there is any
  */
-function inet_get_subdomain($domain = null, $strip = array('www', 'dev', 'm')){
+function inet_get_subdomain($fqdn = null, $root = null){
     global $_CONFIG;
 
     try{
-        if(!$domain){
-            $domain = $_SERVER['HTTP_HOST'];
+        if(!$fqdn){
+            $fqdn = $_SERVER['HTTP_HOST'];
         }
 
-        $subdomain = str_until($domain, '.');
-
-        if(in_array(str_until($_SERVER['HTTP_HOST'], '.'), array_force($strip))){
-            return false;
+        if(!$root){
+            $root = $_CONFIG['domain'];
         }
 
-        return $subdomain;
+        $len = mb_strlen($root);
+
+        if(substr($fqdn, -$len, $len) !== $root){
+            throw new BException(tr('inet_get_subdomain(): Specified $fdqn (Fully Qualified Domain Name) ":fqdn" does not end with the root domain ":root"', array(':fqdn' => $fqdn, ':root' => $root)), 'not-exists');
+        }
+
+        return urldecode(str_until($fqdn, '.'.$root, 0, 0, true));
 
     }catch(Exception $e){
         throw new BException(tr('inet_get_subdomain(): Failed'), $e);
