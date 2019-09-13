@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.21');
+define('FRAMEWORKCODEVERSION', '2.8.22');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -3931,7 +3931,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
  */
 function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = false){
     global $_CONFIG;
-
+// :TODO: Database CDN servers (for the CDN network) have their own protocol (http or https) specified and thus will ignore the $_CONFIG[session][secure] directive, fix this!!!
     try{
         if(!$_CONFIG['cdn']['enabled'] and !$force_cdn){
             if($section == 'pub'){

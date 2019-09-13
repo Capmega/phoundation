@@ -3465,7 +3465,7 @@ function html_set_js_cdn_url(){
     global $_CONFIG, $core;
 
     try{
-        $core->register['header'] = html_script('var cdnprefix="'.cdn_domain().'";', false);
+        $core->register['header'] = html_script('var cdnprefix="'.cdn_domain().'"; var site_prefix="'.domain().'";', false);
 
     }catch(Exception $e){
         throw new BException(tr('html_set_js_cdn_url(): Failed'), $e);
