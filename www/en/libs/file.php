@@ -552,7 +552,7 @@ function file_clear_path($paths, $restrictions = null){
                     /*
                      * We no longer have access to move up more, stop here.
                      */
-                    log_console(tr('file_clear_path(): Stopped recursing upward on path ":path" because filesystem restrictions do not permit to move further up', array(':path' => $path)), 'warning');
+                    log_console(tr('file_clear_path(): Stopped recursing upward on path ":path" because filesystem restrictions do not permit to move further up', array(':path' => $path)), 'VERYVERBOSE/warning');
                     return;
                 }
             }
@@ -3506,4 +3506,55 @@ function file_chmod_tree($path, $filemode, $dirmode = 0770){
         throw new BException('file_chmod_tree(): Failed', $e);
     }
 }
-?>
+
+
+
+/*
+ * Return a single file from the specified file section
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.8.21: Added function and documentation
+ * @note This function throws an exception if multiple files matched
+ * @example
+ * code
+ * $result = file_from_path('/etc/passw');
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * /etc/passwd
+ * /code
+ *
+ * @param string $file
+ * @return string The result
+ */
+function file_from_part($file){
+    try{
+        $target = null;
+
+        file_tree_execute(array('execute_directory' => true,
+                                'path'              => dirname($file),
+                                'callback'          => function($path) use ($file, &$target) {
+                                                           if(str_exists($path, $file)){
+                                                               if($target){
+                                                                   /*
+                                                                    * We already found another file matching the specified path part
+                                                                    */
+                                                                   throw new BException(tr('file_from_path(): Found multiple files for specified file part ":file"', array(':file' => $file)), 'multiple');
+                                                               }
+
+                                                               $target = $path;
+                                                           }
+                                              }));
+
+        return $target;
+
+    }catch(Exception $e){
+        throw new BException(tr('file_from_part(): Failed'), $e);
+    }
+}
