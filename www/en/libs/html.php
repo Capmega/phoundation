@@ -946,12 +946,13 @@ function html_header($params, $meta, &$html){
  * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
  * @version 2.4.89: Added function and documentation
  * @version 2.8.24: Added support for html_og() open graph data
+ * @version 2.8.25: Fixed various minor issues, improved warning messages
  *
  * @param params $meta The required meta tags in key => value format
  * @return string The <meta> tags
  */
 function html_meta($meta){
-    global $_CONFIG;
+    global $_CONFIG, $core;
 
     try{
         /*
@@ -968,23 +969,35 @@ function html_meta($meta){
         /*
          * Add meta tag no-index for non production environments and admin pages
          */
-        if(!$_CONFIG['production'] or $_CONFIG['noindex']){
-           $meta['robots'] = 'noindex';
-        }
-
-        if(empty($meta['description'])){
-            notify(new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
-        }
-
-        if(empty($meta['keywords'])){
-            notify(new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
-        }
-
-        if(!empty($meta['noindex'])){
+        if(!empty($meta['noindex']) or !$_CONFIG['production'] or $_CONFIG['noindex'] or $core->callType('admin')){
             $meta['robots'] = 'noindex';
             unset($meta['noindex']);
         }
 
+        /*
+         * Validate meta keys
+         */
+        if(empty($meta['title'])){
+            $meta['title'] = domain(true);
+            notify(new BException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+
+        }elseif(strlen($og['title']) > 65){
+            $og['title'] = str_truncate($og['title']);
+            notify(new BException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $og['title'])), 'warning/invalid'));
+        }
+
+        if(empty($meta['description'])){
+            $meta['description'] = domain(true);
+            notify(new BException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+
+        }elseif(strlen($og['description']) > 155){
+            $og['description'] = str_truncate($og['description']);
+            notify(new BException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $og['description'])), 'warning/invalid'));
+        }
+
+        /*
+         * Add configured meta keys
+         */
         if(!empty($_CONFIG['meta'])){
             /*
              * Add default configured meta tags
@@ -1003,6 +1016,9 @@ function html_meta($meta){
             notify(new BException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified'));
         }
 
+        /*
+         * Start building meta data
+         */
         $retval = '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
                   '<title>'.$meta['title'].'</title>';
 
@@ -1044,6 +1060,7 @@ function html_meta($meta){
  * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
  * @note: Any OG meta properties without content will cause notifications, not errors. This will not stop the page from loading, but log entries will be made and developers will receive warnings to resolve the issue
  * @version 2.8.24: Added function and documentation
+ * @version 2.8.25: Fixed various minor issues, improved warning messages
  *
  * @param params $og The required meta tags in property => content format
  * @param params $$meta The required meta data
@@ -1064,6 +1081,18 @@ function html_og($og, $meta){
         array_default($og, 'type'       , 'website');
 
         $retval = '';
+
+        if(strlen($og['description']) > 65){
+            $og['description'] = str_truncate($og['description']);
+            notify(new BException(tr('html_og(): Specified OG description ":description" is larger than 65 characters', array(':description' => $og['description'])), 'warning/invalid'));
+        }
+
+        if(strlen($og['title']) > 35){
+            $og['title'] = str_truncate($og['title']);
+            notify(new BException(tr('html_og(): Specified OG title ":title" is larger than 35 characters', array(':title' => $og['title'])), 'warning/invalid'));
+        }
+
+        $og['locale'] = str_until($og['title'], '.');
 
         foreach($og as $property => $content){
             if(empty($content)){
