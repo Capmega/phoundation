@@ -124,7 +124,7 @@ try{
      * Setup character encoding and locale
      */
     ini_set('default_charset', $_CONFIG['encoding']['charset']);
-    set_locale();
+    $this->register('locale', set_locale());
 
 
 

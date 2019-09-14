@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.23');
+define('FRAMEWORKCODEVERSION', '2.8.24');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -5991,6 +5991,7 @@ function limit_request_method($method){
  * @category Function reference
  * @package system
  * @version 2.8.15: Added function and documentation
+ * @version 2.8.24: Now returns LC_ALL locale
  * @note If LC_ALL is specified, it will be applied first to set the default value for all other parameters. Then all the other parameters will be applied, if specified
  * @note Each LC_* value can contain a :LANGUAGE and :COUNTRY tag. These tags will be replaced with an ISO_639-1 language code / ISO 3166-1 alpha-2 country code respectitively
  * @note If LANGUAGE is not available, the default language in $_CONFIG[language][default] will be used
@@ -6004,12 +6005,14 @@ function limit_request_method($method){
  * @param optional $string LC_NUMERIC  Default value for LC_NUMERIC parameter
  * @param optional $string LC_TIME     Default value for all LC_TIME parameter
  * @param optional $string LC_MESSAGES Default value for LC_MESSAGES parameter
- * @return void
+ * @return string the LC_ALL locale
  */
 function set_locale($data = null){
     global $_CONFIG;
 
     try{
+        $retval = '';
+
         if(!$data){
             $data = $_CONFIG['locale'];
         }
@@ -6043,6 +6046,7 @@ function set_locale($data = null){
             $data[LC_ALL] = str_replace(':COUNTRY' , $country , $data[LC_ALL]);
 
             setlocale(LC_ALL, $data[LC_ALL]);
+            $retval = $data[LC_ALL];
             unset($data[LC_ALL]);
         }
 
@@ -6069,6 +6073,8 @@ function set_locale($data = null){
 
             setlocale($key, $value);
         }
+
+        return $retval;
 
     }catch(Exception $e){
         throw new BException(tr('set_locale(): Failed'), $e);

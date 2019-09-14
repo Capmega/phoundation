@@ -803,13 +803,12 @@ function html_header($params, $meta, &$html){
     global $_CONFIG, $core;
 
     try{
-        array_ensure($params, 'title,links,extra');
+        array_ensure($params, 'links,extra');
         array_default($params, 'http'          , 'html');
         array_default($params, 'captcha'       , false);
         array_default($params, 'doctype'       , '<!DOCTYPE html>');
         array_default($params, 'html'          , '<html lang="'.LANGUAGE.'">');
         array_default($params, 'body'          , '<body>');
-        array_default($params, 'title'         , isset_get($meta['title']));
         array_default($params, 'favicon'       , true);
         array_default($params, 'amp'           , false);
         array_default($params, 'style'         , '');
@@ -833,47 +832,6 @@ function html_header($params, $meta, &$html){
             }
         }
 
-        try{
-            array_ensure($meta);
-
-            if(empty($meta['description'])){
-                throw new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified');
-            }
-
-            if(empty($meta['keywords'])){
-                throw new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified');
-            }
-
-            if(!empty($meta['noindex'])){
-                $meta['robots'] = 'noindex';
-                unset($meta['noindex']);
-            }
-
-            if(!empty($_CONFIG['meta'])){
-                /*
-                 * Add default configured meta tags
-                 */
-                $meta = array_merge($_CONFIG['meta'], $meta);
-            }
-
-            /*
-             * Add viewport meta tag for mobile devices
-             */
-            if(empty($meta['viewport'])){
-                $meta['viewport'] = isset_get($_CONFIG['mobile']['viewport']);
-            }
-
-            if(!$meta['viewport']){
-                throw new BException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified');
-            }
-
-        }catch(Exception $e){
-            /*
-             * Only notify since this is not a huge issue on production
-             */
-            notify($e);
-        }
-
         /*
          * AMP page? Canonical page?
          */
@@ -885,23 +843,9 @@ function html_header($params, $meta, &$html){
             $params['links'] .= '<link rel="canonical" href="'.$params['canonical'].'">';
         }
 
-        /*
-         * Add meta tag no-index for non production environments and admin pages
-         */
-        if(!$_CONFIG['production'] or $_CONFIG['noindex']){
-           $meta['robots'] = 'noindex';
-        }
-
-        $title = html_title($meta['title']);
-        unset($meta['title']);
-
         $retval =  $params['doctype'].
                    $params['html'].'
-                   <head>'.
-                  '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
-                  '<title>'.$title.'</title>';
-
-        unset($meta['title']);
+                   <head>';
 
         if($params['style']){
             $retval .= '<style>'.$params['style'].'</style>';
@@ -998,29 +942,77 @@ function html_header($params, $meta, &$html){
  * @category Function reference
  * @package html
  * @see html_header()
+ * @see html_og()
  * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
  * @version 2.4.89: Added function and documentation
+ * @version 2.8.24: Added support for html_og() open graph data
  *
  * @param params $meta The required meta tags in key => value format
  * @return string The <meta> tags
  */
 function html_meta($meta){
+    global $_CONFIG;
+
     try{
         /*
          * Add all other meta tags
          * Only add keywords with contents, all that have none are considerred
          * as false, and do-not-add
          */
-        array_ensure($meta, 'title,description');
-        array_default($meta, 'og:url'        , domain(true));
-        array_default($meta, 'og:title'      , $meta['title']);
-        array_default($meta, 'og:description', $meta['description']);
+        array_ensure($meta, 'title,description,og');
 
-        $retval = '';
+//<meta property="og:locale" content="en_GB" />
+//<meta property="og:locale:alternate" content="fr_FR" />
+//<meta property="og:locale:alternate" content="es_ES" />
+
+        /*
+         * Add meta tag no-index for non production environments and admin pages
+         */
+        if(!$_CONFIG['production'] or $_CONFIG['noindex']){
+           $meta['robots'] = 'noindex';
+        }
+
+        if(empty($meta['description'])){
+            notify(new BException(tr('html_header(): No header meta description specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+        }
+
+        if(empty($meta['keywords'])){
+            notify(new BException(tr('html_header(): No header meta keywords specified for script ":script" (SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
+        }
+
+        if(!empty($meta['noindex'])){
+            $meta['robots'] = 'noindex';
+            unset($meta['noindex']);
+        }
+
+        if(!empty($_CONFIG['meta'])){
+            /*
+             * Add default configured meta tags
+             */
+            $meta = array_merge($_CONFIG['meta'], $meta);
+        }
+
+        /*
+         * Add viewport meta tag for mobile devices
+         */
+        if(empty($meta['viewport'])){
+            $meta['viewport'] = isset_get($_CONFIG['mobile']['viewport']);
+        }
+
+        if(!$meta['viewport']){
+            notify(new BException(tr('html_header(): Meta viewport tag is not specified'), 'warning/not-specified'));
+        }
+
+        $retval = '<meta http-equiv="Content-Type" content="text/html;charset="'.$_CONFIG['encoding']['charset'].'">'.
+                  '<title>'.$meta['title'].'</title>';
 
         foreach($meta as $key => $value){
-            if(substr($key, 0, 3) === 'og:'){
-                $retval .= '<meta property="'.$key.'" content="'.$value.'">';
+            if($key === 'og'){
+                $retval .= html_og($value, $meta);
+
+            }elseif(substr($key, 0, 3) === 'og:'){
+// :COMPATIBILITY: Remove this section @ 2.10
+                notify(new BException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => str_from($key, 'og:'))), 'warning/invalid'));
 
             }else{
                 $retval .= '<meta name="'.$key.'" content="'.$value.'">';
@@ -1030,7 +1022,64 @@ function html_meta($meta){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('html_meta(): Failed', $e);
+        /*
+         * Only notify since this is not a huge issue on production
+         */
+        notify($e);
+    }
+}
+
+
+
+/*
+ * Generate all open graph <meta> tags
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package html
+ * @see html_header()
+ * @see html_meta()
+ * @note: This function is primarily used by html_header(). There should not be any reason to call this function from any other location
+ * @note: Any OG meta properties without content will cause notifications, not errors. This will not stop the page from loading, but log entries will be made and developers will receive warnings to resolve the issue
+ * @version 2.8.24: Added function and documentation
+ *
+ * @param params $og The required meta tags in property => content format
+ * @param params $$meta The required meta data
+ * @return string The <meta> tags containing open graph data
+ */
+function html_og($og, $meta){
+    global $_CONFIG, $core;
+
+    try{
+        array_ensure($meta, 'title,description');
+        array_ensure($og, 'description,url,image');
+        array_default($og, 'url'        , domain(true));
+        array_default($og, 'site_name'  , $_CONFIG['name']);
+        array_default($og, 'title'      , $meta['title']);
+        array_default($og, 'image'      , cdn_domain($_CONFIG['logo']));
+        array_default($og, 'description', $meta['description']);
+        array_default($og, 'locale'     , $core->register['locale']);
+        array_default($og, 'type'       , 'website');
+
+        $retval = '';
+
+        foreach($og as $property => $content){
+            if(empty($content)){
+                notify(new BException(tr('html_og(): Missing property content for meta og key ":property". Please add this data for SEO!', array(':property' => $property)), 'warning/not-specified'));
+            }
+
+            $retval .= '<meta property="og:'.$property.'" content="'.$content.'">';
+        }
+
+        return $retval;
+
+    }catch(Exception $e){
+        /*
+         * Only notify since this is not a huge issue on production
+         */
+        notify($e);
     }
 }
 
@@ -1101,49 +1150,6 @@ function html_end(){
 
     }catch(Exception $e){
         throw new BException('html_end(): Failed', $e);
-    }
-}
-
-
-
-/*
- * Generate and return the HTML footer
- */
-function html_title($params){
-    global $_CONFIG;
-
-    try{
-        $title = $_CONFIG['title'];
-
-        /*
-         * If no params are specified then just return the given title
-         */
-        if(empty($params)){
-            return $title;
-        }
-
-        /*
-         * If the given params is a plain string then override the configured title with this
-         */
-        if(!is_array($params)){
-            if(is_string($params)){
-                return $params;
-            }
-
-            throw new BException('html_title(): Invalid title specified');
-        }
-
-        /*
-         * Do a search / replace on all specified items to create correct title
-         */
-        foreach($params as $key => $value){
-            $title = str_replace($key, $value, $title);
-        }
-
-        return $title;
-
-    }catch(Exception $e){
-        throw new BException('html_title(): Failed', $e);
     }
 }
 
