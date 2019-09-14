@@ -981,18 +981,18 @@ function html_meta($meta){
             $meta['title'] = domain(true);
             notify(new BException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
 
-        }elseif(strlen($og['title']) > 65){
-            $og['title'] = str_truncate($og['title']);
-            notify(new BException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $og['title'])), 'warning/invalid'));
+        }elseif(strlen($meta['title']) > 65){
+            $meta['title'] = str_truncate($meta['title']);
+            notify(new BException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $meta['title'])), 'warning/invalid'));
         }
 
         if(empty($meta['description'])){
             $meta['description'] = domain(true);
             notify(new BException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
 
-        }elseif(strlen($og['description']) > 155){
-            $og['description'] = str_truncate($og['description']);
-            notify(new BException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $og['description'])), 'warning/invalid'));
+        }elseif(strlen($meta['description']) > 155){
+            $meta['description'] = str_truncate($meta['description']);
+            notify(new BException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $meta['description'])), 'warning/invalid'));
         }
 
         /*
