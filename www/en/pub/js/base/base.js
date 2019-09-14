@@ -238,19 +238,29 @@
 
     $.geoLocation = function(cb, cbe){
         try {
-console.log("geoLocation");
-            if (!cbe) {
-                cbe = function(e){
-                    $.flashMessage("'.tr('Something went wrong, and your location could not be auto detected').'", "error", 0);
-                };
+            if(!cbe){
+                cbe = function(){
+                    console.info("User denied current position, or missing browser support, trying geoplugin.net");
+
+                    // geoplugin failed, try site itself
+                    var url = site_prefix + "ajax/geo/get-location.html";
+                    console.info("Trying geolocation through " + url);
+
+                    $.getJSON(url)
+                        .done(function(data){
+                            console.info("Got geolocation through " + url);
+                            cb(data);
+                        })
+                        .fail(function(a, b, e) {
+                            // Failed to get geo location
+                            console.error(e);
+                            console.error("Failed to get geo location");
+                        });
+                }
             }
 
-            if(navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(cb, cbe);
-
-            } else {
-                cbe();
-            }
+            console.info("Attempting to retrieve geo data");
+            navigator.geolocation.getCurrentPosition(cb, cbe);
 
         } catch(e) {
             throw(e);
