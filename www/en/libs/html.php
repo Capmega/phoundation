@@ -982,7 +982,7 @@ function html_meta($meta){
             notify(new BException(tr('html_meta(): No meta title specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
 
         }elseif(strlen($meta['title']) > 65){
-            $meta['title'] = str_truncate($meta['title']);
+            $meta['title'] = str_truncate($meta['title'], 65);
             notify(new BException(tr('html_meta(): Specified meta title ":title" is larger than 65 characters', array(':title' => $meta['title'])), 'warning/invalid'));
         }
 
@@ -991,7 +991,7 @@ function html_meta($meta){
             notify(new BException(tr('html_meta(): No meta description specified for script ":script" (BAD SEO!)', array(':script' => $core->register['script'])), 'warning/not-specified'));
 
         }elseif(strlen($meta['description']) > 155){
-            $meta['description'] = str_truncate($meta['description']);
+            $meta['description'] = str_truncate($meta['description'], 155);
             notify(new BException(tr('html_meta(): Specified meta description ":description" is larger than 155 characters', array(':description' => $meta['description'])), 'warning/invalid'));
         }
 
@@ -1083,16 +1083,16 @@ function html_og($og, $meta){
         $retval = '';
 
         if(strlen($og['description']) > 65){
-            $og['description'] = str_truncate($og['description']);
+            $og['description'] = str_truncate($og['description'], 65);
             notify(new BException(tr('html_og(): Specified OG description ":description" is larger than 65 characters', array(':description' => $og['description'])), 'warning/invalid'));
         }
 
         if(strlen($og['title']) > 35){
-            $og['title'] = str_truncate($og['title']);
+            $og['title'] = str_truncate($og['title'], 35);
             notify(new BException(tr('html_og(): Specified OG title ":title" is larger than 35 characters', array(':title' => $og['title'])), 'warning/invalid'));
         }
 
-        $og['locale'] = str_until($og['title'], '.');
+        $og['locale'] = str_until($og['locale'], '.');
 
         foreach($og as $property => $content){
             if(empty($content)){
