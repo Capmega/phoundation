@@ -230,8 +230,11 @@ $_CONFIG['locale']             = array(LC_ALL                               => '
 $_CONFIG['location']           = array('default_country'                    => 'US',
                                        'detect'                             => false);                                                      // Attempt auto location detect if current session doesn't have location information
 
-//Log configuration
+// Log configuration
 $_CONFIG['log']                = array('single'                             => true);                                                       // All file logs will go to one and the same file
+
+// Logo configuration
+$_CONFIG['logo']               = '';                                                                                                        // Default logo for the project
 
 // Mail configuration
 $_CONFIG['mail']               = array('developers'                         => array());
