@@ -41,6 +41,8 @@ GLOBAL OPTIONS
 
 --do-syntax / --doparse         - Do PHP syntax check parse
 
+--ignore-rsync-errors           - Ignore errors caused by the rsync process
+
 --no-deploy / --test            - Do not deploy, only translate
 
 --no-hook / --no-hooks          - Do not execute hooks
