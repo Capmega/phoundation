@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.32');
+define('FRAMEWORKCODEVERSION', '2.8.33');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -3985,6 +3985,9 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
 
         /*
          * Get this URL from the CDN system
+         *
+         * Disabled servers are allowed to be used as they cannot receive new
+         * files but still server files
          */
         $url = sql_get('SELECT    `cdn_files`.`file`,
                                   `cdn_files`.`servers_id`,
@@ -3997,7 +4000,7 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
                         ON        `cdn_files`.`servers_id` = `cdn_servers`.`id`
 
                         WHERE     `cdn_files`.`file` = :file
-                        AND       `cdn_servers`.`status` IS NULL
+                        AND       (`cdn_servers`.`status` IS NULL OR `cdn_servers`.`status` = "disabled")
 
                         ORDER BY  RAND()
 
@@ -4016,7 +4019,7 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
          * The specified file is not found in the CDN system, return a default
          * image instead
          */
-        if(!$default){
+        if(!$default and $_CONFIG['cdn']['img']['default']){
             $default = $_CONFIG['cdn']['img']['default'];
         }
 
