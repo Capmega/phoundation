@@ -71,7 +71,9 @@ $_CONFIG['cdn']                = array('min'                                => t
 
                                        'cache_max_age'                      => 604800,                                                  // Max age of cached CDN files like bundle files, internal js files, etc. before they are deleted and regenerated. If cache age is lower than 60 it will be considered zero, and cache age will be ignored
 
-                                       'enabled'                            => false,                                                   // If set to "true", base will try to use configured CDN servers for the content files. If set to false, files will be used from the local server
+                                       'enabled'                            => false,                                                   // [false | true] If set to "true", base will try to use configured CDN servers for the content files. If set to false, files will be used from the local server.
+
+                                       'no_delete'                          => false,                                                   // [false | true] If set to "true", then the local files will not be deleted after have been sent to the CDN system. This is useful in test situations where the CDN files are on the same location as the normal server.
 
                                        'is_server'                          => false,                                                   // If set to "true", this server can function as a CDN server
 
@@ -234,7 +236,8 @@ $_CONFIG['location']           = array('default_country'                    => '
 $_CONFIG['log']                = array('single'                             => true);                                                       // All file logs will go to one and the same file
 
 // Logo configuration
-$_CONFIG['logo']               = '';                                                                                                        // Default logo for the project
+$_CONFIG['logo']               = array('og'                                 => '',                                                          // Default open graph logo for the project
+                                       'site'                               => '');                                                         // Default website logo for the project
 
 // Mail configuration
 $_CONFIG['mail']               = array('developers'                         => array());
@@ -356,7 +359,11 @@ $_CONFIG['security']           = array('signin'                             => a
 
                                        'csrf'                               => array('enabled'          => 'force',                         // CSRF detection configuration. true | false | "force". Force will forcibly check every POST on CSRF
                                                                                      'buffer_size'      => 10,                              // The amount of server side CSRF keys that are being kept. With more keys, more pages can be run in parrallel
-                                                                                     'timeout'          => 0));                             // Timeout after page generation, where @ POST time the CSRF check will fail. Use 0 to disable
+                                                                                     'timeout'          => 0),                              // Timeout after page generation, where @ POST time the CSRF check will fail. Use 0 to disable
+
+                                       'ssl'                                => array('verify_peer'      => true,                            // If Phoundation connects to an SSL connection, if set true, it will verify the certificate
+                                                                                     'verify_peer_name' => true,                            // If Phoundation connects to an SSL connection, if set true, it will verify the certificate name
+                                                                                     'allow_self_signed'=> false));                         // If Phoundation connects to an SSL connection, if set true, it will allow self-signed certificates
 
 
 // Sessions

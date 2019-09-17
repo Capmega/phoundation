@@ -794,4 +794,39 @@ function http_build_url($url, $query){
         throw new BException('http_build_url(DEPRECIATED): Failed', $e);
     }
 }
-?>
+
+
+
+/*
+ * Set the default context for SSL requests that phoundation has to make when using (for example) file_get_contents()
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package http
+ * @version 2.8.29: Added function and documentation
+ *
+ * @param null params $params A parameters array
+ * @param string $params[verify_peer]
+ * @param string $params[verify_peer_name]
+ * @param string $params[allow_self_signed]
+ * @return
+ */
+function http_set_ssl_default_context($params = null){
+    global $_CONFIG;
+
+    try{
+        array_ensure($params);
+        array_default($params, 'verify_peer'      , $_CONFIG['security']['ssl']['verify_peer']);
+        array_default($params, 'verify_peer_name' , $_CONFIG['security']['ssl']['verify_peer_name']);
+        array_default($params, 'allow_self_signed', $_CONFIG['security']['ssl']['allow_self_signed']);
+
+        return stream_context_set_default(array('ssl' => array('verify_peer'       => $params['verify_peer'],
+                                                               'verify_peer_name'  => $params['verify_peer_name'],
+                                                               'allow_self_signed' => $params['allow_self_signed'])));
+
+    }catch(Exception $e){
+        throw new BException(tr('http_ssl_context(): Failed'), $e);
+    }
+}
