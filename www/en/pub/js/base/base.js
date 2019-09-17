@@ -1,39 +1,39 @@
 (function($){
-    $(document).ajaxSuccess(function(event, jqXHR, settings){
+    $(document).ajaxSuccess(function(event, jqXHR, settings, data){
 //console.log(jqXHR.responseJSON);
 //console.log(jqXHR.responseText);
         if (typeof jqXHR.responseJSON != 'object') {
-            throw "failed to parse json for url \"" + settings.url + "\"";
+            console.log("Failed to parse json for url \"" + settings.url + "\", assuming plain text");
 
-        }
+        }else{
+            if(typeof jqXHR.responseJSON.result == 'undefined') {
+                throw "json contained no result text for url \"" + settings.url + "\"";
 
-        if(typeof jqXHR.responseJSON.result == 'undefined') {
-            throw "json contained no result text for url \"" + settings.url + "\"";
+            }
 
-        }
+            if(typeof jqXHR.responseJSON.data == 'undefined'){
+                throw "json contained no data object for url \"" + settings.url + "\"";
+            }
 
-        if(typeof jqXHR.responseJSON.data == 'undefined'){
-            throw "json contained no data object for url \"" + settings.url + "\"";
-        }
+            switch (jqXHR.responseJSON.result) {
+                case "RELOAD":
+                    /*
+                     * Reload as GET, NOT as POST!
+                     */
+                    window.location.href = window.location.href;
+                    break;
 
-        switch (jqXHR.responseJSON.result) {
-            case "RELOAD":
-                /*
-                 * Reload as GET, NOT as POST!
-                 */
-                window.location.href = window.location.href;
-                break;
+                case "OK":
+                    break;
 
-            case "OK":
-                break;
+                default:
+                    throw "invalid json status \"" + jqXHR.responseJSON.result + "\" for url \"" + settings.url + "\"";
+            }
 
-            default:
-                throw "invalid json status \"" + jqXHR.responseJSON.result + "\" for url \"" + settings.url + "\"";
-        }
-
-        if(jqXHR.responseJSON.csrf){
-            // Server sent updated CSRF code, update local value for next request
-            $('#ajax_csrf').val(jqXHR.responseJSON.csrf);
+            if(jqXHR.responseJSON.csrf){
+                // Server sent updated CSRF code, update local value for next request
+                $('#ajax_csrf').val(jqXHR.responseJSON.csrf);
+            }
         }
     });
 
