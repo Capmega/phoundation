@@ -460,7 +460,8 @@ try{
         }
     }
 
+    http_set_ssl_default_context();
+
 }catch(Exception $e){
     throw new BException(tr('core::manage_session(): Failed'), $e);
 }
-?>

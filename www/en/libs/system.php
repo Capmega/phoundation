@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.27');
+define('FRAMEWORKCODEVERSION', '2.8.29');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -3896,7 +3896,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
          * Now that the file has been sent to the CDN system delete the file
          * locally
          */
-        if($delete){
+        if($delete and !$_CONFIG['cdn']['no_delete']){
             foreach($files as $url => $file){
                 file_delete($file, ROOT);
             }
