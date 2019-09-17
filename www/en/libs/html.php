@@ -1075,7 +1075,7 @@ function html_og($og, $meta){
         array_default($og, 'url'        , domain(true));
         array_default($og, 'site_name'  , $_CONFIG['name']);
         array_default($og, 'title'      , $meta['title']);
-        array_default($og, 'image'      , cdn_domain($_CONFIG['logo']));
+        array_default($og, 'image'      , ($_CONFIG['logo']['og'] ? cdn_domain($_CONFIG['logo']['og']) : ''));
         array_default($og, 'description', $meta['description']);
         array_default($og, 'locale'     , $core->register['locale']);
         array_default($og, 'type'       , 'website');
