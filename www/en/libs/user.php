@@ -1462,7 +1462,7 @@ function user_update_password($params, $current = true){
          * Check if password is NOT equal to cpassword
          */
         if($current and ($params['password'] == $params['cpassword'])){
-            throw new BException(tr('user_update_password(): Specified new password is the same as the current password'), 'warning/same-as-current');
+            throw new BException(tr('user_update_password(): Specified new password is the same as the current password'), 'warning/same');
         }
 
         if($current){
