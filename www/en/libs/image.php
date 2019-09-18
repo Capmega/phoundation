@@ -1007,7 +1007,7 @@ function image_watermark($params){
          */
         foreach(array('image' => $params['image'], 'watermark' => $params['watermark']) as $type => $filename){
             if(!file_exists($params['target'])){
-                throw new BException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotexists');
+                throw new BException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => str_log($filename))), 'imagenot-exists');
             }
 
             if(!$size = getimagesize($filename)){

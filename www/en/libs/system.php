@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.34');
+define('FRAMEWORKCODEVERSION', '2.8.35');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -253,7 +253,7 @@ class Core{
                 /*
                  * Core already started up
                  */
-                log_file(tr('Core already started @ ":time", not starting again', array(':time' => $this->register['startup'])), 'core::startup', 'error');
+                log_file(tr('Core already started @ ":time", not starting again. This is very likely due to the ":script" script loading the startup.php library whilst using the routing system.', array(':time' => $this->register['startup'], ':script' => $this->register['script'])), 'core::startup', 'warning');
                 return false;
             }
 

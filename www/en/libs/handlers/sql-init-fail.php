@@ -27,7 +27,7 @@
 
             break;
 
-        case 'notspecified':
+        case 'not-specified':
             throw new BException('sql_init(): Failed', $e);
     }
 
