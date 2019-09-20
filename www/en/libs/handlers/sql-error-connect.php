@@ -28,7 +28,7 @@ try{
              */
             $core->register['no-db'] = true;
 
-            if(!((PLATFORM_CLI) and ($core->register['script'] == 'init'))){
+            if(!((PLATFORM_CLI) and ($core->register['script'] == 'init') and ($core->register['script'] == 'sync'))){
                 throw $e;
             }
 
