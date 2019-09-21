@@ -160,6 +160,8 @@ function html_bundler($list){
              * JS
              */
             if(!filesize($bundle_file)){
+                log_file(tr('Deleting empty bundle file ":file"', array(':file' => $bundle_file)), 'html-bundler', 'yellow');
+
                 file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
                     file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
                 });
@@ -172,6 +174,8 @@ function html_bundler($list){
              * not too old
              */
             if(($_CONFIG['cdn']['cache_max_age'] > 60) and (filemtime($bundle_file) + $_CONFIG['cdn']['cache_max_age']) < time()){
+                log_file(tr('Deleting expired cached bundle file ":file"', array(':file' => $bundle_file)), 'html-bundler', 'VERBOSE/yellow');
+
                 file_execute_mode(dirname($bundle_file), 0770, function() use ($bundle_file, $list){
                     file_delete($bundle_file, ROOT.'www/'.LANGUAGE.'/pub/');
                 });
@@ -197,9 +201,7 @@ function html_bundler($list){
                         $orgfile = $file;
                         $file    = $path.$file.$ext;
 
-                        if(VERYVERBOSE){
-                            log_file(tr('Adding file ":file" to bundle file ":bundle"', array(':file' => $file, ':bundle' => $bundle_file)), 'bundler', 'cyan');
-                        }
+                        log_file(tr('Adding file ":file" to bundle file ":bundle"', array(':file' => $file, ':bundle' => $bundle_file)), 'bundler', 'VERYVERBOSE/cyan');
 
                         if(!file_exists($file)){
                             notify(array('code'    => 'not-exists',
