@@ -49,6 +49,8 @@ function cdn_delete_files($list, $column = 'file'){
             throw new BException(tr('cdn_delete_files(): No files specified'), 'not-specified');
         }
 
+        log_console(tr('Deleting files ":files" from CDN system', array(':files' => $list)), 'cyan');
+
         /*
          * Get list of servers / files
          */
