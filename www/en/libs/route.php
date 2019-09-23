@@ -804,7 +804,7 @@ function route_exec($target, $attachment, $restrictions){
                 throw new BException(tr('route_exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
             }
 
-            log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
+            log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'cyan');
 
             /*
              * Auto start the phoundation core
@@ -822,7 +822,7 @@ function route_exec($target, $attachment, $restrictions){
                  */
                 $target = file_absolute(unslash($target), ROOT.'www/');
 
-                log_file(tr('Sending file ":target" as attachment', array(':target' => $target)), 'route', 'VERYVERBOSE/cyan');
+                log_file(tr('Sending file ":target" as attachment', array(':target' => $target)), 'route', 'cyan');
                 file_http_download(array('restrictions' => $restrictions,
                                          'attachment'   => $attachment,
                                          'file'         => $target,
@@ -832,7 +832,7 @@ function route_exec($target, $attachment, $restrictions){
                 $mimetype = mime_content_type($target);
                 $bytes    = filesize($target);
 
-                log_file(tr('Sending contents of file ":target" with mime-type ":type" directly to client', array(':target' => $target, ':type' => $mimetype)), 'route', 'VERYVERBOSE/cyan');
+                log_file(tr('Sending contents of file ":target" with mime-type ":type" directly to client', array(':target' => $target, ':type' => $mimetype)), 'route', 'cyan');
 
                 header('Content-Type: '.$mimetype);
                 header('Content-length: '.$bytes);
