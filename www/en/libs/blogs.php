@@ -2702,7 +2702,7 @@ function blogs_post_up($id, $object, $view){
             throw new BException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
         }
 
-        if($post['higher_priority'] !== null){
+        if($post['higher_priority']){
             /*
              * Switch priorities
              */
@@ -2802,7 +2802,7 @@ function blogs_post_down($id, $object, $view){
             throw new BException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
         }
 
-        if($post['lower_priority'] !== null){
+        if($post['lower_priority']){
             /*
              * Switch priorities
              */
