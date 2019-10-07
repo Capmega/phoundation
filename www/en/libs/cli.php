@@ -1691,7 +1691,7 @@ function cli_unzip($file, $target_path = null, $remove = true){
         return $target_path;
 
     }catch(Exception $e){
-        if(!file_exists($file)){
+        if(!file_is_path($file)){
             throw new BException(tr('cli_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
@@ -1827,14 +1827,15 @@ function cli_build_commands_string(&$params){
                 /*
                  * Set default values
                  */
-                $command   = escapeshellcmd(mb_trim($value));
-                $sudo      = false;
-                $redirect  = '';
-                $prefix    = '';
-                $nice      = '';
-                $connector = ';';
-                $builtin   = false;
-                $timeout   = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
+                $command      = escapeshellcmd(mb_trim($value));
+                $sudo         = false;
+                $redirect     = '';
+                $prefix       = '';
+                $nice         = '';
+                $connector    = ';';
+                $builtin      = false;
+                $timeout      = 'timeout --foreground '.escapeshellarg($params['timeout']).' ';
+                $route_errors = $params['route_errors'];
 
                 /*
                  * Check if command is built in
@@ -1958,7 +1959,7 @@ function cli_build_commands_string(&$params){
                             case 'background':
                                 $params['background'] = $argument;
 
-                                if($params['route_errors']){
+                                if($route_errors){
                                     $route = ' > '.$params['output_log'].' 2>&1 3>&1 & echo $!';
 
                                 }else{
@@ -2007,6 +2008,14 @@ function cli_build_commands_string(&$params){
                                 $prefix = ' '.$argument.' ';
 
                                 unset($value[$special]);
+                                break;
+
+                            case 'route_errors':
+                                if($params['background']){
+                                    throw new BException(tr('cli_build_commands_string(): Argument level "route_errors" specified in combination with "background". Please use only one or the other'), 'invalid');
+                                }
+
+                                $route = ' 2>&1 ';
                                 break;
 
                             default:
