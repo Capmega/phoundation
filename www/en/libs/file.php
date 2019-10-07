@@ -3558,3 +3558,55 @@ function file_from_part($file){
         throw new BException(tr('file_from_part(): Failed'), $e);
     }
 }
+
+
+
+/*
+ * realpath() wrapper that won't crash with an exception if the specified string is not a real path
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package file
+ * @version 2.8.40: Added function and documentation
+ * @example
+ * code
+ * show(is_path('test'));
+ * showdie(is_path('/bin'));
+ * /code
+ *
+ * This would return
+ * code
+ * false
+ * /bin
+ * /code
+ *
+ * @param string $path
+ * @return boolean string The real path extrapolated from the specified $path, if exists. False if whatever was specified does not exist.
+ */
+function file_is_path($path){
+    try{
+        return realpath($path);
+
+    }catch(Exception $e){
+        if(!is_string($path)){
+            throw new BException(tr('file_is_path(): The specified path should be a string but is a ":type"', array(':type' => $path)), 'invalid');
+        }
+
+        /*
+         * If PHP threw an error for the path not being a path at all, just
+         * return false
+         */
+        $data = $e->getData(true);
+
+        if(str_exists($data, 'expects parameter 1 to be a valid path')){
+            return false;
+        }
+
+        /*
+         * This is some other error, keep throwing
+         */
+        throw new BException(tr('file_is_path(): Failed'), $e);
+    }
+}

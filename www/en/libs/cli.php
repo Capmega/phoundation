@@ -1691,7 +1691,7 @@ function cli_unzip($file, $target_path = null, $remove = true){
         return $target_path;
 
     }catch(Exception $e){
-        if(!file_is_path($file)){
+        if(!file_realpath($file)){
             throw new BException(tr('cli_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
