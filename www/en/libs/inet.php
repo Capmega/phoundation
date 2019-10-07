@@ -221,9 +221,10 @@ function inet_get_domain($strip = array('www', 'dev', 'm')){
  *
  * @param null string $fqdn The entire domain to test
  * @param null string $root The root part of the domain to test
- * @return string The subdomain, if there is any
+ * @param null list $ignore_start If specified, ignore all subdomains that start with the specified string
+ * @return boolean string The subdomain, false if there is none, or the found subdomain should be ignored
  */
-function inet_get_subdomain($fqdn = null, $root = null){
+function inet_get_subdomain($fqdn = null, $root = null, $ignore_start = 'cdn,api'){
     global $_CONFIG;
 
     try{
@@ -241,7 +242,28 @@ function inet_get_subdomain($fqdn = null, $root = null){
             throw new BException(tr('inet_get_subdomain(): Specified $fdqn (Fully Qualified Domain Name) ":fqdn" does not end with the root domain ":root"', array(':fqdn' => $fqdn, ':root' => $root)), 'not-exists');
         }
 
-        return urldecode(str_until($fqdn, '.'.$root, 0, 0, true));
+        $subdomain = urldecode(str_until($fqdn, '.'.$root, 0, 0, true));
+
+        if($subdomain){
+            if($ignore_start){
+                $ignore_start = array_force($ignore_start);
+
+                foreach($ignore_start as $value){
+                    if(substr($subdomain, 0, strlen($value)) == $value){
+                        return false;
+                    }
+                }
+            }
+
+        }else{
+            /*
+             * There is no sub domain
+             */
+            $subdomain = false;
+        }
+
+
+        return $subdomain;
 
     }catch(Exception $e){
         throw new BException(tr('inet_get_subdomain(): Failed'), $e);
@@ -284,13 +306,13 @@ function ensure_protocol($url, $protocol = 'http', $force = false){
 /*
  * Add specified query to the specified URL and return
  */
-function url_add_query($url){
+function inet_add_query($url){
     try{
         $queries = func_get_args();
         unset($queries[0]);
 
         if(!$queries){
-            throw new BException('url_add_query(): No queries specified');
+            throw new BException(tr('inet_add_query(): No queries specified'), 'not-specified');
         }
 
         foreach($queries as $query){
@@ -306,10 +328,10 @@ function url_add_query($url){
                         /*
                          * $value should contain key=value
                          */
-                        $url = url_add_query($url, $value);
+                        $url = inet_add_query($url, $value);
 
                     }else{
-                        $url = url_add_query($url, $key.'='.$value);
+                        $url = inet_add_query($url, $key.'='.$value);
                     }
                 }
 
@@ -334,7 +356,7 @@ function url_add_query($url){
             $url = str_ends_not($url, '?');
 
             if(!preg_match('/.+?=.*?/', $query)){
-                throw new BException(tr('url_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
+                throw new BException(tr('inet_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
             }
 
             $key = str_until($query, '=');
@@ -363,7 +385,7 @@ function url_add_query($url){
         return $url;
 
     }catch(Exception $e){
-        throw new BException('url_add_query(): Failed', $e);
+        throw new BException('inet_add_query(): Failed', $e);
     }
 }
 
@@ -786,4 +808,23 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
         throw new BException('inet_get_available_port(): Failed', $e);
     }
 }
-?>
+
+
+
+/*
+ * OBSOLETE FUNCTIONS
+ */
+
+
+
+/*
+ * Add specified query to the specified URL and return
+ */
+function url_add_query($url){
+    try{
+        return call_user_func_array('inet_add_query', func_get_args());
+
+    }catch(Exception $e){
+        throw new BException('url_add_query(): Failed', $e);
+    }
+}
