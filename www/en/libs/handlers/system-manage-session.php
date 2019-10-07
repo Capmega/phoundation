@@ -377,7 +377,7 @@ try{
 
 
                     /*
-                     * Set last activity, and vist_visit variables
+                     * Set last activity, and first_visit variables
                      */
                     $_SESSION['last_activity'] = time();
 
