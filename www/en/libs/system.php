@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.39');
+define('FRAMEWORKCODEVERSION', '2.8.40');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -6081,6 +6081,36 @@ function set_locale($data = null){
 
     }catch(Exception $e){
         throw new BException(tr('set_locale(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Set a cookie for the root domain
+ *
+ * If a visitor entered in a sub domain and a root domain cookie is required, then this function will solve the issue by removing the sub domain cookie, redirecting to the main domain, setting a cookie there, and redirecting back again.
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @version 2.8.41: Added function and documentation
+ * @note: This requires /root_cookie.html or similar script to exist
+ * @see $_CONFIG[redirects][root_cookie]
+ *
+ * @return void This function will execute redirect() which will kill the script
+ */
+function set_root_domain_cookie(){
+    global $_CONFIG;
+
+    try{
+        header_remove('Set-Cookie');
+        redirect(domain(inet_add_query($_CONFIG['redirects']['root_cookie'], 'redirect='.urlencode(domain(true))), null, null, $_CONFIG['domain']));
+
+    }catch(Exception $e){
+        throw new BException(tr('set_root_domain_cookie(): Failed'), $e);
     }
 }
 

@@ -130,6 +130,7 @@ try{
 
         case 'auto':
             $_CONFIG['sessions']['domain'] = $domain;
+            ini_set('session.cookie_domain', $domain);
             break;
 
         case '.auto':
@@ -160,6 +161,7 @@ try{
                 redirect(PROTOCOL.str_starts_not($_CONFIG['sessions']['domain'], '.'));
             }
 
+            ini_set('session.cookie_domain', $_CONFIG['sessions']['domain']);
             unset($test);
             unset($length);
     }
@@ -380,10 +382,12 @@ try{
                     $_SESSION['last_activity'] = time();
 
                     if(isset($_SESSION['first_visit'])){
-                        $_SESSION['first_visit'] = false;
+                        if($_SESSION['first_visit']){
+                            $_SESSION['first_visit']--;
+                        }
 
                     }else{
-                        $_SESSION['first_visit'] = true;
+                        $_SESSION['first_visit'] = 1;
                     }
 
 
