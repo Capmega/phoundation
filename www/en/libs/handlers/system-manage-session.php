@@ -23,7 +23,12 @@ try{
      * Add a powered-by header
      */
     if($_CONFIG['security']['signature']){
-        header('Powered-By: Phoundation version "'.FRAMEWORKCODEVERSION.'"');
+        if($_CONFIG['security']['signature'] === 'limited'){
+            header('Powered-By: Phoundation');
+
+        }else{
+            header('Powered-By: Phoundation version "'.FRAMEWORKCODEVERSION.'"');
+        }
     }
 
 
@@ -289,9 +294,11 @@ try{
                                 log_file(tr('Received non existing cookie ":cookie", recreating', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'manage-session', 'white');
 
                                 session_start();
-                                header_remove('Set-Cookie');
-                                session_id($_COOKIE[$_CONFIG['sessions']['cookie_name']]);
-                                html_flash_set(tr('Your browser cookie was expired, or does not exist. please try again'), 'warning');
+
+                                if($_CONFIG['sessions']['notify_expired']){
+                                    html_flash_set(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
+                                }
+
                                 $_POST = array();
 
                             }else{
@@ -430,16 +437,13 @@ try{
                     /*
                      * Initialize the session
                      */
-                    $_SESSION['init']     = time();
-                    $_SESSION['first']    = true;
+                    $_SESSION['init']         = time();
+                    $_SESSION['first_domain'] = $domain;
 // :TODO: Make a permanent fix for this isset_get() use. These client, location, and language indices should be set, but sometimes location is NOT set for unknown reasons. Find out why it is not set, and fix that instead!
-                    $_SESSION['client']   = isset_get($core->register['session']['client']);
-                    $_SESSION['mobile']   = isset_get($core->register['session']['mobile']);
-                    $_SESSION['location'] = isset_get($core->register['session']['location']);
-                    $_SESSION['language'] = isset_get($core->register['session']['language']);
-
-                }else{
-                    unset($_SESSION['first']);
+                    $_SESSION['client']       = isset_get($core->register['session']['client']);
+                    $_SESSION['mobile']       = isset_get($core->register['session']['mobile']);
+                    $_SESSION['location']     = isset_get($core->register['session']['location']);
+                    $_SESSION['language']     = isset_get($core->register['session']['language']);
                 }
             }
 

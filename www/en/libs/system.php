@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.40');
+define('FRAMEWORKCODEVERSION', '2.8.41');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -6106,8 +6106,16 @@ function set_root_domain_cookie(){
     global $_CONFIG;
 
     try{
+        /*
+         * IMPORTANT! Root domain cookies are NOT compatible with strict
+         * same_site cookies!
+         */
+        if($_CONFIG['sessions']['same_site'] === 'Strict'){
+            throw new BException(tr('set_root_domain_cookie(): Current $_CONFIG[sessions][same_site] configuration for environment ":environment" is set to "Strict" which is incompatible with root domain cookies. Either set $_CONFIG[sessions][same_site] to "Lax" or do not use root domain cookies', array(':environment' => ENVIRONMENT)), 'invalid');
+        }
+
         header_remove('Set-Cookie');
-        redirect(domain(inet_add_query($_CONFIG['redirects']['root_cookie'], 'redirect='.urlencode(domain(true))), null, null, $_CONFIG['domain']));
+        redirect(domain(inet_add_query($_CONFIG['redirects']['root_cookie'], 'redirect='.urlencode(domain(true))), null, null, $_CONFIG['domain']), 302);
 
     }catch(Exception $e){
         throw new BException(tr('set_root_domain_cookie(): Failed'), $e);

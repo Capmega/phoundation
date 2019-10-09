@@ -43,13 +43,13 @@ try{
 
 
     /*
-     * Check OPTIONS request.
-     * If options was requested, just return basic HTTP headers
+     * Check HEAD and OPTIONS requests.
+     * If HEAD was requested, just return basic HTTP headers
      */
-    // :TODO: Should pages themselves not check for this and perhaps send other headers?
-    if($_SERVER['REQUEST_METHOD'] == 'OPTIONS'){
-        http_headers(200, 0);
-        die();
+// :TODO: Should pages themselves not check for this and perhaps send other headers?
+    switch($_SERVER['REQUEST_METHOD'] ){
+        case 'OPTIONS':
+under_construction();
     }
 
 
@@ -96,7 +96,7 @@ try{
         }
 
         define('LANGUAGE', $language);
-        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.strtoupper($_SESSION['location']['country']['code'])));
+        define('LOCALE'  , $language.(empty($_SESSION['location']['country']['code']) ? '' : '_'.$_SESSION['location']['country']['code']));
 
         /*
          * Ensure $_SESSION['language'] available
@@ -121,7 +121,7 @@ try{
 
 
     /*
-     * Setup character encoding and locale
+     * Setup locale and character encoding
      */
     ini_set('default_charset', $_CONFIG['encoding']['charset']);
     $this->register('locale', set_locale());
@@ -183,6 +183,7 @@ try{
      */
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         html_untranslate();
+        html_fix_checkbox_values();
 
         if($_CONFIG['security']['csrf']['enabled'] === 'force'){
             /*
@@ -202,6 +203,16 @@ try{
     load_libs('custom_admin');
     html_set_js_cdn_url();
     http_validate_get();
+
+
+
+    /*
+     * Did the startup sequence encounter reasons for us to actually show another
+     * page?
+     */
+    if(isset($core->register['page_show'])){
+        page_show($core->register['page_show']);
+    }
 
 }catch(Exception $e){
     throw new BException(tr('core::admin(): Failed'), $e);

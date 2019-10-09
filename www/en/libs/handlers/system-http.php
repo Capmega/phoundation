@@ -15,6 +15,11 @@ try{
      */
     set_timeout();
 
+
+
+    /*
+     * Define basic platform constants
+     */
     define('ADMIN'   , '');
     define('PWD'     , slash(isset_get($_SERVER['PWD'])));
     define('STARTDIR', slash(getcwd()));
@@ -40,10 +45,10 @@ try{
      * Check HEAD and OPTIONS requests.
      * If HEAD was requested, just return basic HTTP headers
      */
-    // :TODO: Should pages themselves not check for this and perhaps send other headers?
+// :TODO: Should pages themselves not check for this and perhaps send other headers?
     switch($_SERVER['REQUEST_METHOD'] ){
         case 'OPTIONS':
-    under_construction();
+under_construction();
     }
 
 
