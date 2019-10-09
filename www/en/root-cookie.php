@@ -1,11 +1,4 @@
 <?php
-if(!$_SESSION['first_visit']){
-    /*
-     * Set first_visit to 2 so that it will still be 1 after the redirect back to the site
-     */
-    $_SESSION['first_visit'] = 2;
-}
-
 /*
  * Redirect back to the site.
  */
@@ -29,4 +22,8 @@ if(empty($_GET['redirect'])){
     }
 }
 
-redirect($_GET['redirect']);
+/*
+ * Set first_visit to 2 so that it will still be 1 after the redirect back to the site
+ */
+$_SESSION['first_visit'] = 2;
+redirect($_GET['redirect'], 302);
