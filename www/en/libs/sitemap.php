@@ -153,18 +153,22 @@ function sitemap_install_files($files){
 
                         }else{
                             if($file['language']){
-                                $filename = $file['language'].'/sitemap-'.$file['file'].'.xml';
+                                file_ensure_path(ROOT.'www/'.$file['language'].'/sitemaps/');
+                                $filename = $file['language'].'/sitemaps/'.$file['file'].'.xml';
 
                             }else{
-                                $filename = '/sitemap-'.$file['file'].'.xml';
+                                $filename = '/sitemaps/'.$file['file'].'.xml';
                             }
                         }
 
-                        log_console(tr('Installing sitemap file ":file"', array(':file' => 'www/'.$filename)), 'VERBOSE/cyan');
+                        log_console(tr('Installing sitemap file ":file"', array(':file' => $file['path'])), 'VERBOSE/cyan');
 
-                        file_delete(ROOT.'www/'.$filename, ROOT.'www/');
-                        rename($file['tmp'], ROOT.'www/'.$filename);
+                        file_delete($file['path'], ROOT.'www/');
+                        file_ensure_path(dirname($file['path']));
+
+                        rename($file['tmp'], $file['path']);
                         chmod(ROOT.'www/'.$filename, 0440);
+
                         $insert->execute(array(':language' => $file['language']));
                     });
                 });
@@ -210,7 +214,7 @@ function sitemap_generate_index_file($files){
             $file = array_pop($files);
 
             if($file['file']){
-                rename(TMP.'sitemaps/'.$file['language'].'/sitemap-'.$file['file'].'.xml', TMP.'sitemaps/sitemap-'.$file['file'].'.xml');
+                rename(TMP.'sitemaps/'.$file['language'].'/sitemaps/'.$file['file'].'.xml', TMP.'sitemaps/sitemaps/'.$file['file'].'.xml');
 
             }else{
                 rename(TMP.'sitemaps/'.$file['language'].'/sitemap.xml', TMP.'sitemaps/sitemap.xml');
@@ -231,6 +235,8 @@ function sitemap_generate_index_file($files){
             chmod($file, 0440);
             cli_dot(false);
         }
+
+        log_console(tr('Generated sitemap index file ":file"', array(':file' => $file)), 'VERBOSE/green');
 
         return $file;
 
@@ -282,12 +288,11 @@ function sitemap_generate_xml_file($language = null, $file = null){
             $query   .= ' AND `file` IS NULL ';
         }
 
-        $entries = sql_query($query.' ORDER BY (`file` IS NOT NULL), `file` DESC, (`priority` IS NOT NULL), `priority` DESC', $execute);
         $count   = 0;
         $file    = file_temp(true, 'xml');
-
-        $xml  = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".
-                "   <urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">\n";
+        $entries = sql_query($query.' ORDER BY (`file` IS NOT NULL), `file` DESC, (`priority` IS NOT NULL), `priority` DESC', $execute);
+        $xml     = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".
+                   "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">\n";
 
         log_console(tr('Generating sitemap ":file" for language ":language"', array(':file' => str_replace(ROOT, '', $file), ':language' => $language)), 'cyan');
 
@@ -300,7 +305,7 @@ function sitemap_generate_xml_file($language = null, $file = null){
         $xml .= "</urlset>\n";
 
         log_console(tr('Generated ":count" entries in file ":file"', array(':count' => $count, ':file' => str_replace(ROOT, '', $file))), 'green');
-        file_put_contents($file, 'GODVER');
+        file_put_contents($file, $xml);
 
         return $file;
 
@@ -421,7 +426,7 @@ function sitemap_get_index_xml($file, $lastmod = null){
         }
 
         if($file['file']){
-            $url = domain('/sitemap-'.$file['file'].'.xml', null, null, null, $file['language']);
+            $url = domain('/sitemaps/'.$file['file'].'.xml', null, null, null, $file['language']);
 
         }else{
             $url = domain('/sitemap.xml', null, null, null, $file['language']);
@@ -486,7 +491,8 @@ function sitemap_list_files(){
 
             while($file = sql_fetch($files)){
                 if($file['file']){
-                    $file['path'] = ROOT.'www/'.$code.'/sitemap-'.$file['file'].'.xml';
+                    file_ensure_path(ROOT.'www/'.$code.'/sitemaps');
+                    $file['path'] = ROOT.'www/'.$code.'/sitemaps/'.$file['file'].'.xml';
 
                 }else{
                     $file['path'] = ROOT.'www/'.$code.'/sitemap.xml';

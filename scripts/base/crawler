@@ -53,6 +53,7 @@ switch(cli_method()){
             default:
                 throw new BException(tr('Unknown sub method ":method" specified for method "projects"', array(':method' => cli_method())), 'unknown-method');
         }
+
         break;
 
     case 'run':

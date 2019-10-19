@@ -52,4 +52,3 @@ $_CONFIG['sitemap'] = array('enabled'          => true,                         
                             'show_priority'    => true,                                     // Show priority
 
                             'xsl'              => '/sitemap.xsl');                          // XSL file, in case the XML file should be displayed nicely
-?>
