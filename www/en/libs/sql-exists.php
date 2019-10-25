@@ -1,23 +1,34 @@
 <?php
 /*
+ * SQL Exists library
  *
+ * This library contains various "exists" functions to check if a database, table, column, etc exists, or not
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sql-exists
  */
 
 
 
 /*
- * Returns if specified index exists
+ * return if database exists
  *
- * If query is specified, the query will be executed only if the specified function exists
- * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sql-exists
+ *
+ * @param string $database The dtaabase to be tested
+ * @param null string $query The query to be executed if the database exists. If the query starts with an exclamation mark (!), the query will be executed if the database does NOT exist
+ * @return boolean True if the specified index exists, false otherwise
  */
-function sql_index_exists($table, $index, $query = '', $connector = null){
-    global $pdo;
-
+function sql_database_exists($database, $query = null, $connector = null){
     try{
-        $retval = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
+        $retval = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
         if(substr($query, 0, 1) == '!'){
             $not   = true;
@@ -32,13 +43,13 @@ function sql_index_exists($table, $index, $query = '', $connector = null){
         }
 
         if($query){
-            sql_query($query, null, null, $connector);
+            sql_query($query, null, $connector);
         }
 
         return array_shift($retval);
 
     }catch(Exception $e){
-        throw new BException('sql_index_exists(): Failed', $e);
+        throw new BException('sql_database_exists(): Failed', $e);
     }
 }
 
@@ -49,8 +60,20 @@ function sql_index_exists($table, $index, $query = '', $connector = null){
  *
  * If query is specified, the query will be executed only if the specified function exists
  * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
+ *
+ * @author Infospace <infospace@capmega.com>
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sql-exists
+ *
+ * @param string $table The table which should be checked for
+ * @param null string $query The query to be executed if the database exists. If the query starts with an exclamation mark (!), the query will be executed if the database does NOT exist
+ * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
+ * @return boolean True if the specified index exists, false otherwise
  */
-function sql_table_exists($table, $query = '', $connector = null){
+function sql_table_exists($table, $query = null, $connector = null){
     global $pdo;
 
     try{
@@ -69,7 +92,7 @@ function sql_table_exists($table, $query = '', $connector = null){
         }
 
         if($query){
-            sql_query($query, null, null, $connector);
+            sql_query($query, null, $connector);
         }
 
         return $retval;
@@ -82,12 +105,73 @@ function sql_table_exists($table, $query = '', $connector = null){
 
 
 /*
+ * Returns if specified index exists
+ *
+ * If query is specified, the query will be executed only if the specified function exists
+ * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sql-exists
+ *
+ * @param string $table The table on which the index should be found
+ * @param string $index The index to be tested
+ * @param null string $query The query to be executed if the database exists. If the query starts with an exclamation mark (!), the query will be executed if the database does NOT exist
+ * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
+ * @return boolean True if the specified index exists, false otherwise
+ */
+function sql_index_exists($table, $index, $query = null, $connector = null){
+    global $pdo;
+
+    try{
+        $retval = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
+
+        if(substr($query, 0, 1) == '!'){
+            $not   = true;
+            $query = substr($query, 1);
+
+        }else{
+            $not = false;
+        }
+
+        if(empty($retval) xor $not){
+            return false;
+        }
+
+        if($query){
+            sql_query($query, null, $connector);
+        }
+
+        return array_shift($retval);
+
+    }catch(Exception $e){
+        throw new BException('sql_index_exists(): Failed', $e);
+    }
+}
+
+
+
+/*
  * Returns if specified column exists
  *
  * If query is specified, the query will be executed only if the specified function exists
  * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sql-exists
+ *
+ * @param string $table The table on which the foreign keys should be found
+ * @param string $column The column on which the foreign keys should be found
+ * @param null string $query The query to be executed if the database exists. If the query starts with an exclamation mark (!), the query will be executed if the database does NOT exist
+ * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
+ * @return boolean True if the specified index exists, false otherwise
  */
-function sql_column_exists($table, $column, $query = '', $connector = null){
+function sql_column_exists($table, $column, $query = null, $connector = null){
     global $pdo;
 
     try{
@@ -106,7 +190,7 @@ function sql_column_exists($table, $column, $query = '', $connector = null){
         }
 
         if($query){
-            sql_query($query, null, null, $connector);
+            sql_query($query, null, $connector);
         }
 
         return $retval;
@@ -123,8 +207,20 @@ function sql_column_exists($table, $column, $query = '', $connector = null){
  *
  * If query is specified, the query will be executed only if the specified function exists
  * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sql-exists
+ *
+ * @param string $table The table on which the index should be found
+ * @param string $index The index to be tested
+ * @param null string $query The query to be executed if the database exists. If the query starts with an exclamation mark (!), the query will be executed if the database does NOT exist
+ * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
+ * @return boolean True if the specified index exists, false otherwise
  */
-function sql_foreignkey_exists($table, $foreign_key, $query = '', $connector = null){
+function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector = null){
     global $pdo, $_CONFIG;
 
     try{
@@ -153,7 +249,7 @@ function sql_foreignkey_exists($table, $foreign_key, $query = '', $connector = n
         }
 
         if($query){
-            sql_query($query, null, null, $connector);
+            sql_query($query, null, $connector);
         }
 
         return $retval;
@@ -170,8 +266,20 @@ function sql_foreignkey_exists($table, $foreign_key, $query = '', $connector = n
  *
  * If query is specified, the query will be executed only if the specified function exists
  * If the query is prefixed with an exclamation mark ! then the query will only be executed if the function does NOT exist
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sql-exists
+ *
+ * @param string $table The table on which the index should be found
+ * @param string $index The index to be tested
+ * @param null string $query The query to be executed if the database exists. If the query starts with an exclamation mark (!), the query will be executed if the database does NOT exist
+ * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
+ * @return boolean True if the specified index exists, false otherwise
  */
-function sql_function_exists($name, $query = '', $database = '', $connector = null){
+function sql_function_exists($name, $query = null, $database = null, $connector = null){
     global $pdo, $_CONFIG;
 
     try{
@@ -202,7 +310,7 @@ function sql_function_exists($name, $query = '', $database = '', $connector = nu
         }
 
         if($query){
-            sql_query($query);
+            sql_query($query, null, $connector);
         }
 
         return $retval;
@@ -216,8 +324,20 @@ function sql_function_exists($name, $query = '', $database = '', $connector = nu
 
 /*
  * Returns the tables that have foreign keys to the specified table / column
+ *
+ * @author Sven Oostenbrink <support@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sql-exists
+ *
+ * @param string $table The table on which the foreign keys should be found
+ * @param string $column The column on which the foreign keys should be found
+ * @param null mixed $connector If specified, executed this function on the specified database connector. If not specified, use the current database connector
+ * @return array The foreign keys for the specified table and column
  */
-function sql_list_fk($table, $column = null){
+
+function sql_list_foreignkeys($table, $column = null, $connector = null){
     try{
         $list = sql_query('SELECT TABLE_NAME,
                                   COLUMN_NAME,
@@ -228,12 +348,26 @@ function sql_list_fk($table, $column = null){
                            FROM   INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 
                            WHERE  REFERENCED_TABLE_NAME = "'.$table.'"
-             '.($column ? 'AND    REFERENCED_COLUMN_NAME = "'.$column.'"' : '' ).';');
+             '.($column ? 'AND    REFERENCED_COLUMN_NAME = "'.$column.'"' : '' ).';', null, $connector);
 
         return $list;
 
     }catch(Exception $e){
-        throw new BException('sql_list_fk(): Failed', $e);
+        throw new BException('sql_list_foreignkeys(): Failed', $e);
     }
 }
-?>
+
+
+
+/*
+ * OBSOLETE FUNCTIONS, DO NOT USE THEM!
+ */
+function sql_list_fk($table, $column = null){
+    try{
+        obsolete('sql_list_fk()');
+        return sql_list_foreignkeys($table, $column);
+
+    }catch(Exception $e){
+        throw new BException('sql_list_foreignkeys(): Failed', $e);
+    }
+}

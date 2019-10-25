@@ -56,7 +56,7 @@ function sql_library_init(){
  * @param
  * @return
  */
-function sql_query($query, $execute = false, $connector_name = null){
+function sql_query($query, $execute = null, $connector_name = null){
     global $core;
 
     try{
