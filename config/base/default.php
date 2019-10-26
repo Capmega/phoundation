@@ -180,6 +180,9 @@ $_CONFIG['domain']             = 'auto';                                        
 $_CONFIG['exec']               = array('path'                               => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin',  // The default path used by safe_exec()
                                        'timeout'                            => 10);
 
+// Exeception configuration
+$_CONFIG['exceptions']        = array('default_code'                        => 'unknown');
+
 // Feedback configuration
 $_CONFIG['feedback']           = array('emails'                             => array('Capmega Support' => 'support@capmega.com'));
 
