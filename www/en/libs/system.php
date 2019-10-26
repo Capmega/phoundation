@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.43');
+define('FRAMEWORKCODEVERSION', '2.8.44');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -6102,20 +6102,24 @@ function set_locale($data = null){
  *
  * @return void This function will execute redirect() which will kill the script
  */
-function set_root_domain_cookie(){
-    global $_CONFIG;
+function ensure_root_domain_cookie(){
+    global $_CONFIG, $core;
 
     try{
-        /*
-         * IMPORTANT! Root domain cookies are NOT compatible with strict
-         * same_site cookies!
-         */
-        if($_CONFIG['sessions']['same_site'] === 'Strict'){
-            throw new BException(tr('set_root_domain_cookie(): Current $_CONFIG[sessions][same_site] configuration for environment ":environment" is set to "Strict" which is incompatible with root domain cookies. Either set $_CONFIG[sessions][same_site] to "Lax" or do not use root domain cookies', array(':environment' => ENVIRONMENT)), 'invalid');
-        }
+        if($core->callType('http')){
+            if($_SESSION['first_visit'] and inet_get_subdomain($_SESSION['first_domain']) and ($_SESSION['client']['type'] !== 'crawler')){
+                /*
+                 * IMPORTANT! Root domain cookies are NOT compatible with strict
+                 * same_site cookies!
+                 */
+                if($_CONFIG['sessions']['same_site'] === 'Strict'){
+                    throw new BException(tr('set_root_domain_cookie(): Current $_CONFIG[sessions][same_site] configuration for environment ":environment" is set to "Strict" which is incompatible with root domain cookies. Either set $_CONFIG[sessions][same_site] to "Lax" or do not use root domain cookies', array(':environment' => ENVIRONMENT)), 'invalid');
+                }
 
-        header_remove('Set-Cookie');
-        redirect(domain(inet_add_query($_CONFIG['redirects']['root_cookie'], 'redirect='.urlencode(domain(true))), null, null, $_CONFIG['domain']), 302);
+                header_remove('Set-Cookie');
+                redirect(domain(inet_add_query($_CONFIG['redirects']['root_cookie'], 'redirect='.urlencode(domain(true))), null, null, $_CONFIG['domain']), 302);
+            }
+        }
 
     }catch(Exception $e){
         throw new BException(tr('set_root_domain_cookie(): Failed'), $e);

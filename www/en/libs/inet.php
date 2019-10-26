@@ -210,7 +210,7 @@ function inet_get_domain($strip = array('www', 'dev', 'm')){
 
 
 /*
- * Get subdomain from FQDN relative to the $_SESSION['domain']
+ * Get subdomain from specified domain relative to the $_SESSION['domain']
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2018 Capmega
@@ -219,17 +219,17 @@ function inet_get_domain($strip = array('www', 'dev', 'm')){
  * @package inet
  * @version 2.8.21: Added documentation, improved function
  *
- * @param null string $fqdn The entire domain to test
+ * @param null string $domain The entire domain to test
  * @param null string $root The root part of the domain to test
  * @param null list $ignore_start If specified, ignore all subdomains that start with the specified string
  * @return boolean string The subdomain, false if there is none, or the found subdomain should be ignored
  */
-function inet_get_subdomain($fqdn = null, $root = null, $ignore_start = 'cdn,api'){
+function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,api'){
     global $_CONFIG;
 
     try{
-        if(!$fqdn){
-            $fqdn = $_SERVER['HTTP_HOST'];
+        if(!$domain){
+            $domain = $_SERVER['HTTP_HOST'];
         }
 
         if(!$root){
@@ -238,11 +238,11 @@ function inet_get_subdomain($fqdn = null, $root = null, $ignore_start = 'cdn,api
 
         $len = mb_strlen($root);
 
-        if(substr($fqdn, -$len, $len) !== $root){
-            throw new BException(tr('inet_get_subdomain(): Specified $fdqn (Fully Qualified Domain Name) ":fqdn" does not end with the root domain ":root"', array(':fqdn' => $fqdn, ':root' => $root)), 'not-exists');
+        if(substr($domain, -$len, $len) !== $root){
+            throw new BException(tr('inet_get_subdomain(): Specified $domain (Fully Qualified Domain Name) ":domain" does not end with the root domain ":root"', array(':domain' => $domain, ':root' => $root)), 'not-exists');
         }
 
-        $subdomain = urldecode(str_until($fqdn, '.'.$root, 0, 0, true));
+        $subdomain = urldecode(str_until($domain, '.'.$root, 0, 0, true));
 
         if($subdomain){
             if($ignore_start){
