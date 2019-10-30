@@ -58,16 +58,21 @@ function api_validate_account($account){
     try{
         load_libs('validate,seo');
 
-        $v = new ValidateForm($account, 'customer,server,name,description,baseurl,apikey,verify_ssl');
+        $v = new ValidateForm($account, 'customer,server,environment,name,description,baseurl,apikey,verify_ssl');
 
-        $v->isNotEmpty ($account['name']    ,  tr('Please specify an API account name'));
+        $v->isNotEmpty ($account['name'],  tr('Please specify an API account name'));
         $v->hasMaxChars($account['name'], 64, tr('Please ensure the API account name has less than 64 characters'));
 
-        $v->isNotEmpty ($account['apikey'] ,  tr('Please specify an API key'));
+        $v->isNotEmpty ($account['apikey'], tr('Please specify an API key'));
 
         if(strlen($account['apikey']) != 64){
             $v->setError(tr('Please ensure the API key has exactly 64 characters'));
         }
+
+        $v->isNotEmpty($account['environment'], tr('Please specify an API account environment'));
+        $v->hasMinChars($account['environment'], 3, tr('Please ensure the API account environment has at least 3 characters'));
+        $v->hasMaxChars($account['environment'], 32, tr('Please ensure the API account environment has less than 32 characters'));
+        $v->isRegex($account['environment'], '/^[a-z0-9-]+$/', tr('Please ensure the API account environment is valid, must be lower case, can only contain a-z, 0-9, - and no spaces'));
 
         if($account['description']){
             $v->hasMinChars($account['description'],   16, tr('Please ensure the API account description has at least 16 characters, or empty'));
@@ -84,7 +89,7 @@ function api_validate_account($account){
         $v->isNotEmpty ($account['server']      , tr('Please specify a server'));
 
         $account['servers_id']   = sql_get('SELECT `id` FROM `servers`   WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $account['server']));
-        $account['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname`     = :seoname     AND `status` IS NULL', true, array(':seoname'     => $account['customer']));
+        $account['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname`   = :seoname   AND `status` IS NULL', true, array(':seoname'   => $account['customer']));
 
         if(!$account['servers_id']){
             $v->setError(tr('Specified server ":server" does not exist', array(':server' => $account['server'])));
