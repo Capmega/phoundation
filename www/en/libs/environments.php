@@ -32,14 +32,14 @@
 function environments_select($params = null){
     try{
         array_ensure($params);
-        array_default($params, 'name' , 'seoenvironment');
+        array_default($params, 'name' , 'environment');
         array_default($params, 'empty', tr('No environments available'));
         array_default($params, 'none' , tr('Select an environment'));
 
         $params['resource'] = array();
 
         foreach(get_config('deploy')['deploy'] as $key => $config){
-            $params['resource'][$key] = str_capitalize($key);
+            $params['resource'][$key] = $key;
         }
 
         $retval = html_select($params);
@@ -49,4 +49,3 @@ function environments_select($params = null){
         throw new BException('environments_select(): Failed', $e);
     }
 }
-?>
