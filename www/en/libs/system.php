@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.44');
+define('FRAMEWORKCODEVERSION', '2.8.45');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -3950,13 +3950,20 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
                 /*
                  * Get a CDN server for this session
                  */
-                $_SESSION['cdn'] = sql_get('SELECT   `baseurl`
+                $_SESSION['cdn'] = sql_get('SELECT   `cdn_servers`.`baseurl`
 
                                             FROM     `cdn_servers`
 
-                                            WHERE    `status` IS NULL
+                                            JOIN     `api_accounts`
+                                            ON       `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
+                                            AND      `api_accounts`.`status`      IS NULL
+                                            AND      `api_accounts`.`environment` = :environment
 
-                                            ORDER BY RAND() LIMIT 1', true);
+                                            WHERE    `cdn_servers`.`status` IS NULL
+
+                                            ORDER BY RAND() LIMIT 1', true,
+
+                                            array(':environment' => ENVIRONMENT));
 
                 if(empty($_SESSION['cdn'])){
                     /*
@@ -3989,24 +3996,29 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
          * Disabled servers are allowed to be used as they cannot receive new
          * files but still server files
          */
-        $url = sql_get('SELECT    `cdn_files`.`file`,
-                                  `cdn_files`.`servers_id`,
+        $url = sql_get('SELECT   `cdn_files`.`file`,
+                                 `cdn_files`.`servers_id`,
+                                 `cdn_servers`.`baseurl`
 
-                                  `cdn_servers`.`baseurl`
+                        FROM     `cdn_files`
 
-                        FROM      `cdn_files`
+                        JOIN     `cdn_servers`
+                        ON       `cdn_files`.`servers_id` = `cdn_servers`.`id`
+                        AND     (`cdn_servers`.`status` IS NULL OR `cdn_servers`.`status` = "disabled")
 
-                        LEFT JOIN `cdn_servers`
-                        ON        `cdn_files`.`servers_id` = `cdn_servers`.`id`
+                        JOIN     `api_accounts`
+                        ON       `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
+                        AND      `api_accounts`.`status`      IS NULL
+                        AND      `api_accounts`.`environment` = :environment
 
-                        WHERE     `cdn_files`.`file` = :file
-                        AND       (`cdn_servers`.`status` IS NULL OR `cdn_servers`.`status` = "disabled")
+                        WHERE    `cdn_files`.`file` = :file
 
-                        ORDER BY  RAND()
+                        ORDER BY RAND()
 
-                        LIMIT     1',
+                        LIMIT    1',
 
-                        array(':file' => $file));
+                        array(':file'        => $file,
+                              ':environment' => ENVIRONMENT));
 
         if($url){
             /*
@@ -6095,19 +6107,22 @@ function set_locale($data = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
+ * @see ensure_root_domain_cookie()
  * @package system
  * @version 2.8.41: Added function and documentation
  * @note: This requires /root_cookie.html or similar script to exist
  * @see $_CONFIG[redirects][root_cookie]
  *
- * @return void This function will execute redirect() which will kill the script
+ * @return string The subdomain, if the current request was on a subdomain
  */
 function ensure_root_domain_cookie(){
     global $_CONFIG, $core;
 
     try{
+        $subdomain = inet_get_subdomain($_SESSION['first_domain']);
+
         if($core->callType('http')){
-            if($_SESSION['first_visit'] and inet_get_subdomain($_SESSION['first_domain']) and ($_SESSION['client']['type'] !== 'crawler')){
+            if($_SESSION['first_visit'] and $subdomain and ($_SESSION['client']['type'] !== 'crawler')){
                 /*
                  * IMPORTANT! Root domain cookies are NOT compatible with strict
                  * same_site cookies!
@@ -6120,6 +6135,8 @@ function ensure_root_domain_cookie(){
                 redirect(domain(inet_add_query($_CONFIG['redirects']['root_cookie'], 'redirect='.urlencode(domain(true))), null, null, $_CONFIG['domain']), 302);
             }
         }
+
+        return $subdomain;
 
     }catch(Exception $e){
         throw new BException(tr('set_root_domain_cookie(): Failed'), $e);

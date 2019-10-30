@@ -49,22 +49,22 @@ if(is_object($code)){
     }
 
 }else{
-    if(!is_scalar($code)){
-        throw new BException(tr('BException: Specified exception code ":code" for exception ":message" is not valid (should be either scalar, or an exception object)', array(':code' => $code, ':message' => $messages)), 'invalid');
-    }
-
-    if(strlen($code) > 16){
-        /*
-         * Exception codes cannot be longer than 16 characters
-         */
-        notify(new BException(tr('BException: Specified exception code ":code" (shifted in from $data) for exception ":message" is too long (should not exceed 16 characters)', array(':code' => $code, ':message' => $messages)), 'warning/invalid'));
-        $code = isset_get($_CONFIG['exceptions']['default_code'], 'unknown');
-
-    }elseif(!$code){
+    if(!$code){
         /*
          * Exception code is obligatory
          */
-        notify(new BException(tr('BException: No exception code specified'), 'warning/invalid'));
+        notify(new BException(tr('BException: No exception code specified for exception ":message"', array(':message' => $messages)), 'invalid'));
+        $code = isset_get($_CONFIG['exceptions']['default_code'], 'unknown');
+
+    }elseif(!is_scalar($code)){
+        throw new BException(tr('BException: Specified exception code ":code" for exception ":message" is not valid (should be either scalar, or an exception object)', array(':code' => $code, ':message' => $messages)), 'invalid');
+    }
+
+    if(strlen(str_from($code, '/')) > 16){
+        /*
+         * Exception codes cannot be longer than 16 characters
+         */
+        notify(new BException(tr('BException: Specified exception code ":code" for exception ":message" is too long (should not exceed 16 characters)', array(':code' => $code, ':message' => $messages)), 'invalid'));
         $code = isset_get($_CONFIG['exceptions']['default_code'], 'unknown');
     }
 

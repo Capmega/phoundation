@@ -6,4 +6,3 @@ if(!isset($backtrace[$trace + 1])){
 }
 
 return isset_get($backtrace[$trace + 1]['file']);
-?>

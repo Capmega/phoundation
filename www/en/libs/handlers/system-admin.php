@@ -38,7 +38,7 @@ try{
     /*
      * Load basic libraries
      */
-    load_libs('html,inet,atlant,cache'.(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
+    load_libs('html,inet,cache'.(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
 
 
 
@@ -179,6 +179,15 @@ under_construction();
 
 
     /*
+     * /admin console is only available on main domain
+     */
+    if(inet_get_subdomain()){
+        redirect(domain(true, null, null, $_CONFIG['domain']));
+    }
+
+
+
+    /*
      * If POST request, automatically untranslate translated POST entries
      */
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
@@ -196,11 +205,12 @@ under_construction();
 
 
     /*
-     * Load custom library, if available
+     * Load atlant and custom_admin library, if available
+     *
      * Set the CDN url for javascript
      * Validate HTTP GET
      */
-    load_libs('custom_admin');
+    load_libs('atlant,custom_admin');
     html_set_js_cdn_url();
     http_validate_get();
 

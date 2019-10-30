@@ -65,7 +65,12 @@ function cdn_delete_files($list, $column = 'file'){
                               FROM     `cdn_files`
 
                               JOIN     `cdn_servers`
-                              ON       `cdn_servers`.`id` = `cdn_files`.`servers_id`
+                              ON       `cdn_servers`.`id`           = `cdn_files`.`servers_id`
+
+                              JOIN     `api_accounts`
+                              ON       `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
+                              AND      `api_accounts`.`status`      IS NULL
+                              AND      `api_accounts`.`environment` = :environment
 
                               WHERE    `cdn_files`.`'.$column.'` IN ('.sql_in_columns($in).')
 
@@ -147,7 +152,21 @@ function cdn_assign_servers(){
     global $_CONFIG;
 
     try{
-        $servers = sql_list('SELECT `id`, `seoname` FROM `cdn_servers` WHERE `status` IS NULL ORDER BY RAND() LIMIT '.$_CONFIG['cdn']['copies']);
+        $servers = sql_list('SELECT `id`,
+                                    `seoname`
+
+                             FROM   `cdn_servers`
+
+                             JOIN   `api_accounts`
+                             ON     `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
+                             AND    `api_accounts`.`status`      IS NULL
+                             AND    `api_accounts`.`environment` = :environment
+
+                             WHERE  `status` IS NULL
+
+                             ORDER BY RAND() LIMIT '.$_CONFIG['cdn']['copies'],
+
+                             array(':environment' => ENVIRONMENT));
         return $servers;
 
     }catch(Exception $e){
@@ -354,14 +373,18 @@ function cdn_get_api_account($server){
                                 FROM   `cdn_servers`
 
                                 JOIN   `api_accounts`
-                                ON     `api_accounts`.`id`     = `cdn_servers`.`api_accounts_id`
+                                ON     `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
+                                AND    `api_accounts`.`status`      IS NULL
+                                AND    `api_accounts`.`environment` = :environment
 
-                                WHERE  `cdn_servers`.`seoname` = :seoname',
+                                WHERE  `cdn_servers`.`seoname`      = :seoname
+                                AND   (`cdn_servers`.`status` IS NULL OR `cdn_servers`.`status` = "testing")',
 
-                                true, array(':seoname' => $server));
+                                true, array(':seoname'     => $server,
+                                            ':environment' => ENVIRONMENT));
 
         if(!$api_account){
-            throw new BException(tr('cdn_validate_project(): Specified server ":server" does not exist', array(':server' => $server)), 'not-exists');
+            throw new BException(tr('cdn_validate_project(): Specified server ":server" does not exist or is not available', array(':server' => $server)), 'warning/not-exists');
         }
 
         return $api_account;
