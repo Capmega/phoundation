@@ -382,7 +382,7 @@ function route($regex, $target, $flags = null){
                     /*
                      * Block this request, send nothing
                      */
-                    log_file(tr('Blocking request as per B flag'), 'route', 'warning');
+                    log_file(tr('Blocking request as per B flag'), 'route', 'VERBOSE/warning');
                     unregister_shutdown('route_shutdown');
                     $block = true;
                     break;
