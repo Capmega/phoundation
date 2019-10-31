@@ -60,7 +60,20 @@ function cache_library_init(){
 
 
 /*
- * Read from cache
+ * Read blob for the specified $key from cache
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ * @see cache_read_file()
+ * @see cache_write()
+ * @version 2.8.46: Added documentation
+ *
+ * @param string $key
+ * @param null string $namespace
+ * @return mixed The cache blob data if found, null otherwise
  */
 function cache_read($key, $namespace = null){
     global $_CONFIG, $core;
@@ -94,6 +107,10 @@ function cache_read($key, $namespace = null){
                 throw new BException(tr('cache_read(): Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
         }
 
+        if($data){
+            log_console(tr('Found cache blob for key ":namespace-:key"', array(':namespace' => $namespace, ':key' => $key)), 'VERBOSE/green');
+        }
+
         return $data;
 
     }catch(Exception $e){
@@ -104,8 +121,20 @@ function cache_read($key, $namespace = null){
 
 
 /*
- * Read from cache file.
- * File must exist and not have filemtime + max_age > now
+ * Read blob for the specified $key from cache file. File must exist and not have filemtime + max_age > now
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ * @see cache_read()
+ * @see cache_write_file()
+ * @version 2.8.46: Added documentation
+ *
+ * @param string $key
+ * @param null string $namespace
+ * @return mixed The cache blob data if found, null otherwise
  */
 function cache_read_file($key, $namespace = null){
     global $_CONFIG;
@@ -135,7 +164,21 @@ function cache_read_file($key, $namespace = null){
 
 
 /*
- * Read to cache
+ * Write specified data blob to cache with the specified $key
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ * @see cache_read()
+ * @see cache_write_file()
+ * @version 2.8.46: Added documentation
+ *
+ * @param mixed $value
+ * @param string $key
+ * @param null string $namespace
+ * @return mixed The cache blob data if found, null otherwise
  */
 function cache_write($value, $key, $namespace = null, $max_age = null){
     global $_CONFIG, $core;
@@ -169,6 +212,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null){
                 throw new BException(tr('cache_write(): Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
         }
 
+        log_console(tr('Wrote cache blob for key ":namespace-:key"', array(':namespace' => $namespace, ':key' => $key)), 'VERBOSE/green');
         return $value;
 
     }catch(Exception $e){
@@ -185,7 +229,21 @@ function cache_write($value, $key, $namespace = null, $max_age = null){
 
 
 /*
- * Write to cache file
+ * Write specified data blob to cache file with the specified $key
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ * @see cache_read_file()
+ * @see cache_write()
+ * @version 2.8.46: Added documentation
+ *
+ * @param mixed $value
+ * @param string $key
+ * @param null string $namespace
+ * @return mixed The cache blob data if found, null otherwise
  */
 function cache_write_file($value, $key, $namespace = null){
     try{
@@ -210,6 +268,18 @@ function cache_write_file($value, $key, $namespace = null){
 
 /*
  * Return a hashed key
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ * @see cache_read()
+ * @see cache_write()
+ * @version 2.8.46: Added documentation
+ *
+ * @param string $key
+ * @return string A hash key
  */
 function cache_key_hash($key){
     global $_CONFIG;
@@ -283,6 +353,21 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null){
 
 /*
  * Clear the entire cache
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ * @see cache_read()
+ * @see cache_write()
+ * @see cache_size()
+ * @see cache_count()
+ * @version 2.8.46: Added documentation
+ *
+ * @param string $key
+ * @param string $namespace
+ * @return void
  */
 function cache_clear($key = null, $namespace = null){
     include('handlers/cache-clear.php');
@@ -292,6 +377,21 @@ function cache_clear($key = null, $namespace = null){
 
 /*
  * Return the total size of the cache
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ * @see cache_read()
+ * @see cache_write()
+ * @see cache_clear()
+ * @see cache_count()
+ * @version 2.8.46: Added documentation
+ *
+ * @param string $key
+ * @param string $namespace
+ * @return natural The size of the cache in bytes
  */
 function cache_size(){
     return include('handlers/cache-size.php');
@@ -301,6 +401,21 @@ function cache_size(){
 
 /*
  * Return the total amount of files currently in cache
+  *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package cache
+ * @see cache_read()
+ * @see cache_write()
+ * @see cache_clear()
+ * @see cache_size()
+ * @version 2.8.46: Added documentation
+ *
+ * @param string $key
+ * @param string $namespace
+ * @return natural The number of objects available in cache
  */
 function cache_count(){
     return include('handlers/cache-count.php');
