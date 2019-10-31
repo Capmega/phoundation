@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.45');
+define('FRAMEWORKCODEVERSION', '2.8.46');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -3991,11 +3991,23 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
         }
 
         /*
-         * Get this URL from the CDN system
+         * Get this URL from the CDN system, though try cache first
          *
          * Disabled servers are allowed to be used as they cannot receive new
          * files but still server files
          */
+        if($_CONFIG['cdn']['cache'] and $file){
+            log_file(tr('Searching cdn file ":file"', array(':file' => $file)), 'cdn_domain', 'VERBOSE/cyan');
+            $url = cache_read($file, 'cdn-file');
+
+            if($url){
+                /*
+                 * Yay, found the file in the CDN cache!
+                 */
+                return $url;
+            }
+        }
+
         $url = sql_get('SELECT   `cdn_files`.`file`,
                                  `cdn_files`.`servers_id`,
                                  `cdn_servers`.`baseurl`
@@ -4024,7 +4036,16 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
             /*
              * Yay, found the file in the CDN database!
              */
-            return slash($url['baseurl']).strtolower(str_replace('_', '-', PROJECT)).$url['file'];
+            $url = slash($url['baseurl']).strtolower(str_replace('_', '-', PROJECT)).$url['file'];
+
+            if($_CONFIG['cdn']['cache']){
+                /*
+                 * Cache the CDN result
+                 */
+                cache_write($url, $file, 'cdn-file');
+            }
+
+            return $url;
         }
 
         /*

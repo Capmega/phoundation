@@ -69,6 +69,8 @@ $_CONFIG['cache']              = array('method'                             => '
 // CDN configuration
 $_CONFIG['cdn']                = array('min'                                => true,                                                    // If set to "true" all CSS and JS files loaded with html_load_js() and html_load_css() will be loaded as file.min.js instead of file.js. Use "true" in production environment, "false" in all other environments
 
+                                       'cache'                              => true,                                                    // [false | true] If set to true, phoundation will cache CDN file data in the configured caching system
+
                                        'cache_max_age'                      => 604800,                                                  // Max age of cached CDN files like bundle files, internal js files, etc. before they are deleted and regenerated. If cache age is lower than 60 it will be considered zero, and cache age will be ignored
 
                                        'enabled'                            => false,                                                   // [false | true] If set to "true", base will try to use configured CDN servers for the content files. If set to false, files will be used from the local server.
@@ -252,7 +254,7 @@ $_CONFIG['maintenance']        = false;                                         
 $_CONFIG['memcached']          = array('servers'                            => array(array('localhost', 11211, 20)),                        // Array of multiple memcached servers. If set to false, no memcached will be done.
                                        'expire_time'                        => 86400,                                                       // Default memcached object expire time (after this time memcached will drop them automatically)
                                        'prefix'                             => PROJECT.'-',                                                 // Default memcached object key prefix (in case multiple projects use the same memcached server)
-                                       'namespaces'                         => true);                                                       // Use namespaces to store the data. This will require extra lookups on memcached to determine namespaces contents, but allows for more flexibility
+                                       'namespaces'                         => false);                                                      // Use namespaces to store the data. This will require extra lookups on memcached to determine namespaces contents, but allows for more flexibility
 
 //Meta configuration
 $_CONFIG['meta']               = array('author'                             => '');                                                         // Set default meta tags for this site which may be overruled by parameters for the function html_header(). See libs/html.php
