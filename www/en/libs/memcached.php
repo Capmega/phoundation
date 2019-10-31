@@ -42,6 +42,7 @@ function memcached_connect(){
              */
             if(!$_CONFIG['memcached']){
                 $core->register['memcached'] = false;
+                log_file('memcached_connect(): Not using memcached, its disabled by configuration $_CONFIG[memcached]', 'yellow');
 
             }else{
                 $failed                      = 0;
@@ -94,6 +95,7 @@ function memcached_connect(){
                                  'groups'  => 'developers',
                                  'title'   => tr('Memcached server not available'),
                                  'message' => tr('memcached_connect(): Failed to connect to all ":count" memcached servers', array(':server' => count($_CONFIG['memcached']['servers'])))));
+
                     return false;
                 }
             }
@@ -131,6 +133,7 @@ function memcached_put($value, $key, $namespace = null, $expiration_time = null)
         }
 
         $core->register['memcached']->set($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key, $value, $expiration_time);
+        log_console(tr('memcached_put(): Wrote key ":key"', array(':key' => $_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key)), 'VERYVERBOSE/green');
 
         return $value;
 
@@ -164,9 +167,10 @@ function memcached_add($value, $key, $namespace = null, $expiration_time = null)
         }
 
         if(!$core->register['memcached']->add($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key, $value, $expiration_time)){
-
+// :TODO: Exception?
         }
 
+        log_console(tr('memcached_add(): Added key ":key"', array(':key' => $_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key)), 'VERYVERBOSE/green');
         return $value;
 
     }catch(Exception $e){
@@ -222,7 +226,16 @@ function memcached_get($key, $namespace = null){
             return false;
         }
 
-        return $core->register['memcached']->get($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key);
+        $data = $core->register['memcached']->get($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key);
+
+        if($data){
+            log_console(tr('memcached_get(): Returned data for key ":key"', array(':key' => $_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key)), 'VERYVERBOSE/green');
+
+        }else{
+            log_console(tr('memcached_get(): Found no data for key ":key"', array(':key' => $_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key)), 'VERYVERBOSE/green');
+        }
+
+        return $data;
 
     }catch(Exception $e){
         throw new BException('memcached_get(): Failed', $e);
@@ -309,10 +322,15 @@ function memcached_increment($key, $namespace = null){
  */
 function memcached_namespace($namespace, $delete = false){
     global $_CONFIG;
+    static $keys = array();
 
     try{
         if(!$namespace or !$_CONFIG['memcached']['namespaces']){
             return '';
+        }
+
+        if(array_key_exists($namespace, $keys)){
+            return $keys[$namespace];
         }
 
         $key = memcached_get('ns:'.$namespace);
@@ -346,6 +364,7 @@ function memcached_namespace($namespace, $delete = false){
             }
         }
 
+        $keys[$namespace] = $key;
         return $key;
 
     }catch(Exception $e){
