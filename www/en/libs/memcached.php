@@ -392,11 +392,9 @@ function memcached_stats(){
             return null;
         }
 
-        $stats = $core->register['memcached']->getStats();
-        return $stats;
+        return $core->register['memcached']->getStats();
 
     }catch(Exception $e){
         throw new BException('memcached_stats(): Failed', $e);
     }
 }
-?>
