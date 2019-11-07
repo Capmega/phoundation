@@ -365,7 +365,7 @@ function json_message($code, $data = null){
                 notify(array('code'    => 'unknown',
                              'groups'  => 'developers',
                              'title'   => tr('Unknown message specified'),
-                             'message' => tr('json_message(): Unknown code ":code" specified', array(':message' => $code))));
+                             'message' => tr('json_message(): Unknown code ":code" specified', array(':code' => $code))));
 
                 json_error(null, (debug() ? $data : null), 'ERROR', 500);
         }
