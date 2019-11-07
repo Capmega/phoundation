@@ -54,29 +54,30 @@ function cdn_delete_files($list, $column = 'file'){
         /*
          * Get list of servers / files
          */
-        $count   = 0;
-        $servers = array();
-        $files   = array();
-        $in      = sql_in($list);
+        $count              = 0;
+        $servers            = array();
+        $files              = array();
+        $in                 = sql_in($list);
+        $in[':environment'] = ENVIRONMENT;
 
-        $r       = sql_query('SELECT   `cdn_servers`.`seoname` AS `server`,
-                                       `cdn_files`.`file`
+        $r = sql_query('SELECT   `cdn_servers`.`seoname` AS `server`,
+                                 `cdn_files`.`file`
 
-                              FROM     `cdn_files`
+                        FROM     `cdn_files`
 
-                              JOIN     `cdn_servers`
-                              ON       `cdn_servers`.`id`           = `cdn_files`.`servers_id`
+                        JOIN     `cdn_servers`
+                        ON       `cdn_servers`.`id`           = `cdn_files`.`servers_id`
 
-                              JOIN     `api_accounts`
-                              ON       `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
-                              AND      `api_accounts`.`status`      IS NULL
-                              AND      `api_accounts`.`environment` = :environment
+                        JOIN     `api_accounts`
+                        ON       `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
+                        AND      `api_accounts`.`status`      IS NULL
+                        AND      `api_accounts`.`environment` = :environment
 
-                              WHERE    `cdn_files`.`'.$column.'` IN ('.sql_in_columns($in).')
+                        WHERE    `cdn_files`.`'.$column.'` IN ('.sql_in_columns($in).')
 
-                              ORDER BY `cdn_servers`.`seoname`',
+                        ORDER BY `cdn_servers`.`seoname`',
 
-                              $in);
+                        $in);
 
         while($row = sql_fetch($r)){
             if(empty($servers[$row['server']])){
@@ -152,8 +153,8 @@ function cdn_assign_servers(){
     global $_CONFIG;
 
     try{
-        $servers = sql_list('SELECT `id`,
-                                    `seoname`
+        $servers = sql_list('SELECT `cdn_servers`.`id`,
+                                    `cdn_servers`.`seoname`
 
                              FROM   `cdn_servers`
 
@@ -162,7 +163,7 @@ function cdn_assign_servers(){
                              AND    `api_accounts`.`status`      IS NULL
                              AND    `api_accounts`.`environment` = :environment
 
-                             WHERE  `status` IS NULL
+                             WHERE  `cdn_servers`.`status` IS NULL
 
                              ORDER BY RAND() LIMIT '.$_CONFIG['cdn']['copies'],
 
@@ -506,4 +507,3 @@ function cdn_update_pub(){
         throw new BException('cdn_update_pub(): Failed', $e);
     }
 }
-?>
