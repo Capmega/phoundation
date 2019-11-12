@@ -4,8 +4,11 @@
  *
  * This lirary contains easy to use encrypt / decrypt functions
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package crypt
  */
 
 
@@ -19,7 +22,7 @@
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package sodium
+ * @package crypt
  *
  * @return void
  */
@@ -28,24 +31,7 @@ function crypt_library_init(){
 
     try{
         load_config('crypt');
-
-        switch(str_until(PHP_VERSION, '.')){
-            case 5:
-                if(!function_exists('mcrypt_module_open')){
-                    throw new BException(tr('crypt: PHP module "mcrypt" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-mcrypt" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
-                }
-
-                $core->register('crypt_backend', 'mcrypt');
-                break;
-
-            case 7:
-                $core->register('crypt_backend', 'sodium');
-                load_libs('sodium');
-                break;
-
-            default:
-                throw new BException(tr('crypt_library_init(): Unsupported PHP version ":version"', array(':version' => PHP_VERSION)), 'unsupported');
-        }
+        load_libs('sodium');
 
     }catch(Exception $e){
         throw new BException('crypt_library_init(): Failed', $e);
@@ -55,7 +41,7 @@ function crypt_library_init(){
 
 
 /*
- * Encrypt the specified string with the specified key.
+ * Encrypt the specified string using the specified key.
  *
  * This function will return an encrypted string made from the specified source string and secret key. The encrypted string will contain the used nonce appended in front of the ciphertext with the format library^nonce$ciphertext
  *
@@ -63,36 +49,29 @@ function crypt_library_init(){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package sodium
+ * @package crypt
+ * @see decrypt
+ * @see sodium_encrypt()
+ * @note JSON encodes the data before encrypting it
+ * @note Uses the backend configured in $_CONFIG[crypt][backend]
  *
  * @param string $string The text string to be encrypted
  * @param string $key The secret key to encrypt the text string with
- * @return string The encrypted ciphertext
+ * @return string The data json encoded and encrypted with the specified key using the configured backend
  */
 function encrypt($data, $key, $method = null){
     global $core;
 
     try{
-        switch($core->register('crypt_backend')){
+        switch($_CONFIG['crypt']['backend']){
             case 'sodium':
                 $key  = crypt_pad_key($key);
                 $data = json_encode_custom($data);
                 $data = 'sodium^'.sodium_encrypt($data, $key);
                 break;
 
-            case 'mcrypt':
-                if($key){
-                    $td   = mcrypt_module_open('tripledes', '', 'ecb', '');
-                    $iv   = mcrypt_create_iv (mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
-
-                    mcrypt_generic_init($td, mb_substr($key, 0, mcrypt_enc_get_key_size($td)), $iv);
-
-                    $data = mcrypt_generic($td, $data);
-                    $data = base64_encode($data);
-                    $data = 'mcrypt^'.$data;
-                }
-
-                break;
+            default:
+                throw new BException(tr('encrypt(): Unknown backend ":backend" specified $_CONFIG[crypt][backend]', array(':backend' => $_CONFIG['crypt']['backend'])), 'unknown');
         }
 
         return $data;
@@ -105,7 +84,23 @@ function encrypt($data, $key, $method = null){
 
 
 /*
+ * Decrypt the specified string using the specified key.
  *
+ * This function will return an encrypted string made from the specified source string and secret key. The encrypted string will contain the used nonce appended in front of the ciphertext with the format library^nonce$ciphertext
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package crypt
+ * @see encrypt
+ * @see sodium_decrypt()
+ * @note JSON decodes the data after decrypting it
+ * @note Requires that the encrypted string is of the format BACKEND^DATA where BACKEND is the backend used for encryption, and DATA is the actual encrypted data. BACKEND can currently be only "sodium" for php-libsodium
+ *
+ * @param string $string The text string to be encrypted
+ * @param string $key The secret key to encrypt the text string with
+ * @return string The encrypted ciphertext
  */
 function decrypt($data, $key, $method = null){
     global $core;
@@ -119,32 +114,17 @@ function decrypt($data, $key, $method = null){
         $backend = str_until($data, '^');
         $data    = str_from ($data, '^');
 
-        if(!$backend){
-            throw new BException(tr('decrypt(): Data has no backend specified'), 'invalid');
-        }
-
-        if($backend !== $core->register('crypt_backend')){
-            throw new BException(tr('decrypt(): Data requires crypto backend ":data" but only ":system" is available', array(':system' => $core->register('crypt_backend'), ':data' => $backend)), 'not-available');
-        }
-
         switch($core->register('crypt_backend')){
             case 'sodium':
                 $data = sodium_decrypt($data, $key);
                 break;
 
-            case 'mcrypt':
-                if($key){
-                    $td = mcrypt_module_open('tripledes', '', 'ecb', '');
-                    $iv = mcrypt_create_iv (mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
+            case '':
+                throw new BException(tr('decrypt(): Data has no backend specified'), 'invalid');
 
-                    mcrypt_generic_init($td, mb_substr($key, 0, mcrypt_enc_get_key_size($td)), $iv);
-
-                    $data = mdecrypt_generic($td, $data);
-                }
-
-                break;
+            default:
+                throw new BException(tr('decrypt(): Unknown backend ":backend" specified by data', array(':backend' => $backend)), 'unknown');
         }
-
 
         $data = trim($data);
         $data = json_decode_custom($data);
@@ -187,4 +167,3 @@ function crypt_pad_key($key, $character = '*'){
         throw new BException('crypt_pad_key(): Failed', $e);
     }
 }
-?>

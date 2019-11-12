@@ -8,5 +8,6 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Sven Oostenbrink <support@capmega.com>, Johan Geuze
  */
-$_CONFIG['crypt']                                                               = array('min_key_size' => '12');    // The minimum size for crypto keys
+$_CONFIG['crypt']                                                               = array('backend'      => 'sodium', // The backend to use for the encryption
+                                                                                        'min_key_size' => '12');    // The minimum size for crypto keys
 ?>

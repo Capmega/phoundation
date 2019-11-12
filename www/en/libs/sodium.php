@@ -31,6 +31,10 @@ function sodium_library_init(){
             throw new BException(tr('sodium_library_init(): PHP module "sodium" appears is not available, please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-libsodium" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
         }
 
+        if(!function_exists('sodium_crypto_secretbox')){
+            sodium_install();
+        }
+
     }catch(Exception $e){
         throw new BException('sodium_library_init(): Failed', $e);
     }
@@ -52,11 +56,10 @@ function sodium_library_init(){
  */
 function sodium_install($params){
     try{
-        $params['methods'] = array('apt-get' => array('commands'  => 'sudo apt-get install php-libsodium'));
-        return install($params);
+        return safe_exec(array('commands' => array('apt-get', array('install', 'php-libsodium', 'sudo' => true))));
 
     }catch(Exception $e){
-        throw new BException('sodium_install(): Failed', $e);
+        throw new BException('sodium_install(): Failed to auto install php-libsodium', $e);
     }
 }
 
@@ -305,4 +308,3 @@ function sodium_pad_key($key, $character = '*'){
         throw new BException('sodium_pad_key(): Failed', $e);
     }
 }
-?>
