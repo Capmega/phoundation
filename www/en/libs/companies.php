@@ -273,69 +273,54 @@ function companies_select($params = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
+ * @see sql_simple_get()
  * @package companies
  *
  * @param mixed $company The required company. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
-function companies_get($company, $column = null, $status = null){
+function companies_get($params, $column = null, $status = null){
     try{
-        if(is_numeric($company)){
-            $where[] = ' `companies`.`id` = :id ';
-            $execute[':id'] = $company;
+        array_params($params, 'seoname', 'id');
 
-        }else{
-            $where[] = ' `companies`.`seoname` = :seoname ';
-            $execute[':seoname'] = $company;
-        }
+        array_default($params, 'filters', array('companies.id'      => $params['id'],
+                                                'companies.seoname' => $params['seoname']));
 
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `companies`.`status` '.sql_is($status, ':status');
-        }
+        array_default($params, 'joins'  , array('LEFT JOIN `categories`
+                                                 ON        `categories`.`id` = `companies`.`categories_id`
 
-        $where   = ' WHERE '.implode(' AND ', $where).' ';
+                                                 LEFT JOIN `customers`
+                                                 ON        `customers`.`id`  = `companies`.`customers_id`
 
-        if($column){
-            $retval = sql_get('SELECT `'.$column.'` FROM `companies` '.$where, true, $execute);
+                                                 LEFT JOIN `providers`
+                                                 ON        `providers`.`id`  = `companies`.`providers_id`'));
 
-        }else{
-            $retval = sql_get('SELECT    `companies`.`id`,
-                                         `companies`.`createdon`,
-                                         `companies`.`createdby`,
-                                         `companies`.`meta_id`,
-                                         `companies`.`status`,
-                                         `companies`.`categories_id`,
-                                         `companies`.`customers_id`,
-                                         `companies`.`providers_id`,
-                                         `companies`.`name`,
-                                         `companies`.`seoname`,
-                                         `companies`.`description`,
+        array_default($params, 'columns', 'companies.id,
+                                           companies.createdon,
+                                           companies.createdby,
+                                           companies.meta_id,
+                                           companies.status,
+                                           companies.categories_id,
+                                           companies.customers_id,
+                                           companies.providers_id,
+                                           companies.name,
+                                           companies.seoname,
+                                           companies.description,
 
-                                         `categories`.`name`    AS `category`,
-                                         `categories`.`seoname` AS `seocategory`,
+                                           categories.name    AS category,
+                                           categories.seoname AS seocategory,
 
-                                         `customers`.`name`    AS `customer`,
-                                         `customers`.`seoname` AS `seocustomer`,
+                                           customers.name    AS customer,
+                                           customers.seoname AS seocustomer,
 
-                                         `providers`.`name`    AS `provider`,
-                                         `providers`.`seoname` AS `seoprovider`
+                                           providers.name    AS provider,
+                                           providers.seoname AS seoprovider');
 
-                               FROM      `companies`
+        $params['table']     = 'companies';
+        $params['connector'] = 'core';
 
-                               LEFT JOIN `categories`
-                               ON        `categories`.`id` = `companies`.`categories_id`
-
-                               LEFT JOIN `customers`
-                               ON        `customers`.`id`  = `companies`.`customers_id`
-
-                               LEFT JOIN `providers`
-                               ON        `providers`.`id`  = `companies`.`providers_id`
-                               '.$where, $execute);
-        }
-
-        return $retval;
+        return sql_simple_get($params);
 
     }catch(Exception $e){
         throw new BException('companies_get(): Failed', $e);
@@ -486,6 +471,7 @@ function companies_validate_branch($branch, $reload_only = false){
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package companies
+ * @see html_select()
  *
  * @param array $params The parameters required
  * @param $params name
@@ -614,90 +600,47 @@ function companies_select_branch($params = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
+ * @see sql_simple_get()
  * @package companies
  *
  * @param mixed $branch The required company. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
-function companies_get_branch($company, $branch, $column = null, $status = null){
+function companies_get_branch($params, $branch, $column = null, $status = null){
     try{
-        /*
-         * Filter by specified company
-         */
-        if(!is_numeric($company)){
-            $companies_id = companies_get($company, 'id');
+        array_params($params, 'seoname', 'id');
 
-            if(!$companies_id){
-                throw new BException(tr('companies_get_branch(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
-            }
+        array_default($params, 'filters', array('branches.id'      => $params['id'],
+                                                'branches.seoname' => $params['seoname']));
 
-        }else{
-            $companies_id = $company;
-        }
+        array_default($params, 'joins'  , array('JOIN      `companies`
+                                                 ON        `companies`.`id`     = `branches`.`companies_id`
+                                                 AND       `companies`.`status` IS NULL
 
-        $where[] = ' `branches`.`companies_id` = :companies_id ';
-        $execute[':companies_id'] = $companies_id;
+                                                 LEFT JOIN `categories`
+                                                 ON        `categories`.`id`    = `companies`.`categories_id` '));
 
-        /*
-         * Filter by specified branch
-         */
-        if(is_numeric($branch)){
-            $where[] = ' `branches`.`id` = :id ';
-            $execute[':id'] = $branch;
+        array_default($params, 'columns', 'branches.id,
+                                           branches.createdon,
+                                           branches.createdby,
+                                           branches.meta_id,
+                                           branches.status,
+                                           branches.companies_id,
+                                           branches.name,
+                                           branches.seoname,
+                                           branches.description,
 
-        }else{
-            $where[] = ' `branches`.`seoname` = :seoname ';
-            $execute[':seoname'] = $branch;
-        }
+                                           categories.name    AS category,
+                                           categories.seoname AS seocategory,
 
-        /*
-         * Filter by specified status
-         */
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `branches`.`status` '.sql_is($status, ':status');
-        }
+                                           companies.name     AS company,
+                                           companies.seoname  AS seocompany');
 
-        $where   = ' WHERE '.implode(' AND ', $where).' ';
+        $params['table']     = 'branches';
+        $params['connector'] = 'core';
 
-        if($column){
-            $retval = sql_get('SELECT `branches`.`'.$column.'`
-
-                               FROM   `branches`
-
-                               JOIN   `companies`
-                               ON     `companies`.`id` = `branches`.`companies_id`
-                               AND    `companies`.`status` IS NULL '.$where, true, $execute);
-
-        }else{
-            $retval = sql_get('SELECT    `branches`.`id`,
-                                         `branches`.`createdon`,
-                                         `branches`.`createdby`,
-                                         `branches`.`meta_id`,
-                                         `branches`.`status`,
-                                         `branches`.`companies_id`,
-                                         `branches`.`name`,
-                                         `branches`.`seoname`,
-                                         `branches`.`description`,
-
-                                         `categories`.`name`    AS `category`,
-                                         `categories`.`seoname` AS `seocategory`,
-
-                                         `companies`.`name`     AS `company`,
-                                         `companies`.`seoname`  AS `seocompany`
-
-                               FROM      `branches`
-
-                               JOIN      `companies`
-                               ON        `companies`.`id`    = `branches`.`companies_id`
-                               AND       `companies`.`status` IS NULL
-
-                               LEFT JOIN `categories`
-                               ON        `categories`.`id`   = `companies`.`categories_id` '.$where, $execute);
-        }
-
-        return $retval;
+        return sql_simple_get($params);
 
     }catch(Exception $e){
         throw new BException('companies_get_branch(): Failed', $e);
@@ -715,7 +658,7 @@ function companies_get_branch($company, $branch, $column = null, $status = null)
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference
- * @package customers
+ * @package companies
  * @see sql_simple_list()
  * @version 2.6.27: Added function and documentation
  *
@@ -1003,119 +946,55 @@ function companies_select_department($params = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
+ * @see sql_simple_get()
  * @package companies
  *
  * @param mixed $department The required company. Can either be specified by id (natural number) or string (seoname)
  * @param string $column The specific column that has to be returned
  * @return mixed The company data. If no column was specified, an array with all columns will be returned. If a column was specified, only the column will be returned (having the datatype of that column). If the specified company does not exist, NULL will be returned.
  */
-function companies_get_department($company, $branch, $department, $column = null, $status = null){
+function companies_get_department($params, $branch, $department, $column = null, $status = null){
     try{
-        /*
-         * Filter by specified company
-         */
-        if(!is_numeric($company)){
-            $companies_id = companies_get($company, 'id');
+        array_params($params, 'seoname', 'id');
 
-            if(!$companies_id){
-                throw new BException(tr('companies_get_department(): Specified company ":company" does not exist', array(':company' => $company)), 'not-exists');
-            }
+        array_default($params, 'filters', array('departments.id'      => $params['id'],
+                                                'departments.seoname' => $params['seoname']));
 
-        }else{
-            $companies_id = $company;
-        }
+        array_default($params, 'joins'  , array('JOIN      `companies`
+                                                 ON        `companies`.`id`    = `departments`.`companies_id`
+                                                 AND       `companies`.`status` IS NULL
 
-        $where[] = ' `departments`.`companies_id` = :companies_id ';
-        $execute[':companies_id'] = $companies_id;
+                                                 LEFT JOIN `categories`
+                                                 ON        `categories`.`id`   = `companies`.`categories_id`
 
-        /*
-         * Filter by specified branch
-         */
-        if(!is_numeric($branch)){
-            $branches_id = companies_get_branch($companies_id, $branch, 'id');
+                                                 JOIN      `branches`
+                                                 ON        `branches`.`id`     = `departments`.`branches_id`
+                                                 AND       `branches`.`status`  IS NULL '));
 
-            if(!$branches_id){
-                throw new BException(tr('companies_get_department(): Specified branch ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
-            }
+        array_default($params, 'columns', 'departments.id,
+                                           departments.createdon,
+                                           departments.createdby,
+                                           departments.meta_id,
+                                           departments.status,
+                                           departments.companies_id,
+                                           departments.branches_id,
+                                           departments.name,
+                                           departments.seoname,
+                                           departments.description,
 
-        }else{
-            $branches_id = $branch;
-        }
+                                           categories.name    AS category,
+                                           categories.seoname AS seocategory,
 
-        $where[] = ' `departments`.`companies_id` = :companies_id ';
-        $execute[':companies_id'] = $companies_id;
+                                           companies.name     AS company,
+                                           companies.seoname  AS seocompany,
 
-        /*
-         * Filter by specified department
-         */
-        if(is_numeric($department)){
-            $where[] = ' `departments`.`id` = :id ';
-            $execute[':id'] = $department;
+                                           branches.name      AS branch,
+                                           branches.seoname   AS seobranch');
 
-        }else{
-            $where[] = ' `departments`.`seoname` = :seoname ';
-            $execute[':seoname'] = $department;
-        }
+        $params['table']     = 'departments';
+        $params['connector'] = 'core';
 
-        /*
-         * Filter by specified status
-         */
-        if($status !== false){
-            $execute[':status'] = $status;
-            $where[] = ' `departments`.`status` '.sql_is($status, ':status');
-        }
-
-        $where   = ' WHERE '.implode(' AND ', $where).' ';
-
-        if($column){
-            $retval = sql_get('SELECT `departments`.`'.$column.'`
-
-                               FROM   `departments`
-
-                               JOIN   `companies`
-                               ON     `companies`.`id` = `departments`.`companies_id`
-                               AND    `companies`.`status` IS NULL
-
-                               JOIN   `branches`
-                               ON     `branches`.`id`  = `departments`.`branches_id`
-                               AND    `branches`.`status`  IS NULL '.$where, true, $execute);
-
-        }else{
-            $retval = sql_get('SELECT    `departments`.`id`,
-                                         `departments`.`createdon`,
-                                         `departments`.`createdby`,
-                                         `departments`.`meta_id`,
-                                         `departments`.`status`,
-                                         `departments`.`companies_id`,
-                                         `departments`.`branches_id`,
-                                         `departments`.`name`,
-                                         `departments`.`seoname`,
-                                         `departments`.`description`,
-
-                                         `categories`.`name`    AS `category`,
-                                         `categories`.`seoname` AS `seocategory`,
-
-                                         `companies`.`name`     AS `company`,
-                                         `companies`.`seoname`  AS `seocompany`,
-
-                                         `branches`.`name`      AS `branch`,
-                                         `branches`.`seoname`   AS `seobranch`
-
-                               FROM      `departments`
-
-                               JOIN      `companies`
-                               ON        `companies`.`id`    = `departments`.`companies_id`
-                               AND       `companies`.`status` IS NULL
-
-                               LEFT JOIN `categories`
-                               ON        `categories`.`id`   = `companies`.`categories_id`
-
-                               JOIN      `branches`
-                               ON        `branches`.`id`     = `departments`.`branches_id`
-                               AND       `branches`.`status`  IS NULL '.$where, $execute);
-        }
-
-        return $retval;
+        return sql_simple_get($params);
 
     }catch(Exception $e){
         throw new BException('companies_get_department(): Failed', $e);
@@ -1415,6 +1294,7 @@ function companies_select_employee($params = null){
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
+ * @see sql_simple_get()
  * @package companies
  *
  * @param mixed $employee The required company. Can either be specified by id (natural number) or string (seoname)
