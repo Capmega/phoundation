@@ -4,8 +4,11 @@
  *
  * This is the PHP Libsodium front-end library
  *
+ * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
+ * @category Function reference
+ * @package sodium
  * @see https://paragonie.com/book/pecl-libsodium/read/00-intro.md
  * @see https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md
  */
