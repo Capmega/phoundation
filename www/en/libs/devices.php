@@ -24,7 +24,7 @@
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
- * @package template
+ * @package devices
  * @version 2.2.0: Added function and documentation
  *
  * @return void
@@ -36,6 +36,34 @@ function devices_library_init(){
 
     }catch(Exception $e){
         throw new BException('devices_library_init(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Merge specified POST data with the specified device data, and ensure that customer, provider, inventory, category, company, brach, department and employee data are all valid
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package devices
+ * @version 2.2.0: Added function and documentation
+ *
+ * @param params $device
+ * @param params $post
+ * @return params The specified device parameter array, validated and sanitized
+ */
+function devices_merge($device, $post, $server = null){
+    try{
+        $device = sql_merge($device, $post);
+        $device = devices_validate($device, $server, true);
+//showdie('TEST DEVICES_MERGE(), DEVICES_VALIDATE(), MAKE ALL companies_get_*() use sql_simple_get() and all companies_list_*() use sql_simple_list()');
+        return $device;
+
+    }catch(Exception $e){
+        throw new BException('devices_merge(): Failed', $e);
     }
 }
 
@@ -202,7 +230,7 @@ function devices_update($device, $server = null){
  * @param params $server
  * @return params
  */
-function devices_validate($device, $server, $update = true){
+function devices_validate($device, $server = null, $update = true){
     try{
         load_libs('validate,seo,categories,companies,servers,customers,providers,inventories');
         $v = new ValidateForm($device, 'name,type,manufacturer,model,vendor,vendor_string,product,product_string,libusb,bus,device,string,default,category,company,branch,department,employee,customer,provider,inventory,server,description,options');
@@ -303,111 +331,191 @@ function devices_validate($device, $server, $update = true){
          * Validate category
          */
         if($device['category']){
-           $device['categories_id'] = categories_get($device['category'], 'id');
+           $category = categories_get($device['category'], 'id');
 
-            if(!$device['categories_id']){
+            if(!$category){
                 $v->setError(tr('Specified category ":category" does not exist', array(':category' => $device['category'])));
             }
 
+            $device['categories_id'] = $category['id'];
+            $device['category']      = $category['name'];
+            $device['seocategory']   = $category['seoname'];
+
         }else{
             $device['categories_id'] = null;
+            $device['category']      = null;
+            $device['seocategory']   = null;
         }
 
         /*
          * Validate customer
          */
         if($device['customer']){
-            $device['customers_id'] = customers_get(array('columns' => 'id',
-                                                          'filters' => array('seoname' => $device['customer'])));
+            $customer = customers_get(array('columns' => 'id,name,seoname',
+                                            'filters' => array('seoname' => $device['customer'])));
 
-            if(!$device['customers_id']){
+            if(!$customer){
                 $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $device['customer'])));
             }
 
+            $device['customers_id'] = $customer['id'];
+            $device['customer']     = $customer['name'];
+            $device['seocustomer']  = $customer['seoname'];
+
         }else{
             $device['customers_id'] = null;
+            $device['customer']     = null;
+            $device['seocustomer']  = null;
         }
 
         /*
          * Validate provider
          */
         if($device['provider']){
-           $device['providers_id'] = providers_get($device['provider'], 'id');
+           $provider = providers_get($device['provider'], 'id,name,seoname');
 
-            if(!$device['providers_id']){
+            if(!$provider){
                 $v->setError(tr('Specified provider ":provider" does not exist', array(':provider' => $device['provider'])));
             }
 
-        }else{
+            $device['providers_id'] = $provider['id'];
+            $device['provider']     = $provider['name'];
+            $device['seoprovider']  = $provider['seoname'];
+
+       }else{
             $device['providers_id'] = null;
+            $device['provider']     = null;
+            $device['seoprovider']  = null;
         }
 
         /*
          * Validate inventory
          */
         if($device['inventory']){
-           $device['inventories_id'] = inventories_get($device['inventory'], 'id');
+           $inventory = inventories_get($device['inventory'], 'id,name,seoname');
 
-            if(!$device['inventories_id']){
+            if(!$inventory){
                 $v->setError(tr('Specified inventory key ":inventory" does not exist', array(':inventory' => $device['inventory'])));
             }
 
+            $device['inventories_id'] = $inventory['id'];
+            $device['inventory']      = $inventory['name'];
+            $device['seoinventory']   = $inventory['seoname'];
+
         }else{
             $device['inventories_id'] = null;
+            $device['inventory']      = null;
+            $device['seoinventory']   = null;
         }
 
         /*
          * Validate company / branch / department / employee
          */
         if($device['company']){
-            $device['companies_id'] = companies_get($device['company'], 'id');
+            $company = companies_get($device['company'], 'id,name,seoname');
 
-            if(!$device['companies_id']){
+            if(!$company){
                 $v->setError(tr('Specified company ":company" does not exist', array(':company' => $device['company'])));
 
+                $device['companies_id']   = null;
+                $device['company']        = null;
+                $device['seocompany']     = null;
                 $device['branches_id']    = null;
                 $device['departments_id'] = null;
 
             }else{
+                $device['companies_id'] = $company['id'];
+                $device['company']      = $company['name'];
+                $device['seocompany']   = $company['seoname'];
+
                 /*
                  * Validate branch
                  */
                 if($device['branch']){
-                    $device['branches_id'] = companies_get_branch($device['companies_id'], $device['branch'], 'id');
+                    $branch = companies_get_branch($device['companies_id'], $device['branch'], 'id,name,seoname');
 
-                    if(!$device['branches_id']){
+                    if(!$branch){
                         $v->setError(tr('Specified branch ":branch" does not exist in company ":company"', array(':company' => $device['company'], ':branch' => $device['branch'])));
 
-                       $device['departments_id'] = null;
+                        $device['branches_id']    = null;
+                        $device['branch']         = null;
+                        $device['seobranch']      = null;
+                        $device['departments_id'] = null;
+                        $device['employees_id']   = null;
 
                     }else{
+                        $device['branches_id']    = $branch['id'];
+                        $device['branch']         = $branch['name'];
+                        $device['seobranch']      = $branch['seoname'];
+
                         /*
                          * Validate department
                          */
                         if($device['department']){
-                            $device['departments_id'] = companies_get_department($device['companies_id'], $device['branches_id'], $device['department'], 'id');
+                            $department = companies_get_department($device['companies_id'], $device['branches_id'], $device['department'], 'id,name,seoname');
 
-                            if(!$device['departments_id']){
+                            if(!$department){
                                 $v->setError(tr('Specified department ":department" does not exist in company ":company"', array(':company' => $device['company'], ':department' => $device['department'])));
 
+                                $device['departments_id'] = null;
+                                $device['department']     = null;
+                                $device['seodepartment']  = null;
+                                $device['employees_id']   = null;
+
                             }else{
+                                $device['departments_id'] = $department['id'];
+                                $device['department']     = $department['name'];
+                                $device['seodepartment']  = $department['seoname'];
+
                                 /*
                                  * Validate employee
                                  */
                                 if($device['employee']){
-                                    $device['employees_id'] = companies_get_employee(array('columns' => 'id',
-                                                                                           'filters' => array('employees.companies_id'   => $device['companies_id'],
-                                                                                                              'employees.branches_id'    => $device['branches_id'],
-                                                                                                              'employees.departments_id' => $device['departments_id'],
-                                                                                                              'employees.seoname'        => $device['employee'])));
+                                    $employee = companies_get_employee(array('columns' => 'id,name,seoname',
+                                                                             'filters' => array('employees.companies_id'   => $device['companies_id'],
+                                                                                                'employees.branches_id'    => $device['branches_id'],
+                                                                                                'employees.departments_id' => $device['departments_id'],
+                                                                                                'employees.seoname'        => $device['employee'])));
 
-                                    if(!$device['employees_id']){
+                                    if(!$employee){
                                         $v->setError(tr('Specified employee ":employee" does not exist in company ":company"', array(':company' => $device['company'], ':employee' => $device['employee'])));
+
+                                        $device['employees_id'] = null;
+                                        $device['employee']     = null;
+                                        $device['seoemployee']  = null;
+
+                                    }else{
+                                        $device['employees_id'] = $employee['id'];
+                                        $device['employee']     = $employee['name'];
+                                        $device['seoemployee']  = $employee['seoname'];
                                     }
+
+                                }else{
+                                    $device['employees_id'] = null;
+                                    $device['employee']     = null;
+                                    $device['seoemployee']  = null;
                                 }
                             }
+
+                        }else{
+                            $device['departments_id'] = null;
+                            $device['department']     = null;
+                            $device['seodepartment']  = null;
+                            $device['employees_id']   = null;
+                            $device['employee']       = null;
+                            $device['seoemployee']    = null;
                         }
                     }
+                }else{
+                    $device['branches_id']    = null;
+                    $device['branch']         = null;
+                    $device['seobranch']      = null;
+                    $device['departments_id'] = null;
+                    $device['department']     = null;
+                    $device['seodepartment']  = null;
+                    $device['employees_id']   = null;
+                    $device['employee']       = null;
+                    $device['seoemployee']    = null;
                 }
             }
 
@@ -415,11 +523,6 @@ function devices_validate($device, $server, $update = true){
             /*
              * None of it!
              */
-            $device['companies_id']   = null;
-            $device['branches_id']    = null;
-            $device['departments_id'] = null;
-            $device['employees_id']   = null;
-
             if($device['branch']){
                 $v->setError(tr('No company specified for branch ":branch"', array(':branch' => $device['branch'])));
             }
@@ -431,6 +534,19 @@ function devices_validate($device, $server, $update = true){
             if($device['employee']){
                 $v->setError(tr('No company specified for employee ":employee"', array(':employee' => $device['employee'])));
             }
+
+            $device['companies_id']   = null;
+            $device['company']        = null;
+            $device['seocompany']     = null;
+            $device['branches_id']    = null;
+            $device['branch']         = null;
+            $device['seobranch']      = null;
+            $device['departments_id'] = null;
+            $device['department']     = null;
+            $device['seodepartment']  = null;
+            $device['employees_id']   = null;
+            $device['employee']       = null;
+            $device['seoemployee']    = null;
         }
 
         $v->isValid();
@@ -546,7 +662,7 @@ function devices_insert_options($devices_id, $options){
         }
 
         $count  = 0;
-        $insert = sql_prepare('INSERT INTO `devices_options` (`devices_id`, `status`, `key`, `value`, `default`)
+        $insert = sql_prepare('INSERT INTO `drivers_options` (`devices_id`, `status`, `key`, `value`, `default`)
                                VALUES                        (:devices_id , :status , :key , :value , :default )');
 
         foreach($options as $key => $values){
@@ -630,11 +746,11 @@ function devices_list_options($devices_id, $inactive = false){
     try{
         if($inactive){
             $retval  = array();
-            $options = sql_query('SELECT `key`, `value`, `default` FROM `devices_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
+            $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
 
         }else{
             $retval  = array();
-            $options = sql_query('SELECT `key`, `value`, `default` FROM `devices_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
+            $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
         }
 
         if(!$options){
@@ -680,11 +796,11 @@ function devices_list_option_keys($devices_id, $inactive = false){
     try{
         if($inactive){
             $retval  = array();
-            $options = sql_query('SELECT `key`, `value`, `default` FROM `devices_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
+            $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
 
         }else{
             $retval  = array();
-            $options = sql_query('SELECT `key`, `value`, `default` FROM `devices_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
+            $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
         }
 
         if(!$options){
@@ -748,7 +864,7 @@ function devices_list_option_values($devices_id, $key){
             throw new BException(tr('devices_list_options(): No key specified for devices id ":id"', array(':id' => $devices_id)), 'not-specified');
         }
 
-        $retval = sql_query('SELECT `value`, `value`, `default` FROM `devices_options` WHERE `devices_id` = :devices_id AND `key` = :key', array(':devices_id' => $devices_id, ':key' => $key));
+        $retval = sql_query('SELECT `value`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `key` = :key', array(':devices_id' => $devices_id, ':key' => $key));
 
         return $retval;
 
@@ -989,7 +1105,12 @@ function devices_get($device, $server = null){
                                      `categories`.`name`  AS `category`,
                                      `companies`.`name`   AS `company`,
                                      `branches`.`name`    AS `branch`,
-                                     `departments`.`name` AS `department`
+                                     `departments`.`name` AS `department`,
+
+                                     `categories`.`seoname`  AS `category`,
+                                     `companies`.`seoname`   AS `company`,
+                                     `branches`.`seoname`    AS `branch`,
+                                     `departments`.`seoname` AS `department`
 
                            FROM      `devices`
 
