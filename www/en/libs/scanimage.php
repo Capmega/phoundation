@@ -1146,14 +1146,14 @@ function scanimage_select_resolution($params){
         array_default($params, 'none'      , false);
         array_default($params, 'empty'     , tr('No scanners available'));
 
-        $params['resource'] = sql_query('SELECT    `devices_options`.`value` AS `id`,
-                                                   `devices_options`.`value`
+        $params['resource'] = sql_query('SELECT    `drivers_options`.`value` AS `id`,
+                                                   `drivers_options`.`value`
 
                                          FROM      `devices`
 
-                                         LEFT JOIN `devices_options`
-                                         ON        `devices_options`.`devices_id` = `devices`.`id`
-                                         AND       `devices_options`.`key`        = "resolution"
+                                         LEFT JOIN `drivers_options`
+                                         ON        `drivers_options`.`devices_id` = `devices`.`id`
+                                         AND       `drivers_options`.`key`        = "resolution"
 
                                          WHERE     `devices`.`string`     = :string',
 
