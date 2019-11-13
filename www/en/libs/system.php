@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.49');
+define('FRAMEWORKCODEVERSION', '2.8.50');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -577,10 +577,21 @@ class BException extends Exception{
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
+     * @version 2.8.40: Added $last_line support
+     * @note If $last_line is set to true, then the returned data will either be the last line of the array if BException::data was an array, the string data if BException::data was a string.
      *
+     * @param boolean $last_line If set to true, and BException::data is an array, only the last line will be returned
      * @return mixed Returns the content for BException::data
      */
-    public function getData(){
+    public function getData($last_line = false){
+        if($last_line){
+            if(is_array($this->data)){
+                return array_pop($this->data);
+            }
+
+            return $this->data;
+        }
+
         return $this->data;
     }
 
@@ -599,6 +610,7 @@ class BException extends Exception{
      */
     public function setData($data){
         $this->data = array_force($data);
+        return $this;
     }
 
 
