@@ -972,7 +972,7 @@ function html_meta($meta){
          * Add meta tag no-index for non production environments and admin pages
          */
         if(!empty($meta['noindex']) or !$_CONFIG['production'] or $_CONFIG['noindex'] or $core->callType('admin')){
-            $meta['robots'] = 'noindex';
+            $meta['robots'] = 'noindex, nofollow, nosnippet, noarchive, noydir';
             unset($meta['noindex']);
         }
 
@@ -1086,12 +1086,12 @@ function html_og($og, $meta){
 
         if(strlen($og['description']) > 65){
             $og['description'] = str_truncate($og['description'], 65);
-            notify(new BException(tr('html_og(): Specified OG description ":description" is larger than 65 characters', array(':description' => $og['description'])), 'warning/invalid'));
+            notify(new BException(tr('html_og(): Specified OG description ":description" is larger than 65 characters, truncating to correct size', array(':description' => $og['description'])), 'warning/invalid'));
         }
 
         if(strlen($og['title']) > 35){
             $og['title'] = str_truncate($og['title'], 35);
-            notify(new BException(tr('html_og(): Specified OG title ":title" is larger than 35 characters', array(':title' => $og['title'])), 'warning/invalid'));
+            notify(new BException(tr('html_og(): Specified OG title ":title" is larger than 35 characters, truncating to correct size', array(':title' => $og['title'])), 'warning/invalid'));
         }
 
         $og['locale'] = str_until($og['locale'], '.');

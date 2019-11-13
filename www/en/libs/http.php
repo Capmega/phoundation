@@ -317,6 +317,19 @@ function http_headers($params, $content_length){
             }
         }
 
+        /*
+         * Add noidex, nofollow and nosnipped headers for non production
+         * environments and non normal HTTP pages.
+         *
+         These pages should NEVER be indexed
+         */
+        if(!$_CONFIG['production'] or $_CONFIG['noindex'] or !$core->callType('http')){
+            $headers[] = 'X-Robots-Tag: noindex, nofollow, nosnippet, noarchive, noydir';
+        }
+
+        /*
+         * CORS headers
+         */
         if($_CONFIG['cors'] or $params['cors']){
             /*
              * Add CORS / Access-Control-Allow-.... headers
