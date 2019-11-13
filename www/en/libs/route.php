@@ -227,7 +227,7 @@ function route($regex, $target, $flags = null){
                 /*
                  * Check if remote IP is registered for special routing
                  */
-                $exists = sql_get('SELECT `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => $ip));
+                $exists = sql_get('SELECT `id`, `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => $ip));
 
                 if($exists){
                     /*
@@ -239,6 +239,8 @@ function route($regex, $target, $flags = null){
                     $regex  = $exists['regex'];
                     $target = $exists['target'];
                     $flags  = array_force($exists['flags']);
+
+                    sql_query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', array(':id' => $exists['id']));
 
                     unset($exists);
                 }
