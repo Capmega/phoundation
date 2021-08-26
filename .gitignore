@@ -2,6 +2,7 @@ data/log
 
 *~
 *.kate-swp
+.idea
 /www/*
 !/www/dev
 !/www/en
