@@ -472,29 +472,29 @@ function mb_trim($string) {
 
 
 
-/*
- * Proper unicode mb_str_split()
- * Taken from http://php.net/manual/en/function.str-split.php
- */
-function mb_str_split($source, $l = 0) {
-    try{
-        if ($l > 0) {
-            $retval = array();
-            $length = mb_strlen($source, 'UTF-8');
-
-            for ($i = 0; $i < $length; $i += $l) {
-                $retval[] = mb_substr($source, $i, $l, 'UTF-8');
-            }
-
-            return $retval;
-        }
-
-        return preg_split("//u", $source, -1, PREG_SPLIT_NO_EMPTY);
-
-    }catch(Exception $e){
-        throw new BException('mb_str_split(): Failed', $e);
-    }
-}
+///*
+// * Proper unicode mb_str_split()
+// * Taken from http://php.net/manual/en/function.str-split.php
+// */
+//function mb_str_split($source, $l = 0) {
+//    try{
+//        if ($l > 0) {
+//            $retval = array();
+//            $length = mb_strlen($source, 'UTF-8');
+//
+//            for ($i = 0; $i < $length; $i += $l) {
+//                $retval[] = mb_substr($source, $i, $l, 'UTF-8');
+//            }
+//
+//            return $retval;
+//        }
+//
+//        return preg_split("//u", $source, -1, PREG_SPLIT_NO_EMPTY);
+//
+//    }catch(Exception $e){
+//        throw new BException('mb_str_split(): Failed', $e);
+//    }
+//}
 
 
 
