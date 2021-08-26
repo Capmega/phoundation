@@ -831,9 +831,9 @@ function http_set_ssl_default_context($params = null){
 
     try{
         array_ensure($params);
-        array_default($params, 'verify_peer'      , $_CONFIG['security']['ssl']['verify_peer']);
-        array_default($params, 'verify_peer_name' , $_CONFIG['security']['ssl']['verify_peer_name']);
-        array_default($params, 'allow_self_signed', $_CONFIG['security']['ssl']['allow_self_signed']);
+        array_default($params, 'verify_peer'      , isset_get($_CONFIG['security']['ssl']['verify_peer']));
+        array_default($params, 'verify_peer_name' , isset_get($_CONFIG['security']['ssl']['verify_peer_name']));
+        array_default($params, 'allow_self_signed', isset_get($_CONFIG['security']['ssl']['allow_self_signed']));
 
         return stream_context_set_default(array('ssl' => array('verify_peer'       => $params['verify_peer'],
                                                                'verify_peer_name'  => $params['verify_peer_name'],
