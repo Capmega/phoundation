@@ -3,6 +3,7 @@
 namespace Phoundation\Core\Route;
 
 use Exception;
+use Phoundation\Core\CoreException\CoreException;
 
 /**
  * Class Route
@@ -123,7 +124,7 @@ class Route
      * /code
      *
      */
-    public function add(string $url_regex, string $target, string $flags = null){
+    public function add(string $url_regex, string $target, string $flags = null) {
         global $_CONFIG, $core;
 
         static $count = 1,
@@ -131,7 +132,7 @@ class Route
 
         try{
 // :LEGACY: 2.9 and up will have this functionality removed and only Route::map() will function
-            if($url_regex === 'map'){
+            if ($url_regex === 'map') {
                 return Route::map($target);
             }
 
@@ -141,13 +142,13 @@ class Route
             /*
              * Ensure the 404 shutdown function is registered
              */
-            if(!$init){
+            if (!$init) {
                 $init = true;
                 log_file(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: '.$_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
                 register_shutdown('Route::shutdown');
             }
 
-            if(!$url_regex){
+            if (!$url_regex) {
                 /*
                  * Match an empty string
                  */
@@ -168,7 +169,7 @@ class Route
             $uri   = str_starts_not($_SERVER['REQUEST_URI'], '/');
             $uri   = str_until($uri                        , '?');
 
-            if(strlen($uri) > 255){
+            if (strlen($uri) > 255) {
                 log_file(tr('Requested URI ":uri" has ":count" characters, where 255 is a hardcoded limit (See route() function). 404-ing the request', array(':uri' => $uri, ':count' => strlen($uri))), 'route', 'yellow');
                 Route::execute404();
             }
@@ -183,8 +184,8 @@ class Route
             $block  = false;    // By default, do not block this request
             $static = true;     // By default, do check for static rules, if configured so
 
-            foreach($flags as $flags_id => $flag){
-                switch($flag[0]){
+            foreach($flags as $flags_id => $flag) {
+                switch($flag[0]) {
                     case 'D':
                         /*
                          * Include domain in match
@@ -197,7 +198,7 @@ class Route
                         $uri .= '?'.$query;
                         log_file(tr('Adding query to URI ":uri"', array(':uri' => $uri)), 'route', 'VERYVERBOSE/green');
 
-                        if(!str_exists(str_force($flags), 'Q')){
+                        if (!str_exists(str_force($flags), 'Q')) {
                             /*
                              * Auto imply Q
                              */
@@ -211,14 +212,14 @@ class Route
                 }
             }
 
-            if(($count === 1) and $_CONFIG['route']['static']){
-                if($static){
+            if (($count === 1) and $_CONFIG['route']['static']) {
+                if ($static) {
                     /*
                      * Check if remote IP is registered for special routing
                      */
                     $exists = sql_get('SELECT `id`, `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => $ip));
 
-                    if($exists){
+                    if ($exists) {
                         /*
                          * Apply semi-permanent routing for this IP
                          */
@@ -247,12 +248,12 @@ class Route
 
             $match = preg_match_all($url_regex, $uri, $matches);
 
-            if(!$match){
+            if (!$match) {
                 $count++;
                 return false;
             }
 
-            if(VERBOSE){
+            if (VERBOSE) {
                 log_file(tr('Regex ":count" ":regex" matched with matches ":matches"', array(':count' => $count, ':regex' => $url_regex, ':matches' => $matches)), 'route', 'green');
             }
 
@@ -263,11 +264,11 @@ class Route
             /*
              * Regex matched. Do variable substitution on the target.
              */
-            if(preg_match_all('/:([A-Z_]+)/', $target, $variables)){
+            if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {
                 array_shift($variables);
 
-                foreach(array_shift($variables) as $variable){
-                    switch($variable){
+                foreach(array_shift($variables) as $variable) {
+                    switch($variable) {
                         case 'PROTOCOL':
                             /*
                              * The protocol used in the current request
@@ -314,7 +315,7 @@ class Route
                             break;
 
                         default:
-                            throw new BException(tr('route(): Unknown variable ":variable" found in target ":target"', array(':variable' => ':'.$variable, ':target' => ':'.$target)), 'unknown');
+                            throw new CoreException(tr('Unknown variable ":variable" found in target ":target"', array(':variable' => ':'.$variable, ':target' => ':'.$target)));
                     }
                 }
             }
@@ -322,25 +323,25 @@ class Route
             /*
              * Apply regex variables replacements
              */
-            if(preg_match_all('/\$(\d+)/', $route, $replacements)){
-                if(preg_match('/\$\d+\.php/', $route)){
+            if (preg_match_all('/\$(\d+)/', $route, $replacements)) {
+                if (preg_match('/\$\d+\.php/', $route)) {
                     $dynamic_pagematch = true;
                 }
 
-                foreach($replacements[1] as $replacement){
+                foreach($replacements[1] as $replacement) {
                     try{
-                        if(!$replacement[0] or empty($matches[$replacement[0]])){
-                            throw new BException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
+                        if (!$replacement[0] or empty($matches[$replacement[0]])) {
+                            throw new CoreException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
                         }
 
                         $route = str_replace('$'.$replacement[0], $matches[$replacement[0]][0], $route);
 
-                    }catch(Exception $e){
+                    }catch(Exception $e) {
                         log_file(tr('Ignoring regex ":regex" because route ":route" has error ":e"', array(':regex' => $url_regex, ':route' => $route, ':e' => $e->getMessage())), 'route', 'yellow');
                     }
                 }
 
-                if(str_exists($route, '$')){
+                if (str_exists($route, '$')) {
                     /*
                      * There are regex variables left that were not replaced.
                      * Replace them with nothing
@@ -353,15 +354,15 @@ class Route
              * Apply specified post matching flags. Depending on individual flags we
              * may do different things
              */
-            foreach($flags as $flags_id => $flag){
-                if(!$flag){
+            foreach($flags as $flags_id => $flag) {
+                if (!$flag) {
                     /*
                      * Completely ignore empty flags
                      */
                     continue;
                 }
 
-                switch($flag[0]){
+                switch($flag[0]) {
                     case 'A':
                         /*
                          * Send the file as a downloadable attachment
@@ -387,7 +388,7 @@ class Route
 
                         $_SERVER['REQUEST_URI'] = url_decloak($route);
 
-                        if(!$_SERVER['REQUEST_URI']){
+                        if (!$_SERVER['REQUEST_URI']) {
                             log_file(tr('Specified cloaked URL ":cloak" does not exist, cancelling match', array(':cloak' => $route)), 'route', 'VERYVERBOSE');
 
                             $count++;
@@ -407,7 +408,7 @@ class Route
                         /*
                          * MUST be a GET reqest, NO POST data allowed!
                          */
-                        if(!empty($_POST)){
+                        if (!empty($_POST)) {
                             log_file(tr('Matched route ":route" allows only GET requests, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
 
                             $count++;
@@ -438,7 +439,7 @@ class Route
                         /*
                          * MUST be a POST reqest, NO EMPTY POST data allowed!
                          */
-                        if(empty($_POST)){
+                        if (empty($_POST)) {
                             log_file(tr('Matched route ":route" allows only POST requests, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
 
                             $count++;
@@ -451,7 +452,7 @@ class Route
                         /*
                          * Let GET request queries pass through
                          */
-                        if(strlen($flag) === 1){
+                        if (strlen($flag) === 1) {
                             $get = true;
                             break;
                         }
@@ -467,7 +468,7 @@ class Route
                          */
                         $http_code = substr($flag, 1);
 
-                        switch($http_code){
+                        switch($http_code) {
                             case '':
                                 $http_code = 301;
                                 break;
@@ -479,7 +480,7 @@ class Route
                                 break;
 
                             default:
-                                throw new BException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':'.$http_code, ':target' => ':'.$target)), 'invalid');
+                                throw new CoreException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':'.$http_code, ':target' => ':'.$target)), 'invalid');
                         }
 
                         /*
@@ -494,12 +495,12 @@ class Route
                     case 'S':
                         $until = substr($flag, 1);
 
-                        if($until and !is_natural($until)){
-                            notify(new BException(tr('route(): Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', array(':value' => $until)), 'warning/invalid'));
+                        if ($until and !is_natural($until)) {
+                            notify(new CoreException(tr('route(): Specified S flag value ":value" is invalid, natural number expected. Falling back to default value of 86400', array(':value' => $until)), 'warning/invalid'));
                             $until = null;
                         }
 
-                        if(!$until){
+                        if (!$until) {
                             $until = 86400;
                         }
 
@@ -518,8 +519,8 @@ class Route
             /*
              * Do we allow any $_GET queries from the REQUEST_URI?
              */
-            if(empty($get)){
-                if(!empty($_GET)){
+            if (empty($get)) {
+                if (!empty($_GET)) {
                     /*
                      * Client specified variables on a URL that does not allow
                      * queries, cancel the match
@@ -530,13 +531,13 @@ class Route
                     return false;
                 }
 
-            }elseif($get !== true){
+            }elseif ($get !== true) {
                 /*
                  * Only allow specific query keys. First check all allowed query
                  * keys if they have actions specified
                  */
-                foreach($get as $key => $value){
-                    if(str_exists($key, '=')){
+                foreach($get as $key => $value) {
+                    if (str_exists($key, '=')) {
                         /*
                          * Regenerate the key as a $key => $value instead of $key=$value => null
                          */
@@ -548,11 +549,11 @@ class Route
                 /*
                  * Go over all $_GET variables and ensure they're allowed
                  */
-                foreach($_GET as $key => $value){
+                foreach($_GET as $key => $value) {
                     /*
                      * This key must be allowed, or we're done
                      */
-                    if(empty($get[$key])){
+                    if (empty($get[$key])) {
                         log_file(tr('Matched route ":route" contains GET key ":key" which is not specifically allowed, cancelling match', array(':route' => $route, ':key' => $key)), 'route', 'VERYVERBOSE/yellow');
 
                         $count++;
@@ -563,7 +564,7 @@ class Route
                      * Okay, the key is allowed, yay! What action are we going to
                      * take?
                      */
-                    switch($get[$key]){
+                    switch($get[$key]) {
                         case null:
                             break;
 
@@ -590,20 +591,20 @@ class Route
             /*
              * Translate the route?
              */
-            if(isset($core->register['Route::map']) and empty($disable_language)){
+            if (isset($core->register['Route::map']) and empty($disable_language)) {
                 /*
                  * Found mapping configuration. Find language match. Assume
                  * that $matches[1] contains the language, unless specified
                  * otherwise
                  */
-                if(isset($core->register['Route::map']['language'])){
+                if (isset($core->register['Route::map']['language'])) {
                     $language = isset_get($matches[$core->register['Route::map']['language']][0]);
 
                 }else{
                     $language = isset_get($matches[1][0]);
                 }
 
-                if($language !== 'en'){
+                if ($language !== 'en') {
                     /*
                      * Requested page is in a non-English language. This means that
                      * the entire URL MUST be in that language. Translate the URL to
@@ -614,7 +615,7 @@ class Route
                     /*
                      * Check if route map has the requested language
                      */
-                    if(empty($core->register['Route::map'][$language])){
+                    if (empty($core->register['Route::map'][$language])) {
                         log_file(tr('Requested language ":language" does not have a language map available', array(':language' => $language)), 'route', 'yellow');
                         unregister_shutdown('Route::shutdown');
                         Route::execute404();
@@ -625,14 +626,14 @@ class Route
                          */
                         log_file(tr('Attempting to remap for language ":language"', array(':language' => $language)), 'route', 'VERBOSE/cyan');
 
-                        foreach($core->register['Route::map'][$language] as $unknown => $remap){
-                            if(strpos($page, $unknown) !== false){
+                        foreach($core->register['Route::map'][$language] as $unknown => $remap) {
+                            if (strpos($page, $unknown) !== false) {
                                 $translated = true;
                                 $page       = str_replace($unknown, $remap, $page);
                             }
                         }
 
-                        if(!file_exists($page)){
+                        if (!file_exists($page)) {
                             log_file(tr('Language remapped page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
                             unregister_shutdown('Route::shutdown');
                             Route::execute404();
@@ -641,7 +642,7 @@ class Route
                         log_file(tr('Found remapped page ":page"', array(':page' => $page)), 'route', 'VERBOSE/green');
                     }
 
-                    if(!$translated){
+                    if (!$translated) {
                         /*
                          * Page was not translated, ie its still the original and
                          * no translation was found.
@@ -656,8 +657,8 @@ class Route
             /*
              * Check if configured page exists
              */
-            if(!file_exists($page) and !$block){
-                if(isset($dynamic_pagematch)){
+            if (!file_exists($page) and !$block) {
+                if (isset($dynamic_pagematch)) {
                     log_file(tr('Dynamically matched page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
                     $count++;
                     return false;
@@ -675,10 +676,10 @@ class Route
             /*
              * If we have GET parameters, add them to the $_GET array
              */
-            if($get){
+            if ($get) {
                 $get = explode('&', $get);
 
-                foreach($get as $entry){
+                foreach($get as $entry) {
                     $_GET[str_until($entry, '=')] = str_from($entry, '=', 0, true);
                 }
             }
@@ -701,7 +702,7 @@ class Route
             $core->register['script']      = str_rfrom($page, '/');
             $core->register['real_script'] = $core->register['script'];
 
-            if($until){
+            if ($until) {
                 /*
                  * Store the request as a static rule until it expires
                  *
@@ -716,8 +717,8 @@ class Route
                  */
                 $flags = array_force($flags);
 
-                foreach($flags as $id => $flag){
-                    switch($flag[0]){
+                foreach($flags as $id => $flag) {
+                    switch($flag[0]) {
                         case 'H':
                             // FALLTHROUGH
                         case 'S':
@@ -734,7 +735,7 @@ class Route
                     'ip'        => $ip));
             }
 
-            if($block){
+            if ($block) {
                 /*
                  * Block the request by dying
                  */
@@ -743,22 +744,22 @@ class Route
 
             Route::exec($page, $attachment, $restrictions);
 
-        }catch(Exception $e){
-            if(substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():'){
+        }catch(Exception $e) {
+            if (substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():') {
                 /*
                  * A "user" regex failed, give pretty error
                  */
-                throw new BException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $url_regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
+                throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $url_regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
             }
 
-            if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){
+            if (substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():') {
                 /*
                  * A "user" regex failed, give pretty error
                  */
-                throw new BException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $url_regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
+                throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $url_regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
             }
 
-            throw new BException('Route::add(): Failed', $e);
+            throw new CoreException('Route::add(): Failed', $e);
         }
     }
 
@@ -807,15 +808,15 @@ class Route
      * @param null array $map The language mapping array
      * @return void
      */
-    public function map($map = null){
+    public function map($map = null) {
         global $core, $_CONFIG;
 
         try{
-            if(empty($map)){
+            if (empty($map)) {
                 /*
                  * Set configured language map, if exists
                  */
-                if($_CONFIG['route']['languages_map']){
+                if ($_CONFIG['route']['languages_map']) {
                     log_file(tr('Setting configured URL map'), 'route', 'VERYVERBOSE/cyan');
                     $core->register['Route::map'] = $_CONFIG['route']['languages_map'];
                 }
@@ -828,8 +829,8 @@ class Route
                 $core->register['Route::map'] = $map;
             }
 
-        }catch(Exception $e){
-            throw new BException(tr('Route::map(): Failed'), $e);
+        }catch(Exception $e) {
+            throw new CoreException(tr('Route::map(): Failed'), $e);
         }
     }
 
@@ -854,15 +855,15 @@ class Route
      * @param list $restrictions If specified, apply the specified file system restrictions, which may block the request if the requested file is outside of these restrictions
      * @return void
      */
-    protected function execute($target, $attachment, $restrictions){
+    protected function execute($target, $attachment, $restrictions) {
         global $_CONFIG, $core;
 
         try{
             $core->register['Route::exec'] = $target;
 
-            if(substr($target, -3, 3) === 'php'){
-                if($attachment){
-                    throw new BException(tr('Route::exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
+            if (substr($target, -3, 3) === 'php') {
+                if ($attachment) {
+                    throw new CoreException(tr('Route::exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
                 }
 
                 log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'cyan');
@@ -870,14 +871,14 @@ class Route
                 /*
                  * Auto start the phoundation core
                  */
-                if(empty($core->register['startup'])){
+                if (empty($core->register['startup'])) {
                     $core->startup();
                 }
 
                 include($target);
 
             }else{
-                if($attachment){
+                if ($attachment) {
                     /*
                      * Upload the file to the client as an attachment
                      */
@@ -904,8 +905,8 @@ class Route
 
             die();
 
-        }catch(Exception $e){
-            throw new BException(tr('Route::exec(): Failed to execute page ":target"', array(':target' => $target)), $e);
+        }catch(Exception $e) {
+            throw new CoreException(tr('Route::exec(): Failed to execute page ":target"', array(':target' => $target)), $e);
         }
     }
 
@@ -925,25 +926,25 @@ class Route
      *
      * @return void
      */
-    function shutdown(){
+    function shutdown() {
         global $_CONFIG;
 
         try{
             /*
              * Test the URI for known hacks. If so, apply configured response
              */
-            if($_CONFIG['route']['known_hacks']){
+            if ($_CONFIG['route']['known_hacks']) {
                 log_console(tr('Applying known hacking rules'), 'VERBOSE/yellow');
 
-                foreach($_CONFIG['route']['known_hacks'] as $hacks){
+                foreach($_CONFIG['route']['known_hacks'] as $hacks) {
                     route($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
                 }
             }
 
             Route::execute404();
 
-        }catch(Exception $e){
-            throw new BException(tr(tr('Route::shutdown(): Failed')), $e);
+        }catch(Exception $e) {
+            throw new CoreException(tr(tr('Route::shutdown(): Failed')), $e);
         }
     }
 
@@ -964,7 +965,7 @@ class Route
      *
      * @return void
      */
-    protected function execute404(){
+    protected function execute404() {
         global $core, $_CONFIG;
 
         try{
@@ -975,14 +976,14 @@ class Route
             /*
              * Auto start the phoundation core if configured to do so
              */
-            if(!empty($GLOBALS['Route::start'])){
+            if (!empty($GLOBALS['Route::start'])) {
                 $core->startup();
             }
 
             page_show(404);
 
-        }catch(Exception $e){
-            if($e->getCode() === 'not-exists'){
+        }catch(Exception $e) {
+            if ($e->getCode() === 'not-exists') {
                 log_file(tr('The system/404.php page does not exist, showing basic 404 message instead'), 'Route::execute404', 'yellow');
 
                 echo tr('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
@@ -1039,7 +1040,7 @@ class Route
      * @param string $params[bar]
      * @return string The result
      */
-    function insertStatic($route){
+    function insertStatic($route) {
         try{
             $route = Route::validate_static($route);
 
@@ -1056,8 +1057,8 @@ class Route
                     ':target'    => $route['target'],
                     ':flags'     => $route['flags']));
 
-        }catch(Exception $e){
-            throw new BException(tr('Route::insert_static(): Failed'), $e);
+        }catch(Exception $e) {
+            throw new CoreException(tr('Route::insert_static(): Failed'), $e);
         }
     }
 
@@ -1076,7 +1077,7 @@ class Route
      * @param array $route
      * @return string HTML for a categories select box within the specified parameters
      */
-    protected function validateStatic($route){
+    protected function validateStatic($route) {
         try{
             load_libs('validate,seo');
 
@@ -1088,14 +1089,14 @@ class Route
             $v->isFilter($route['ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address'));
             $v->hasMaxChars($route['flags'], 16, tr('Please ensure the flags is less than 16 characters'));
 
-            if($route['regex']){
+            if ($route['regex']) {
                 $v->hasMaxChars($route['regex'], 255, tr('Please ensure regex is less than 255 characters'));
 
             }else{
                 $route['regex'] = '';
             }
 
-            if($route['target']){
+            if ($route['target']) {
                 $v->hasMaxChars($route['target'], 255, tr('Please ensure target is less than 255 characters'));
 
             }else{
@@ -1106,8 +1107,8 @@ class Route
 
             return $route;
 
-        }catch(Exception $e){
-            throw new BException(tr('Route::validate_static(): Failed'), $e);
+        }catch(Exception $e) {
+            throw new CoreException(tr('Route::validate_static(): Failed'), $e);
         }
     }
 }
