@@ -1,6 +1,5 @@
-
 <?php
-namespace Phoundation\Core\Json;
+namespace Phoundation\Core;
 
 use Exception;
 use Phoundation\Core\CoreException\CoreException;

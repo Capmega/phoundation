@@ -1,5 +1,5 @@
 <?php
-namespace Phoundation\Databases\Sql;
+namespace Phoundation\Databases;
 
 use Exception;
 use Phoundation\Databases\Exception\MemcachedException;

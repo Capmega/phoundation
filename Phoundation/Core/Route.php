@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Core\Route;
+namespace Phoundation\Core;
 
 use Exception;
 use Phoundation\Core\CoreException\CoreException;
@@ -53,9 +53,9 @@ class Route
      * To use translation mapping, first set the language map using Route::map()
      *
      * @param string $url_regex
-     * @params string $target
-     * @params null string $flags
-     * @return void
+     * @param string $target
+     * @param null|string $flags
+     * @return bool
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -168,8 +168,8 @@ class Route
             $uri   = str_starts_not($_SERVER['REQUEST_URI'], '/');
             $uri   = str_until($uri                        , '?');
 
-            if (strlen($uri) > 255) {
-                log_file(tr('Requested URI ":uri" has ":count" characters, where 255 is a hardcoded limit (See route() function). 404-ing the request', array(':uri' => $uri, ':count' => strlen($uri))), 'route', 'yellow');
+            if (strlen($uri) > 2048) {
+                log_file(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See route() function). 404-ing the request', array(':uri' => $uri, ':count' => strlen($uri))), 'route', 'yellow');
                 Route::execute404();
             }
 
