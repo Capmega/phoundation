@@ -55,7 +55,7 @@ class Route
      * @return void
      * @throws \BException
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package route
@@ -184,8 +184,8 @@ class Route
             $block  = false;    // By default, do not block this request
             $static = true;     // By default, do check for static rules, if configured so
 
-            foreach($flags as $flags_id => $flag) {
-                switch($flag[0]) {
+            foreach ($flags as $flags_id => $flag) {
+                switch ($flag[0]) {
                     case 'D':
                         /*
                          * Include domain in match
@@ -267,8 +267,8 @@ class Route
             if (preg_match_all('/:([A-Z_]+)/', $target, $variables)) {
                 array_shift($variables);
 
-                foreach(array_shift($variables) as $variable) {
-                    switch($variable) {
+                foreach (array_shift($variables) as $variable) {
+                    switch ($variable) {
                         case 'PROTOCOL':
                             /*
                              * The protocol used in the current request
@@ -328,7 +328,7 @@ class Route
                     $dynamic_pagematch = true;
                 }
 
-                foreach($replacements[1] as $replacement) {
+                foreach ($replacements[1] as $replacement) {
                     try{
                         if (!$replacement[0] or empty($matches[$replacement[0]])) {
                             throw new CoreException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
@@ -354,7 +354,7 @@ class Route
              * Apply specified post matching flags. Depending on individual flags we
              * may do different things
              */
-            foreach($flags as $flags_id => $flag) {
+            foreach ($flags as $flags_id => $flag) {
                 if (!$flag) {
                     /*
                      * Completely ignore empty flags
@@ -362,7 +362,7 @@ class Route
                     continue;
                 }
 
-                switch($flag[0]) {
+                switch ($flag[0]) {
                     case 'A':
                         /*
                          * Send the file as a downloadable attachment
@@ -468,7 +468,7 @@ class Route
                          */
                         $http_code = substr($flag, 1);
 
-                        switch($http_code) {
+                        switch ($http_code) {
                             case '':
                                 $http_code = 301;
                                 break;
@@ -536,7 +536,7 @@ class Route
                  * Only allow specific query keys. First check all allowed query
                  * keys if they have actions specified
                  */
-                foreach($get as $key => $value) {
+                foreach ($get as $key => $value) {
                     if (str_exists($key, '=')) {
                         /*
                          * Regenerate the key as a $key => $value instead of $key=$value => null
@@ -549,7 +549,7 @@ class Route
                 /*
                  * Go over all $_GET variables and ensure they're allowed
                  */
-                foreach($_GET as $key => $value) {
+                foreach ($_GET as $key => $value) {
                     /*
                      * This key must be allowed, or we're done
                      */
@@ -564,7 +564,7 @@ class Route
                      * Okay, the key is allowed, yay! What action are we going to
                      * take?
                      */
-                    switch($get[$key]) {
+                    switch ($get[$key]) {
                         case null:
                             break;
 
@@ -626,7 +626,7 @@ class Route
                          */
                         log_file(tr('Attempting to remap for language ":language"', array(':language' => $language)), 'route', 'VERBOSE/cyan');
 
-                        foreach($core->register['Route::map'][$language] as $unknown => $remap) {
+                        foreach ($core->register['Route::map'][$language] as $unknown => $remap) {
                             if (strpos($page, $unknown) !== false) {
                                 $translated = true;
                                 $page       = str_replace($unknown, $remap, $page);
@@ -679,7 +679,7 @@ class Route
             if ($get) {
                 $get = explode('&', $get);
 
-                foreach($get as $entry) {
+                foreach ($get as $entry) {
                     $_GET[str_until($entry, '=')] = str_from($entry, '=', 0, true);
                 }
             }
@@ -717,8 +717,8 @@ class Route
                  */
                 $flags = array_force($flags);
 
-                foreach($flags as $id => $flag) {
-                    switch($flag[0]) {
+                foreach ($flags as $id => $flag) {
+                    switch ($flag[0]) {
                         case 'H':
                             // FALLTHROUGH
                         case 'S':
@@ -782,7 +782,7 @@ class Route
      *                                     ENGLISH_WORD => ...),
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package route
@@ -842,7 +842,7 @@ class Route
      * execute it. Anything else, send it directly to the client
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package route
@@ -915,7 +915,7 @@ class Route
      * Shutdown the URL routing
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package route
@@ -936,7 +936,7 @@ class Route
             if ($_CONFIG['route']['known_hacks']) {
                 log_console(tr('Applying known hacking rules'), 'VERBOSE/yellow');
 
-                foreach($_CONFIG['route']['known_hacks'] as $hacks) {
+                foreach ($_CONFIG['route']['known_hacks'] as $hacks) {
                     route($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
                 }
             }
@@ -953,7 +953,7 @@ class Route
      * Show the 404 page
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package route
@@ -1010,7 +1010,7 @@ class Route
      * Insert a static route
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package route
@@ -1069,7 +1069,7 @@ class Route
      * This function will validate all relevant fields in the specified $route array
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package categories
