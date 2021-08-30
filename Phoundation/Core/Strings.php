@@ -1571,7 +1571,7 @@ class Strings
      * /code
      *
      * @param string $source
-     * @param number $length
+     * @param int $length
      * @param string $fill
      * @param string $method
      * @param boolean $on_word
@@ -1599,7 +1599,8 @@ class Strings
             switch($method) {
                 case 'right':
                     $retval = mb_substr($source, 0, $length);
-                    if($on_word and (strpos(substr($source, $length, 2), ' ') === false)) {
+
+                    if($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
                         if($pos = strrpos($retval, ' ')) {
                             $retval = substr($retval, 0, $pos);
                         }
@@ -1613,7 +1614,7 @@ class Strings
                 case 'left':
                     $retval = mb_substr($source, -$length, $length);
 
-                    if($on_word and substr($retval)) {
+                    if($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
                         if($pos = strpos($retval, ' ')) {
                             $retval = substr($retval, $pos);
                         }
@@ -1655,10 +1656,7 @@ class Strings
      * /code
      *
      * @param mixed $source
-     * @param int $length
-     * @param string $fill
-     * @param string $method
-     * @param boolean $on_word
+     * @param int $truncate
      * @return string The string, truncated if required, according to the specified truncating rules
      */
     public static function log(mixed $source, int $truncate = 8187): string

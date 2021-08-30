@@ -1,5 +1,5 @@
-<?php
 
+<?php
 namespace Phoundation\Core\Json;
 
 use Exception;
@@ -32,12 +32,12 @@ class Json
              * Auto assume result = "OK" entry if not specified
              */
             if (empty($data['data'])) {
-                $data = array('data' => $data);
+                $data = ['data' => $data];
             }
 
             if ($result) {
                 if (isset($data['result'])) {
-                    throw new CoreException(tr('Json::reply(): Result was specifed both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
+                    throw new CoreException(tr('Json::reply(): Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
                 }
 
                 /*
@@ -57,8 +57,10 @@ class Json
             $data['result'] = strtoupper($data['result']);
             $data = Json::encode($data);
 
-            $params = array('http_code' => $http_code,
-                'mimetype' => 'application/json');
+            $params = [
+                'http_code' => $http_code,
+                'mimetype' => 'application/json'
+            ];
 
             http_headers($params, strlen($data));
 
@@ -101,7 +103,7 @@ class Json
      * @param string $message
      * @param mixed $data
      * @param mixed $result
-     * @param number $http_code The HTTP code to send out with Json::reply()
+     * @param int $http_code The HTTP code to send out with Json::reply()
      * @return void (dies)
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
      * @copyright Copyright (c) 2021 Capmega
