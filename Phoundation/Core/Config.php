@@ -110,14 +110,18 @@ class Config{
      * @return mixed
      * @throws ConfigException
      */
-    public static function get(string $keys): mixed
+    public static function get(string $keys, mixed $default = null): mixed
     {
         $keys = explode($keys, '.');
         $data = &static::$data;
 
         foreach ($keys as $key) {
             if (!isset($data[$key])) {
-                throw new ConfigException(tr('The configuration key ":key" from ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
+                if ($default === null) {
+                    throw new ConfigException(tr('The configuration key ":key" from ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
+                }
+
+                return $default;
             }
 
             $data = &$data[$key];
