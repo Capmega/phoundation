@@ -14,7 +14,7 @@ use Phoundation\Exception\OutOfBoundsException\OutOfBoundsException;
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @copyright Copyright (c) 2021 <license@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @package Phoundation/Core
+ * @package Phoundation\Core
  */
 class Arrays {
     /**

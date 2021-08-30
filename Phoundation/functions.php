@@ -9,7 +9,8 @@
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  */
 
-use Phoundation\Core\CoreException\CoreException;
+use Phoundation\Core\CoreException;
+use Phoundation\Core\Json\Arrays;
 use Phoundation\Core\Json\Strings;
 
 

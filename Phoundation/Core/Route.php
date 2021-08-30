@@ -22,16 +22,16 @@ class Route
     /**
      * Route the request uri from the client to the correct php file
      *
-     * The route() call requires 3 arguments; $regex, $target, and $flags.
+     * The Route::add() call requires 3 arguments; $regex, $target, and $flags.
      *
      * The first argument is the PERL compatible regular expression that will match the URL you wish to route to a page. Note that this must be a FULL regular expression with opening and closing tags. / is recommended for these tags, but not required. See https://www.php.net/manual/en/function.preg-match.php for more information about PERL compatible regular expressions. This regular expression may capture variables which then can be used in the target as $1, $2 for the first and second variable respectitively. Regular expression flags like i (case insensitive matches), u (unicode matches), etc. may be added after the trailing / of this variable
      *
-     * The second argument is the page you wish to execute and the variables that should be sent to it. If your regular expression captured variables, you may use these variables here. If the page name itself is a variable, then route() will try to find that page, and execute it if it exists
+     * The second argument is the page you wish to execute and the variables that should be sent to it. If your regular expression captured variables, you may use these variables here. If the page name itself is a variable, then Route::add() will try to find that page, and execute it if it exists
      *
      * The third argument is a list (CSV string or array) with flags. Current allowed flags are:
      * A                Process the target as an attachement (i.e. Send the file so that the browser client can download it)
      * B                Block. Return absolutely nothing
-     * C                Use URL cloaking. A cloaked URL is basically a random string that the route() function can look up in the `cloak` table. domain() and its related functions will generate these URL's automatically. See the "url" library, and domain() and related functions for more information
+     * C                Use URL cloaking. A cloaked URL is basically a random string that the Route::add() function can look up in the `cloak` table. domain() and its related functions will generate these URL's automatically. See the "url" library, and domain() and related functions for more information
      * D                Add HTTP_HOST to the REQUEST_URI before applying the match
      * G                The request must be GET to match
      * H                If the routing rule matches, the router will add a *POSSIBLE HACK ATTEMPT DETECTED* log entry for later processing
@@ -48,7 +48,7 @@ class Route
      *
      * The $verbose and $veryverbose variables here are to set the system in VERBOSE or VERYVERBOSE mode, but ONLY if the system runs in debug mode. The former will add extra log output in the data/log files, the latter will add LOADS of extra log data in the data/log files, so please use with care and only if you cannot resolve the problem
      *
-     * Once all route() calls have passed without result, the system will shut down. The shutdown() call will then automatically execute Route::execute404() which will display the 404 page
+     * Once all Route::add() calls have passed without result, the system will shut down. The shutdown() call will then automatically execute Route::execute404() which will display the 404 page
      *
      * To use translation mapping, first set the language map using Route::map()
      *
@@ -77,53 +77,53 @@ class Route
      * @example
      * code
      * // This will take phoundation.org/ and execute the index page, but not allow queries.
-     * route('/\//'                                            , 'index.php'                            , '');
+     * Route::add('/\//'                                            , 'index.php'                            , '');
      *
      * // This will take phoundation.org/?test=1 and execute the index page, and allow the query.
-     * route('/\//'                                            , 'index.php'                            , 'Q');
+     * Route::add('/\//'                                            , 'index.php'                            , 'Q');
      *
      * // This rule will take phoundation.org/en/page/users-1.html and execute en/users.php?page=1
-     * route('/^([a-z]{2})\/page\/([a-z-]+)?(?:-(\d+))?.html$/', '$1/$2.php?page=$3'                    , 'Q');
+     * Route::add('/^([a-z]{2})\/page\/([a-z-]+)?(?:-(\d+))?.html$/', '$1/$2.php?page=$3'                    , 'Q');
      *
      * // This rule will redirect phoundation.org/ to phoundation.org/en/
-     * route(''                                                , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/', 'R301'); // This will HTTP 301 redirect the user to a page with the same protocol, same domain, but the language that their browser requested. So for example, http://domain.com with HTTP header "accept-language:en" would HTTP 301 redirect to http://domain.com/en/
+     * Route::add(''                                                , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/', 'R301'); // This will HTTP 301 redirect the user to a page with the same protocol, same domain, but the language that their browser requested. So for example, http://domain.com with HTTP header "accept-language:en" would HTTP 301 redirect to http://domain.com/en/
      *
      * // These are some examples for blocking hacking attempts
-     * route('/\/\.well-known\//i'  , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/\/acme-challenge\//i', 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/C=S;O=A/i'           , 'en/system/404.php', 'B,H,L,M,S'); // If you request this query, you will be 404-ing for a good while
-     * route('/wp-admin/i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/libs\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/scripts\//i'         , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/config\//i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/init\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/www\//i'             , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/data\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
-     * route('/public\//i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/\/\.well-known\//i'  , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/\/acme-challenge\//i', 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/C=S;O=A/i'           , 'en/system/404.php', 'B,H,L,M,S'); // If you request this query, you will be 404-ing for a good while
+     * Route::add('/wp-admin/i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/libs\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/scripts\//i'         , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/config\//i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/init\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/www\//i'             , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/data\//i'            , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
+     * Route::add('/public\//i'          , 'en/system/404.php', 'B,H,L,S');   // If you request this, you will be 404-ing for a good while
      * /code
      *
      * The following example code will set a language route map where the matched word "from" would be translated to "to" and "foor" to "bar" for the language "es"
      *
      * code
-     * route('map', array('language' => 2,
-     *                    'es'       => array('servicios'    => 'services',
-     *                                        'portafolio'   => 'portfolio'),
-     *                    'nl'       => array('diensten'     => 'services',
-     *                                        'portefeuille' => 'portfolio')));
-     * route('/\//', 'index')
+     * Route::map(array('language' => 2,
+     *                  'es'       => array('servicios'    => 'services',
+     *                                      'portafolio'   => 'portfolio'),
+     *                  'nl'       => array('diensten'     => 'services',
+     *                                      'portefeuille' => 'portfolio')));
+     * Route::add('/\//', 'index')
      * /code
      *
      * @example Setup URL translations map. In this example, URL's with /es/ with the word "conferencias" would map to the word "conferences", etc.
      * code
-     * route('map', array('es' => array('conferencias' => 'conferences',
-     *                                  'portafolio'   => 'portfolio',
-     *                                  'servicios'    => 'services',
-     *                                  'nosotros'     => 'about'),
+     * Route::map('es', ['conferencias' => 'conferences',
+     *                   'portafolio'   => 'portfolio',
+     *                   'servicios'    => 'services',
+     *                   'nosotros'     => 'about']);
      *
-     *                   'nl' => array('conferenties' => 'conferences',
-     *                                  'portefeuille' => 'portfolio',
-     *                                  'diensten'     => 'services',
-     *                                  'over-ons'     => 'about')));
+     * Route::map('nl' => ['conferenties' => 'conferences',
+     *                    'portefeuille' => 'portfolio',
+     *                    'diensten'     => 'services',
+     *                    'over-ons'     => 'about']);
      * /code
      *
      */
@@ -807,30 +807,12 @@ class Route
      * @param null array $map The language mapping array
      * @return void
      */
-    public function map($map = null) {
-        global $core, $_CONFIG;
-
-        try{
-            if (empty($map)) {
-                /*
-                 * Set configured language map, if exists
-                 */
-                if ($_CONFIG['route']['languages_map']) {
-                    log_file(tr('Setting configured URL map'), 'route', 'VERYVERBOSE/cyan');
-                    $core->register['Route::map'] = $_CONFIG['route']['languages_map'];
-                }
-
-            }else{
-                /*
-                 * Set specific language map
-                 */
-                log_file(tr('Setting specified URL map'), 'route', 'VERYVERBOSE/cyan');
-                $core->register['Route::map'] = $map;
-            }
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('Route::map(): Failed'), $e);
-        }
+    public function map(string $language, array $map) {
+        /*
+         * Set specific language map
+         */
+        log_file(tr('Setting specified URL map'), 'route', 'VERYVERBOSE/cyan');
+        Core::register($map, 'route', 'map');
     }
 
 
