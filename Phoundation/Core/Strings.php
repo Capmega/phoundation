@@ -16,10 +16,11 @@ use Phoundation\Core\CoreException\CoreException;
  */
 class Strings
 {
-    /*
+    /**
      * Fix urls that dont start with http://
      */
-    public static function ensureUrl($url, $protocol = 'http://') {
+    public static function ensureUrl(string $url, string $protocol = 'http://'): string
+    {
         try{
             if (substr($url, 0, mb_strlen($protocol)) != $protocol) {
                 return $protocol.$url;
@@ -35,10 +36,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return "casa" or "casas" based on number
      */
-    public static function plural($count, $single_text, $multiple_text) {
+    public static function plural(int $count, string $single_text, string $multiple_text): string
+    {
         try{
             if ($count == 1) {
                 return $single_text;
@@ -54,12 +56,17 @@ class Strings
 
 
 
-    /*
+    /**
      * Returns true if string is serialized, false if not
      */
-    public static function isSerialized($data) {
+    public static function isSerialized(?string $data): bool
+    {
         try{
-            return (boolean) preg_match( "/^([adObis]:|N;)/u", $data );
+            if (!$data){
+                return false;
+            }
+
+            return (boolean) preg_match( "/^([adObis]:|N;)/u", $data);
 
         }catch(Exception $e) {
             throw new CoreException(tr('str_is_serialized(): Failed'), $e);
@@ -68,10 +75,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Fix urls that dont start with http://
      */
-    public static function ensureUtf8($string) {
+    public static function ensureUtf8($string): string
+    {
         try{
             if (strings::isUtf8($string)) {
                 return $string;
@@ -86,10 +94,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Returns true if string is UTF-8, false if not
      */
-    public static function isUtf8($source) {
+    public static function isUtf8($source): bool
+    {
         try{
             return mb_check_encoding($source, 'UTF8');
 
@@ -111,10 +120,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return string will not contain HTML codes for Spanish haracters
      */
-    public static function fixSpanishChars($source) {
+    public static function fixSpanishChars($source): string
+    {
         try{
             $from = array('&Aacute;', '&aacute;', '&Eacute;', '&eacute;', '&Iacute;', '&iacute;', '&Oacute;', '&oacute;', '&Ntilde;', '&ntilde;', '&Uacute;', '&uacute;', '&Uuml;', '&uuml;','&iexcl;','&ordf;','&iquest;','&ordm;');
             $to   = array('Á'       , 'á'       , 'É'       , 'é'       , 'Í'       , 'í'       , 'Ó'       , 'ó'       , 'Ñ'       , 'ñ'       , 'Ú'       , 'ú'       , 'Ü'     , 'ü'     , '¡'     , 'ª'    , '¿'      , 'º'    );
@@ -128,10 +138,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return a lowercased string with the first letter capitalized
      */
-    public static function capitalize($source, $position = 0) {
+    public static function capitalize($source, $position = 0): string
+    {
         try{
             if (!$position) {
                 return mb_strtoupper(mb_substr($source, 0, 1)).mb_strtolower(mb_substr($source, 1));
@@ -146,10 +157,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return a random string
      */
-    public static function random($length = 8, $unique = false, $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ') {
+    public static function random($length = 8, $unique = false, $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
+    {
         try{
             $string     = '';
             $charlen    = mb_strlen($characters);
@@ -181,10 +193,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Is spanish alphanumeric
      */
-    public static function isAlpha($s, $extra = '\s') {
+    public static function isAlpha($s, $extra = '\s'): bool
+    {
         try{
             $reg   = "/[^\p{L}\d$extra]/u";
             $count = preg_match($reg, $s, $matches);
@@ -198,11 +211,13 @@ class Strings
 
 
 
-    /*
+    /**
      * Return a clean string, basically leaving only printable latin1 characters,
      */
     // :DELETE: This is never used, where would it be used?
-    public static function escapeForJquery($source, $replace = '') {
+    public static function escapeForJquery($source, $replace = ''): string
+    {
+
         try{
             return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/gu', '\\\\$&', $source);
 
@@ -213,10 +228,11 @@ class Strings
 
 
 
-    /*
+    /**
      *
      */
-    public static function stripFunction($string) {
+    public static function stripFunction($string) : string
+    {
         try{
             return trim(Strings::from($string, '():'));
 
@@ -227,10 +243,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Will fix a base64 coded string with missing termination = marks before decoding it
      */
-    public static function safeBase64Decode($source) {
+    public static function safeBase64Decode($source): string
+    {
         try{
             if ($mod = mb_strlen($source) % 4) {
                 $source .= str_repeat('=', 4 - $mod);
@@ -245,11 +262,12 @@ class Strings
 
 
 
-    /*
+    /**
      * Return a safe size string for displaying
      */
     // :DELETE: Isn't this str_log()?
-    public static function safe($source, $maxsize = 50) {
+    public static function safe($source, $maxsize = 50): string
+    {
         try{
             return Strings::truncate(Json::encode($source), $maxsize);
 
@@ -260,10 +278,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return the entire string in HEX ASCII
      */
-    public static function hex($source) {
+    public static function hex($source): string
+    {
         try{
             return bin2hex($source);
 
@@ -274,10 +293,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return a camel cased string
      */
-    public static function camelCase($source, $separator = ' ') {
+    public static function camelCase($source, $separator = ' '): string
+    {
         try{
             $source = explode($separator, mb_strtolower($source));
 
@@ -296,10 +316,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Fix PHP explode
      */
-    public static function explode($separator, $source) {
+    public static function explode($separator, $source): string
+    {
         try{
             if (!$source) {
                 return array();
@@ -314,13 +335,14 @@ class Strings
 
 
 
-    /*
+    /**
      * Interleave given string with given secundary string
      *
      *
      *
      */
-    public static function interleave($source, $interleave, $end = 0, $chunksize = 1) {
+    public static function interleave($source, $interleave, $end = 0, $chunksize = 1): string
+    {
         try{
             if (!$source) {
                 throw new CoreException('str_interleave(): Empty source specified', 'empty');
@@ -355,11 +377,12 @@ class Strings
 
 
 
-    /*
+    /**
      * Convert weird chars to their standard ASCII variant
      */
     // :TODO: Isnt this the same as str_fix_spanish_chars() ??
-    public static function convertAccents($source) {
+    public static function convertAccents($source): string
+    {
         try{
             $from = explode(',', "ç,æ,œ,á,é,í,ó,ú,à,è,ì,ò,ù,ä,ë,ï,ö,ü,ÿ,â,ê,î,ô,û,å,e,i,ø,u,Ú,ñ,Ñ,º");
             $to   = explode(',', "c,ae,oe,a,e,i,o,u,a,e,i,o,u,a,e,i,o,u,y,a,e,i,o,u,a,e,i,o,u,U,n,n,o");
@@ -373,10 +396,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Strip whitespace
      */
-    public static function stripHtmlWhitespace($string) {
+    public static function stripHtmlWhitespace($string): string
+    {
         try{
             return preg_replace('/>\s+</u', '><', $string);
 
@@ -387,12 +411,13 @@ class Strings
 
 
 
-    /*
+    /**
      * Return the specified string quoted if not numeric, boolean,
      * @param string $string
      * @param string $quote What quote (or other symbol) to use for the quoting
      */
-    public static function quote($string, $quote = "'") {
+    public static function quote($string, $quote = "'"): string
+    {
         try{
             if (is_numeric($string) or is_bool(is_numeric($string))) {
                 return $string;
@@ -407,13 +432,14 @@ class Strings
 
 
 
-    /*
+    /**
      * Return if specified source is a valid version or not
      * @param string $source
      * @return boolean True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/". False if not
      * @example showdie(str_is_version(phpversion())); This example should show a debug table with true
      */
-    public static function isVersion($source) {
+    public static function isVersion($source): bool
+    {
         try{
             return preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}$/', $source);
 
@@ -424,10 +450,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Returns true if the specified source string contains HTML
      */
-    public static function isHtml($source) {
+    public static function isHtml($source): bool
+    {
         try{
             return !preg_match('/<[^<]+>/', $source);
 
@@ -438,10 +465,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return if specified source is a JSON string or not
      */
-    public static function isJson($source) {
+    public static function isJson($source): bool
+    {
         try{
     //        return !preg_match('/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/', preg_replace('/"(\\.|[^"\\])*"/g', '', $source));
             return !empty($source) && is_string($source) && preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
@@ -467,7 +495,7 @@ class Strings
      */
     function mbTrim($string) {
         try{
-            return preg_replace("/(^\s+)|(\s+$)/us", "", $string);
+            return preg_replace("/(^\s+)|(\s+$)/us", '', $string);
 
         }catch(Exception $e) {
             throw new CoreException('mb_trim(): Failed', $e);
@@ -519,10 +547,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Returns true if the specified text has one (or all) of the specified keywords
      */
-    public static function hasKeywords($text, $keywords, $has_all = false, $regex = false, $unicode = true) {
+    public static function hasKeywords($text, $keywords, $has_all = false, $regex = false, $unicode = true): string
+    {
         try{
             if (!is_array($keywords)) {
                 if (!is_string($keywords) and !is_numeric($keywords)) {
@@ -582,7 +611,7 @@ class Strings
 
 
 
-    /*
+    /**
      * Returns the source string in the specified type
      * styles may be:
      *
@@ -599,7 +628,8 @@ class Strings
      * lowercentercaps        abcDefg
      * capscenterlower        ABCdEFG
      */
-    public static function caps($string, $type) {
+    public static function caps($string, $type): string
+    {
         try{
             /*
              * First find all words
@@ -696,7 +726,7 @@ class Strings
 
 
 
-    /*
+    /**
      * Returns an estimation of the caps style of the string
      * styles may be:
      *
@@ -713,7 +743,8 @@ class Strings
      * lowercentercaps         abcDefg
      * capscenterlower         ABCdEFG
      */
-    public static function capsGuess($string) {
+    public static function capsGuess($string): string
+    {
         try{
             $posibilities = array('lowercase'             ,
                                   'uppercase'             ,
@@ -746,10 +777,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Force the specified source to be a string
      */
-    public static function force($source, $separator = ',') {
+    public static function force($source, $separator = ','): string
+    {
         try{
             if (!is_scalar($source)) {
                 if (!is_array($source)) {
@@ -784,10 +816,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Force the specified string to be the specified size.
      */
-    public static function size($source, $size, $add = ' ', $prefix = false) {
+    public static function size($source, $size, $add = ' ', $prefix = false): string
+    {
         try{
             load_libs('cli');
             $strlen = mb_strlen(cli_strip_color($source));
@@ -813,10 +846,11 @@ class Strings
 
 
 
-    /*
+    /**
      *
      */
-    public static function escape($string, $escape = '"') {
+    public static function escape($string, $escape = '"'): string
+    {
         try{
             for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
                 $string = str_replace($escape[$i], '\\'.$escape[$i], $string);
@@ -831,10 +865,11 @@ class Strings
 
 
 
-    /*
+    /**
      *
      */
-    public static function xor($a, $b) {
+    public static function xor($a, $b): string
+    {
         try{
             $diff   = $a ^ $b;
             $retval = '';
@@ -852,10 +887,11 @@ class Strings
 
 
 
-    /*
+    /**
      *
      */
-    public static function similar($a, $b, $percent) {
+    public static function similar($a, $b, $percent): string
+    {
         try{
             return similar_text($a, $b, $percent);
 
@@ -866,10 +902,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Recursively trim all strings in the specified array tree
      */
-    public static function trimArray($source, $recurse = true) {
+    public static function trimArray($source, $recurse = true): string
+    {
         try{
             foreach ($source as $key => &$value) {
                 if (is_string($value)) {
@@ -891,7 +928,7 @@ class Strings
 
 
 
-    /*
+    /**
      * Returns a "*** HIDDEN ***" string if the specified string has content. If the string is empty, an "-" emtpy string will be retuned instead
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -905,7 +942,8 @@ class Strings
      * @param string $string The string to "hide" empty strings with
      * @return natural If the specified port was not empty, it will be returned. If the specified port was empty, the default port configuration will be returned
      */
-    public static function hide($string, $hide = '*** HIDDEN ***', $empty = '-') {
+    public static function hide($string, $hide = '*** HIDDEN ***', $empty = '-'): string
+    {
         try{
             if ($string) {
                 return $hide;
@@ -937,7 +975,8 @@ class Strings
     // * Originally written by https://github.com/paulgb
     // * Adapted by Sven Oostnbrink support@capmega.com for use in BASE project
     // */
-    //public static function diff() {
+    //public static function diff(): string
+    // {
     //    try{
     //        foreach ($old as $oindex => $ovalue) {
     //            $nkeys = array_keys($new, $ovalue);
@@ -964,11 +1003,12 @@ class Strings
 
 
 
-    /*
+    /**
      * Taken from https://coderwall.com/p/3j2hxq/find-and-format-difference-between-two-strings-in-php
      * Cleaned up for use in base by Sven Oostenbrink
      */
-    public static function diff($old, $new) {
+    public static function diff($old, $new): string
+    {
         try{
             $from_start = strspn($old ^ $new, "\0");
             $from_end   = strspn(strrev($old) ^ strrev($new), "\0");
@@ -995,10 +1035,11 @@ class Strings
 
 
 
-    /*
+    /**
      *
      */
-    public static function boolean($value) {
+    public static function boolean($value): string
+    {
         try{
             if ($value) {
                 return 'true';
@@ -1013,7 +1054,7 @@ class Strings
 
 
 
-    /*
+    /**
      * Convert underscore type variables to camelcase type variables
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1037,7 +1078,8 @@ class Strings
      * @param boolean $first_uppercase If set to true, the first letter will also be uppercase. If set to false, the first letter will be lowercase
      * @return string The result
      */
-    public static function underscoreToCamelcase($string, $first_uppercase = false) {
+    public static function underscoreToCamelcase($string, $first_uppercase = false): string
+    {
         try{
             while(($pos = strpos($string, '_')) !== false) {
                 $character = $string[$pos + 1];
@@ -1069,7 +1111,7 @@ class Strings
 
 
 
-    /*
+    /**
      * Trim empty HTML elements from the specified HTML string, and <br> elements from the beginning and end of each of these elements as well
      *
      * This function will remove all empty <h1>, <h2>, <h3>, <h4>, <h5>, <h6>, <div>, <p>, and <span> elements
@@ -1096,7 +1138,8 @@ class Strings
      * @param string $html The HTML to be stripped
      * @return string The specified source string with empty HTML tags stripped
      */
-    public static function trimHtml($html) {
+    public static function trimHtml($html): string
+    {
         try{
             if (!$html) {
                 return '';
@@ -1152,23 +1195,14 @@ class Strings
             $string4[$i] = "{$string2[$i]}";
         }
     }
-    $string3 = implode("",$string3);
-    $string4 = implode("",$string4);
+    $string3 = implode('',$string3);
+    $string4 = implode('',$string4);
 
     echo "$string3". "<br />". $string4;*/
 
 
 
-    /*
-     * Obsolete functions
-     * These functions only exist as wrappers for compatibility purposes
-     */
-    public static function autoQuote($string, $quote = "'") {
-        return Strings::quote($string, $quote);
-    }
-
-
-    /*
+    /**
      * Cut and return a piece out of the source string, starting from the start string, stopping at the stop string.
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1195,7 +1229,8 @@ class Strings
      * @params string $stop The character(s) to stop the cut
      * @return string The $source string between the first occurrences of start and $stop
      */
-    public static function cut($source, $start, $stop){
+    public static function cut($source, $start, $stop): string
+    {
         try{
             return str_until(str_from($source, $start), $stop);
 
@@ -1206,7 +1241,7 @@ class Strings
 
 
 
-    /*
+    /**
      * Returns true if the specified $needle exists in the specified $haystack
      *
      * This is a simple wrapper function to strpos() which does not require testing for false, as the output is boolean. If the $needle exists in the $haystack, true will be returned, else false will be returned.
@@ -1234,7 +1269,8 @@ class Strings
      * @params string $needle The string that will be searched for in $haystack
      * @return boolean True if the $needle exists in $haystack, false otherwise
      */
-    public static function exists($haystack, $needle){
+    public static function exists($haystack, $needle): string
+    {
         try{
             return (strpos($haystack, $needle) !== false);
 
@@ -1245,10 +1281,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Cleanup string
      */
-    public static function clean($source, $utf8 = true){
+    public static function clean($source, $utf8 = true): string
+    {
         try{
             if(!is_scalar($source)){
                 if(!is_null($source)){
@@ -1277,10 +1314,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return the given string from the specified needle
      */
-    public static function from($source, $needle, $more = 0, $require = false){
+    public static function from($source, $needle, $more = 0, $require = false): string
+    {
         try{
             if(!$needle){
                 throw new CoreException('str_from(): No needle specified', 'not-specified');
@@ -1305,10 +1343,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return the given string from 0 until the specified needle
      */
-    public static function until($source, $needle, $more = 0, $start = 0, $require = false){
+    public static function until($source, $needle, $more = 0, $start = 0, $require = false): string
+    {
         try{
             if(!$needle){
                 throw new CoreException('str_until(): No needle specified', 'not-specified');
@@ -1333,10 +1372,12 @@ class Strings
 
 
 
-    /*
+    /**
      * Return the given string from the specified needle, starting from the end
      */
-    public static function rfrom($source, $needle, $more = 0){
+    public static function rfrom($source, $needle, $more = 0): string
+    {
+
         try{
             if(!$needle){
                 throw new CoreException('str_rfrom(): No needle specified', 'not-specified');
@@ -1355,10 +1396,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Return the given string from 0 until the specified needle, starting from the end
      */
-    public static function runtil($source, $needle, $more = 0, $start = 0){
+    public static function runtil($source, $needle, $more = 0, $start = 0): string
+    {
         try{
             if(!$needle){
                 throw new CoreException('str_runtil(): No needle specified', 'not-specified');
@@ -1377,10 +1419,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Ensure that specified source string starts with specified string
      */
-    public static function starts($source, $string){
+    public static function starts($source, $string): string
+    {
         try{
             if(mb_substr($source, 0, mb_strlen($string)) == $string){
                 return $source;
@@ -1395,10 +1438,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Ensure that specified source string starts NOT with specified string
      */
-    public static function starts_not($source, $string){
+    public static function starts_not($source, $string): string
+    {
         try{
             while(mb_substr($source, 0, mb_strlen($string)) == $string){
                 $source = mb_substr($source, mb_strlen($string));
@@ -1413,10 +1457,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Ensure that specified string ends with specified character
      */
-    public static function ends($source, $string){
+    public static function ends($source, $string): string
+    {
         try{
             $length = mb_strlen($string);
 
@@ -1433,10 +1478,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Ensure that specified string ends NOT with specified character
      */
-    public static function ends_not($source, $strings, $loop = true){
+    public static function ends_not($source, $strings, $loop = true): string
+    {
         try{
             if(is_array($strings)){
                 /*
@@ -1508,10 +1554,11 @@ class Strings
 
 
 
-    /*
+    /**
      * Remove double "replace" chars
      */
-    public static function nodouble($source, $replace = '\1', $character = null, $case_insensitive = true){
+    public static function nodouble($source, $replace = '\1', $character = null, $case_insensitive = true): string
+    {
         try{
             if($character){
                 /*
@@ -1532,7 +1579,7 @@ class Strings
 
 
 
-    /*
+    /**
      * Truncate string using the specified fill and method
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1555,13 +1602,14 @@ class Strings
      * /code
      *
      * @param string $source
-     * @param natural $length
+     * @param number $length
      * @param string $fill
      * @param string $method
      * @param booelan $on_word
      * @return string The string, truncated if required, according to the specified truncating rules
      */
-    public static function truncate($source, $length, $fill = ' ... ', $method = 'right', $on_word = false){
+    public static function truncate($source, $length, $fill = ' ... ', $method = 'right', $on_word = false): string
+    {
         try{
             if(!$length or ($length < (mb_strlen($fill) + 1))){
                 throw new CoreException('str_truncate(): No length or insufficient length specified. You must specify a length of minimal $fill length + 1', 'invalid');
@@ -1615,7 +1663,7 @@ class Strings
 
 
 
-    /*
+    /**
      * Return a string that is suitable for logging.
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
@@ -1637,14 +1685,15 @@ class Strings
      * This is...
      * /code
      *
-     * @param string $source
-     * @param natural $length
+     * @param mixed $source
+     * @param int $length
      * @param string $fill
      * @param string $method
-     * @param booelan $on_word
+     * @param boolean $on_word
      * @return string The string, truncated if required, according to the specified truncating rules
      */
-    public static function log($source, $truncate = 8187, $separator = ', '){
+    public static function log(mixed $source, int $truncate = 8187, string $separator = ', '): string
+    {
         try{
             try{
                 $json_encode = 'json_encode_custom';
@@ -1700,5 +1749,16 @@ class Strings
 
             throw new CoreException('str_log(): Failed', $e);
         }
+    }
+
+
+
+    /**
+     * Obsolete functions
+     * These functions only exist as wrappers for compatibility purposes
+     */
+    public static function autoQuote($string, $quote = "'"): string
+    {
+        return Strings::quote($string, $quote);
     }
 }

@@ -24,7 +24,7 @@ class Arrays {
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
-     * @see array_ensure()
+     * @see Arrays::ensure()
      * @note The default value for this function for non assigned values is boolean false, not null. The reason for this is that many of its dependancies use "false" as "do not use" because "null" would be interpreted as "compare to null"
      * @version 2.5.119: Added function and documentation
      *
@@ -34,7 +34,8 @@ class Arrays {
      * @param null $default The default value for the non selected key
      * @return array The specified source, guaranteed as a parameters array
      */
-    public static function params(&$params, $string_key = null, $numeric_key = null, $default = false) {
+    public static function params(&$params, $string_key = null, $numeric_key = null, $default = false)
+    {
         /*
          * IMPORTANT!! DO NOT CHANGE $default DEFAULT VALUE AWAY FROM FALSE! THIS IS A REQUIREMENT FOR THE sql_simple_list() / sql_simple_get() FUNCTIONS!!
          */
@@ -47,7 +48,7 @@ class Arrays {
             }
 
             if (is_array($params)) {
-                array_ensure($params, array($string_key, $numeric_key), $default);
+                Arrays::ensure($params, array($string_key, $numeric_key), $default);
                 return;
             }
 
@@ -69,10 +70,10 @@ class Arrays {
                 return;
             }
 
-            throw new CoreException(tr('array_params(): Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', array(':datatype' => gettype($params), ':params' => (is_resource($params) ? '{php resource}' : $params))), 'invalid');
+            throw new CoreException(tr('Arrays::params(): Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', array(':datatype' => gettype($params), ':params' => (is_resource($params) ? '{php resource}' : $params))), 'invalid');
 
         }catch(Exception $e) {
-            throw new CoreException(tr('array_params(): Failed'), $e);
+            throw new CoreException(tr('Arrays::params(): Failed'), $e);
         }
     }
 
@@ -81,7 +82,8 @@ class Arrays {
     /**
      * Return the next key right after specified $key
      */
-    public static function next_key(&$array, $currentkey, $delete = false) {
+    public static function nextKey(&$array, $currentkey, $delete = false)
+    {
         try{
             foreach ($array as $key => $value) {
                 if (isset($next)) {
@@ -106,11 +108,11 @@ class Arrays {
                 /*
                  * The currentvalue was found, but it was at the end of the array
                  */
-                throw new CoreException(tr('array_next_key(): Found currentkey ":value" but it was the last item in the array, there is no next', array(':value' => str_log($currentvalue))), '');
+                throw new CoreException(tr('Arrays::nextKey(): Found currentkey ":value" but it was the last item in the array, there is no next', array(':value' => Strings::log($currentvalue))), '');
             }
 
         }catch(Exception $e) {
-            throw new CoreException('array_next_key(): Failed', $e);
+            throw new CoreException('Arrays::nextKey(): Failed', $e);
         }
     }
 
@@ -121,7 +123,8 @@ class Arrays {
      *
      * If the specified key is not found, $currentvalue will be returned.
      */
-    public static function next_value(&$array, $currentvalue, $delete = false, $restart = false) {
+    public static function nextValue(&$array, $currentvalue, $delete = false, $restart = false)
+    {
         try{
             foreach ($array as $key => $value) {
                 if (isset($next)) {
@@ -145,7 +148,7 @@ class Arrays {
                 /*
                  * The currentvalue was found, but it was at the end of the array
                  */
-                throw new CoreException(tr('array_next_value(): Option ":value" does not have a value specified', array(':value' => $currentvalue)), 'invalid');
+                throw new CoreException(tr('Arrays::next_value(): Option ":value" does not have a value specified', array(':value' => $currentvalue)), 'invalid');
             }
 
             reset($array);
@@ -168,12 +171,12 @@ class Arrays {
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
-     * @see array_ensure()
+     * @see Arrays::ensure()
      * @note: $source is passed by reference and will be modified directly
      * @version 1.22.0: Added documentation
      * code
      * $b = array();
-     * array_default($b, 'foo', 'bar');
+     * Arrays::default($b, 'foo', 'bar');
      * showdie($b)
      * /code
      *
@@ -187,7 +190,8 @@ class Arrays {
      * @param mixed $default The default value in case $source[$key] does not exist
      * @return mixed The new value of $source[$key]. This will be either the original value of $source[$key], or the $default value if $source[$key] did not exist
      */
-    public static function default(&$source, $key, $default) {
+    public static function default(&$source, $key, $default)
+    {
         try{
             if (!isset($source[$key])) {
                 $source[$key] = $default;
@@ -213,7 +217,8 @@ class Arrays {
     /**
      * Ensure that the specified keys are available. If not, exception
      */
-    public static function key_check($source, $keys) {
+    public static function keyCheck($source, $keys)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_key_check(): Specified source should be an array, but is a ":type"', array(':type' => gettype($source))), 'invalid');
@@ -221,7 +226,7 @@ class Arrays {
 
             foreach (array_force($keys) as $key) {
                 if (!array_key_exists($key, $source)) {
-                    throw new CoreException(tr('array_key_check(): Key ":key" was not specified in array', array(':key' => str_log($key))), 'not_specified');
+                    throw new CoreException(tr('array_key_check(): Key ":key" was not specified in array', array(':key' => Strings::log($key))), 'not_specified');
                 }
             }
 
@@ -239,10 +244,11 @@ class Arrays {
     /**
      * Make sure the array is cleared, but with specified keys available
      */
-    public static function clear(&$array, $keys, $value = null) {
+    public static function clear(&$array, $keys, $value = null)
+    {
         try{
             $array = array();
-            return array_ensure($array, $keys, $value);
+            return Arrays::arrayEnsure($array, $keys, $value);
 
         }catch(Exception $e) {
             throw new CoreException('array_clear(): Failed', $e);
@@ -254,7 +260,8 @@ class Arrays {
     /**
      * Return an array from the given object, recursively
      */
-    public static function from_object($object, $recurse = true) {
+    public static function fromObject($object, $recurse = true)
+    {
         try{
             if (!is_object($object)) {
                 throw new CoreException(tr('array_from_object(): Specified variable is not an object'));
@@ -264,7 +271,7 @@ class Arrays {
 
             foreach ($object as $key => $value) {
                 if (is_object($value) and $recurse) {
-                    $value = array_from_object($value, true);
+                    $value = Arrays::fromObject($value, true);
                 }
 
                 $retval[$key] = $value;
@@ -291,7 +298,8 @@ class Arrays {
      * @param array $array
      * @return object The array that was created from the specified array
      */
-    public static function to_object($array) {
+    public static function toObject($array)
+    {
         try{
             return (object) $array;
 
@@ -305,7 +313,8 @@ class Arrays {
     /**
      * Return a random value from the specified array
      */
-    public static function random_value($array) {
+    public static function random_value($array)
+    {
         try{
             return $array[array_rand($array)];
 
@@ -317,7 +326,12 @@ class Arrays {
 
 
     // :DEPRECATED: Use the above function
-    public static function get_random($array) {
+    /**
+     * @param $array
+     * @return mixed
+     */
+    public static function getRandom($array)
+    {
         try{
             if (empty($array)) {
                 throw new CoreException(tr('array_get_random(): The specified array is empty'), 'empty');
@@ -335,7 +349,8 @@ class Arrays {
     /**
      * Implode the array with keys
      */
-    public static function implode_with_keys($source, $row_separator, $key_separator, $auto_quote = false, $recurse = true) {
+    public static function implodeWithKeys($source, $row_separator, $key_separator, $auto_quote = false, $recurse = true)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_implode_with_keys(): Specified source is not an array but an ":type"', array(':type' => gettype($source))));
@@ -356,7 +371,7 @@ class Arrays {
 
                 }else{
                     if ($auto_quote) {
-                        $retval[] .= $key.$key_separator.str_auto_quote($value);
+                        $retval[] .= $key.$key_separator.Strings::autoQuote($value);
 
                     }else{
                         $retval[] .= $key.$key_separator.$value;
@@ -376,7 +391,8 @@ class Arrays {
     /**
      *
      */
-    public static function merge_complete() {
+    public static function mergeComplete()
+    {
         try{
             $arguments = func_get_args();
 
@@ -391,12 +407,12 @@ class Arrays {
                 $count++;
 
                 if (!is_array($argv)) {
-                    throw new CoreException(tr('array_merge_complete(): Specified argument ":count" is not an array', array(':count' => str_log($count))));
+                    throw new CoreException(tr('array_merge_complete(): Specified argument ":count" is not an array', array(':count' => Strings::log($count))));
                 }
 
                 foreach ($argv as $key => $value) {
                     if (is_array($value) and array_key_exists($key, $retval) and is_array($retval[$key])) {
-                        $retval[$key] = array_merge_complete($retval[$key], $value);
+                        $retval[$key] = Arrays::mergeComplete($retval[$key], $value);
 
                     }else{
                         $retval[$key] = $value;
@@ -416,7 +432,8 @@ class Arrays {
     /**
      * Limit the specified array to the specified amount of entries
      */
-    public static function limit($source, $count, $return_source = true) {
+    public static function limit($source, $count, $return_source = true)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_limit(): Specified source is not an array'));
@@ -448,13 +465,14 @@ class Arrays {
     /**
      *
      */
-    public static function filter_values($source, $values) {
+    public static function filter_values($source, $values)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_filter_values(): Specified source is not an array'), 'invalid');
             }
 
-            foreach (array_force($values) as $value) {
+            foreach (Arrays::force($values) as $value) {
                 if (($key = array_search($value, $source)) !== false) {
                     unset($source[$key]);
                 }
@@ -472,7 +490,8 @@ class Arrays {
     /**
      * Return an array with the amount of values where each value name is $base_valuename# and # is a sequential number
      */
-    public static function sequential_values($count, $base_valuename) {
+    public static function sequential_values($count, $base_valuename)
+    {
         try{
             if (!is_numeric($count) or ($count < 1)) {
                 throw new CoreException(tr('array_sequential_values(): Invalid count specified. Make sure count is numeric, and greater than 0'), 'invalid');
@@ -494,7 +513,8 @@ class Arrays {
     /**
      * Return the source array with the keys all replaced by sequential values based on base_keyname
      */
-    public static function sequential_keys($source, $base_keyname, $filter_null = false, $null_string = false) {
+    public static function sequential_keys($source, $base_keyname, $filter_null = false, $null_string = false)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_sequential_keys(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
@@ -537,11 +557,12 @@ class Arrays {
     /**
      * Return the source array with the specified keys kept, all else removed.
      */
-    public static function keep($source, $keys) {
+    public static function keep($source, $keys)
+    {
         try{
             $retval = array();
 
-            foreach (array_force($keys) as $key) {
+            foreach (Arrays::force($keys) as $key) {
                 if (array_key_exists($key, $source)) {
                     $retval[$key] = $source[$key];
                 }
@@ -559,9 +580,10 @@ class Arrays {
     /**
      * Return the source array with the specified keys removed.
      */
-    public static function remove($source, $keys) {
+    public static function remove($source, $keys)
+    {
         try{
-            foreach (array_force($keys) as $key) {
+            foreach (Arrays::force($keys) as $key) {
                 unset($source[$key]);
             }
 
@@ -577,7 +599,8 @@ class Arrays {
     /**
      * Return all array parts from (but without) the specified key
      */
-    public static function from(&$source, $from_key, $delete = false, $skip = true) {
+    public static function from(&$source, $from_key, $delete = false, $skip = true)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_from(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
@@ -626,7 +649,8 @@ class Arrays {
     /**
      * Return all array parts until (but without) the specified key
      */
-    public static function until($source, $until_key, $delete = false) {
+    public static function until($source, $until_key, $delete = false)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_until(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
@@ -658,7 +682,8 @@ class Arrays {
     /**
      * Merge two arrays together, using the values of array1 as keys, and the values of array2 as values
      */
-    public static function merge_keys_values($keys, $values) {
+    public static function merge_keys_values($keys, $values)
+    {
         try{
             if (!is_array($keys)) {
                 throw new CoreException(tr('array_merge_keys_values(): Specified keys variable is an ":type", but it should be an array', array(':type' => gettype($keys))), 'invalid');
@@ -692,7 +717,8 @@ class Arrays {
     /**
      * Prefix all keys in this array with the specified prefix
      */
-    public static function prefix($source, $prefix, $auto = false) {
+    public static function prefix($source, $prefix, $auto = false)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_prefix_keys(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
@@ -724,7 +750,8 @@ class Arrays {
      *
      * NOTE: Non string values will be quietly ignored!
      */
-    public static function find($array, $keyword) {
+    public static function find($array, $keyword)
+    {
         try{
             $retval = array();
 
@@ -748,9 +775,10 @@ class Arrays {
     /**
      * Copy all elements from source to target, and clean them up. Any columns specified in "skip" will be skipped
      */
-    public static function copy_clean($target, $source, $skip = 'id') {
+    public static function copy_clean($target, $source, $skip = 'id')
+    {
         try{
-            $skip = array_force($skip);
+            $skip = Arrays::force($skip);
 
             foreach ($source as $key => $value) {
                 if (in_array($key, $skip)) continue;
@@ -775,7 +803,8 @@ class Arrays {
     /**
      * Return an array with all the values in the specified column
      */
-    public static function get_column($source, $column) {
+    public static function get_column($source, $column)
+    {
         try{
             $retval = array();
 
@@ -797,13 +826,14 @@ class Arrays {
     /**
      * Return the value of one of the first found key of the specified keys
      */
-    public static function extract_first($source, $keys) {
+    public static function extract_first($source, $keys)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_extract(): Specified source is not an array'));
             }
 
-            foreach (array_force($keys) as $key) {
+            foreach (Arrays::force($keys) as $key) {
                 if (!empty($source[$key])) {
                     return $source[$key];
                 }
@@ -819,7 +849,8 @@ class Arrays {
     /**
      * Check the specified array and ensure it has not too many elements (to avoid attack with processing foreach over 2000000 elements, for example)
      */
-    public static function max($source, $max = 20) {
+    public static function max($source, $max = 20)
+    {
         if (count($source) > $max) {
             throw new CoreException(tr('array_max(): Specified array has too many elements'), 'arraytoolarge');
         }
@@ -832,7 +863,8 @@ class Arrays {
     /**
      *
      */
-    public static function value_to_keys($source) {
+    public static function value_to_keys($source)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_value_to_keys(): Specified source is not an array'));
@@ -860,7 +892,8 @@ class Arrays {
     /**
      *
      */
-    public static function filtered_merge() {
+    public static function filtered_merge()
+    {
         try{
             $args = func_get_args();
 
@@ -870,7 +903,7 @@ class Arrays {
 
             $filter = array_shift($args);
             $source = array_shift($args);
-            $source = array_remove($source, $filter);
+            $source = Arrays::remove($source, $filter);
             array_unshift($args, $source);
 
             return call_user_func_array('array_merge', $args);
@@ -885,7 +918,8 @@ class Arrays {
     /**
      * Return all elements from source1. If the value of one element is null, then try to return it from source2
      */
-    public static function not_null(&$source1, $source2) {
+    public static function not_null(&$source1, $source2)
+    {
         try{
             $modified = false;
 
@@ -908,7 +942,8 @@ class Arrays {
     /**
      *
      */
-    public static function average($source) {
+    public static function average($source)
+    {
         try{
             $total = 0;
 
@@ -928,7 +963,8 @@ class Arrays {
     /**
      * Return an array with values ranging from $min to $max
      */
-    public static function range($min, $max) {
+    public static function range($min, $max)
+    {
         try{
             if (!is_numeric($min)) {
                 throw new CoreException(tr('array_range(): Specified $min not numeric'), 'invalid');
@@ -960,7 +996,8 @@ class Arrays {
     /**
      * Ensure that all array values
      */
-    public static function clean($source, $recursive = true) {
+    public static function clean($source, $recursive = true)
+    {
         try{
             foreach ($source as &$value) {
                 switch (gettype($value)) {
@@ -978,7 +1015,7 @@ class Arrays {
 
                     case 'array':
                         if ($recursive) {
-                            $value = array_clean($value, $recursive);
+                            $value = Arrays::clean($value, $recursive);
                         }
 
                         break;
@@ -998,7 +1035,7 @@ class Arrays {
      * Returns if the specified callback function returns true for all elements
      *
      * Example:
-     * array_all(array(1, 2, 3), function($value) { return $value });
+     * Arrays::all(array(1, 2, 3), function($value) { return $value });
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
      * @copyright Copyright (c) 2021 Capmega
@@ -1010,7 +1047,8 @@ class Arrays {
      * @param string $function The function to execute
      * @return boolean Returns true if the specified callback function returned true for all elements in the array, false otherwise
      */
-    public static function all($source, $function) {
+    public static function all($source, $function)
+    {
         try{
             foreach ($source as $key => $value) {
                 if (!$function($value)) {
@@ -1043,7 +1081,8 @@ class Arrays {
      * @param string $function The function to execute
      * @return boolean Returns true if the specified callback function returned true for any of the elements in the array, false otherwise
      */
-    public static function any($source, $function) {
+    public static function any($source, $function)
+    {
         try{
             foreach ($source as $key => $value) {
                 if ($function($value)) {
@@ -1075,7 +1114,8 @@ class Arrays {
      * @param array $source The array to check
      * @return boolean Returns true if the specified array contains duplicate values, false otherwise
      */
-    public static function has_duplicates($source) {
+    public static function hasDuplicates($source)
+    {
         try{
             return count($items) > count(array_unique($items));
 
@@ -1092,7 +1132,7 @@ class Arrays {
      * NOTE: Any non string values will be skipped
      *
      * Example:
-     * array_pluck(array('foo', 'bar', 'Frack!', 'test'), '/^F/i');
+     * Arrays::pluck(array('foo', 'bar', 'Frack!', 'test'), '/^F/i');
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
      * @copyright Copyright (c) 2021 Capmega
@@ -1103,7 +1143,8 @@ class Arrays {
      * @param array $source The array to check
      * @return boolean Returns true if the specified array contains duplicate values, false otherwise
      */
-    public static function pluck($source, $regex) {
+    public static function pluck(array $source, string $regex)
+    {
         try{
             $retval = array();
 
@@ -1142,7 +1183,8 @@ class Arrays {
      * @param array
      * @return array
      */
-    public static function merge_null() {
+    public static function merge_null()
+    {
         try{
             $args   = func_get_args();
             $retval = array();
@@ -1180,7 +1222,8 @@ class Arrays {
      * @param boolean $recurse
      * @return array
      */
-    public static function hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDEN ***', $empty = '-', $recurse = true) {
+    public static function hide($source, $keys = 'GLOBALS,%pass,ssh_key', $hide = '*** HIDDEN ***', $empty = '-', $recurse = true)
+    {
         try{
             if (!is_array($source)) {
                 if ($source === null) {
@@ -1190,7 +1233,7 @@ class Arrays {
                 throw new CoreException(tr('array_hide(): Specified source is not an array'), 'invalid');
             }
 
-            $keys = array_force($keys);
+            $keys = Arrays::force($keys);
 
             foreach ($source as $source_key => &$source_value) {
                 foreach ($keys as $key) {
@@ -1198,19 +1241,19 @@ class Arrays {
                      *
                      */
                     if (strstr($key, '%')) {
-                        if (strstr($source_key, str_replace('%', '', $key))) {
-                            $source_value = str_hide($source_value, $hide, $empty);
+                        if (strstr($source_key, Strings::replace('%', '', $key))) {
+                            $source_value = Strings::hide($source_value, $hide, $empty);
                         }
 
                     }else{
                         if ($source_key === $key) {
-                            $source_value = str_hide($source_value, $hide, $empty);
+                            $source_value = Strings::hide($source_value, $hide, $empty);
                         }
                     }
 
                     if (is_array($source_value)) {
                         if ($recurse) {
-                            $source_value = array_hide($source_value, $keys, $hide, $empty, $recurse);
+                            $source_value = Arrays::hide($source_value, $keys, $hide, $empty, $recurse);
                         }
                     }
                 }
@@ -1241,7 +1284,8 @@ class Arrays {
      * @param string $new_key
      * @return string The array with the specified key renamed
      */
-    public static function rename_key($source, $old_key, $new_key) {
+    public static function renameKey($source, $old_key, $new_key)
+    {
         try{
             if (!is_array($source)) {
                 throw new CoreException(tr('array_rename_key(): Specified source is not an array'), 'invalid');

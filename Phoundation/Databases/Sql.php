@@ -1939,8 +1939,8 @@ function sql_valid_limit($limit, $connector = null) {
  * @package sql
  * @version 2.4.8: Added function and documentation
  *
- * @param natural $limit
- * @param natural $limit
+ * @param number $limit
+ * @param number $limit
  * @return string The SQL " LIMIT X, Y " string
  */
 function sql_limit($limit = null, $page = null) {

@@ -502,8 +502,13 @@ class Json
 
     /**
      * Validate the given JSON string
+     *
+     * @param string @json
+     * @param bool $as_array
+     * @return mixed If $as_array is set true [default] then this method will always return an array. If not, it will
+     *      return a PHP JSON object
      */
-    static public function decode($json, $as_array = true)
+    static public function decode(string $json, bool $as_array = true)
     {
         try {
             if ($json === null) {

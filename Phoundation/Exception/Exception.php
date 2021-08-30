@@ -29,13 +29,11 @@ class Exception extends RuntimeException
      * CoreException constructor.
      *
      * @param string $message
-     * @param array $data
      * @param Throwable|null $previous
      */
-    public function __construct(string $message = '', array $data = [], Throwable $previous = null)
+    public function __construct(string $message = '', Throwable $previous = null)
     {
         parent::__construct($message, 0, $previous);
-        $this->data = $data;
     }
 
 

@@ -4,6 +4,7 @@ namespace Phoundation\Core\Route;
 
 use Exception;
 use Phoundation\Core\CoreException\CoreException;
+use Phoundation\Core\Json\Arrays;
 
 /**
  * Class Route
@@ -11,7 +12,9 @@ use Phoundation\Core\CoreException\CoreException;
  * Core routing class that will route URL requests to PHP scripts
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @package Phoundation\Core\Process
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2021 <license@capmega.com>
+ * @package Phoundation\Core
  */
 
 class Route
@@ -53,7 +56,6 @@ class Route
      * @params string $target
      * @params null string $flags
      * @return void
-     * @throws \BException
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -71,6 +73,7 @@ class Route
      * @version 2.0.7: Now uses Route::execute404() to display 404 pages
      * @version 2.5.63: Improved documentation
      * @version 2.8.18: Now registers Route::shutdown() as a shutdown function instead of Route::execute404()
+     * @throws CoreException
      * @example
      * code
      * // This will take phoundation.org/ and execute the index page, but not allow queries.
@@ -124,18 +127,14 @@ class Route
      * /code
      *
      */
-    public function add(string $url_regex, string $target, string $flags = null) {
+    public function add(string $url_regex, string $target, string $flags = null): bool
+    {
         global $_CONFIG, $core;
 
         static $count = 1,
         $init  = false;
 
         try{
-// :LEGACY: 2.9 and up will have this functionality removed and only Route::map() will function
-            if ($url_regex === 'map') {
-                return Route::map($target);
-            }
-
             $type = ($_POST ?  'POST' : 'GET');
             $ip   = (empty($_SERVER['HTTP_X_REAL_IP']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['HTTP_X_REAL_IP']);
 
@@ -179,7 +178,7 @@ class Route
              * different things
              */
             $flags  = strtoupper($flags);
-            $flags  = array_force($flags);
+            $flags  = Arrays::force($flags);
             $until  = false;    // By default, do not store this rule
             $block  = false;    // By default, do not block this request
             $static = true;     // By default, do check for static rules, if configured so
@@ -228,7 +227,7 @@ class Route
                         $uri    = $exists['uri'];
                         $url_regex = $exists['regex'];
                         $target = $exists['target'];
-                        $flags  = array_force($exists['flags']);
+                        $flags  = Arrays::force($exists['flags']);
 
                         sql_query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', array(':id' => $exists['id']));
 
@@ -294,7 +293,7 @@ class Route
                             /*
                              * The language requested in the current request
                              */
-                            $requested = array_first($core->register['accepts_languages']);
+                            $requested = Arrays::first($core->register['accepts_languages']);
                             $route     = str_replace(':REQUESTED_LANGUAGE', $requested['language'], $route);
                             break;
 
@@ -715,7 +714,7 @@ class Route
                  * attempt. Since we are going to act as if the static rule AND URI
                  * apply, we don't know really, avoid unneeded red flags
                  */
-                $flags = array_force($flags);
+                $flags = Arrays::force($flags);
 
                 foreach ($flags as $id => $flag) {
                     switch ($flag[0]) {
@@ -727,7 +726,7 @@ class Route
                     }
                 }
 
-                Route::insert_static(array('expiredon' => $until,
+                Route::insertStatic(array('expiredon' => $until,
                     'target'    => $target,
                     'regex'     => $url_regex,
                     'flags'     => $flags,
@@ -742,7 +741,7 @@ class Route
                 die();
             }
 
-            Route::exec($page, $attachment, $restrictions);
+            Route::execute($page, $attachment, $restrictions);
 
         }catch(Exception $e) {
             if (substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():') {
@@ -852,10 +851,11 @@ class Route
      *
      * @param string $target The target file that should be executed or sent to the client
      * @param boolean $attachment If specified as true, will send the file as an downloadable attachement, to be written to disk instead of displayed on the browser. If set to false, the file will be sent as a file to be displayed in the browser itself.
-     * @param list $restrictions If specified, apply the specified file system restrictions, which may block the request if the requested file is outside of these restrictions
+     * @param array $restrictions If specified, apply the specified file system restrictions, which may block the request if the requested file is outside of these restrictions
      * @return void
      */
-    protected function execute($target, $attachment, $restrictions) {
+    protected function execute(string $target, bool $attachment, array $restrictions): void
+    {
         global $_CONFIG, $core;
 
         try{
@@ -944,7 +944,7 @@ class Route
             Route::execute404();
 
         }catch(Exception $e) {
-            throw new CoreException(tr(tr('Route::shutdown(): Failed')), $e);
+            throw new CoreException(tr('Route::shutdown(): Failed'), $e);
         }
     }
 
@@ -957,15 +957,16 @@ class Route
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package route
-     * @see route()
+     * @see Route::add()
      * @see Route::shutdown()
-     * @note: This function typically would only need to be called by the route() or Route::shutdown()functions.
-     * @note: This function dies
+     * @note: This method typically would only need to be called by the route() or Route::shutdown()functions.
+     * @note: This method will kill the process
      * @version 2.0.5: Added function and documentation
      *
      * @return void
      */
-    protected function execute404() {
+    protected function execute404(): void
+    {
         global $core, $_CONFIG;
 
         try{
