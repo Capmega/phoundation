@@ -46,8 +46,8 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
     global $_CONFIG;
 
     try{
-        if($replace){
-            foreach($replace as &$value){
+        if($replace) {
+            foreach($replace as &$value) {
                 $value = Strings::log($value);
             }
 
@@ -58,10 +58,10 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
             /*
              * Only on non production machines, crash when not all entries were replaced as an extra check.
              */
-            if(empty($_CONFIG['production']) and $verify){
-                if($count != count($replace)){
-                    foreach($replace as $value){
-                        if(strstr($value, ':')){
+            if(empty($_CONFIG['production']) and $verify) {
+                if($count != count($replace)) {
+                    foreach($replace as $value) {
+                        if(strstr($value, ':')) {
                             /*
                              * The one of the $replace values contains :blah
                              * This will cause the detector to fire off
@@ -84,7 +84,7 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
 
         return $text;
 
-    }catch(Exception $e){
+    } catch (Exception $e) {
         /*
          * Do NOT use tr() here for obvious endless loop reasons!
          */

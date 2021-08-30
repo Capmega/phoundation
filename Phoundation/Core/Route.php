@@ -335,7 +335,7 @@ class Route
 
                         $route = str_replace('$'.$replacement[0], $matches[$replacement[0]][0], $route);
 
-                    }catch(Exception $e) {
+                    } catch (Exception $e) {
                         log_file(tr('Ignoring regex ":regex" because route ":route" has error ":e"', array(':regex' => $url_regex, ':route' => $route, ':e' => $e->getMessage())), 'route', 'yellow');
                     }
                 }
@@ -743,7 +743,7 @@ class Route
 
             Route::execute($page, $attachment, $restrictions);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             if (substr($e->getMessage(), 0, 32) == 'PHP ERROR [2] "preg_match_all():') {
                 /*
                  * A "user" regex failed, give pretty error
@@ -828,7 +828,7 @@ class Route
                 $core->register['Route::map'] = $map;
             }
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('Route::map(): Failed'), $e);
         }
     }
@@ -905,7 +905,7 @@ class Route
 
             die();
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('Route::exec(): Failed to execute page ":target"', array(':target' => $target)), $e);
         }
     }
@@ -943,7 +943,7 @@ class Route
 
             Route::execute404();
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('Route::shutdown(): Failed'), $e);
         }
     }
@@ -983,7 +983,7 @@ class Route
 
             page_show(404);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             if ($e->getCode() === 'not-exists') {
                 log_file(tr('The system/404.php page does not exist, showing basic 404 message instead'), 'Route::execute404', 'yellow');
 
@@ -1036,7 +1036,7 @@ class Route
      *
      * /code
      *
-     * @param params $params A parameters array
+     * @param array $params A parameters array
      * @param string $params[foo]
      * @param string $params[bar]
      * @return string The result
@@ -1058,7 +1058,7 @@ class Route
                     ':target'    => $route['target'],
                     ':flags'     => $route['flags']));
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('Route::insert_static(): Failed'), $e);
         }
     }
@@ -1108,7 +1108,7 @@ class Route
 
             return $route;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('Route::validate_static(): Failed'), $e);
         }
     }

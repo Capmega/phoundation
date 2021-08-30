@@ -4,6 +4,7 @@ namespace Phoundation\Core\Json;
 
 use Exception;
 use Phoundation\Core\CoreException\CoreException;
+use Phoundation\Exception\OutOfBoundsException\OutOfBoundsException;
 
 /**
  * Class Strings
@@ -29,7 +30,7 @@ class Strings
                 return $url;
             }
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_ensure_url(): Failed'), $e);
         }
     }
@@ -49,7 +50,7 @@ class Strings
 
             return $multiple_text;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_plural(): Failed'), $e);
         }
     }
@@ -62,13 +63,13 @@ class Strings
     public static function isSerialized(?string $data): bool
     {
         try{
-            if (!$data){
+            if (!$data) {
                 return false;
             }
 
             return (boolean) preg_match( "/^([adObis]:|N;)/u", $data);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_is_serialized(): Failed'), $e);
         }
     }
@@ -78,7 +79,7 @@ class Strings
     /**
      * Fix urls that dont start with http://
      */
-    public static function ensureUtf8($string): string
+    public static function ensureUtf8(string $string): string
     {
         try{
             if (strings::isUtf8($string)) {
@@ -87,7 +88,7 @@ class Strings
 
             return utf8_encode($string);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_ensure_utf8(): Failed'), $e);
         }
     }
@@ -97,12 +98,12 @@ class Strings
     /**
      * Returns true if string is UTF-8, false if not
      */
-    public static function isUtf8($source): bool
+    public static function isUtf8(string $source): bool
     {
         try{
             return mb_check_encoding($source, 'UTF8');
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_is_utf8(): Failed'), $e);
         }
 
@@ -123,7 +124,7 @@ class Strings
     /**
      * Return string will not contain HTML codes for Spanish haracters
      */
-    public static function fixSpanishChars($source): string
+    public static function fixSpanishChars(string $source): string
     {
         try{
             $from = array('&Aacute;', '&aacute;', '&Eacute;', '&eacute;', '&Iacute;', '&iacute;', '&Oacute;', '&oacute;', '&Ntilde;', '&ntilde;', '&Uacute;', '&uacute;', '&Uuml;', '&uuml;','&iexcl;','&ordf;','&iquest;','&ordm;');
@@ -131,7 +132,7 @@ class Strings
 
             return str_replace($from, $to, $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_fix_spanish_chars(): Failed'), $e);
         }
     }
@@ -141,7 +142,7 @@ class Strings
     /**
      * Return a lowercased string with the first letter capitalized
      */
-    public static function capitalize($source, $position = 0): string
+    public static function capitalize(string $source, int $position = 0): string
     {
         try{
             if (!$position) {
@@ -150,7 +151,7 @@ class Strings
 
             return mb_strtolower(mb_substr($source, 0, $position)).mb_strtoupper(mb_substr($source, $position, 1)).mb_strtolower(mb_substr($source, $position + 1));
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_capitalize(): Failed'), $e);
         }
     }
@@ -160,7 +161,7 @@ class Strings
     /**
      * Return a random string
      */
-    public static function random($length = 8, $unique = false, $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
+    public static function random(int $length = 8, bool $unique = false, string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
     {
         try{
             $string     = '';
@@ -186,7 +187,7 @@ class Strings
 
             return $string;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_random(): Failed'), $e);
         }
     }
@@ -196,15 +197,15 @@ class Strings
     /**
      * Is spanish alphanumeric
      */
-    public static function isAlpha($s, $extra = '\s'): bool
+    public static function isAlpha(string $source, string $extra = '\s'): bool
     {
         try{
             $reg   = "/[^\p{L}\d$extra]/u";
-            $count = preg_match($reg, $s, $matches);
+            $count = preg_match($reg, $source, $matches);
 
             return $count == 0;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_is_alpha(): Failed'), $e);
         }
     }
@@ -215,13 +216,13 @@ class Strings
      * Return a clean string, basically leaving only printable latin1 characters,
      */
     // :DELETE: This is never used, where would it be used?
-    public static function escapeForJquery($source, $replace = ''): string
+    public static function escapeForJquery(string $source, string $replace = ''): string
     {
 
         try{
             return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/gu', '\\\\$&', $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_escape_for_jquery(): Failed'), $e);
         }
     }
@@ -231,12 +232,12 @@ class Strings
     /**
      *
      */
-    public static function stripFunction($string) : string
+    public static function stripFunction(string $string) : string
     {
         try{
             return trim(Strings::from($string, '():'));
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_strip_function(): Failed'), $e);
         }
     }
@@ -246,7 +247,7 @@ class Strings
     /**
      * Will fix a base64 coded string with missing termination = marks before decoding it
      */
-    public static function safeBase64Decode($source): string
+    public static function safeBase64Decode(string $source): string
     {
         try{
             if ($mod = mb_strlen($source) % 4) {
@@ -255,7 +256,7 @@ class Strings
 
             return base64_decode($source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_safe_base64_decode(): Failed'), $e);
         }
     }
@@ -266,12 +267,12 @@ class Strings
      * Return a safe size string for displaying
      */
     // :DELETE: Isn't this str_log()?
-    public static function safe($source, $maxsize = 50): string
+    public static function safe(string $source, int $maxsize = 50): string
     {
         try{
             return Strings::truncate(Json::encode($source), $maxsize);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_safe(): Failed'), $e);
         }
     }
@@ -281,12 +282,12 @@ class Strings
     /**
      * Return the entire string in HEX ASCII
      */
-    public static function hex($source): string
+    public static function hex(string $source): string
     {
         try{
             return bin2hex($source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_hex(): Failed'), $e);
         }
     }
@@ -296,7 +297,7 @@ class Strings
     /**
      * Return a camel cased string
      */
-    public static function camelCase($source, $separator = ' '): string
+    public static function camelCase(string $source, string $separator = ' '): string
     {
         try{
             $source = explode($separator, mb_strtolower($source));
@@ -309,7 +310,7 @@ class Strings
 
             return implode($separator, $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_camelcase(): Failed'), $e);
         }
     }
@@ -319,7 +320,7 @@ class Strings
     /**
      * Fix PHP explode
      */
-    public static function explode($separator, $source): string
+    public static function explode(string $separator, string $source): string
     {
         try{
             if (!$source) {
@@ -328,7 +329,7 @@ class Strings
 
             return explode($separator, $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_explode(): Failed'), $e);
         }
     }
@@ -341,15 +342,19 @@ class Strings
      *
      *
      */
-    public static function interleave($source, $interleave, $end = 0, $chunksize = 1): string
+    public static function interleave(string $source, int|string $interleave, int $end = 0, int $chunk_size = 1): string
     {
         try{
             if (!$source) {
-                throw new CoreException('str_interleave(): Empty source specified', 'empty');
+                throw new CoreException(tr('Empty source specified'));
             }
 
             if (!$interleave) {
-                throw new CoreException('str_interleave(): Empty interleave specified', 'empty');
+                throw new CoreException(tr('Empty interleave specified'));
+            }
+
+            if ($chunk_size < 1) {
+                throw new CoreException(tr('Specified chunksize ":chunksize" is invalid, it must be 1 or greater', [':chunksize' => $chunk_size]));
             }
 
             if ($end) {
@@ -361,7 +366,7 @@ class Strings
                 $end   = '';
             }
 
-            $begin  = mb_str_split($begin, $chunksize);
+            $begin  = mb_str_split($begin, $chunk_size);
             $retval = '';
 
             foreach ($begin as $chunk) {
@@ -370,7 +375,7 @@ class Strings
 
             return mb_substr($retval, 0, -1).$end;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_interleave(): Failed'), $e);
         }
     }
@@ -381,7 +386,7 @@ class Strings
      * Convert weird chars to their standard ASCII variant
      */
     // :TODO: Isnt this the same as str_fix_spanish_chars() ??
-    public static function convertAccents($source): string
+    public static function convertAccents(string $source): string
     {
         try{
             $from = explode(',', "ç,æ,œ,á,é,í,ó,ú,à,è,ì,ò,ù,ä,ë,ï,ö,ü,ÿ,â,ê,î,ô,û,å,e,i,ø,u,Ú,ñ,Ñ,º");
@@ -389,7 +394,7 @@ class Strings
 
             return str_replace($from, $to, $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_convert_accents(): Failed'), $e);
         }
     }
@@ -399,12 +404,12 @@ class Strings
     /**
      * Strip whitespace
      */
-    public static function stripHtmlWhitespace($string): string
+    public static function stripHtmlWhitespace(string $string): string
     {
         try{
             return preg_replace('/>\s+</u', '><', $string);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_strip_html_whitespace(): Failed'), $e);
         }
     }
@@ -413,19 +418,19 @@ class Strings
 
     /**
      * Return the specified string quoted if not numeric, boolean,
-     * @param string $string
+     * @param string $source
      * @param string $quote What quote (or other symbol) to use for the quoting
      */
-    public static function quote($string, $quote = "'"): string
+    public static function quote(string $source, string $quote = "'"): string
     {
         try{
-            if (is_numeric($string) or is_bool(is_numeric($string))) {
-                return $string;
+            if (is_numeric($source) or is_bool(is_numeric($source))) {
+                return $source;
             }
 
-            return $quote.$string.$quote;
+            return $quote.$source.$quote;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_quote(): Failed'), $e);
         }
     }
@@ -438,12 +443,12 @@ class Strings
      * @return boolean True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/". False if not
      * @example showdie(str_is_version(phpversion())); This example should show a debug table with true
      */
-    public static function isVersion($source): bool
+    public static function isVersion(string $source): bool
     {
         try{
             return preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}$/', $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_is_version(): Failed', $e);
         }
     }
@@ -453,12 +458,12 @@ class Strings
     /**
      * Returns true if the specified source string contains HTML
      */
-    public static function isHtml($source): bool
+    public static function isHtml(string $source): bool
     {
         try{
             return !preg_match('/<[^<]+>/', $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_is_html(): Failed'), $e);
         }
     }
@@ -468,36 +473,37 @@ class Strings
     /**
      * Return if specified source is a JSON string or not
      */
-    public static function isJson($source): bool
+    public static function isJson(string $source): bool
     {
         try{
     //        return !preg_match('/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/', preg_replace('/"(\\.|[^"\\])*"/g', '', $source));
             return !empty($source) && is_string($source) && preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_is_json(): Failed'), $e);
         }
     }
 
 
 
-    /*
-     * HERE BE SOME NON str_........ functions that ARE string functions anyway!
-     */
-
-    /*
-     * mb_trim
+    /**
+     * Multibyte safe version of PHP trim()
      *
      * No, trim() is not MB save
      * Yes, this (so far) seems to be safe
      *
-     * IMPORTANT! COMMENT THE mb_trim() call in the mb.php libray!! The one there is NOT MB SAFE!!
+     * IMPORTANT! DO NOT USE AND COMMENT THE mb_trim() call in the mb.php libray!! Experiments have shown that that one
+     * there is NOT MB SAFE!!
+     *
+     * @param string $source
+     * @return string
      */
-    function mbTrim($string) {
+    function mbTrim(string $source): string
+    {
         try{
-            return preg_replace("/(^\s+)|(\s+$)/us", '', $string);
+            return preg_replace("/(^\s+)|(\s+$)/us", '', $source);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('mb_trim(): Failed', $e);
         }
     }
@@ -523,24 +529,24 @@ class Strings
     //
     //        return preg_split("//u", $source, -1, PREG_SPLIT_NO_EMPTY);
     //
-    //    }catch(Exception $e) {
+    //    } catch (Exception $e) {
     //        throw new CoreException('mb_str_split(): Failed', $e);
     //    }
     //}
 
 
 
-    /*
+    /**
      * Correctly converts <br> to \n
      */
-    function br2nl($string, $nl = "\n") {
+    function br2nl(string $source, string $nl = "\n") {
         try{
-            $string = preg_replace("/(\r\n|\n|\r)/u", '' , $string);
-            $string = preg_replace("/<br *\/?>/iu"  , $nl, $string);
+            $source = preg_replace("/(\r\n|\n|\r)/u", '' , $source);
+            $source = preg_replace("/<br *\/?>/iu"  , $nl, $source);
 
-            return $string;
+            return $source;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('br2nl(): Failed'), $e);
         }
     }
@@ -548,24 +554,28 @@ class Strings
 
 
     /**
+     * Correctly converts <br> to \n
+     */
+    function nl2br(string $source, string $nl = "\n"): string
+    {
+// TODO Implement!
+
+/*
+//        $source = preg_replace("/(\r\n|\n|\r)/u", '' , $source);
+//        $source = preg_replace("/<br *\/?>/iu"  , $nl, $source);
+//
+*/
+        return $source;
+    }
+
+
+
+    /**
      * Returns true if the specified text has one (or all) of the specified keywords
      */
-    public static function hasKeywords($text, $keywords, $has_all = false, $regex = false, $unicode = true): string
+    public static function hasKeywords(string $text, array $keywords, bool $has_all = false, bool $regex = false, bool $unicode = true): string
     {
         try{
-            if (!is_array($keywords)) {
-                if (!is_string($keywords) and !is_numeric($keywords)) {
-                    throw new CoreException('str_has_keywords(): Specified keywords are neither string or array', 'invalid');
-                }
-
-                if ($regex) {
-                    $keywords = array($keywords);
-
-                }else{
-                    $keywords = explode(',', $keywords);
-                }
-            }
-
             $count = 0;
 
             foreach ($keywords as $keyword) {
@@ -604,7 +614,7 @@ class Strings
 
             return $count == count($keywords);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_has_keywords(): Failed', $e);
         }
     }
@@ -628,7 +638,7 @@ class Strings
      * lowercentercaps        abcDefg
      * capscenterlower        ABCdEFG
      */
-    public static function caps($string, $type): string
+    public static function caps(string $string, string $type): string
     {
         try{
             /*
@@ -710,7 +720,7 @@ class Strings
                             break;
 
                         default:
-                            throw new CoreException('str_caps(): Unknown type "'.str_log($type).'" specified', 'unknowntype');
+                            throw new OutOfBoundsException(tr('Unknown type ":type" specified', [':type' => $type]));
                     }
 
                     str_replace($word, $replace, $string);
@@ -719,7 +729,7 @@ class Strings
 
             return $string;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_caps(): Failed', $e);
         }
     }
@@ -743,7 +753,7 @@ class Strings
      * lowercentercaps         abcDefg
      * capscenterlower         ABCdEFG
      */
-    public static function capsGuess($string): string
+    public static function capsGuess(string $string): string
     {
         try{
             $posibilities = array('lowercase'             ,
@@ -770,7 +780,7 @@ class Strings
             foreach ($words as $word) {
             }
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_caps_guess_type(): Failed', $e);
         }
     }
@@ -780,7 +790,7 @@ class Strings
     /**
      * Force the specified source to be a string
      */
-    public static function force($source, $separator = ','): string
+    public static function force(mixed $source, string $separator = ','): string
     {
         try{
             if (!is_scalar($source)) {
@@ -809,7 +819,7 @@ class Strings
 
             return (string) $source;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_force(): Failed', $e);
         }
     }
@@ -819,9 +829,13 @@ class Strings
     /**
      * Force the specified string to be the specified size.
      */
-    public static function size($source, $size, $add = ' ', $prefix = false): string
+    public static function size(string $source, int $size, $add = ' ', $prefix = false): string
     {
         try{
+            if ($size < 0) {
+                throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or highter', [':size' => $size]));
+            }
+
             load_libs('cli');
             $strlen = mb_strlen(cli_strip_color($source));
 
@@ -839,7 +853,7 @@ class Strings
 
             return $source.str_repeat($add, $size - $strlen);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_size(): Failed', $e);
         }
     }
@@ -849,7 +863,7 @@ class Strings
     /**
      *
      */
-    public static function escape($string, $escape = '"'): string
+    public static function escape(string $string, string $escape = '"'): string
     {
         try{
             for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
@@ -858,7 +872,7 @@ class Strings
 
             return $string;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_escape(): Failed', $e);
         }
     }
@@ -868,7 +882,7 @@ class Strings
     /**
      *
      */
-    public static function xor($a, $b): string
+    public static function xor(string $a, string $b): string
     {
         try{
             $diff   = $a ^ $b;
@@ -880,7 +894,7 @@ class Strings
 
             return $retval;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_xor(): Failed', $e);
         }
     }
@@ -890,12 +904,12 @@ class Strings
     /**
      *
      */
-    public static function similar($a, $b, $percent): string
+    public static function similar(string $a, string $b, float &$percent): string
     {
         try{
             return similar_text($a, $b, $percent);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_similar(): Failed'), $e);
         }
     }
@@ -905,7 +919,7 @@ class Strings
     /**
      * Recursively trim all strings in the specified array tree
      */
-    public static function trimArray($source, $recurse = true): string
+    public static function trimArray(string $source, bool $recurse = true): string
     {
         try{
             foreach ($source as $key => &$value) {
@@ -921,7 +935,7 @@ class Strings
 
             return $source;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_trim_array(): Failed', $e);
         }
     }
@@ -938,11 +952,11 @@ class Strings
      * @package strings
      *
      * @param string $string The string to "hide"
-     * @param string $hidden The string to return if the specified source string contains data
-     * @param string $string The string to "hide" empty strings with
-     * @return natural If the specified port was not empty, it will be returned. If the specified port was empty, the default port configuration will be returned
+     * @param string $hide The string to return if the specified source string contains data
+     * @param string $empty The string to "hide" empty strings with
+     * @return string
      */
-    public static function hide($string, $hide = '*** HIDDEN ***', $empty = '-'): string
+    public static function hide(string $string, string $hide = '*** HIDDEN ***', string $empty = '-'): string
     {
         try{
             if ($string) {
@@ -959,9 +973,9 @@ class Strings
             /*
              * Always show the hidden message string
              */
-            return $hidden;
+            return $hide;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_hide(): Failed', $e);
         }
     }
@@ -996,7 +1010,7 @@ class Strings
     //
     //        return array_merge(diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)), array_slice($new, $nmax, $maxlen), diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen)));
     //
-    //    }catch(Exception $e) {
+    //    } catch (Exception $e) {
     //        throw new CoreException('str_diff(): Failed', $e);
     //    }
     //}
@@ -1007,7 +1021,7 @@ class Strings
      * Taken from https://coderwall.com/p/3j2hxq/find-and-format-difference-between-two-strings-in-php
      * Cleaned up for use in base by Sven Oostenbrink
      */
-    public static function diff($old, $new): string
+    public static function diff(string $old, string $new): string
     {
         try{
             $from_start = strspn($old ^ $new, "\0");
@@ -1028,7 +1042,7 @@ class Strings
             return array('old' => $old,
                          'new' => $new);
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_diff(): Failed'), $e);
         }
     }
@@ -1038,7 +1052,7 @@ class Strings
     /**
      *
      */
-    public static function boolean($value): string
+    public static function boolean(string $value): string
     {
         try{
             if ($value) {
@@ -1047,7 +1061,7 @@ class Strings
 
             return 'false';
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_boolean(): Failed'), $e);
         }
     }
@@ -1078,7 +1092,7 @@ class Strings
      * @param boolean $first_uppercase If set to true, the first letter will also be uppercase. If set to false, the first letter will be lowercase
      * @return string The result
      */
-    public static function underscoreToCamelcase($string, $first_uppercase = false): string
+    public static function underscoreToCamelcase(string $string, bool $first_uppercase = false): string
     {
         try{
             while(($pos = strpos($string, '_')) !== false) {
@@ -1104,7 +1118,7 @@ class Strings
 
             return $string;
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException('str_underscore_to_camelcase(): Failed', $e);
         }
     }
@@ -1138,15 +1152,11 @@ class Strings
      * @param string $html The HTML to be stripped
      * @return string The specified source string with empty HTML tags stripped
      */
-    public static function trimHtml($html): string
+    public static function trimHtml(string $html): string
     {
         try{
             if (!$html) {
                 return '';
-            }
-
-            if (!is_string($html)) {
-                throw new CoreException(tr('str_trim_html(): Specified $html ":html" is not a string', array(':html' => $html)), 'invalid');
             }
 
             load_libs('simple-dom');
@@ -1175,7 +1185,7 @@ class Strings
 
             return $html->save();
 
-        }catch(Exception $e) {
+        } catch (Exception $e) {
             throw new CoreException(tr('str_trim_html(): Failed'), $e);
         }
     }
@@ -1225,57 +1235,17 @@ class Strings
      * /code
      *
      * @param string $source The string to be cut
-     * @params string $start The character(s) to start the cut
-     * @params string $stop The character(s) to stop the cut
+     * @params int $start The character(s) to start the cut
+     * @params int $stop The character(s) to stop the cut
      * @return string The $source string between the first occurrences of start and $stop
      */
-    public static function cut($source, $start, $stop): string
+    public static function cut(string $source, int $start, int $stop): string
     {
         try{
             return str_until(str_from($source, $start), $stop);
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_cut(): Failed'), $e);
-        }
-    }
-
-
-
-    /**
-     * Returns true if the specified $needle exists in the specified $haystack
-     *
-     * This is a simple wrapper function to strpos() which does not require testing for false, as the output is boolean. If the $needle exists in the $haystack, true will be returned, else false will be returned.
-     *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2021 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package str
-     * @see strpos()
-     * @see strstr()
-     * @version 1.26.1: Added function and documentation
-     * @example
-     * code
-     * $result = str_exists('This function is completely foobar', 'foobar');
-     * showdie($result);
-     * /code
-     *
-     * This would return
-     * code
-     * true
-     * /code
-     *
-     * @param string $haystack The source string in which this function needs to find $needle
-     * @params string $needle The string that will be searched for in $haystack
-     * @return boolean True if the $needle exists in $haystack, false otherwise
-     */
-    public static function exists($haystack, $needle): string
-    {
-        try{
-            return (strpos($haystack, $needle) !== false);
-
-        }catch(Exception $e){
-            throw new CoreException(tr('str_exists(): Failed'), $e);
         }
     }
 
@@ -1284,16 +1254,16 @@ class Strings
     /**
      * Cleanup string
      */
-    public static function clean($source, $utf8 = true): string
+    public static function clean(string $source, bool $utf8 = true): string
     {
         try{
-            if(!is_scalar($source)){
-                if(!is_null($source)){
+            if(!is_scalar($source)) {
+                if(!is_null($source)) {
                     throw new CoreException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1).'@'.current_line(1))), 'invalid');
                 }
             }
 
-            if($utf8){
+            if($utf8) {
                 load_libs('utf8');
 
                 $source = mb_trim(html_entity_decode(utf8_unescape(strip_tags(utf8_escape($source)))));
@@ -1305,7 +1275,7 @@ class Strings
 
             return mb_trim(html_entity_decode(strip_tags($source)));
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_clean(): Failed with string ":string"', array(':string' => $source)), $e);
         }
 // :TODO:SVEN:20130709: Check if we should be using mysqli_escape_string() or addslashes(), since the former requires SQL connection, but the latter does NOT have correct UTF8 support!!
@@ -1317,17 +1287,17 @@ class Strings
     /**
      * Return the given string from the specified needle
      */
-    public static function from($source, $needle, $more = 0, $require = false): string
+    public static function from(string $source, string $needle, int $more = 0, bool $require = false): string
     {
         try{
-            if(!$needle){
+            if(!$needle) {
                 throw new CoreException('str_from(): No needle specified', 'not-specified');
             }
 
             $pos = mb_strpos($source, $needle);
 
-            if($pos === false){
-                if($require){
+            if($pos === false) {
+                if($require) {
                     return '';
                 }
 
@@ -1336,7 +1306,7 @@ class Strings
 
             return mb_substr($source, $pos + mb_strlen($needle) - $more);
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_from(): Failed for string ":string"', array(':string' => $source)), $e);
         }
     }
@@ -1346,17 +1316,17 @@ class Strings
     /**
      * Return the given string from 0 until the specified needle
      */
-    public static function until($source, $needle, $more = 0, $start = 0, $require = false): string
+    public static function until(string $source, string $needle, int $more = 0, int $start = 0, bool $require = false): string
     {
         try{
-            if(!$needle){
+            if(!$needle) {
                 throw new CoreException('str_until(): No needle specified', 'not-specified');
             }
 
             $pos = mb_strpos($source, $needle);
 
-            if($pos === false){
-                if($require){
+            if($pos === false) {
+                if($require) {
                     return '';
                 }
 
@@ -1365,7 +1335,7 @@ class Strings
 
             return mb_substr($source, $start, $pos + $more);
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_until(): Failed for string ":string"', array(':string' => $source)), $e);
         }
     }
@@ -1375,11 +1345,10 @@ class Strings
     /**
      * Return the given string from the specified needle, starting from the end
      */
-    public static function rfrom($source, $needle, $more = 0): string
+    public static function fromReverse(string $source, string $needle, int $more = 0): string
     {
-
         try{
-            if(!$needle){
+            if(!$needle) {
                 throw new CoreException('str_rfrom(): No needle specified', 'not-specified');
             }
 
@@ -1389,7 +1358,7 @@ class Strings
 
             return mb_substr($source, $pos + mb_strlen($needle) - $more);
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_rfrom(): Failed for string ":string"', array(':string' => $source)), $e);
         }
     }
@@ -1399,10 +1368,10 @@ class Strings
     /**
      * Return the given string from 0 until the specified needle, starting from the end
      */
-    public static function runtil($source, $needle, $more = 0, $start = 0): string
+    public static function untilReverse(string $source, string $needle, int $more = 0, int $start = 0): string
     {
         try{
-            if(!$needle){
+            if(!$needle) {
                 throw new CoreException('str_runtil(): No needle specified', 'not-specified');
             }
 
@@ -1412,7 +1381,7 @@ class Strings
 
             return mb_substr($source, $start, $pos + $more);
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_runtil(): Failed for string ":string"', array(':string' => $source)), $e);
         }
     }
@@ -1422,16 +1391,16 @@ class Strings
     /**
      * Ensure that specified source string starts with specified string
      */
-    public static function starts($source, $string): string
+    public static function startsWith(string $source, string $string): string
     {
         try{
-            if(mb_substr($source, 0, mb_strlen($string)) == $string){
+            if(mb_substr($source, 0, mb_strlen($string)) == $string) {
                 return $source;
             }
 
             return $string.$source;
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_starts(): Failed for ":source"', array(':source' => $source)), $e);
         }
     }
@@ -1441,16 +1410,16 @@ class Strings
     /**
      * Ensure that specified source string starts NOT with specified string
      */
-    public static function starts_not($source, $string): string
+    public static function startsNotWith(string $source, string $string): string
     {
         try{
-            while(mb_substr($source, 0, mb_strlen($string)) == $string){
+            while(mb_substr($source, 0, mb_strlen($string)) == $string) {
                 $source = mb_substr($source, mb_strlen($string));
             }
 
             return $source;
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_starts_not(): Failed for ":source"', array(':source' => $source)), $e);
         }
     }
@@ -1460,18 +1429,18 @@ class Strings
     /**
      * Ensure that specified string ends with specified character
      */
-    public static function ends($source, $string): string
+    public static function endsWith(string $source, string $string): string
     {
         try{
             $length = mb_strlen($string);
 
-            if(mb_substr($source, -$length, $length) == $string){
+            if(mb_substr($source, -$length, $length) == $string) {
                 return $source;
             }
 
             return $source.$string;
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException('str_ends(): Failed', $e);
         }
     }
@@ -1481,22 +1450,22 @@ class Strings
     /**
      * Ensure that specified string ends NOT with specified character
      */
-    public static function ends_not($source, $strings, $loop = true): string
+    public static function endsNotWith(string $source, string $strings, bool $loop = true): string
     {
         try{
-            if(is_array($strings)){
+            if(is_array($strings)) {
                 /*
                  * For array test, we always loop
                  */
                 $redo = true;
 
-                while($redo){
+                while($redo) {
                     $redo = false;
 
-                    foreach($strings as $string){
+                    foreach($strings as $string) {
                         $new = str_ends_not($source, $string, true);
 
-                        if($new != $source){
+                        if($new != $source) {
                             // A change was made, we have to rerun over it.
                             $redo = true;
                         }
@@ -1511,7 +1480,7 @@ class Strings
                  */
                 $length = mb_strlen($strings);
 
-                while(mb_substr($source, -$length, $length) == $strings){
+                while(mb_substr($source, -$length, $length) == $strings) {
                     $source = mb_substr($source, 0, -$length);
                     if(!$loop) break;
                 }
@@ -1519,7 +1488,7 @@ class Strings
 
             return $source;
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException('str_ends_not(): Failed', $e);
         }
     }
@@ -1529,11 +1498,11 @@ class Strings
     /*
      * Ensure that specified string ends with slash
      */
-    function slash($string){
+    function slash(string $string) {
         try{
             return str_ends($string, '/');
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException('slash(): Failed', $e);
         }
     }
@@ -1543,11 +1512,11 @@ class Strings
     /*
      * Ensure that specified string ends NOT with slash
      */
-    function unslash($string, $loop = true){
+    function unslash(string $string, bool $loop = true) {
         try{
             return str_ends_not($string, '/', $loop);
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException('unslash(): Failed', $e);
         }
     }
@@ -1557,10 +1526,10 @@ class Strings
     /**
      * Remove double "replace" chars
      */
-    public static function nodouble($source, $replace = '\1', $character = null, $case_insensitive = true): string
+    public static function nodouble(string $source, string $replace = '\1', int|string $character = null, bool $case_insensitive = true): string
     {
         try{
-            if($character){
+            if($character) {
                 /*
                  * Remove specific character
                  */
@@ -1572,7 +1541,7 @@ class Strings
              */
             return preg_replace('/(.)\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException('str_nodouble(): Failed', $e);
         }
     }
@@ -1605,17 +1574,17 @@ class Strings
      * @param number $length
      * @param string $fill
      * @param string $method
-     * @param booelan $on_word
+     * @param boolean $on_word
      * @return string The string, truncated if required, according to the specified truncating rules
      */
-    public static function truncate($source, $length, $fill = ' ... ', $method = 'right', $on_word = false): string
+    public static function truncate(string$source, int $length, string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
     {
         try{
-            if(!$length or ($length < (mb_strlen($fill) + 1))){
+            if(!$length or ($length < (mb_strlen($fill) + 1))) {
                 throw new CoreException('str_truncate(): No length or insufficient length specified. You must specify a length of minimal $fill length + 1', 'invalid');
             }
 
-            if($length >= mb_strlen($source)){
+            if($length >= mb_strlen($source)) {
                 /*
                  * No need to truncate, the string is short enough
                  */
@@ -1627,11 +1596,11 @@ class Strings
              */
             $length -= mb_strlen($fill);
 
-            switch($method){
+            switch($method) {
                 case 'right':
                     $retval = mb_substr($source, 0, $length);
-                    if($on_word and (strpos(substr($source, $length, 2), ' ') === false)){
-                        if($pos = strrpos($retval, ' ')){
+                    if($on_word and (strpos(substr($source, $length, 2), ' ') === false)) {
+                        if($pos = strrpos($retval, ' ')) {
                             $retval = substr($retval, 0, $pos);
                         }
                     }
@@ -1644,8 +1613,8 @@ class Strings
                 case 'left':
                     $retval = mb_substr($source, -$length, $length);
 
-                    if($on_word and substr($retval)){
-                        if($pos = strpos($retval, ' ')){
+                    if($on_word and substr($retval)) {
+                        if($pos = strpos($retval, ' ')) {
                             $retval = substr($retval, $pos);
                         }
                     }
@@ -1656,7 +1625,7 @@ class Strings
                     throw new CoreException(tr('str_truncate(): Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', array(':method' => $method)), 'unknown');
             }
 
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw new CoreException(tr('str_truncate(): Failed for ":source"', array(':source' => $source)), $e);
         }
     }
@@ -1692,36 +1661,36 @@ class Strings
      * @param boolean $on_word
      * @return string The string, truncated if required, according to the specified truncating rules
      */
-    public static function log(mixed $source, int $truncate = 8187, string $separator = ', '): string
+    public static function log(mixed $source, int $truncate = 8187): string
     {
         try{
             try{
                 $json_encode = 'json_encode_custom';
 
-            }catch(Exception $e){
+            } catch (Exception $e) {
                 /*
                  * Fuck...
                  */
                 $json_encode = 'json_encode';
             }
 
-            if(!$source){
-                if(is_numeric($source)){
+            if(!$source) {
+                if(is_numeric($source)) {
                     return 0;
                 }
 
                 return '';
             }
 
-            if(!is_scalar($source)){
-                if(is_array($source)){
-                    foreach($source as $key => &$value){
-                        if(strstr($key, 'password')){
+            if(!is_scalar($source)) {
+                if(is_array($source)) {
+                    foreach($source as $key => &$value) {
+                        if(strstr($key, 'password')) {
                             $value = '*** HIDDEN ***';
                             continue;
                         }
 
-                        if(strstr($key, 'ssh_key')){
+                        if(strstr($key, 'ssh_key')) {
                             $value = '*** HIDDEN ***';
                             continue;
                         }
@@ -1731,7 +1700,7 @@ class Strings
 
                     $source = mb_trim($json_encode($source));
 
-                }elseif(is_object($source) and ($source instanceof CoreException)){
+                }elseif(is_object($source) and ($source instanceof CoreException)) {
                     $source = $source->getCode().' / '.$source->getMessage();
 
                 }else{
@@ -1741,8 +1710,8 @@ class Strings
 
             return str_nodouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', str_truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
 
-        }catch(Exception $e){
-            if($e->getRealCode() === 'invalid'){
+        } catch (Exception $e) {
+            if($e->getRealCode() === 'invalid') {
                 notify($e->makeWarning(true));
                 return "Data converted using print_r() instead of json_encode() because json_encode_custom() failed on this data: ".print_r($source, true);
             }
@@ -1757,7 +1726,7 @@ class Strings
      * Obsolete functions
      * These functions only exist as wrappers for compatibility purposes
      */
-    public static function autoQuote($string, $quote = "'"): string
+    public static function autoQuote(string $string, string $quote = "'"): string
     {
         return Strings::quote($string, $quote);
     }
