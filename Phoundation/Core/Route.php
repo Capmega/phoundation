@@ -16,7 +16,6 @@ use Phoundation\Core\Json\Arrays;
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @package Phoundation\Core
  */
-
 class Route
 {
     /**

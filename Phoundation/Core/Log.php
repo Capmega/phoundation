@@ -38,9 +38,9 @@ Class Log {
      * Singleton
      *
      * @param string|null $target
-     * @return Log|null
+     * @return Log
      */
-    public static function getInstance(string $target = null)
+    public static function getInstance(string $target = null): Log
     {
         try{
             if (!isset(self::$instance)) {

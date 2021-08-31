@@ -389,7 +389,7 @@ class Debug {
 
         $type = gettype($value);
 
-        switch($type) {
+        switch ($type) {
             case 'string':
                 if (is_numeric($value)) {
                     $type = tr('numeric');

@@ -2789,30 +2789,30 @@ class Sql
              */
             krsort($execute);
 
-            if(is_object($query)){
+            if (is_object($query)) {
                 /*
                  * Query to be debugged is a PDO statement, extract the query
                  */
-                if(!($query instanceof PDOStatement)){
+                if (!($query instanceof PDOStatement)) {
                     throw new CoreException(tr('debug_sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
                 }
 
                 $query = $query->queryString;
             }
 
-            foreach($execute as $key => $value){
-                if(is_string($value)){
+            foreach($execute as $key => $value) {
+                if (is_string($value)) {
                     $value = addslashes($value);
                     $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '').Strings::log($value).'"', $query);
 
-                }elseif(is_null($value)){
+                } elseif (is_null($value)) {
                     $query = str_replace($key, ' '.tr('NULL').' ', $query);
 
-                }elseif(is_bool($value)){
+                } elseif (is_bool($value)) {
                     $query = str_replace($key, str_boolean($value), $query);
 
-                }else{
-                    if(!is_scalar($value)){
+                } else {
+                    if (!is_scalar($value)) {
                         throw new CoreException(tr('debug_sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
                     }
 

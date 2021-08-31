@@ -1,13 +1,11 @@
 <?php
 
-namespace Phoundation\Exception\OutOfBoundsException;
-
-use Phoundation\Exception\Exception;
+namespace Phoundation\Exception;
 
 /**
  * Class OutOfBoundsException
  *
- * This is the phoundation version of the PHP Out?OfBoundsException class, thrown whenever a variable or data is found
+ * This is the phoundation version of the PHP OutOfBoundsException class, thrown whenever a variable or data is found
  * to be beyound acceptable limits
  *
  * @package Phoundation\Exception
