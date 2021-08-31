@@ -373,7 +373,7 @@ class Strings
                 $retval .= $chunk.$interleave;
             }
 
-            return mb_substr($retval, 0, -1).$end;
+            return mb_substr($retval, 0, -1) . $end;
 
         } catch (Exception $e) {
             throw new CoreException(tr('str_interleave(): Failed'), $e);
@@ -587,7 +587,7 @@ class Strings
                 }
 
                 if ($regex) {
-                    if (preg_match('/'.$keyword.'/ims'.($unicode ? 'u' : ''), $text, $matches) !== false) {
+                    if (preg_match('/' . $keyword.'/ims'.($unicode ? 'u' : ''), $text, $matches) !== false) {
                         if (!$has_all) {
                             /*
                              * We're only interrested in knowing if it has one of the specified keywords
@@ -848,7 +848,7 @@ class Strings
             }
 
             if ($prefix) {
-                return str_repeat($add, $size - $strlen).$source;
+                return str_repeat($add, $size - $strlen) . $source;
             }
 
             return $source.str_repeat($add, $size - $strlen);
@@ -867,7 +867,7 @@ class Strings
     {
         try{
             for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
-                $string = str_replace($escape[$i], '\\'.$escape[$i], $string);
+                $string = str_replace($escape[$i], '\\' . $escape[$i], $string);
             }
 
             return $string;
@@ -1036,8 +1036,8 @@ class Strings
             $new_diff   = substr($new, $from_start, $new_end - $from_start);
             $old_diff   = substr($old, $from_start, $old_end - $from_start);
 
-            $new        = $start.'<ins style="background-color:#ccffcc">'.$new_diff.'</ins>'.$end;
-            $old        = $start.'<del style="background-color:#ffcccc">'.$old_diff.'</del>'.$end;
+            $new        = $start.'<ins style="background-color:#ccffcc">' . $new_diff.'</ins>' . $end;
+            $old        = $start.'<del style="background-color:#ffcccc">' . $old_diff.'</del>' . $end;
 
             return array('old' => $old,
                          'new' => $new);
@@ -1113,7 +1113,7 @@ class Strings
                     $character = strtoupper($character);
                 }
 
-                $string = substr($string, 0, $pos).$character.substr($string, $pos + 2);
+                $string = substr($string, 0, $pos) . $character.substr($string, $pos + 2);
             }
 
             return $string;
@@ -1533,7 +1533,7 @@ class Strings
                 /*
                  * Remove specific character
                  */
-                return preg_replace('/('.$character.')\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
+                return preg_replace('/(' . $character.')\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
             }
 
             /*
@@ -1606,10 +1606,10 @@ class Strings
                         }
                     }
 
-                    return trim($retval).$fill;
+                    return trim($retval) . $fill;
 
                 case 'center':
-                    return mb_substr($source, 0, floor($length / 2)).$fill.mb_substr($source, -ceil($length / 2));
+                    return mb_substr($source, 0, floor($length / 2)) . $fill.mb_substr($source, -ceil($length / 2));
 
                 case 'left':
                     $retval = mb_substr($source, -$length, $length);
@@ -1699,7 +1699,7 @@ class Strings
                     $source = mb_trim($json_encode($source));
 
                 } elseif (is_object($source) and ($source instanceof CoreException)) {
-                    $source = $source->getCode().' / '.$source->getMessage();
+                    $source = $source->getCode().' / ' . $source->getMessage();
 
                 } else {
                     $source = mb_trim($json_encode($source));

@@ -142,7 +142,7 @@ class Route
              */
             if (!$init) {
                 $init = true;
-                log_file(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: '.$_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
+                log_file(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
                 register_shutdown('Route::shutdown');
             }
 
@@ -193,7 +193,7 @@ class Route
                         break;
 
                     case 'M':
-                        $uri .= '?'.$query;
+                        $uri .= '?' . $query;
                         log_file(tr('Adding query to URI ":uri"', array(':uri' => $uri)), 'route', 'VERYVERBOSE/green');
 
                         if (!str_exists(str_force($flags), 'Q')) {
@@ -313,7 +313,7 @@ class Route
                             break;
 
                         default:
-                            throw new CoreException(tr('Unknown variable ":variable" found in target ":target"', array(':variable' => ':'.$variable, ':target' => ':'.$target)));
+                            throw new CoreException(tr('Unknown variable ":variable" found in target ":target"', array(':variable' => ':' . $variable, ':target' => ':' . $target)));
                     }
                 }
             }
@@ -329,10 +329,10 @@ class Route
                 foreach ($replacements[1] as $replacement) {
                     try{
                         if (!$replacement[0] or empty($matches[$replacement[0]])) {
-                            throw new CoreException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
+                            throw new CoreException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$' . $replacement[0], ':route' => $route)), 'invalid');
                         }
 
-                        $route = str_replace('$'.$replacement[0], $matches[$replacement[0]][0], $route);
+                        $route = str_replace('$' . $replacement[0], $matches[$replacement[0]][0], $route);
 
                     } catch (Exception $e) {
                         log_file(tr('Ignoring regex ":regex" because route ":route" has error ":e"', array(':regex' => $url_regex, ':route' => $route, ':e' => $e->getMessage())), 'route', 'yellow');
@@ -478,7 +478,7 @@ class Route
                                 break;
 
                             default:
-                                throw new CoreException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':'.$http_code, ':target' => ':'.$target)), 'invalid');
+                                throw new CoreException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':' . $http_code, ':target' => ':' . $target)), 'invalid');
                         }
 
                         /*
@@ -877,8 +877,8 @@ class Route
 
                     log_file(tr('Sending contents of file ":target" with mime-type ":type" directly to client', array(':target' => $target, ':type' => $mimetype)), 'route', 'cyan');
 
-                    header('Content-Type: '.$mimetype);
-                    header('Content-length: '.$bytes);
+                    header('Content-Type: ' . $mimetype);
+                    header('Content-length: ' . $bytes);
 
                     include($target);
                 }

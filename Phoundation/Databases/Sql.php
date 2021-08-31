@@ -841,7 +841,7 @@ class Sql
     //             * Add all in columns, but not in filter (usually to skip the id column)
     //             */
     //            if (in_array($key, $columns) and !in_array($key, $filter)) {
-    //                $retval[] = '`'.$key.'` = :'.$key;
+    //                $retval[] = '`' . $key.'` = :' . $key;
     //            }
     //        }
     //

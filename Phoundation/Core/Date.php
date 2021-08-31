@@ -212,7 +212,7 @@ class Date {
                 $min = new DateTime(Date::convert($min, 'y-m-d'));
                 $min = $min->getTimestamp();
 
-            }else{
+            } else {
                 $min = 1;
             }
 
@@ -220,7 +220,7 @@ class Date {
                 $max = new DateTime(Date::convert($max, 'y-m-d'));
                 $max = $max->getTimestamp();
 
-            }else{
+            } else {
                 $max = 2147483647;
             }
 
@@ -324,7 +324,7 @@ class Date {
             if (substr($interval, 0, 1) == '-') {
                 $date->sub(new DateInterval(substr($interval, 1)));
 
-            }else{
+            } else {
                 $date->add(new DateInterval($interval));
             }
 

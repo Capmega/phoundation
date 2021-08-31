@@ -1,8 +1,10 @@
 <?php
 
 use Phoundation\Core\Config;
+use Phoundation\Core\CoreException;
 use Phoundation\Core\Json;
 use Phoundation\Core\Json\Arrays;
+use Phoundation\Core\Json\Strings;
 use Phoundation\Exception\UnderConstructionException;
 
 /**
@@ -138,7 +140,7 @@ class Http
                                 /*
                                  * Origin is allowed from all sub domains
                                  */
-                                $origin = str_from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
+                                $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
                                 $length = strlen(isset_get($_SESSION['domain']));
 
                                 if (substr($origin, -$length, $length) === isset_get($_SESSION['domain'])) {
@@ -165,7 +167,7 @@ class Http
                             // FALLTHROUGH
                         case 'headers':
                             if ($value) {
-                                $headers[] = 'Access-Control-Allow-' . str_capitalize($key) . ': ' . $value;
+                                $headers[] = 'Access-Control-Allow-' . Strings::capitalize($key) . ': ' . $value;
                             }
 
                             break;
@@ -494,18 +496,18 @@ class Http
         global $_CONFIG, $core;
 
         try{
-            $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$etag);
+            $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $etag);
 
-            if(!$_CONFIG['cache']['http']['enabled']){
+            if (!$_CONFIG['cache']['http']['enabled']) {
                 return false;
             }
 
-            if($core->callType('ajax') or $core->callType('api')){
+            if ($core->callType('ajax') or $core->callType('api')) {
                 return false;
             }
 
-            if((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']){
-                if(empty($core->register['flash'])){
+            if ((strtotime(isset_get($_SERVER['HTTP_IF_MODIFIED_SINCE'])) == filemtime($_SERVER['SCRIPT_FILENAME'])) or trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
+                if (empty($core->register['flash'])) {
                     /*
                      * The client sent an etag which is still valid, no body (or anything else) necesary
                      */
@@ -515,7 +517,7 @@ class Http
 
             return true;
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new HttpException('http_cacheTest(): Failed', $e);
         }
     }
@@ -530,7 +532,7 @@ class Http
      * For more information, see https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
      * and https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching
      */
-    protected static function cacheEtag(){
+    protected static function cacheEtag() {
         global $_CONFIG, $core;
 
         try{
@@ -538,7 +540,7 @@ class Http
              * ETAG requires HTTP caching enabled
              * Ajax and API calls do not use ETAG
              */
-            if(!$_CONFIG['cache']['http']['enabled'] or $core->callType('ajax') or $core->callType('api')){
+            if (!$_CONFIG['cache']['http']['enabled'] or $core->callType('ajax') or $core->callType('api')) {
                 unset($core->register['etag']);
                 return false;
             }
@@ -546,11 +548,11 @@ class Http
             /*
              * Create local ETAG
              */
-            $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']).$core->register('etag'));
+            $core->register['etag'] = sha1(PROJECT.$_SERVER['SCRIPT_FILENAME'].filemtime($_SERVER['SCRIPT_FILENAME']) . $core->register('etag'));
 
 // :TODO: Document why we are trimming with an empty character mask... It doesn't make sense but something tells me we're doing this for a good reason...
-            if(trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']){
-                if(empty($core->register['flash'])){
+            if (trim(isset_get($_SERVER['HTTP_IF_NONE_MATCH']), '') == $core->register['etag']) {
+                if (empty($core->register['flash'])) {
                     /*
                      * The client sent an etag which is still valid, no body (or anything else) necesary
                      */
@@ -561,7 +563,7 @@ class Http
 
             return true;
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new HttpException('http_cacheEtag(): Failed', $e);
         }
     }
@@ -579,7 +581,7 @@ class Http
     public static function addVariable(string $url, string $key, int|float|string|array $value): string
     {
         try{
-            if(!$key or !$value){
+            if (!$key or !$value) {
                 return $url;
             }
 
@@ -589,7 +591,7 @@ class Http
 
             return $url.'?'.urlencode($key).'='.urlencode($value);
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new HttpException('http_add_variable(): Failed', $e);
         }
     }
@@ -608,57 +610,23 @@ class Http
     {
         try{
             throw new UnderConstructionException('Http::removeVariable() is under construction!');
-            //if(!$key){
+            //if (!$key) {
             //    return $url;
             //}
             //
-            //if($pos = strpos($url, $key.'=') === false){
+            //if ($pos = strpos($url, $key.'=') === false) {
             //    return $url;
             //}
             //
-            //if($pos2 = strpos($url, '&', $pos) === false){
+            //if ($pos2 = strpos($url, '&', $pos) === false) {
             //    return substr($url, 0, $pos).;
             //}
             //
             //return substr($url, 0, );
 
-        }catch(Exception $e){
+        }catch(Exception $e) {
             throw new HttpException('http_remove_variable(): Failed', $e);
         }
-    }
-
-
-
-    /**
-     * Return the specified URL with a redirect URL stored in $core->register['redirect']
-     *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package http
-     * @note If no URL is specified, the current URL will be used
-     * @see domain()
-     * @see core::register
-     * @see url_add_query()
-     *
-     * @param string $url
-     * @return string The specified URL (if not specified, the current URL) with $core->register['redirect'] added to it (if set)
-     */
-    function redirect_url(?string $url = null)
-    {
-        if(!$url){
-            /*
-             * Default to this page
-             */
-            $url = Url::getDomain(true);
-        }
-
-        if(empty($_GET['redirect'])){
-            return $url;
-        }
-
-        return Url::addToQuery($url, 'redirect='.urlencode($_GET['redirect']));
     }
 
 
@@ -682,56 +650,56 @@ class Http
     {
         global $_CONFIG;
 
-        if(PLATFORM != 'http'){
-            throw new BException(tr('redirect(): This function can only be called on webservers'));
+        if (PLATFORM != 'http') {
+            throw new CoreException(tr('redirect(): This function can only be called on webservers'));
         }
 
         /*
          * Special targets?
          */
-        if(($target === true) or ($target === 'self')){
+        if (($target === true) or ($target === 'self')) {
             /*
              * Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid "confirm post submissions"
              */
             $target = $_SERVER['REQUEST_URI'];
 
-        }elseif($target === 'prev'){
+        } elseif ($target === 'prev') {
             /*
              * Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid "confirm post submissions"
              */
             $target = isset_get($_SERVER['HTTP_REFERER']);
 
-            if(!$target or ($target == $_SERVER['REQUEST_URI'])){
+            if (!$target or ($target == $_SERVER['REQUEST_URI'])) {
                 /*
                  * Don't redirect to the same page! If the referrer was this page, then drop back to the index page
                  */
                 $target = $_CONFIG['redirects']['index'];
             }
 
-        }elseif($target === false){
+        } elseif ($target === false) {
             /*
              * Special redirect. Redirect to this very page, but without query
              */
-            $target = str_until($_SERVER['REQUEST_URI'], '?');
+            $target = Strings::until($_SERVER['REQUEST_URI'], '?');
 
-        }elseif(!$target){
+        } elseif (!$target) {
             /*
              * No target specified, redirect to index page
              */
             $target = $_CONFIG['redirects']['index'];
         }
 
-        if(empty($http_code)){
-            if(is_numeric($clear_session_redirect)){
+        if (empty($http_code)) {
+            if (is_numeric($clear_session_redirect)) {
                 $http_code              = $clear_session_redirect;
                 $clear_session_redirect = true;
 
-            }else{
+            } else {
                 $http_code              = 301;
             }
 
-        }else{
-            if(is_numeric($clear_session_redirect)){
+        } else {
+            if (is_numeric($clear_session_redirect)) {
                 $clear_session_redirect = true;
             }
         }
@@ -744,7 +712,7 @@ class Http
          * 303 See Other
          * 307 Temporary Redirect
          */
-        switch($http_code){
+        switch ($http_code) {
             case 301:
                 // FALLTHROUGH
             case 302:
@@ -758,30 +726,30 @@ class Http
                 break;
 
             default:
-                throw new BException(tr('redirect(): Invalid HTTP code ":code" specified', array(':code' => $http_code)), 'invalid-http-code');
+                throw new CoreException(tr('redirect(): Invalid HTTP code ":code" specified', array(':code' => $http_code)), 'invalid-http-code');
         }
 
-        if($clear_session_redirect){
-            if(!empty($_SESSION)){
+        if ($clear_session_redirect) {
+            if (!empty($_SESSION)) {
                 unset($_GET['redirect']);
                 unset($_SESSION['sso_referrer']);
             }
         }
 
-        if((substr($target, 0, 1) != '/') and (substr($target, 0, 7) != 'http://') and (substr($target, 0, 8) != 'https://')){
+        if ((substr($target, 0, 1) != '/') and (substr($target, 0, 7) != 'http://') and (substr($target, 0, 8) != 'https://')) {
             $target = $_CONFIG['url_prefix'].$target;
         }
 
-        $target = redirect_url($target);
+        $target = Url::redirect($target);
 
-        if($time_delay){
+        if ($time_delay) {
             log_file(tr('Redirecting with ":time" seconds delay to url ":url"', array(':time' => $time_delay, ':url' => $target)), null, 'cyan');
-            header('Refresh: '.$time_delay.';'.$target, true, $http_code);
+            header('Refresh: ' . $time_delay.';' . $target, true, $http_code);
             die();
         }
 
         log_file(tr('Redirecting to url ":url"', array(':url' => $target)), null, 'cyan');
-        header('Location:'.redirect_url($target), true, $http_code);
+        header('Location:' . Url::redirect($target), true, $http_code);
         die();
     }
 
@@ -790,24 +758,24 @@ class Http
      *
      * @param string $method
      * @param false $force
-     * @throws BException
+     * @throws CoreException
      */
     public static function sessionRedirect(string $method = 'http', bool $force = false)
     {
-        if(!empty($force)){
+        if (!empty($force)) {
             /*
              * Redirect by force value
              */
             $redirect = $force;
 
-        }elseif(!empty($_GET['redirect'])){
+        } elseif (!empty($_GET['redirect'])) {
             /*
              * Redirect by _GET redirect
              */
             $redirect = $_GET['redirect'];
             unset($_GET['redirect']);
 
-        }elseif(!empty($_GET['redirect'])){
+        } elseif (!empty($_GET['redirect'])) {
             /*
              * Redirect by _SESSION redirect
              */
@@ -817,7 +785,7 @@ class Http
             unset($_SESSION['sso_referrer']);
         }
 
-        switch($method){
+        switch ($method) {
             case 'json':
                 /*
                  * Send JSON redirect. json_reply() will end script, so no break needed
@@ -835,7 +803,57 @@ class Http
                 redirect($redirect);
 
             default:
-                throw new BException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
+                throw new CoreException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
+        }
+    }
+
+
+
+    /**
+     * Return $_POST[dosubmit] value, and reset it to be sure it won't be applied twice
+     *
+     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package http
+     *
+     * @return mixed The value found in $_POST['dosubmit']
+     */
+    public static function getSubmit() {
+        static $submit;
+
+        try{
+            if ($submit !== null) {
+                /*
+                 * We have a cached value
+                 */
+                return $submit;
+            }
+
+            /*
+             * Get submit value
+             */
+            if (empty($_POST['dosubmit'])) {
+                if (empty($_POST['multisubmit'])) {
+                    $submit = '';
+
+                } else {
+                    $submit = $_POST['multisubmit'];
+                    unset($_POST['multisubmit']);
+                }
+
+            } else {
+                $submit = $_POST['dosubmit'];
+                unset($_POST['dosubmit']);
+            }
+
+            $submit = strtolower($submit);
+
+            return $submit;
+
+        }catch(Exception $e) {
+            throw new CoreException('get_submit(): Failed', $e);
         }
     }
 }
