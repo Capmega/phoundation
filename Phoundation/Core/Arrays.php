@@ -378,11 +378,11 @@ class Arrays {
 
                     $retval[] .= $key.$key_separator.$row_separator.array_implode_with_keys($value, $row_separator, $key_separator, $auto_quote, $recurse);
 
-                }else{
+                } else {
                     if ($auto_quote) {
                         $retval[] .= $key.$key_separator.Strings::autoQuote($value);
 
-                    }else{
+                    } else {
                         $retval[] .= $key.$key_separator.$value;
                     }
                 }
@@ -423,7 +423,7 @@ class Arrays {
                     if (is_array($value) and array_key_exists($key, $retval) and is_array($retval[$key])) {
                         $retval[$key] = Arrays::mergeComplete($retval[$key], $value);
 
-                    }else{
+                    } else {
                         $retval[$key] = $value;
                     }
                 }
@@ -630,7 +630,7 @@ class Arrays {
                             continue;
                         }
 
-                    }else{
+                    } else {
                         continue;
                     }
                 }
@@ -693,7 +693,7 @@ class Arrays {
                     $next = true;
                     $retval[$key] = reset($values);
 
-                }else{
+                } else {
                     $retval[$key] = next($values);
                 }
             }
@@ -720,7 +720,7 @@ class Arrays {
                 if ($auto) {
                     $retval[$prefix.$count++] = $value;
 
-                }else{
+                } else {
                     $retval[$prefix.$key] = $value;
                 }
             }
@@ -773,7 +773,7 @@ class Arrays {
                 if (is_string($value)) {
                     $target[$key] = mb_trim($value);
 
-                }elseif ($value !== null) {
+                } elseif ($value !== null) {
                     $target[$key] = $value;
                 }
             }
@@ -1264,7 +1264,7 @@ class Arrays {
                             $source_value = Strings::hide($source_value, $hide, $empty);
                         }
 
-                    }else{
+                    } else {
                         if ($source_key === $key) {
                             $source_value = Strings::hide($source_value, $hide, $empty);
                         }
@@ -1400,7 +1400,7 @@ class Arrays {
             if (!$source) {
                 $source = array();
 
-            }elseif (!is_array($source)) {
+            } elseif (!is_array($source)) {
                 if (is_object($source)) {
                     throw new CoreException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
                 }
@@ -1422,7 +1422,7 @@ class Arrays {
                             $source[$key] = trim($source[$key], (is_bool($trim_existing) ? ' ' : $trim_existing));
                         }
 
-                    }else{
+                    } else {
                         $source[$key] = $default_value;
                     }
                 }

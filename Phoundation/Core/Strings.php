@@ -361,7 +361,7 @@ class Strings
                 $begin = mb_substr($source, 0, $end);
                 $end   = mb_substr($source, $end);
 
-            }else{
+            } else {
                 $begin = $source;
                 $end   = '';
             }
@@ -598,7 +598,7 @@ class Strings
                         $count++;
                     }
 
-                }else{
+                } else {
                     if (stripos($text, $keyword) !== false) {
                         if (!$has_all) {
                             /*
@@ -812,7 +812,7 @@ class Strings
                 if ($separator === 'json') {
                     $source = Json::encode($source);
 
-                }else{
+                } else {
                     $source = implode($separator, $source);
                 }
             }
@@ -926,7 +926,7 @@ class Strings
                 if (is_string($value)) {
                     $value = mb_trim($value);
 
-                }elseif (is_array($value)) {
+                } elseif (is_array($value)) {
                     if ($recurse) {
                         $value = str_trim_array($value);
                     }
@@ -1105,11 +1105,11 @@ class Strings
                     if ($first_uppercase) {
                         $character = strtoupper($character);
 
-                    }else{
+                    } else {
                         $character = strtolower($character);
                     }
 
-                }else{
+                } else {
                     $character = strtoupper($character);
                 }
 
@@ -1177,7 +1177,7 @@ class Strings
                         // Remove an element, set it's outertext as an empty string
                         $element->outertext = '';
 
-                    }else{
+                    } else {
                         $element->innertext = $plaintext;
                     }
                 }
@@ -1474,7 +1474,7 @@ class Strings
                     }
                 }
 
-            }else{
+            } else {
                 /*
                  * Check for only one character
                  */
@@ -1698,10 +1698,10 @@ class Strings
 
                     $source = mb_trim($json_encode($source));
 
-                }elseif (is_object($source) and ($source instanceof CoreException)) {
+                } elseif (is_object($source) and ($source instanceof CoreException)) {
                     $source = $source->getCode().' / '.$source->getMessage();
 
-                }else{
+                } else {
                     $source = mb_trim($json_encode($source));
                 }
             }

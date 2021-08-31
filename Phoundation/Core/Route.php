@@ -234,7 +234,7 @@ class Route
                         unset($exists);
                     }
 
-                }else{
+                } else {
                     log_file(tr('Not checking for static routes per N flag'), 'route', 'VERBOSE/yellow');
                 }
             }
@@ -530,7 +530,7 @@ class Route
                     return false;
                 }
 
-            }elseif ($get !== true) {
+            } elseif ($get !== true) {
                 /*
                  * Only allow specific query keys. First check all allowed query
                  * keys if they have actions specified
@@ -599,7 +599,7 @@ class Route
                 if (isset($core->register['Route::map']['language'])) {
                     $language = isset_get($matches[$core->register['Route::map']['language']][0]);
 
-                }else{
+                } else {
                     $language = isset_get($matches[1][0]);
                 }
 
@@ -619,7 +619,7 @@ class Route
                         unregister_shutdown('Route::shutdown');
                         Route::execute404();
 
-                    }else{
+                    } else {
                         /*
                          * Found a map for the requested language
                          */
@@ -662,7 +662,7 @@ class Route
                     $count++;
                     return false;
 
-                }else{
+                } else {
                     /*
                      * The hardcoded file for the regex does not exist, oops!
                      */
@@ -859,7 +859,7 @@ class Route
 
                 include($target);
 
-            }else{
+            } else {
                 if ($attachment) {
                     /*
                      * Upload the file to the client as an attachment
@@ -872,7 +872,7 @@ class Route
                         'file'         => $target,
                         'filename'     => basename($target)));
 
-                }else{
+                } else {
                     $mimetype = mime_content_type($target);
                     $bytes    = filesize($target);
 
@@ -1075,14 +1075,14 @@ class Route
             if ($route['regex']) {
                 $v->hasMaxChars($route['regex'], 255, tr('Please ensure regex is less than 255 characters'));
 
-            }else{
+            } else {
                 $route['regex'] = '';
             }
 
             if ($route['target']) {
                 $v->hasMaxChars($route['target'], 255, tr('Please ensure target is less than 255 characters'));
 
-            }else{
+            } else {
                 $route['target'] = '';
             }
 
