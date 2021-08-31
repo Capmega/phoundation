@@ -154,4 +154,35 @@ class Debug {
 
         return isset_get($backtrace[$trace + 1]['line'], -1);
     }
+
+
+
+    /**
+     * Show the given value on screen.
+     *
+     * In command line and API type modes, the value will be displayed using print_r(),
+     * in web page mode, the value will be nicely displayed in a recursive table
+     *
+     * @param mixed $value
+     */
+    public static function show(mixed $value): void
+    {
+
+    }
+
+
+
+    /**
+     * Show the given value on screen, then die.
+     *
+     * In command line and API type modes, the value will be displayed using print_r(),
+     * in web page mode, the value will be nicely displayed in a recursive table
+     *
+     * @param mixed $value
+     */
+    public static function showDie(mixed $value): void
+    {
+        self::show($value);
+        die();
+    }
 }
