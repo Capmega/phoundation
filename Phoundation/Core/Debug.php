@@ -1,30 +1,76 @@
 <?php
 
+use Phoundation\Core\Config;
+
 /**
  * Class Debug
+ *
+ * This class contains the basic debug methods for use in Phoundation
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @package Phoundation\Core
  */
 class Debug {
     /**
-     * Returns a backtrace
+     * Sets or returns if the system is running in debug mode or not
      *
-     * @return array
+     * @param bool|null $enabled
+     * @return bool
      */
-    public static function backtrace(string $filters = 'args', bool $skip_own = true): array
+    public static function enabled(?bool $enabled = null): bool
     {
-        if(!debug()){
-            return array();
+        if ($enabled === null) {
+            // Return the setting
+            return (bool) Config::get('debug.enabled', false);
         }
 
-        $filters = array_force($filters);
-        $trace   = array();
+        // Make the setting
+        Config::set('debug.enabled', $enabled);
+        return $enabled;
+    }
+
+
+
+    /**
+     * Sets or returns if the system is running in production mode or not
+     *
+     * @param bool|null $production
+     * @return bool
+     */
+    public static function production(?bool $production = null): bool
+    {
+        if ($production === null) {
+            // Return the setting
+            return (bool) Config::get('debug.production', false);
+        }
+
+        // Make the setting
+        Config::set('debug.production', $production);
+        return $production;
+    }
+
+
+
+    /**
+     * Returns a backtrace
+     *
+     * @param array|string[] $remove_sections
+     * @param bool $skip_own
+     * @return array
+     */
+    public static function backtrace(array $remove_sections = ['args'], bool $skip_own = true): array
+    {
+        $trace = array();
 
         foreach(debug_backtrace() as $key => $value){
             if($skip_own and ($key <= 1)){
                 continue;
             }
 
-            foreach($filters as $filter){
-                unset($value[$filter]);
+            foreach($remove_sections as $section){
+                unset($value[$section]);
             }
 
             $trace[] = $value;
