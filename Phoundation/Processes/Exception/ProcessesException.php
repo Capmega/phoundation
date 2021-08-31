@@ -1,19 +1,19 @@
 <?php
 
-namespace Phoundation\PRocesses\Exception;
+namespace Phoundation\Processes\Exception;
 
 use Phoundation\Exception\Exception;
 
 /**
- * Class PRocessesException
+ * Class ProcessesException
  *
- * This is the basic exception for all Phoundation PRocesses classes
+ * This is the basic exception for all Phoundation Processes classes
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @package Phoundation\Databases
  */
-class PRocessesException extends Exception
+class ProcessesException extends Exception
 {
 }
