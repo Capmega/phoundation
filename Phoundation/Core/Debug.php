@@ -82,6 +82,25 @@ class Debug {
 
 
     /**
+     * Returns the class name from where this call was made
+     *
+     * @param int $trace
+     * @return string
+     */
+    public static function currentClass(int $trace = 0): string
+    {
+        $backtrace = debug_backtrace();
+
+        if(!isset($backtrace[$trace + 1])){
+            return -1;
+        }
+
+        return isset_get($backtrace[$trace + 1]['class'], '-');
+    }
+
+
+
+    /**
      * Returns the filename from where this call was made
      *
      * @param int $trace
@@ -101,7 +120,7 @@ class Debug {
 
 
     /**
-     * Returns the line number from where this call was made
+     * Returns the function name from where this call was made
      *
      * @param int $trace
      * @return string
