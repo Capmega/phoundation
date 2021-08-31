@@ -2,7 +2,7 @@
   "name": "capmega/phoundation",
   "description": "The phoundation PHP framework",
   "require": {
-    "php": "^8.0.0",
+    "php": "^7.4.0",
     "ext-json": "*",
     "ext-memcached": "*",
     "ext-mongodb": "*",
