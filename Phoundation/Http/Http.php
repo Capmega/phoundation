@@ -1,7 +1,9 @@
 <?php
 
 use Phoundation\Core\Config;
+use Phoundation\Core\Json;
 use Phoundation\Core\Json\Arrays;
+use Phoundation\Exception\UnderConstructionException;
 
 /**
  * Class Http
@@ -73,7 +75,7 @@ class Http
             /*
              * Create ETAG, possibly send out HTTP304 if client sent matching ETAG
              */
-            http_cacheEtag();
+            Http::cacheEtag();
 
             Arrays::params($params, null, 'http_code', null);
             Arrays::default($params, 'http_code', $core->register['http_code']);
@@ -103,10 +105,10 @@ class Http
 
             if ($params['http_code'] == 200) {
                 if (empty($params['last_modified'])) {
-                    $headers[] = 'Last-Modified: ' . date_convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
+                    $headers[] = 'Last-Modified: ' . Date::convert(filemtime($_SERVER['SCRIPT_FILENAME']), 'D, d M Y H:i:s', 'GMT') . ' GMT';
 
                 } else {
-                    $headers[] = 'Last-Modified: ' . date_convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
+                    $headers[] = 'Last-Modified: ' . Date::convert($params['last_modified'], 'D, d M Y H:i:s', 'GMT') . ' GMT';
                 }
             }
 
@@ -393,12 +395,13 @@ class Http
      * @param array $params The caching parameters
      * @param int $http_code The HTTP code that will be sent to the client
      * @param array $headers Any extra headers that are required
-     * @return void
+     * @return array
+     *
      * @todo Remove $params dependancy
      * @todo Remove $core dependancy
      * @todo Remove $_CONFIG dependancy
      */
-    protected static function cache(array $params, int $http_code, array $headers = []): void
+    protected static function cache(array $params, int $http_code, array $headers = []): array
     {
         global $_CONFIG, $core;
 
@@ -559,19 +562,52 @@ class Http
             return true;
 
         }catch(Exception $e){
-            throw new BException('http_cacheEtag(): Failed', $e);
+            throw new HttpException('http_cacheEtag(): Failed', $e);
+        }
+    }
+
+
+    /**
+     * Add a variable to the specified URL
+     *
+     * @param $url
+     * @param $key
+     * @param $value
+     * @return mixed|string
+     * @throws HttpException
+     */
+    public static function addVariable(string $url, string $key, int|float|string|array $value): string
+    {
+        try{
+            if(!$key or !$value){
+                return $url;
+            }
+
+            if (str_contains($url, '?')) {
+                return $url.'&'.urlencode($key).'='.urlencode($value);
+            }
+
+            return $url.'?'.urlencode($key).'='.urlencode($value);
+
+        }catch(Exception $e){
+            throw new HttpException('http_add_variable(): Failed', $e);
         }
     }
 
 
 
-    /*
+    /**
      * Remove a variable from the specified URL
+     *
+     * @param string $url
+     * @param string $key
+     * @return string
+     * @throws HttpException
      */
-    public static function remove_variable(string $url, string $key): string
+    public static function removeVariable(string $url, string $key): string
     {
         try{
-            throw new BException('http_remove_variable() is under construction!');
+            throw new UnderConstructionException('Http::removeVariable() is under construction!');
             //if(!$key){
             //    return $url;
             //}
@@ -587,7 +623,219 @@ class Http
             //return substr($url, 0, );
 
         }catch(Exception $e){
-            throw new BException('http_remove_variable(): Failed', $e);
+            throw new HttpException('http_remove_variable(): Failed', $e);
+        }
+    }
+
+
+
+    /**
+     * Return the specified URL with a redirect URL stored in $core->register['redirect']
+     *
+     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package http
+     * @note If no URL is specified, the current URL will be used
+     * @see domain()
+     * @see core::register
+     * @see url_add_query()
+     *
+     * @param string $url
+     * @return string The specified URL (if not specified, the current URL) with $core->register['redirect'] added to it (if set)
+     */
+    function redirect_url(?string $url = null)
+    {
+        if(!$url){
+            /*
+             * Default to this page
+             */
+            $url = Url::getDomain(true);
+        }
+
+        if(empty($_GET['redirect'])){
+            return $url;
+        }
+
+        return Url::addToQuery($url, 'redirect='.urlencode($_GET['redirect']));
+    }
+
+
+
+    /**
+     * Redirect to the specified $target
+     *
+     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package http
+     *
+     * @param string $target
+     * @param integer $http_code
+     * @param boolean $clear_session_redirect
+     * @param integer $time_delay
+     * @return void (dies)
+     */
+    public static function redirect(string $target = '', ?int $http_code = null, bool $clear_session_redirect = true, ?int $time_delay = null): void
+    {
+        global $_CONFIG;
+
+        if(PLATFORM != 'http'){
+            throw new BException(tr('redirect(): This function can only be called on webservers'));
+        }
+
+        /*
+         * Special targets?
+         */
+        if(($target === true) or ($target === 'self')){
+            /*
+             * Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid "confirm post submissions"
+             */
+            $target = $_SERVER['REQUEST_URI'];
+
+        }elseif($target === 'prev'){
+            /*
+             * Special redirect. Redirect to this very page. Usefull for right after POST requests to avoid "confirm post submissions"
+             */
+            $target = isset_get($_SERVER['HTTP_REFERER']);
+
+            if(!$target or ($target == $_SERVER['REQUEST_URI'])){
+                /*
+                 * Don't redirect to the same page! If the referrer was this page, then drop back to the index page
+                 */
+                $target = $_CONFIG['redirects']['index'];
+            }
+
+        }elseif($target === false){
+            /*
+             * Special redirect. Redirect to this very page, but without query
+             */
+            $target = str_until($_SERVER['REQUEST_URI'], '?');
+
+        }elseif(!$target){
+            /*
+             * No target specified, redirect to index page
+             */
+            $target = $_CONFIG['redirects']['index'];
+        }
+
+        if(empty($http_code)){
+            if(is_numeric($clear_session_redirect)){
+                $http_code              = $clear_session_redirect;
+                $clear_session_redirect = true;
+
+            }else{
+                $http_code              = 301;
+            }
+
+        }else{
+            if(is_numeric($clear_session_redirect)){
+                $clear_session_redirect = true;
+            }
+        }
+
+        /*
+         * Validate the specified http_code, must be one of
+         *
+         * 301 Moved Permanently
+         * 302 Found
+         * 303 See Other
+         * 307 Temporary Redirect
+         */
+        switch($http_code){
+            case 301:
+                // FALLTHROUGH
+            case 302:
+                // FALLTHROUGH
+            case 303:
+                // FALLTHROUGH
+            case 307:
+                /*
+                 * All valid
+                 */
+                break;
+
+            default:
+                throw new BException(tr('redirect(): Invalid HTTP code ":code" specified', array(':code' => $http_code)), 'invalid-http-code');
+        }
+
+        if($clear_session_redirect){
+            if(!empty($_SESSION)){
+                unset($_GET['redirect']);
+                unset($_SESSION['sso_referrer']);
+            }
+        }
+
+        if((substr($target, 0, 1) != '/') and (substr($target, 0, 7) != 'http://') and (substr($target, 0, 8) != 'https://')){
+            $target = $_CONFIG['url_prefix'].$target;
+        }
+
+        $target = redirect_url($target);
+
+        if($time_delay){
+            log_file(tr('Redirecting with ":time" seconds delay to url ":url"', array(':time' => $time_delay, ':url' => $target)), null, 'cyan');
+            header('Refresh: '.$time_delay.';'.$target, true, $http_code);
+            die();
+        }
+
+        log_file(tr('Redirecting to url ":url"', array(':url' => $target)), null, 'cyan');
+        header('Location:'.redirect_url($target), true, $http_code);
+        die();
+    }
+
+    /**
+     * Redirect if the session redirector is set
+     *
+     * @param string $method
+     * @param false $force
+     * @throws BException
+     */
+    public static function sessionRedirect(string $method = 'http', bool $force = false)
+    {
+        if(!empty($force)){
+            /*
+             * Redirect by force value
+             */
+            $redirect = $force;
+
+        }elseif(!empty($_GET['redirect'])){
+            /*
+             * Redirect by _GET redirect
+             */
+            $redirect = $_GET['redirect'];
+            unset($_GET['redirect']);
+
+        }elseif(!empty($_GET['redirect'])){
+            /*
+             * Redirect by _SESSION redirect
+             */
+            $redirect = $_GET['redirect'];
+
+            unset($_GET['redirect']);
+            unset($_SESSION['sso_referrer']);
+        }
+
+        switch($method){
+            case 'json':
+                /*
+                 * Send JSON redirect. json_reply() will end script, so no break needed
+                 */
+                Json::reply(isset_get($redirect, '/'), 'redirect');
+
+            case 'http':
+                /*
+                 * Send HTTP redirect. redirect() will end script, so no break
+                 * needed
+                 *
+                 * Also, no need to unset SESSION redirect and sso_referrer,
+                 * since redirect() will also do this
+                 */
+                redirect($redirect);
+
+            default:
+                throw new BException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
         }
     }
 }
