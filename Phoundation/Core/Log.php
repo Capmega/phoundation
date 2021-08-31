@@ -107,7 +107,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function warning(string $message, int $level): bool
+    public function information(string $message, int $level): bool
     {
 
     }
@@ -121,7 +121,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function warning(string $message, int $level): bool
+    public function debug(string $message, int $level): bool
     {
 
     }
@@ -135,7 +135,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function warning(string $message, int $level): bool
+    public function deprecated(string $message, int $level): bool
     {
 
     }
@@ -149,7 +149,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function warning(string $message, int $level): bool
+    public function hex(string $message, int $level): bool
     {
 
     }
@@ -163,7 +163,63 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function warning(string $message, int $level): bool
+    public function checkpoint(?string $message, int $level): bool
+    {
+
+    }
+
+
+
+    /**
+     * Write a success warning to the log file
+     *
+     * @param string $message
+     * @param int $level
+     * @return bool
+     */
+    public function printr(string $message, int $level): bool
+    {
+
+    }
+
+
+
+    /**
+     * Write a success warning to the log file
+     *
+     * @param string $message
+     * @param int $level
+     * @return bool
+     */
+    public function vardump(string $message, int $level): bool
+    {
+
+    }
+
+
+
+    /**
+     * Write a success warning to the log file
+     *
+     * @param string $message
+     * @param int $level
+     * @return bool
+     */
+    public function backtrace(string $message, int $level): bool
+    {
+
+    }
+
+
+
+    /**
+     * Write a success warning to the log file
+     *
+     * @param string $message
+     * @param int $level
+     * @return bool
+     */
+    public function statistics(string $message, int $level): bool
     {
 
     }
