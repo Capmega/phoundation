@@ -1446,7 +1446,7 @@ class Sql
      * @param
      * @return
      */
-    public static function exists($table, $column, $value, $id = null)
+    public static function rowExists($table, $column, $value, $id = null)
     {
         try {
             if ($id) {
@@ -1456,7 +1456,7 @@ class Sql
             return Sql::get('SELECT `id` FROM `' . $table . '` WHERE `' . $column . '` = :' . $column . '', true, array($column => $value));
 
         } catch (Exception $e) {
-            throw new SqlException(tr('Sql::exists(): Failed'), $e);
+            throw new SqlException(tr('Sql::rowExists(): Failed'), $e);
         }
     }
 
@@ -2107,13 +2107,26 @@ class Sql
     }
 
 
+
     /**
+     * Access the Simple SQL class
      *
-     *
-     * @return SimpleSql
+     * @return SqlSimple
      */
-    public static function simple(): SimpleSql
+    public static function simple(): SqlSimple
     {
-        return new SimpleSql(self);
+        return new SqlSimple(self);
+    }
+
+
+
+    /**
+     * Access the SQL "exists" class
+     *
+     * @return SqlExists
+     */
+    public static function exists(): SqlExists
+    {
+        return new SqlExists(self);
     }
 }
