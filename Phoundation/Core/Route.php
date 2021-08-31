@@ -3,8 +3,10 @@
 namespace Phoundation\Core;
 
 use Exception;
-use Phoundation\Core\CoreException\CoreException;
-use Phoundation\Core\Json\Arrays;
+use Phoundation\Databases\Sql;
+use Phoundation\Filesystem\File;
+use Phoundation\Http\Http;
+use Phoundation\Http\Url;
 
 /**
  * Class Route
@@ -126,7 +128,7 @@ class Route
      * /code
      *
      */
-    public function add(string $url_regex, string $target, string $flags = null): bool
+    public static function add(string $url_regex, string $target, string $flags = null): bool
     {
         global $_CONFIG, $core;
 
@@ -142,7 +144,7 @@ class Route
              */
             if (!$init) {
                 $init = true;
-                log_file(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
+                Log::notice(tr('Processing ":domain" routes for ":type" type request ":url" from client ":client"', array(':domain' => $_CONFIG['domain'], ':type' => $type, ':url' => $_SERVER['REQUEST_SCHEME'].'://' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], ':client' => $_SERVER['REMOTE_ADDR'].(empty($_SERVER['HTTP_X_REAL_IP']) ? '' : ' (Real IP: ' . $_SERVER['HTTP_X_REAL_IP'].')'))), 'route', 'white');
                 register_shutdown('Route::shutdown');
             }
 
@@ -168,7 +170,7 @@ class Route
             $uri   = str_until($uri                        , '?');
 
             if (strlen($uri) > 2048) {
-                log_file(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See route() function). 404-ing the request', array(':uri' => $uri, ':count' => strlen($uri))), 'route', 'yellow');
+                Log::warning(tr('Requested URI ":uri" has ":count" characters, where 2048 is a hardcoded limit (See route() function). 404-ing the request', array(':uri' => $uri, ':count' => strlen($uri))), 'route', 'yellow');
                 Route::execute404();
             }
 
@@ -189,14 +191,14 @@ class Route
                          * Include domain in match
                          */
                         $uri = $_SERVER['HTTP_HOST'].$uri;
-                        log_file(tr('Adding complete HTTP_HOST in match for URI ":uri"', array(':uri' => $uri)), 'route', 'VERYVERBOSE/green');
+                        Log::notice(tr('Adding complete HTTP_HOST in match for URI ":uri"', array(':uri' => $uri)));
                         break;
 
                     case 'M':
                         $uri .= '?' . $query;
-                        log_file(tr('Adding query to URI ":uri"', array(':uri' => $uri)), 'route', 'VERYVERBOSE/green');
+                        Log::notice(tr('Adding query to URI ":uri"', array(':uri' => $uri)), 'route');
 
-                        if (!str_exists(str_force($flags), 'Q')) {
+                        if (!str_contains(Strings::force($flags), 'Q')) {
                             /*
                              * Auto imply Q
                              */
@@ -221,7 +223,7 @@ class Route
                         /*
                          * Apply semi-permanent routing for this IP
                          */
-                        log_file(tr('Found active static routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', array(':ip' => $ip, ':uri' => $exists['uri'], ':regex' => $exists['regex'], ':target' => $exists['target'], ':flags' => $exists['flags'])), 'route', 'yellow');
+                        Log::warning(tr('Found active static routing for IP ":ip", continuing routing as if request is URI ":uri" with regex ":regex", target ":target", and flags ":flags" instead', [':ip' => $ip, ':uri' => $exists['uri'], ':regex' => $exists['regex'], ':target' => $exists['target'], ':flags' => $exists['flags']]));
 
                         $uri    = $exists['uri'];
                         $url_regex = $exists['regex'];
@@ -234,7 +236,7 @@ class Route
                     }
 
                 } else {
-                    log_file(tr('Not checking for static routes per N flag'), 'route', 'VERBOSE/yellow');
+                    Log::warning(tr('Not checking for static routes per N flag'));
                 }
             }
 
@@ -242,7 +244,7 @@ class Route
              * Match the specified regex. If there is no match, there is nothing
              * else to do for us here
              */
-            log_file(tr('Testing rule ":count" ":regex" on ":type" ":url"', array(':count' => $count, ':regex' => $url_regex, ':type' => $type, ':url' => $uri)), 'route', 'VERYVERBOSE/cyan');
+            Log::notice(tr('Testing rule ":count" ":regex" on ":type" ":url"', [':count' => $count, ':regex' => $url_regex, ':type' => $type, ':url' => $uri]));
 
             $match = preg_match_all($url_regex, $uri, $matches);
 
@@ -252,7 +254,7 @@ class Route
             }
 
             if (VERBOSE) {
-                log_file(tr('Regex ":count" ":regex" matched with matches ":matches"', array(':count' => $count, ':regex' => $url_regex, ':matches' => $matches)), 'route', 'green');
+                Log::success(tr('Regex ":count" ":regex" matched with matches ":matches"', array(':count' => $count, ':regex' => $url_regex, ':matches' => $matches)), 'route', 'green');
             }
 
             $route        = $target;
@@ -335,11 +337,11 @@ class Route
                         $route = str_replace('$' . $replacement[0], $matches[$replacement[0]][0], $route);
 
                     } catch (Exception $e) {
-                        log_file(tr('Ignoring regex ":regex" because route ":route" has error ":e"', array(':regex' => $url_regex, ':route' => $route, ':e' => $e->getMessage())), 'route', 'yellow');
+                        Log::warning(tr('Ignoring regex ":regex" because route ":route" has error ":e"', [':regex' => $url_regex, ':route' => $route, ':e' => $e->getMessage()]));
                     }
                 }
 
-                if (str_exists($route, '$')) {
+                if (str_contains($route, '$')) {
                     /*
                      * There are regex variables left that were not replaced.
                      * Replace them with nothing
@@ -369,25 +371,20 @@ class Route
                         break;
 
                     case 'B':
-                        /*
-                         * Block this request, send nothing
-                         */
-                        log_file(tr('Blocking request as per B flag'), 'route', 'VERBOSE/warning');
+                        // Block this request, send nothing
+                        Log::warning(tr('Blocking request as per B flag'));
                         unregister_shutdown('Route::shutdown');
                         $block = true;
                         break;
 
                     case 'C':
-                        /*
-                         * URL cloaking was used. See if we have a real URL behind
-                         * the specified cloak
-                         */
+                        // URL cloaking was used. See if we have a real URL behind the specified cloak
                         load_libs('url');
 
-                        $_SERVER['REQUEST_URI'] = url_decloak($route);
+                        $_SERVER['REQUEST_URI'] = Url::decloak($route);
 
                         if (!$_SERVER['REQUEST_URI']) {
-                            log_file(tr('Specified cloaked URL ":cloak" does not exist, cancelling match', array(':cloak' => $route)), 'route', 'VERYVERBOSE');
+                            Log::warning(tr('Specified cloaked URL ":cloak" does not exist, cancelling match', [':cloak' => $route]));
 
                             $count++;
                             return false;
@@ -396,18 +393,18 @@ class Route
                         $_SERVER['REQUEST_URI'] = str_from($_SERVER['REQUEST_URI'], '://');
                         $_SERVER['REQUEST_URI'] = str_from($_SERVER['REQUEST_URI'], '/');
 
-                        log_file(tr('Redirecting cloaked URL ":cloak" internally to ":url"', array(':cloak' => $route, ':url' => $_SERVER['REQUEST_URI'])), 'route', 'VERYVERBOSE');
+                        Log::notice(tr('Redirecting cloaked URL ":cloak" internally to ":url"', [':cloak' => $route, ':url' => $_SERVER['REQUEST_URI']]));
 
                         $count = 1;
                         unset($flags[$flags_id]);
-                        Route::exec(current_file(1), $attachment, $restrictions);
+                        Route::exec(Debug::currentFile(1), $attachment, $restrictions);
 
                     case 'G':
                         /*
                          * MUST be a GET reqest, NO POST data allowed!
                          */
                         if (!empty($_POST)) {
-                            log_file(tr('Matched route ":route" allows only GET requests, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
+                            Log::notice(tr('Matched route ":route" allows only GET requests, cancelling match', [':route' => $route]));
 
                             $count++;
                             return false;
@@ -416,14 +413,18 @@ class Route
                         break;
 
                     case 'H':
-                        log_file(tr('*POSSIBLE HACK ATTEMPT DETECTED*'), 'route', 'yellow');
-                        notify(array('code'    => 'hack',
+                        Log::notice(tr('*POSSIBLE HACK ATTEMPT DETECTED*'));
+                        notify([
+                            'code'    => 'hack',
                             'class'   => 'hack',
                             'title'   => tr('*Possible hack attempt detected*'),
-                            'message' => tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', array(':ip'      => $ip,
+                            'message' => tr('The IP address ":ip" made the request ":request" which was matched by regex ":regex" with flags ":flags" and caused this notification', [
+                                ':ip'      => $ip,
                                 ':request' => $uri,
                                 ':regex'   => $url_regex,
-                                ':flags'   => $flags))));
+                                ':flags'   => $flags
+                            ])
+                        ]);
                         break;
 
                     case 'L':
@@ -438,7 +439,7 @@ class Route
                          * MUST be a POST reqest, NO EMPTY POST data allowed!
                          */
                         if (empty($_POST)) {
-                            log_file(tr('Matched route ":route" allows only POST requests, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE');
+                            Log::notice(tr('Matched route ":route" allows only POST requests, cancelling match', [':route' => $route]));
 
                             $count++;
                             return false;
@@ -485,10 +486,10 @@ class Route
                          * We are going to redirect so we no longer need to default
                          * to 404
                          */
-                        load_libs('inet');
-                        log_file(tr('Redirecting to ":route" with HTTP code ":code"', array(':route' => $route, ':code' => $http_code)), 'route', 'VERYVERBOSE/cyan');
+                        Log::success(tr('Redirecting to ":route" with HTTP code ":code"', [':route' => $route, ':code' => $http_code]));
                         unregister_shutdown('Route::shutdown');
-                        redirect(url_add_query($route, $_GET), $http_code);
+                        Http::redirect(Url::addToQuery($route, $_GET), $http_code);
+                        break;
 
                     case 'S':
                         $until = substr($flag, 1);
@@ -523,7 +524,7 @@ class Route
                      * Client specified variables on a URL that does not allow
                      * queries, cancel the match
                      */
-                    log_file(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', array(':route' => $route)), 'route', 'VERYVERBOSE/yellow');
+                    Log::warning(tr('Matched route ":route" does not allow query variables while client specified them, cancelling match', [':route' => $route]));
 
                     $count++;
                     return false;
@@ -535,7 +536,7 @@ class Route
                  * keys if they have actions specified
                  */
                 foreach ($get as $key => $value) {
-                    if (str_exists($key, '=')) {
+                    if (str_contains($key, '=')) {
                         /*
                          * Regenerate the key as a $key => $value instead of $key=$value => null
                          */
@@ -552,7 +553,7 @@ class Route
                      * This key must be allowed, or we're done
                      */
                     if (empty($get[$key])) {
-                        log_file(tr('Matched route ":route" contains GET key ":key" which is not specifically allowed, cancelling match', array(':route' => $route, ':key' => $key)), 'route', 'VERYVERBOSE/yellow');
+                        Log::warning(tr('Matched route ":route" contains GET key ":key" which is not specifically allowed, cancelling match', [':route' => $route, ':key' => $key]));
 
                         $count++;
                         return false;
@@ -573,7 +574,7 @@ class Route
                             $domain = domain(true);
                             $domain = str_until($domain, '?');
 
-                            log_file(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', array(':route' => $route, ':key' => $key)), 'route', 'VERYVERBOSE/yellow');
+                            Log::warning(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', [':route' => $route, ':key' => $key]));
                             unregister_shutdown('Route::shutdown');
                             redirect($domain);
                     }
@@ -614,7 +615,7 @@ class Route
                      * Check if route map has the requested language
                      */
                     if (empty($core->register['Route::map'][$language])) {
-                        log_file(tr('Requested language ":language" does not have a language map available', array(':language' => $language)), 'route', 'yellow');
+                        Log::warning(tr('Requested language ":language" does not have a language map available', [':language' => $language]));
                         unregister_shutdown('Route::shutdown');
                         Route::execute404();
 
@@ -622,7 +623,7 @@ class Route
                         /*
                          * Found a map for the requested language
                          */
-                        log_file(tr('Attempting to remap for language ":language"', array(':language' => $language)), 'route', 'VERBOSE/cyan');
+                        Log::notice(tr('Attempting to remap for language ":language"', [':language' => $language]));
 
                         foreach ($core->register['Route::map'][$language] as $unknown => $remap) {
                             if (strpos($page, $unknown) !== false) {
@@ -632,12 +633,12 @@ class Route
                         }
 
                         if (!file_exists($page)) {
-                            log_file(tr('Language remapped page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
+                            Log::warning(tr('Language remapped page ":page" does not exist', [':page' => $page]));
                             unregister_shutdown('Route::shutdown');
                             Route::execute404();
                         }
 
-                        log_file(tr('Found remapped page ":page"', array(':page' => $page)), 'route', 'VERBOSE/green');
+                        Log::success(tr('Found remapped page ":page"', [':page' => $page]));
                     }
 
                     if (!$translated) {
@@ -645,7 +646,7 @@ class Route
                          * Page was not translated, ie its still the original and
                          * no translation was found.
                          */
-                        log_file(tr('Requested language ":language" does not have a translation available in the language map for page ":page"', array(':language' => $language, ':page' => $page)), 'route', 'yellow');
+                        Log::warning(tr('Requested language ":language" does not have a translation available in the language map for page ":page"', [':language' => $language, ':page' => $page]));
                         unregister_shutdown('Route::shutdown');
                         Route::execute404();
                     }
@@ -657,7 +658,7 @@ class Route
              */
             if (!file_exists($page) and !$block) {
                 if (isset($dynamic_pagematch)) {
-                    log_file(tr('Dynamically matched page ":page" does not exist', array(':page' => $page)), 'route', 'VERBOSE/yellow');
+                    Log::warning(tr('Dynamically matched page ":page" does not exist', [':page' => $page]));
                     $count++;
                     return false;
 
@@ -665,7 +666,7 @@ class Route
                     /*
                      * The hardcoded file for the regex does not exist, oops!
                      */
-                    log_file(tr('Matched hard coded page ":page" does not exist', array(':page' => $page)), 'route', 'yellow');
+                    Log::warning(tr('Matched hard coded page ":page" does not exist', [':page' => $page]));
                     unregister_shutdown('Route::shutdown');
                     Route::execute404();
                 }
@@ -806,13 +807,14 @@ class Route
      * @param null array $map The language mapping array
      * @return void
      */
-    public function map(string $language, array $map) {
+    public static function map(string $language, array $map) {
         /*
          * Set specific language map
          */
-        log_file(tr('Setting specified URL map'), 'route', 'VERYVERBOSE/cyan');
+        Log::notice(tr('Setting specified URL map'));
         Core::register($map, 'route', 'map');
     }
+
 
 
     /**
@@ -835,7 +837,7 @@ class Route
      * @param array $restrictions If specified, apply the specified file system restrictions, which may block the request if the requested file is outside of these restrictions
      * @return void
      */
-    protected function execute(string $target, bool $attachment, array $restrictions): void
+    protected static function execute(string $target, bool $attachment, array $restrictions): void
     {
         global $_CONFIG, $core;
 
@@ -847,7 +849,7 @@ class Route
                     throw new CoreException(tr('Route::exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
                 }
 
-                log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'cyan');
+                Log::notice(tr('Executing page ":target"', [':target' => $target]));
 
                 /*
                  * Auto start the phoundation core
@@ -865,8 +867,8 @@ class Route
                      */
                     $target = file_absolute(unslash($target), ROOT.'www/');
 
-                    log_file(tr('Sending file ":target" as attachment', array(':target' => $target)), 'route', 'cyan');
-                    file_http_download(array('restrictions' => $restrictions,
+                    Log::success(tr('Sending file ":target" as attachment', [':target' => $target]));
+                    File::httpDownload(array('restrictions' => $restrictions,
                         'attachment'   => $attachment,
                         'file'         => $target,
                         'filename'     => basename($target)));
@@ -875,7 +877,7 @@ class Route
                     $mimetype = mime_content_type($target);
                     $bytes    = filesize($target);
 
-                    log_file(tr('Sending contents of file ":target" with mime-type ":type" directly to client', array(':target' => $target, ':type' => $mimetype)), 'route', 'cyan');
+                    Log::success(tr('Sending contents of file ":target" with mime-type ":type" directly to client', [':target' => $target, ':type' => $mimetype]));
 
                     header('Content-Type: ' . $mimetype);
                     header('Content-length: ' . $bytes);
@@ -890,6 +892,7 @@ class Route
             throw new CoreException(tr('Route::exec(): Failed to execute page ":target"', array(':target' => $target)), $e);
         }
     }
+
 
 
     /**
@@ -907,7 +910,7 @@ class Route
      *
      * @return void
      */
-    function shutdown() {
+    protected static function shutdown() {
         global $_CONFIG;
 
         try{
@@ -915,7 +918,7 @@ class Route
              * Test the URI for known hacks. If so, apply configured response
              */
             if ($_CONFIG['route']['known_hacks']) {
-                log_console(tr('Applying known hacking rules'), 'VERBOSE/yellow');
+                Log::warning(tr('Applying known hacking rules'));
 
                 foreach ($_CONFIG['route']['known_hacks'] as $hacks) {
                     route($hacks['regex'], isset_get($hacks['url']), isset_get($hacks['flags']));
@@ -928,6 +931,7 @@ class Route
             throw new CoreException(tr('Route::shutdown(): Failed'), $e);
         }
     }
+
 
 
     /**
@@ -946,7 +950,7 @@ class Route
      *
      * @return void
      */
-    protected function execute404(): void
+    protected static function execute404(): void
     {
         global $core, $_CONFIG;
 
@@ -966,7 +970,7 @@ class Route
 
         } catch (Exception $e) {
             if ($e->getCode() === 'not-exists') {
-                log_file(tr('The system/404.php page does not exist, showing basic 404 message instead'), 'Route::execute404', 'yellow');
+                Log::warning(tr('The system/404.php page does not exist, showing basic 404 message instead'));
 
                 echo tr('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
                 <html><head>
@@ -980,12 +984,13 @@ class Route
                 die();
             }
 
-            log_file(tr('The 404 page failed to show with ":e", showing basic 404 message instead', array(':e' => $e->getMessages())), 'Route::execute404', 'yellow');
+            Log::warning(tr('The 404 page failed to show with ":e", showing basic 404 message instead', [':e' => $e->getMessages()]));
 
             echo tr('404 - The requested page does not exist');
             die();
         }
     }
+
 
 
     /**
@@ -1022,11 +1027,12 @@ class Route
      * @param string $params[bar]
      * @return string The result
      */
-    function insertStatic($route) {
+    protected static function insertStatic($route): void
+    {
         try{
-            $route = Route::validate_static($route);
+            $route = Route::validateStatic($route);
 
-            log_file(tr('Storing static routing rule ":rule" for IP ":ip"', array(':rule' => $route['target'], ':ip' => $route['ip'])), 'route', 'VERYVERBOSE/cyan');
+            Log::notice(tr('Storing static routing rule ":rule" for IP ":ip"', [':rule' => $route['target'], ':ip' => $route['ip']]));
 
             Sql::query('INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
                    VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
@@ -1045,6 +1051,7 @@ class Route
     }
 
 
+
     /**
      * Validate a static route
      *
@@ -1059,7 +1066,8 @@ class Route
      * @param array $route
      * @return string HTML for a categories select box within the specified parameters
      */
-    protected function validateStatic($route) {
+    protected static function validateStatic($route)
+    {
         try{
             load_libs('validate,seo');
 

@@ -1,5 +1,7 @@
 <?php
 
+namespace Phoundation\Filesystem;
+
 use Phoundation\Core\CoreException;
 use Phoundation\Core\Json\Strings;
 
@@ -1603,7 +1605,7 @@ class File
      * @param params $params The file parameters
      * @return void
      */
-    public static function http_download($params){
+    public static function httpDownload($params){
         global $_CONFIG;
 
         try{
@@ -1776,7 +1778,7 @@ class File
      * @param string $mimetype The secondary mimetype section to check. If the mimetype is "text/plain", this variable would receive "plain". If the complete mimetype is specified in $primary, you can leave this one empty
      * @return boolean True if the specified mimetype is for a binary file, false if it is a text file
      */
-    public static function is_binary($primary, $secondary = null){
+    public static function isBinary($primary, $secondary = null){
         try{
 // :TODO: IMPROVE THIS! Loads of files that are not text/ are still not binary
             /*
@@ -1855,7 +1857,7 @@ class File
      * @param string $mimetype The secondary mimetype section to check. If the mimetype is "text/plain", this variable would receive "plain". If the complete mimetype is specified in $primary, you can leave this one empty
      * @return boolean True if the specified mimetype is for a compressed file, false if not
      */
-    public static function is_compressed($primary, $secondary = null){
+    public static function isCompressed($primary, $secondary = null){
         try{
 // :TODO: IMPROVE THIS! Loads of files that may be mis detected
             /*
@@ -1942,7 +1944,7 @@ class File
      * @param $file
      * @return void
      */
-    public static function http_send($params){
+    public static function httpSend($params){
         global $_CONFIG;
 
         try{
@@ -2060,7 +2062,7 @@ class File
      *
      * file_copy_progress($source, $target, 'stream_notification_callback');
      */
-    public static function copy_progress($source, $target, $callback){
+    public static function copyProgress($source, $target, $callback){
         try{
             $c = stream_context_create();
             stream_context_set_params($c, array('notification' => $callback));
@@ -2076,7 +2078,7 @@ class File
     /*
      *
      */
-    public static function mode_readable($mode){
+    public static function modeReadable($mode){
         try{
             $retval = '';
             $mode   = substr((string) decoct($mode), -3, 3);
@@ -2171,7 +2173,7 @@ class File
     /*
      *
      */
-    public static function ensure_writable($path){
+    public static function ensureWritable($path){
         try{
             if(is_writable($path)){
                 return false;
@@ -2277,7 +2279,7 @@ class File
      *
      * Idea taken from http://php.net/manual/en/function.fileperms.php
      */
-    public static function get_permissions($file){
+    public static function getPermissions($file){
         try{
             $perms  = fileperms($file);
             $retval = array();
@@ -2407,7 +2409,7 @@ class File
     /*
      * Execute the specified callback on all files in the specified tree
      */
-    public static function tree_execute($params){
+    public static function treeExecute($params){
         try{
             array_ensure($params);
             array_default($params, 'ignore_exceptions', true);
@@ -2673,7 +2675,7 @@ class File
      * @param function $callback The function to be executed after the file mode of the specified path has been updated
      * @return string The result from the callback function
      */
-    public static function execute_mode($path, $mode, $callback, $params = null){
+    public static function executeMode($path, $mode, $callback, $params = null){
         try{
             /*
              * Apply to all directories below?
@@ -2779,7 +2781,7 @@ class File
     /*
      *
      */
-    public static function link_exists($file){
+    public static function linkExists($file){
         if(file_exists($file)){
             return true;
         }
@@ -2797,7 +2799,7 @@ class File
      * Open the specified source, read the contents, and replace $search with $replace. Write results in $target
      * $replaces should be a $search => $replace key value array, where the $search values are regex expressions
      */
-    public static function search_replace($source, $target, $replaces){
+    public static function searchReplace($source, $target, $replaces){
         try{
             if(!file_exists($source)){
                 throw new CoreException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
@@ -2846,7 +2848,7 @@ class File
     /*
      * Return line count for this file
      */
-    public static function line_count($source){
+    public static function lineCount($source){
         try{
             if(!file_exists($source)){
                 throw new CoreException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
@@ -2862,7 +2864,7 @@ class File
     /*
      * Return word count for this file
      */
-    public static function word_count($source){
+    public static function wordCount($source){
         try{
             if(!file_exists($source)){
                 throw new CoreException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
@@ -2911,7 +2913,7 @@ class File
     /*
      * Move specified path to a backup
      */
-    public static function move_to_backup($path){
+    public static function moveToBackup($path){
         try{
             if(!file_exists($path)){
                 /*
@@ -2993,7 +2995,7 @@ class File
      * @param string $prefix
      * @return boolean True if the specified $path (optionally prefixed by $prefix) contains a symlink, false if not
      */
-    public static function path_contains_symlink($path, $prefix = null){
+    public static function pathContainsSymlink($path, $prefix = null){
         try{
             if(!$path){
                 throw new CoreException(tr('file_path_contains_symlink(): No path specified'), 'not-specified');
@@ -3059,7 +3061,7 @@ class File
      * @param string $prefix
      * @return boolean True if the specified $path (optionally prefixed by $prefix) contains a symlink, false if not
      */
-    public static function create_stream_context($context){
+    public static function createStreamContext($context){
         try{
             if(!$context) return null;
 
@@ -3381,7 +3383,7 @@ class File
     /*
      * DEPRECATED FUNCTIONS
      */
-    public static function chmod_tree($path, $filemode, $dirmode = 0770){
+    public static function chmodTree($path, $filemode, $dirmode = 0770){
         try{
             return file_chmod($path, $filemode, $dirmode = 0770);
 
@@ -3416,7 +3418,7 @@ class File
      * @param string $file
      * @return string The result
      */
-    public static function from_part($file){
+    public static function fromPart($file){
         try{
             $target = null;
 
@@ -3468,7 +3470,7 @@ class File
      * @param string $path
      * @return boolean string The real path extrapolated from the specified $path, if exists. False if whatever was specified does not exist.
      */
-    public static function is_path($path){
+    public static function isPath($path){
         try{
             return realpath($path);
 

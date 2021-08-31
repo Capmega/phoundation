@@ -1,5 +1,7 @@
 <?php
 
+namespace Phoundation\Core;
+
 use Phoundation\Core\Config;
 use Phoundation\Core\CoreException;
 

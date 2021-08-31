@@ -1,5 +1,7 @@
 <?php
 
+namespace Phoundation\Filesystem;
+
 /**
  * Path class
  *

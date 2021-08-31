@@ -1,5 +1,7 @@
 <?php
 
+namespace Phoundation\Http;
+
 use Phoundation\Core\Config;
 use Phoundation\Core\CoreException;
 use Phoundation\Core\Json;

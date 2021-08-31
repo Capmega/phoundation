@@ -10,8 +10,7 @@
  */
 
 use Phoundation\Core\CoreException;
-use Phoundation\Core\Json\Arrays;
-use Phoundation\Core\Json\Strings;
+
 
 
 /**
@@ -93,5 +92,129 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
     }
 }
 
+
+
+/*
+ * Will return $return if the specified item id is in the specified source.
+ */
+function in_source($source, $key, $return = true){
+    try{
+        if(!is_array($source)){
+            throw new BException(tr('in_source(): Specified source ":source" should be an array', array(':source' => $source)), 'invalid');
+        }
+
+        if(isset_get($source[$key])){
+            return $return;
+        }
+
+        return '';
+
+    }catch(Exception $e){
+        throw new BException('in_source(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ */
+function is_natural($number, $start = 1){
+    try{
+        if(!is_numeric($number)){
+            return false;
+        }
+
+        if($number < $start){
+            return false;
+        }
+
+        if($number != (integer) $number){
+            return false;
+        }
+
+        return true;
+
+    }catch(Exception $e){
+        throw new BException('is_natural(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Returns true if the specified string is a version, or false if it is not
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @version 2.5.46: Added function and documentation
+ *
+ * @param string $version The version to be validated
+ * @return boolean True if the specified $version is an N.N.N version string
+ */
+function is_version($version){
+    try{
+        $valid = preg_match('/\d+\.\d+\.\d+/', $version);
+        return $valid;
+
+    }catch(Exception $e){
+        throw new BException('is_version(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ */
+function is_new($entry){
+    try{
+        if(!is_array($entry)){
+            throw new BException(tr('is_new(): Specified entry is not an array'), 'invalid');
+        }
+
+        if(isset_get($entry['status']) === '_new'){
+            return true;
+        }
+
+        if(isset_get($entry['id']) === null){
+            return true;
+        }
+
+        return false;
+
+    }catch(Exception $e){
+        throw new BException('is_new(): Failed', $e);
+    }
+}
+
+
+
+/*
+ *
+ */
+function force_natural($number, $default = 1, $start = 1){
+    try{
+        if(!is_numeric($number)){
+            return (integer) $default;
+        }
+
+        if($number < $start){
+            return (integer) $default;
+        }
+
+        if(!is_int($number)){
+            return (integer) round($number);
+        }
+
+        return (integer) $number;
+
+    }catch(Exception $e){
+        throw new BException('force_natural(): Failed', $e);
+    }
+}
 
 

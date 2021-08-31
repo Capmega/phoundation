@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Core\Log;
+namespace Phoundation\Core;
 
 use Throwable;
 
@@ -65,7 +65,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function success(string $message, int $level = 5): bool
+    public static function success(string $message, int $level = 5): bool
     {
 
     }
@@ -79,7 +79,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function warning(string $message, int $level = 3): bool
+    public static function warning(string $message, int $level = 3): bool
     {
 
     }
@@ -93,7 +93,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function error(string $message, int $level = 1): bool
+    public static function error(string $message, int $level = 1): bool
     {
 
     }
@@ -107,7 +107,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function notice(string $message, int $level = 7): bool
+    public static function notice(string $message, int $level = 7): bool
     {
 
     }
@@ -121,7 +121,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function information(string $message, int $level = 3): bool
+    public static function information(string $message, int $level = 3): bool
     {
 
     }
@@ -135,7 +135,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function debug(string $message, int $level = 1): bool
+    public static function debug(string $message, int $level = 1): bool
     {
 
     }
@@ -149,7 +149,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function deprecated(string $message, int $level = 3): bool
+    public static function deprecated(string $message, int $level = 3): bool
     {
 
     }
@@ -163,7 +163,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function hex(string $message, int $level = 3): bool
+    public static function hex(string $message, int $level = 3): bool
     {
 
     }
@@ -177,7 +177,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function checkpoint(?string $message, int $level = 1): bool
+    public static function checkpoint(?string $message, int $level = 1): bool
     {
 
     }
@@ -191,7 +191,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function printr(string $message, int $level = 1): bool
+    public static function printr(string $message, int $level = 1): bool
     {
 
     }
@@ -205,7 +205,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function vardump(string $message, int $level = 1): bool
+    public static function vardump(string $message, int $level = 1): bool
     {
 
     }
@@ -219,7 +219,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function backtrace(string $message, int $level = 1): bool
+    public static function backtrace(string $message, int $level = 1): bool
     {
 
     }
@@ -233,7 +233,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function statistics(string $message, int $level = 1): bool
+    public static function statistics(string $message, int $level = 1): bool
     {
 
     }

@@ -1,7 +1,7 @@
 <?php
 
-use Phoundation\Core\CoreException;
-use Phoundation\Core\Json\Strings;
+namespace Phoundation\Core;
+
 use Phoundation\Databases\Sql;
 
 /**

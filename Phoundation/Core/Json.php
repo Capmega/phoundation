@@ -1,4 +1,5 @@
 <?php
+
 namespace Phoundation\Core;
 
 use Exception;

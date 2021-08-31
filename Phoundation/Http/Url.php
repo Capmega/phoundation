@@ -1,5 +1,7 @@
 <?php
 
+namespace Phoundation\Http;
+
 use Phoundation\Core\CoreException;
 use Phoundation\Core\Json\Strings;
 use Phoundation\Databases\Sql;
@@ -210,9 +212,9 @@ class Url {
      *
      * @param string $url
      * @return array|string|string[]
-     * @throws BException
+     * @throws CoreException
      */
-    function addToQuery(string $url) {
+    public static function addToQuery(string $url) {
         $queries = func_get_args();
         unset($queries[0]);
 
@@ -344,7 +346,7 @@ class Url {
             return $cloak;
 
         }catch(Exception $e) {
-            throw new BException('url_cloak(): Failed', $e);
+            throw new CoreException('url_cloak(): Failed', $e);
         }
     }
 
@@ -385,7 +387,7 @@ class Url {
             return '';
 
         }catch(Exception $e) {
-            throw new BException('url_decloak(): Failed', $e);
+            throw new CoreException('url_decloak(): Failed', $e);
         }
     }
 

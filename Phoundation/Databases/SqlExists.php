@@ -1,5 +1,7 @@
 <?php
 
+namespace Phoundation\Databases;
+
 /**
  * SQL Exists library
  *

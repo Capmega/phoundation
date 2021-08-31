@@ -1,4 +1,5 @@
 <?php
+
 namespace Phoundation\Databases;
 
 use Debug;
