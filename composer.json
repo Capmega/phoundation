@@ -1,0 +1,27 @@
+{
+  "name": "capmega/phoundation",
+  "description": "The phoundation PHP framework",
+  "require": {
+    "php": "^8.0.0",
+    "ext-json": "*",
+    "ext-memcached": "*",
+    "ext-mongodb": "*",
+    "ext-pdo": "*",
+    "ext-redis": "*",
+    "ext-yaml": "*",
+    "ext-mbstring": "*",
+    "ext-fileinfo": "*",
+    "mongodb/mongodb":"^1.6"
+  },
+  "require-dev": {
+    "phpmd/phpmd": "@stable",
+    "php-console/php-console": "@stable",
+    "squizlabs/php_codesniffer": "^3.5",
+    "friendsofphp/php-cs-fixer": "^2.16"
+  },"autoload": {
+    "psr-4": {
+      "Phoundation\\": "Phoundation/"
+    }
+  }
+}
+
