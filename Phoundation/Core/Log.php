@@ -65,7 +65,7 @@ Class Log {
      * @param int $level
      * @return bool
      */
-    public function success(string $message, int $level): bool
+    public function success(string $message, int $level = 5): bool
     {
 
     }
@@ -73,13 +73,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a warning message to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function warning(string $message, int $level): bool
+    public function warning(string $message, int $level = 3): bool
     {
 
     }
@@ -87,13 +87,13 @@ Class Log {
 
 
     /**
-     * Write an error warning to the log file
+     * Write an error message to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function error(string $message, int $level): bool
+    public function error(string $message, int $level = 1): bool
     {
 
     }
@@ -101,13 +101,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a notice message to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function information(string $message, int $level): bool
+    public function notice(string $message, int $level = 7): bool
     {
 
     }
@@ -115,13 +115,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a information message to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function debug(string $message, int $level): bool
+    public function information(string $message, int $level = 3): bool
     {
 
     }
@@ -129,13 +129,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a debug message to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function deprecated(string $message, int $level): bool
+    public function debug(string $message, int $level = 1): bool
     {
 
     }
@@ -143,13 +143,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a deprecated message to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function hex(string $message, int $level): bool
+    public function deprecated(string $message, int $level = 3): bool
     {
 
     }
@@ -157,13 +157,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a hex encoded message to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function checkpoint(?string $message, int $level): bool
+    public function hex(string $message, int $level = 3): bool
     {
 
     }
@@ -171,13 +171,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a checkpoint message to the log file
      *
-     * @param string $message
+     * @param string|null $message
      * @param int $level
      * @return bool
      */
-    public function printr(string $message, int $level): bool
+    public function checkpoint(?string $message, int $level = 1): bool
     {
 
     }
@@ -185,13 +185,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a debug message using print_r() to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function vardump(string $message, int $level): bool
+    public function printr(string $message, int $level = 1): bool
     {
 
     }
@@ -199,13 +199,13 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a debug message using vardump() to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function backtrace(string $message, int $level): bool
+    public function vardump(string $message, int $level = 1): bool
     {
 
     }
@@ -213,13 +213,27 @@ Class Log {
 
 
     /**
-     * Write a success warning to the log file
+     * Write a backtrace message to the log file
      *
      * @param string $message
      * @param int $level
      * @return bool
      */
-    public function statistics(string $message, int $level): bool
+    public function backtrace(string $message, int $level = 1): bool
+    {
+
+    }
+
+
+
+    /**
+     * Write a debug statistics message to the log file
+     *
+     * @param string $message
+     * @param int $level
+     * @return bool
+     */
+    public function statistics(string $message, int $level = 1): bool
     {
 
     }

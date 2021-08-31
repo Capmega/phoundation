@@ -1,8 +1,11 @@
 <?php
 namespace Phoundation\Databases;
 
+use Debug;
 use Exception;
 use PDOStatement;
+use Phoundation\Core\Json\Strings;
+use Phoundation\Core\Log\Log;
 use Phoundation\Databases\Exception\SqlException;
 
 /**
@@ -71,8 +74,8 @@ class Sql
         try {
             log_console(tr('Executing query ":query"', array(':query' => $query)), 'VERYVERBOSE/cyan');
 
-            $connector_name = sql_connector_name($connector_name);
-            $connector_name = sql_init($connector_name);
+            $connector_name = $this->connector_name($connector_name);
+            $connector_name = $this->init($connector_name);
             $query_start = microtime(true);
 
             if (!is_string($query)) {
@@ -89,7 +92,7 @@ class Sql
                     }
 
                     if (VERYVERBOSE) {
-                        log_console(str_ends(str_replace("\n", '', debug_sql($query->queryString, $execute, true)), ';'));
+                        log_console(Strings::ends(str_replace("\n", '', debug_sql($query->queryString, $execute, true)), ';'));
                     }
 
                     $query->execute($execute);
@@ -109,7 +112,7 @@ class Sql
             }
 
             if (VERYVERBOSE) {
-                log_console(str_ends(str_replace("\n", '', debug_sql($query, $execute, true)), ';'));
+                log_console(Strings::ends(str_replace("\n", '', debug_sql($query, $execute, true)), ';'));
             }
 
             if (!$execute) {
@@ -149,7 +152,7 @@ class Sql
                 }
             }
 
-            if (Core::debug()) {
+            if (Debug::enabled()) {
                 /*
                  * Get current function / file@line. If current function is actually
                  * an include then assume this is the actual script that was
@@ -157,25 +160,25 @@ class Sql
                  */
                 $current = 1;
 
-                if (substr(current_function($current), 0, 4) == 'sql_') {
+                if (substr(Debug::currentFunction($current), 0, 4) == 'sql_') {
                     $current = 2;
 
-                    if (substr(current_function($current), 0, 4) == 'sql_') {
+                    if (substr(Debug::currentFunction($current), 0, 4) == 'sql_') {
                         $current = 3;
                     }
                 }
 
-                $function = current_function($current);
+                $function = Debug::currentFunction($current);
 
                 if ($function === 'include') {
                     $function = '-';
                 }
 
-                $file = current_function($current);
-                $line = current_function($current);
+                $file = Debug::currentFile($current);
+                $line = Debug::currentLine($current);
 
                 $core->executedQuery(array('time' => microtime(true) - $query_start,
-                    'query' => debug_sql($query, $execute, true),
+                    'query' => self::show($query, $execute, true),
                     'function' => $function,
                     'file' => $file,
                     'line' => $line));
@@ -328,7 +331,7 @@ class Sql
             }
 
             if ((strtolower(substr(trim($query), 0, 6)) !== 'select') and (strtolower(substr(trim($query), 0, 4)) !== 'show')) {
-                throw new SqlException('sql_get(): Query "' . str_log(debug_sql($query, $execute, true), 4096) . '" is not a select or show query and as such cannot return results', $e);
+                throw new SqlException('sql_get(): Query "' . Strings::log(debug_sql($query, $execute, true), 4096) . '" is not a select or show query and as such cannot return results', $e);
             }
 
             throw new SqlException('sql_get(): Failed', $e);
@@ -807,7 +810,7 @@ class Sql
             }
 
             if (!count($retval)) {
-                throw new SqlException('sql_columns(): Specified source contains non of the specified columns "' . str_log(implode(',', $columns)) . '"');
+                throw new SqlException('sql_columns(): Specified source contains non of the specified columns "' . Strings::log(implode(',', $columns)) . '"');
             }
 
             return implode(', ', $retval);
@@ -844,12 +847,12 @@ class Sql
     //
     //        foreach ($filter as $item) {
     //            if (!isset($source[$item])) {
-    //                throw new SqlException('sql_set(): Specified filter item "'.str_log($item).'" was not found in source', 'not-exists');
+    //                throw new SqlException('sql_set(): Specified filter item "'.Strings::log($item).'" was not found in source', 'not-exists');
     //            }
     //        }
     //
     //        if (!count($retval)) {
-    //            throw new SqlException('sql_set(): Specified source contains non of the specified columns "'.str_log(implode(',', $columns)).'"', 'empty');
+    //            throw new SqlException('sql_set(): Specified source contains non of the specified columns "'.Strings::log(implode(',', $columns)).'"', 'empty');
     //        }
     //
     //        return implode(', ', $retval);
@@ -1248,7 +1251,7 @@ class Sql
             $row = sql_fetch($r);
 
             if (!isset($row[$column])) {
-                throw new SqlException('sql_fetch_column(): Specified column "' . str_log($column) . '" does not exist', $e);
+                throw new SqlException('sql_fetch_column(): Specified column "' . Strings::log($column) . '" does not exist', $e);
             }
 
             return $row[$column];
@@ -1616,10 +1619,10 @@ class Sql
             }
 
             if ($simple_quotes) {
-                $results = servers_exec($server, 'mysql -e \'' . str_ends($query, ';') . '\'');
+                $results = servers_exec($server, 'mysql -e \'' . Strings::ends($query, ';') . '\'');
 
             } else {
-                $results = servers_exec($server, 'mysql -e \"' . str_ends($query, ';') . '\"');
+                $results = servers_exec($server, 'mysql -e \"' . Strings::ends($query, ';') . '\"');
             }
 
             sql_delete_password_file($server);
@@ -2759,5 +2762,81 @@ class Sql
         } catch (Exception $e) {
             throw new SqlException(tr('sql_simple_get(): Failed'), $e);
         }
+    }
+
+
+    /**
+     * Show the specified SQL query in a debug
+     *
+     * @param string $query
+     * @param string|null $execute
+     * @param bool $return_only
+     * @return array|mixed|string|string[]|null
+     * @throws CoreException
+     */
+    public static function show(string $query, ?string $execute = null, bool $return_only = false): mixed
+    {
+        if (is_array($execute)) {
+            /*
+             * Reverse key sort to ensure that there are keys that contain at least parts of other keys will not be used incorrectly
+             *
+             * example:
+             *
+             * array(category    => test,
+             *       category_id => 5)
+             *
+             * Would cause the query to look like `category` = "test", `category_id` = "test"_id
+             */
+            krsort($execute);
+
+            if(is_object($query)){
+                /*
+                 * Query to be debugged is a PDO statement, extract the query
+                 */
+                if(!($query instanceof PDOStatement)){
+                    throw new CoreException(tr('debug_sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                }
+
+                $query = $query->queryString;
+            }
+
+            foreach($execute as $key => $value){
+                if(is_string($value)){
+                    $value = addslashes($value);
+                    $query = str_replace($key, '"'.(!is_scalar($value) ? ' ['.tr('NOT SCALAR').'] ' : '').Strings::log($value).'"', $query);
+
+                }elseif(is_null($value)){
+                    $query = str_replace($key, ' '.tr('NULL').' ', $query);
+
+                }elseif(is_bool($value)){
+                    $query = str_replace($key, str_boolean($value), $query);
+
+                }else{
+                    if(!is_scalar($value)){
+                        throw new CoreException(tr('debug_sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                    }
+
+                    $query = str_replace($key, $value, $query);
+                }
+            }
+        }
+
+        if ($return_only) {
+            return $query;
+        }
+
+        if (empty($core->register['clean_debug'])) {
+            $query = str_replace("\n", ' ', $query);
+            $query = str_nodouble($query, ' ', '\s');
+        }
+
+        /*
+         * VERYVERBOSE already logs the query, don't log it again
+         */
+        if (!VERYVERBOSE) {
+            Log::debug(Strings::ends($query, ';'));
+        }
+
+        return show(Strings::ends($query, ';'), 6);
     }
 }
