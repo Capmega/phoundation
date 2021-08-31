@@ -12,7 +12,7 @@ use Phoundation\Exception\OutOfBoundsException\OutOfBoundsException;
  * This is the standard Phoundation string functionality extension class
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2021 <license@capmega.com>
+ * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  */
 class Strings

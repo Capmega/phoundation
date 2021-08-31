@@ -7,7 +7,7 @@ namespace Phoundation\Core;
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2021 <license@capmega.com>
+ * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @package Phoundation\Core
  */
 class Config{
@@ -59,6 +59,7 @@ class Config{
     }
 
 
+
     /**
      * Only set the specified configuration data for the specified key, if the specified key does not yet exist in
      * memory
@@ -103,6 +104,7 @@ class Config{
     }
 
 
+
     /**
      * Get configuration data for the specified key
      *
@@ -129,6 +131,7 @@ class Config{
 
         return $data;
     }
+
 
 
     /**
