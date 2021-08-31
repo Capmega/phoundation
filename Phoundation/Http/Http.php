@@ -254,7 +254,7 @@ class Http
      * @param bool|null $allow_self_signed
      * @return resource
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -284,7 +284,7 @@ class Http
      * This function will walk over the $_GET array and test each value. If a value is found that is not scalar, a 400 code exception will be thrown, which would lead to an HTTP 400 BAD REQUEST
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -326,7 +326,7 @@ class Http
      *
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @todo Remove $core dependancy
@@ -385,7 +385,7 @@ class Http
      * Returns headers Cache-Control and ETag
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -465,7 +465,7 @@ class Http
      * Send the required headers to ensure that the page will not be cached ever
      *
      * @return void
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -586,10 +586,10 @@ class Http
             }
 
             if (str_contains($url, '?')) {
-                return $url.'&'.urlencode($key).'='.urlencode($value);
+                return $url.'&'.urlencode($key) . '='.urlencode($value);
             }
 
-            return $url.'?'.urlencode($key).'='.urlencode($value);
+            return $url.'?'.urlencode($key) . '='.urlencode($value);
 
         }catch(Exception $e) {
             throw new HttpException('http_add_variable(): Failed', $e);
@@ -614,7 +614,7 @@ class Http
             //    return $url;
             //}
             //
-            //if ($pos = strpos($url, $key.'=') === false) {
+            //if ($pos = strpos($url, $key . '=') === false) {
             //    return $url;
             //}
             //
@@ -635,7 +635,7 @@ class Http
      * Redirect to the specified $target
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -813,7 +813,7 @@ class Http
      * Return $_POST[dosubmit] value, and reset it to be sure it won't be applied twice
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http

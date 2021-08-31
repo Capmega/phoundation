@@ -215,7 +215,7 @@ class Route
                     /*
                      * Check if remote IP is registered for special routing
                      */
-                    $exists = sql_get('SELECT `id`, `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => $ip));
+                    $exists = Sql::get('SELECT `id`, `uri`, `regex`, `target`, `flags` FROM `routes_static` WHERE `ip` = :ip AND `status` IS NULL AND `expiredon` >= NOW() ORDER BY `createdon` DESC LIMIT 1', array(':ip' => $ip));
 
                     if ($exists) {
                         /*
@@ -228,7 +228,7 @@ class Route
                         $target = $exists['target'];
                         $flags  = Arrays::force($exists['flags']);
 
-                        sql_query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', array(':id' => $exists['id']));
+                        Sql::query('UPDATE `routes_static` SET `applied` = `applied` + 1 WHERE `id` = :id', array(':id' => $exists['id']));
 
                         unset($exists);
                     }
@@ -970,12 +970,12 @@ class Route
 
                 echo tr('<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
                 <html><head>
-                <title>'.tr('404 Not Found').'</title>
+                <title>'.tr('404 Not Found') . '</title>
                 </head><body>
-                <h1>'.tr('Not Found').'</h1>
-                <p>'.tr('The requested URL /wer was not found on this server').'.</p>
+                <h1>'.tr('Not Found') . '</h1>
+                <p>'.tr('The requested URL /wer was not found on this server') . '.</p>
                 <hr>
-                '.(!empty($_CONFIG['security']['signature']) ? '<address>Phoundation '.FRAMEWORKCODEVERSION.'</address>' : '').'
+                '.(!empty($_CONFIG['security']['signature']) ? '<address>Phoundation '.FRAMEWORKCODEVERSION.'</address>' : '') . '
                 </body></html>');
                 die();
             }
@@ -1028,7 +1028,7 @@ class Route
 
             log_file(tr('Storing static routing rule ":rule" for IP ":ip"', array(':rule' => $route['target'], ':ip' => $route['ip'])), 'route', 'VERYVERBOSE/cyan');
 
-            sql_query('INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
+            Sql::query('INSERT INTO `routes_static` (`expiredon`                                , `meta_id`, `ip`, `uri`, `regex`, `target`, `flags`)
                    VALUES                      (DATE_ADD(NOW(), INTERVAL :expiredon SECOND), :meta_id , :ip , :uri , :regex , :target , :flags )',
 
                 array(':expiredon' => $route['expiredon'],

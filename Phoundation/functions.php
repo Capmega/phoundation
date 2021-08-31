@@ -89,7 +89,7 @@ function tr(string $text, ?array $replace = null, bool $verify = true): string
         /*
          * Do NOT use tr() here for obvious endless loop reasons!
          */
-        throw new CoreException('tr(): Failed with text "'.Strings::log($text).'". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
+        throw new CoreException('tr(): Failed with text "'.Strings::log($text) . '". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
     }
 }
 

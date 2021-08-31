@@ -3,8 +3,9 @@
 namespace Phoundation\Core\Json;
 
 use Exception;
-use Phoundation\Core\CoreException\CoreException;
-use Phoundation\Exception\OutOfBoundsException\OutOfBoundsException;
+use Phoundation\Core\CoreException;
+use Phoundation\Core\Json;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Class Strings
@@ -168,7 +169,7 @@ class Strings
             $charlen    = mb_strlen($characters);
 
             if ($unique and ($length > $charlen)) {
-                throw new CoreException('str_random(): Can not create unique character random string with size "'.str_log($length).'". When $unique is requested, the string length can not be larger than "'.str_log($charlen).'" because there are no more then that amount of unique characters', 'invalid');
+                throw new CoreException('str_random(): Can not create unique character random string with size "'.self::log($length) . '". When $unique is requested, the string length can not be larger than "'.str_log($charlen) . '" because there are no more then that amount of unique characters', 'invalid');
             }
 
             for ($i = 0; $i < $length; $i++) {
@@ -1050,20 +1051,19 @@ class Strings
 
 
     /**
+     * Return the specified value as a boolean name, false for null, zero, "", false, true otherwise.
      *
+     * @param mixed $value
+     * @return string
+     * @throws CoreException
      */
-    public static function boolean(string $value): string
+    public static function boolean(mixed $value): string
     {
-        try{
-            if ($value) {
-                return 'true';
-            }
-
-            return 'false';
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_boolean(): Failed'), $e);
+        if ($value) {
+            return 'true';
         }
+
+        return 'false';
     }
 
 
@@ -1095,7 +1095,7 @@ class Strings
     public static function underscoreToCamelcase(string $string, bool $first_uppercase = false): string
     {
         try{
-            while(($pos = strpos($string, '_')) !== false) {
+            while (($pos = strpos($string, '_')) !== false) {
                 $character = $string[$pos + 1];
 
                 if (!$pos) {
@@ -1242,7 +1242,7 @@ class Strings
     public static function cut(string $source, int $start, int $stop): string
     {
         try{
-            return str_until(str_from($source, $start), $stop);
+            return self::until(self::from($source, $start), $stop);
 
         } catch (Exception $e) {
             throw new CoreException(tr('str_cut(): Failed'), $e);
@@ -1259,7 +1259,7 @@ class Strings
         try{
             if (!is_scalar($source)) {
                 if (!is_null($source)) {
-                    throw new CoreException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1).'@'.current_line(1))), 'invalid');
+                    throw new CoreException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1) . '@'.current_line(1))), 'invalid');
                 }
             }
 
@@ -1413,7 +1413,7 @@ class Strings
     public static function startsNotWith(string $source, string $string): string
     {
         try{
-            while(mb_substr($source, 0, mb_strlen($string)) == $string) {
+            while (mb_substr($source, 0, mb_strlen($string)) == $string) {
                 $source = mb_substr($source, mb_strlen($string));
             }
 
@@ -1459,7 +1459,7 @@ class Strings
                  */
                 $redo = true;
 
-                while($redo) {
+                while ($redo) {
                     $redo = false;
 
                     foreach ($strings as $string) {
@@ -1480,7 +1480,7 @@ class Strings
                  */
                 $length = mb_strlen($strings);
 
-                while(mb_substr($source, -$length, $length) == $strings) {
+                while (mb_substr($source, -$length, $length) == $strings) {
                     $source = mb_substr($source, 0, -$length);
                     if (!$loop) break;
                 }
@@ -1699,7 +1699,7 @@ class Strings
                     $source = mb_trim($json_encode($source));
 
                 } elseif (is_object($source) and ($source instanceof CoreException)) {
-                    $source = $source->getCode().' / ' . $source->getMessage();
+                    $source = $source->getCode() . ' / ' . $source->getMessage();
 
                 } else {
                     $source = mb_trim($json_encode($source));

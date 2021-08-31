@@ -369,8 +369,8 @@ class Debug {
         }
 
         return $retval . '<table class="debug">
-                    <thead class="debug-header"><td colspan="4">'.self::currentFile(1 + $trace_offset).'@'.self::currentLine(1 + $trace_offset).'</td></thead>
-                    <thead class="debug-columns"><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>'.self::showHtmlRow($value, $key).'
+                    <thead class="debug-header"><td colspan="4">'.self::currentFile(1 + $trace_offset) . '@'.self::currentLine(1 + $trace_offset) . '</td></thead>
+                    <thead class="debug-columns"><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>'.self::showHtmlRow($value, $key) . '
                 </table>';
     }
 
@@ -418,30 +418,30 @@ class Debug {
 
             case 'double':
                 return '<tr>
-                    <td>'.htmlentities($key).'</td>
+                    <td>'.htmlentities($key) . '</td>
                     <td>' . $type.'</td>
-                    <td>'.strlen((string) $value).'</td>
-                    <td class="value">'.htmlentities($value).'</td>
+                    <td>'.strlen((string) $value) . '</td>
+                    <td class="value">'.htmlentities($value) . '</td>
                 </tr>';
 
             case 'boolean':
                 return '<tr>
-                    <td>'.htmlentities($key).'</td>
+                    <td>'.htmlentities($key) . '</td>
                     <td>' . $type.'</td>
                     <td>1</td>
-                    <td class="value">'.($value ? tr('true') : tr('false')).'</td>
+                    <td class="value">'.($value ? tr('true') : tr('false')) . '</td>
                 </tr>';
 
             case 'NULL':
                 return '<tr>
-                    <td>'.htmlentities($key).'</td>
+                    <td>'.htmlentities($key) . '</td>
                     <td>' . $type.'</td>
                     <td>0</td>
-                    <td class="value">'.htmlentities($value).'</td>
+                    <td class="value">'.htmlentities($value) . '</td>
                 </tr>';
 
             case 'resource':
-                return '<tr><td>'.htmlentities($key).'</td>
+                return '<tr><td>'.htmlentities($key) . '</td>
                     <td>' . $type.'</td>
                     <td>?</td>
                     <td class="value">' . $value.'</td>
@@ -451,9 +451,9 @@ class Debug {
                 // FALLTHROUGH
 
             case 'property':
-                return '<tr><td>'.htmlentities($key).'</td>
+                return '<tr><td>'.htmlentities($key) . '</td>
                     <td>' . $type.'</td>
-                    <td>'.strlen($value).'</td>
+                    <td>'.strlen($value) . '</td>
                     <td class="value">' . $value.'</td>
                 </tr>';
 
@@ -462,17 +462,17 @@ class Debug {
 
                 ksort($value);
 
-                foreach($value as $subkey => $subvalue) {
+                foreach ($value as $subkey => $subvalue) {
                     $retval .= self::showHtmlRow($subvalue, $subkey);
                 }
 
                 return '<tr>
-                    <td>'.htmlentities($key).'</td>
+                    <td>'.htmlentities($key) . '</td>
                     <td>' . $type.'</td>
-                    <td>'.count($value).'</td>
+                    <td>'.count($value) . '</td>
                     <td style="padding:0">
                         <table class="debug">
-                            <thead><td>'.tr('Key').'</td><td>'.tr('Type').'</td><td>'.tr('Size').'</td><td>'.tr('Value').'</td></thead>' . $retval.'
+                            <thead><td>'.tr('Key') . '</td><td>'.tr('Type') . '</td><td>'.tr('Size') . '</td><td>'.tr('Value') . '</td></thead>' . $retval.'
                         </table>
                     </td>
                 </tr>';
@@ -487,7 +487,7 @@ class Debug {
                 $retval = '<pre>' . $value.'</pre>';
 
                 return '<tr>
-                    <td>' . $key.'</td>
+                    <td>' . $key . '</td>
                     <td>' . $type.'</td>
                     <td>?</td>
                     <td>' . $retval.'</td>
@@ -495,10 +495,10 @@ class Debug {
 
             default:
                 return '<tr>
-                    <td>' . $key.'</td>
-                    <td>'.tr('Unknown').'</td>
+                    <td>' . $key . '</td>
+                    <td>'.tr('Unknown') . '</td>
                     <td>???</td>
-                    <td class="value">'.htmlentities($value).'</td>
+                    <td class="value">'.htmlentities($value) . '</td>
                 </tr>';
         }
     }

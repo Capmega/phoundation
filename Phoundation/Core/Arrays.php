@@ -38,7 +38,7 @@ class Arrays {
     public static function params(array &$params, string $string_key = null, int $numeric_key = null, bool $default = false): array
     {
         /*
-         * IMPORTANT!! DO NOT CHANGE $default DEFAULT VALUE AWAY FROM FALSE! THIS IS A REQUIREMENT FOR THE sql_simple_list() / sql_simple_get() FUNCTIONS!!
+         * IMPORTANT!! DO NOT CHANGE $default DEFAULT VALUE AWAY FROM FALSE! THIS IS A REQUIREMENT FOR THE Sql::simple_list() / Sql::simple_get() FUNCTIONS!!
          */
         try{
             if (!$params) {
@@ -454,7 +454,7 @@ class Arrays {
 
             $retval = array();
 
-            while(count($source) > $count) {
+            while (count($source) > $count) {
                 $retval[] = array_pop($source);
             }
 
@@ -1329,7 +1329,7 @@ class Arrays {
      * Returns the value of the first element of the specified array
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1356,7 +1356,7 @@ class Arrays {
      * Returns the value of the last element of the specified array
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1383,7 +1383,7 @@ class Arrays {
      * Make sure the specified keys are available on the array
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1439,7 +1439,7 @@ class Arrays {
      * Specified variable may be either string or array, but ensure that its returned as an array.
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system

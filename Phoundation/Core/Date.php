@@ -185,7 +185,7 @@ class Date {
 
             usort($periods);
 
-            foreach($periods as $time => $label) {
+            foreach ($periods as $time => $label) {
                 if ($timestamp < $time) {
                     return $label;
                 }
@@ -249,7 +249,7 @@ class Date {
             asort($params['resource']);
 
 // :DELETE: Remove MySQL requirement because production users will not have access to "mysql" database
-            //$params['resource'] = sql_query('SELECT   LCASE(SUBSTR(`Name`, 7)) AS `id`,
+            //$params['resource'] = Sql::query('SELECT   LCASE(SUBSTR(`Name`, 7)) AS `id`,
             //                                                SUBSTR(`Name`, 7)  AS `name`
             //
             //                                 FROM     `mysql`.`time_zone_name`
@@ -292,8 +292,8 @@ class Date {
         try{
             $list = array();
 
-            foreach(timezone_abbreviations_list() as $abbriviation => $zones) {
-                foreach($zones as $timezone) {
+            foreach (timezone_abbreviations_list() as $abbriviation => $zones) {
+                foreach ($zones as $timezone) {
                     if (empty($timezone['timezone_id'])) continue;
 
                     $list[strtolower($timezone['timezone_id'])] = $timezone['timezone_id'];
@@ -349,7 +349,7 @@ class Date {
      * So for now we have this barf solution
      *
      * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package date
@@ -424,7 +424,7 @@ class Date {
                 'Fri'       => tr('Fri'),
                 'Sat'       => tr('Sat'));
 
-            foreach($words as $english => $translation) {
+            foreach ($words as $english => $translation) {
                 $date = str_replace($english, $translation, $date);
             }
 
