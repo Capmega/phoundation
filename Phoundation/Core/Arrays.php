@@ -1397,25 +1397,25 @@ class Arrays {
     public static function ensure(array &$source, array $keys = [], mixed $default_value = null, bool $trim_existing = false): array
     {
         try{
-            if(!$source) {
+            if (!$source) {
                 $source = array();
 
-            }elseif(!is_array($source)) {
-                if(is_object($source)) {
+            }elseif (!is_array($source)) {
+                if (is_object($source)) {
                     throw new CoreException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
                 }
 
                 throw new CoreException(tr('array_ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
             }
 
-            if($keys) {
-                foreach(array_force($keys) as $key) {
-                    if(!$key) {
+            if ($keys) {
+                foreach (array_force($keys) as $key) {
+                    if (!$key) {
                         continue;
                     }
 
-                    if(array_key_exists($key, $source)) {
-                        if($trim_existing and is_string($source[$key])) {
+                    if (array_key_exists($key, $source)) {
+                        if ($trim_existing and is_string($source[$key])) {
                             /*
                              * Automatically trim the found value
                              */
@@ -1472,12 +1472,12 @@ class Arrays {
     public static function force(mixed $source, string $separator = ','): array
     {
         try{
-            if(($source === '') or ($source === null)) {
+            if (($source === '') or ($source === null)) {
                 return array();
             }
 
-            if(!is_array($source)) {
-                if(!is_string($source)) {
+            if (!is_array($source)) {
+                if (!is_string($source)) {
                     return array($source);
                 }
 

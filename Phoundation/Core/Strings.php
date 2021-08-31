@@ -1257,13 +1257,13 @@ class Strings
     public static function clean(string $source, bool $utf8 = true): string
     {
         try{
-            if(!is_scalar($source)) {
-                if(!is_null($source)) {
+            if (!is_scalar($source)) {
+                if (!is_null($source)) {
                     throw new CoreException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1).'@'.current_line(1))), 'invalid');
                 }
             }
 
-            if($utf8) {
+            if ($utf8) {
                 load_libs('utf8');
 
                 $source = mb_trim(html_entity_decode(utf8_unescape(strip_tags(utf8_escape($source)))));
@@ -1290,14 +1290,14 @@ class Strings
     public static function from(string $source, string $needle, int $more = 0, bool $require = false): string
     {
         try{
-            if(!$needle) {
+            if (!$needle) {
                 throw new CoreException('str_from(): No needle specified', 'not-specified');
             }
 
             $pos = mb_strpos($source, $needle);
 
-            if($pos === false) {
-                if($require) {
+            if ($pos === false) {
+                if ($require) {
                     return '';
                 }
 
@@ -1319,14 +1319,14 @@ class Strings
     public static function until(string $source, string $needle, int $more = 0, int $start = 0, bool $require = false): string
     {
         try{
-            if(!$needle) {
+            if (!$needle) {
                 throw new CoreException('str_until(): No needle specified', 'not-specified');
             }
 
             $pos = mb_strpos($source, $needle);
 
-            if($pos === false) {
-                if($require) {
+            if ($pos === false) {
+                if ($require) {
                     return '';
                 }
 
@@ -1348,13 +1348,13 @@ class Strings
     public static function fromReverse(string $source, string $needle, int $more = 0): string
     {
         try{
-            if(!$needle) {
+            if (!$needle) {
                 throw new CoreException('str_rfrom(): No needle specified', 'not-specified');
             }
 
             $pos = mb_strrpos($source, $needle);
 
-            if($pos === false) return $source;
+            if ($pos === false) return $source;
 
             return mb_substr($source, $pos + mb_strlen($needle) - $more);
 
@@ -1371,13 +1371,13 @@ class Strings
     public static function untilReverse(string $source, string $needle, int $more = 0, int $start = 0): string
     {
         try{
-            if(!$needle) {
+            if (!$needle) {
                 throw new CoreException('str_runtil(): No needle specified', 'not-specified');
             }
 
             $pos = mb_strrpos($source, $needle);
 
-            if($pos === false) return $source;
+            if ($pos === false) return $source;
 
             return mb_substr($source, $start, $pos + $more);
 
@@ -1394,7 +1394,7 @@ class Strings
     public static function startsWith(string $source, string $string): string
     {
         try{
-            if(mb_substr($source, 0, mb_strlen($string)) == $string) {
+            if (mb_substr($source, 0, mb_strlen($string)) == $string) {
                 return $source;
             }
 
@@ -1434,7 +1434,7 @@ class Strings
         try{
             $length = mb_strlen($string);
 
-            if(mb_substr($source, -$length, $length) == $string) {
+            if (mb_substr($source, -$length, $length) == $string) {
                 return $source;
             }
 
@@ -1453,7 +1453,7 @@ class Strings
     public static function endsNotWith(string $source, string $strings, bool $loop = true): string
     {
         try{
-            if(is_array($strings)) {
+            if (is_array($strings)) {
                 /*
                  * For array test, we always loop
                  */
@@ -1462,10 +1462,10 @@ class Strings
                 while($redo) {
                     $redo = false;
 
-                    foreach($strings as $string) {
+                    foreach ($strings as $string) {
                         $new = str_ends_not($source, $string, true);
 
-                        if($new != $source) {
+                        if ($new != $source) {
                             // A change was made, we have to rerun over it.
                             $redo = true;
                         }
@@ -1482,7 +1482,7 @@ class Strings
 
                 while(mb_substr($source, -$length, $length) == $strings) {
                     $source = mb_substr($source, 0, -$length);
-                    if(!$loop) break;
+                    if (!$loop) break;
                 }
             }
 
@@ -1529,7 +1529,7 @@ class Strings
     public static function nodouble(string $source, string $replace = '\1', int|string $character = null, bool $case_insensitive = true): string
     {
         try{
-            if($character) {
+            if ($character) {
                 /*
                  * Remove specific character
                  */
@@ -1580,11 +1580,11 @@ class Strings
     public static function truncate(string$source, int $length, string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
     {
         try{
-            if(!$length or ($length < (mb_strlen($fill) + 1))) {
+            if (!$length or ($length < (mb_strlen($fill) + 1))) {
                 throw new CoreException('str_truncate(): No length or insufficient length specified. You must specify a length of minimal $fill length + 1', 'invalid');
             }
 
-            if($length >= mb_strlen($source)) {
+            if ($length >= mb_strlen($source)) {
                 /*
                  * No need to truncate, the string is short enough
                  */
@@ -1596,12 +1596,12 @@ class Strings
              */
             $length -= mb_strlen($fill);
 
-            switch($method) {
+            switch ($method) {
                 case 'right':
                     $retval = mb_substr($source, 0, $length);
 
-                    if($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
-                        if($pos = strrpos($retval, ' ')) {
+                    if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
+                        if ($pos = strrpos($retval, ' ')) {
                             $retval = substr($retval, 0, $pos);
                         }
                     }
@@ -1614,8 +1614,8 @@ class Strings
                 case 'left':
                     $retval = mb_substr($source, -$length, $length);
 
-                    if($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
-                        if($pos = strpos($retval, ' ')) {
+                    if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
+                        if ($pos = strpos($retval, ' ')) {
                             $retval = substr($retval, $pos);
                         }
                     }
@@ -1672,23 +1672,23 @@ class Strings
                 $json_encode = 'json_encode';
             }
 
-            if(!$source) {
-                if(is_numeric($source)) {
+            if (!$source) {
+                if (is_numeric($source)) {
                     return 0;
                 }
 
                 return '';
             }
 
-            if(!is_scalar($source)) {
-                if(is_array($source)) {
-                    foreach($source as $key => &$value) {
-                        if(strstr($key, 'password')) {
+            if (!is_scalar($source)) {
+                if (is_array($source)) {
+                    foreach ($source as $key => &$value) {
+                        if (strstr($key, 'password')) {
                             $value = '*** HIDDEN ***';
                             continue;
                         }
 
-                        if(strstr($key, 'ssh_key')) {
+                        if (strstr($key, 'ssh_key')) {
                             $value = '*** HIDDEN ***';
                             continue;
                         }
@@ -1698,7 +1698,7 @@ class Strings
 
                     $source = mb_trim($json_encode($source));
 
-                }elseif(is_object($source) and ($source instanceof CoreException)) {
+                }elseif (is_object($source) and ($source instanceof CoreException)) {
                     $source = $source->getCode().' / '.$source->getMessage();
 
                 }else{
@@ -1709,7 +1709,7 @@ class Strings
             return str_nodouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', str_truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
 
         } catch (Exception $e) {
-            if($e->getRealCode() === 'invalid') {
+            if ($e->getRealCode() === 'invalid') {
                 notify($e->makeWarning(true));
                 return "Data converted using print_r() instead of json_encode() because json_encode_custom() failed on this data: ".print_r($source, true);
             }
