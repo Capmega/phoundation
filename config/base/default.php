@@ -164,7 +164,7 @@ $_CONFIG['db']                 = array('default'                            => '
                                                                                      'charset'          => 'utf8mb4',                       // Default character set for all database tables
                                                                                      'collate'          => 'utf8mb4_general_ci',            // Default collate set for all database tables
                                                                                      'limit_max'        => 10000,                           // Standard SQL allowed LIMIT specified in table displays, for example, to avoid displaying a table with a milion entries, for example
-                                                                                     'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE,NO_KEY_OPTIONS,NO_TABLE_OPTIONS,NO_FIELD_OPTIONS',   // Special mode options for MySQL server
+                                                                                     'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE',  // Special mode options for MySQL server
                                                                                      'ssh_tunnel'       => array('required'    => false,    // SSH tunnel configuration. This should NOT be used for the core database!
                                                                                                                  'local_port'  => 3307,     // Port on the local machine to enter in the SSH tunnel
                                                                                                                  'remote_port' => 3306,     // MySQL server port on the remote server

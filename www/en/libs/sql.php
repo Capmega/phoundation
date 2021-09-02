@@ -1812,7 +1812,7 @@ function sql_ensure_connector($connector){
                           'charset'          => 'utf8mb4',
                           'collate'          => 'utf8mb4_general_ci',
                           'limit_max'        => 10000,
-                          'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE,NO_KEY_OPTIONS,NO_TABLE_OPTIONS,NO_FIELD_OPTIONS',
+                          'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE',
                           'ssh_tunnel'       => array('required'    => false,
                                                       'source_port' => null,
                                                       'hostname'    => '',
