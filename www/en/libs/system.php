@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.50');
+define('FRAMEWORKCODEVERSION', '2.8.51');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -149,6 +149,20 @@ try{
              */
             define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
             define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
+
+            /*
+             * Set protocol
+             */
+            define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
+
+            if($_CONFIG['security']['url_cloaking']['enabled']){
+                /*
+                 * URL cloaking enabled. Load the URL library so that the URL cloaking
+                 * functions are available
+                 */
+                load_libs('url');
+            }
+
             break;
     }
 
@@ -184,21 +198,6 @@ try{
      */
     error_log('startup: Failed with "'.$e->getMessage().'"');
     die('startup: Failed, see error log');
-}
-
-
-
-/*
- * Set protocol
- */
-define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
-
-if($_CONFIG['security']['url_cloaking']['enabled']){
-    /*
-     * URL cloaking enabled. Load the URL library so that the URL cloaking
-     * functions are available
-     */
-    load_libs('url');
 }
 
 

@@ -35,7 +35,7 @@
  */
 function utf8_escape($string){
     try{
-        return Zend_Utf8::escape($string);
+        return Zend_Utf8::escape((string) $string);
 
     }catch(Exception $e){
         throw new BException('utf8_escape(): Failed for string "'.str_log($string).'"', $e);

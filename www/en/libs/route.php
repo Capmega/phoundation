@@ -874,7 +874,7 @@ function route_shutdown(){
         /*
          * Test the URI for known hacks. If so, apply configured response
          */
-        if($_CONFIG['route']['known_hacks']){
+        if(!empty($_CONFIG['route']['known_hacks'])){
             log_console(tr('Applying known hacking rules'), 'VERBOSE/yellow');
 
             foreach($_CONFIG['route']['known_hacks'] as $hacks){

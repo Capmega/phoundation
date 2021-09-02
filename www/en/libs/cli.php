@@ -1892,6 +1892,8 @@ function cli_build_commands_string(&$params){
                 }
 
                 foreach($value as $special => &$argument){
+                    $special = (string) $special;
+
                     if(!$argument){
                         /*
                          * Skip empty arguments
