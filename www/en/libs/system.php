@@ -16,7 +16,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '3.0.3');
+define('FRAMEWORKCODEVERSION', '3.0.4');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -153,6 +153,7 @@ try{
             /*
              * Set protocol
              */
+            global $_CONFIG;
             define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
 
             if($_CONFIG['security']['url_cloaking']['enabled']){

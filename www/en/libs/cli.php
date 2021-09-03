@@ -1906,7 +1906,7 @@ function cli_build_commands_string(&$params){
                         throw new BException(tr('cli_build_commands_string(): Specified arguments ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
                     }
 
-                    if($special[0] === '#'){
+                    if(is_string($special) and ($special[0] === '#')){
                         /*
                          * Do not escape this argument
                          */
