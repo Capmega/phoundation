@@ -62,6 +62,7 @@ try{
     }
 
     define('ENVIRONMENT', $env);
+    load_config(' ');
 
     if(!file_exists(ROOT.'config/'.$env.'.php')){
         echo "\033[0;31mstartup: Configuration file \"ROOT/config/".$env.".php\" for specified environment\"".$env."\" not found\033[0m\n";
@@ -259,7 +260,6 @@ try{
      * Load cache libraries (done until here since these need configuration @ load time)
      * Set timeout
      */
-    load_config(' ');
     load_libs('cache'.(empty($_CONFIG['cdn']['enabled']) ? '' : ',cdn'));
     set_timeout();
 
