@@ -12,11 +12,10 @@
  */
 
 
-
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.50');
+define('FRAMEWORKCODEVERSION', '2.8.29');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -149,6 +148,21 @@ try{
              */
             define('VERYVERBOSE', (debug() and ((getenv('VERYVERBOSE') or !empty($GLOBALS['veryverbose'])))      ? 'VERYVERBOSE' : null));
             define('VERBOSE'    , (debug() and (VERYVERBOSE or getenv('VERBOSE') or !empty($GLOBALS['verbose'])) ? 'VERBOSE'     : null));
+
+            /*
+             * Set protocol
+             */
+            global $_CONFIG;
+            define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
+
+            if($_CONFIG['security']['url_cloaking']['enabled']){
+                /*
+                 * URL cloaking enabled. Load the URL library so that the URL cloaking
+                 * functions are available
+                 */
+                load_libs('url');
+            }
+
             break;
     }
 
@@ -184,21 +198,6 @@ try{
      */
     error_log('startup: Failed with "'.$e->getMessage().'"');
     die('startup: Failed, see error log');
-}
-
-
-
-/*
- * Set protocol
- */
-define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
-
-if($_CONFIG['security']['url_cloaking']['enabled']){
-    /*
-     * URL cloaking enabled. Load the URL library so that the URL cloaking
-     * functions are available
-     */
-    load_libs('url');
 }
 
 
@@ -253,7 +252,7 @@ class Core{
                 /*
                  * Core already started up
                  */
-                log_file(tr('Core already started @ ":time", not starting again. This is very likely due to the ":script" script loading the startup.php library whilst using the routing system.', array(':time' => $this->register['startup'], ':script' => $this->register['script'])), 'core::startup', 'warning');
+                log_file(tr('Core already started @ ":time", not starting again', array(':time' => $this->register['startup'])), 'core::startup', 'error');
                 return false;
             }
 
@@ -577,21 +576,10 @@ class BException extends Exception{
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
-     * @version 2.8.40: Added $last_line support
-     * @note If $last_line is set to true, then the returned data will either be the last line of the array if BException::data was an array, the string data if BException::data was a string.
      *
-     * @param boolean $last_line If set to true, and BException::data is an array, only the last line will be returned
      * @return mixed Returns the content for BException::data
      */
-    public function getData($last_line = false){
-        if($last_line){
-            if(is_array($this->data)){
-                return array_pop($this->data);
-            }
-
-            return $this->data;
-        }
-
+    public function getData(){
         return $this->data;
     }
 
@@ -610,7 +598,6 @@ class BException extends Exception{
      */
     public function setData($data){
         $this->data = array_force($data);
-        return $this;
     }
 
 
@@ -3908,7 +3895,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
          * Now that the file has been sent to the CDN system delete the file
          * locally
          */
-        if($delete and !$_CONFIG['cdn']['no_delete']){
+        if($delete){
             foreach($files as $url => $file){
                 file_delete($file, ROOT);
             }
@@ -3962,20 +3949,13 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
                 /*
                  * Get a CDN server for this session
                  */
-                $_SESSION['cdn'] = sql_get('SELECT   `cdn_servers`.`baseurl`
+                $_SESSION['cdn'] = sql_get('SELECT   `baseurl`
 
                                             FROM     `cdn_servers`
 
-                                            JOIN     `api_accounts`
-                                            ON       `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
-                                            AND      `api_accounts`.`status`      IS NULL
-                                            AND      `api_accounts`.`environment` = :environment
+                                            WHERE    `status` IS NULL
 
-                                            WHERE    `cdn_servers`.`status` IS NULL
-
-                                            ORDER BY RAND() LIMIT 1', true,
-
-                                            array(':environment' => ENVIRONMENT));
+                                            ORDER BY RAND() LIMIT 1', true);
 
                 if(empty($_SESSION['cdn'])){
                     /*
@@ -4003,68 +3983,39 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
         }
 
         /*
-         * Get this URL from the CDN system, though try cache first
-         *
-         * Disabled servers are allowed to be used as they cannot receive new
-         * files but still server files
+         * Get this URL from the CDN system
          */
-        if($_CONFIG['cdn']['cache'] and $file){
-            log_file(tr('Searching cdn file ":file"', array(':file' => $file)), 'cdn_domain', 'VERBOSE/cyan');
-            $url = cache_read($file, 'cdn-file');
+        $url = sql_get('SELECT    `cdn_files`.`file`,
+                                  `cdn_files`.`servers_id`,
 
-            if($url){
-                /*
-                 * Yay, found the file in the CDN cache!
-                 */
-                return $url;
-            }
-        }
+                                  `cdn_servers`.`baseurl`
 
-        $url = sql_get('SELECT   `cdn_files`.`file`,
-                                 `cdn_files`.`servers_id`,
-                                 `cdn_servers`.`baseurl`
+                        FROM      `cdn_files`
 
-                        FROM     `cdn_files`
+                        LEFT JOIN `cdn_servers`
+                        ON        `cdn_files`.`servers_id` = `cdn_servers`.`id`
 
-                        JOIN     `cdn_servers`
-                        ON       `cdn_files`.`servers_id` = `cdn_servers`.`id`
-                        AND     (`cdn_servers`.`status` IS NULL OR `cdn_servers`.`status` = "disabled")
+                        WHERE     `cdn_files`.`file` = :file
+                        AND       `cdn_servers`.`status` IS NULL
 
-                        JOIN     `api_accounts`
-                        ON       `api_accounts`.`id`          = `cdn_servers`.`api_accounts_id`
-                        AND      `api_accounts`.`status`      IS NULL
-                        AND      `api_accounts`.`environment` = :environment
+                        ORDER BY  RAND()
 
-                        WHERE    `cdn_files`.`file` = :file
+                        LIMIT     1',
 
-                        ORDER BY RAND()
-
-                        LIMIT    1',
-
-                        array(':file'        => $file,
-                              ':environment' => ENVIRONMENT));
+                        array(':file' => $file));
 
         if($url){
             /*
              * Yay, found the file in the CDN database!
              */
-            $url = slash($url['baseurl']).strtolower(str_replace('_', '-', PROJECT)).$url['file'];
-
-            if($_CONFIG['cdn']['cache']){
-                /*
-                 * Cache the CDN result
-                 */
-                cache_write($url, $file, 'cdn-file');
-            }
-
-            return $url;
+            return slash($url['baseurl']).strtolower(str_replace('_', '-', PROJECT)).$url['file'];
         }
 
         /*
          * The specified file is not found in the CDN system, return a default
          * image instead
          */
-        if(!$default and $_CONFIG['cdn']['img']['default']){
+        if(!$default){
             $default = $_CONFIG['cdn']['img']['default'];
         }
 
@@ -6126,53 +6077,6 @@ function set_locale($data = null){
 
     }catch(Exception $e){
         throw new BException(tr('set_locale(): Failed'), $e);
-    }
-}
-
-
-
-/*
- * Set a cookie for the root domain
- *
- * If a visitor entered in a sub domain and a root domain cookie is required, then this function will solve the issue by removing the sub domain cookie, redirecting to the main domain, setting a cookie there, and redirecting back again.
- *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
- * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @category Function reference
- * @see ensure_root_domain_cookie()
- * @package system
- * @version 2.8.41: Added function and documentation
- * @note: This requires /root_cookie.html or similar script to exist
- * @see $_CONFIG[redirects][root_cookie]
- *
- * @return string The subdomain, if the current request was on a subdomain
- */
-function ensure_root_domain_cookie(){
-    global $_CONFIG, $core;
-
-    try{
-        $subdomain = inet_get_subdomain($_SESSION['first_domain']);
-
-        if($core->callType('http')){
-            if($_SESSION['first_visit'] and $subdomain and ($_SESSION['client']['type'] !== 'crawler')){
-                /*
-                 * IMPORTANT! Root domain cookies are NOT compatible with strict
-                 * same_site cookies!
-                 */
-                if($_CONFIG['sessions']['same_site'] === 'Strict'){
-                    throw new BException(tr('set_root_domain_cookie(): Current $_CONFIG[sessions][same_site] configuration for environment ":environment" is set to "Strict" which is incompatible with root domain cookies. Either set $_CONFIG[sessions][same_site] to "Lax" or do not use root domain cookies', array(':environment' => ENVIRONMENT)), 'invalid');
-                }
-
-                header_remove('Set-Cookie');
-                redirect(domain(inet_add_query($_CONFIG['redirects']['root_cookie'], 'redirect='.urlencode(domain(true))), null, null, $_CONFIG['domain']), 302);
-            }
-        }
-
-        return $subdomain;
-
-    }catch(Exception $e){
-        throw new BException(tr('set_root_domain_cookie(): Failed'), $e);
     }
 }
 
