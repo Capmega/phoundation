@@ -92,7 +92,7 @@ class Zend_Utf8
      *                             not unicode
      * @return string
      */
-    public static function escape($value, array $options = array())
+    public static function escape(string $value, array $options = array())
     {
         $options = array_merge(array(
             'escapeControlChars'   => true,

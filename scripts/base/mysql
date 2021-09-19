@@ -138,9 +138,8 @@ switch(cli_method()){
                     log_console(tr('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages'), 'warning');
                     log_console(tr('Please fill in MySQL root password in the following "Enter password:" request'), 'white');
 
-                    safe_exec(array('route_errors' => false,
-                                    'commands'     => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|', 'route_errors' => false),
-                                                            'mysql'              , array('-p', '-u', 'root', 'mysql'))));
+                    safe_exec(array('commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
+                                                        'mysql'              , array('-p', '-u', 'root', 'mysql'))));
 
                 }catch(BException $e){
                     /*

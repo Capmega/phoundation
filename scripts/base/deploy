@@ -41,8 +41,6 @@ GLOBAL OPTIONS
 
 --do-syntax / --doparse         - Do PHP syntax check parse
 
---ignore-rsync-errors           - Ignore errors caused by the rsync process
-
 --no-deploy / --test            - Do not deploy, only translate
 
 --no-hook / --no-hooks          - Do not execute hooks
@@ -896,7 +894,7 @@ foreach($targets as $target_environment){
         /*
          * Does the project exist at all? or is it an initial deploy?
          */
-        passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' "'.$sudo.'mkdir /data/backups/'.date_convert(null, 'Ymd').' > /dev/null 2>&1"', $exitcode);
+        passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' "'.$sudo.'mkdir -p /data/backups/'.date_convert(null, 'Ymd').' > /dev/null 2>&1; sudo chown www-data:www-data /data/ -R > /dev/null 2>&1; sudo chmod g+w,o-rwx /data/ -R > /dev/null 2>&1"', $exitcode);
 
         if($exitcode){
             throw new BException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
