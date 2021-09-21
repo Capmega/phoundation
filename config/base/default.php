@@ -305,46 +305,52 @@ $_CONFIG['root']               = '';                                            
 // Routing configuration
 $_CONFIG['route']             = array('static'                              => true,                                                        // If set to true, support for static routes for IPs is added. This is useful to auto block IP's with 404's, or block them completely after the routing table detected fishy actions
 
-                                      'known_hacks'   => array(array('regex' => '/cgi-bin/i',                                                 // Requesting cgi-bin directories is bad
+                                      'known_hacks'   => array(array('regex' => '/cgi-bin/i',                                               // Requesting cgi-bin directories is bad
                                                                      'flags' => 'B,H,L,S'),
 
-                                                               array('regex' => '/(?:\.well-known|acme-challenge)\//i',                       // Requesting cgi-bin directories is bad
+                                                               array('regex' => '/(?:\.well-known|acme-challenge)\//i',                     // Requesting cgi-bin directories is bad
                                                                      'flags' => 'B,H,L,S'),
 
-                                                               array('regex' => '/wp-(?:admin|login)/i',                                      // Known wordpress file sections
+                                                               array('regex' => '/wp-(?:admin|login|content|file-manager)/i',               // Known wordpress file sections
                                                                      'flags' => 'B,H,L,S'),
 
-                                                               array('regex' => '/(?:www|data|public|init|config|scripts|libs)\//i',          // Directories in the phoundation structure or structure of other frameworks like laravel that should never be requested by anybody
+                                                               array('regex' => '/(?:www|data|public|init|config|scripts|libs)\//i',        // Directories in the phoundation structure or structure of other frameworks like laravel that should never be requested by anybody
                                                                      'flags' => 'B,H,L,S'),
 
-                                                               array('regex' => '/<php>/i',                                                  // URL's containing ..
+                                                               array('regex' => '/<\??php/i',                                               // URL's containing <?php or <php
                                                                      'flags' => 'B,H,L,S'),
 
-                                                              array('regex' => '/die(/i',                                                    // URL's containing ..
+                                                              array('regex' => '/die\(/i',                                                  // URL's containing die(
                                                                     'flags' => 'B,H,L,S'),
 
-                                                              array('regex' => '/execute/i',                                                    // URL's containing ..
+                                                              array('regex' => '/execute/i',                                                // URL's containing execute
                                                                     'flags' => 'B,H,L,S'),
 
-                                                              array('regex' => '/XDEBUG/i',                                                    // URL's containing ..
+                                                              array('regex' => '/xdebug/i',                                                 // URL's containing xdebug
                                                                     'flags' => 'B,H,L,S'),
 
-                                                              array('regex' => '/wp-admin/i',                                                    // URL's containing ..
+                                                              array('regex' => '/phpstorm/i',                                               // URL's containing phpstorm
                                                                     'flags' => 'B,H,L,S'),
 
-                                                              array('regex' => '/invokefunction/i',                                                    // URL's containing ..
+                                                              array('regex' => '/call_user_func/i',                                         // URL's containing call_user_func
                                                                     'flags' => 'B,H,L,S'),
 
-                                                              array('regex' => '/jsonws/i',                                                    // URL's containing ..
+                                                              array('regex' => '/\/eval/i',                                                 // URL's containing /eval
                                                                     'flags' => 'B,H,L,S'),
 
-                                                              array('regex' => '/phpunit/i',                                                    // URL's containing ..
+                                                              array('regex' => '/invokefunction/i',                                         // URL's containing invokefunction
                                                                     'flags' => 'B,H,L,S'),
 
-                                                              array('regex' => '/\.\./i',                                                    // URL's containing ..
+                                                              array('regex' => '/jsonws/i',                                                 // URL's containing jsonws
                                                                     'flags' => 'B,H,L,S'),
 
-                                                               array('regex' => '/C=S;O=A/i',                                                 // HTTP query variables that apparently cause issues on some systems
+                                                              array('regex' => '/phpunit/i',                                                // URL's containing phpunit
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/\.\./i',                                                   // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                               array('regex' => '/C=S;O=A/i',                                                // HTTP query variables that apparently cause issues on some systems
                                                                      'flags' => 'B,H,L,S,M')),
 
                                       'languages_map' => null);
