@@ -69,13 +69,9 @@ $_CONFIG['cache']              = array('method'                             => '
 // CDN configuration
 $_CONFIG['cdn']                = array('min'                                => true,                                                    // If set to "true" all CSS and JS files loaded with html_load_js() and html_load_css() will be loaded as file.min.js instead of file.js. Use "true" in production environment, "false" in all other environments
 
-                                       'cache'                              => true,                                                    // [false | true] If set to true, phoundation will cache CDN file data in the configured caching system
-
                                        'cache_max_age'                      => 604800,                                                  // Max age of cached CDN files like bundle files, internal js files, etc. before they are deleted and regenerated. If cache age is lower than 60 it will be considered zero, and cache age will be ignored
 
-                                       'enabled'                            => false,                                                   // [false | true] If set to "true", base will try to use configured CDN servers for the content files. If set to false, files will be used from the local server.
-
-                                       'no_delete'                          => false,                                                   // [false | true] If set to "true", then the local files will not be deleted after have been sent to the CDN system. This is useful in test situations where the CDN files are on the same location as the normal server.
+                                       'enabled'                            => false,                                                   // If set to "true", base will try to use configured CDN servers for the content files. If set to false, files will be used from the local server
 
                                        'is_server'                          => false,                                                   // If set to "true", this server can function as a CDN server
 
@@ -138,8 +134,8 @@ $_CONFIG['client']             = array('detect'                             => f
 $_CONFIG['content']            = array('autocreate'                         => false);                                                  // When using load_content(), if content is missing should it be created automatically? Normally, use "true" on development and test machines, "false" on production
 
 //
-$_CONFIG['copyright']          = array('name'                               => 'Capmega',                                                // Name to be displayed for the copyright
-                                       'url'                                => 'https://capmega.com/copyright.html');                    // URL used for the copyright
+$_CONFIG['copyright']          = array('name'                               => 'lasvegasstriptease.com',                                // Name to be displayed for the copyright
+                                       'url'                                => 'https://lasvegasstriptease.com/copyright.html');        // URL used for the copyright
 
 // Access-Control-Allow-Origin configuration. comma delimeted list of sites to allow with CORS
 $_CONFIG['cors']               = array('origin'                             => '*.',
@@ -164,7 +160,7 @@ $_CONFIG['db']                 = array('default'                            => '
                                                                                      'charset'          => 'utf8mb4',                       // Default character set for all database tables
                                                                                      'collate'          => 'utf8mb4_general_ci',            // Default collate set for all database tables
                                                                                      'limit_max'        => 10000,                           // Standard SQL allowed LIMIT specified in table displays, for example, to avoid displaying a table with a milion entries, for example
-                                                                                     'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE,NO_KEY_OPTIONS,NO_TABLE_OPTIONS,NO_FIELD_OPTIONS',   // Special mode options for MySQL server
+                                                                                     'mode'             => 'PIPES_AS_CONCAT,IGNORE_SPACE',  // Special mode options for MySQL server
                                                                                      'ssh_tunnel'       => array('required'    => false,    // SSH tunnel configuration. This should NOT be used for the core database!
                                                                                                                  'local_port'  => 3307,     // Port on the local machine to enter in the SSH tunnel
                                                                                                                  'remote_port' => 3306,     // MySQL server port on the remote server
@@ -181,9 +177,6 @@ $_CONFIG['domain']             = 'auto';                                        
 // Exec configuration
 $_CONFIG['exec']               = array('path'                               => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin',  // The default path used by safe_exec()
                                        'timeout'                            => 10);
-
-// Exeception configuration
-$_CONFIG['exceptions']        = array('default_code'                        => 'unknown');
 
 // Feedback configuration
 $_CONFIG['feedback']           = array('emails'                             => array('Capmega Support' => 'support@capmega.com'));
@@ -254,7 +247,7 @@ $_CONFIG['maintenance']        = false;                                         
 $_CONFIG['memcached']          = array('servers'                            => array(array('localhost', 11211, 20)),                        // Array of multiple memcached servers. If set to false, no memcached will be done.
                                        'expire_time'                        => 86400,                                                       // Default memcached object expire time (after this time memcached will drop them automatically)
                                        'prefix'                             => PROJECT.'-',                                                 // Default memcached object key prefix (in case multiple projects use the same memcached server)
-                                       'namespaces'                         => false);                                                      // Use namespaces to store the data. This will require extra lookups on memcached to determine namespaces contents, but allows for more flexibility
+                                       'namespaces'                         => true);                                                       // Use namespaces to store the data. This will require extra lookups on memcached to determine namespaces contents, but allows for more flexibility
 
 //Meta configuration
 $_CONFIG['meta']               = array('author'                             => '');                                                         // Set default meta tags for this site which may be overruled by parameters for the function html_header(). See libs/html.php
@@ -298,7 +291,6 @@ $_CONFIG['production']         = true;
 
 // Redirects configuration (This ususally would not require changes unless you want to have other file names for certain actions like signin, etc)
 $_CONFIG['redirects']          = array('auto'                               => 'get',                                                       // Auto redirects (usually because of user or right required) done by "session" or "get"
-                                                                               'root_cookie'      => 'root-cookie.html',                    // The script that will set the cookie for the root domain for the site, then redirect back to the previous sub domain (if specified)
                                                                                'index'            => 'index.html',                          // What is the default index page for this site
                                                                                'accessdenied'     => '403',                                 // Usually won't redirect, but just show
                                                                                'signin'           => 'signin.html',                         // What is the default signin page for this site
@@ -325,8 +317,32 @@ $_CONFIG['route']             = array('static'                              => t
                                                                array('regex' => '/(?:www|data|public|init|config|scripts|libs)\//i',          // Directories in the phoundation structure or structure of other frameworks like laravel that should never be requested by anybody
                                                                      'flags' => 'B,H,L,S'),
 
-                                                               array('regex' => '/\.\./i',                                                    // URL's containing ..
+                                                               array('regex' => '/<php>/i',                                                  // URL's containing ..
                                                                      'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/die(/i',                                                    // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/execute/i',                                                    // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/XDEBUG/i',                                                    // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/wp-admin/i',                                                    // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/invokefunction/i',                                                    // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/jsonws/i',                                                    // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/phpunit/i',                                                    // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
+
+                                                              array('regex' => '/\.\./i',                                                    // URL's containing ..
+                                                                    'flags' => 'B,H,L,S'),
 
                                                                array('regex' => '/C=S;O=A/i',                                                 // HTTP query variables that apparently cause issues on some systems
                                                                      'flags' => 'B,H,L,S,M')),
@@ -361,15 +377,11 @@ $_CONFIG['security']           = array('signin'                             => a
                                        'umask'                              =>  0007,                                                       //
                                        'expose_php'                         => false,                                                       // If false, will hide the X-Powered-By PHP header. If true, will leave the header as is. If set to any other value, will send that value as X-Powered-By value
                                        'seed'                               => '%T"$#HET&UJHRT87',                                          // SEED for generating codes
-                                       'signature'                          => 'limited',                                                   // If set to true, add a phoundation signature in HTTP headers and on certain pages. If set to "limited", this signature will not contain the version of the framework used. If set to false, no header will be sent.
+                                       'signature'                          => true,                                                        // If set to true, add a phoundation signature in HTTP headers and on certain pages.
 
                                        'csrf'                               => array('enabled'          => 'force',                         // CSRF detection configuration. true | false | "force". Force will forcibly check every POST on CSRF
                                                                                      'buffer_size'      => 10,                              // The amount of server side CSRF keys that are being kept. With more keys, more pages can be run in parrallel
-                                                                                     'timeout'          => 0),                              // Timeout after page generation, where @ POST time the CSRF check will fail. Use 0 to disable
-
-                                       'ssl'                                => array('verify_peer'      => true,                            // If Phoundation connects to an SSL connection, if set true, it will verify the certificate
-                                                                                     'verify_peer_name' => true,                            // If Phoundation connects to an SSL connection, if set true, it will verify the certificate name
-                                                                                     'allow_self_signed'=> false));                         // If Phoundation connects to an SSL connection, if set true, it will allow self-signed certificates
+                                                                                     'timeout'          => 0));                             // Timeout after page generation, where @ POST time the CSRF check will fail. Use 0 to disable
 
 
 // Sessions
@@ -378,13 +390,12 @@ $_CONFIG['sessions']           = array('enabled'                            => t
                                        'timeout'                            => 86400,                                                       // Time between pageloads that, when passed, will cause the session to be closed
                                        'http'                               => true,                                                        // Sets if cookies can be sent over other protocols than HTTP. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_httponly
                                        'secure'                             => true,                                                        // Sets if cookies can only be sent over secure connections. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_secure
-                                       'same_site'                          => 'Strict',                                                    // IMPORTANT: INCOMPATIBLE WITH ONE SESSION / COOKIE FOR MAIN DOMAIN AND SUBDOMAINS! false | Lax | Strict : Sets if cookiets can be sent cross domain by browser. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_samesite
+                                       'same_site'                          => 'Strict',                                                    // false | Lax | Strict : Sets if cookiets can be sent cross domain by browser. See https://secure.php.net/manual/en/session.configuration.php#ini.session.cookie_samesite
                                        'strict'                             => true,                                                        // Forces session.use_strict_mode to the specified value. Recommended TRUE for session security! See https://secure.php.net/manual/en/session.configuration.php#ini.session.use_strict_mode
                                        'regenerate_id'                      => 600,                                                         // Time required to regenerate the session id, used to mitigate session fixation attacks. MUST BE LOWER THAN $_CONFIG[session][lifetime]!
                                        'check_referrer'                     => true,                                                        // If set to true, the referrer must contain the domain name
                                        'handler'                            => false,                                                       // false | mm | mc | sql Use the default PHP session manager, shared memory manager (mm), memcached (mc) or sql_sessions library to manage sessions
                                        'euro_cookies'                       => false,                                                       // If set to true, all european countries will see a "This site uses cookies" warning before cookies are being sent
-                                       'notify_expired'                     => false,                                                       // If set to true, and the cookie that the client sent exipired, an html_flash() message will be sent to the client that the cookie expired, and that they may have to login again
                                        'domain'                             => 'auto',                                                      // If set to "auto", will apply to current domain. If set to ".auto", will apply to current domain plus sub domains. If set to specific-domain, or .specific-domain then it will do the same but for the specific-domain
                                        'path'                               => '/',                                                         // The path on the server in which the cookie will be available on. If set to '/', the cookie will be available within the entire domain.
                                        'cookie_name'                        => 'phoundation',                                               // The name for the cookie
