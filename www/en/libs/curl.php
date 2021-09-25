@@ -123,7 +123,7 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
             $results = safe_exec(array('commands' => array('/sbin/ifconfig', array('connector' => '|'),
                                                            'egrep'         , array('-i', 'addr|inet'))));
 
-            $results = implode($results, "\n");
+            $results = implode("\n", $results);
 
         }catch(Exception $e){
             throw new BException(tr('curl_list_ips(): Failed to execute ifconfig, it probably is not installed. On Ubuntu install it by executing "sudo apt install net-toolks"'), $e);

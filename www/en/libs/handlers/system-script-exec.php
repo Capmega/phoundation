@@ -69,8 +69,14 @@ try{
             if(!$environment){
                 $item[] = '-E';
                 $item[] = ENVIRONMENT;
+                $environment = true;
             }
         }
+    }
+
+    // Ensure that environment is available, in case of a command without any arguments
+    if(empty($environment)){
+        $params['commands'][] = ['-E', ENVIRONMENT];
     }
 
     /*
