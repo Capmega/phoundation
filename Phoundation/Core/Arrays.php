@@ -3,8 +3,10 @@
 namespace Phoundation\Core;
 
 use Exception;
-use Phoundation\Core\CoreException\CoreException;
-use Phoundation\Exception\OutOfBoundsException\OutOfBoundsException;
+use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Exception\ElementNotFoundException;
+use Phoundation\Core\Exception\NoNextElementException;
+use Phoundation\Exception\OutOfBoundsException;
 
 /**
  * Class Arrays
@@ -18,120 +20,71 @@ use Phoundation\Exception\OutOfBoundsException\OutOfBoundsException;
  */
 class Arrays {
     /**
-     * Ensure that the specified $params source is an array. If its a numeric value, convert it to array($numeric_key => $params). If its a string value, convert it to array($string_key => $params)
+     * Returns the next key right after specified $key
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
-     * @copyright Copyright (c) 2021 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package array
-     * @see Arrays::ensure()
-     * @note The default value for this function for non assigned values is boolean false, not null. The reason for this is that many of its dependancies use "false" as "do not use" because "null" would be interpreted as "compare to null"
-     * @version 2.5.119: Added function and documentation
-     *
-     * @param array $params A parameters array
-     * @param string $string_key
-     * @param null string $numeric_key
-     * @param null $default The default value for the non selected key
-     * @return array The specified source, guaranteed as a parameters array
+     * @param array $source
+     * @param int|string $current_key
+     * @param bool $delete
+     * @return int|string
+     * @throws NoNextElementException Thrown if the specified $current_key does exist, but only at the end of the
+     *      specified array, so there is no next key
      */
-    public static function params(array &$params, string $string_key = null, int $numeric_key = null, bool $default = false): array
+    public static function nextKey(array &$source, int|string $current_key, bool $delete = false): int|string
     {
-        /*
-         * IMPORTANT!! DO NOT CHANGE $default DEFAULT VALUE AWAY FROM FALSE! THIS IS A REQUIREMENT FOR THE Sql::simple_list() / Sql::simple_get() FUNCTIONS!!
-         */
-        try{
-            if (!$params) {
-                /*
-                 * The specified value is empty (probably null, "", etc). Convert it into an array containing the numeric and string keys with null values
-                 */
-                $params = array();
+        // Scan for the specified $current_key
+        $next = false;
+
+        foreach ($source as $key => $value) {
+            if ($next) {
+                // This is the next key!
+                if ($delete) {
+                    // Delete this next key from the array
+                    unset($source[$key]);
+                }
+
+                return $key;
             }
 
-            if (is_array($params)) {
-                Arrays::ensure($params, array($string_key, $numeric_key), $default);
-                return;
+            if ($key === $current_key) {
+                // We found the search key
+                if ($delete) {
+                    // Delete the specified key from the array
+                    unset($source[$key]);
+                }
+
+                $next = true;
             }
-
-            if (is_numeric($params)) {
-                /*
-                 * The specified value is numeric, convert it to an array with the specified numeric key set having the value $params
-                 */
-                $params = array($numeric_key => $params,
-                                $string_key  => $default);
-                return;
-            }
-
-            if (is_string($params)) {
-                /*
-                 * The specified value is string, convert it to an array with the specified string key set having the value $params
-                 */
-                $params = array($numeric_key => $default,
-                                $string_key  => $params);
-                return;
-            }
-
-            throw new CoreException(tr('Arrays::params(): Specified $params ":params" is invalid. It is an ":datatype" but should be either one of array, integer, or string', array(':datatype' => gettype($params), ':params' => (is_resource($params) ? '{php resource}' : $params))), 'invalid');
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('Arrays::params(): Failed'), $e);
         }
+
+
+        if (!empty($next)) {
+            // The current_key was found, but it was at the end of the array
+            throw new NoNextElementException(tr('The specified $current_key ":key" was found but it was the last item in the array so there is no next', [':key' => $current_key]));
+        }
+
+        throw new ElementNotFoundException(tr('The specified $current_key ":key" was not found in the specified array', [':key' => $current_key]));
     }
 
 
 
     /**
-     * Return the next key right after specified $key
+     * Returns the value for the next value after the specified value
      *
+     * If the specified key is not found, $current_value will be returned.
+     *
+     * @param array $source The source array in which will be searched
+     * @param mixed $current_value The value for which will be searched
+     * @param bool $delete If true, will delete the specified $current_value and found next value
+     * @param bool $restart
+     * @return mixed
      */
-    public static function nextKey(array &$array, int|string $current_key, bool $delete = false): int|string
+    public static function nextValue(array &$source, mixed $current_value, bool $delete = false, bool $restart = false): mixed
     {
         try{
-            foreach ($array as $key => $value) {
+            foreach ($source as $key => $value) {
                 if (isset($next)) {
                     if ($delete) {
-                        unset($array[$key]);
-                    }
-
-                    return $key;
-                }
-
-                if ($key === $current_key) {
-                    if ($delete) {
-                        unset($array[$key]);
-                    }
-
-                    $next = true;
-                }
-            }
-
-
-            if (!empty($next)) {
-                /*
-                 * The currentvalue was found, but it was at the end of the array
-                 */
-                throw new CoreException(tr('Arrays::nextKey(): Found current_key ":value" but it was the last item in the array, there is no next', array(':value' => Strings::log($currentvalue))), '');
-            }
-
-        } catch (Exception $e) {
-            throw new CoreException('Arrays::nextKey(): Failed', $e);
-        }
-    }
-
-
-
-    /**
-     * Return the next key right after specified $key
-     *
-     * If the specified key is not found, $currentvalue will be returned.
-     */
-    public static function nextValue(&$array, $current_value, $delete = false, $restart = false)
-    {
-        try{
-            foreach ($array as $key => $value) {
-                if (isset($next)) {
-                    if ($delete) {
-                        unset($array[$key]);
+                        unset($source[$key]);
                     }
 
                     return $value;
@@ -139,7 +92,7 @@ class Arrays {
 
                 if ($value === $current_value) {
                     if ($delete) {
-                        unset($array[$key]);
+                        unset($source[$key]);
                     }
 
                     $next = true;
@@ -147,14 +100,12 @@ class Arrays {
             }
 
             if (!$restart) {
-                /*
-                 * The currentvalue was found, but it was at the end of the array
-                 */
-                throw new CoreException(tr('Arrays::next_value(): Option ":value" does not have a value specified', array(':value' => $current_value)), 'invalid');
+                // The current value was found, but it was at the end of the array
+                throw new NoNextElementException(tr('Arrays::next_value(): Option ":value" does not have a value specified', array(':value' => $current_value)), 'invalid');
             }
 
-            reset($array);
-            return current($array);
+            reset($source);
+            return current($source);
 
         } catch (Exception $e) {
             throw new CoreException('array_next_value(): Failed', $e);
@@ -163,9 +114,11 @@ class Arrays {
 
 
     /**
-     * Ensure that the specified $key exists in the specified $source. If the specified $key does not exist, it will be initialized with the specified $default value.
+     * Ensures that the specified $key exists in the specified $source.
      *
-     * This function is mostly used with ensuring default values for params arrays. With using this function, you can be sure individual values are each initialized with specific values, if they do not exist yet
+     * If the specified $key does not exist, it will be initialized with the specified $default value. This function is
+     * mostly used with ensuring default values for params arrays. With using this function, you can be sure individual
+     * values are each initialized with specific values, if they do not exist yet
      *
      * @param array $source The array that is being worked on
      * @param int|string $key The key that must exist in the $source array
@@ -176,11 +129,10 @@ class Arrays {
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
-     * @package array
      * @see Arrays::ensure()
-     * @note: $source is passed by reference and will be modified directly
+     * @note $source is passed by reference and will be modified directly!
      * @version 1.22.0: Added documentation
-     * code
+     * @example
      * $b = array();
      * Arrays::default($b, 'foo', 'bar');
      * showdie($b)
@@ -189,29 +141,14 @@ class Arrays {
      * This would display the following results
      * code
      * array('foo' => 'bar')
-     * /code
-     *
      */
     public static function default(array &$source, int|string $key, mixed $default): mixed
     {
-        try{
-            if (!isset($source[$key])) {
-                $source[$key] = $default;
-            }
-
-            return $source[$key];
-
-        } catch (Exception $e) {
-            if (!is_array($source)) {
-                throw new CoreException(tr('array_default(): Specified source is not an array'), 'invalid');
-            }
-
-            if (!is_scalar($key)) {
-                throw new CoreException(tr('array_default(): Specified key ":key" is not a scalar', array(':key' => $key)), 'invalid');
-            }
-
-            throw new CoreException('array_default(): Failed', $e);
+        if (!isset($source[$key])) {
+            $source[$key] = $default;
         }
+
+        return $source[$key];
     }
 
 
@@ -302,7 +239,6 @@ class Arrays {
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
-     * @package array
      *
      * @param array $array
      * @return object The array that was created from the specified array
@@ -1442,7 +1378,6 @@ class Arrays {
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
-     * @package system
      * @see Strings::force()
      * @example
      * code

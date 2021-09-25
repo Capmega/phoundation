@@ -5,7 +5,7 @@ namespace Phoundation\Core;
 use Throwable;
 
 /**
- * Log class
+ * Core\Log class
  *
  * This class is the main event logger class
  *

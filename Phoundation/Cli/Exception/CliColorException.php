@@ -1,17 +1,15 @@
 <?php
 
-namespace Phoundation\Core\Exception;
-
 /**
- * Class ConfigException
+ * Class CliColorException
  *
- * This is the exception for the Phoundation/Core/Config class
+ * This exception is thrown in case of errors in the Command Line Exception Color class, Cli\Color
  *
  * @author Sven Olaf Oostenbrink <sven@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
- * @package Phoundation\Core
+ * @package Phoundation\Cli
  */
-class ConfigException extends CoreException
+class CliColorException extends CliException
 {
 }
