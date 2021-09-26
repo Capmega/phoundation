@@ -3,7 +3,9 @@
 namespace Phoundation\Core;
 
 use Exception;
+use Phoundation\Core\Exception\CoreException;
 use Phoundation\Exception\OutOfBoundsException;
+use Zend_Utf8;
 
 /**
  * Class Strings
@@ -18,94 +20,87 @@ class Strings
 {
     /**
      * Fix urls that dont start with http://
+     *
+     * @param string $url
+     * @param string $protocol
+     * @return string
      */
-    public static function ensureUrl(string $url, string $protocol = 'http://'): string
+    public static function ensureUrl(string $url, string $protocol = 'https://'): string
     {
-        try{
-            if (substr($url, 0, mb_strlen($protocol)) != $protocol) {
-                return $protocol.$url;
+        if (substr($url, 0, mb_strlen($protocol)) != $protocol) {
+            return $protocol.$url;
 
-            } else {
-                return $url;
-            }
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_ensure_url(): Failed'), $e);
         }
+
+        return $url;
     }
 
 
 
     /**
      * Return "casa" or "casas" based on number
+     *
+     * @param int $count
+     * @param string $single_text
+     * @param string $multiple_text
+     * @return string
      */
     public static function plural(int $count, string $single_text, string $multiple_text): string
     {
-        try{
-            if ($count == 1) {
-                return $single_text;
+        if ($count == 1) {
+            return $single_text;
 
-            }
-
-            return $multiple_text;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_plural(): Failed'), $e);
         }
-    }
 
+        return $multiple_text;
+    }
 
 
     /**
      * Returns true if string is serialized, false if not
+     *
+     * @param string $data
+     * @return bool
      */
-    public static function isSerialized(?string $data): bool
+    public static function isSerialized(string $data): bool
     {
-        try{
-            if (!$data) {
-                return false;
-            }
-
-            return (boolean) preg_match( "/^([adObis]:|N;)/u", $data);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_is_serialized(): Failed'), $e);
+        if (!$data) {
+            return false;
         }
+
+        return (boolean) preg_match( "/^([adObis]:|N;)/u", $data);
     }
 
 
 
     /**
-     * Fix urls that dont start with http://
+     * Ensure that the specified string has UTF8 format
+     *
+     * @param string $string
+     * @return string
      */
     public static function ensureUtf8(string $string): string
     {
-        try{
-            if (strings::isUtf8($string)) {
-                return $string;
-            }
-
-            return utf8_encode($string);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_ensure_utf8(): Failed'), $e);
+        if (strings::isUtf8($string)) {
+            return $string;
         }
+
+        return utf8_encode($string);
     }
 
 
 
     /**
      * Returns true if string is UTF-8, false if not
+     *
+     * @param string $source
+     * @return bool
      */
     public static function isUtf8(string $source): bool
     {
-        try{
-            return mb_check_encoding($source, 'UTF8');
+        return mb_check_encoding($source, 'UTF8');
 
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_is_utf8(): Failed'), $e);
-        }
-
+        // TODO Check if the preg_match below would work better or not
         /*return preg_match('%^(?:
         [\x09\x0A\x0D\x20-\x7E] # ASCII
         | [\xC2-\xDF][\x80-\xBF] # non-overlong 2-byte
@@ -121,216 +116,170 @@ class Strings
 
 
     /**
-     * Return string will not contain HTML codes for Spanish haracters
+     * Return string will not contain HTML codes for Spanish characters
+     *
+     * @param string $source
+     * @return string
      */
     public static function fixSpanishChars(string $source): string
     {
-        try{
-            $from = array('&Aacute;', '&aacute;', '&Eacute;', '&eacute;', '&Iacute;', '&iacute;', '&Oacute;', '&oacute;', '&Ntilde;', '&ntilde;', '&Uacute;', '&uacute;', '&Uuml;', '&uuml;','&iexcl;','&ordf;','&iquest;','&ordm;');
-            $to   = array('Á'       , 'á'       , 'É'       , 'é'       , 'Í'       , 'í'       , 'Ó'       , 'ó'       , 'Ñ'       , 'ñ'       , 'Ú'       , 'ú'       , 'Ü'     , 'ü'     , '¡'     , 'ª'    , '¿'      , 'º'    );
+        $from = array('&Aacute;', '&aacute;', '&Eacute;', '&eacute;', '&Iacute;', '&iacute;', '&Oacute;', '&oacute;', '&Ntilde;', '&ntilde;', '&Uacute;', '&uacute;', '&Uuml;', '&uuml;','&iexcl;','&ordf;','&iquest;','&ordm;');
+        $to   = array('Á'       , 'á'       , 'É'       , 'é'       , 'Í'       , 'í'       , 'Ó'       , 'ó'       , 'Ñ'       , 'ñ'       , 'Ú'       , 'ú'       , 'Ü'     , 'ü'     , '¡'     , 'ª'    , '¿'      , 'º'    );
 
-            return str_replace($from, $to, $source);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_fix_spanish_chars(): Failed'), $e);
-        }
+        return str_replace($from, $to, $source);
     }
 
 
 
     /**
      * Return a lowercased string with the first letter capitalized
+     *
+     * @param string $source
+     * @param int $position
+     * @return string
      */
     public static function capitalize(string $source, int $position = 0): string
     {
-        try{
-            if (!$position) {
-                return mb_strtoupper(mb_substr($source, 0, 1)).mb_strtolower(mb_substr($source, 1));
-            }
-
-            return mb_strtolower(mb_substr($source, 0, $position)).mb_strtoupper(mb_substr($source, $position, 1)).mb_strtolower(mb_substr($source, $position + 1));
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_capitalize(): Failed'), $e);
+        if (!$position) {
+            return mb_strtoupper(mb_substr($source, 0, 1)).mb_strtolower(mb_substr($source, 1));
         }
-    }
 
+        return mb_strtolower(mb_substr($source, 0, $position)).mb_strtoupper(mb_substr($source, $position, 1)).mb_strtolower(mb_substr($source, $position + 1));
+    }
 
 
     /**
      * Return a random string
+     *
+     * @param int $length
+     * @param bool $unique
+     * @param string $characters
+     * @return string
+     * @throws OutOfBoundsException
      */
     public static function random(int $length = 8, bool $unique = false, string $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'): string
     {
-        try{
-            $string     = '';
-            $charlen    = mb_strlen($characters);
+        $string     = '';
+        $charlen    = mb_strlen($characters);
 
-            if ($unique and ($length > $charlen)) {
-                throw new CoreException('str_random(): Can not create unique character random string with size "'.self::log($length) . '". When $unique is requested, the string length can not be larger than "'.str_log($charlen) . '" because there are no more then that amount of unique characters', 'invalid');
-            }
-
-            for ($i = 0; $i < $length; $i++) {
-                $char = $characters[mt_rand(0, $charlen - 1)];
-
-                if ($unique and (mb_strpos($string, $char) !== false)) {
-                    /*
-                     * We want all characters to be unique, do not readd this character again
-                     */
-                    $i--;
-                    continue;
-                }
-
-                $string .= $char;
-            }
-
-            return $string;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_random(): Failed'), $e);
+        if ($unique and ($length > $charlen)) {
+            throw new OutOfBoundsException(tr('Can not create unique character random string with size ":length". When $unique is requested, the string length can not be larger than ":charlen" because there are no more then that amount of unique characters', ['length' => $length, 'charlen' => $charlen]));
         }
+
+        for ($i = 0; $i < $length; $i++) {
+            $char = $characters[mt_rand(0, $charlen - 1)];
+
+            if ($unique and (mb_strpos($string, $char) !== false)) {
+                /*
+                 * We want all characters to be unique, do not readd this character again
+                 */
+                $i--;
+                continue;
+            }
+
+            $string .= $char;
+        }
+
+        return $string;
     }
 
 
 
     /**
      * Is spanish alphanumeric
+     *
+     * @param string $source
+     * @param string $extra
+     * @return bool
      */
     public static function isAlpha(string $source, string $extra = '\s'): bool
     {
-        try{
-            $reg   = "/[^\p{L}\d$extra]/u";
-            $count = preg_match($reg, $source, $matches);
+        $reg   = "/[^\p{L}\d$extra]/u";
+        $count = preg_match($reg, $source, $matches);
 
-            return $count == 0;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_is_alpha(): Failed'), $e);
-        }
+        return $count == 0;
     }
 
 
 
     /**
      * Return a clean string, basically leaving only printable latin1 characters,
+     *
+     * @param string $source
+     * @param string $replace
+     * @return string
      */
-    // :DELETE: This is never used, where would it be used?
     public static function escapeForJquery(string $source, string $replace = ''): string
     {
-
-        try{
-            return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/gu', '\\\\$&', $source);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_escape_for_jquery(): Failed'), $e);
-        }
+        return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/gu', '\\\\$&', $source);
     }
 
 
 
     /**
+     * ???
      *
+     * @param string $string
+     * @return string
      */
     public static function stripFunction(string $string) : string
     {
-        try{
-            return trim(Strings::from($string, '():'));
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_strip_function(): Failed'), $e);
-        }
+        return trim(Strings::from($string, '():'));
     }
-
 
 
     /**
      * Will fix a base64 coded string with missing termination = marks before decoding it
+     *
+     * @param string $source
+     * @return string
      */
     public static function safeBase64Decode(string $source): string
     {
-        try{
-            if ($mod = mb_strlen($source) % 4) {
-                $source .= str_repeat('=', 4 - $mod);
-            }
-
-            return base64_decode($source);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_safe_base64_decode(): Failed'), $e);
+        if ($mod = mb_strlen($source) % 4) {
+            $source .= str_repeat('=', 4 - $mod);
         }
-    }
 
-
-
-    /**
-     * Return a safe size string for displaying
-     */
-    // :DELETE: Isn't this str_log()?
-    public static function safe(string $source, int $maxsize = 50): string
-    {
-        try{
-            return Strings::truncate(Json::encode($source), $maxsize);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_safe(): Failed'), $e);
-        }
-    }
-
-
-
-    /**
-     * Return the entire string in HEX ASCII
-     */
-    public static function hex(string $source): string
-    {
-        try{
-            return bin2hex($source);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_hex(): Failed'), $e);
-        }
+        return base64_decode($source);
     }
 
 
 
     /**
      * Return a camel cased string
+     *
+     * @param string $source
+     * @param string $separator
+     * @return string
      */
     public static function camelCase(string $source, string $separator = ' '): string
     {
-        try{
-            $source = explode($separator, mb_strtolower($source));
+        $source = explode($separator, mb_strtolower($source));
 
-            foreach ($source as $key => &$value) {
-                $value = mb_ucfirst($value);
-            }
-
-            unset($value);
-
-            return implode($separator, $source);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_camelcase(): Failed'), $e);
+        foreach ($source as $key => &$value) {
+            $value = mb_ucfirst($value);
         }
+
+        unset($value);
+        return implode($separator, $source);
     }
 
 
-
     /**
-     * Fix PHP explode
+     * PHP explode() only in case $source is empty, it will return an empty array instead of an array with the emtpy
+     * value in there
+     *
+     * @param string $separator
+     * @param string $source
+     * @return string
      */
     public static function explode(string $separator, string $source): string
     {
-        try{
-            if (!$source) {
-                return array();
-            }
-
-            return explode($separator, $source);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_explode(): Failed'), $e);
+        if (!$source) {
+            return array();
         }
+
+        return explode($separator, $source);
     }
 
 
@@ -338,149 +287,135 @@ class Strings
     /**
      * Interleave given string with given secundary string
      *
-     *
-     *
+     * @param string $source
+     * @param int|string $interleave
+     * @param int $end
+     * @param int $chunk_size
+     * @return string
      */
     public static function interleave(string $source, int|string $interleave, int $end = 0, int $chunk_size = 1): string
     {
-        try{
-            if (!$source) {
-                throw new CoreException(tr('Empty source specified'));
-            }
-
-            if (!$interleave) {
-                throw new CoreException(tr('Empty interleave specified'));
-            }
-
-            if ($chunk_size < 1) {
-                throw new CoreException(tr('Specified chunksize ":chunksize" is invalid, it must be 1 or greater', [':chunksize' => $chunk_size]));
-            }
-
-            if ($end) {
-                $begin = mb_substr($source, 0, $end);
-                $end   = mb_substr($source, $end);
-
-            } else {
-                $begin = $source;
-                $end   = '';
-            }
-
-            $begin  = mb_str_split($begin, $chunk_size);
-            $retval = '';
-
-            foreach ($begin as $chunk) {
-                $retval .= $chunk.$interleave;
-            }
-
-            return mb_substr($retval, 0, -1) . $end;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_interleave(): Failed'), $e);
+        if (!$source) {
+            throw new CoreException(tr('Empty source specified'));
         }
+
+        if (!$interleave) {
+            throw new CoreException(tr('Empty interleave specified'));
+        }
+
+        if ($chunk_size < 1) {
+            throw new CoreException(tr('Specified chunksize ":chunksize" is invalid, it must be 1 or greater', [':chunksize' => $chunk_size]));
+        }
+
+        if ($end) {
+            $begin = mb_substr($source, 0, $end);
+            $end   = mb_substr($source, $end);
+
+        } else {
+            $begin = $source;
+            $end   = '';
+        }
+
+        $begin  = mb_str_split($begin, $chunk_size);
+        $retval = '';
+
+        foreach ($begin as $chunk) {
+            $retval .= $chunk.$interleave;
+        }
+
+        return mb_substr($retval, 0, -1) . $end;
     }
 
 
 
     /**
      * Convert weird chars to their standard ASCII variant
+     *
+     * @todo Isnt this the same as str_fix_spanish_chars() ??
+     * @param string $source
+     * @return string
      */
-    // :TODO: Isnt this the same as str_fix_spanish_chars() ??
     public static function convertAccents(string $source): string
     {
-        try{
-            $from = explode(',', "ç,æ,œ,á,é,í,ó,ú,à,è,ì,ò,ù,ä,ë,ï,ö,ü,ÿ,â,ê,î,ô,û,å,e,i,ø,u,Ú,ñ,Ñ,º");
-            $to   = explode(',', "c,ae,oe,a,e,i,o,u,a,e,i,o,u,a,e,i,o,u,y,a,e,i,o,u,a,e,i,o,u,U,n,n,o");
+        $from = explode(',', "ç,æ,œ,á,é,í,ó,ú,à,è,ì,ò,ù,ä,ë,ï,ö,ü,ÿ,â,ê,î,ô,û,å,e,i,ø,u,Ú,ñ,Ñ,º");
+        $to   = explode(',', "c,ae,oe,a,e,i,o,u,a,e,i,o,u,a,e,i,o,u,y,a,e,i,o,u,a,e,i,o,u,U,n,n,o");
 
-            return str_replace($from, $to, $source);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_convert_accents(): Failed'), $e);
-        }
+        return str_replace($from, $to, $source);
     }
 
 
 
     /**
      * Strip whitespace
+     *
+     * @param string $string
+     * @return string
      */
     public static function stripHtmlWhitespace(string $string): string
     {
-        try{
-            return preg_replace('/>\s+</u', '><', $string);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_strip_html_whitespace(): Failed'), $e);
-        }
+        return preg_replace('/>\s+</u', '><', $string);
     }
 
 
 
     /**
      * Return the specified string quoted if not numeric, boolean,
+     *
      * @param string $source
-     * @param string $quote What quote (or other symbol) to use for the quoting
+     * @param string $quote
+     * @return string
      */
     public static function quote(string $source, string $quote = "'"): string
     {
-        try{
-            if (is_numeric($source) or is_bool(is_numeric($source))) {
-                return $source;
-            }
-
-            return $quote.$source.$quote;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_quote(): Failed'), $e);
+        if (is_numeric($source) or is_bool(is_numeric($source))) {
+            return $source;
         }
+
+        return $quote.$source.$quote;
     }
 
 
 
     /**
      * Return if specified source is a valid version or not
+     *
      * @param string $source
-     * @return boolean True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/". False if not
+     * @return bool True if the specified string is a version format string matching "/^\d{1,3}\.\d{1,3}\.\d{1,3}$/". False if not
      * @example showdie(str_is_version(phpversion())); This example should show a debug table with true
      */
     public static function isVersion(string $source): bool
     {
-        try{
-            return preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}$/', $source);
-
-        } catch (Exception $e) {
-            throw new CoreException('str_is_version(): Failed', $e);
-        }
+        return preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}$/', $source);
     }
 
 
 
     /**
      * Returns true if the specified source string contains HTML
+     *
+     * @param string $source
+     * @return bool
      */
     public static function isHtml(string $source): bool
     {
-        try{
-            return !preg_match('/<[^<]+>/', $source);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_is_html(): Failed'), $e);
-        }
+        return !preg_match('/<[^<]+>/', $source);
     }
 
 
 
     /**
      * Return if specified source is a JSON string or not
+     *
+     * @todo Remove test line
+     * @param string $source
+     * @return bool
      */
     public static function isJson(string $source): bool
     {
-        try{
-    //        return !preg_match('/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/', preg_replace('/"(\\.|[^"\\])*"/g', '', $source));
-            return !empty($source) && is_string($source) && preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
+        // :TODO: Remove this test line
+        // return !preg_match('/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/', preg_replace('/"(\\.|[^"\\])*"/g', '', $source));
 
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_is_json(): Failed'), $e);
-        }
+            return !empty($source) && is_string($source) && preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
     }
 
 
@@ -491,71 +426,43 @@ class Strings
      * No, trim() is not MB save
      * Yes, this (so far) seems to be safe
      *
-     * IMPORTANT! DO NOT USE AND COMMENT THE mb_trim() call in the mb.php libray!! Experiments have shown that that one
+     * IMPORTANT! DO NOT USE AND COMMENT THE self::mbTrim() call in the mb.php libray!! Experiments have shown that that one
      * there is NOT MB SAFE!!
      *
      * @param string $source
      * @return string
      */
-    function mbTrim(string $source): string
+    public static function mbTrim(string $source): string
     {
-        try{
-            return preg_replace("/(^\s+)|(\s+$)/us", '', $source);
-
-        } catch (Exception $e) {
-            throw new CoreException('mb_trim(): Failed', $e);
-        }
+        return preg_replace("/(^\s+)|(\s+$)/us", '', $source);
     }
-
-
-
-    ///*
-    // * Proper unicode mb_str_split()
-    // * Taken from http://php.net/manual/en/function.str-split.php
-    // */
-    //function mb_str_split($source, $l = 0) {
-    //    try{
-    //        if ($l > 0) {
-    //            $retval = array();
-    //            $length = mb_strlen($source, 'UTF-8');
-    //
-    //            for ($i = 0; $i < $length; $i += $l) {
-    //                $retval[] = mb_substr($source, $i, $l, 'UTF-8');
-    //            }
-    //
-    //            return $retval;
-    //        }
-    //
-    //        return preg_split("//u", $source, -1, PREG_SPLIT_NO_EMPTY);
-    //
-    //    } catch (Exception $e) {
-    //        throw new CoreException('mb_str_split(): Failed', $e);
-    //    }
-    //}
-
 
 
     /**
      * Correctly converts <br> to \n
+     *
+     * @param string $source
+     * @param string $nl
+     * @return string
      */
-    function br2nl(string $source, string $nl = "\n") {
-        try{
-            $source = preg_replace("/(\r\n|\n|\r)/u", '' , $source);
-            $source = preg_replace("/<br *\/?>/iu"  , $nl, $source);
+    public static function br2nl(string $source, string $nl = "\n"): string
+    {
+        $source = preg_replace("/(\r\n|\n|\r)/u", '' , $source);
+        $source = preg_replace("/<br *\/?>/iu"  , $nl, $source);
 
-            return $source;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('br2nl(): Failed'), $e);
-        }
+        return $source;
     }
 
 
 
     /**
      * Correctly converts <br> to \n
+     *
+     * @param string $source
+     * @param string $nl
+     * @return string
      */
-    function nl2br(string $source, string $nl = "\n"): string
+    public static function nl2br(string $source, string $nl = "\n"): string
     {
 // TODO Implement!
 
@@ -571,51 +478,51 @@ class Strings
 
     /**
      * Returns true if the specified text has one (or all) of the specified keywords
+     *
+     * @param string $text
+     * @param array $keywords
+     * @param bool $has_all
+     * @param bool $regex
+     * @param bool $unicode
+     * @return string
      */
     public static function hasKeywords(string $text, array $keywords, bool $has_all = false, bool $regex = false, bool $unicode = true): string
     {
-        try{
-            $count = 0;
+        $count = 0;
 
-            foreach ($keywords as $keyword) {
-                /*
-                 * Ensure keywords are trimmed, and don't search for empty keywords
-                 */
-                if (!trim($keyword)) {
-                    continue;
-                }
-
-                if ($regex) {
-                    if (preg_match('/' . $keyword.'/ims'.($unicode ? 'u' : ''), $text, $matches) !== false) {
-                        if (!$has_all) {
-                            /*
-                             * We're only interrested in knowing if it has one of the specified keywords
-                             */
-                            return array_shift($matches);
-                        }
-
-                        $count++;
-                    }
-
-                } else {
-                    if (stripos($text, $keyword) !== false) {
-                        if (!$has_all) {
-                            /*
-                             * We're only interrested in knowing if it has one of the specified keywords
-                             */
-                            return $keyword;
-                        }
-
-                        $count++;
-                    }
-                }
+        foreach ($keywords as $keyword) {
+            /*
+             * Ensure keywords are trimmed, and don't search for empty keywords
+             */
+            if (!trim($keyword)) {
+                continue;
             }
 
-            return $count == count($keywords);
+            if ($regex) {
+                if (preg_match('/' . $keyword.'/ims'.($unicode ? 'u' : ''), $text, $matches) !== false) {
+                    if (!$has_all) {
+                        /*
+                         * We're only interrested in knowing if it has one of the specified keywords
+                         */
+                        return array_shift($matches);
+                    }
 
-        } catch (Exception $e) {
-            throw new CoreException('str_has_keywords(): Failed', $e);
+                    $count++;
+                }
+
+            } elseif (stripos($text, $keyword) !== false) {
+                if (!$has_all) {
+                    /*
+                     * We're only interrested in knowing if it has one of the specified keywords
+                     */
+                    return $keyword;
+                }
+
+                $count++;
+            }
         }
+
+        return $count == count($keywords);
     }
 
 
@@ -636,6 +543,10 @@ class Strings
      * vowelcaps              AbcdEfg
      * lowercentercaps        abcDefg
      * capscenterlower        ABCdEFG
+     *
+     * @param string $string
+     * @param string $type
+     * @return string
      */
     public static function caps(string $string, string $type): string
     {
@@ -695,25 +606,10 @@ class Strings
                             break;
 
                         case 'interleave':
-                            $replace = $word;
-                            break;
-
                         case 'invertinterleave':
-                            $replace = $word;
-                            break;
-
                         case 'consonantcaps':
-                            $replace = $word;
-                            break;
-
                         case 'vowelcaps':
-                            $replace = $word;
-                            break;
-
                         case 'lowercentercaps':
-                            $replace = $word;
-                            break;
-
                         case 'capscenterlower':
                             $replace = $word;
                             break;
@@ -734,7 +630,6 @@ class Strings
     }
 
 
-
     /**
      * Returns an estimation of the caps style of the string
      * styles may be:
@@ -751,192 +646,193 @@ class Strings
      * vowelcaps               AbcdEfg
      * lowercentercaps         abcDefg
      * capscenterlower         ABCdEFG
+     *
+     * @param string $string
+     * @return string
+     * @todo Implement
      */
     public static function capsGuess(string $string): string
     {
-        try{
-            $posibilities = array('lowercase'             ,
-                                  'uppercase'             ,
-                                  'capitalize'            ,
-                                  'doublecapitalize'      ,
-                                  'invertcapitalize'      ,
-                                  'invertdoublecapitalize',
-                                  'interleave'            ,
-                                  'invertinterleave'      ,
-                                  'consonantcaps'         ,
-                                  'vowelcaps'             ,
-                                  'lowercentercaps'       ,
-                                  'capscenterlower'       );
+        $retval = '';
+        $posibilities = array('lowercase'             ,
+                              'uppercase'             ,
+                              'capitalize'            ,
+                              'doublecapitalize'      ,
+                              'invertcapitalize'      ,
+                              'invertdoublecapitalize',
+                              'interleave'            ,
+                              'invertinterleave'      ,
+                              'consonantcaps'         ,
+                              'vowelcaps'             ,
+                              'lowercentercaps'       ,
+                              'capscenterlower'       );
 
-            /*
-             * Now, find all words
-             */
-            preg_match_all('/\b(?:\w\s)+\b/umsi', $string, $words);
+        /*
+         * Now, find all words
+         */
+        preg_match_all('/\b(?:\w\s)+\b/umsi', $string, $words);
 
-            /*
-             * Now apply the specified type to all words
-             */
-            foreach ($words as $word) {
-            }
-
-        } catch (Exception $e) {
-            throw new CoreException('str_caps_guess_type(): Failed', $e);
+        /*
+         * Now apply the specified type to all words
+         */
+        foreach ($words as $word) {
         }
+
+        return $retval;
     }
 
 
 
     /**
      * Force the specified source to be a string
+     *
+     * @param mixed $source
+     * @param string $separator
+     * @return string
      */
     public static function force(mixed $source, string $separator = ','): string
     {
-        try{
-            if (!is_scalar($source)) {
-                if (!is_array($source)) {
-                    if (!$source) {
-                        return '';
-                    }
-
-                    if (is_object($source)) {
-                        throw new CoreException(tr('str_force(): Specified source is neither scalar nor array but an object of class ":class"', array(':class' => get_class($source))), 'invalid');
-                    }
-
-                    throw new CoreException(tr('str_force(): Specified source is neither scalar nor array but an ":type"', array(':type' => gettype($source))), 'invalid');
+        if (!is_scalar($source)) {
+            if (!is_array($source)) {
+                if (!$source) {
+                    return '';
                 }
 
-                /*
-                 * Encoding?
-                 */
-                if ($separator === 'json') {
-                    $source = Json::encode($source);
-
-                } else {
-                    $source = implode($separator, $source);
+                if (is_object($source)) {
+                    throw new CoreException(tr('str_force(): Specified source is neither scalar nor array but an object of class ":class"', array(':class' => get_class($source))), 'invalid');
                 }
+
+                throw new CoreException(tr('str_force(): Specified source is neither scalar nor array but an ":type"', array(':type' => gettype($source))), 'invalid');
             }
 
-            return (string) $source;
+            /*
+             * Encoding?
+             */
+            if ($separator === 'json') {
+                $source = Json::encode($source);
 
-        } catch (Exception $e) {
-            throw new CoreException('str_force(): Failed', $e);
+            } else {
+                $source = implode($separator, $source);
+            }
         }
+
+        return (string) $source;
     }
 
 
 
     /**
      * Force the specified string to be the specified size.
+     *
+     * @param string $source
+     * @param int $size
+     * @param string $add
+     * @param bool $prefix
+     * @return string
      */
-    public static function size(string $source, int $size, $add = ' ', $prefix = false): string
+    public static function size(string $source, int $size, string $add = ' ', bool $prefix = false): string
     {
-        try{
-            if ($size < 0) {
-                throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or highter', [':size' => $size]));
-            }
-
-            load_libs('cli');
-            $strlen = mb_strlen(cli_strip_color($source));
-
-            if ($strlen == $size) {
-                return $source;
-            }
-
-            if ($strlen > $size) {
-                return substr($source, 0, $size);
-            }
-
-            if ($prefix) {
-                return str_repeat($add, $size - $strlen) . $source;
-            }
-
-            return $source.str_repeat($add, $size - $strlen);
-
-        } catch (Exception $e) {
-            throw new CoreException('str_size(): Failed', $e);
+        if ($size < 0) {
+            throw new OutOfBoundsException(tr('Specified size ":size" is invalid, it must be 0 or highter', [':size' => $size]));
         }
+
+        load_libs('cli');
+        $strlen = mb_strlen(cli_strip_color($source));
+
+        if ($strlen == $size) {
+            return $source;
+        }
+
+        if ($strlen > $size) {
+            return substr($source, 0, $size);
+        }
+
+        if ($prefix) {
+            return str_repeat($add, $size - $strlen) . $source;
+        }
+
+        return $source.str_repeat($add, $size - $strlen);
     }
 
 
 
     /**
+     * ???
      *
+     *
+     * @param string $string
+     * @param string $escape
+     * @return string
      */
     public static function escape(string $string, string $escape = '"'): string
     {
-        try{
-            for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
-                $string = str_replace($escape[$i], '\\' . $escape[$i], $string);
-            }
-
-            return $string;
-
-        } catch (Exception $e) {
-            throw new CoreException('str_escape(): Failed', $e);
+        for($i = (mb_strlen($escape) - 1); $i <= 0; $i++) {
+            $string = str_replace($escape[$i], '\\' . $escape[$i], $string);
         }
+
+        return $string;
     }
 
 
 
     /**
+     * XOR the first string with the second string
      *
+     * @param string $first
+     * @param string $second
+     * @return string
      */
-    public static function xor(string $a, string $b): string
+    public static function xor(string $first, string $second): string
     {
-        try{
-            $diff   = $a ^ $b;
-            $retval = '';
+        $diff   = $first ^ $second;
+        $retval = '';
 
-            for ($i = 0, $len = mb_strlen($diff); $i != $len; ++$i) {
-                $retval[$i] === "\0" ? ' ' : '#';
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('str_xor(): Failed', $e);
+        for ($i = 0, $len = mb_strlen($diff); $i != $len; ++$i) {
+            $retval[$i] === "\0" ? ' ' : '#';
         }
+
+        return $retval;
     }
 
 
 
     /**
+     * Returns how much similar the specified second string is to the first string
      *
+     * @param string $first
+     * @param string $second
+     * @param float $percent
+     * @return string
      */
-    public static function similar(string $a, string $b, float &$percent): string
+    public static function similar(string $first, string $second, float &$percent): string
     {
-        try{
-            return similar_text($a, $b, $percent);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_similar(): Failed'), $e);
-        }
+        return similar_text($first, $second, $percent);
     }
 
 
 
     /**
      * Recursively trim all strings in the specified array tree
+     *
+     * @param array $source
+     * @param bool $recurse
+     * @return string
      */
-    public static function trimArray(string $source, bool $recurse = true): string
+    public static function trimArray(array $source, bool $recurse = true): string
     {
-        try{
-            foreach ($source as $key => &$value) {
-                if (is_string($value)) {
-                    $value = mb_trim($value);
+        foreach ($source as $key => &$value) {
+            if (is_string($value)) {
+                $value = self::mbTrim($value);
 
-                } elseif (is_array($value)) {
-                    if ($recurse) {
-                        $value = str_trim_array($value);
-                    }
+            } elseif (is_array($value)) {
+                if ($recurse) {
+                    // Recurse
+                    $value = self::trimArray($value);
                 }
             }
-
-            return $source;
-
-        } catch (Exception $e) {
-            throw new CoreException('str_trim_array(): Failed', $e);
         }
+
+        return $source;
     }
 
 
@@ -981,44 +877,14 @@ class Strings
 
 
 
-    // :DELETE: This is not working
-    ///*
-    // *
-    // * Taken from https://github.com/paulgb/simplediff/blob/5bfe1d2a8f967c7901ace50f04ac2d9308ed3169/simplediff.php
-    // * Originally written by https://github.com/paulgb
-    // * Adapted by Sven Oostnbrink support@capmega.com for use in BASE project
-    // */
-    //public static function diff(): string
-    // {
-    //    try{
-    //        foreach ($old as $oindex => $ovalue) {
-    //            $nkeys = array_keys($new, $ovalue);
-    //
-    //            foreach ($nkeys as $nindex) {
-    //                $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ? $matrix[$oindex - 1][$nindex - 1] + 1 : 1;
-    //
-    //                if ($matrix[$oindex][$nindex] > $maxlen) {
-    //                    $maxlen = $matrix[$oindex][$nindex];
-    //                    $omax   = $oindex + 1 - $maxlen;
-    //                    $nmax   = $nindex + 1 - $maxlen;
-    //                }
-    //            }
-    //        }
-    //
-    //        if ($maxlen == 0) return array(array('d' => $old, 'i' => $new));
-    //
-    //        return array_merge(diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)), array_slice($new, $nmax, $maxlen), diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen)));
-    //
-    //    } catch (Exception $e) {
-    //        throw new CoreException('str_diff(): Failed', $e);
-    //    }
-    //}
-
-
-
     /**
      * Taken from https://coderwall.com/p/3j2hxq/find-and-format-difference-between-two-strings-in-php
      * Cleaned up for use in base by Sven Oostenbrink
+     *
+     * @param string $old
+     * @param string $new
+     * @return string
+     * @throws \BException
      */
     public static function diff(string $old, string $new): string
     {
@@ -1092,33 +958,28 @@ class Strings
      */
     public static function underscoreToCamelcase(string $string, bool $first_uppercase = false): string
     {
-        try{
-            while (($pos = strpos($string, '_')) !== false) {
-                $character = $string[$pos + 1];
+        while (($pos = strpos($string, '_')) !== false) {
+            $character = $string[$pos + 1];
 
-                if (!$pos) {
-                    /*
-                     * This is the first character
-                     */
-                    if ($first_uppercase) {
-                        $character = strtoupper($character);
-
-                    } else {
-                        $character = strtolower($character);
-                    }
+            if (!$pos) {
+                /*
+                 * This is the first character
+                 */
+                if ($first_uppercase) {
+                    $character = strtoupper($character);
 
                 } else {
-                    $character = strtoupper($character);
+                    $character = strtolower($character);
                 }
 
-                $string = substr($string, 0, $pos) . $character.substr($string, $pos + 2);
+            } else {
+                $character = strtoupper($character);
             }
 
-            return $string;
-
-        } catch (Exception $e) {
-            throw new CoreException('str_underscore_to_camelcase(): Failed', $e);
+            $string = substr($string, 0, $pos) . $character.substr($string, $pos + 2);
         }
+
+        return $string;
     }
 
 
@@ -1134,7 +995,7 @@ class Strings
      * @category Function reference
      * @package strings
      * @see simple-dom
-     * @note: This function requires the simple-dom library
+     * @note This function requires the simple-dom library
      * @version 2.8.2: Added function and documentation
      * @example
      * code
@@ -1149,64 +1010,40 @@ class Strings
      *
      * @param string $html The HTML to be stripped
      * @return string The specified source string with empty HTML tags stripped
+     * @todo Fix issues with simpledom library
      */
     public static function trimHtml(string $html): string
     {
-        try{
-            if (!$html) {
-                return '';
-            }
+        if (!$html) {
+            return '';
+        }
 
-            load_libs('simple-dom');
+        load_libs('simple-dom');
 
-            $html          = str_get_html($html);
-            $element_types = array('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'p', 'span');
+        $html          = str_get_html($html);
+        $element_types = array('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'div', 'p', 'span');
 
-            foreach ($element_types as $element_type) {
-                $elements = $html->find($element_type);
+        foreach ($element_types as $element_type) {
+            $elements = $html->find($element_type);
 
-                foreach ($elements as $element) {
-                    $plaintext = trim($element->plaintext);
-                    $plaintext = trim($plaintext, '<br>');
-                    $plaintext = trim($plaintext, '<br/>');
-                    $plaintext = trim($plaintext, '<br />');
+            foreach ($elements as $element) {
+                $plaintext = trim($element->plaintext);
+                $plaintext = trim($plaintext, '<br>');
+                $plaintext = trim($plaintext, '<br/>');
+                $plaintext = trim($plaintext, '<br />');
 
-                    if ($plaintext == '') {
-                        // Remove an element, set it's outertext as an empty string
-                        $element->outertext = '';
+                if ($plaintext == '') {
+                    // Remove an element, set it's outertext as an empty string
+                    $element->outertext = '';
 
-                    } else {
-                        $element->innertext = $plaintext;
-                    }
+                } else {
+                    $element->innertext = $plaintext;
                 }
             }
-
-            return $html->save();
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_trim_html(): Failed'), $e);
         }
+
+        return $html->save();
     }
-
-
-
-    /* From http://stackoverflow.com/questions/11151250/how-to-compare-two-very-large-strings, implement?
-    $string1 = "This is a sample text to test a script to highlight the differences between 2 strings, so the second string will be slightly different";
-    $string2 = "This is 2 s4mple text to test a scr1pt to highlight the differences between 2 strings, so the first string will be slightly different";
-    for($i=0;$i<strlen($string1);$i++) {
-        if ($string1[$i]!=$string2[$i]) {
-            $string3[$i] = "<mark>{$string1[$i]}</mark>";
-            $string4[$i] = "<mark>{$string2[$i]}</mark>";
-        }
-        else {
-            $string3[$i] = "{$string1[$i]}";
-            $string4[$i] = "{$string2[$i]}";
-        }
-    }
-    $string3 = implode('',$string3);
-    $string4 = implode('',$string4);
-
-    echo "$string3". "<br />". $string4;*/
 
 
 
@@ -1239,304 +1076,291 @@ class Strings
      */
     public static function cut(string $source, int $start, int $stop): string
     {
-        try{
-            return self::until(self::from($source, $start), $stop);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_cut(): Failed'), $e);
-        }
+        return self::until(self::from($source, $start), $stop);
     }
 
 
 
     /**
      * Cleanup string
+     *
+     * @param string $source
+     * @param bool $utf8
+     * @return string
+     * @todo Get rid of load_libs() call
      */
     public static function clean(string $source, bool $utf8 = true): string
     {
-        try{
-            if (!is_scalar($source)) {
-                if (!is_null($source)) {
-                    throw new CoreException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1) . '@'.current_line(1))), 'invalid');
-                }
-            }
+        if ($utf8) {
+            load_libs('utf8');
 
-            if ($utf8) {
-                load_libs('utf8');
-
-                $source = mb_trim(html_entity_decode(utf8_unescape(strip_tags(utf8_escape($source)))));
+            $source = self::mbTrim(html_entity_decode(utf8_unescape(strip_tags(utf8_escape($source)))));
 // :TODO: Check if the next line should also be added!
 //            $source = preg_replace('/\s|\/|\?|&+/u', $replace, $source);
 
-                return $source;
-            }
-
-            return mb_trim(html_entity_decode(strip_tags($source)));
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_clean(): Failed with string ":string"', array(':string' => $source)), $e);
+            return $source;
         }
+
+        return self::mbTrim(html_entity_decode(strip_tags($source)));
+
 // :TODO:SVEN:20130709: Check if we should be using mysqli_escape_string() or addslashes(), since the former requires SQL connection, but the latter does NOT have correct UTF8 support!!
 //    return mysqli_escape_string(trim(decode_entities(mb_strip_tags($str))));
     }
 
 
-
     /**
      * Return the given string from the specified needle
+     *
+     * @param string $source
+     * @param string $needle
+     * @param int $more
+     * @param bool $require
+     * @return string
      */
     public static function from(string $source, string $needle, int $more = 0, bool $require = false): string
     {
-        try{
-            if (!$needle) {
-                throw new CoreException('str_from(): No needle specified', 'not-specified');
-            }
-
-            $pos = mb_strpos($source, $needle);
-
-            if ($pos === false) {
-                if ($require) {
-                    return '';
-                }
-
-                return $source;
-            }
-
-            return mb_substr($source, $pos + mb_strlen($needle) - $more);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_from(): Failed for string ":string"', array(':string' => $source)), $e);
+        if (!$needle) {
+            throw new OutOfBoundsException('No needle specified');
         }
-    }
 
+        $pos = mb_strpos($source, $needle);
+
+        if ($pos === false) {
+            if ($require) {
+                return '';
+            }
+
+            return $source;
+        }
+
+        return mb_substr($source, $pos + mb_strlen($needle) - $more);
+    }
 
 
     /**
      * Return the given string from 0 until the specified needle
+     *
+     * @param string $source
+     * @param string $needle
+     * @param int $more
+     * @param int $start
+     * @param bool $require
+     * @return string
      */
     public static function until(string $source, string $needle, int $more = 0, int $start = 0, bool $require = false): string
     {
-        try{
-            if (!$needle) {
-                throw new CoreException('str_until(): No needle specified', 'not-specified');
-            }
-
-            $pos = mb_strpos($source, $needle);
-
-            if ($pos === false) {
-                if ($require) {
-                    return '';
-                }
-
-                return $source;
-            }
-
-            return mb_substr($source, $start, $pos + $more);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_until(): Failed for string ":string"', array(':string' => $source)), $e);
+        if (!$needle) {
+            throw new OutOfBoundsException('No needle specified');
         }
-    }
 
+        $pos = mb_strpos($source, $needle);
+
+        if ($pos === false) {
+            if ($require) {
+                return '';
+            }
+
+            return $source;
+        }
+
+        return mb_substr($source, $start, $pos + $more);
+    }
 
 
     /**
      * Return the given string from the specified needle, starting from the end
+     *
+     * @param string $source
+     * @param string $needle
+     * @param int $more
+     * @return string
      */
     public static function fromReverse(string $source, string $needle, int $more = 0): string
     {
-        try{
-            if (!$needle) {
-                throw new CoreException('str_rfrom(): No needle specified', 'not-specified');
-            }
-
-            $pos = mb_strrpos($source, $needle);
-
-            if ($pos === false) return $source;
-
-            return mb_substr($source, $pos + mb_strlen($needle) - $more);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_rfrom(): Failed for string ":string"', array(':string' => $source)), $e);
+        if (!$needle) {
+            throw new OutOfBoundsException('No needle specified');
         }
+
+        $pos = mb_strrpos($source, $needle);
+
+        if ($pos === false) return $source;
+
+        return mb_substr($source, $pos + mb_strlen($needle) - $more);
     }
 
 
 
     /**
      * Return the given string from 0 until the specified needle, starting from the end
+     *
+     * @param string $source
+     * @param string $needle
+     * @param int $more
+     * @param int $start
+     * @return string
      */
     public static function untilReverse(string $source, string $needle, int $more = 0, int $start = 0): string
     {
-        try{
-            if (!$needle) {
-                throw new CoreException('str_runtil(): No needle specified', 'not-specified');
-            }
-
-            $pos = mb_strrpos($source, $needle);
-
-            if ($pos === false) return $source;
-
-            return mb_substr($source, $start, $pos + $more);
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_runtil(): Failed for string ":string"', array(':string' => $source)), $e);
+        if (!$needle) {
+            throw new OutOfBoundsException('No needle specified');
         }
+
+        $pos = mb_strrpos($source, $needle);
+
+        if ($pos === false) {
+            return $source;
+        }
+
+        return mb_substr($source, $start, $pos + $more);
     }
 
 
 
     /**
      * Ensure that specified source string starts with specified string
+     *
+     * @param string $source
+     * @param string $string
+     * @return string
      */
     public static function startsWith(string $source, string $string): string
     {
-        try{
-            if (mb_substr($source, 0, mb_strlen($string)) == $string) {
-                return $source;
-            }
-
-            return $string.$source;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_starts(): Failed for ":source"', array(':source' => $source)), $e);
+        if (mb_substr($source, 0, mb_strlen($string)) == $string) {
+            return $source;
         }
+
+        return $string . $source;
     }
 
 
 
     /**
      * Ensure that specified source string starts NOT with specified string
+     *
+     * @param string $source
+     * @param string $string
+     * @return string
      */
     public static function startsNotWith(string $source, string $string): string
     {
-        try{
-            while (mb_substr($source, 0, mb_strlen($string)) == $string) {
-                $source = mb_substr($source, mb_strlen($string));
-            }
-
-            return $source;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_starts_not(): Failed for ":source"', array(':source' => $source)), $e);
+        while (mb_substr($source, 0, mb_strlen($string)) == $string) {
+            $source = mb_substr($source, mb_strlen($string));
         }
+
+        return $source;
     }
 
 
 
     /**
      * Ensure that specified string ends with specified character
+     *
+     * @param string $source
+     * @param string $string
+     * @return string
      */
     public static function endsWith(string $source, string $string): string
     {
-        try{
-            $length = mb_strlen($string);
+        $length = mb_strlen($string);
 
-            if (mb_substr($source, -$length, $length) == $string) {
-                return $source;
-            }
-
-            return $source.$string;
-
-        } catch (Exception $e) {
-            throw new CoreException('str_ends(): Failed', $e);
+        if (mb_substr($source, -$length, $length) == $string) {
+            return $source;
         }
+
+        return $source . $string;
     }
 
 
 
     /**
      * Ensure that specified string ends NOT with specified character
+     *
+     * @param string $source
+     * @param string $strings
+     * @param bool $loop
+     * @return string
      */
     public static function endsNotWith(string $source, string $strings, bool $loop = true): string
     {
-        try{
-            if (is_array($strings)) {
-                /*
-                 * For array test, we always loop
-                 */
-                $redo = true;
+        if (is_array($strings)) {
+            // For array test, we always loop
+            $redo = true;
 
-                while ($redo) {
-                    $redo = false;
+            while ($redo) {
+                $redo = false;
 
-                    foreach ($strings as $string) {
-                        $new = str_ends_not($source, $string, true);
+                foreach ($strings as $string) {
+                    $new = str_ends_not($source, $string, true);
 
-                        if ($new != $source) {
-                            // A change was made, we have to rerun over it.
-                            $redo = true;
-                        }
-
-                        $source = $new;
+                    if ($new != $source) {
+                        // A change was made, we have to rerun over it.
+                        $redo = true;
                     }
-                }
 
-            } else {
-                /*
-                 * Check for only one character
-                 */
-                $length = mb_strlen($strings);
-
-                while (mb_substr($source, -$length, $length) == $strings) {
-                    $source = mb_substr($source, 0, -$length);
-                    if (!$loop) break;
+                    $source = $new;
                 }
             }
 
-            return $source;
+        } else {
+            // Check for only one character
+            $length = mb_strlen($strings);
 
-        } catch (Exception $e) {
-            throw new CoreException('str_ends_not(): Failed', $e);
+            while (mb_substr($source, -$length, $length) == $strings) {
+                $source = mb_substr($source, 0, -$length);
+                if (!$loop) break;
+            }
         }
+
+        return $source;
     }
 
 
 
-    /*
+    /**
      * Ensure that specified string ends with slash
+     *
+     * @param string $string
+     * @return string
      */
-    function slash(string $string) {
-        try{
-            return str_ends($string, '/');
-
-        } catch (Exception $e) {
-            throw new CoreException('slash(): Failed', $e);
-        }
+    public static function slash(string $string): string
+    {
+        return self::endsWith($string, '/');
     }
 
 
 
-    /*
+    /**
      * Ensure that specified string ends NOT with slash
+     *
+     * @param string $string
+     * @param bool $loop
+     * @return string
      */
-    function unslash(string $string, bool $loop = true) {
-        try{
-            return str_ends_not($string, '/', $loop);
-
-        } catch (Exception $e) {
-            throw new CoreException('unslash(): Failed', $e);
-        }
+    public static function unslash(string $string, bool $loop = true): string
+    {
+        return self::endsNotWith($string, '/', $loop);
     }
 
 
 
     /**
      * Remove double "replace" chars
+     *
+     * @param string $source
+     * @param string $replace
+     * @param int|string|null $character
+     * @param bool $case_insensitive
+     * @return string
      */
-    public static function nodouble(string $source, string $replace = '\1', int|string $character = null, bool $case_insensitive = true): string
+    public static function noDouble(string $source, string $replace = '\1', int|string $character = null, bool $case_insensitive = true): string
     {
         try{
             if ($character) {
-                /*
-                 * Remove specific character
-                 */
+                // Remove specific character
                 return preg_replace('/(' . $character.')\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
             }
 
-            /*
-             * Remove ALL double characters
-             */
+            // Remove ALL double characters
             return preg_replace('/(.)\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
 
         } catch (Exception $e) {
@@ -1555,7 +1379,7 @@ class Strings
      * @category Function reference
      * @package system
      * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
-     * @see str_log()
+     * @see Strings::log()
      * @example
      * code
      * echo str_truncate('This is a long long long long test text!', 10);
@@ -1572,60 +1396,51 @@ class Strings
      * @param int $length
      * @param string $fill
      * @param string $method
-     * @param boolean $on_word
+     * @param bool $on_word
      * @return string The string, truncated if required, according to the specified truncating rules
      */
     public static function truncate(string$source, int $length, string $fill = ' ... ', string $method = 'right', bool $on_word = false): string
     {
-        try{
-            if (!$length or ($length < (mb_strlen($fill) + 1))) {
-                throw new CoreException('str_truncate(): No length or insufficient length specified. You must specify a length of minimal $fill length + 1', 'invalid');
-            }
+        if (!$length or ($length < (mb_strlen($fill) + 1))) {
+            throw new OutOfBoundsException(tr('Specified length ":length" is invalid. You must specify a length of minimal $fill length + 1, so at least ":fill"', ['length' => $length, ':fill' => mb_strlen($fill) + 1]), ['length' => $length]);
+        }
 
-            if ($length >= mb_strlen($source)) {
-                /*
-                 * No need to truncate, the string is short enough
-                 */
-                return $source;
-            }
+        if ($length >= mb_strlen($source)) {
+            // No need to truncate, the string is short enough
+            return $source;
+        }
 
-            /*
-             * Correct length
-             */
-            $length -= mb_strlen($fill);
+        // Correct length
+        $length -= mb_strlen($fill);
 
-            switch ($method) {
-                case 'right':
-                    $retval = mb_substr($source, 0, $length);
+        switch ($method) {
+            case 'right':
+                $retval = mb_substr($source, 0, $length);
 
-                    if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
-                        if ($pos = strrpos($retval, ' ')) {
-                            $retval = substr($retval, 0, $pos);
-                        }
+                if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
+                    if ($pos = strrpos($retval, ' ')) {
+                        $retval = substr($retval, 0, $pos);
                     }
+                }
 
-                    return trim($retval) . $fill;
+                return self::mbTrim($retval) . $fill;
 
-                case 'center':
-                    return mb_substr($source, 0, floor($length / 2)) . $fill.mb_substr($source, -ceil($length / 2));
+            case 'center':
+                return mb_substr($source, 0, floor($length / 2)) . $fill.mb_substr($source, -ceil($length / 2));
 
-                case 'left':
-                    $retval = mb_substr($source, -$length, $length);
+            case 'left':
+                $retval = mb_substr($source, -$length, $length);
 
-                    if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
-                        if ($pos = strpos($retval, ' ')) {
-                            $retval = substr($retval, $pos);
-                        }
+                if ($on_word and (!str_contains(substr($source, $length, 2), ' '))) {
+                    if ($pos = strpos($retval, ' ')) {
+                        $retval = substr($retval, $pos);
                     }
+                }
 
-                    return $fill.trim($retval);
+                return $fill.self::mbTrim($retval);
 
-                default:
-                    throw new CoreException(tr('str_truncate(): Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', array(':method' => $method)), 'unknown');
-            }
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('str_truncate(): Failed for ":source"', array(':source' => $source)), $e);
+            default:
+                throw new CoreException(tr('str_truncate(): Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', array(':method' => $method)), 'unknown');
         }
     }
 
@@ -1639,8 +1454,10 @@ class Strings
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
-     * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
-     * @see str_log()
+     * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot
+     *      even though on the command line multiple dots may be shown
+     * @see Strings::truncate()
+     * @see JSON::Encode()
      * @example
      * code
      * echo Strings::truncate('This is a long long long long test text!', 10);
@@ -1659,71 +1476,139 @@ class Strings
      */
     public static function log(mixed $source, int $truncate = 8187): string
     {
-        try{
-            try{
-                $json_encode = 'json_encode_custom';
-
-            } catch (Exception $e) {
-                /*
-                 * Fuck...
-                 */
-                $json_encode = 'json_encode';
+        if (!$source) {
+            if (is_numeric($source)) {
+                return 0;
             }
 
-            if (!$source) {
-                if (is_numeric($source)) {
-                    return 0;
-                }
+            return '';
+        }
 
-                return '';
-            }
-
-            if (!is_scalar($source)) {
-                if (is_array($source)) {
-                    foreach ($source as $key => &$value) {
-                        if (strstr($key, 'password')) {
-                            $value = '*** HIDDEN ***';
-                            continue;
-                        }
-
-                        if (strstr($key, 'ssh_key')) {
-                            $value = '*** HIDDEN ***';
-                            continue;
-                        }
+        if (!is_scalar($source)) {
+            if (is_array($source)) {
+                foreach ($source as $key => &$value) {
+                    if (str_contains('password', $key)) {
+                        $value = '*** HIDDEN ***';
+                        continue;
                     }
 
-                    unset($value);
-
-                    $source = mb_trim($json_encode($source));
-
-                } elseif (is_object($source) and ($source instanceof CoreException)) {
-                    $source = $source->getCode() . ' / ' . $source->getMessage();
-
-                } else {
-                    $source = mb_trim($json_encode($source));
+                    if (str_contains('ssh_key', $key)) {
+                        $value = '*** HIDDEN ***';
+                        continue;
+                    }
                 }
+
+                unset($value);
+
+                $source = self::mbTrim(JSON::encode($source));
+
+            } elseif (is_object($source) and ($source instanceof CoreException)) {
+                $source = $source->getCode() . ' / ' . $source->getMessage();
+
+            } else {
+                $source = self::mbTrim(JSON::encode($source));
             }
+        }
 
-            return str_nodouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', str_truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+        return self::noDouble(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', str_replace('  ', ' ', str_replace("\n", ' ', self::truncate($source, $truncate, ' ... ', 'center')))), '\1', ' ');
+    }
 
-        } catch (Exception $e) {
-            if ($e->getRealCode() === 'invalid') {
-                notify($e->makeWarning(true));
-                return "Data converted using print_r() instead of json_encode() because json_encode_custom() failed on this data: ".print_r($source, true);
-            }
 
-            throw new CoreException('str_log(): Failed', $e);
+
+    /**
+     * Return a seo appropriate string for given source string
+     *
+     * @param string $source
+     * @param string $replace
+     * @return string
+     * @todo Get rid of the load_libs() call somehow
+     */
+    function seo(string $source, string $replace = '-'): string
+    {
+        if (self::isUtf8($source)) {
+            load_libs('mb');
+
+            //clean up string
+            $source = mb_strtolower(self::mbTrim(mb_strip_tags($source)));
+
+            //convert spanish crap to english
+            $source2 = self::convertAccents($source);
+
+            //remove special chars
+            $from = array("'", '"', '\\');
+            $to = array('', '', '');
+            $source3 = str_replace($from, $to, $source2);
+
+            //remove double spaces
+            $source = preg_replace('/\s\s+/', ' ', $source3);
+
+            //Replace anything that is junk
+            $last = preg_replace('/[^a-zA-Z0-9]/u', $replace, $source);
+
+            //Remove double "replace" chars
+            $last = preg_replace('/\\' . $replace . '\\' . $replace . '+/', '-', $last);
+
+            return self::mbTrim($last, '-');
+
+        } else {
+            //clean up string
+            $source = strtolower(trim(strip_tags($source)));
+            //convert spanish crap to english
+            $source2 = self::convertAccents($source);
+
+            //remove special chars
+            $from = array("'", '"', '\\');
+            $to = array('', '', '');
+            $source3 = str_replace($from, $to, $source2);
+
+            //remove double spaces
+            $source = preg_replace('/\s\s+/', ' ', $source3);
+
+            //Replace anything that is junk
+            $last = preg_replace('/[^a-zA-Z0-9]/', $replace, $source);
+
+            //Remove double "replace" chars
+            $last = preg_replace('/\\' . $replace . '\\' . $replace . '+/', '-', $last);
+
+            return trim($last, '-');
+        }
+    }
+
+
+    /**
+     * utf8_escape( )
+     *
+     * Simple wrapper for the Zend_Utf8::escape method. Converts all unicode
+     * characters to their ASCII codepoints, like U+0000
+     * @since 1.3
+     *
+     * @param string $string The string to escape
+     * @return string The escaped string
+     */
+    function escapeUtf8(string $string): string
+    {
+        try{
+            return Zend_Utf8::escape((string) $string);
+
+        }catch(Exception $e){
+            throw new BException('utf8_escape(): Failed for string "'.str_log($string).'"', $e);
         }
     }
 
 
 
     /**
-     * Obsolete functions
-     * These functions only exist as wrappers for compatibility purposes
+     * utf8_escape( )
+     *
+     * Simple wrapper for the Zend_Utf8::unescape method. Converts all unicode
+     * codepoints, like U+0000, to their real unicode characters
+     * @since 1.3
+     *
+     * @param string $string The string to unescape
+     * @return string The unescaped string
      */
-    public static function autoQuote(string $string, string $quote = "'"): string
+    function unescapeUtf8(string $string): string
     {
-        return Strings::quote($string, $quote);
+        return Zend_Utf8::unescape($string);
     }
 }
