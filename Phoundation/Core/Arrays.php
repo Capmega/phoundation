@@ -56,7 +56,6 @@ class Arrays {
             }
         }
 
-
         if (!empty($next)) {
             // The current_key was found, but it was at the end of the array
             throw new NoNextElementException(tr('The specified $current_key ":key" was found but it was the last item in the array so there is no next', [':key' => $current_key]));
@@ -80,37 +79,33 @@ class Arrays {
      */
     public static function nextValue(array &$source, mixed $current_value, bool $delete = false, bool $restart = false): mixed
     {
-        try{
-            foreach ($source as $key => $value) {
-                if (isset($next)) {
-                    if ($delete) {
-                        unset($source[$key]);
-                    }
-
-                    return $value;
+        foreach ($source as $key => $value) {
+            if (isset($next)) {
+                if ($delete) {
+                    unset($source[$key]);
                 }
 
-                if ($value === $current_value) {
-                    if ($delete) {
-                        unset($source[$key]);
-                    }
+                return $value;
+            }
 
-                    $next = true;
+            if ($value === $current_value) {
+                if ($delete) {
+                    unset($source[$key]);
                 }
+
+                $next = true;
             }
-
-            if (!$restart) {
-                // The current value was found, but it was at the end of the array
-                throw new NoNextElementException(tr('Arrays::next_value(): Option ":value" does not have a value specified', array(':value' => $current_value)), 'invalid');
-            }
-
-            reset($source);
-            return current($source);
-
-        } catch (Exception $e) {
-            throw new CoreException('array_next_value(): Failed', $e);
         }
+
+        if (!$restart) {
+            // The current value was found, but it was at the end of the array
+            throw new NoNextElementException(tr('Arrays::next_value(): Option ":value" does not have a value specified', array(':value' => $current_value)), 'invalid');
+        }
+
+        reset($source);
+        return current($source);
     }
+
 
 
     /**
@@ -162,23 +157,10 @@ class Arrays {
      */
     public static function keyCheck(array $source, array $keys): void
     {
-        try{
-            if (!is_array($source)) {
-                throw new CoreException(tr('array_key_check(): Specified source should be an array, but is a ":type"', array(':type' => gettype($source))), 'invalid');
+        foreach (Arrays::force($keys) as $key) {
+            if (!array_key_exists($key, $source)) {
+                throw new CoreException(tr('Key ":key" does not exist in array', [':key' => Strings::log($key)]));
             }
-
-            foreach (Arrays::force($keys) as $key) {
-                if (!array_key_exists($key, $source)) {
-                    throw new CoreException(tr('array_key_check(): Key ":key" was not specified in array', array(':key' => Strings::log($key))), 'not_specified');
-                }
-            }
-
-        } catch (Exception $e) {
-            if ($e->getCode() == 'not_specified') {
-                throw $e;
-            }
-
-            throw new CoreException('array_key_check(): Failed', $e);
         }
     }
 
@@ -186,48 +168,38 @@ class Arrays {
 
     /**
      * Make sure the array is cleared, but with specified keys available
+     *
+     * @param $keys
+     * @param null $value
+     * @return array
      */
-    public static function clear(&$array, $keys, $value = null)
+    public static function clear($keys, $value = null)
     {
-        try{
-            $array = array();
-            return Arrays::ensure($array, $keys, $value);
-
-        } catch (Exception $e) {
-            throw new CoreException('array_clear(): Failed', $e);
-        }
+        $array = [];
+        return Arrays::ensure($array, $keys, $value);
     }
-
 
 
     /**
      * Return an array from the given object, recursively
      *
      * @param object $object
+     * @param bool $recurse
      * @return array
      */
-    public static function fromObject(object $object, $recurse = true): array
+    public static function fromObject(object $object, bool $recurse = true): array
     {
-        try{
-            if (!is_object($object)) {
-                throw new CoreException(tr('array_from_object(): Specified variable is not an object'));
+        $retval = array();
+
+        foreach ($object as $key => $value) {
+            if (is_object($value) and $recurse) {
+                $value = Arrays::fromObject($value, true);
             }
 
-            $retval = array();
-
-            foreach ($object as $key => $value) {
-                if (is_object($value) and $recurse) {
-                    $value = Arrays::fromObject($value, true);
-                }
-
-                $retval[$key] = $value;
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_from_object(): Failed', $e);
+            $retval[$key] = $value;
         }
+
+        return $retval;
     }
 
 
@@ -245,12 +217,7 @@ class Arrays {
      */
     public static function toObject(array $array): object
     {
-        try{
-            return (object) $array;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_to_object(): Failed', $e);
-        }
+        return (object) $array;
     }
 
 
@@ -258,35 +225,9 @@ class Arrays {
     /**
      * Return a random value from the specified array
      */
-    public static function randomValue(array $array): mixed
+    public static function getRandomValue(array $array): mixed
     {
-        try{
-            return $array[array_rand($array)];
-
-        } catch (Exception $e) {
-            throw new CoreException('array_random_value(): Failed', $e);
-        }
-    }
-
-
-
-    // :DEPRECATED: Use the above function
-    /**
-     * @param $array
-     * @return mixed
-     */
-    public static function getRandom(array $array): mixed
-    {
-        try{
-            if (empty($array)) {
-                throw new CoreException(tr('array_get_random(): The specified array is empty'), 'empty');
-            }
-
-            return $array[array_rand($array)];
-
-        } catch (Exception $e) {
-            throw new CoreException('array_get_random(): Failed', $e);
-        }
+        return $array[array_rand($array)];
     }
 
 
@@ -294,41 +235,23 @@ class Arrays {
     /**
      * Implode the array with keys
      */
-    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, bool $auto_quote = false, bool $recurse = true): string
+    public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, bool $auto_quote = false): string
     {
-        try{
-            if (!is_array($source)) {
-                throw new CoreException(tr('array_implode_with_keys(): Specified source is not an array but an ":type"', array(':type' => gettype($source))));
+        $retval = array();
+
+        foreach ($source as $key => $value) {
+            if (is_array($value)) {
+                $retval[] .= $key.$key_separator.$row_separator.self::implodeWithKeys($value, $row_separator, $key_separator, $auto_quote);
+
+            } elseif ($auto_quote) {
+                $retval[] .= $key.$key_separator.Strings::quote($value);
+
+            } else {
+                $retval[] .= $key.$key_separator.$value;
             }
-
-            $retval = array();
-
-            foreach ($source as $key => $value) {
-                if (is_array($value)) {
-                    /*
-                     * Recurse?
-                     */
-                    if (!$recurse) {
-                        throw new CoreException(tr('array_implode_with_keys(): Specified source contains sub arrays and recurse is not enabled'));
-                    }
-
-                    $retval[] .= $key.$key_separator.$row_separator.array_implode_with_keys($value, $row_separator, $key_separator, $auto_quote, $recurse);
-
-                } else {
-                    if ($auto_quote) {
-                        $retval[] .= $key.$key_separator.Strings::autoQuote($value);
-
-                    } else {
-                        $retval[] .= $key.$key_separator.$value;
-                    }
-                }
-            }
-
-            return implode($row_separator, $retval);
-
-        } catch (Exception $e) {
-            throw new CoreException('array_implode_with_keys(): Failed', $e);
         }
+
+        return implode($row_separator, $retval);
     }
 
 
