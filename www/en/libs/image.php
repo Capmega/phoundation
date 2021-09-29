@@ -54,13 +54,17 @@ function image_get_text($image) {
     try{
         $tmpfile = file_tmp();
 
-         safe_exec(array('commands' => array('tesseract', array($image, $tmpfile))));
+        safe_exec([
+            'commands' => [
+                'tesseract', [$image, $tmpfile]
+            ]
+        ]);
 
-         $retval = file_get_contents($tmpfile);
+        $retval = file_get_contents($tmpfile);
 
-         file_delete($tmpfile);
+        file_delete($tmpfile);
 
-         return $retval;
+        return $retval;
 
     }catch(Exception $e){
         if(!file_which('tesseract')){
@@ -89,9 +93,9 @@ function image_rotate($degrees, $source, $target = null){
         }
 
         return image_convert(array('spurce'  => $source,
-                                   'target'  => $target,
-                                   'method'  => 'rotate',
-                                   'degrees' => $degrees));
+            'target'  => $target,
+            'method'  => 'rotate',
+            'degrees' => $degrees));
 
     }catch(Exception $e){
         throw new BException(tr('image_rotate(): Failed'), $e);
@@ -177,6 +181,7 @@ function image_convert($params){
         array_default($params, 'method'    , null);
         array_default($params, 'format'    , null);
         array_default($params, 'background', null);
+        array_default($params, 'timeout'   , 60);
         array_default($params, 'defaults'  , $imagick['defaults']);
 
         /*
@@ -307,8 +312,8 @@ function image_convert($params){
 
                 case 'quality':
                     if($value){
-                       $arguments[] = '-quality';
-                       $arguments[] = $value.'%';
+                        $arguments[] = '-quality';
+                        $arguments[] = $value.'%';
                     }
 
                     break;
@@ -434,7 +439,10 @@ function image_convert($params){
                 $arguments[] = $source;
                 $arguments[] = $target;
 
-                safe_exec(array('commands' => array($command, $arguments)));
+                safe_exec([
+                    'commands' => [$command, $arguments],
+                    'timeout'  => $params['timeout']
+                ]);
                 break;
 
             case 'thumb':
@@ -447,7 +455,10 @@ function image_convert($params){
                 $arguments[] = $source;
                 $arguments[] = $target;
 
-                safe_exec(array('commands' => array($command, $arguments)));
+                safe_exec([
+                    'commands' => [$command, $arguments],
+                    'timeout'  => $params['timeout']
+                ]);
                 break;
 
             case 'resize-w':
@@ -456,7 +467,10 @@ function image_convert($params){
                 $arguments[] = $source;
                 $arguments[] = $target;
 
-                safe_exec(array('commands' => array($command, $arguments)));
+                safe_exec([
+                    'commands' => [$command, $arguments],
+                    'timeout'  => $params['timeout']
+                ]);
                 break;
 
             case 'resize':
@@ -465,7 +479,10 @@ function image_convert($params){
                 $arguments[] = $source;
                 $arguments[] = $target;
 
-                safe_exec(array('commands' => array($command, $arguments)));
+                safe_exec([
+                    'commands' => [$command, $arguments],
+                    'timeout'  => $params['timeout']
+                ]);
                 break;
 
             case 'thumb-circle':
@@ -490,8 +507,16 @@ function image_convert($params){
                 $arguments2[] = 'circle '.(floor($params['x'] / 2) - 1).','.(floor($params['y'] / 2) - 1).' '.($params['x']/2).',0';
                 $arguments2[] = $target;
 
-                safe_exec(array('commands' => array($command, $arguments),
-                                                    $command, $arguments2));
+                safe_exec([
+                    'commands' => [$command, $arguments],
+                    'timeout'  => $params['timeout']
+                ]);
+
+                safe_exec([
+                    'commands' => [$command, $arguments2],
+                    'timeout'  => $params['timeout']
+                ]);
+
                 file_delete($tmpfname);
                 break;
 
@@ -503,14 +528,16 @@ function image_convert($params){
                 $arguments[] = cfi($params['to_w'], false).'x'.cfi($params['to_h'], false);
                 $arguments[] = $target;
 
-                safe_exec(array('commands' => array($command, $arguments)));
+                safe_exec(array('commands' => array($command, $arguments),
+                    'timeout'  => $params['timeout']));
                 break;
 
             case 'custom':
                 $arguments[] = $source;
                 $arguments[] = $target;
 
-                safe_exec(array('commands' => array($command, $arguments)));
+                safe_exec(array('commands' => array($command, $arguments),
+                    'timeout'  => $params['timeout']));
                 break;
 
             case '':
@@ -715,10 +742,10 @@ function image_create_avatars($file){
             }
 
             image_convert(array('source' => $file['tmp_name'][0],
-                                'target' => ROOT.'www/avatars/'.$destination.'_'.$name.'.'.file_get_extension($file['name'][0]),
-                                'x'      => $type[0],
-                                'y'      => $type[1],
-                                'method' => $type[2]));
+                'target' => ROOT.'www/avatars/'.$destination.'_'.$name.'.'.file_get_extension($file['name'][0]),
+                'x'      => $type[0],
+                'y'      => $type[1],
+                'method' => $type[2]));
         }
 
         return $destination;
@@ -1007,7 +1034,7 @@ function image_watermark($params){
          */
         foreach(array('image' => $params['image'], 'watermark' => $params['watermark']) as $type => $filename){
             if(!file_exists($params['target'])){
-                throw new BException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => str_log($filename))), 'imagenot-exists');
+                throw new BException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotexists');
             }
 
             if(!$size = getimagesize($filename)){
@@ -1222,7 +1249,7 @@ function image_picker($params){
         $params['data_resources']['img-src'] = $params['resource'];
 
         $retval = html_select($params).
-                  html_script('$("#'.$params['id'].'").imagepicker(
+            html_script('$("#'.$params['id'].'").imagepicker(
                     { show_label : '.str_boolean($params['show_label']).'}
                   );');
 
@@ -1281,10 +1308,10 @@ function image_slider($params = null){
         switch($params['library']){
             case 'aslider':
                 ensure_installed(array('checks'    => 'aslider',
-                                       'checks'    => '',
-                                       'locations' => array('js'  => ROOT.'pub/js/aslider',
-                                                            'css' => ROOT.'pub/css/aslider'),
-                                       'install'   => 'http://varunnaik.github.io/A-Slider/a-slider.zip'));
+                    'checks'    => '',
+                    'locations' => array('js'  => ROOT.'pub/js/aslider',
+                        'css' => ROOT.'pub/css/aslider'),
+                    'install'   => 'http://varunnaik.github.io/A-Slider/a-slider.zip'));
 // :TODO: Implement
                 break;
 
@@ -1295,11 +1322,11 @@ function image_slider($params = null){
                  * GIT REPO: https://github.com/stevenwanderski/bxslider-4.git
                  */
                 ensure_installed(array('name'      => 'bxslider',
-                                       'checks'    => ROOT.'pub/js/bxslider',
-                                       'locations' => array('src/js'     => ROOT.'pub/js/bxslider',
-                                                            'src/css'    => ROOT.'pub/css/bxslider',
-                                                            'src/vendor' => ROOT.'pub/js'),
-                                       'url'       => 'https://github.com/stevenwanderski/bxslider-4.git'));
+                    'checks'    => ROOT.'pub/js/bxslider',
+                    'locations' => array('src/js'     => ROOT.'pub/js/bxslider',
+                        'src/css'    => ROOT.'pub/css/bxslider',
+                        'src/vendor' => ROOT.'pub/js'),
+                    'url'       => 'https://github.com/stevenwanderski/bxslider-4.git'));
 
                 html_load_js('jquery,bxslider/bxslider');
                 html_load_css('bxslider/bxslider');
@@ -1346,7 +1373,7 @@ function image_glitch($file, $server = null){
 
         if($server){
 // :TODO: Git doesnt support multi server yet
-under_construction();
+            under_construction();
         }
 
         load_libs('go');
@@ -1356,7 +1383,7 @@ under_construction();
             log_console('Corrupter program not setup yet, creating now');
 
             linux_file_delete($server, array('patterns'     => ROOT.'data/go/corrupter',
-                                             'restrictions' => false));
+                'restrictions' => false));
 
             git_clone('https://github.com/r00tman/corrupter', ROOT.'data/go');
             go_build(ROOT.'data/go/corrupter', $server);
