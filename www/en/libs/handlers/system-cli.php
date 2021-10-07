@@ -70,7 +70,11 @@ try{
         die(5);
     }
 
-
+    /*
+     * Set protocol
+     */
+    global $_CONFIG;
+    define('PROTOCOL', 'http'.($_CONFIG['sessions']['secure'] ? 's' : '').'://');
 
     /*
      * Process basic shell arguments

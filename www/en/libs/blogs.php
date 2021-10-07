@@ -1870,8 +1870,8 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
         /*
          * Store blog post photo in database
          */
-        $res  = sql_query('INSERT INTO `blogs_media` (`createdby`, `blogs_posts_id`, `blogs_id`, `file`, `hash`, `original`, `priority`)
-                           VALUES                    (:createdby , :blogs_posts_id , :blogs_id , :file , :hash , :original , :priority )',
+        $res  = sql_query('INSERT INTO `blogs_media` (`createdby`, `blogs_posts_id`, `blogs_id`, `file`, `hash`, `original`, `priority`, `type`, `seotype`)
+                           VALUES                    (:createdby , :blogs_posts_id , :blogs_id , :file , :hash , :original , :priority , :type , :seotype )',
 
                            array(':createdby'      => isset_get($_SESSION['user']['id']),
                                  ':blogs_posts_id' => $post['id'],
@@ -1879,7 +1879,9 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
                                  ':file'           => $media,
                                  ':hash'           => $hash,
                                  ':original'       => $original,
-                                 ':priority'       => $priority));
+                                 ':priority'       => $priority,
+                                 ':type'           => null,
+                                 ':seotype'        => null));
 
         cdn_add_files($files, 'blogs');
 
@@ -2025,11 +2027,56 @@ function blogs_photo_description($user, $media_id, $description){
 
                    WHERE  `id`          = :id',
 
-                   array(':description' => cfm($description),
-                         ':id'          => cfi($media_id)));
+            array(':description' => cfm($description),
+                ':id'          => cfi($media_id)));
 
     }catch(Exception $e){
         throw new BException('blogs_photo_description(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Photo description
+ */
+function blogs_photo_type($user, $media_id, $type){
+    try{
+        if(!is_numeric($media_id)){
+            $media_id = str_from($media_id, 'photo');
+        }
+
+        $media    = sql_get('SELECT `blogs_media`.`id`,
+                                    `blogs_media`.`createdby`
+
+                             FROM   `blogs_media`
+
+                             JOIN   `blogs_posts`
+
+                             WHERE  `blogs_media`.`blogs_posts_id` = `blogs_posts`.`id`
+                             AND    `blogs_media`.`id`             = '.cfi($media_id));
+
+        if(empty($media['id'])) {
+            throw new BException('blogs_photo_type(): Unknown blog post photo specified', 'unknown');
+        }
+
+        if(($media['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
+            throw new BException('blogs_photo_type(): Cannot upload media, this post is not yours', 'access-denied');
+        }
+
+        sql_query('UPDATE `blogs_media`
+
+                   SET    `type`    = :type,
+                          `seotype` = :seotype
+
+                   WHERE  `id`      = :id',
+
+            array(':type'    => cfm($type),
+                  ':seotype' => cfm(seo_string($type)),
+                  ':id'      => cfi($media_id)));
+
+    }catch(Exception $e){
+        throw new BException('blogs_photo_type(): Failed', $e);
     }
 }
 
@@ -2697,7 +2744,7 @@ function blogs_post_up($id, $object, $view){
             throw new BException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
         }
 
-        if($post['higher_priority']){
+        if($post['higher_priority'] !== null){
             /*
              * Switch priorities
              */
@@ -2797,7 +2844,7 @@ function blogs_post_down($id, $object, $view){
             throw new BException(tr('blogs_post_up(): The :object ":id" does not belong to you', array(':object' => $object, ':id' => $id)), 'access-denied');
         }
 
-        if($post['lower_priority']){
+        if($post['lower_priority'] !== null){
             /*
              * Switch priorities
              */
