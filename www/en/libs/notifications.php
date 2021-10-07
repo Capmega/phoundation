@@ -75,7 +75,7 @@ function notifications_library_init(){
  */
 function notifications($notification, $log, $throw){
     global $_CONFIG, $core;
-
+return 0;
     try{
         log_file($notification, 'notifications', 'VERYVERBOSE');
 
