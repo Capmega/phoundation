@@ -187,7 +187,7 @@ if($nodump){
 
 }else{
     log_console(tr('Creating SQL dump file on remote server'), 'white');
-    passthru($command = 'ssh -p '.$deploy_config['target_port'].' -t '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].' "'.($deploy_config['sudo'] ? ' sudo ' : '').'rm /tmp/'.$project.'_'.$dumpfile.'* -f; '.($deploy_config['sudo'] ? ' sudo ' : '').'mysqldump --single-transaction -n -e '.(cli_argument('nofunctions') ? '' : '-R ').'--dump-date --no-autocommit --add-drop-database -u '.$source_config['db']['core']['user'].' -p\''.str_replace('$', '\$', $source_config['db']['core']['pass']).'\' -B '.$source_config['db']['core']['db'].' > /tmp/'.$project.'_'.$dumpfile.' && '.($deploy_config['sudo'] ? ' sudo ' : '').' gzip -q /tmp/'.$project.'_'.$dumpfile.' "', $exitcode);
+    passthru($command = 'ssh -p '.$deploy_config['target_port'].' -t '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].' "'.($deploy_config['sudo'] ? ' sudo ' : '').'rm /tmp/'.$project.'_'.$dumpfile.'* -f; '.($deploy_config['sudo'] ? ' sudo ' : '').'mysqldump --single-transaction -n -e '.(cli_argument('nofunctions') ? '' : '-R ').'--dump-date --no-autocommit --add-drop-database -u '.$source_config['db']['core']['user'].' -p\''.str_replace('$', '\$', $source_config['db']['core']['pass']).'\' --databases '.$source_config['db']['core']['db'].' > /tmp/'.$project.'_'.$dumpfile.' && '.($deploy_config['sudo'] ? ' sudo ' : '').' gzip -q /tmp/'.$project.'_'.$dumpfile.' "', $exitcode);
 
     if($exitcode){
         throw new BException(tr('Remote mysqldump failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
@@ -351,16 +351,32 @@ if($nodefinerfix){
 }else{
     log_console(tr('Fixing function definers'));
 
-    sql_query('UPDATE mysql.proc
+    $version = sql_get('SELECT VERSION()', true);
+    $version = $version[0];
 
-               SET    definer = :new_definer
+    switch($version) {
+        case 5:
+            sql_query('UPDATE mysql.proc
 
-               WHERE  db      = :db
-               AND    definer = :old_definer',
+                       SET    definer = :new_definer
+        
+                       WHERE  db      = :db
+                       AND    definer = :old_definer',
 
-               array(':new_definer' => $local_config['db']['core']['user'].'@localhost',
-                     ':old_definer' => $source_config['db']['core']['user'].'@localhost',
-                     ':db'          => $local_config['db']['core']['db']));
+                        array(':new_definer' => $local_config['db']['core']['user'].'@localhost',
+                              ':old_definer' => $source_config['db']['core']['user'].'@localhost',
+                              ':db'          => $local_config['db']['core']['db']));
+
+            break;
+
+        case 8:
+            log_file('This script does not support fixing function definers for the current MySQL server version "8", skipping', 'warning');
+            break;
+
+        default:
+            log_file('This script does not support fixing function definers for the current MySQL server version ":version", skipping', 'warning');
+    }
+
 }
 
 
