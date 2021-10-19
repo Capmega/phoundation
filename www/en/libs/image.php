@@ -1215,11 +1215,11 @@ function image_picker($params){
         /*
          * Add required data info for html_select();
          */
-        if(empty($params['data_resources'])){
-            $params['data_resources'] = array();
+        if(empty($params['data_resource'])){
+            $params['data_resource'] = array();
         }
 
-        $params['data_resources']['img-src'] = $params['resource'];
+        $params['data_resource']['img-src'] = $params['resource'];
 
         $retval = html_select($params).
                   html_script('$("#'.$params['id'].'").imagepicker(
