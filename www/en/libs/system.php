@@ -15,7 +15,7 @@
 /*
  * Framework version
  */
-define('FRAMEWORKCODEVERSION', '2.8.39');
+define('FRAMEWORKCODEVERSION', '2.8.40');
 define('PHP_MINIMUM_VERSION' , '7.2.19');
 
 
@@ -1776,7 +1776,7 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
         /*
          * Always log to file log as well
          */
-        if($log_file){
+        if($log_file and $core->register('ready')){
             log_file($messages, $core->register['real_script'], $color);
         }
 
