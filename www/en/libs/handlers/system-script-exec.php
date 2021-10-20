@@ -30,6 +30,7 @@ try{
      * Ensure that all arguments contain the environment specification
      */
     $count = 0;
+    $environment = false;
 
     foreach($params['commands'] as $id => &$item){
         if(fmod(++$count, 2)){
@@ -54,8 +55,6 @@ try{
              * Detect if environment has been specified. If so, avoid specifying
              * it again
              */
-            $environment = false;
-
             foreach($item as $key => $value){
                 switch($value){
                     case '-E';
@@ -74,8 +73,7 @@ try{
         }
     }
 
-    // Ensure that environment is available, in case of a command without any arguments
-    if(empty($environment)){
+    if(!$environment){
         $params['commands'][] = ['-E', ENVIRONMENT];
     }
 
