@@ -138,7 +138,7 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
 /*
  * Update the specified conversation with the specified message
  */
-function sms_update_conversation($conversation, $messages_id, $direction, $message, $datetime, $replied){
+function sms_update_conversation($conversation, $messages_id, $direction, $message, $datetime, $replied, $mms = false){
     global $_CONFIG;
 
     try{
@@ -150,8 +150,10 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
             throw new BException('sms_update_conversation(): No conversation direction specified', 'not-specified');
         }
 
-        if(empty($message)){
-            throw new BException('sms_update_conversation(): No conversation message specified', 'not-specified');
+        if(!$mms){
+            if(empty($message)){
+                throw new BException('sms_update_conversation(): No conversation message specified', 'not-specified');
+            }
         }
 
         /*
@@ -195,8 +197,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
 
         if($images){
             foreach($images as $image){
-
-                $message = html_img(($image['file'] ? $image['file'] : $image['url']), tr('MMS image'), 28, 28, 'class="mms"').$message;
+                $message = html_img(($image['file'] ? $image['file'] : $image['url']), tr('MMS image'), 28, 28, 'class="mms"') . ' ' . $message;
             }
         }
 

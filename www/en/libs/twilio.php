@@ -67,6 +67,7 @@ function twilio_install(){
              */
             file_execute_mode(ROOT.'libs/external', 0770, function(){
                 file_ensure_path(ROOT.'libs/external');
+                file_ensure_path(TMP);
                 file_delete(TMP.'twilio_install.zip');
                 file_delete(ROOT.'libs/external/twilio-php-master', ROOT.'libs/external/');
                 file_delete(ROOT.'libs/external/twilio'           , ROOT.'libs/external/');
@@ -76,7 +77,6 @@ function twilio_install(){
                  */
                 $file = download('https://github.com/twilio/twilio-php/archive/master.zip');
                 $path = cli_unzip($file);
-
                 rename($path.'twilio-php-master', ROOT.'libs/external/twilio');
                 file_delete($path);
             });
@@ -110,19 +110,26 @@ function twilio_load($source, $auto_install = true){
          * Load Twilio library
          * If Twilio isnt available, then try auto install
          */
-        $file = ROOT.'libs/external/twilio/Twilio/autoload.php';
+        $file = ROOT.'libs/external/twilio/src/Twilio/autoload.php';
 
         if(!file_exists($file)){
-            log_console('twilio_load(): Twilio API library not found', 'warning');
-
-            if(!$auto_install){
-                throw new BException(tr('twilio_load(): Twilio API library file ":file" was not found', array(':file' => $file)), 'notinstalled');
-            }
-
-            twilio_install();
+            /*
+             * Try with old path
+             */
+            $file = ROOT.'libs/external/twilio/Twilio/autoload.php';
 
             if(!file_exists($file)){
-                throw new BException(tr('twilio_load(): Twilio API library file ":file" was not found, and auto install seems to have failed', array(':file' => $file)), 'notinstalled');
+                log_console('twilio_load(): Twilio API library not found', 'warning');
+
+                if(!$auto_install){
+                    throw new BException(tr('twilio_load(): Twilio API library file ":file" was not found', array(':file' => $file)), 'notinstalled');
+                }
+
+                twilio_install();
+
+                if(!file_exists($file)){
+                    throw new BException(tr('twilio_load(): Twilio API library file ":file" was not found, and auto install seems to have failed', array(':file' => $file)), 'notinstalled');
+                }
             }
         }
 
@@ -292,7 +299,7 @@ function twilio_send_message($message, $to, $from = null){
 
 
 
-/*
+/**
  * Register an image from an MMS message
  *
  * This function will register the specified image URL for the MMS message with the specified SMS ID
@@ -322,6 +329,33 @@ function twilio_add_image($messages_id, $url, $mimetype){
 
     }catch(Exception $e){
         throw new BException(tr('twilio_add_image(): Failed'), $e);
+    }
+}
+
+
+
+/**
+ * Register an image from an MMS message
+ *
+ * This function will register the specified image URL for the MMS message with the specified SMS ID
+ *
+ * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package twilio
+ * @version 1.27.0: Added documentation
+ *
+ * @param string $url The URL for the image
+ * @return bool
+ */
+function twilio_image_exists(string $url): bool
+{
+    try{
+        return (bool) sql_get_column('SELECT `id` FROM `sms_images` WHERE `url` = :url', [':url' => $url]);
+
+    }catch(Exception $e){
+        throw new BException(tr('twilio_image_exists(): Failed'), $e);
     }
 }
 

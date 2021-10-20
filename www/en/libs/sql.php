@@ -56,7 +56,7 @@ function sql_library_init(){
  * @param
  * @return
  */
-function sql_query($query, $execute = null, $connector_name = null){
+function sql_query($query, $execute = false, $connector_name = null){
     global $core;
 
     try{
@@ -322,6 +322,28 @@ function sql_get($query, $single_column = null, $execute = null, $connector_name
         }
 
         throw new BException('sql_get(): Failed', $e);
+    }
+}
+
+
+
+/*
+ * Execute query and return only the first row
+ *
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package sql
+ *
+ * @param
+ * @return
+ */
+function sql_get_column($query, $execute = null, $connector_name = null){
+    try{
+        return sql_get($query, true, $execute, $connector_name);
+
+    }catch(Exception $e){
+        throw new BException('sql_get_column(): Failed', $e);
     }
 }
 
