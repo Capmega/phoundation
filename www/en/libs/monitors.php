@@ -17,7 +17,7 @@
  *
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -40,7 +40,7 @@ function monitors_library_init(){
 /*
  * Validates the specified monitoring host
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -63,7 +63,7 @@ function monitors_validate_host($host){
 /*
  * Inserts the specified monitoring host in the database after validation
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -98,7 +98,7 @@ function monitors_insert_host($host){
 /*
  * Updates the specified monitoring host in the database after validation
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -134,7 +134,7 @@ function monitors_update_host($host){
 /*
  * Returns a monitor from the database that matches specified IP or hostname
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -181,7 +181,7 @@ function monitors_get_host($host){
 /*
  * Update the available network interfaces to the monitoring program on the specified host
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

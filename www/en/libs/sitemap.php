@@ -5,7 +5,7 @@
  * This library contains functions to manage available site URL's and generate
  * sitemaps from there
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
@@ -17,7 +17,7 @@
 /*
  * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -46,7 +46,7 @@ function sitemap_library_init(){
  * sitemap.xml will be created. If it does, the sitemap.xml will be the index
  * file, and the other sitemap files will be auto generated one by one
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -112,7 +112,7 @@ function sitemap_generate(){
  * Data will first be written to a new temp file, and then be moved over the
  * currently existing one, if one exist
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -190,7 +190,7 @@ function sitemap_install_files($files){
  * Data will first be written to a new temp file, and then be moved over the
  * currently existing one, if one exist
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -253,7 +253,7 @@ function sitemap_generate_index_file($files){
  * Data will first be written to a new temp file, and then be moved over the
  * currently existing one, if one exist
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -322,7 +322,7 @@ function sitemap_generate_xml_file($language = null, $file = null){
  * Data will first be written to a new temp file, and then be moved over the
  * currently existing one, if one exist
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -403,7 +403,7 @@ function sitemap_get_entry_xml($entry){
 /*
  * Returns a sitemap file entry for a sitemap index file
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -447,7 +447,7 @@ function sitemap_get_index_xml($file, $lastmod = null){
 /*
  * Returns an array list with the sitemap files that are used for the site
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -515,7 +515,7 @@ function sitemap_list_files(){
 /*
  * Clear the sitemap table
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -549,7 +549,7 @@ function sitemap_clear($groups = null){
 /*
  * Delete indivitual entries from the sitemap table
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -588,7 +588,7 @@ function sitemap_delete_entry($list){
 /*
  * Add a new URL to the sitemap table
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -693,7 +693,7 @@ function sitemap_insert_entry($entry){
 /*
  * Delete all sitemap tmp and backup files and directories
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -753,7 +753,7 @@ function sitemap_make_backup(){
 /*
  * Validate the specified sitemap entry
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

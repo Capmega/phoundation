@@ -15,7 +15,7 @@
  *
  * This function will use html_load_css() to inject <link> tags containing the required themify CSS files into the HTML that is sent to the client. The client will then automatically load these CSS files
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

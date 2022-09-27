@@ -61,7 +61,7 @@ route_map();
  *
  * To use translation mapping, first set the language map using route_map()
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -781,7 +781,7 @@ function route($regex, $target, $flags = null){
  * We have a target for the requested route. If the resource is a PHP page, then
  * execute it. Anything else, send it directly to the client
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -855,7 +855,7 @@ function route_exec($target, $attachment, $restrictions){
 /*
  * Show the 404 page
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -894,7 +894,7 @@ function route_shutdown(){
 /*
  * Show the 404 page
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -966,7 +966,7 @@ function route_404(){
  *                                     ENGLISH_WORD => SECOND_LANGUAGE_CODE_WORD,
  *                                     ENGLISH_WORD => ...),
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1024,7 +1024,7 @@ function route_map($map = null){
 /*
  * Insert a static route
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1084,7 +1084,7 @@ function route_insert_static($route){
  *
  * This function will validate all relevant fields in the specified $route array
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

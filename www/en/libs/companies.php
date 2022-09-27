@@ -15,7 +15,7 @@
  *
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -44,7 +44,7 @@ function companies_library_init(){
 /*
  * Validate the specified company
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -172,7 +172,7 @@ function companies_validate($company){
  *
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available companies
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -269,7 +269,7 @@ function companies_select($params = null){
  *
  * This function returns information for the specified company. The company can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -334,7 +334,7 @@ function companies_get($params, $column = null, $status = null){
  *
  * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference
@@ -366,7 +366,7 @@ function companies_list($params){
 /*
  * Validate the specified branch
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -466,7 +466,7 @@ function companies_validate_branch($branch, $reload_only = false){
  *
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available companies
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -596,7 +596,7 @@ function companies_select_branch($params = null){
  *
  * This function returns information for the specified company. The company can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -654,7 +654,7 @@ function companies_get_branch($params, $branch, $column = null, $status = null){
  *
  * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference
@@ -686,7 +686,7 @@ function companies_list_branches($params){
 /*
  * Validate the specified department
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -802,7 +802,7 @@ function companies_validate_department($department, $reload_only = false){
  *
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available companies
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -942,7 +942,7 @@ function companies_select_department($params = null){
  *
  * This function returns information for the specified company. The company can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1008,7 +1008,7 @@ function companies_get_department($params, $branch, $department, $column = null,
  *
  * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference
@@ -1040,7 +1040,7 @@ function companies_list_departments($params){
 /*
  * Validate the specified employee
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1182,7 +1182,7 @@ function companies_validate_employee($employee, $reload_only = false){
  *
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available companies
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1290,7 +1290,7 @@ function companies_select_employee($params = null){
  *
  * This function returns information for the specified company. The company can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1378,7 +1378,7 @@ function companies_get_employee($params){
  *
  * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference

@@ -15,7 +15,7 @@
  *
  * This function will use seo_string() to convert the specified $source variable to a seo optimized string, and then it will check the specified $table to ensure that it does not yet exist. If the current seo string already exists, it will be expanded with a natural number and the table will be checked again. If the seo string is still found, this number will be incremented each loop, until the string is no longer found
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

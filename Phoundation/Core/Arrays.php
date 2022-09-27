@@ -4,8 +4,6 @@ namespace Phoundation\Core;
 
 use Exception;
 use Phoundation\Core\Exception\CoreException;
-use Phoundation\Core\Exception\ElementNotFoundException;
-use Phoundation\Core\Exception\NoNextElementException;
 use Phoundation\Exception\OutOfBoundsException;
 
 /**
@@ -13,7 +11,7 @@ use Phoundation\Exception\OutOfBoundsException;
  *
  * This is the standard Phoundation array functionality extension class
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @package Phoundation\Core
@@ -26,8 +24,9 @@ class Arrays {
      * @param int|string $current_key
      * @param bool $delete
      * @return int|string
-     * @throws NoNextElementException Thrown if the specified $current_key does exist, but only at the end of the
-     *      specified array, so there is no next key
+     * @throws OutOfBoundsException Thrown if the specified $current_key does not exist
+     * @throws OutOfBoundsException Thrown if the specified $current_key does exist, but only at the end of the
+     *                              specified array, so there is no next key
      */
     public static function nextKey(array &$source, int|string $current_key, bool $delete = false): int|string
     {
@@ -58,10 +57,10 @@ class Arrays {
 
         if (!empty($next)) {
             // The current_key was found, but it was at the end of the array
-            throw new NoNextElementException(tr('The specified $current_key ":key" was found but it was the last item in the array so there is no next', [':key' => $current_key]));
+            throw new OutOfBoundsException(tr('The specified $current_key ":key" was found but it was the last item in the array so there is no next', [':key' => $current_key]));
         }
 
-        throw new ElementNotFoundException(tr('The specified $current_key ":key" was not found in the specified array', [':key' => $current_key]));
+        throw new OutOfBoundsException(tr('The specified $current_key ":key" was not found in the specified array', [':key' => $current_key]));
     }
 
 
@@ -76,6 +75,7 @@ class Arrays {
      * @param bool $delete If true, will delete the specified $current_value and found next value
      * @param bool $restart
      * @return mixed
+     * @throws OutOfBoundsException ?????
      */
     public static function nextValue(array &$source, mixed $current_value, bool $delete = false, bool $restart = false): mixed
     {
@@ -99,7 +99,7 @@ class Arrays {
 
         if (!$restart) {
             // The current value was found, but it was at the end of the array
-            throw new NoNextElementException(tr('Arrays::next_value(): Option ":value" does not have a value specified', array(':value' => $current_value)), 'invalid');
+            throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', array(':value' => $current_value)), 'invalid');
         }
 
         reset($source);
@@ -120,7 +120,7 @@ class Arrays {
      * @param mixed $default The default value in case $source[$key] does not exist
      * @return mixed The new value of $source[$key]. This will be either the original value of $source[$key], or the $default value if $source[$key] did not exist
      * @throws CoreException
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -151,15 +151,14 @@ class Arrays {
      * Ensure that the specified keys are available. If not, exception
      *
      * @param array $source
-     * @param array $keys
+     * @param array|string $keys
      * @return void
-     * @throws CoreException
      */
-    public static function keyCheck(array $source, array $keys): void
+    public static function keyCheck(array $source, array|string $keys): void
     {
         foreach (Arrays::force($keys) as $key) {
             if (!array_key_exists($key, $source)) {
-                throw new CoreException(tr('Key ":key" does not exist in array', [':key' => Strings::log($key)]));
+                throw new OutOfBoundsException(tr('Key ":key" does not exist in array', [':key' => Strings::log($key)]));
             }
         }
     }
@@ -178,6 +177,7 @@ class Arrays {
         $array = [];
         return Arrays::ensure($array, $keys, $value);
     }
+
 
 
     /**
@@ -207,7 +207,7 @@ class Arrays {
     /**
      * Return an object from the given array, recursively
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -463,9 +463,14 @@ class Arrays {
     }
 
 
-
     /**
      * Return all array parts from (but without) the specified key
+     *
+     * @param array $source
+     * @param int|string $from_key
+     * @param bool $delete
+     * @param bool $skip
+     * @return array
      */
     public static function from(array &$source, int|string $from_key, bool $delete = false, bool $skip = true): array
     {
@@ -893,7 +898,7 @@ class Arrays {
      * Example:
      * Arrays::all(array(1, 2, 3), function($value) { return $value });
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -927,7 +932,7 @@ class Arrays {
      * Example:
      * array_any(array(0, 1, 2, 3), function($value) { return $value });
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -961,7 +966,7 @@ class Arrays {
      * Example:
      * array_has_duplicates(array(0, 1, 2, 1));
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -983,7 +988,7 @@ class Arrays {
      * Example:
      * array_has_duplicates(array(0, 1, 2, 1));
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1012,7 +1017,7 @@ class Arrays {
      * Example:
      * Arrays::pluck(array('foo', 'bar', 'Frack!', 'test'), '/^F/i');
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1052,7 +1057,7 @@ class Arrays {
     /**
      * Merge multiple arrays together, but overwrite null values
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1087,7 +1092,7 @@ class Arrays {
     /**
      * Hide the specified keys from the specified array
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1150,7 +1155,7 @@ class Arrays {
     /**
      * Rename the specified old key to the new key
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1187,7 +1192,7 @@ class Arrays {
     /**
      * Returns the value of the first element of the specified array
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1214,7 +1219,7 @@ class Arrays {
     /**
      * Returns the value of the last element of the specified array
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1241,7 +1246,7 @@ class Arrays {
     /**
      * Make sure the specified keys are available on the array
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1297,7 +1302,7 @@ class Arrays {
     /**
      * Specified variable may be either string or array, but ensure that its returned as an array.
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1344,8 +1349,34 @@ class Arrays {
 
             return $source;
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new CoreException('array_force(): Failed', $e);
         }
+    }
+
+
+
+    /**
+     * Recursively trim all strings in the specified array tree
+     *
+     * @param array $source
+     * @param bool $recurse
+     * @return array
+     */
+    public static function trimStrings(array $source, bool $recurse = true): array
+    {
+        foreach ($source as $key => &$value) {
+            if (is_string($value)) {
+                $value = trim($value);
+
+            } elseif (is_array($value)) {
+                if ($recurse) {
+                    // Recurse
+                    $value = self::trimStrings($value);
+                }
+            }
+        }
+
+        return $source;
     }
 }

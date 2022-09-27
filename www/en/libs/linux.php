@@ -22,7 +22,7 @@
  *
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -44,7 +44,7 @@ function linux_library_init(){
 /*
  * Gets and returns SSH server AllowTcpForwarding configuration for the specified server
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -84,7 +84,7 @@ function linux_get_ssh_tcp_forwarding($server){
  * Enable SSH TCP forwarding on the specified linux server. The function makes a backup of the current SSH daemon configuration file, and update the current file to enable TCP forwarding/
  * For the moment, this function assumes that every linux distribution uses /etc/ssh/sshd_config for SSH daemon configuration, and that all use "AllowTcpForwarding no" or "AllowTcpForwarding yes"
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -119,7 +119,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
 /*
  * Returns if the specified file exists on the specified server
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -152,7 +152,7 @@ function linux_file_exists($server, $path, $sudo = false){
 /*
  * Execute the test command on the specified file on the specified server
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -187,7 +187,7 @@ function linux_test($server, $flag, $path, $sudo = false){
 /*
  * Returns if the specified file exists on the specified server
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -217,7 +217,7 @@ function linux_scandir($server, $path){
  * Delete a file, weather it exists or not, without error, from the specified
  * server
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -273,7 +273,7 @@ function linux_file_delete($server, $params, $restrictions = null){
 /*
  * Delete the path until directory is no longer empty on the specified server
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -359,7 +359,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
  * Returns true if the specified file is writable on the specified server with
  * its configured user
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -389,7 +389,7 @@ function linux_is_writable($server, $file){
  * Returns a list of PID's for the specified process names on the specified
  * server
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -426,7 +426,7 @@ function linux_pgrep($server, $name){
 /*
  * Kill all processes with the specified process name on the specified server
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -516,7 +516,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
 /*
  * Return all system processes that match the specified filters on the specified server
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -560,7 +560,7 @@ function linux_list_processes($server, $filters){
 /*
  * Check if the specified PID is available on the specified server
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -584,7 +584,7 @@ function linux_pid($server, $pid){
 /*
  * Execute the netstat command on the specified server and return parsed output
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -609,7 +609,7 @@ under_construction();
 /*
  * Locates the specifed command on the specified server and returns it path
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -641,7 +641,7 @@ function linux_which($server, $command, $whereis = false){
 /*
  * Ensures existence of specified path on the specified server
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -741,7 +741,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
 /*
  *
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -764,7 +764,7 @@ function linux_rename($server, $path, $source, $target, $sudo = false){
 /*
  *
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -787,7 +787,7 @@ function linux_copy($server, $source, $target, $sudo = false){
 /*
  * Delete the specified path on the specified server
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -826,7 +826,7 @@ under_construction('linux_delete() does not yet have support for $clean_path');
 /*
  * Unzip the specified file un the specified server
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -878,7 +878,7 @@ under_construction('Move this to compress_unzip()');
  *
  * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -955,7 +955,7 @@ function linux_download($server, $url, $section = false, $callback = null){
 /*
  * Ensure that the specified command is available. If the command is not available, the specified packages will be installed automatically to ensure the commands will be available
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -990,7 +990,7 @@ function linux_ensure_package($server, $command, $packages){
 /*
  * Install the specified package on the linux operating system
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1047,7 +1047,7 @@ function linux_install_package($server, $package){
 /*
  * Detect the operating system on specified server and return the data
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1073,7 +1073,7 @@ showdie($results);
 /*
  * Get the real path for the specified path on the target server
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1102,7 +1102,7 @@ function linux_realpath($server, $path){
 /*
  * Execute the service command on the specified server
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1128,7 +1128,7 @@ function linux_service($server, $service, $action){
 /*
  * Return the current working directory (CWD) for the specified process id (PID)
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1160,7 +1160,7 @@ function linux_get_cwd($server, $pid){
 /*
  * Return the available files in the specified $path
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1188,7 +1188,7 @@ function linux_ls($server, $path, $sudo = false, $restrictions = null){
 /*
  * Execute the find command on the specified server
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1325,7 +1325,7 @@ function linux_find($server, $params){
  *
  * If $params[unrestricted] is specified, the function will not test anything
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

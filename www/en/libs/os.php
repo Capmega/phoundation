@@ -17,7 +17,7 @@
  *
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -40,7 +40,7 @@ function os_library_init(){
  * Execute the specified command(s) on the specified hostname using the correct commands for each different operating system.
  * This function will check what operating system the specified $hostname runs, and load the required library for that operating system, and have that library execute the required commands to execute the specified function
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -112,7 +112,7 @@ showdie($command);
 /*
  * Enable SSH server TCP forwarding on the specified hostname
  *
- * @Sven Olaf Oostenbrink <sven@capmega.com>
+ * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

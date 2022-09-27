@@ -12,6 +12,6 @@ license@capmega.com
 The Phoundation Project has been released under the GNU Public License, Version 2. For more infomation, visit:
 http://opensource.org/licenses/GPL-2.0
 
-Unless specified otherwise, all files are copyright Sven Olaf Oostenbrink "sven@capmega.com"
+Unless specified otherwise, all files are copyright Sven Olaf Oostenbrink "so.oostenbrink@gmail.com"
 
 

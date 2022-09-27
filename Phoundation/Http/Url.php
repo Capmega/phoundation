@@ -10,7 +10,7 @@ class Url {
     /**
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -44,7 +44,7 @@ class Url {
     /**
      * Return complete domain with HTTP and all
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -301,7 +301,7 @@ class Url {
      *
      * URL cloaking is nothing more than replacing a full URL (with query) with a random string. This function will register the requested URL
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -357,7 +357,7 @@ class Url {
      *
      * URL cloaking is nothing more than
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -398,7 +398,7 @@ class Url {
      *
      * Since the URL cloaking table might fill up over time with new entries, this function will be periodically executed by url_decloak() to cleanup the table
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference

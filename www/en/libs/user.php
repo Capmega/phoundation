@@ -13,7 +13,7 @@
 /*
  * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -466,7 +466,7 @@ function user_remove_from_group($user, $groups, $validate = true){
 /*
  * Authenticate the specified user with the specified password
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -897,7 +897,7 @@ function user_authentication_requires_captcha($failures = null){
 /*
  * Do a user signin
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1318,7 +1318,7 @@ function user_signup($user, $options = null){
 /*
  * Update the specified user in the database
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2255,7 +2255,7 @@ function user_validate($user, $options = array()){
  *
  * This function returns information for the specified user. The user can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @user Function reference
@@ -2624,7 +2624,7 @@ function user_update_apikey($users_id = null){
  *
  * This function will unlock the user with the specified $users_id by setting the users' status to "locked"
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2668,7 +2668,7 @@ function user_lock($users_id){
  *
  * This function will unlock the user with the specified $users_id by setting the users' status to NULL
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2774,7 +2774,7 @@ function user_update_reference_codes($user, $allow_duplicate_reference_codes = n
  * Update the location information for the specified user from the specified
  * latitude / longitude, or (if specified) the geo data
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference

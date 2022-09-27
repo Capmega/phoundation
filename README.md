@@ -39,4 +39,4 @@ See /data/doc for documentation
 See /data/doc/features for available features
 
 This entire project has been released under the GNU Public License, Version 2, see http://opensource.org/licenses/GPL-2.0
-Unless specified differently, all files are copyright Sven Olaf Oostenbrink <sven@capmega.com>
+Unless specified differently, all files are copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>

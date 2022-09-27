@@ -40,7 +40,7 @@ function databases_validate_accounts($database){
  *
  * This function returns information for the specified template. The template can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference
@@ -89,7 +89,7 @@ function databases_get_account($params){
 /*
  * Return a list of all available databases_accounts filtered by
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @template Function reference

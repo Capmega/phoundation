@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Routing table script
  *
  * This script contains the routing table, which routes requested URL's to specific PHP pages
@@ -29,7 +29,7 @@
  * X$PATHS$         Restrict access to the specified dot-comma separated $PATHS$ list. $PATHS is optional and defaults to ROOT.'www,'.ROOT.'data/content/downloads'
  *
  * The translation map helps route() to detect URL's where the language is native. For example; http://phoundation.org/about.html and http://phoundation.org/nosotros.html should both route to about.php, and maybe you wish to add multiple languages for this. The routing table basically says what static words should be translated to their native language counterparts. The mapped_domain() function use this table as well when generating URL's. See mapped_domain() for more information
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -78,42 +78,60 @@
  * @category Function reference
  * @package route
  */
+
+use Phoundation\Http\Route;
+
+
+
+/*
+ *
+ */
 $verbose     = true;
 $veryverbose = true;
-require_once(__DIR__.'/en/libs/route.php');
+
+
 
 /*
  * Setup URL translations map
  */
-route('map', array('es' => array('conferencias' => 'conferences',
-                                 'portafolio'   => 'portfolio',
-                                 'servicios'    => 'services',
-                                 'nosotros'     => 'about'),
+Route::mapUrl('es', [
+    'conferencias' => 'conferences',
+    'portafolio'   => 'portfolio',
+    'servicios'    => 'services',
+    'nosotros'     => 'about'
+]);
 
-                   'nl' => array('conferenties' => 'conferences',
-                                 'portefeuille' => 'portfolio',
-                                 'diensten'     => 'services',
-                                 'over-ons'     => 'about')));
+Route::mapUrl('nl', [
+    'conferenties' => 'conferences',
+    'portefeuille' => 'portfolio',
+    'diensten'     => 'services',
+    'over-ons'     => 'about'
+]);
+
+
 
 /*
  * Front end pages
  */
-route('/^([a-z]{2})\/$/'                                    , '$1/index.php'                                         , '');                 // Show index page
-route('/^([a-z]{2})\/([-a-z]+).html$/'                      , '$1/$2.php'                                            , '');                 // Show pages with page name in URL
-route('/^([a-z]{2})\/(?!admin)([a-z]+)\/([a-z0-9-]+).html$/', '$1/$2.php?item=$3'                                    , '');                 // Show pages with page/section name in URL
-route(''                                                    , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/'                , 'R301');             // Main page has to redirect to a language page
+Route::add('/^([a-z]{2})\/$/'                                    , '$1/index.php'                                         , '');                 // Show index page
+Route::add('/^([a-z]{2})\/([-a-z]+).html$/'                      , '$1/$2.php'                                            , '');                 // Show pages with page name in URL
+Route::add('/^([a-z]{2})\/(?!admin)([a-z]+)\/([a-z0-9-]+).html$/', '$1/$2.php?item=$3'                                    , '');                 // Show pages with page/section name in URL
+Route::add(''                                                    , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/'                , 'R301');             // Main page has to redirect to a language page
+
+
 
 /*
  * Admin pages
  */
-route('/^([a-z]{2})\/(admin\/)?ajax\/([a-z\/]+).php$/'      , '$1/$2ajax/$3.php'                                     , 'Q');                // Redirect to admin ajax pages
-route('/^([a-z]{2})\/admin\/?$/'                            , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /en/admin/ has to go to /en/admin/index.html
-route('/^([a-z]{2})\/admin\/([a-z-]+).html$/'               , '$1/admin/$2.php'                                      , 'Q');                // Show admin pages with page name in URL
-route('/^admin\/?$/'                                        , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /admin/ has to go to /en/admin/index.html
+Route::add('/^([a-z]{2})\/(admin\/)?ajax\/([a-z\/]+).php$/'      , '$1/$2ajax/$3.php'                                     , 'Q');                // Redirect to admin ajax pages
+Route::add('/^([a-z]{2})\/admin\/?$/'                            , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /en/admin/ has to go to /en/admin/index.html
+Route::add('/^([a-z]{2})\/admin\/([a-z-]+).html$/'               , '$1/admin/$2.php'                                      , 'Q');                // Show admin pages with page name in URL
+Route::add('/^admin\/?$/'                                        , ':PROTOCOL:DOMAIN/:REQUESTED_LANGUAGE/admin/index.html', 'R301');             // /admin/ has to go to /en/admin/index.html
+
+
 
 /*
  * System files / downloadable files
  */
-route('/(.+?(?:xml|txt))$/'                                 , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
-route('/\/files\/(.+)$/'                                    , '$1'                                                   , 'A');                // Downloadable files
-?>
+Route::add('/(.+?(?:xml|txt))$/'                                 , '$1'                                                   , '');                 // System files like sitemap.xml, robot.txt, etc.
+Route::add('/\/files\/(.+)$/'                                    , '$1'                                                   , 'A');                // Downloadable files

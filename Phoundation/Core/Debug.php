@@ -10,7 +10,7 @@ use Phoundation\Core\CoreException;
  *
  * This class contains the basic debug methods for use in Phoundation
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @package Phoundation\Core

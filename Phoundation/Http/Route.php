@@ -1,19 +1,19 @@
 <?php
 
-namespace Phoundation\Web;
+namespace Phoundation\Http;
 
 use Exception;
 use Phoundation\Databases\Sql;
 use Phoundation\Filesystem\File;
-use Phoundation\Http\Http;
-use Phoundation\Http\Url;
+
+
 
 /**
  * Class Route
  *
  * Core routing class that will route URL requests to PHP scripts
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @package Phoundation\Web
@@ -57,7 +57,7 @@ class Route
      * @param string $target
      * @param string $flags
      * @return bool
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -767,7 +767,7 @@ class Route
      *                                     ENGLISH_WORD => SECOND_LANGUAGE_CODE_WORD,
      *                                     ENGLISH_WORD => ...),
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -794,7 +794,7 @@ class Route
      * @param null array $map The language mapping array
      * @return void
      */
-    public static function map(string $language, array $map) {
+    public static function mapUrl(string $language, array $map) {
         /*
          * Set specific language map
          */
@@ -810,7 +810,7 @@ class Route
      * We have a target for the requested route. If the resource is a PHP page, then
      * execute it. Anything else, send it directly to the client
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -885,7 +885,7 @@ class Route
     /**
      * Shutdown the URL routing
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -924,7 +924,7 @@ class Route
     /**
      * Show the 404 page
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -983,7 +983,7 @@ class Route
     /**
      * Insert a static route
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -1044,7 +1044,7 @@ class Route
      *
      * This function will validate all relevant fields in the specified $route array
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference

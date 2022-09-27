@@ -14,7 +14,7 @@ use Phoundation\Exception\UnderConstructionException;
  *
  * This class contains various HTTP processing methods
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @package Phoundation\Http
@@ -255,7 +255,7 @@ class Http
      * @param bool|null $verify_peer_name
      * @param bool|null $allow_self_signed
      * @return resource
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -285,7 +285,7 @@ class Http
      *
      * This function will walk over the $_GET array and test each value. If a value is found that is not scalar, a 400 code exception will be thrown, which would lead to an HTTP 400 BAD REQUEST
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -327,7 +327,7 @@ class Http
     /**
      *
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -386,7 +386,7 @@ class Http
      *
      * Returns headers Cache-Control and ETag
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -473,7 +473,7 @@ class Http
      * @package http
      * @see Http::cache()
      * @version 2.5.92: Added function and documentation
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      */
     protected static function noCache(): void
     {
@@ -636,7 +636,7 @@ class Http
     /**
      * Redirect to the specified $target
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -814,7 +814,7 @@ class Http
     /**
      * Return $_POST[dosubmit] value, and reset it to be sure it won't be applied twice
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2021 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference

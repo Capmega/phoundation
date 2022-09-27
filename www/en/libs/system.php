@@ -4,7 +4,7 @@
  *
  * This library contains all system functions for Phoundation
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -211,7 +211,7 @@ try{
 /*
  * $core is the main object for BASE. It starts automatically once the startup library is loaded, determines the platform (cli or http), and in case of http, what the call type is. The call type differentiates between http web pages, admin web pages (pages with /admin, showing the admin section), ajax requests (URL's starting with /ajax), api requests (URL's starting with /api), system pages (any 404, 403, 500, 503, etc. page), Google AMP pages (any URL starting with /amp), and explicit mobile pages (any URL starting with /mobile). $core will automatically run the correct handler for the specified request, which will automatically load the required libraries, setup timezones, configure language and locale, and load the custom library. After that, control is returned to the webpage that called the startup library
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -236,7 +236,7 @@ class Core{
     /*
      * The core::startup() method starts the correct call type handler
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -353,7 +353,7 @@ class Core{
     /*
      *
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -371,7 +371,7 @@ class Core{
     /*
      * The register allows to store global variables without using the $GLOBALS scope
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -406,7 +406,7 @@ class Core{
     /*
      * This method will return the calltype for this call, as is stored in the private variable core::callType or if $type is specified, will return true if $calltype is equal to core::callType, false if not.
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -451,7 +451,7 @@ class Core{
 /*
  * Extend basic PHP exception to automatically add exception trace information inside the exception objects
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -464,7 +464,7 @@ class BException extends Exception{
 
     /*
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -483,7 +483,7 @@ class BException extends Exception{
     /*
      * Add specified $message to the exception messages list
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -513,7 +513,7 @@ class BException extends Exception{
     /*
      * Set the exception objects code to the specified $code
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -532,7 +532,7 @@ class BException extends Exception{
     /*
      * Returns the current exception code but without any warning prefix. If the exception code has a prefix, it will be separated from the actual code by a forward slash /. For example, "warning/invalid" would return "invalid"
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -549,7 +549,7 @@ class BException extends Exception{
     /*
      * Returns all messages from this exception object
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -571,7 +571,7 @@ class BException extends Exception{
     /*
      * Returns the data associated with the exception
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -588,7 +588,7 @@ class BException extends Exception{
     /*
      * Set the data associated with the exception. This content could be a data structure received by the function or method that caused the exception, which could help with handling the exception, logging information, or debugging the issue
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -607,7 +607,7 @@ class BException extends Exception{
      *
      * Returns all messages from this exception object
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -634,7 +634,7 @@ class BException extends Exception{
      *
      * Returns all messages from this exception object
      *
-     * @author Sven Olaf Oostenbrink <sven@capmega.com>
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @copyright Copyright (c) 2018 Capmega
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
@@ -654,7 +654,7 @@ class BException extends Exception{
  *
  * NOTE: This function should never be called directly
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -674,7 +674,7 @@ function php_error_handler($errno, $errstr, $errfile, $errline, $errcontext){
  *
  * NOTE: This function should never be called directly
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -693,7 +693,7 @@ function uncaught_exception($e, $die = 1){
  * Display value if exists
  * IMPORTANT! After calling this function, $var will exist!
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -723,7 +723,7 @@ function isset_get(&$variable, $return = null, $alt_return = null){
 /*
  * Ensures the specified variable exists. If the variable already exists with a non NULL value, it will not be touched. If the variable does not exist, or has a NULL value, it will be set to the $initialization variable
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -763,7 +763,7 @@ function ensure_variable(&$variable, $initialize){
  * forgotten. If results were found, an exception will be thrown. This
  * behaviour does NOT apply to production systems
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -829,7 +829,7 @@ function tr($text, $replace = null, $verify = true){
 /*
  * Set or get debug mode.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -866,7 +866,7 @@ function debug($enabled = null){
 /*
  * Send a notification to specified groups. This function can send one and the same message over multiple paths like email, sms, push notifications, log, etc.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -931,7 +931,7 @@ function notify($notification, $log = true, $throw = true){
  * load_external('Twilio/autoload.php');
  * load_external(array('Twilio/autoload.php', 'Facebook/facebook.php'));
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -963,7 +963,7 @@ function load_external($files){
  * load_libs('buks,backup,ssl');
  * load_libs(array('buks', 'backup', 'ssl'));
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1061,7 +1061,7 @@ function load_libs($libraries){
  * load_config('fprint,buks');
  * load_libs(array('fprint', 'buks'));
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1140,7 +1140,7 @@ function load_config($files = ''){
 /*
  * Returns the configuration array from the specified file and specified environment
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1207,7 +1207,7 @@ function read_config($file = null, $environment = null){
  * Examples:
  * safe_exec('rm '.ROOT.'data/log/test', '1,2')
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1231,7 +1231,7 @@ function safe_exec($params){
 /*
  * Executes the specified base script directly inside the current process
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1261,7 +1261,7 @@ function script_exec($params){
  * load_content('index/top')
  * load_content('index/top', array(':foo' => 'bar'))
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1397,7 +1397,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
  *
  * If $mimetype is not specified, the function will return the first mimetype that was specified in the HTTP ACCEPT header
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1461,7 +1461,7 @@ function accepts($mimetype = null){
 /*
  * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list of languages / locales accepted by the HTTP client
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1635,7 +1635,7 @@ function log_flags($color){
  *
  * Also, if required, sets the log message color, filters double messages and can set the log_file() $class
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1735,7 +1735,7 @@ function log_sanitize($messages, $color, $filter_double = true, &$class = null){
  *
  * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -1855,7 +1855,7 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
  *
  * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
 
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2074,7 +2074,7 @@ function get_hash($source, $algorithm, $add_meta = true){
 /*
  * Get a valid language from the specified language
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2126,7 +2126,7 @@ function get_language($language){
 /*
  * Return the correct current domain
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2155,7 +2155,7 @@ function get_domain(){
 /*
  * Return complete domain with HTTP and all
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2325,7 +2325,7 @@ function domain($url_params = null, $query = null, $prefix = null, $domain = nul
 /*
  * Return complete URL for the specified API URL section with HTTP and all
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2357,7 +2357,7 @@ function api_domain($url = null, $query = null, $prefix = null, $domain = null, 
 /*
  * Return complete URL for the specified AJAX URL section with HTTP and all
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -2403,7 +2403,7 @@ function ajax_domain($url = null, $query = null, $language = null, $allow_url_cl
  *
  * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -3179,7 +3179,7 @@ function is_natural($number, $start = 1){
 /*
  * Returns true if the specified string is a version, or false if it is not
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -3327,7 +3327,7 @@ function name($user = null, $key_prefix = '', $default = null){
 /*
  * Show the specified page
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -3492,7 +3492,7 @@ function not_supported($functionality = ''){
 /*
  * Return $source if $source is not considered "empty". Return null if specified variable is considered "empty", like 0, "", array(), etc.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -3528,7 +3528,7 @@ function get_null($source){
 /*
  * Return $source if $source is not considered "empty". Return $default if specified variable is considered "empty", like 0, "", array(), etc.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -3694,7 +3694,7 @@ function disconnect(){
 /*
  * Execute the specified callback function with the specified $params only if the callback has been set with an executable function
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -3913,7 +3913,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
 /*
  * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4053,7 +4053,7 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
 /*
  * Cut and return a piece out of the source string, starting from the start string, stopping at the stop string.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4093,7 +4093,7 @@ function str_cut($source, $start, $stop){
  *
  * This is a simple wrapper function to strpos() which does not require testing for false, as the output is boolean. If the $needle exists in the $haystack, true will be returned, else false will be returned.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4417,7 +4417,7 @@ function str_nodouble($source, $replace = '\1', $character = null, $case_insensi
 /*
  * Truncate string using the specified fill and method
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4500,7 +4500,7 @@ function str_truncate($source, $length, $fill = ' ... ', $method = 'right', $on_
 /*
  * Return a string that is suitable for logging.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4589,7 +4589,7 @@ function str_log($source, $truncate = 8187, $separator = ', '){
 /*
  * Returns the value of the first element of the specified array
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4615,7 +4615,7 @@ function array_first($source){
 /*
  * Returns the value of the last element of the specified array
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4641,7 +4641,7 @@ function array_last($source){
 /*
  * Make sure the specified keys are available on the array
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4696,7 +4696,7 @@ function array_ensure(&$source, $keys = '', $default_value = null, $trim_existin
 /*
  * Specified variable may be either string or array, but ensure that its returned as an array.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4753,7 +4753,7 @@ function array_force($source, $separator = ','){
 /*
  * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -4835,7 +4835,7 @@ function cli_dot($each = 10, $color = 'green', $dot = '.', $quiet = false){
  * CLI color code management class
  * Taken from http://www.if-not-true-then-false.com/2010/php-class-for-coloring-php-command-line-cli-scripts-output-php-output-colorizing-using-bash-shell-colors/
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5250,7 +5250,7 @@ function get_global_data_path($section = '', $writable = true){
  *
  * The specified command will be executed in the background in a separate process and run_background() will immediately return control back to BASE.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5288,7 +5288,7 @@ function run_background($cmd, $log = true, $single = true, $term = 'xterm', $wai
 /*
  * Return the file where this call was made
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5317,7 +5317,7 @@ function current_file($trace = 0){
 /*
  * Return the line number where this call was made
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5346,7 +5346,7 @@ function current_line($trace = 0){
 /*
  * Return the function where this call was made
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5377,7 +5377,7 @@ function current_function($trace = 0){
  *
  * In environments where debug is enabled, this function can pre-fill large HTML forms with test data
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5409,7 +5409,7 @@ function value($format, $size = null){
 /*
  * Show data, function results and variables in a readable format
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5430,7 +5430,7 @@ function show($data = null, $trace_offset = null, $quiet = false){
 /*
  * Short hand for show and then die
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5452,7 +5452,7 @@ function showdie($data = null, $trace_offset = null){
 /*
  * Show nice HTML table with all debug data
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5473,7 +5473,7 @@ function debug_html($value, $key = null, $trace_offset = 0){
 /*
  * Show HTML <tr> for the specified debug data
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5494,7 +5494,7 @@ function debug_html_row($value, $key = null, $type = null){
 /*
  * Displays the specified query in a show() output
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5517,7 +5517,7 @@ function debug_sql($query, $execute = null, $return_only = false){
  *
  * debug_backtrace() contains all function arguments and can get very clutered. debug_trace() will by default filter the function arguments and return a much cleaner back trace for displaying in debug traces. The function allows other keys to be filtered out if specified
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5536,7 +5536,7 @@ function debug_trace($filters = 'args', $skip_own = true){
 /*
  * Return an HTML bar with debug information that can be used to monitor site and fix issues
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5553,7 +5553,7 @@ function debug_bar(){
 /*
  * Used for ordering entries on the debug bar
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5586,7 +5586,7 @@ function debug_bar_sort($a, $b){
 /*
  *
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5604,7 +5604,7 @@ function die_in($count, $message = null){
 /*
  *
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5624,7 +5624,7 @@ function variable_zts_safe($variable, $level = 0){
  *
  * A clean string, in this case, means a string data type which contains no HTML code
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5649,7 +5649,7 @@ function cfm($source, $utf8 = true){
 /*
  * Force the specified $source variable to be an integer
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5676,7 +5676,7 @@ function cfi($source, $allow_null = true){
 /*
  * Force the specified $source variable to be a float
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5703,7 +5703,7 @@ function cf($source, $allow_null = true){
 /*
  *
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5743,7 +5743,7 @@ function get_true_false($value, $default){
 /*
  *
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5777,7 +5777,7 @@ function get_yes_no($value){
  *
  * This function facilitates execution of multiple registered shutdown functions
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5861,7 +5861,7 @@ function shutdown(){
  *
  * This function will ensure that the specified function will be executed on shutdown with the specified value.
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5893,7 +5893,7 @@ function register_shutdown($name, $value = null){
  *
  * This function will ensure that the specified function will not be executed on shutdown
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5923,7 +5923,7 @@ function unregister_shutdown($name){
 /*
  * Set the timeout value for this script
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5958,7 +5958,7 @@ function set_timeout($timeout = null){
  *
  * If the HTTP request is not of the specified type, this function will throw an exception
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
@@ -5984,7 +5984,7 @@ function limit_request_method($method){
 /*
  * Set PHP locale data from specified configuration. If no configuration was specified, use $_CONFIG[locale] instead
  *
- * @author Sven Olaf Oostenbrink <sven@capmega.com>
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @copyright Copyright (c) 2018 Capmega
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
