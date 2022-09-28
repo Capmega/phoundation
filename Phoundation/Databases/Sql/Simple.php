@@ -675,8 +675,8 @@ class SqlSimple
                 }
 
                 if (str_exists($column, ' as ')) {
-                    $target = trim(str_from($column, ' as '));
-                    $column = trim(str_until($column, ' as '));
+                    $target = trim(Strings::from($column, ' as '));
+                    $column = trim(Strings::until($column, ' as '));
                     $column = '`' . str_replace('.', '`.`', trim($column)) . '`';
                     $column .= ' AS `' . trim($target) . '`';
 

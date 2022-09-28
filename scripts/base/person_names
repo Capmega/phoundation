@@ -120,12 +120,12 @@ try{
             $done = true;
         }
 
-        $execute[':male']            = strtolower(str_until($male  , ' '));
-        $execute[':female']          = strtolower(str_until($female, ' '));
-        $execute[':last']            = strtolower(str_until($last  , ' '));
-        $execute[':male_priority']   = strtolower(str_rfrom($male  , ' '));
-        $execute[':female_priority'] = strtolower(str_rfrom($female, ' '));
-        $execute[':last_priority']   = strtolower(str_rfrom($last  , ' '));
+        $execute[':male']            = strtolower(Strings::until($male  , ' '));
+        $execute[':female']          = strtolower(Strings::until($female, ' '));
+        $execute[':last']            = strtolower(Strings::until($last  , ' '));
+        $execute[':male_priority']   = strtolower(Strings::fromReverse($male  , ' '));
+        $execute[':female_priority'] = strtolower(Strings::fromReverse($female, ' '));
+        $execute[':last_priority']   = strtolower(Strings::fromReverse($last  , ' '));
 
         $p->execute($execute);
 

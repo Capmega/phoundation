@@ -79,11 +79,11 @@
 //            define('PLATFORM_HTTP', false);
 //            define('PLATFORM_CLI' , true);
 //
-//            $file = realpath(ROOT.'scripts/'.str_from($argv[0], 'scripts/'));
-//            $file = str_from($file, ROOT.'scripts/');
+//            $file = realpath(ROOT.'scripts/'.Strings::from($argv[0], 'scripts/'));
+//            $file = Strings::from($file, ROOT.'scripts/');
 //
 //            $core->register['real_script'] = $file;
-//            $core->register['script']      = str_rfrom($file, '/');
+//            $core->register['script']      = Strings::fromReverse($file, '/');
 //
 //            unset($file);
 //
@@ -106,7 +106,7 @@
 //             * Detect requested language
 //             */
 //            $core->register['http_code']         = 200;
-//            $core->register['script']            = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+//            $core->register['script']            = Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php');
 //            $core->register['real_script']       = $core->register['script'];
 //            $core->register['accepts']           = accepts();
 //            $core->register['accepts_languages'] = accepts_languages();
@@ -541,7 +541,7 @@
 //     * @return string The current BException::code value from the first /
 //     */
 //    public function getRealCode(){
-//        return str_from($this->code, '/');
+//        return Strings::from($this->code, '/');
 //    }
 //
 //
@@ -1481,14 +1481,14 @@
 //             * No accept language headers were specified
 //             */
 //            $retval  = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
-//                                            'locale'   => str_cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
+//                                            'locale'   => Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 //
 //        }else{
 //            $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 //            $headers = array_force($headers, ',');
 //            $default = array_shift($headers);
-//            $retval  = array('1.0' => array('language' => str_until($default, '-'),
-//                                            'locale'   => (str_exists($default, '-') ? str_from($default, '-') : null)));
+//            $retval  = array('1.0' => array('language' => Strings::until($default, '-'),
+//                                            'locale'   => (str_exists($default, '-') ? Strings::from($default, '-') : null)));
 //
 //            if(empty($retval['1.0']['language'])){
 //                /*
@@ -1501,19 +1501,19 @@
 //                /*
 //                 * Specified accept language headers contain no locale
 //                 */
-//                $retval['1.0']['locale'] = str_cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+//                $retval['1.0']['locale'] = Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
 //            }
 //
 //            foreach($headers as $header){
-//                $requested =  str_until($header, ';');
-//                $requested =  array('language' => str_until($requested, '-'),
-//                                    'locale'   => (str_exists($requested, '-') ? str_from($requested, '-') : null));
+//                $requested =  Strings::until($header, ';');
+//                $requested =  array('language' => Strings::until($requested, '-'),
+//                                    'locale'   => (str_exists($requested, '-') ? Strings::from($requested, '-') : null));
 //
 //                if(empty($_CONFIG['language']['supported'][$requested['language']])){
 //                    continue;
 //                }
 //
-//                $retval[str_from(str_from($header, ';'), 'q=')] = $requested;
+//                $retval[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
 //            }
 //        }
 //
@@ -1532,7 +1532,7 @@
 // */
 //function log_flags($color){
 //    try{
-//        switch(str_until($color, '/')){
+//        switch(Strings::until($color, '/')){
 //            case 'VERBOSE':
 //                if(!VERBOSE){
 //                    /*
@@ -1544,7 +1544,7 @@
 //                /*
 //                 * Remove the VERBOSE
 //                 */
-//                $color = str_from(str_from($color, 'VERBOSE', 0, true), '/');
+//                $color = Strings::from(Strings::from($color, 'VERBOSE', 0, true), '/');
 //                break;
 //
 //            case 'VERBOSEDOT':
@@ -1552,7 +1552,7 @@
 //                    /*
 //                     * Only log this if we're in verbose mode
 //                     */
-//                    $color = str_from(str_from($color, 'VERBOSEDOT', 0, true), '/');
+//                    $color = Strings::from(Strings::from($color, 'VERBOSEDOT', 0, true), '/');
 //                    cli_dot(10, $color);
 //                    return false;
 //                }
@@ -1560,7 +1560,7 @@
 //                /*
 //                 * Remove the VERBOSE
 //                 */
-//                $color = str_from(str_from($color, 'VERBOSEDOT', 0, true), '/');
+//                $color = Strings::from(Strings::from($color, 'VERBOSEDOT', 0, true), '/');
 //                break;
 //
 //            case 'VERYVERBOSE':
@@ -1574,7 +1574,7 @@
 //                /*
 //                 * Remove the VERYVERBOSE
 //                 */
-//                $color = str_from(str_from($color, 'VERYVERBOSE', 0, true), '/');
+//                $color = Strings::from(Strings::from($color, 'VERYVERBOSE', 0, true), '/');
 //                break;
 //
 //            case 'VERYVERBOSEDOT':
@@ -1582,7 +1582,7 @@
 //                    /*
 //                     * Only log this if we're in verbose mode
 //                     */
-//                    $color = str_from(str_from($color, 'VERYVERBOSEDOT', 0, true), '/');
+//                    $color = Strings::from(Strings::from($color, 'VERYVERBOSEDOT', 0, true), '/');
 //                    cli_dot(10, $color);
 //                    return false;
 //                }
@@ -1590,7 +1590,7 @@
 //                /*
 //                 * Remove the VERYVERBOSE
 //                 */
-//                $color = str_from(str_from($color, 'VERYVERBOSEDOT', 0, true), '/');
+//                $color = Strings::from(Strings::from($color, 'VERYVERBOSEDOT', 0, true), '/');
 //                break;
 //
 //            case 'QUIET':
@@ -1604,7 +1604,7 @@
 //                /*
 //                 * Remove the QUIET
 //                 */
-//                $color = str_from(str_from($color, 'QUIET', 0, true), '/');
+//                $color = Strings::from(Strings::from($color, 'QUIET', 0, true), '/');
 //                break;
 //
 //            case 'DEBUG':
@@ -1618,7 +1618,7 @@
 //                /*
 //                 * Remove the QUIET
 //                 */
-//                $color = str_from(str_from($color, 'DEBUG', 0, true), '/');
+//                $color = Strings::from(Strings::from($color, 'DEBUG', 0, true), '/');
 //        }
 //
 //        return $color;
@@ -2026,7 +2026,7 @@
 //            /*
 //             * We cannot write to the log file
 //             */
-//            throw new CoreException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => str_cut($message, 'fopen(', ')'))), 'warning');
+//            throw new CoreException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => Strings::cut(($message, 'fopen(', ')'))), 'warning');
 //        }
 //
 //        throw new CoreException('log_file(): Failed', $e, array('message' => $messages));
@@ -2303,7 +2303,7 @@
 //            $retval = url_add_query($retval, $url_params['query']);
 //
 //        }elseif($url_params['query'] === false){
-//            $retval = str_until($retval, '?');
+//            $retval = Strings::until($retval, '?');
 //        }
 //
 //        if($url_params['allow_cloak'] and $_CONFIG['security']['url_cloaking']['enabled']){
@@ -2640,7 +2640,7 @@
 //                throw new CoreException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exist');
 //            }
 //
-//            if($_CONFIG['redirects'][$_SESSION['force_page']] !== str_until(str_rfrom($_SERVER['REQUEST_URI'], '/'), '?')){
+//            if($_CONFIG['redirects'][$_SESSION['force_page']] !== Strings::until(Strings::fromReverse($_SERVER['REQUEST_URI'], '/'), '?')){
 //                log_file(tr('User ":user" has forced page ":page"', array(':user' => name($_SESSION['user']), ':page' => $_SESSION['force_page'])), 'user-or-signin', 'VERBOSE/yellow');
 //                redirect(domain($_CONFIG['redirects'][$_SESSION['force_page']].'?redirect='.urlencode($_SERVER['REQUEST_URI'])));
 //            }
@@ -2650,7 +2650,7 @@
 //         * Is user restricted to a page? if so, keep him there
 //         */
 //        if(empty($_SESSION['lock']) and !empty($_SESSION['user']['redirect'])){
-//            if(str_from($_SESSION['user']['redirect'], '://') != $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']){
+//            if(Strings::from($_SESSION['user']['redirect'], '://') != $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']){
 //                log_file(tr('User ":user" has is restricted to page ":page"', array(':user' => name($_SESSION['user']), ':page' => $_SESSION['user']['redirect'])), 'user-or-signin', 'VERBOSE/yellow');
 //                redirect(domain($_SESSION['user']['redirect']));
 //            }
@@ -4058,12 +4058,12 @@
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package str
-// * @see str_from()
-// * @see str_until()
+// * @see Strings::from()
+// * @see Strings::until()
 // * @version 2.0.0: Moved to system library, added documentation
 // * @example
 // * code
-// * $result = str_cut('support@capmega.com', '@', '.');
+// * $result = Strings::cut(('support@capmega.com', '@', '.');
 // * showdie($result);
 // * /code
 // *
@@ -4077,12 +4077,12 @@
 // * @params string $stop The character(s) to stop the cut
 // * @return string The $source string between the first occurrences of start and $stop
 // */
-//function str_cut($source, $start, $stop){
+//function Strings::cut(($source, $start, $stop){
 //    try{
-//        return str_until(str_from($source, $start), $stop);
+//        return Strings::until(Strings::from($source, $start), $stop);
 //
 //    }catch(Exception $e){
-//        throw new CoreException(tr('str_cut(): Failed'), $e);
+//        throw new CoreException(tr('Strings::cut((): Failed'), $e);
 //    }
 //}
 //
@@ -4162,10 +4162,10 @@
 ///*
 // * Return the given string from the specified needle
 // */
-//function str_from($source, $needle, $more = 0, $require = false){
+//function Strings::from($source, $needle, $more = 0, $require = false){
 //    try{
 //        if(!$needle){
-//            throw new CoreException('str_from(): No needle specified', 'not-specified');
+//            throw new CoreException('Strings::from(): No needle specified', 'not-specified');
 //        }
 //
 //        $pos = mb_strpos($source, $needle);
@@ -4181,7 +4181,7 @@
 //        return mb_substr($source, $pos + mb_strlen($needle) - $more);
 //
 //    }catch(Exception $e){
-//        throw new CoreException(tr('str_from(): Failed for string ":string"', array(':string' => $source)), $e);
+//        throw new CoreException(tr('Strings::from(): Failed for string ":string"', array(':string' => $source)), $e);
 //    }
 //}
 //
@@ -4190,10 +4190,10 @@
 ///*
 // * Return the given string from 0 until the specified needle
 // */
-//function str_until($source, $needle, $more = 0, $start = 0, $require = false){
+//function Strings::until($source, $needle, $more = 0, $start = 0, $require = false){
 //    try{
 //        if(!$needle){
-//            throw new CoreException('str_until(): No needle specified', 'not-specified');
+//            throw new CoreException('Strings::until(): No needle specified', 'not-specified');
 //        }
 //
 //        $pos = mb_strpos($source, $needle);
@@ -4209,7 +4209,7 @@
 //        return mb_substr($source, $start, $pos + $more);
 //
 //    }catch(Exception $e){
-//        throw new CoreException(tr('str_until(): Failed for string ":string"', array(':string' => $source)), $e);
+//        throw new CoreException(tr('Strings::until(): Failed for string ":string"', array(':string' => $source)), $e);
 //    }
 //}
 //
@@ -4218,10 +4218,10 @@
 ///*
 // * Return the given string from the specified needle, starting from the end
 // */
-//function str_rfrom($source, $needle, $more = 0){
+//function Strings::fromReverse($source, $needle, $more = 0){
 //    try{
 //        if(!$needle){
-//            throw new CoreException('str_rfrom(): No needle specified', 'not-specified');
+//            throw new CoreException('Strings::fromReverse(): No needle specified', 'not-specified');
 //        }
 //
 //        $pos = mb_strrpos($source, $needle);
@@ -4231,7 +4231,7 @@
 //        return mb_substr($source, $pos + mb_strlen($needle) - $more);
 //
 //    }catch(Exception $e){
-//        throw new CoreException(tr('str_rfrom(): Failed for string ":string"', array(':string' => $source)), $e);
+//        throw new CoreException(tr('Strings::fromReverse(): Failed for string ":string"', array(':string' => $source)), $e);
 //    }
 //}
 //
@@ -4240,10 +4240,10 @@
 ///*
 // * Return the given string from 0 until the specified needle, starting from the end
 // */
-//function str_runtil($source, $needle, $more = 0, $start = 0){
+//function Strings::untilReverse($source, $needle, $more = 0, $start = 0){
 //    try{
 //        if(!$needle){
-//            throw new CoreException('str_runtil(): No needle specified', 'not-specified');
+//            throw new CoreException('Strings::untilReverse(): No needle specified', 'not-specified');
 //        }
 //
 //        $pos = mb_strrpos($source, $needle);
@@ -4253,7 +4253,7 @@
 //        return mb_substr($source, $start, $pos + $more);
 //
 //    }catch(Exception $e){
-//        throw new CoreException(tr('str_runtil(): Failed for string ":string"', array(':string' => $source)), $e);
+//        throw new CoreException(tr('Strings::untilReverse(): Failed for string ":string"', array(':string' => $source)), $e);
 //    }
 //}
 //

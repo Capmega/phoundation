@@ -196,8 +196,8 @@ function inet_telnet($params){
  */
 function inet_get_domain($strip = array('www', 'dev', 'm')){
     try{
-        if(in_array(str_until($_SERVER['HTTP_HOST'], '.'), array_force($strip))){
-            return str_from($_SERVER['HTTP_HOST']);
+        if(in_array(Strings::until($_SERVER['HTTP_HOST'], '.'), array_force($strip))){
+            return Strings::from($_SERVER['HTTP_HOST']);
         }
 
         return $_SERVER['HTTP_HOST'];
@@ -242,7 +242,7 @@ function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,a
             throw new OutOfBoundsException(tr('inet_get_subdomain(): Specified $domain (Fully Qualified Domain Name) ":domain" does not end with the root domain ":root"', array(':domain' => $domain, ':root' => $root)), 'not-exists');
         }
 
-        $subdomain = urldecode(str_until($domain, '.'.$root, 0, 0, true));
+        $subdomain = urldecode(Strings::until($domain, '.'.$root, 0, 0, true));
 
         if($subdomain){
             if($ignore_start){
@@ -284,7 +284,7 @@ function ensure_protocol($url, $protocol = 'http', $force = false){
             /*
              * It has not the protocol it should have, force protocol
              */
-            return $protocol.'://'.str_from($url, '://');
+            return $protocol.'://'.Strings::from($url, '://');
         }
 
         return $url;
@@ -359,7 +359,7 @@ function inet_add_query($url){
                 throw new OutOfBoundsException(tr('inet_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
             }
 
-            $key = str_until($query, '=');
+            $key = Strings::until($query, '=');
 
             if(strpos($url, '?') === false){
                 /*
@@ -371,8 +371,8 @@ function inet_add_query($url){
                 /*
                  * The query already exists in the specified URL, replace it.
                  */
-                $replace = str_cut($url, $key.'=', '&');
-                $url     = str_replace($key.'='.$replace, $key.'='.str_from($query, '='), $url);
+                $replace = Strings::cut(($url, $key.'=', '&');
+                $url     = str_replace($key.'='.$replace, $key.'='.Strings::from($query, '='), $url);
 
             }else{
                 /*
@@ -396,13 +396,13 @@ function inet_add_query($url){
  */
 function url_remove_keys($url, $keys){
     try{
-        $query = str_from($url , '?');
-        $url   = str_until($url, '?');
+        $query = Strings::from($url , '?');
+        $url   = Strings::until($url, '?');
         $query = explode('&', $query);
 
         foreach($query as $id => $kv){
             foreach(array_force($keys) as $key){
-                if(str_until($kv, '=') == $key){
+                if(Strings::until($kv, '=') == $key){
                     unset($query[$id]);
 
                     /*
@@ -435,13 +435,13 @@ function inet_dig($domain, $section = false){
     try{
         $data = safe_exec(array('commands' => array('dig', array(cfm($domain), 'ANY'))));
         $data = implode("\n", $data);
-        $data = str_from($data, 'ANSWER: ');
+        $data = Strings::from($data, 'ANSWER: ');
 
-        if(str_until($data, ',') == '0'){
+        if(Strings::until($data, ',') == '0'){
             throw new OutOfBoundsException(tr('inet_dig(): Specified domain ":domain" was not found', array(':domain' => $domain)), 'not-exists');
         }
 
-        $data   = str_cut($data, "ANSWER SECTION:\n", "\n;;");
+        $data   = Strings::cut(($data, "ANSWER SECTION:\n", "\n;;");
         $retval = array();
 
         if($section){

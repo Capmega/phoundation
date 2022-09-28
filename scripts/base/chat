@@ -40,7 +40,7 @@ switch(cli_method()){
 
             $chat->execute(array(':user_id'       => $user['id'],
                                  ':user_password' => sha1(uniqid()),
-                                 ':user_name'     => not_empty($user['username'], str_until($user['email'], '@').'-'.uniqid()),
+                                 ':user_name'     => not_empty($user['username'], Strings::until($user['email'], '@').'-'.uniqid()),
                                  ':user_email'    => not_empty($user['email'], 'noemail')));
         }
 

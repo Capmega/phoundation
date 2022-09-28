@@ -647,7 +647,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             $algorithm = 'sha256';
 
         }else{
-            $algorithm = str_cut($user['password'], '*', '*');
+            $algorithm = Strings::cut(($user['password'], '*', '*');
         }
 
         if(strlen($password) > 256){
@@ -667,7 +667,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             }
         }
 
-        if($password != str_rfrom($user['password'], '*')){
+        if($password != Strings::fromReverse($user['password'], '*')){
             log_file(tr('user_authenticate(): Specified password does not match stored password for user ":username"', array(':username' => $username)), 'authentication-failed');
             throw new CoreException(tr('user_authenticate(): Specified password does not match stored password'), 'access-denied');
         }
@@ -813,7 +813,7 @@ function user_log_authentication($username, $users_id, $captcha_required, $e = n
                          ':createdby'        => isset_get($_SESSION['user']['id']),
                          ':users_id'         => $users_id,
                          ':username'         => $username,
-                         ':failed_reason'    => str_truncate(trim(str_from(isset_get($failed_reason), '():')), 127),
+                         ':failed_reason'    => str_truncate(trim(Strings::from(isset_get($failed_reason), '():')), 127),
                          ':captcha_required' => (boolean) $captcha_required,
                          ':ip'               => isset_get($_SERVER['REMOTE_ADDR'])));
 
@@ -1949,7 +1949,7 @@ function user_password_banned($password){
     global $_CONFIG;
 
     try{
-        if(($password == $_CONFIG['domain']) or ($password == str_until($_CONFIG['domain'], '.'))){
+        if(($password == $_CONFIG['domain']) or ($password == Strings::until($_CONFIG['domain'], '.'))){
             throw new CoreException(tr('user_password_banned(): The default password is not allowed to be used'), 'banned');
         }
 

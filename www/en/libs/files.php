@@ -75,7 +75,7 @@ function files_insert($file, $require_unique = false){
          */
         file_ensure_path($base_path);
 
-        $extension = str_rfrom($file['filename'], '.');
+        $extension = Strings::fromReverse($file['filename'], '.');
         $base_path = slash($base_path);
         $target    = file_assign_target($base_path, $extension);
 
@@ -97,8 +97,8 @@ function files_insert($file, $require_unique = false){
          */
         $meta = file_mimetype($base_path.$target);
 
-        $file['meta1'] = str_until($meta, '/');
-        $file['meta2'] = str_from($meta , '/');
+        $file['meta1'] = Strings::until($meta, '/');
+        $file['meta2'] = Strings::from($meta , '/');
         $file['hash']  = hash($_CONFIG['files']['hash'], file_get_contents($base_path.$target));
 
         /*

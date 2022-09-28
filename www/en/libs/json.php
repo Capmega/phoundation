@@ -158,7 +158,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
                 }
             }
 
-            $message = trim(str_from($message, '():'));
+            $message = trim(Strings::from($message, '():'));
 
         }elseif(is_object($message)){
             /*
@@ -203,7 +203,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
                         $http_code = '500';
                 }
 
-                if(str_until($result, '/') == 'warning'){
+                if(Strings::until($result, '/') == 'warning'){
                     $data = $message->getMessage();
 
                 }else{
@@ -214,7 +214,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
                         $messages = $message->getMessages();
 
                         foreach($messages as $id => &$message){
-                            $message = trim(str_from($message, '():'));
+                            $message = trim(Strings::from($message, '():'));
 
                             if($message == tr('Failed')){
                                 unset($messages[$id]);

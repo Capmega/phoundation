@@ -172,7 +172,7 @@ try{
                         $fk = sql_fetch(sql_query('SHOW ENGINE INNODB STATUS', null, null), 'Status');
                         $fk = str_from ($fk, 'LATEST FOREIGN KEY ERROR');
                         $fk = str_from ($fk, '------------------------');
-                        $fk = str_until($fk, '------------');
+                        $fk = Strings::until($fk, '------------');
                         $fk = str_replace("\n", ' ', $fk);
 
                     }catch(Exception $e){

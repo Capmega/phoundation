@@ -84,7 +84,7 @@ function scanimage($params){
                                                'commands'     => array('scanimage', array_merge(array('sudo' => $params['sudo'], '--format', 'tiff'), $params['options']))));
 
                     $result  = array_pop($results);
-                    $result  = str_cut($result, ',', 'pages');
+                    $result  = Strings::cut(($result, ',', 'pages');
                     $result  = trim($result);
 
                     $params['results'] = $results;
@@ -464,15 +464,15 @@ function scanimage_validate($params){
         }else{
             array_default($params, 'timeout', $_CONFIG['devices']['timeout']['scanners']);
 
-            if(str_rfrom($params['file'], '.') != $extension){
-                if(($extension !== 'jpg') and (str_rfrom($params['file'], '.') !== 'jpeg')){
+            if(Strings::fromReverse($params['file'], '.') != $extension){
+                if(($extension !== 'jpg') and (Strings::fromReverse($params['file'], '.') !== 'jpeg')){
                     $v->setError(tr('Specified file ":file" has an incorrect file name extension for the requested format ":format", it should have the extension ":extension"', array(':file' => $params['file'], ':format' => $params['format'], ':extension' => $extension)));
                 }
 
                 /*
                  * User specified .jpeg, make it .jpg
                  */
-                $params['file'] = str_runtil($params['file'], '.').',jpg';
+                $params['file'] = Strings::untilReverse($params['file'], '.').',jpg';
             }
         }
 
@@ -528,8 +528,8 @@ function scanimage_validate($params){
                     /*
                      * This is a value range
                      */
-                    $device['options'][$key] = array('min' => str_until($key, '..'),
-                                                     'max' => str_from($key, '..'));
+                    $device['options'][$key] = array('min' => Strings::until($key, '..'),
+                                                     'max' => Strings::from($key, '..'));
 
                     $v->isNatural($value, tr('Please specify a numeric contrast value'));
                     $v->isBetween($value, $device['options'][$key]['min'], $device['options'][$key]['max'], tr('Please ensure that ":key" is in between ":min" and ":max"', array(':key' => $key, ':min' => $device['options'][$key]['min'], ':max' => $device['options'][$key]['max'])));
@@ -650,8 +650,8 @@ function scanimage_detect_devices($server = null, $sudo = false){
             }
 
             if($device){
-                $device['manufacturer'] = trim(str_until($device['description'], ' '));
-                $device['model']        = trim(str_until(str_from($device['description'], ' '), ' '));
+                $device['manufacturer'] = trim(Strings::until($device['description'], ' '));
+                $device['model']        = trim(Strings::until(Strings::from($device['description'], ' '), ' '));
                 $device['type']         = 'document-scanner';
 
                 /*
@@ -829,11 +829,11 @@ function scanimage_get_options($device, $server = null, $sudo = false){
 
         foreach($results as $result){
             if(strstr($result, 'failed:')){
-                if(strtolower(trim(str_from($result, 'failed:'))) == 'invalid argument'){
-                    throw new CoreException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required access to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
+                if(strtolower(trim(Strings::from($result, 'failed:'))) == 'invalid argument'){
+                    throw new CoreException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required access to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(Strings::from($result, 'failed:')))), 'failed', $result);
                 }
 
-                throw new CoreException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e"', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
+                throw new CoreException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e"', array(':device' => $device, ':e' => trim(Strings::from($result, 'failed:')))), 'failed', $result);
             }
 
             $result = trim($result);
@@ -861,9 +861,9 @@ function scanimage_get_options($device, $server = null, $sudo = false){
 
                 $key     = $matches[1][0];
                 $data    = $matches[2][0];
-                $default = str_rfrom($data, ' [');
-                $default = trim(str_runtil($default, ']'));
-                $data    = trim(str_runtil($data, ' ['));
+                $default = Strings::fromReverse($data, ' [');
+                $default = trim(Strings::untilReverse($default, ']'));
+                $data    = trim(Strings::untilReverse($data, ' ['));
 
                 if($default === 'inactive'){
                     $status  =  $default;
@@ -906,13 +906,13 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                             break;
 
                         case 'brightness':
-                            $data = str_until($data, '(');
+                            $data = Strings::until($data, '(');
                             $data = str_replace('%', '', $data);
                             $data = array(trim($data));
                             break;
 
                         case 'contrast':
-                            $data = str_until($data, '(');
+                            $data = Strings::until($data, '(');
                             $data = str_replace('%', '', $data);
                             $data = array(trim($data));
                             break;
@@ -926,7 +926,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                                 /*
                                  * Unknown entry, but treat it as a range
                                  */
-                                $data = str_until($data, '(');
+                                $data = Strings::until($data, '(');
                                 $data = str_replace('%', '', $data);
                                 $data = array(trim($data));
 
@@ -934,7 +934,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                                 /*
                                  * Unknown entry, but treat it as a distinct list
                                  */
-                                $data = str_until($data, '(');
+                                $data = Strings::until($data, '(');
                                 $data = str_replace('%', '', $data);
                                 $data = explode('|', $data);
                             }
@@ -953,9 +953,9 @@ function scanimage_get_options($device, $server = null, $sudo = false){
 
                 $key     = $matches[1][0];
                 $data    = $matches[2][0];
-                $default = str_rfrom($data, ' [');
-                $default = trim(str_runtil($default, ']'));
-                $data    = str_runtil($data, ' [');
+                $default = Strings::fromReverse($data, ' [');
+                $default = trim(Strings::untilReverse($default, ']'));
+                $data    = Strings::untilReverse($data, ' [');
                 $data    = trim(str_replace('mm', '', $data));
 
                 if($default === 'inactive'){
@@ -969,25 +969,25 @@ function scanimage_get_options($device, $server = null, $sudo = false){
 //show($default);
                 switch($key){
                     case 'l':
-                        $data = str_until($data, '(');
+                        $data = Strings::until($data, '(');
                         $data = str_replace('%', '', $data);
                         $data = array(trim($data));
                         break;
 
                     case 't':
-                        $data = str_until($data, '(');
+                        $data = Strings::until($data, '(');
                         $data = str_replace('%', '', $data);
                         $data = array(trim($data));
                         break;
 
                     case 'x':
-                        $data = str_until($data, '(');
+                        $data = Strings::until($data, '(');
                         $data = str_replace('%', '', $data);
                         $data = array(trim($data));
                         break;
 
                     case 'y':
-                        $data = str_until($data, '(');
+                        $data = Strings::until($data, '(');
                         $data = str_replace('%', '', $data);
                         $data = array(trim($data));
                         break;

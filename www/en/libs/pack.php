@@ -71,7 +71,7 @@ function pack_bzip2($params){
 function pack_unbzip2($params){
     try{
         $params = pack_validate($params);
-        $target = str_until($params['source'], '.bz2');
+        $target = Strings::until($params['source'], '.bz2');
 
         safe_exec(array('domain'     => $params['domain'],
                         'background' => $params['background'],
@@ -144,7 +144,7 @@ function pack_rar($params){
 function pack_unrar($params){
     try{
         $params = pack_validate($params);
-        $target = str_until($params['source'], '.rar');
+        $target = Strings::until($params['source'], '.rar');
 
         safe_exec(array('domain'     => $params['domain'],
                         'background' => $params['background'],
@@ -217,7 +217,7 @@ function pack_zip($params){
 function pack_unzip($params){
     try{
         $params = pack_validate($params);
-        $target = str_until($params['source'], '.zip');
+        $target = Strings::until($params['source'], '.zip');
 
         safe_exec(array('domain'     => $params['domain'],
                         'background' => $params['background'],
@@ -290,7 +290,7 @@ function pack_gzip($params){
 function pack_ungzip($params){
     try{
         $params = pack_validate($params);
-        $target = str_until($params['source'], '.gz');
+        $target = Strings::until($params['source'], '.gz');
 
         safe_exec(array('domain'     => $params['domain'],
                         'background' => $params['background'],
@@ -363,7 +363,7 @@ function pack_tar($params){
 function pack_untar($params){
     try{
         $params = pack_validate($params);
-        $target = str_until(str_until($params['source'], '.tar.gz'), '.tgz');
+        $target = Strings::until(Strings::until($params['source'], '.tar.gz'), '.tgz');
 
         safe_exec(array('domain'     => $params['domain'],
                         'background' => $params['background'],

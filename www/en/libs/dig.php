@@ -77,7 +77,7 @@ function dig_clean_line($line){
     try{
         $line = trim($line);
         $line = str_replace("\t", ' ', $line);
-        $line = str_from($line, ' ');
+        $line = Strings::from($line, ' ');
         $line = trim($line, ' ');
 
         return $line;
@@ -124,8 +124,8 @@ function dig($hostname, $command, $dns_server = null){
             }
 
             $result = dig_clean_line($result);
-            $ttl    = (integer) str_until($result, ' ');
-            $ip     = str_rfrom($result, ' ');
+            $ttl    = (integer) Strings::until($result, ' ');
+            $ip     = Strings::fromReverse($result, ' ');
 
             $retval[] = array('ttl' => $ttl,
                               'ip'  => $ip);

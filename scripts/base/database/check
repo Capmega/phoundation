@@ -53,7 +53,7 @@ try{
      */
     foreach($fails as $name){
         try{
-            $database = str_until($name, '.');
+            $database = Strings::until($name, '.');
             $table    = str_from ($name, '.');
 
             script_exec(array('commands' => array('base/database/dropload', array('username' => $username,

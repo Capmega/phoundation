@@ -76,11 +76,11 @@ function wp_admin_signin($params){
                                                      'redirect_to' => slash($params['url']).'wp-admin/',
                                                      'testcookie'  => 1)));
 
-        if($failed = str_from($curl['data'], '<div id="login_error">')){
+        if($failed = Strings::from($curl['data'], '<div id="login_error">')){
             /*
              * Oops, login failed
              */
-            $failed = str_until($failed, '</div>');
+            $failed = Strings::until($failed, '</div>');
 
             if(strpos($failed, 'The password you entered for the username') !== false){
                 throw new CoreException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed because the specified password for user "'.$params['username'].'" is incorrect', 'passwordincorrect');
@@ -89,7 +89,7 @@ function wp_admin_signin($params){
             throw new CoreException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed with "'.str_log($failed).'"', 'signinfailed');
         }
 
-        if(!$curl['user_id'] = str_cut($curl['data'], '"uid":"', '"')){
+        if(!$curl['user_id'] = Strings::cut(($curl['data'], '"uid":"', '"')){
             if(!$params['simulation']){
                 throw new CoreException('wp_signin_admin(): Failed to find user id', 'failed');
             }
@@ -174,8 +174,8 @@ function wp_admin_post($params, $force_new = false){
             foreach($keywords as $keyword){
                 $lower = strtolower($keyword);
 
-                if(!$params[$lower] = str_until(str_from($params['curl']['data'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")){
-                    $params[$lower] = str_until(str_from($params['curl']["data"], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
+                if(!$params[$lower] = Strings::until(Strings::from($params['curl']['data'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")){
+                    $params[$lower] = Strings::until(Strings::from($params['curl']["data"], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
                 }
 
                 $retval[$lower] = $params[$lower];
@@ -257,7 +257,7 @@ function wp_admin_post($params, $force_new = false){
         /*
          * Get the new page URL
          */
-        if(!$retval['post_url'] = str_cut($retval['curl']['data'], '<div id="message" class="updated">', '</div>')){
+        if(!$retval['post_url'] = Strings::cut(($retval['curl']['data'], '<div id="message" class="updated">', '</div>')){
             /*
              * Looks like the page was not updated successfully
              */
@@ -269,7 +269,7 @@ show($retval['curl']['data']);
             $retval['post_url'] = 'simulation_'.uniqid();
 
         }else{
-            $retval['post_url'] = str_cut($retval['post_url'], '<a href="', '">');
+            $retval['post_url'] = Strings::cut(($retval['post_url'], '<a href="', '">');
             unset($retval['curl']['data']);
         }
 
@@ -327,7 +327,7 @@ function wp_admin_trash($params){
         $params['curl'] = curl_get(array('url'  => slash($params['curl']['baseurl']).'wp-admin/edit.php',
                                          'curl' => $params['curl']));
 
-        $nonce = str_until(str_from($params['curl']['data'], '_wpnonce" value="'), '"');
+        $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php&action=trash&m=0&paged=1';
 //        $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_type%3Dpage&action=trash&m=0&paged=1';
 
@@ -381,7 +381,7 @@ function wp_admin_restore($params){
         $params['curl'] = curl_get(array('url'  => slash($params['curl']['baseurl']).'wp-admin/edit.php?post_status=trash&post_type=page',
                                          'curl' => $params['curl']));
 
-        $nonce = str_until(str_from($params['curl']['data'], '_wpnonce" value="'), '"');
+        $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=delete&m=0&paged=1';
 
         foreach(array_force($params['post_id']) as $post_id){
@@ -434,7 +434,7 @@ function wp_admin_remove_permanently($params){
         $params['curl'] = curl_get(array('url'  => slash($params['curl']['baseurl']).'wp-admin/edit.php?post_status=trash&post_type=page',
                                          'curl' => $params['curl']));
 
-        $nonce = str_until(str_from($params['curl']['data'], '_wpnonce" value="'), '"');
+        $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
         $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=untrash&m=0&paged=1';
 
         foreach(array_force($params['post_id']) as $post_id){
@@ -485,8 +485,8 @@ function wp_admin_get($post_id, $curl){
                                                      'curl' => $curl));
 
         $retval['data']             = array('raw' => $retval['data']);
-        $retval['data']['content']  = html_entity_decode(str_until(str_from(str_from($retval['data']['raw'], 'textarea class="wp-editor-area"'), '>'), '</textarea>'));
-        $retval['data']['title']    = str_rfrom(str_until($retval['data']['raw'], '" id="title"'), 'value="');
+        $retval['data']['content']  = html_entity_decode(Strings::until(Strings::from(Strings::from($retval['data']['raw'], 'textarea class="wp-editor-area"'), '>'), '</textarea>'));
+        $retval['data']['title']    = Strings::fromReverse(Strings::until($retval['data']['raw'], '" id="title"'), 'value="');
         $retval['data']['curl']     = $curl;
 
         $keywords = array('post_ID',
@@ -502,8 +502,8 @@ function wp_admin_get($post_id, $curl){
         foreach($keywords as $keyword){
             $lower = strtolower($keyword);
 
-            if(!$retval['data'][$lower] = str_until(str_from($retval['data']['raw'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")){
-                $retval['data'][$lower] = str_until(str_from($retval['data']['raw'], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
+            if(!$retval['data'][$lower] = Strings::until(Strings::from($retval['data']['raw'], "input type='hidden' id='".$keyword."' name='".$keyword."' value='"), "' />")){
+                $retval['data'][$lower] = Strings::until(Strings::from($retval['data']['raw'], 'input type="hidden" id="'.$keyword.'" name="'.$keyword.'" value="'), '" />');
             }
 
             $retval['data'][$lower] = $retval['data'][$lower];

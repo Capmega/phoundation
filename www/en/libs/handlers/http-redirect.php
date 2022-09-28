@@ -32,7 +32,7 @@ try{
         /*
          * Special redirect. Redirect to this very page, but without query
          */
-        $target = str_until($_SERVER['REQUEST_URI'], '?');
+        $target = Strings::until($_SERVER['REQUEST_URI'], '?');
 
     }elseif(!$target){
         /*

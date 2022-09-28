@@ -214,7 +214,7 @@ function str_escape_for_jquery($source, $replace = ''){
  */
 function str_strip_function($string){
     try{
-        return trim(str_from($string, '():'));
+        return trim(Strings::from($string, '():'));
 
     }catch(Exception $e){
         throw new OutOfBoundsException(tr('str_strip_function(): Failed'), $e);

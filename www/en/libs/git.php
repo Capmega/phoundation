@@ -199,7 +199,7 @@ function git_wait_no_process($path){
 
         foreach($pids as $pid){
             $process = cli_pidgrep($pid);
-            $process = str_until($process, ' ');
+            $process = Strings::until($process, ' ');
 
             if($process === 'git'){
                 /*
@@ -336,8 +336,8 @@ function git_branch($branch = null, $path = ROOT){
         foreach($results as $branch){
             if(substr(trim($branch), 0, 1) == '*'){
                 $branch = trim(substr(trim($branch), 1));
-                $branch = strtolower(str_cut($branch, '(', ')'));
-                $branch = trim(str_from($branch, 'head detached at'));
+                $branch = strtolower(Strings::cut(($branch, '(', ')'));
+                $branch = trim(Strings::from($branch, 'head detached at'));
 
                 return $branch;
             }
@@ -374,9 +374,9 @@ function git_list_branches($path = ROOT, $all = false){
         $results = git_exec($path, array('branch', '-a', '-q'));
 
         foreach($results as $branch){
-            $branch = str_until($branch, '->');
+            $branch = Strings::until($branch, '->');
             $branch = trim($branch);
-            $branch = str_rfrom($branch, '/');
+            $branch = Strings::fromReverse($branch, '/');
 
             $retval[] = $branch;
         }

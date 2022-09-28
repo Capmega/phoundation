@@ -323,10 +323,10 @@ switch(cli_method()){
 
             foreach($results['failed_html'] as $string => $file){
                 if($ignore_html){
-                    log_console(tr('Ignoring file ":file" because of HTML', array(':file' => str_from($file, ROOT))), 'VERBOSE/yellow');
+                    log_console(tr('Ignoring file ":file" because of HTML', array(':file' => Strings::from($file, ROOT))), 'VERBOSE/yellow');
 
                 }else{
-                    log_console(tr('Found HTML code ":html" in file ":file"', array(':html' => preg_replace('/<br\s*\/?>/', '.<.b.r.>. ', $string), ':file' => str_from($file, ROOT))), 'red');
+                    log_console(tr('Found HTML code ":html" in file ":file"', array(':html' => preg_replace('/<br\s*\/?>/', '.<.b.r.>. ', $string), ':file' => Strings::from($file, ROOT))), 'red');
                     $crash = true;
                 }
             }
@@ -348,10 +348,10 @@ switch(cli_method()){
 
             foreach($results['failed_php'] as $string => $file){
                 if($ignore_php){
-                    log_console(tr('Ignoring file ":file" because of PHP', array(':file' => str_from($file, ROOT))), 'VERBOSE/yellow');
+                    log_console(tr('Ignoring file ":file" because of PHP', array(':file' => Strings::from($file, ROOT))), 'VERBOSE/yellow');
 
                 }else{
-                    log_console(tr('Found PHP code ":php" in file ":file"', array(':php' => preg_replace('/<br\s*\/?>/', '.<.b.r.>. ', $string), ':file' => str_from($file, ROOT))), 'red');
+                    log_console(tr('Found PHP code ":php" in file ":file"', array(':php' => preg_replace('/<br\s*\/?>/', '.<.b.r.>. ', $string), ':file' => Strings::from($file, ROOT))), 'red');
                     $crash = true;
                 }
             }

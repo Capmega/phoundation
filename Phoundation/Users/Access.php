@@ -183,7 +183,7 @@ cclass Access
                     throw new OutOfBoundsException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exist');
                 }
 
-                if ($_CONFIG['redirects'][$_SESSION['force_page']] !== str_until(str_rfrom($_SERVER['REQUEST_URI'], '/'), '?')) {
+                if ($_CONFIG['redirects'][$_SESSION['force_page']] !== Strings::until(Strings::fromReverse($_SERVER['REQUEST_URI'], '/'), '?')) {
                     log_file(tr('User ":user" has forced page ":page"', array(':user' => name($_SESSION['user']), ':page' => $_SESSION['force_page'])), 'user-or-signin', 'VERBOSE/yellow');
                     redirect(domain($_CONFIG['redirects'][$_SESSION['force_page']] . '?redirect=' . urlencode($_SERVER['REQUEST_URI'])));
                 }
@@ -193,7 +193,7 @@ cclass Access
              * Is user restricted to a page? if so, keep him there
              */
             if (empty($_SESSION['lock']) and !empty($_SESSION['user']['redirect'])) {
-                if (str_from($_SESSION['user']['redirect'], '://') != $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) {
+                if (Strings::from($_SESSION['user']['redirect'], '://') != $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) {
                     log_file(tr('User ":user" has is restricted to page ":page"', array(':user' => name($_SESSION['user']), ':page' => $_SESSION['user']['redirect'])), 'user-or-signin', 'VERBOSE/yellow');
                     redirect(domain($_SESSION['user']['redirect']));
                 }

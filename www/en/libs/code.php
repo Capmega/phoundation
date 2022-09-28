@@ -392,7 +392,7 @@ function code_phoundation_status(){
  */
 function code_get_version_line($version){
     try{
-        return str_runtil($version, '.');
+        return Strings::untilReverse($version, '.');
 
     }catch(Exception $e){
         throw new CoreException('code_get_version_line(): Failed', $e);
@@ -508,7 +508,7 @@ function code_bump_phoundation_framework_version(){
     try{
         $path     = code_locate_phoundation();
         $version  = code_get_framework_version($path);
-        $line     = str_runtil($version, '.');
+        $line     = Strings::untilReverse($version, '.');
         $revision = str_rfrom ($version, '.');
 
         $revision++;
@@ -638,7 +638,7 @@ function code_get_available_lines($path = ROOT){
         $retval = array();
 
         foreach($tags as $tag){
-            $version = str_from($tag, 'v');
+            $version = Strings::from($tag, 'v');
 
             if(str_is_version($version)){
                 $version  = code_get_version_line($version);
@@ -682,7 +682,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null){
 
         foreach($tags as $tag){
             $tag     = strtolower($tag);
-            $version = str_from($tag, 'v');
+            $version = Strings::from($tag, 'v');
 
             if(str_is_version($version)){
                 $line = code_get_version_line($version);

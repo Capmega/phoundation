@@ -154,10 +154,10 @@ load_libs('init,deploy,git');
 $root = realpath(ROOT.$_CONFIG['root']);
 
 if(strlen($root) > strlen(ROOT)){
-    $rootdiff = str_from($root, ROOT);
+    $rootdiff = Strings::from($root, ROOT);
 
 }else{
-    $rootdiff = str_from(ROOT, $root);
+    $rootdiff = Strings::from(ROOT, $root);
 }
 
 $rootdiff = str_ends_not($rootdiff, '/');
@@ -858,11 +858,11 @@ foreach($targets as $target_environment){
          * Validate $continuersync value
          */
         while(!preg_match('/^20\d{6}-\d{6}$/', $continuersync)){
-            if(!preg_match('/^'.str_rfrom($deploy_config['target_dir'], '/').'~20\d{6}-\d{6}\/?$/', $continuersync)){
+            if(!preg_match('/^'.Strings::fromReverse($deploy_config['target_dir'], '/').'~20\d{6}-\d{6}\/?$/', $continuersync)){
                 throw new CoreException(tr('The specified continuersync option "'.str_log($continuersync).'" is invalid, it should be in the Ymd-His format, or targetpath~Ymd-His'), 'warning/invalid');
             }
 
-            $continuersync = str_until(str_from($continuersync, '~'), '/');
+            $continuersync = Strings::until(Strings::from($continuersync, '~'), '/');
         }
     }
 
@@ -1094,7 +1094,7 @@ foreach($targets as $target_environment){
     /*
      * From here, the target directory should be normal again
      */
-    $deploy_config['target_dir'] = str_until($deploy_config['target_dir'], '~');
+    $deploy_config['target_dir'] = Strings::until($deploy_config['target_dir'], '~');
 
 
 

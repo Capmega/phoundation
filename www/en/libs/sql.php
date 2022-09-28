@@ -2018,7 +2018,7 @@ function sql_where_null($value, $not = false){
 function sql_simple_where($column, $values, $not = false, $extra = null){
     try{
         $extra  = '';
-        $table  = str_until($column, '.', 0, 0, true);
+        $table  = Strings::until($column, '.', 0, 0, true);
         $column = str_from ($column, '.');
 
         if(!$values){
@@ -2423,8 +2423,8 @@ function sql_get_columns_string($columns, $table){
             }
 
             if(str_exists($column, ' as ')){
-                $target  = trim(str_from($column, ' as '));
-                $column  = trim(str_until($column, ' as '));
+                $target  = trim(Strings::from($column, ' as '));
+                $column  = trim(Strings::until($column, ' as '));
                 $column  = '`'.str_replace('.', '`.`', trim($column)).'`';
                 $column .= ' AS `'.trim($target).'`';
 

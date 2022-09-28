@@ -111,7 +111,7 @@ function decrypt($data, $key, $method = null){
         }
 
         $key     = crypt_pad_key($key);
-        $backend = str_until($data, '^');
+        $backend = Strings::until($data, '^');
         $data    = str_from ($data, '^');
 
         switch($core->register('crypt_backend')){

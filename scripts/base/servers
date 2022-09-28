@@ -483,7 +483,7 @@ try{
                     try{
                         proxies_insert($root_domain, $new_domain, $target_domain, $location, $protocols);
                     }catch(Exception $e){
-                        switch(str_from($e->getCode(), '/')){
+                        switch(Strings::from($e->getCode(), '/')){
                             case 'invalid':
                                 $e->makeWarning(true);
                         }

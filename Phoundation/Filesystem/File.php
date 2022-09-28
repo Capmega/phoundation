@@ -717,7 +717,7 @@ class File
      */
     public static function is_text($file){
         try{
-            if(str_until(file_mimetype($file), '/') == 'text') return true;
+            if(Strings::until(file_mimetype($file), '/') == 'text') return true;
             if(str_from (file_mimetype($file), '/') == 'xml' ) return true;
 
             return false;
@@ -1672,8 +1672,8 @@ class File
              * figure out if we need to use compression or not
              */
             $mimetype  = mime_content_type($params['file']);
-            $primary   = str_until($mimetype, '/');
-            $secondary = str_from($mimetype , '/');
+            $primary   = Strings::until($mimetype, '/');
+            $secondary = Strings::from($mimetype , '/');
 
             /*
              * What file mode will we use?
@@ -1789,8 +1789,8 @@ class File
                     throw new CoreException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
                 }
 
-                $secondary = str_from($primary , '/');
-                $primary   = str_until($primary, '/');
+                $secondary = Strings::from($primary , '/');
+                $primary   = Strings::until($primary, '/');
             }
 
             /*
@@ -1868,8 +1868,8 @@ class File
                     throw new CoreException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
                 }
 
-                $secondary = str_from($primary , '/');
-                $primary   = str_until($primary, '/');
+                $secondary = Strings::from($primary , '/');
+                $primary   = Strings::until($primary, '/');
             }
 
             /*

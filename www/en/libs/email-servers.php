@@ -1029,10 +1029,10 @@ function email_servers_list_mailbox_sizes($server, $domain){
 
         foreach($results as $result){
             $result = trim($result);
-            $size   = (str_until($result, "\t") * 1024);
+            $size   = (Strings::until($result, "\t") * 1024);
             $total += $size;
 
-            $retval[str_rfrom($result, '/')] = $size;
+            $retval[Strings::fromReverse($result, '/')] = $size;
         }
 
         ksort($retval);
@@ -1142,7 +1142,7 @@ function email_servers_check_seo($params){
              * Seo name does not match. This MIGHT be because it is seo_string()
              * + a number because of double issues
              */
-            $extra = str_from($domain['seo'.$params['column']], seo_string($domain[$params['column']]));
+            $extra = Strings::from($domain['seo'.$params['column']], seo_string($domain[$params['column']]));
 
             if($extra){
                 if(is_natural($extra)){

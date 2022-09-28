@@ -83,7 +83,7 @@ function view($file){
         }
 
         $mimetype = file_mimetype($file);
-        $mimetype = str_until($mimetype, '/');
+        $mimetype = Strings::until($mimetype, '/');
 
         switch($mimetype){
             case 'image':

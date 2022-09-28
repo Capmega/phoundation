@@ -203,9 +203,9 @@ function doc_parse_path($project, $path, $root, $recursive = true){
  */
 function doc_parse_file($project, $file, $root){
     try{
-        $extension = str_rfrom($file, '.');
+        $extension = Strings::fromReverse($file, '.');
         $extension = strtolower($extension);
-        $path      = str_from($file, $root);
+        $path      = Strings::from($file, $root);
         $path      = dirname($path);
         $type      = 'unknown';
 
@@ -401,7 +401,7 @@ function doc_parse_file_header($page, $file, $contents){
 
         foreach($headers as $header){
             try{
-                $header = str_from($header, '*');
+                $header = Strings::from($header, '*');
                 $header = trim($header);
 
                 if(!$header){
@@ -567,7 +567,7 @@ function doc_parse_library($project, $file, $content){
          * Generate page
          * Parse library header
          */
-        $name    = str_until(basename($file), '.');
+        $name    = Strings::until(basename($file), '.');
         $libpage = doc_insert_page(array('projects_id' => $project['id'],
                                          'type'        => 'library',
                                          'name'        => $name,
@@ -594,14 +594,14 @@ function doc_parse_library($project, $file, $content){
              * header for the function for the next iterration
              */
             $function = array_shift($functions);
-            $header   = str_rfrom($function, '/*');
+            $header   = Strings::fromReverse($function, '/*');
 
             foreach($functions as $function){
                 /*
                  * Split function into function / header sections
                  */
-                $header_next = str_rfrom($function, '/*');
-                $function    = str_runtil($function, '/*');
+                $header_next = Strings::fromReverse($function, '/*');
+                $function    = Strings::untilReverse($function, '/*');
                 $functons[]  = doc_parse_function($project, $libpage, $file, $function);
 
                 doc_parse_function_header($page, $libpage, $file, $header);
@@ -656,7 +656,7 @@ function doc_parse_function($project, $parent, $file, $content){
         /*
          * Create function page
          */
-        $name = trim(str_until($content, '('));
+        $name = trim(Strings::until($content, '('));
         $page = doc_insert_page(array('projects_id' => $project['id'],
                                       'parents_id'  => $parent['id'],
                                       'type'        => 'function',
@@ -699,7 +699,7 @@ function doc_parse_function_header($page, $parent, $file, $content){
 
         foreach($content as $header){
             try{
-                $header = str_from($header, '*');
+                $header = Strings::from($header, '*');
                 $header = trim($header);
 
                 if(!$header){

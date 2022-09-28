@@ -257,7 +257,7 @@ function amp_url($url){
         /*
          * Strip out protocol and domain from url
          */
-        $url         = str_from($url, '//');
+        $url         = Strings::from($url, '//');
         $first_slash = strpos( $url, '/');
         $path_length = strlen($url) - $first_slash;
         $path        = substr($url, $first_slash, $path_length);

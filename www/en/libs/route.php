@@ -175,9 +175,9 @@ function route($regex, $target, $flags = null){
          * characters and at the moment I see no reason why anyone would want
          * more than 255 characters in their URL.
          */
-        $query = str_from($_SERVER['REQUEST_URI']      , '?');
+        $query = Strings::from($_SERVER['REQUEST_URI']      , '?');
         $uri   = str_starts_not($_SERVER['REQUEST_URI'], '/');
-        $uri   = str_until($uri                        , '?');
+        $uri   = Strings::until($uri                        , '?');
 
         if(strlen($uri) > 255){
             log_file(tr('Requested URI ":uri" has ":count" characters, where 255 is a hardcoded limit (See route() function). 404-ing the request', array(':uri' => $uri, ':count' => strlen($uri))), 'route', 'yellow');
@@ -405,8 +405,8 @@ function route($regex, $target, $flags = null){
                         return false;
                     }
 
-                    $_SERVER['REQUEST_URI'] = str_from($_SERVER['REQUEST_URI'], '://');
-                    $_SERVER['REQUEST_URI'] = str_from($_SERVER['REQUEST_URI'], '/');
+                    $_SERVER['REQUEST_URI'] = Strings::from($_SERVER['REQUEST_URI'], '://');
+                    $_SERVER['REQUEST_URI'] = Strings::from($_SERVER['REQUEST_URI'], '/');
 
                     log_file(tr('Redirecting cloaked URL ":cloak" internally to ":url"', array(':cloak' => $route, ':url' => $_SERVER['REQUEST_URI'])), 'route', 'VERYVERBOSE');
 
@@ -551,7 +551,7 @@ function route($regex, $target, $flags = null){
                     /*
                      * Regenerate the key as a $key => $value instead of $key=$value => null
                      */
-                    $get[str_until($key, '=')] = str_from ($key, '=');
+                    $get[Strings::until($key, '=')] = str_from ($key, '=');
                     unset($get[$key]);
                 }
             }
@@ -583,7 +583,7 @@ function route($regex, $target, $flags = null){
                          * Redirect to URL without query
                          */
                         $domain = domain(true);
-                        $domain = str_until($domain, '?');
+                        $domain = Strings::until($domain, '?');
 
                         log_file(tr('Matched route ":route" allows GET key ":key" as redirect to URL without query', array(':route' => $route, ':key' => $key)), 'route', 'VERYVERBOSE/yellow');
                         unregister_shutdown('route_shutdown');
@@ -595,8 +595,8 @@ function route($regex, $target, $flags = null){
         /*
          * Split the route into the page name and GET requests
          */
-        $page = str_until($route, '?');
-        $get  = str_from($route , '?', 0, true);
+        $page = Strings::until($route, '?');
+        $get  = Strings::from($route , '?', 0, true);
 
         /*
          * Translate the route?
@@ -690,7 +690,7 @@ function route($regex, $target, $flags = null){
             $get = explode('&', $get);
 
             foreach($get as $entry){
-                $_GET[str_until($entry, '=')] = str_from($entry, '=', 0, true);
+                $_GET[Strings::until($entry, '=')] = Strings::from($entry, '=', 0, true);
             }
         }
 
@@ -709,7 +709,7 @@ function route($regex, $target, $flags = null){
          * generate foreign language URLs
          */
         $core->register['script_path'] = $page;
-        $core->register['script']      = str_rfrom($page, '/');
+        $core->register['script']      = Strings::fromReverse($page, '/');
         $core->register['real_script'] = $core->register['script'];
 
         if($until){
@@ -759,14 +759,14 @@ function route($regex, $target, $flags = null){
             /*
              * A "user" regex failed, give pretty error
              */
-            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
+            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(Strings::cut(($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
         }
 
         if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){
             /*
              * A "user" regex failed, give pretty error
              */
-            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
+            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(Strings::cut(($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
         }
 
         throw new CoreException('route(): Failed', $e);

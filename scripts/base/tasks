@@ -525,7 +525,7 @@ under_construction('add');
                         /*
                          * Execute this task in the background
                          */
-                        $task['pid'] = run_background($command.' '.$options, 'task-logs/'.$task['id'].'-'.str_until($command, ' '));
+                        $task['pid'] = run_background($command.' '.$options, 'task-logs/'.$task['id'].'-'.Strings::until($command, ' '));
                         break;
 
                     case 'internal':

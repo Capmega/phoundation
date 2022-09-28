@@ -51,7 +51,7 @@ function pages_list($params){
                     continue;
                 }
 
-                $retval[$page] = array('name'        => str_runtil(basename($page), '.php'),
+                $retval[$page] = array('name'        => Strings::untilReverse(basename($page), '.php'),
                                        'package'     => '',
                                        'description' => '');
             }

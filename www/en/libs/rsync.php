@@ -102,7 +102,7 @@ function rsync($params){
          */
         foreach(array('source', 'target') as &$item){
             try{
-                $server = str_until($params[$item], ':', 0, 0, true);
+                $server = Strings::until($params[$item], ':', 0, 0, true);
 
                 if($server){
                     if(isset($remote)){
@@ -142,7 +142,7 @@ function rsync($params){
                                      * syncing to ROOT or its parents somehow?
                                      */
                                     try{
-                                        if(str_exists(ROOT, linux_realpath($server, str_from($params[$subitem], ':')))){
+                                        if(str_exists(ROOT, linux_realpath($server, Strings::from($params[$subitem], ':')))){
                                             throw new CoreException(tr('rsync(): Specified remote ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                         }
 
@@ -168,7 +168,7 @@ function rsync($params){
             }catch(Exception $e){
                 switch($e->getRealCode()){
                     case 'not-exists':
-                        throw new CoreException(tr('rsync(): Specified ":item" server ":server" does not exist', array(':item' => $item, ':server' => str_until($params['source'], ':', 0, 0, true))), $e);
+                        throw new CoreException(tr('rsync(): Specified ":item" server ":server" does not exist', array(':item' => $item, ':server' => Strings::until($params['source'], ':', 0, 0, true))), $e);
 
                     default:
                         throw $e;
@@ -180,7 +180,7 @@ function rsync($params){
 
         if(isset($remote)){
             if($params['ssh_options']){
-                throw new CoreException(tr('rsync(): Specified ":item" server ":server" is a registered server with its own ssh_options, yet "ssh_options" was also specified', array(':item' => $item, ':server' => str_until($params['source'], ':', 0, 0, true))), $e);
+                throw new CoreException(tr('rsync(): Specified ":item" server ":server" is a registered server with its own ssh_options, yet "ssh_options" was also specified', array(':item' => $item, ':server' => Strings::until($params['source'], ':', 0, 0, true))), $e);
             }
 
         }elseif($params['ssh_options']){

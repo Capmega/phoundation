@@ -166,7 +166,7 @@ class Json
                     }
                 }
 
-                $message = trim(str_from($message, '():'));
+                $message = trim(Strings::from($message, '():'));
 
             } elseif (is_object($message)) {
                 /*
@@ -211,7 +211,7 @@ class Json
                             $http_code = '500';
                     }
 
-                    if (str_until($result, '/') == 'warning') {
+                    if (Strings::until($result, '/') == 'warning') {
                         $data = $message->getMessage();
 
                     } else {
@@ -222,7 +222,7 @@ class Json
                             $messages = $message->getMessages();
 
                             foreach ($messages as $id => &$message) {
-                                $message = trim(str_from($message, '():'));
+                                $message = trim(Strings::from($message, '():'));
 
                                 if ($message == tr('Failed')) {
                                     unset($messages[$id]);

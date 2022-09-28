@@ -96,7 +96,7 @@ return 0;
              */
             $code = $notification['code'];
 
-            if(str_until($code, '/') === 'warning'){
+            if(Strings::until($code, '/') === 'warning'){
                 /*
                  * Just ignore warnings in non production environments, they
                  * already have been logged.

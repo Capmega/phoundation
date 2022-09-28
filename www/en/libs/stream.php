@@ -85,8 +85,8 @@ function stream($params){
                 }
 
             }else{
-                if(str_until($mimetype, '/') !== str_until($params['mimetype'], '/')){
-                    throw new CoreException(tr('stream(): Specified file ":file" failed lax mimetype check. If has mimetype ":has" while ":requested" was requested', array(':has' => str_until($mimetype, '/'), ':mimetype' => str_until($params['mimetype'], '/'))), 'not-authorized');
+                if(Strings::until($mimetype, '/') !== Strings::until($params['mimetype'], '/')){
+                    throw new CoreException(tr('stream(): Specified file ":file" failed lax mimetype check. If has mimetype ":has" while ":requested" was requested', array(':has' => Strings::until($mimetype, '/'), ':mimetype' => Strings::until($params['mimetype'], '/'))), 'not-authorized');
                 }
             }
         }
@@ -96,14 +96,14 @@ function stream($params){
          */
         $params['mimetype'] = $mimetype;
 
-        switch(str_until($mimetype, '/')){
+        switch(Strings::until($mimetype, '/')){
             case 'audio':
                 return stream_audio($params);
 
             case 'video':
                 return stream_video($params);
 
-            throw new CoreException(tr('stream(): Unsupported mimetype ":mimetype" encounered', array(':mimetype' => str_until($mimetype, '/'))), 'unsupported');
+            throw new CoreException(tr('stream(): Unsupported mimetype ":mimetype" encounered', array(':mimetype' => Strings::until($mimetype, '/'))), 'unsupported');
         }
 
     }catch(Exception $e){

@@ -353,7 +353,7 @@ function ads_image_process($ad, $file, $original = null){
          */
         $prefix = ROOT.'data/content/photos/';
         $file   = $campaign['id'].'/'.file_move_to_target($file, $prefix.$campaign['id'].'/', '-original.jpg', false, 4);
-        $media  = str_runtil($file, '-');
+        $media  = Strings::untilReverse($file, '-');
         //$types  = $_CONFIG['blogs']['images'];
 
 
@@ -407,7 +407,7 @@ function ads_image_process($ad, $file, $original = null){
 function ads_update_image_description($user, $image_id, $description){
     try{
         if(!is_numeric($image_id)){
-            $image_id = str_from($image_id, 'photo');
+            $image_id = Strings::from($image_id, 'photo');
         }
 
         $image = sql_get('SELECT `ads_images`.`id`,
@@ -450,7 +450,7 @@ function ads_update_image_description($user, $image_id, $description){
 function ads_update_image_cluster($user, $cluster, $image){
     try{
         if(!is_numeric($image)){
-            $image = str_from($image, 'photo');
+            $image = Strings::from($image, 'photo');
         }
 
         $clusters = sql_get('SELECT `forwarder_clusters`.`id`,

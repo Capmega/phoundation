@@ -1063,12 +1063,12 @@ class ValidateForm {
 
             $phone = str_replace(array('+', '(', ')', ' ', '-', '.', '/'), '', $this->testValue);
             $phone = str_replace('ext', 'x', $phone);
-            $ext   = str_from($phone, 'x');
-            $phone = str_until($phone, 'x');
+            $ext   = Strings::from($phone, 'x');
+            $phone = Strings::until($phone, 'x');
 
             if($ext == $phone){
                 /*
-                 * str_from() found no 'x'
+                 * Strings::from() found no 'x'
                  */
                 $ext = '';
             }
@@ -1840,7 +1840,7 @@ class ValidateForm {
             }
 
             if(is_object($message) and $message instanceof BException){
-                $message = str_from($message->getMessage(), '():');
+                $message = Strings::from($message->getMessage(), '():');
             }
 
             $this->errors[] = $message;

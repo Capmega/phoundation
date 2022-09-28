@@ -953,14 +953,14 @@ class Http
 //                 * No accept language headers were specified
 //                 */
 //                $retval = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
-//                    'locale' => str_cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
+//                    'locale' => Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
 //
 //            } else {
 //                $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
 //                $headers = array_force($headers, ',');
 //                $default = array_shift($headers);
-//                $retval = array('1.0' => array('language' => str_until($default, '-'),
-//                    'locale' => (str_exists($default, '-') ? str_from($default, '-') : null)));
+//                $retval = array('1.0' => array('language' => Strings::until($default, '-'),
+//                    'locale' => (str_exists($default, '-') ? Strings::from($default, '-') : null)));
 //
 //                if (empty($retval['1.0']['language'])) {
 //                    /*
@@ -973,19 +973,19 @@ class Http
 //                    /*
 //                     * Specified accept language headers contain no locale
 //                     */
-//                    $retval['1.0']['locale'] = str_cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+//                    $retval['1.0']['locale'] = Strings::cut((isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
 //                }
 //
 //                foreach ($headers as $header) {
-//                    $requested = str_until($header, ';');
-//                    $requested = array('language' => str_until($requested, '-'),
-//                        'locale' => (str_exists($requested, '-') ? str_from($requested, '-') : null));
+//                    $requested = Strings::until($header, ';');
+//                    $requested = array('language' => Strings::until($requested, '-'),
+//                        'locale' => (str_exists($requested, '-') ? Strings::from($requested, '-') : null));
 //
 //                    if (empty($_CONFIG['language']['supported'][$requested['language']])) {
 //                        continue;
 //                    }
 //
-//                    $retval[str_from(str_from($header, ';'), 'q=')] = $requested;
+//                    $retval[Strings::from(Strings::from($header, ';'), 'q=')] = $requested;
 //                }
 //            }
 //
@@ -1150,7 +1150,7 @@ class Http
                 $retval = url_add_query($retval, $url_params['query']);
 
             } elseif ($url_params['query'] === false) {
-                $retval = str_until($retval, '?');
+                $retval = Strings::until($retval, '?');
             }
 
             if ($url_params['allow_cloak'] and $_CONFIG['security']['url_cloaking']['enabled']) {

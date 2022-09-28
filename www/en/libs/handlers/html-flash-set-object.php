@@ -15,7 +15,7 @@ $params = array('class' => $class, // Done for backward compatibility
 
 if($object instanceof BException){
     if(debug()){
-        if(($object->getCode() !== 'validation') and (str_until($object->getCode(), '/') !== 'warning')){
+        if(($object->getCode() !== 'validation') and (Strings::until($object->getCode(), '/') !== 'warning')){
             /*
              * This is not a warning, this is a real exception!
              * On non debugs (usually production) show an "oops"
@@ -30,9 +30,9 @@ if($object instanceof BException){
         $class = $type;
     }
 
-    if(str_until($object->getCode(), '/') == 'warning'){
+    if(Strings::until($object->getCode(), '/') == 'warning'){
         $params['type'] = 'warning';
-        $params['html'] = trim(str_from($object->getMessage(), '():'));
+        $params['html'] = trim(Strings::from($object->getMessage(), '():'));
 
     }elseif($object->getCode() == 'validation'){
         foreach($object->getMessages() as $message){
@@ -46,7 +46,7 @@ if($object instanceof BException){
         $params['type'] = 'warning';
         $params['html'] = implode('<br>', $messages);
 
-    }elseif(str_from($object->getCode(), '/') == 'unknown'){
+    }elseif(Strings::from($object->getCode(), '/') == 'unknown'){
         $params['type'] = 'warning';
         $params['html'] = $object->getMessage();
 
@@ -99,7 +99,7 @@ if($object instanceof BException){
         $class = $type;
     }
 
-    if(str_from($object->getCode(), '/') == 'validation'){
+    if(Strings::from($object->getCode(), '/') == 'validation'){
         $params['type'] = 'warning';
         $params['html'] = $object->getMessage();
 
@@ -120,7 +120,7 @@ if($object instanceof BException){
             notify(array('code'    => 'exception',
                          'groups'  => 'developers',
                          'title'   => tr('html_flash_set() received exception'),
-                         'message' => tr('html_flash_set(): Received PHP exception class ":class" with code ":code" and message ":message"', array(':class' => get_class($object), ':code' => str_from($object->getCode(), '/'), ':message' => $object->getMessage()))));
+                         'message' => tr('html_flash_set(): Received PHP exception class ":class" with code ":code" and message ":message"', array(':class' => get_class($object), ':code' => Strings::from($object->getCode(), '/'), ':message' => $object->getMessage()))));
         }
     }
 

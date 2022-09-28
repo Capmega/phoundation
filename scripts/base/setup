@@ -179,10 +179,10 @@ if($multiple_sub_domains or $single_sub_domain){
  * Get project production database
  */
 while($fail){
-    $config['production']['']['db']['core']['db']['__value__'] = cli_readline(tr('What is the production database name [:default] ?', array(':default' => str_until($config['production']['']['domain']['__value__'], '.'))), false, 'cyan');
+    $config['production']['']['db']['core']['db']['__value__'] = cli_readline(tr('What is the production database name [:default] ?', array(':default' => Strings::until($config['production']['']['domain']['__value__'], '.'))), false, 'cyan');
 
     if(!$config['production']['']['db']['core']['db']['__value__']){
-        $config['production']['']['db']['core']['db']['__value__'] = str_until($config['production']['']['domain']['__value__'], '.');
+        $config['production']['']['db']['core']['db']['__value__'] = Strings::until($config['production']['']['domain']['__value__'], '.');
     }
 
     if(!preg_match('/[0-9,a-z,A-Z$_]{2,16}/', $config['production']['']['db']['core']['db']['__value__'])){
@@ -199,10 +199,10 @@ while($fail){
  * Get project production database username
  */
 while($fail){
-    $config['production']['']['db']['core']['user']['__value__'] = cli_readline(tr('What is the production database username [:default] ?', array(':default' => str_until($config['production']['']['domain']['__value__'], '.'))), false, 'cyan');
+    $config['production']['']['db']['core']['user']['__value__'] = cli_readline(tr('What is the production database username [:default] ?', array(':default' => Strings::until($config['production']['']['domain']['__value__'], '.'))), false, 'cyan');
 
     if(!$config['production']['']['db']['core']['user']['__value__']){
-        $config['production']['']['db']['core']['user']['__value__'] = str_until($config['production']['']['domain']['__value__'], '.');
+        $config['production']['']['db']['core']['user']['__value__'] = Strings::until($config['production']['']['domain']['__value__'], '.');
     }
 
     if(!preg_match('/[0-9,a-z,A-Z$_]{2,16}/', $config['production']['']['db']['core']['user']['__value__'])){

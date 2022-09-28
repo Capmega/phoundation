@@ -110,7 +110,7 @@ function file_get_uploaded($source){
          * Ensure we're not overwriting anything!
          */
         if(file_exists($destination.$real)){
-            $real = str_runtil($real, '.').'_'.substr(uniqid(), -8, 8).'.'.str_rfrom($real, '.');
+            $real = Strings::untilReverse($real, '.').'_'.substr(uniqid(), -8, 8).'.'.Strings::fromReverse($real, '.');
         }
 
         if(!move_uploaded_file($source, $destination.$real)){
@@ -240,7 +240,7 @@ function file_move_to_target($file, $path, $extension = false, $singledir = fals
             $targetpath = slash($path);
         }
 
-        $target = $targetpath.strtolower(str_convert_accents(str_runtil($filename, '.'), '-'));
+        $target = $targetpath.strtolower(str_convert_accents(Strings::untilReverse($filename, '.'), '-'));
 
         /*
          * Check if there is a "point" already in the extension
@@ -293,7 +293,7 @@ function file_move_to_target($file, $path, $extension = false, $singledir = fals
             }
         }
 
-        return str_from($target, $path);
+        return Strings::from($target, $path);
 
     }catch(Exception $e){
         throw new CoreException(tr('file_move_to_target(): Failed'), $e);
@@ -645,7 +645,7 @@ function file_clear_path($paths, $restrictions = null){
  */
 function file_get_extension($filename){
     try{
-        return str_rfrom($filename, '.');
+        return Strings::fromReverse($filename, '.');
 
     }catch(Exception $e){
         throw new CoreException(tr('file_get_extension(): Failed'), $e);
@@ -832,7 +832,7 @@ function file_mimetype($file){
  */
 function file_is_text($file){
     try{
-        if(str_until(file_mimetype($file), '/') == 'text') return true;
+        if(Strings::until(file_mimetype($file), '/') == 'text') return true;
         if(str_from (file_mimetype($file), '/') == 'xml' ) return true;
 
         return false;
@@ -1787,8 +1787,8 @@ function file_http_download($params){
          * figure out if we need to use compression or not
          */
         $mimetype  = mime_content_type($params['file']);
-        $primary   = str_until($mimetype, '/');
-        $secondary = str_from($mimetype , '/');
+        $primary   = Strings::until($mimetype, '/');
+        $secondary = Strings::from($mimetype , '/');
 
         /*
          * What file mode will we use?
@@ -1904,8 +1904,8 @@ function file_is_binary($primary, $secondary = null){
                 throw new CoreException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
             }
 
-            $secondary = str_from($primary , '/');
-            $primary   = str_until($primary, '/');
+            $secondary = Strings::from($primary , '/');
+            $primary   = Strings::until($primary, '/');
         }
 
         /*
@@ -1983,8 +1983,8 @@ function file_is_compressed($primary, $secondary = null){
                 throw new CoreException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
             }
 
-            $secondary = str_from($primary , '/');
-            $primary   = str_until($primary, '/');
+            $secondary = Strings::from($primary , '/');
+            $primary   = Strings::until($primary, '/');
         }
 
         /*

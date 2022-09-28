@@ -60,7 +60,7 @@ function linux_get_ssh_tcp_forwarding($server){
                                                                     'grep', array('-i', 'allowtcpforwarding'))));
         $result   = array_pop($results);
         $result   = strtolower(trim($result));
-        $result   = str_cut($result, ' ', ' ');
+        $result   = Strings::cut(($result, ' ', ' ');
 
         switch($result){
             case 'yes';
@@ -345,7 +345,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
         /*
          * Go one entry up and continue
          */
-        $path = str_runtil(unslash($path), '/');
+        $path = Strings::untilReverse(unslash($path), '/');
         linux_file_clear_path($server, $path, $sudo, $restrictions);
 
     }catch(Exception $e){
@@ -544,7 +544,7 @@ function linux_list_processes($server, $filters){
             }
 
             $result       = trim($result);
-            $pid          = str_until($result, ' ');
+            $pid          = Strings::until($result, ' ');
             $retval[$pid] = substr($result, 27);
         }
 
@@ -841,7 +841,7 @@ function linux_unzip($server, $file, $remove = true){
     try{
 under_construction('Move this to compress_unzip()');
         $filename = filename($file);
-        $filename = str_runtil($file, '.');
+        $filename = Strings::untilReverse($file, '.');
         $path     = TMP.$filename.'/';
 
         linux_ensure_path($server, $path);
@@ -894,9 +894,9 @@ under_construction('Move this to compress_unzip()');
  */
 function linux_download($server, $url, $section = false, $callback = null){
     try{
-        $file = str_from($url, '://');
-        $file = str_rfrom($url, '/');
-        $file = str_until($file, '?');
+        $file = Strings::from($url, '://');
+        $file = Strings::fromReverse($url, '/');
+        $file = Strings::until($file, '?');
 
         if($section){
             if(!is_string($section)){

@@ -253,8 +253,8 @@ switch(cli_method()){
                     continue;
                 }
 
-                $source_type = str_rfrom($source_file, '-');
-                $source_type = str_until($source_type, '.');
+                $source_type = Strings::fromReverse($source_file, '-');
+                $source_type = Strings::until($source_type, '.');
 
 
 

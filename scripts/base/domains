@@ -92,7 +92,7 @@ try{
 
                 foreach($results as $result){
                     if(strstr($result, 'Name Server')){
-                        $nameserver = str_from($result, 'Name Server');
+                        $nameserver = Strings::from($result, 'Name Server');
                         $nameserver = str_replace(':', '', $nameserver);
                         $nameserver = trim($nameserver);
                         $ns[] = $nameserver;

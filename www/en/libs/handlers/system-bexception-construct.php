@@ -60,7 +60,7 @@ if(is_object($code)){
         throw new CoreException(tr('BException: Specified exception code ":code" for exception ":message" is not valid (should be either scalar, or an exception object)', array(':code' => $code, ':message' => $messages)), 'invalid');
     }
 
-    if(strlen(str_from($code, '/')) > 16){
+    if(strlen(Strings::from($code, '/')) > 16){
         /*
          * Exception codes cannot be longer than 16 characters
          */

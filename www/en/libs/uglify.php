@@ -84,7 +84,7 @@ function uglify_css_find(){
             uglify_css_setup();
         }
 
-        $result[1] = 'uglify'.str_from($result[1], 'uglifycss');
+        $result[1] = 'uglify'.Strings::from($result[1], 'uglifycss');
 
         node_find_modules();
         log_console(tr('uglify_css_find(): Using uglifycss ":file"', array(':file' => $result[1])), 'VERBOSE/green');
@@ -154,7 +154,7 @@ function uglify_css($paths = null, $force = false){
              * not, etc.
              */
             foreach(file_list_tree($path) as $file){
-                if(substr(str_rfrom($file, '/'), 0, 7) === 'bundle-'){
+                if(substr(Strings::fromReverse($file, '/'), 0, 7) === 'bundle-'){
                     continue;
                 }
 
@@ -179,7 +179,7 @@ function uglify_css($paths = null, $force = false){
             }
 
             foreach(file_list_tree($path) as $file){
-                if(substr(str_rfrom($file, '/'), 0, 7) === 'bundle-'){
+                if(substr(Strings::fromReverse($file, '/'), 0, 7) === 'bundle-'){
                     continue;
                 }
 
@@ -194,7 +194,7 @@ function uglify_css($paths = null, $force = false){
                      */
                     uglify_css($file);
 
-                    $processed[str_rfrom($file, '/')] = true;
+                    $processed[Strings::fromReverse($file, '/')] = true;
                     continue;
                 }
 
@@ -210,7 +210,7 @@ function uglify_css($paths = null, $force = false){
                 //         */
                 //        file_delete($file);
                 //
-                //        $processed[str_rfrom($file, '/')] = true;
+                //        $processed[Strings::fromReverse($file, '/')] = true;
                 //        continue;
                 //
                 //    }elseif(substr($file, -4, 4) == '.css'){
@@ -222,14 +222,14 @@ function uglify_css($paths = null, $force = false){
                 //                log_console('uglify_css(): Ignorning symlink "'.str_log($file).'" with non existing target "'.str_log($path.$target).'"', 'yellow');
                 //            }
                 //
-                //            $processed[str_rfrom($file, '/')] = true;
+                //            $processed[Strings::fromReverse($file, '/')] = true;
                 //            continue;
                 //        }
                 //
                 //        /*
                 //         * If the symlink points to any path above or outside the current path, then only ensure there is a .min symlink for it
                 //         */
-                //        if(!strstr($path.$target, str_runtil($file, '/'))){
+                //        if(!strstr($path.$target, Strings::untilReverse($file, '/'))){
                 //            if(VERBOSE){
                 //                log_console('uglify_css(): Found symlink "'.str_log($file).'" with target "'.str_log($target).'" that points to location outside symlink path, ensuring minimized version pointing to the same file', 'yellow');
                 //            }
@@ -240,7 +240,7 @@ function uglify_css($paths = null, $force = false){
                 //
                 //            symlink($target, substr($file, 0, -4).'.min.css');
                 //
-                //            $processed[str_rfrom($file, '/')] = true;
+                //            $processed[Strings::fromReverse($file, '/')] = true;
                 //            continue;
                 //        }
                 //
@@ -257,7 +257,7 @@ function uglify_css($paths = null, $force = false){
                 //            rename($path.$target, $file);
                 //            copy($file, $path.$target);
                 //
-                //            $processed[str_rfrom($file, '/')] = true;
+                //            $processed[Strings::fromReverse($file, '/')] = true;
                 //            continue;
                 //        }
                 //
@@ -277,7 +277,7 @@ function uglify_css($paths = null, $force = false){
                 //        file_delete(substr($file, 0, -4).'.min.css');
                 //        symlink($target, substr($file, 0, -4).'.min.css');
                 //
-                //        $processed[str_rfrom($file, '/')] = true;
+                //        $processed[Strings::fromReverse($file, '/')] = true;
                 //        continue;
                 //
                 //    }else{
@@ -285,14 +285,14 @@ function uglify_css($paths = null, $force = false){
                 //            log_console('uglify_css(): Ignorning non css symlink "'.str_log($file).'"', 'yellow');
                 //        }
                 //
-                //        $processed[str_rfrom($file, '/')] = true;
+                //        $processed[Strings::fromReverse($file, '/')] = true;
                 //        continue;
                 //    }
                 //}
 
                 if(!is_file($file)){
                     log_console(tr('uglify_css(): Ignorning unknown type file ":file"', array(':file' => $file)), 'VERBOSE/yellow');
-                    $processed[str_rfrom($file, '/')] = true;
+                    $processed[Strings::fromReverse($file, '/')] = true;
                     continue;
                 }
 
@@ -323,12 +323,12 @@ function uglify_css($paths = null, $force = false){
                         log_console(tr('uglify_css(): Found js file ":file" in CSS path, switching to uglifyjs', array(':file' => $file)), 'VERBOSE/yellow');
                         uglify_js($file);
 
-                        $processed[str_rfrom($file, '/')] = true;
+                        $processed[Strings::fromReverse($file, '/')] = true;
                         continue;
                     }
 
                     log_console(tr('uglify_css(): Ignorning non CSS file ":file"', array(':file' => $file)), 'VERBOSE/yellow');
-                    $processed[str_rfrom($file, '/')] = true;
+                    $processed[Strings::fromReverse($file, '/')] = true;
                     continue;
                 }
 
@@ -336,7 +336,7 @@ function uglify_css($paths = null, $force = false){
                     /*
                      * If file exists and FORCE option wasn't given then proceed
                      */
-                    $minfile = str_runtil($file, '.').'.min.css';
+                    $minfile = Strings::untilReverse($file, '.').'.min.css';
 
                     if(file_exists($minfile)){
                         /*
@@ -377,7 +377,7 @@ function uglify_css($paths = null, $force = false){
                         }
                     });
 
-                    $processed[str_rfrom($file, '/')] = true;
+                    $processed[Strings::fromReverse($file, '/')] = true;
 
                     /*
                      * Make mtime equal
@@ -386,15 +386,15 @@ function uglify_css($paths = null, $force = false){
 
                     if(empty($_CONFIG['deploy'][ENVIRONMENT]['sudo'])){
 // :TODO: Replace this with file_touch();
-                        touch(str_runtil($file, '.').'.css'    , $time, $time);
-                        touch(str_runtil($file, '.').'.min.css', $time, $time);
+                        touch(Strings::untilReverse($file, '.').'.css'    , $time, $time);
+                        touch(Strings::untilReverse($file, '.').'.min.css', $time, $time);
 
                     }else{
                         $time = date_convert($time, 'Y-m-d H:i:s');
 
 // :TODO: Replace this with file_touch();
-                        safe_exec(array('commands' => array('touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.css'),
-                                                            'touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.min.css'))));
+                        safe_exec(array('commands' => array('touch', array('sudo' => true, '--date="'.$time.'"', Strings::untilReverse($file, '.').'.css'),
+                                                            'touch', array('sudo' => true, '--date="'.$time.'"', Strings::untilReverse($file, '.').'.min.css'))));
                     }
 
                 }catch(Exception $e){
@@ -452,7 +452,7 @@ function uglify_js_find(){
             uglify_js_setup();
         }
 
-        $result[1] = 'uglify'.str_from($result[1], 'ugliyfyjs');
+        $result[1] = 'uglify'.Strings::from($result[1], 'ugliyfyjs');
 
         node_find_modules();
         log_console(tr('uglify_js_find(): Using uglify-js ":file"', array(':file' => $result[1])), 'VERBOSE/green');
@@ -543,7 +543,7 @@ function uglify_js($paths = null, $force = false){
                      */
                     uglify_js($file);
 
-                    $processed[str_rfrom($file, '/')] = true;
+                    $processed[Strings::fromReverse($file, '/')] = true;
                     continue;
                 }
 
@@ -559,7 +559,7 @@ function uglify_js($paths = null, $force = false){
     //                     * Delete the minimized symlinks, we'll regenerate them for the normal files
     //                     */
     //                    file_delete($file);
-    //                    $processed[str_rfrom($file, '/')] = true;
+    //                    $processed[Strings::fromReverse($file, '/')] = true;
     //                    continue;
     //
     //                }elseif(substr($file, -3, 3) == '.js'){
@@ -571,14 +571,14 @@ function uglify_js($paths = null, $force = false){
     //                            log_console('uglify_js(): Ignorning symlink "'.str_log($file).'" with non existing target "'.str_log($path.$target).'"', 'yellow');
     //                        }
     //
-    //                        $processed[str_rfrom($file, '/')] = true;
+    //                        $processed[Strings::fromReverse($file, '/')] = true;
     //                        continue;
     //                    }
     //
     //                    /*
     //                     * If the symlink points to any path above or outside the current path, then only ensure there is a .min symlink for it
     //                     */
-    //                    if(!strstr($path.$target, str_runtil($file, '/'))){
+    //                    if(!strstr($path.$target, Strings::untilReverse($file, '/'))){
     //                        if(VERBOSE){
     //                            log_console('uglify_js(): Found symlink "'.str_log($file).'" with target "'.str_log($target).'" that points to location outside symlink path, ensuring minimized version pointing to the same file', 'yellow');
     //                        }
@@ -589,7 +589,7 @@ function uglify_js($paths = null, $force = false){
     //
     //                        symlink($target, substr($file, 0, -3).'.min.js');
     //
-    //                        $processed[str_rfrom($file, '/')] = true;
+    //                        $processed[Strings::fromReverse($file, '/')] = true;
     //                        continue;
     //                    }
     //
@@ -606,7 +606,7 @@ function uglify_js($paths = null, $force = false){
     //                        rename($path.$target, $file);
     //                        copy($file, $path.$target);
     //
-    //                        $processed[str_rfrom($file, '/')] = true;
+    //                        $processed[Strings::fromReverse($file, '/')] = true;
     //                        continue;
     //                    }
     //
@@ -626,7 +626,7 @@ function uglify_js($paths = null, $force = false){
     //                    file_delete(substr($file, 0, -3).'.min.js');
     //                    symlink($target, substr($file, 0, -3).'.min.js');
     //
-    //                    $processed[str_rfrom($file, '/')] = true;
+    //                    $processed[Strings::fromReverse($file, '/')] = true;
     //                    continue;
     //
     //                }else{
@@ -634,14 +634,14 @@ function uglify_js($paths = null, $force = false){
     //                        log_console('uglify_js(): Ignorning non js symlink "'.str_log($file).'"', 'yellow');
     //                    }
     //
-    //                    $processed[str_rfrom($file, '/')] = true;
+    //                    $processed[Strings::fromReverse($file, '/')] = true;
     //                    continue;
     //                }
     //            }
 
                 if(!is_file($file)){
                     log_console(tr('uglify_js(): Ignorning unknown type file ":file"', array(':file' => $file)), 'VERBOSE/yellow');
-                    $processed[str_rfrom($file, '/')] = true;
+                    $processed[Strings::fromReverse($file, '/')] = true;
                     continue;
                 }
 
@@ -672,12 +672,12 @@ function uglify_js($paths = null, $force = false){
                         log_console(tr('uglify_js(): Found CSS file ":file" in javascript path, switching to uglifycss', array(':file' => $file)), 'VERBOSE/yellow');
                         uglify_css($file);
 
-                        $processed[str_rfrom($file, '/')] = true;
+                        $processed[Strings::fromReverse($file, '/')] = true;
                         continue;
                     }
 
                     log_console(tr('uglify_js(): Ignorning non javascript file ":file"', array(':file' => $file)), 'VERBOSE/yellow');
-                    $processed[str_rfrom($file, '/')] = true;
+                    $processed[Strings::fromReverse($file, '/')] = true;
                     continue;
                 }
 
@@ -685,7 +685,7 @@ function uglify_js($paths = null, $force = false){
                      /*
                      * If file exists and FORCE option wasn't given then proceed
                      */
-                    $minfile = str_runtil($file, '.').'.min.js';
+                    $minfile = Strings::untilReverse($file, '.').'.min.js';
 
                     if(file_exists($minfile)){
                         /*
@@ -726,7 +726,7 @@ function uglify_js($paths = null, $force = false){
                         }
                     });
 
-                    $processed[str_rfrom($file, '/')] = true;
+                    $processed[Strings::fromReverse($file, '/')] = true;
 
                     /*
                      * Make mtime equal
@@ -734,14 +734,14 @@ function uglify_js($paths = null, $force = false){
                     $time = time();
 
                     if(empty($_CONFIG['deploy'][ENVIRONMENT]['sudo'])){
-                        touch(str_runtil($file, '.').'.js'    , $time, $time);
-                        touch(str_runtil($file, '.').'.min.js', $time, $time);
+                        touch(Strings::untilReverse($file, '.').'.js'    , $time, $time);
+                        touch(Strings::untilReverse($file, '.').'.min.js', $time, $time);
 
                     }else{
                         $time = date_convert($time, 'Y-m-d H:i:s');
 
-                        safe_exec(array('commands' => array('touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.js'),
-                                                            'touch', array('sudo' => true, '--date="'.$time.'"', str_runtil($file, '.').'.min.js'))));
+                        safe_exec(array('commands' => array('touch', array('sudo' => true, '--date="'.$time.'"', Strings::untilReverse($file, '.').'.js'),
+                                                            'touch', array('sudo' => true, '--date="'.$time.'"', Strings::untilReverse($file, '.').'.min.js'))));
                     }
 
                 }catch(Exception $e){

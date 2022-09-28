@@ -282,8 +282,8 @@ function detect_language(){
                 $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
             }
 
-            $language = str_until($language, ',');
-            $language = trim(str_until($language, '-'));
+            $language = Strings::until($language, ',');
+            $language = trim(Strings::until($language, '-'));
 
             /*
              * Is the requested language supported?

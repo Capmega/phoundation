@@ -53,12 +53,12 @@ function storage_files_insert($params){
                      * Convert to JPEG
                      */
                     image_convert(array('source' => $file['filename'],
-                                        'target' => str_runtil($file['filename'], '.').'.jpg',
+                                        'target' => Strings::untilReverse($file['filename'], '.').'.jpg',
                                         'method' => 'custom',
                                         'format' => 'jpg'));
 
                     file_delete($file['filename'], ROOT.'data/content');
-                    $file['filename'] = str_runtil($file['filename'], '.').'.jpg';
+                    $file['filename'] = Strings::untilReverse($file['filename'], '.').'.jpg';
                     break;
 
                 default:
@@ -255,7 +255,7 @@ function storage_files_get($file, $documents_id, $pages_id = null){
 function storage_file_url($file, $type = null){
     try{
         if($type){
-            return cdn_domain(str_runtil($file, '.').'-'.$type.'.'.str_rfrom($file, '.'), 'files');
+            return cdn_domain(Strings::untilReverse($file, '.').'-'.$type.'.'.Strings::fromReverse($file, '.'), 'files');
         }
 
         return cdn_domain($file, 'files');

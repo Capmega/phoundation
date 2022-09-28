@@ -63,7 +63,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
             throw new CoreException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
         }
 
-        log_console(tr('Using proxy ":proxy"', array(':proxy' => str_cut(str_log($serverurl), '://', '/'))), 'VERBOSE');
+        log_console(tr('Using proxy ":proxy"', array(':proxy' => Strings::cut((str_log($serverurl), '://', '/'))), 'VERBOSE');
 
         $data = curl_get(array('url'        => str_ends($serverurl, '?apikey='.$_CONFIG['curl']['apikey'].'&url=').urlencode($url),
                                'getheaders' => false,
@@ -74,7 +74,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
         }
 
         if(substr($data['data'], 0, 12) !== 'PROXY_RESULT'){
-            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => str_log($data), ':proxy' => str_cut(str_log($serverurl), '://', '/'))), 'not-specified');
+            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => str_log($data), ':proxy' => Strings::cut((str_log($serverurl), '://', '/'))), 'not-specified');
         }
 
         $data         = substr($data['data'], 12);
@@ -158,7 +158,7 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
             }
 
             $ip = str_replace(':', '', $ip);
-            $ip = trim(str_from($ip, 'addr'));
+            $ip = trim(Strings::from($ip, 'addr'));
 
             if($ip == '127.0.0.1'){
                 if(!$localhost){

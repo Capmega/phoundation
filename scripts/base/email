@@ -142,7 +142,7 @@ if($users){
  * Validate filters
  */
 if(!in_array($criteria, array('ALL', 'ANSWERED', 'DELETED', 'FLAGGED', 'NEW', 'OLD', 'RECENT', 'SEEN', 'UNANSWERED', 'UNDELETED', 'UNFLAGGED', 'UNSEEN'))){
-    if(!in_array(str_until($criteria, '='), array('BCC', 'BEFORE', 'BODY', 'CC', 'FROM', 'KEYWORD', 'ON', 'SINCE', 'SUBJECT', 'TEXT', 'TO', 'UNKEYWORD'))){
+    if(!in_array(Strings::until($criteria, '='), array('BCC', 'BEFORE', 'BODY', 'CC', 'FROM', 'KEYWORD', 'ON', 'SINCE', 'SUBJECT', 'TEXT', 'TO', 'UNKEYWORD'))){
         throw new CoreException(tr('Unknown filter ":filter" specified', array(':filter' => $criteria)), 'unknown');
     }
 }
@@ -227,7 +227,7 @@ switch(cli_method()){
                     log_console(tr('Fetching information for email ":email"', array(':email' => $account['email'])), 'white');
                     $userdata = email_get_user($account['email']);
 
-                    $userdata['imap'] = str_until($userdata['imap'], '}').'}';
+                    $userdata['imap'] = Strings::until($userdata['imap'], '}').'}';
                     $imap             = email_connect($userdata);
                     $info             = imap_mailboxmsginfo($imap);
 
@@ -260,7 +260,7 @@ switch(cli_method()){
                     log_console(tr('Fetching mail boxes for email ":email"', array(':email' => $account)), 'white');
                     $userdata = email_get_user($account);
 
-                    $userdata['imap'] = str_until($userdata['imap'], '}').'}';
+                    $userdata['imap'] = Strings::until($userdata['imap'], '}').'}';
                     $imap             = email_connect($userdata);
                     $boxes            = imap_list($imap, $userdata['imap'], '*');
 

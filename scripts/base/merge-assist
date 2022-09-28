@@ -61,7 +61,7 @@ log_console(tr('Verifying requested branches ":branches"', array(':branches' => 
 git_fetch();
 
 foreach(safe_exec('git branch -a') as $branch){
-    $branches[] = trim(str_from($branch, '*'));
+    $branches[] = trim(Strings::from($branch, '*'));
 }
 
 foreach($argv as $branch){

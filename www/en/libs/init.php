@@ -201,7 +201,7 @@ function init($projectfrom = null, $frameworkfrom = null){
                         continue;
                     }
 
-                    if((file_extension($file) != 'php') or !str_is_version(str_until($file, '.php'))) {
+                    if((file_extension($file) != 'php') or !str_is_version(Strings::until($file, '.php'))) {
                         log_console(tr('Skipping unknown file ":file"', array(':file' => $file)), 'yellow');
                         unset($files[$key]);
                         continue;
@@ -601,7 +601,7 @@ function init_section($section, $version){
                 continue;
             }
 
-            if((file_extension($file) != 'php') or !str_is_version(str_until($file, '.php'))) {
+            if((file_extension($file) != 'php') or !str_is_version(Strings::until($file, '.php'))) {
                 log_console(tr('Skipping unknown file ":file"', array(':file' => $file)), 'yellow');
                 unset($files[$key]);
                 continue;
@@ -796,7 +796,7 @@ function init_get_highest_file_version($section){
                 continue;
             }
 
-            $file = str_runtil($file, '.php');
+            $file = Strings::untilReverse($file, '.php');
 
             if(version_compare($file, $version) === 1){
                 $version = $file;

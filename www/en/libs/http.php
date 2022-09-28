@@ -343,7 +343,7 @@ function http_headers($params, $content_length){
                             /*
                              * Origin is allowed from all sub domains
                              */
-                            $origin = str_from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
+                            $origin = Strings::from(isset_get($_SERVER['HTTP_ORIGIN']), '://');
                             $length = strlen(isset_get($_SESSION['domain']));
 
                             if(substr($origin, -$length, $length) === isset_get($_SESSION['domain'])){
@@ -801,7 +801,7 @@ function http_validate_get(){
  */
 function http_build_url($url, $query){
     try{
-        return http_add_variable($url, str_until($query, '='), str_from($query, '='));
+        return http_add_variable($url, Strings::until($query, '='), Strings::from($query, '='));
 
     }catch(Exception $e){
         throw new CoreException('http_build_url(DEPRECIATED): Failed', $e);

@@ -69,8 +69,8 @@ while($line = fgets($f)){
     }
 
     if($lcount <= 0){
-        $execute['word'] = str_until($line, '|');
-        $lcount          = (integer) str_from($line, '|');
+        $execute['word'] = Strings::until($line, '|');
+        $lcount          = (integer) Strings::from($line, '|');
 
         if(!fmod(++$count, 200)){
             log_console('.', '', 'green', false);
@@ -85,8 +85,8 @@ while($line = fgets($f)){
          * This line should contain synonyms
          */
         $lcount--;
-        $execute['type']     = str_until($line, '|');
-        $execute['synonyms'] = str_replace('|', ',', str_from($line, '|'));
+        $execute['type']     = Strings::until($line, '|');
+        $execute['synonyms'] = str_replace('|', ',', Strings::from($line, '|'));
 
         $p->execute($execute);
     }

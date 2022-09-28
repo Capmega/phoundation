@@ -179,14 +179,14 @@ function sodium_encrypt($data, $key){
 function sodium_decrypt($cipher_data, $key){
     try{
         $key   = sodium_pad_key($key);
-        $nonce = str_until($cipher_data, '$');
+        $nonce = Strings::until($cipher_data, '$');
         $nonce = base64_decode($nonce);
 
         if(!$nonce){
             throw new CoreException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
-        $cipher_data = str_from($cipher_data, '$');
+        $cipher_data = Strings::from($cipher_data, '$');
         $cipher_data = base64_decode($cipher_data);
         $data        = sodium_crypto_secretbox_open($cipher_data, $nonce, $key);
 
@@ -255,13 +255,13 @@ function sodium_sign_mac($data, $key){
 function sodium_verify_mac($data, $key){
     try{
         $key = sodium_pad_key($key);
-        $mac = str_from($data, '$');
+        $mac = Strings::from($data, '$');
 
         if(!$mac){
             throw new CoreException(tr('sodium_verify_mac(): Specified string does not contain a mac prefix'), 'not-exists');
         }
 
-        $data = str_from($data, '$');
+        $data = Strings::from($data, '$');
         $data = sodium_crypto_auth_verify($mac, $data, $key);
 
         if($data === false){

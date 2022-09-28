@@ -200,19 +200,19 @@ function image_convert($params){
                  * Preserve transparent background
                  */
                 array_params($params, 'background', 'none');
-                $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
+                $dest_file = Strings::untilReverse($dest_file, '.').'.'.$params['format'];
                 break;
 
             case 'jpeg':
                 // FALLTHROUGH
             case 'jpg':
                 array_params($params, 'background', 'white');
-                $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
+                $dest_file = Strings::untilReverse($dest_file, '.').'.'.$params['format'];
                 break;
 
             case 'webp':
                 array_params($params, 'background', 'white');
-                $dest_file = str_runtil($dest_file, '.').'.'.$params['format'];
+                $dest_file = Strings::untilReverse($dest_file, '.').'.'.$params['format'];
                 break;
 
             case '':
@@ -220,10 +220,10 @@ function image_convert($params){
                  * Use current format. If source file has no extension (Hello PHP temporary upload files!)
                  * then let the dest file keep its own extension
                  */
-                $extension = str_rfrom($source_file, '.');
+                $extension = Strings::fromReverse($source_file, '.');
 
                 if(!$extension){
-                    $dest_file = str_runtil($dest_file, '.').'.'.$extension;
+                    $dest_file = Strings::untilReverse($dest_file, '.').'.'.$extension;
                 }
 
                 break;
@@ -645,10 +645,10 @@ function image_convert($params){
  */
 function image_interlace_valid($value, $source = false){
     if($source){
-        $check = str_until($value, '-');
+        $check = Strings::until($value, '-');
 
     }else{
-        $check = str_from($value, '-');
+        $check = Strings::from($value, '-');
     }
 
     switch($check){
@@ -705,7 +705,7 @@ function image_is_valid($file, $min_width = 0, $min_height = 0) {
     try{
         $mimetype = file_mimetype($file);
 
-        if(str_until($mimetype, '/') !== 'image'){
+        if(Strings::until($mimetype, '/') !== 'image'){
             throw new CoreException(tr('image_is_valid(): Specified file ":file" is not an image but an ":mimetype"', array(':file' => $file, ':mimetype' => $mimetype)), 'invalid');
         }
 
@@ -787,7 +787,7 @@ function image_info($file, $no_exif = false){
     try{
         $mime = file_mimetype($file);
 
-        if(str_until($mime, '/') !== 'image'){
+        if(Strings::until($mime, '/') !== 'image'){
             throw new CoreException(tr('image_info(): The specified file ":file" is not an image', array(':file' => $file)), 'invalid');
         }
 
@@ -804,7 +804,7 @@ function image_info($file, $no_exif = false){
         /*
          * Get EXIF information from JPG or TIFF image files
          */
-        switch(str_from($mime, '/')){
+        switch(Strings::from($mime, '/')){
             case 'jpeg':
                 try{
                     $retval['compression'] = safe_exec(array('commands' => array($_CONFIG['images']['imagemagick']['identify'], array('-format', '%Q', $file))));
@@ -852,8 +852,8 @@ function image_info($file, $no_exif = false){
  */
 function image_type($file){
     try{
-        if(str_until(file_mimetype($file), '/') == 'image'){
-            return str_from(file_mimetype($file), '/');
+        if(Strings::until(file_mimetype($file), '/') == 'image'){
+            return Strings::from(file_mimetype($file), '/');
         }
 
         return false;
@@ -937,21 +937,21 @@ function image_fix_extension($file){
         /*
          * If the file is not an image then we're done
          */
-        if(str_until($mimetype, '/') != 'image'){
+        if(Strings::until($mimetype, '/') != 'image'){
             throw new CoreException('image_fix_extension(): Specified file "'.str_log($file).'" is not an image', 'invalid');
         }
 
         /*
          * If the extension specified type differs from the mimetype, then autorename the file to the correct extension
          */
-        if($specified != str_from($mimetype, '/')){
-            $new = str_from($mimetype, '/');
+        if($specified != Strings::from($mimetype, '/')){
+            $new = Strings::from($mimetype, '/');
 
             if($new == 'jpeg'){
                 $new = 'jpg';
             }
 
-            $new = str_runtil($file, '.'.$extension).'.'.$new;
+            $new = Strings::untilReverse($file, '.'.$extension).'.'.$new;
 
             rename($file, $new);
             return $new;
@@ -1365,8 +1365,8 @@ function image_glitch($file, $server = null){
     try{
         $mimetype = image_is_valid($file);
 
-        if(str_from($mimetype, '/') !== 'png'){
-            throw new CoreException(tr('image_glitch(): This function only supports PNG images. The specified file ":file" is a ":type" type file', array(':file' => $file, ':type' => str_from($mimetype, '/'))), 'not-supported');
+        if(Strings::from($mimetype, '/') !== 'png'){
+            throw new CoreException(tr('image_glitch(): This function only supports PNG images. The specified file ":file" is a ":type" type file', array(':file' => $file, ':type' => Strings::from($mimetype, '/'))), 'not-supported');
         }
 
         $file_out = file_temp();

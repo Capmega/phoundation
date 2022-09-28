@@ -482,7 +482,7 @@ function cli_run_once($action = 'exception', $force = false){
                 continue;
             }
 
-            $process = str_until(str_rfrom($matches[1], '/'), ' ');
+            $process = Strings::until(Strings::fromReverse($matches[1], '/'), ' ');
 
             if($process == $core->register['real_script']){
                 if(++$count >= 2){
@@ -1628,7 +1628,7 @@ function cli_list_processes($filters){
 
         foreach($results as $key => $result){
             $result       = trim($result);
-            $pid          = str_until($result, ' ');
+            $pid          = Strings::until($result, ' ');
             $retval[$pid] = substr($result, 27);
         }
 

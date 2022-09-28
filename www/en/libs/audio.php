@@ -109,7 +109,7 @@ function audio_play($class = null){
 // *  Log user name
 // */
 //            $log_user_name = getenv('LOGNAME');
-//            $port = str_rfrom('', '')
+//            $port = Strings::fromReverse('', '')
 //
 //            safe_exec('exit', $exitcode);
 //

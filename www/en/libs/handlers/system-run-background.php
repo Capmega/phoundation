@@ -1,7 +1,7 @@
 <?php
 try{
     $args = str_from ($cmd, ' ');
-    $cmd  = str_until($cmd, ' ');
+    $cmd  = Strings::until($cmd, ' ');
     $path = dirname($cmd);
     $path = slash($path);
     $cmd  = basename($cmd);

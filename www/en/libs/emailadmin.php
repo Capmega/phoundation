@@ -314,8 +314,8 @@ function emailadmin_add_user($email, $password){
         //    throw new CoreException(tr('emailadmin_add_user(): No user name specified'), 'not-specified');
         //}
 
-        if(!$domains_id = emailadmin_get_domain(str_from($email, '@'))){
-            throw new CoreException(tr('emailadmin_add_user(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-exists');
+        if(!$domains_id = emailadmin_get_domain(Strings::from($email, '@'))){
+            throw new CoreException(tr('emailadmin_add_user(): Specified domain "%domain%" is not managed', array('%domain%' => Strings::from($email, '@'))), 'not-exists');
         }
 
         emailadmin_query('INSERT INTO `virtual_users` (`domains_id`, `email`, `password`)
@@ -443,8 +443,8 @@ function emailadmin_add_alias($source, $destination){
         //    throw new CoreException(tr('emailadmin_add_alias(): No alias name specified'), 'not-specified');
         //}
 
-        if(!$domains_id = emailadmin_get_domain(str_from($email, '@'))){
-            throw new CoreException(tr('emailadmin_add_alias(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-exists');
+        if(!$domains_id = emailadmin_get_domain(Strings::from($email, '@'))){
+            throw new CoreException(tr('emailadmin_add_alias(): Specified domain "%domain%" is not managed', array('%domain%' => Strings::from($email, '@'))), 'not-exists');
         }
 
         emailadmin_query('INSERT INTO `virtual_aliases` (`domains_id`, `source`, `destination`)

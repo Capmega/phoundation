@@ -66,7 +66,7 @@ try{
             if(empty($this->register['route_exec'])){
                 $url      = $_SERVER['REQUEST_URI'];
                 $url      = str_starts_not($url, '/');
-                $language = str_until($url, '/');
+                $language = Strings::until($url, '/');
 
                 if(!array_key_exists($language, $_CONFIG['language']['supported'])){
                     log_console(tr('Detected language ":language" is not supported, falling back to default. See $_CONFIG[language][supported]', array(':language' => $language)), 'VERBOSE/warning');

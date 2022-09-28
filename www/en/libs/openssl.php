@@ -97,7 +97,7 @@ function openssl_simple_decrypt($data, $password, $cipher = null){
          * Get a hash for the password and get the initalization vector from the specified data
          */
         $password    = openssl_digest($_CONFIG['openssl']['seed'].$password, 'sha256');
-        $init_vector = str_until($data, ':');
+        $init_vector = Strings::until($data, ':');
 
         if(!$init_vector){
             throw new CoreException(tr('openssl_simple_decrypt(): Specified encrypted string has no init vector'), 'empty');

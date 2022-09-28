@@ -213,11 +213,11 @@ function crmtext_execute($ch, $call){
             throw new CoreException(tr('crmtext_execute(): curl_exec() failed with "%error%"', array('%error%' => $error)), 'CURL'.curl_errno($ch));
         }
 
-        if(str_cut($xml, 'op="', '"') != $call){
+        if(Strings::cut(($xml, 'op="', '"') != $call){
             throw new CoreException(tr('crmtext_execute(): Failed to find requested function call in crmtext results "%results%"', array('%results%' => $xml)), 'call_not_found');
         }
 
-        if(($http_code = str_cut($xml, 'status="', '"')) != 200){
+        if(($http_code = Strings::cut(($xml, 'status="', '"')) != 200){
             throw new CoreException(tr('crmtext_execute(): Got status "%status%" from crmtext with result "%results%"', array('%status%' => $http_code, '%results%' => $xml)), 'HTTP'.$http_code);
         }
 

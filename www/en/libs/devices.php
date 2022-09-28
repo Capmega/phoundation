@@ -911,8 +911,8 @@ function devices_get_option_html_element($params){
                  * Single entry, returns an input element
                  */
                 $data        = sql_fetch($params['resource']);
-                $data['min'] = str_until($data['value'], '..');
-                $data['max'] = str_from($data['value'] , '..');
+                $data['min'] = Strings::until($data['value'], '..');
+                $data['max'] = Strings::from($data['value'] , '..');
 
                 switch($params['key']){
                     case 'x':
@@ -1360,19 +1360,19 @@ function devices_scan($types, $server = null, $sudo = false){
 
                         foreach($data as $line){
                             if(stristr($line, 'idProduct')){
-                                $entry['product']        = str_from($line             , '0x');
-                                $entry['product_string'] = str_from($entry['product'] , ' ');
-                                $entry['product']        = str_until($entry['product'], ' ');
+                                $entry['product']        = Strings::from($line             , '0x');
+                                $entry['product_string'] = Strings::from($entry['product'] , ' ');
+                                $entry['product']        = Strings::until($entry['product'], ' ');
                             }
 
                             if(stristr($line, 'idVendor')){
-                                $entry['vendor']        = str_from($line            , '0x');
-                                $entry['vendor_string'] = str_from($entry['vendor'] , ' ');
-                                $entry['vendor']        = str_until($entry['vendor'], ' ');
+                                $entry['vendor']        = Strings::from($line            , '0x');
+                                $entry['vendor_string'] = Strings::from($entry['vendor'] , ' ');
+                                $entry['vendor']        = Strings::until($entry['vendor'], ' ');
                             }
 
                             if(stristr($line, 'idManufacturer')){
-                                $entry['manufacturer'] = str_from($line, 'idManufacturer');
+                                $entry['manufacturer'] = Strings::from($line, 'idManufacturer');
                             }
                         }
 

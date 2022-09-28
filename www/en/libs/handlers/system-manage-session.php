@@ -80,7 +80,7 @@ try{
              * White label domains are disabled, but sub domains from the
              * $_CONFIG[domain] are allowed
              */
-            if(str_from($domain, '.') !== $_CONFIG['domain']){
+            if(Strings::from($domain, '.') !== $_CONFIG['domain']){
                 log_file(tr('Whitelabels are set to sub domains only, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }

@@ -612,13 +612,13 @@ switch(cli_method()){
                                                                 $params['target'] = $target;
 
                                                                 if($params['format']){
-                                                                    $format = str_rfrom($params['source'], '.');
+                                                                    $format = Strings::fromReverse($params['source'], '.');
 
                                                                     if($format !== $params['format']){
                                                                         /*
                                                                          * Target file is different from source file, ensure that it doesn't exist
                                                                          */
-                                                                        $params['target'] = str_runtil($params['source'], '.').'.'.$params['format'];
+                                                                        $params['target'] = Strings::untilReverse($params['source'], '.').'.'.$params['format'];
                                                                         file_delete($params['target'], false);
                                                                     }
                                                                 }

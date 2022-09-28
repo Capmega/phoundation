@@ -250,7 +250,7 @@ switch(cli_method()){
                             continue;
                         }
 
-                        if(str_rfrom($file, '.') == 'part'){
+                        if(Strings::fromReverse($file, '.') == 'part'){
                             /*
                              * This file is still being processed
                              */

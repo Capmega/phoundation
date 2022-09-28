@@ -1602,8 +1602,8 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
                 log_console(tr('Failed to identify SSH tunnel configuration for process ":process"', array(':process' => $process)), 'VERBOSE/yellow');
             }
 
-            $process_domain        = str_rfrom($process, ' ');
-            $process_domain        = str_from($process_domain, '@');
+            $process_domain        = Strings::fromReverse($process, ' ');
+            $process_domain        = Strings::from($process_domain, '@');
             $process_source_port   = isset_get($matches[1][0]);
             $process_configuration = isset_get($matches[2][0]);
 
@@ -1776,7 +1776,7 @@ function ssh_persistent_pid($socket){
     try{
         $results = ssh_exec(array('commands' => array('ssh', array('-O', 'check', 'foobar', '-o', 'controlpath="'.$socket.'"'))));
         $result  = array_shift($results);
-        $result  = str_cut($result, '=', ')');
+        $result  = Strings::cut(($result, '=', ')');
 
         return $result;
 

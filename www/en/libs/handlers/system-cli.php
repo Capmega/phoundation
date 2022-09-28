@@ -191,7 +191,7 @@ try{
                 case '-O':
                     // TALLTHROUGH
                 case '--orderby':
-                    define('ORDERBY', ' ORDER BY `'.str_until($GLOBALS['argv'][$argid + 1], ' ').'` '.str_from($GLOBALS['argv'][$argid + 1], ' ').' ');
+                    define('ORDERBY', ' ORDER BY `'.Strings::until($GLOBALS['argv'][$argid + 1], ' ').'` '.Strings::from($GLOBALS['argv'][$argid + 1], ' ').' ');
 
                     $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
 

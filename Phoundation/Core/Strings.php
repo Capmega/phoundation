@@ -976,12 +976,12 @@ class Strings
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package str
-     * @see str_from()
-     * @see str_until()
+     * @see Strings::from()
+     * @see Strings::until()
      * @version 2.0.0: Moved to system library, added documentation
      * @example
      * code
-     * $result = str_cut('support@capmega.com', '@', '.');
+     * $result = Strings::cut(('support@capmega.com', '@', '.');
      * showdie($result);
      * /code
      *

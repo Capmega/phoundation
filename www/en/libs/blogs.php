@@ -1796,7 +1796,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
         $prefix    = ROOT.'data/content/photos/';
         $types     = $_CONFIG['blogs']['images'];
 
-        if(str_until($mime_type, '/') === 'video'){
+        if(Strings::until($mime_type, '/') === 'video'){
             load_libs('video');
 
             $original_video = $file;
@@ -1807,7 +1807,7 @@ function blogs_media_process($file, $post, $priority = null, $original = null){
             $file = $post['blog_name'].'/'.file_move_to_target($file, $prefix.$post['blog_name'].'/', '-original.jpg', false, 4);
         }
 
-        $media  = str_runtil($file, '-');
+        $media  = Strings::untilReverse($file, '-');
         $files  = array('media/'.$media.'-original.jpg' => $prefix.$file);
         $hash   = hash('sha256', $prefix.$file);
 
@@ -2000,7 +2000,7 @@ function blogs_media_get_free_priority($blogs_posts_id, $insert = false){
 function blogs_photo_description($user, $media_id, $description){
     try{
         if(!is_numeric($media_id)){
-            $media_id = str_from($media_id, 'photo');
+            $media_id = Strings::from($media_id, 'photo');
         }
 
         $media    = sql_get('SELECT `blogs_media`.`id`,
@@ -2043,7 +2043,7 @@ function blogs_photo_description($user, $media_id, $description){
 function blogs_photo_type($user, $media_id, $type){
     try{
         if(!is_numeric($media_id)){
-            $media_id = str_from($media_id, 'photo');
+            $media_id = Strings::from($media_id, 'photo');
         }
 
         $media    = sql_get('SELECT `blogs_media`.`id`,
@@ -2299,11 +2299,11 @@ function blogs_post_url($post){
                     break;
 
                 case 'date':
-                    $post[$section] = str_until(isset_get($post['createdon']), ' ');
+                    $post[$section] = Strings::until(isset_get($post['createdon']), ' ');
                     break;
 
                 case 'time':
-                    $post[$section] = str_from(isset_get($post['createdon']), ' ');
+                    $post[$section] = Strings::from(isset_get($post['createdon']), ' ');
             }
 
             if(strstr($url, '%'.$section.'%')){

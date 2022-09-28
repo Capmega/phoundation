@@ -113,15 +113,15 @@ class Core {
              */
             switch (php_sapi_name()) {
                 case 'cli':
-                    define('PLATFORM', 'cli');
+                    define('PLATFORM'     , 'cli');
                     define('PLATFORM_HTTP', false);
-                    define('PLATFORM_CLI', true);
+                    define('PLATFORM_CLI' , true);
 
-                    $file = realpath(ROOT . 'scripts/' . str_from($argv[0], 'scripts/'));
-                    $file = str_from($file, ROOT . 'scripts/');
+                    $file = realpath(ROOT . 'scripts/' . Strings::from($argv[0], 'scripts/'));
+                    $file = Strings::from($file, ROOT . 'scripts/');
 
                     $core->register['real_script'] = $file;
-                    $core->register['script'] = str_rfrom($file, '/');
+                    $core->register['script'] = Strings::fromReverse($file, '/');
 
                     unset($file);
 
@@ -129,7 +129,6 @@ class Core {
                      * Load basic libraries for command line interface
                      * All scripts will execute cli_done() automatically once done
                      */
-                    load_libs('cli,http,strings,array,sql,mb,meta,file,json');
                     register_shutdown_function('cli_done');
                     break;
 
@@ -144,7 +143,7 @@ class Core {
                      * Detect requested language
                      */
                     $core->register['http_code'] = 200;
-                    $core->register['script'] = str_runtil(str_rfrom($_SERVER['PHP_SELF'], '/'), '.php');
+                    $core->register['script'] = Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php');
                     $core->register['real_script'] = $core->register['script'];
                     $core->register['accepts'] = accepts();
                     $core->register['accepts_languages'] = accepts_languages();
@@ -1094,7 +1093,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @return string The current BException::code value from the first /
 //     */
 //    public function getRealCode(){
-//        return str_from($this->code, '/');
+//        return Strings::from($this->code, '/');
 //    }
 //
 //

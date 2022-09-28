@@ -70,14 +70,14 @@ function html_iefilter($html, $filter){
             return $html;
         }
 
-        if($mod = str_until(str_from($filter, '.'), '.')){
-            return "\n<!--[if ".$mod.' IE '.str_rfrom($filter, '.')."]>\n\t".$html."\n<![endif]-->\n";
+        if($mod = Strings::until(Strings::from($filter, '.'), '.')){
+            return "\n<!--[if ".$mod.' IE '.Strings::fromReverse($filter, '.')."]>\n\t".$html."\n<![endif]-->\n";
 
         }elseif($filter == 'ie'){
             return "\n<!--[if IE ]>\n\t".$html."\n<![endif]-->\n";
         }
 
-        return "\n<!--[if IE ".str_from($filter, 'ie')."]>\n\t".$html."\n<![endif]-->\n";
+        return "\n<!--[if IE ".Strings::from($filter, 'ie')."]>\n\t".$html."\n<![endif]-->\n";
 
     }catch(Exception $e){
         throw new CoreException('html_iefilter(): Failed', $e);
@@ -228,7 +228,7 @@ function html_bundler($list){
 //                                if(preg_match('/@import\s?(?:url\()?((?:"?.+?"?)|(?:\'.+?\'))\)?/', $match)){
                                     if(preg_match('/@import\s"|\'.+?"|\'/', $match)){
 // :TODO: What if specified URLs are absolute? WHat if start with either / or http(s):// ????
-                                        $import = str_cut($match, '"', '"');
+                                        $import = Strings::cut(($match, '"', '"');
 
                                         if(!file_exists($path.$import)){
                                             notify(array('code'    => 'not-exists',
@@ -248,7 +248,7 @@ function html_bundler($list){
                                          * This is an external URL. Get it locally
                                          * as a temp file, then include
                                          */
-                                        $import = str_cut($match, '(', ')');
+                                        $import = Strings::cut(($match, '(', ')');
                                         $import = slash(dirname($file)).unslash($import);
 
                                         if(!file_exists($import)){
@@ -481,13 +481,13 @@ function html_generate_css(){
             if(!$file) continue;
 
             if(!str_exists(substr($file, 0, 8), '//')){
-                $file = cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? str_until($file, '.min').'.min.css' : $file.'.css'));
+                $file = cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'css/'.($min ? Strings::until($file, '.min').'.min.css' : $file.'.css'));
             }
 
             $html = '<link rel="stylesheet" type="text/css" href="'.$file.'">';
 
             if(substr($file, 0, 2) == 'ie'){
-                $html = html_iefilter($html, str_until(str_from($file, 'ie'), '.'));
+                $html = html_iefilter($html, Strings::until(Strings::from($file, 'ie'), '.'));
             }
 
             /*
@@ -667,7 +667,7 @@ function html_generate_js($lists = null){
                     continue 2;
 
                 default:
-                    $main = str_runtil($section, '_');
+                    $main = Strings::untilReverse($section, '_');
 
                     /*
                      * If the sub list is empty then ignore it and continue
@@ -721,7 +721,7 @@ function html_generate_js($lists = null){
                     /*
                      * These are local scripts, hosted by us
                      */
-                    $html = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : str_until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
+                    $html = '<script id="script-'.$count++.'" '.(!empty($data['option']) ? ' '.$data['option'] : '').' type="text/javascript" src="'.cdn_domain((($_CONFIG['whitelabels'] === true) ? $_SESSION['domain'].'/' : '').'js/'.($min ? $file.$min : Strings::until($file, '.min').$min).'.js').'"'.($async ? ' async' : '').'></script>';
                 }
 
                 if($section === 'js_header'){
@@ -900,7 +900,7 @@ function html_header($params, $meta, &$html){
          */
         if(!empty($params['fonts'])){
             foreach($params['fonts'] as $font){
-                $extension = str_rfrom($font, '.');
+                $extension = Strings::fromReverse($font, '.');
 
                 switch($extension){
                     case 'woff':
@@ -1030,7 +1030,7 @@ function html_meta($meta){
 
             }elseif(substr($key, 0, 3) === 'og:'){
 // :COMPATIBILITY: Remove this section @ 2.10
-                notify(new BException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => str_from($key, 'og:'))), 'warning/invalid'));
+                notify(new BException(tr('html_meta(): Found $meta[:key], this should be $meta[og][:ogkey], ignoring', array(':key' => $key, ':ogkey' => Strings::from($key, 'og:'))), 'warning/invalid'));
 
             }else{
                 $retval .= '<meta name="'.$key.'" content="'.$value.'">';
@@ -1094,7 +1094,7 @@ function html_og($og, $meta){
             notify(new BException(tr('html_og(): Specified OG title ":title" is larger than 35 characters, truncating to correct size', array(':title' => $og['title'])), 'warning/invalid'));
         }
 
-        $og['locale'] = str_until($og['locale'], '.');
+        $og['locale'] = Strings::until($og['locale'], '.');
 
         foreach($og as $property => $content){
             if(empty($content)){
@@ -1283,8 +1283,8 @@ function html_flash($class = null){
                 /*
                  * Don't show "function_name(): " part of message
                  */
-                $flash['html'] = trim(str_from($flash['html'], '():'));
-                $flash['text'] = trim(str_from($flash['text'], '():'));
+                $flash['html'] = trim(Strings::from($flash['html'], '():'));
+                $flash['text'] = trim(Strings::from($flash['text'], '():'));
             }
 
             /*
@@ -1470,14 +1470,14 @@ function html_flash_set($params, $type = 'info', $class = null){
         log_file(strip_tags($params['html']), $core->register['script'], $color);
 
     }catch(Exception $e){
-        if(debug() and (substr(str_from($e->getCode(), '/'), 0, 1) == '_')){
+        if(debug() and (substr(Strings::from($e->getCode(), '/'), 0, 1) == '_')){
             /*
              * These are exceptions sent to be shown as an html flash error, but
              * since we're in debug mode, we'll just show it as an uncaught
              * exception. Don't add html_flash_set() history to this exception
              * as that would cause confusion.
              */
-             throw $e->setCode(substr(str_from($e->getCode(), '/'), 1));
+             throw $e->setCode(substr(Strings::from($e->getCode(), '/'), 1));
         }
 
         /*
@@ -2471,7 +2471,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
                 /*
                  * The src contains the CDN domain
                  */
-                $file_part = str_starts(str_from($src, cdn_domain('', '')), '/');
+                $file_part = str_starts(Strings::from($src, cdn_domain('', '')), '/');
                 $external  = false;
 
                 if(substr($file_part, 0, 5) === '/pub/'){
@@ -2485,7 +2485,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
                 /*
                  * Here, mistakenly, the main domain was used for CDN data
                  */
-                $file_part = str_starts(str_from($src, domain('')), '/');
+                $file_part = str_starts(Strings::from($src, domain('')), '/');
                 $file_src  = ROOT.'data/content'.$file_part;
                 $external  = false;
 
@@ -2509,7 +2509,7 @@ function html_img_src($src, &$external = null, &$file_src = null, &$original_src
          * Check if the image should be auto converted
          */
         $original_src = $file_src;
-        $format       = str_rfrom($src, '.');
+        $format       = Strings::fromReverse($src, '.');
 
         if($format === 'jpeg'){
             $format = 'jpg';
@@ -2540,8 +2540,8 @@ under_construction();
          * Automatically convert the image to the specified format for
          * automatically optimized images
          */
-        $target_part = str_runtil($file_part, '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
-        $target      = str_runtil($file_src , '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
+        $target_part = Strings::untilReverse($file_part, '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
+        $target      = Strings::untilReverse($file_src , '.').'.'.$_CONFIG['cdn']['img']['auto_convert'][$format];
 
         log_file(tr('Automatically converting ":format" format image ":src" to format ":target"', array(':format' => $format, ':src' => $file_src, ':target' => $_CONFIG['cdn']['img']['auto_convert'][$format])), 'html', 'VERBOSE/cyan');
 
@@ -2893,20 +2893,20 @@ function html_img($params, $alt = null, $width = null, $height = null, $extra = 
                      * Determine the file target name and src
                      */
                     if(str_exists($params['src'], '@2x')){
-                        $pre    = str_until($params['src'], '@2x');
+                        $pre    = Strings::until($params['src'], '@2x');
                         $post   = str_from ($params['src'], '@2x');
                         $target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
 
-                        $pre         = str_until($file_src, '@2x');
+                        $pre         = Strings::until($file_src, '@2x');
                         $post        = str_from ($file_src, '@2x');
                         $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'@2x'.$post;
 
                     }else{
-                        $pre    = str_runtil($params['src'], '.');
+                        $pre    = Strings::untilReverse($params['src'], '.');
                         $post   = str_rfrom ($params['src'], '.');
                         $target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
 
-                        $pre         = str_runtil($file_src, '.');
+                        $pre         = Strings::untilReverse($file_src, '.');
                         $post        = str_rfrom ($file_src, '.');
                         $file_target = $pre.'@'.$params['width'].'x'.$params['height'].'.'.$post;
                     }
@@ -3196,7 +3196,7 @@ function html_video($params){
                 /*
                  * This is a local video with domain specification
                  */
-                $params['src']  = ROOT.'www/en'.str_starts(str_from($params['src'], domain()), '/');
+                $params['src']  = ROOT.'www/en'.str_starts(Strings::from($params['src'], domain()), '/');
                 $params['type'] = mime_content_type($params['src']);
 
             }elseif(!$_CONFIG['production']){
@@ -3225,7 +3225,7 @@ function html_video($params){
                         /*
                          * Try to autodetect
                          */
-                        $params['type'] = 'video/'.str_rfrom($params['src'], '.');
+                        $params['type'] = 'video/'.Strings::fromReverse($params['src'], '.');
                         break;
 
                     default:
@@ -3358,7 +3358,7 @@ function html_untranslate(){
 
         foreach($_POST as $key => $value){
             if(substr($key, 0, 4) == '__HT'){
-                $_POST[str_until(substr($key, 4), '__')] = $_POST[$key];
+                $_POST[Strings::until(substr($key, 4), '__')] = $_POST[$key];
                 unset($_POST[$key]);
                 $count++;
             }

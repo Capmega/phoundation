@@ -109,7 +109,7 @@ try{
                 notify($e, false, false);
 
                 if($e->getCode() === 'parameters'){
-                    log_console(trim(str_from($e->getMessage(), '():')), 'warning');
+                    log_console(trim(Strings::from($e->getMessage(), '():')), 'warning');
                     $GLOBALS['core'] = false;
                     die(1);
                 }
@@ -142,42 +142,42 @@ try{
                  * for known issues
                  */
                 if(!VERBOSE){
-                    if(str_until($e->getCode(), '/') === 'warning'){
+                    if(Strings::until($e->getCode(), '/') === 'warning'){
                         /*
                          * This is just a simple general warning, no backtrace and
                          * such needed, only show the principal message
                          */
-                        log_console(tr('Warning: :warning', array(':warning' => trim(str_from($e->getMessage(), '():')))), 'yellow');
+                        log_console(tr('Warning: :warning', array(':warning' => trim(Strings::from($e->getMessage(), '():')))), 'yellow');
                         $core->register['exit_code'] = 255;
                         die($core->register['exit_code']);
                     }
 
                     switch((string) $e->getCode()){
                         case 'already-running':
-                            log_console(tr('Failed: :message', array(':message' => trim(str_from($e->getMessage(), '():')))), 'yellow');
+                            log_console(tr('Failed: :message', array(':message' => trim(Strings::from($e->getMessage(), '():')))), 'yellow');
                             $core->register['exit_code'] = 254;
                             die($core->register['exit_code']);
 
                         case 'no-method':
-                            log_console(tr('Failed: :message', array(':message' => trim(str_from($e->getMessage(), '():')))), 'yellow');
+                            log_console(tr('Failed: :message', array(':message' => trim(Strings::from($e->getMessage(), '():')))), 'yellow');
                             cli_show_usage(isset_get($GLOBALS['usage']), 'white');
                             $core->register['exit_code'] = 253;
                             die($core->register['exit_code']);
 
                         case 'unknown-method':
-                            log_console(tr('Failed: :message', array(':message' => trim(str_from($e->getMessage(), '():')))), 'yellow');
+                            log_console(tr('Failed: :message', array(':message' => trim(Strings::from($e->getMessage(), '():')))), 'yellow');
                             cli_show_usage(isset_get($GLOBALS['usage']), 'white');
                             $core->register['exit_code'] = 252;
                             die($core->register['exit_code']);
 
                         case 'missing-arguments':
-                            log_console(tr('Failed: :message', array(':message' => trim(str_from($e->getMessage(), '():')))), 'yellow');
+                            log_console(tr('Failed: :message', array(':message' => trim(Strings::from($e->getMessage(), '():')))), 'yellow');
                             cli_show_usage(isset_get($GLOBALS['usage']), 'white');
                             $core->register['exit_code'] = 253;
                             die($core->register['exit_code']);
 
                         case 'invalid-arguments':
-                            log_console(tr('Failed: :message', array(':message' => trim(str_from($e->getMessage(), '():')))), 'yellow');
+                            log_console(tr('Failed: :message', array(':message' => trim(Strings::from($e->getMessage(), '():')))), 'yellow');
                             cli_show_usage(isset_get($GLOBALS['usage']), 'white');
                             $core->register['exit_code'] = 251;
                             die($core->register['exit_code']);
@@ -466,7 +466,7 @@ try{
                         // FALLTHROUGH
                     case 'ajax':
                         if($e instanceof BException){
-                            json_message($e->getRealCode(), array('reason' => ($e->isWarning() ? trim(str_from($e->getMessage(), ':')) : '')));
+                            json_message($e->getRealCode(), array('reason' => ($e->isWarning() ? trim(Strings::from($e->getMessage(), ':')) : '')));
                         }
 
                         /*
