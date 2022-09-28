@@ -16,7 +16,7 @@
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package customers
@@ -40,7 +40,7 @@ function customers_library_init(){
  * This function will validate all relevant fields in the specified $customer array
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package categories
@@ -284,7 +284,7 @@ function customers_validate($customer){
  * Insert the specified customer into the database
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package customers
@@ -354,7 +354,7 @@ function customers_insert($customer){
  * Update the specified customer in the database
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package customers
@@ -437,7 +437,7 @@ function customers_update($customer){
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available customers
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package customers
@@ -516,7 +516,7 @@ function customers_select($params = null){
  * This function returns information for the specified customer. The customer can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package customers
@@ -600,7 +600,7 @@ function customers_get($params){
  * This function wraps sql_simple_list() and supports all its options, like columns selection, filtering, ordering, and execution method
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference
  * @package customers

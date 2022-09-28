@@ -13,7 +13,7 @@ use Phoundation\Databases\Sql;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Http
  */
 class Url {
@@ -21,7 +21,7 @@ class Url {
      * Return the specified URL with a redirect URL stored in $core->register['redirect']
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -55,7 +55,7 @@ class Url {
      * Return complete domain with HTTP and all
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @see cdn_domain()
@@ -312,7 +312,7 @@ class Url {
      * URL cloaking is nothing more than replacing a full URL (with query) with a random string. This function will register the requested URL
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package url
@@ -368,7 +368,7 @@ class Url {
      * URL cloaking is nothing more than
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package url
@@ -409,7 +409,7 @@ class Url {
      * Since the URL cloaking table might fill up over time with new entries, this function will be periodically executed by url_decloak() to cleanup the table
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package url

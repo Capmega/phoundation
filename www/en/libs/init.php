@@ -5,7 +5,7 @@
  * This library file contains the init function
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  */
 
 
@@ -13,7 +13,7 @@
 /*
  * Execute database initialization
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package init
@@ -528,7 +528,7 @@ function init_include($file, $section = null){
  * The section must be available as a directory with the name of the section in the ROOT/init path. If (for example) the section is called "mail", the init section in ROOT/init/mail will be executed. The section name will FORCE all sql_query() calls to use the connector with the $section name.
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package init
@@ -718,7 +718,7 @@ function init_section($section, $version){
  * Reset the database version back to the current code version in case it is ahead. Any extra entries in the versions table AFTER the current version will be wiped. This option does NOT allow to reset the database version in case the current code version is ahead. For that, a normal init must be executed
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package init
@@ -759,7 +759,7 @@ function init_reset(){
  * Get the verion of the init file with the highest version for the specified section
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package init

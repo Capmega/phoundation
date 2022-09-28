@@ -6,7 +6,7 @@
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @category Function reference
  * @package code
  * @note Version lines are all tagged versions that share the same MAJOR.MINOR version numbers. E.g. 2.2.0, 2.2.1, 2.2.2, 2.2.3 are all part of the 2.2 code line
@@ -21,7 +21,7 @@
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -46,7 +46,7 @@ function code_library_init(){
  * This function will look for the Phoundation system path and return it. The script will first search in the current directory parrallel to ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -123,7 +123,7 @@ function code_locate_phoundation(){
  * This function will look for the Toolkit system path and return it. The script will first search in the current directory parrallel to ROOT, then one directory higher, then in /var/www/html, then in ~/projects/
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -197,7 +197,7 @@ function code_locate_toolkit(){
  * Download objects and refs from another repository on the specified path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -226,7 +226,7 @@ function code_phoundation_fetch($params = null){
  * Download objects and refs from another repository on the specified path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -255,7 +255,7 @@ function code_phoundation_branch_is_tag($branch = null){
  * Execute a general "pull" on the current phoundation branch
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -295,7 +295,7 @@ function code_phoundation_pull($remote = 'origin', $branch = null){
  * Checkout the specified branch or commit on the phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -324,7 +324,7 @@ function code_phoundation_checkout($branch){
  * Set or return the current branch for the phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -353,7 +353,7 @@ function code_phoundation_branch($branch = null){
  * Return the current git status for the phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -380,7 +380,7 @@ function code_phoundation_status(){
  * Return the code line version from the specified version
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -405,7 +405,7 @@ function code_get_version_line($version){
  * Return the available branches from the phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -433,7 +433,7 @@ function code_get_phoundation_branch_lines(){
  * Return the available code lines from the phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -462,7 +462,7 @@ function code_get_phoundation_lines(){
  * Return the available versions from the phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -492,7 +492,7 @@ function code_get_phoundation_versions($version_lines = null){
  * Bump the phoundation framework version by incrementing the revision by one
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -529,7 +529,7 @@ function code_bump_phoundation_framework_version(){
  * Return the framework version from the phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -558,7 +558,7 @@ function code_get_phoundation_framework_version(){
  * Return the project version from the phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -587,7 +587,7 @@ function code_get_phoundation_project_version(){
  * Return the available branch version lines from the project on the specified path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -620,7 +620,7 @@ function code_get_branch_lines($path = ROOT){
  * Return the available code lines from the project on the specified path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -659,7 +659,7 @@ function code_get_available_lines($path = ROOT){
  * Return the available code lines from the project on the specified path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -706,7 +706,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null){
  * Return the framework version for the specified phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -743,7 +743,7 @@ function code_get_framework_version($path = ROOT){
  * Update the framework version for the specified phoundation project to the specified version
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -776,7 +776,7 @@ function code_update_framework_version($version, $path = ROOT){
  * Return the project version for the specified phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -813,7 +813,7 @@ function code_get_project_version($path = ROOT){
  * Check if the specified file exists in the Toolkit project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -840,7 +840,7 @@ function code_file_exists_in_phoundation($file){
  * Check if the specified file exists in the Toolkit project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -868,7 +868,7 @@ function code_file_exists_in_toolkit($file){
  * Perform a diff between the two specified files
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -896,7 +896,7 @@ function code_diff($file, $file2){
  * Perform a diff between the specified file in this project and the same file in the Phoundation project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -924,7 +924,7 @@ function code_diff_phoundation($file){
  * Perform a diff between the specified file in this project and the same file in the Toolkit project
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code
@@ -952,7 +952,7 @@ function code_diff_toolkit($file){
  * Get git diff for the specified file and try to apply it on the Phoundation or Toolkit projects
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package code

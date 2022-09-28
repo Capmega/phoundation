@@ -5,7 +5,7 @@
  * This is the core functions library file
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package functions
@@ -368,7 +368,7 @@ function pick_random($count)
  * Return $source if $source is not considered "empty". Return null if specified variable is considered "empty", like 0, "", array(), etc.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
@@ -404,7 +404,7 @@ function get_null($source)
  * Return $source if $source is not considered "empty". Return $default if specified variable is considered "empty", like 0, "", array(), etc.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system

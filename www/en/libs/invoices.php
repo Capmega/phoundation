@@ -6,7 +6,7 @@
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @category Function reference
  * @package invoices
  */
@@ -19,7 +19,7 @@
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package invoices
@@ -46,7 +46,7 @@ function invoices_library_init(){
  * Install the external invoice library
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @version 2.5.38: Added function and documentation
@@ -71,7 +71,7 @@ function invoices_install($params){
  * Validate the specified invoice
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @invoice Function reference
  * @package invoices
@@ -128,7 +128,7 @@ function invoices_validate($invoice){
  * Insert the specified invoice into the database
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package invoices
@@ -176,7 +176,7 @@ function invoices_insert($invoice){
  * Update the specified invoice in the database
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package invoices
@@ -230,7 +230,7 @@ function invoices_update($invoice){
  * This function returns information for the specified invoice. The invoice can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @invoice Function reference
  * @package invoices
@@ -285,7 +285,7 @@ function invoices_get($invoice, $column = null, $status = null, $parent = false)
  * Return a list of all available invoices filtered by
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @invoice Function reference
  * @see sql_simple_list()
@@ -316,7 +316,7 @@ function invoices_list($params){
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available invoices
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @invoice Function reference
  * @package invoices
@@ -412,7 +412,7 @@ function invoices_select($params = null){
  * PARAGRAPH
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package invoices

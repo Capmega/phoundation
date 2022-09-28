@@ -5,7 +5,7 @@
  * This library can keep track of progress in processes
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  */
 
 
@@ -16,7 +16,7 @@
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package progress
@@ -42,7 +42,7 @@ function progress_library_init(){
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available categories
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package progress
@@ -182,7 +182,7 @@ function progress_validate_process($process){
  * This function returns information for the specified process. The process can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package progress
@@ -249,7 +249,7 @@ function progress_get_process($process, $column = null, $status = null){
  * This function returns information for the specified process. The process can be specified by seoname or id, and return data will either be all data, or (optionally) only the specified column
 
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package progress
@@ -320,7 +320,7 @@ function progress_get_step($processes_id, $step, $column = null, $status = null)
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package progress
@@ -388,7 +388,7 @@ function progress_get_steps($processes_id, $columns = null, $status = null){
  * Update the steps for the specified processes_id
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package
@@ -430,7 +430,7 @@ function progress_update_steps($processes_id, $steps){
  * ...
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package
@@ -454,7 +454,7 @@ function progress_next($processes_id){
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available progress processes
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference
  * @package progress_process
@@ -523,7 +523,7 @@ function progress_processes_select($params = null){
  * This function will generate HTML for an HTML select box using html_select() and fill it with the available progress processes
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference
  * @package progress_step
@@ -573,7 +573,7 @@ function progress_steps_select($params = null){
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @customer Function reference
  * @package progress_step

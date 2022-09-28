@@ -6,7 +6,7 @@
  * email server management API
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  */
 
 
@@ -14,7 +14,7 @@
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -35,7 +35,7 @@ function emailapi_library_init(){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -56,7 +56,7 @@ function emailapi_init(){
 /*
  * Clear all domains, all aliases and accounts from the email database
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -77,7 +77,7 @@ function emailapi_clear_all($server){
 /*
  * Create new email domains
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -98,7 +98,7 @@ function emailapi_create_domains($domains){
 /*
  * Create new email accounts
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -119,7 +119,7 @@ function emailapi_create_accounts($accounts){
 /*
  * Create new email aliases
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -140,7 +140,7 @@ function emailapi_create_aliases($aliases){
 /*
  * Delete new email domains
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -161,7 +161,7 @@ function emailapi_delete_domains($domains){
 /*
  * Delete new email accounts
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -182,7 +182,7 @@ function emailapi_delete_accounts($accounts){
 /*
  * Delete new email aliases
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -203,7 +203,7 @@ function emailapi_delete_aliases($aliases){
 /*
  * List new email domains
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -224,7 +224,7 @@ function emailapi_list_domains($server){
 /*
  * List new email accounts
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -245,7 +245,7 @@ function emailapi_list_accounts($server, $domain){
 /*
  * List new email aliases
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi
@@ -267,7 +267,7 @@ function emailapi_list_aliases($server, $domain){
  *
  *
  * @author Marcos Prudencio <marcos@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package emailapi

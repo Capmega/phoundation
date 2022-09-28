@@ -6,7 +6,7 @@
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @category Function reference
  * @package radius
  */
@@ -18,7 +18,7 @@ load_libs('servers');
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -54,7 +54,7 @@ function radius_library_init(){
  * This will add a new device in local and remote radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -113,7 +113,7 @@ function radius_insert_device($device){
  * this will update device in local and remote radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -182,7 +182,7 @@ function radius_update_device($device){
  * this will restart free radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -209,7 +209,7 @@ function radius_restart(){
  * this will validate device and return this validated and clean
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -291,7 +291,7 @@ function radius_validate_device($device){
  * this return a html <select> with all posbles options to use for "devices types"
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -333,7 +333,7 @@ function radius_type_select($params = null){
  * this return a html <select> with all posbles options to use for users to assing
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -374,7 +374,7 @@ function radius_users_select($params = null){
  * Retuns all info for one device
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -420,7 +420,7 @@ function radius_get_device($id){
  * Retuns all selected devices serach by id
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -457,7 +457,7 @@ function radius_list_devices($id_list){
  * this sync all devices from local to radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -496,7 +496,7 @@ function radius_sync_server(){
  * this will validate device and return this validated and clean
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -538,7 +538,7 @@ function radius_update_device_server($old_device, $device){
  * this will insert a new device in remote radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -577,7 +577,7 @@ function radius_insert_device_server($device){
  * this will delete one device from remote radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -616,7 +616,7 @@ function radius_delete_device_server($device){
  * test if one device is valid or not
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius

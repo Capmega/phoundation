@@ -12,7 +12,7 @@ use Phoundation\Databases\Sql;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Core
  */
 class Seo
@@ -31,7 +31,7 @@ class Seo
      * @param null string $connector_name If specified, use the specified database connector instead of the default "core" database connector
      * @return string The specified $source string seo optimized, which does not yet exist in the specified $table
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package seo

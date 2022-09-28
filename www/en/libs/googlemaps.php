@@ -14,7 +14,7 @@
  * Initialize the library. Automatically executed by libs_load(). Will automatically load the googlemaps library configuration
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package googlemaps
@@ -35,7 +35,7 @@ function googlemaps_library_init(){
 /**
  *
  * @author Camilo Rodriguez <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category  Function reference
  * @package   desktop_notification
@@ -93,7 +93,7 @@ function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_k
                             var marker = new google.maps.Marker({
                                 position: {lat: latitude, lng: longitude},
                                 map: map,
-                                title: "Escort"
+                                title: ""
                             });
 
                             google.maps.event.addListener(map, "click", function(event) {

@@ -6,7 +6,7 @@
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @category Function reference
  * @package freeradius
  */
@@ -19,7 +19,7 @@
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package freeradius
@@ -44,7 +44,7 @@ function freeradius_library_init(){
  * Install the external freeradius library
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @version 2.4.11: Added function and documentation
@@ -76,7 +76,7 @@ function freeradius_install($params){
  * this sync all devices from local to radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -127,7 +127,7 @@ function freeradius_sync_server($devices_local){
  * this will validate device and return this validated and clean
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -172,7 +172,7 @@ function freeradius_update_device_server($old_device, $device){
  * this will insert a new device in remote radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -208,7 +208,7 @@ function freeradius_insert_device_server($device){
  * this will delete one device from remote radius server
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius
@@ -245,7 +245,7 @@ function freeradius_delete_device_server($device){
  * test if one device is valid or not
  *
  * @author Camilo Antonio Rodriguez Cruz <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package radius

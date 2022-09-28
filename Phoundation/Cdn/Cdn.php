@@ -7,7 +7,7 @@
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Core
  */
 class Cdn
@@ -85,7 +85,7 @@ class Cdn
  * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system

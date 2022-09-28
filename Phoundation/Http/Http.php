@@ -16,7 +16,7 @@ use Phoundation\Exception\UnderConstructionException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Http
  */
 class Http
@@ -256,7 +256,7 @@ class Http
      * @param bool|null $allow_self_signed
      * @return resource
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -286,7 +286,7 @@ class Http
      * This function will walk over the $_GET array and test each value. If a value is found that is not scalar, a 400 code exception will be thrown, which would lead to an HTTP 400 BAD REQUEST
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -328,7 +328,7 @@ class Http
      *
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @todo Remove $core dependancy
@@ -387,7 +387,7 @@ class Http
      * Returns headers Cache-Control and ETag
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -467,7 +467,7 @@ class Http
      * Send the required headers to ensure that the page will not be cached ever
      *
      * @return void
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -637,7 +637,7 @@ class Http
      * Redirect to the specified $target
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -815,7 +815,7 @@ class Http
      * Return $_POST[dosubmit] value, and reset it to be sure it won't be applied twice
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package http
@@ -869,7 +869,7 @@ class Http
 //     * If $mimetype is not specified, the function will return the first mimetype that was specified in the HTTP ACCEPT header
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -933,7 +933,7 @@ class Http
 //     * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list of languages / locales accepted by the HTTP client
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1002,7 +1002,7 @@ class Http
      * Return complete domain with HTTP and all
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @see cdn_domain()
@@ -1172,7 +1172,7 @@ class Http
      * Return complete URL for the specified API URL section with HTTP and all
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -1204,7 +1204,7 @@ class Http
      * Return complete URL for the specified AJAX URL section with HTTP and all
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -1250,7 +1250,7 @@ class Http
      * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -1523,7 +1523,7 @@ class Http
      * If the HTTP request is not of the specified type, this function will throw an exception
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system

@@ -5,7 +5,7 @@
  * This is the graph front-end library. It will pass the graph functiosn to the various backends, depending on configuration
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @category Function reference
  * @package graph
  */
@@ -16,7 +16,7 @@
  * Generate and return graphs
  *
  * @author Camilo Rodriguez <crodriguez@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package graph

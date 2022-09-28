@@ -5,7 +5,7 @@
  * This library contains functions to manage SSH accounts
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @category Function reference
  * @package ssh
  */
@@ -16,7 +16,7 @@
  * Initialize the library. Automatically executed by libs_load(). Will automatically load the ssh library configuration
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -40,7 +40,7 @@ function ssh_library_init(){
  * Executes the specified commands on the specified domain. Supports passing through multiple SSH proxies
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -249,7 +249,7 @@ function ssh_exec($server, $params){
  * Supports multiple SSH proxy servers
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -636,7 +636,7 @@ showdie($command);
  * Returns SSH options string for the specified SSH options array
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -740,7 +740,7 @@ function ssh_build_options($options = null){
 // *
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package ssh
@@ -780,7 +780,7 @@ function ssh_build_options($options = null){
 // *
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package ssh
@@ -812,7 +812,7 @@ function ssh_build_options($options = null){
 // *
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package ssh
@@ -842,7 +842,7 @@ function ssh_build_options($options = null){
  * Insert the specified SSH account into the database
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -885,7 +885,7 @@ function ssh_insert_account($account){
  * Update the specified SSH account
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -932,7 +932,7 @@ function ssh_update_account($account){
  * SSH account validation
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -989,7 +989,7 @@ function ssh_validate_account($account){
  * Returns SSH account data for the specified SSH accounts id
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1053,7 +1053,7 @@ function ssh_get_account($account){
  * Add the fingerprints for the specified domain:port to the `ssh_fingerprints` table and the ROOT/data/ssh/known_hosts file
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1157,7 +1157,7 @@ function ssh_add_known_host($domain, $port){
  * Remove the registered fingerprints for the specified domain:port from the `ssh_fingerprints` table and the ROOT/data/ssh/known_hosts file
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1248,7 +1248,7 @@ function ssh_remove_known_host($domain, $port = null){
  * Append the specified fingerprint data to the ROOT/data/ssh/known_hosts file
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1291,7 +1291,7 @@ function ssh_append_fingerprint($fingerprint){
  * The obtained fingerprints are stored in the ssh_fingerprints table and any subsequent call will attempt to match them. If the match fails, an exception will be thrown
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1350,7 +1350,7 @@ function ssh_get_fingerprints($domain, $port){
  * stored in the ssh_fingerprints table
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @see ssh_get_fingerprints()
@@ -1393,7 +1393,7 @@ function ssh_rebuild_known_hosts($clear = false){
  * Returns true if the specified domain:port is registered in the ROOT/data/ssh/known_hosts file
  *
  * @Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @see ssh_get_fingerprints()
@@ -1447,7 +1447,7 @@ function ssh_host_is_known($domain, $port, $auto_register = true){
  * Set up an SSH tunnel
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1571,7 +1571,7 @@ function ssh_tunnel($params, $reuse = true){
  * Detect if an SSH tunnel with the specified parameters already exists or not
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1688,7 +1688,7 @@ function ssh_tunnel_exists($domain, $target_port, $target_domain = null, $server
  * Close SSH tunnel with the specified PID
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1727,7 +1727,7 @@ function ssh_close_tunnel($pid){
  * Return either the specified port (if any) or the dedfault SSH port (if null or equivalent of empty was specified)
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1764,7 +1764,7 @@ function ssh_get_port($port = null){
  * Return the PID (Process ID) for the specified persistent SSH connection socket
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh
@@ -1793,7 +1793,7 @@ function ssh_persistent_pid($socket){
  * This function will return an array with a list of all available persistent SSH connections in the format PID => SOCKET_FILE
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package ssh

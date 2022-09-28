@@ -5,7 +5,7 @@
  * This is a front-end library for using PHP openssl for encryption
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  *
  * @see https://github.com/ioncube/php-openssl-cryptor/blob/master/src/Cryptor.php for information on correct openssl usage
  * @see http://php.net/manual/en/function.openssl-encrypt.php for information on correct openssl usage

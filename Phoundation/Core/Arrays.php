@@ -12,7 +12,7 @@ use Phoundation\Exception\OutOfBoundsException;
  * This is the standard Phoundation array functionality extension class
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @package Phoundation\Core
  */
@@ -120,10 +120,6 @@ class Arrays {
      * @param mixed $default The default value in case $source[$key] does not exist
      * @return mixed The new value of $source[$key]. This will be either the original value of $source[$key], or the $default value if $source[$key] did not exist
      * @throws CoreException
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
      * @see Arrays::ensure()
      * @note $source is passed by reference and will be modified directly!
      * @version 1.22.0: Added documentation
@@ -147,6 +143,7 @@ class Arrays {
     }
 
 
+
     /**
      * Ensure that the specified keys are available. If not, exception
      *
@@ -158,7 +155,7 @@ class Arrays {
     {
         foreach (Arrays::force($keys) as $key) {
             if (!array_key_exists($key, $source)) {
-                throw new OutOfBoundsException(tr('Key ":key" does not exist in array', [':key' => Strings::log($key)]));
+                throw new OutOfBoundsException(tr('Key ":key" does not exist in array', [':key' => $key]));
             }
         }
     }
@@ -172,7 +169,7 @@ class Arrays {
      * @param null $value
      * @return array
      */
-    public static function clear($keys, $value = null)
+    public static function clear($keys, $value = null): array
     {
         $array = [];
         return Arrays::ensure($array, $keys, $value);
@@ -208,7 +205,7 @@ class Arrays {
      * Return an object from the given array, recursively
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      *
@@ -899,7 +896,7 @@ class Arrays {
      * Arrays::all(array(1, 2, 3), function($value) { return $value });
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -933,7 +930,7 @@ class Arrays {
      * array_any(array(0, 1, 2, 3), function($value) { return $value });
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -967,7 +964,7 @@ class Arrays {
      * array_has_duplicates(array(0, 1, 2, 1));
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -989,7 +986,7 @@ class Arrays {
      * array_has_duplicates(array(0, 1, 2, 1));
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1018,7 +1015,7 @@ class Arrays {
      * Arrays::pluck(array('foo', 'bar', 'Frack!', 'test'), '/^F/i');
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1058,7 +1055,7 @@ class Arrays {
      * Merge multiple arrays together, but overwrite null values
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1093,7 +1090,7 @@ class Arrays {
      * Hide the specified keys from the specified array
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1156,7 +1153,7 @@ class Arrays {
      * Rename the specified old key to the new key
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1193,7 +1190,7 @@ class Arrays {
      * Returns the value of the first element of the specified array
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1220,7 +1217,7 @@ class Arrays {
      * Returns the value of the last element of the specified array
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1247,7 +1244,7 @@ class Arrays {
      * Make sure the specified keys are available on the array
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package array
@@ -1303,7 +1300,7 @@ class Arrays {
      * Specified variable may be either string or array, but ensure that its returned as an array.
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @see Strings::force()

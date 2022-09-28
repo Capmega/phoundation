@@ -5,11 +5,11 @@ namespace Phoundation\Core;
 /**
  * Class Core
  *
- * This is the
+ * This is the core class for the entire system.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Core
  */
 class Core {
@@ -27,25 +27,40 @@ class Core {
      */
     protected static bool $debug = false;
 
+    /**
+     * @var null
+     */
     private $callType = null;
 
-    public $sql = array();
-    public $mc = array();
-    public $register = array('tabindex' => 0,
+    /**
+     * @var array $db
+     *
+     * All database connections for this process
+     */
+    public $db = array();
+
+    /**
+     * @var array $register
+     *
+     * Generl purpose data register
+     */
+    public $register = [
+        'tabindex' => 0,
         'ready' => false,
-        'js_header' => array(),
-        'js_footer' => array(),
-        'css' => array(),
+        'js_header' => [],
+        'js_footer' => [],
+        'css' => [],
         'quiet' => true,
         'footer' => '',
-        'debug_queries' => array());
+        'debug_queries' => []
+    ];
 
 
 
     /**
-     *
+     * Class constructor
      */
-    public function __construct()
+    private function __construct()
     {
         /*
          * Framework version
@@ -272,7 +287,7 @@ class Core {
      * The core::startup() method starts the correct call type handler
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -390,7 +405,7 @@ class Core {
      *
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -409,7 +424,7 @@ class Core {
      * The register allows to store global variables without using the $GLOBALS scope
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -444,7 +459,7 @@ class Core {
      * This method will return the calltype for this call, as is stored in the private variable core::callType or if $type is specified, will return true if $calltype is equal to core::callType, false if not.
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -490,7 +505,7 @@ class Core {
      * Set or get debug mode.
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -526,7 +541,7 @@ class Core {
      * Get a valid language from the specified language
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -578,7 +593,7 @@ class Core {
      * Return the correct current domain
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -607,7 +622,7 @@ class Core {
  * Show the specified page
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
@@ -726,7 +741,7 @@ function page_show($pagename, $params = null, $get = null)
      * Execute the specified callback function with the specified $params only if the callback has been set with an executable function
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -757,7 +772,7 @@ function page_show($pagename, $params = null, $get = null)
      * NOTE: This function should never be called directly
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -777,7 +792,7 @@ function page_show($pagename, $params = null, $get = null)
      * NOTE: This function should never be called directly
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -796,7 +811,7 @@ function page_show($pagename, $params = null, $get = null)
      * Set the timeout value for this script
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -841,7 +856,7 @@ function page_show($pagename, $params = null, $get = null)
      * This function facilitates execution of multiple registered shutdown functions
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -925,7 +940,7 @@ function page_show($pagename, $params = null, $get = null)
      * This function will ensure that the specified function will be executed on shutdown with the specified value.
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -957,7 +972,7 @@ function page_show($pagename, $params = null, $get = null)
      * This function will ensure that the specified function will not be executed on shutdown
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package system
@@ -990,7 +1005,7 @@ function page_show($pagename, $params = null, $get = null)
 // * Extend basic PHP exception to automatically add exception trace information inside the exception objects
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1003,7 +1018,7 @@ function page_show($pagename, $params = null, $get = null)
 //    /*
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1022,7 +1037,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * Add specified $message to the exception messages list
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1052,7 +1067,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * Set the exception objects code to the specified $code
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1071,7 +1086,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * Returns the current exception code but without any warning prefix. If the exception code has a prefix, it will be separated from the actual code by a forward slash /. For example, "warning/invalid" would return "invalid"
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1088,7 +1103,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * Returns all messages from this exception object
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1110,7 +1125,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * Returns the data associated with the exception
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1127,7 +1142,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * Set the data associated with the exception. This content could be a data structure received by the function or method that caused the exception, which could help with handling the exception, logging information, or debugging the issue
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1146,7 +1161,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * Returns all messages from this exception object
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1173,7 +1188,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * Returns all messages from this exception object
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -1320,7 +1335,7 @@ function switch_type($type, $redirect = '')
  *
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
@@ -1340,7 +1355,7 @@ function variable_zts_safe($variable, $level = 0)
  * A clean string, in this case, means a string data type which contains no HTML code
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
@@ -1365,7 +1380,7 @@ function cfm($source, $utf8 = true)
  * Force the specified $source variable to be an integer
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system
@@ -1392,7 +1407,7 @@ function cfi($source, $allow_null = true)
  * Force the specified $source variable to be a float
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package system

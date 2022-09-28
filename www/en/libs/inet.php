@@ -5,7 +5,7 @@
  * These functions do not have a prefix
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  */
 
 
@@ -96,7 +96,7 @@ function is_ipv6($version = null){
  * Test if the specified port on the specified hostname or IP responds
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
@@ -160,7 +160,7 @@ function inet_test_host_port($params){
  * Setup a connection with the specified host:port, and return the initially received data
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
@@ -213,7 +213,7 @@ function inet_get_domain($strip = array('www', 'dev', 'm')){
  * Get subdomain from specified domain relative to the $_SESSION['domain']
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
@@ -621,7 +621,7 @@ function inet_get_client_data(){
  * Returns the specified port if it is valid, else it causes an exception. By default, system ports (< 1024)) are NOT valid
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
@@ -649,7 +649,7 @@ function inet_validate_port($port, $lowest = 1025){
  * Returns the specified IP if it is valid, else it causes an exception. By default, empty values are allowed
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
@@ -687,7 +687,7 @@ function inet_validate_host($host, $allow_all = true, $exception = true){
  * Returns the specified IP if it is valid, else it causes an exception. By default, empty values are allowed
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
@@ -728,7 +728,7 @@ function inet_validate_ip($ip, $allow_all = true, $exception = true){
  * Returns true if the specified port is available on the specified server, false otherwise
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
@@ -778,7 +778,7 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null){
  * The lowest port, by default, will be above the system ports (> 1024)
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet

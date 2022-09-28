@@ -1,11 +1,6 @@
 <?php
 /*
  * Webdom API
- *
- * auth:        http://api.escortdetectives.com.l.capmega.com/auth/hg56h7j56iujew45tyj57
- * close:       http://api.escortdetectives.com.l.capmega.com/get_message/hg56h7j56iujew45tyj57/op15qgko25jua9r6chpdp66ek4
- * get_message: http://api.escortdetectives.com.l.capmega.com/get_message/hg56h7j56iujew45tyj57/op15qgko25jua9r6chpdp66ek4
- * add_escort:  http://api.escortdetectives.com.l.capmega.com/get_message/hg56h7j56iujew45tyj57/op15qgko25jua9r6chpdp66ek4
  */
 require_once(__DIR__.'/../libs/startup.php');
 load_libs('json');
@@ -37,7 +32,6 @@ try{
 
         case 'add_listing':
             json_start_session();
-            load_libs('escorts');
             //add listing
             break;
 

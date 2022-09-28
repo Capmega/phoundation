@@ -5,7 +5,7 @@
  * This library is a front-end library to control nextcloud installations on registered servers over SSH
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @category Function reference
  * @package nextcloud
  *
@@ -161,7 +161,7 @@ userId,date,assignedQuota,usedQuota,numFiles,numShares,numUploads,numDownloads
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -186,7 +186,7 @@ function nextcloud_library_init(){
  * This function returns an array with the domain names of all registered and available nextcloud servers. The list, once requested, will be cached and each subsequent call will return the same list of servers, even if in database the list has changed, unless $force is specified as true. If $force is specified, the cache will be ignored and the list will again be read from disk
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -219,7 +219,7 @@ function nextcloud_list_servers($server = null, $force = false){
  * This function returns an array with the domain names of all registered and available nextcloud servers. The list, once requested, will be cached and each subsequent call will return the same list of servers, even if in database the list has changed, unless $force is specified as true. If $force is specified, the cache will be ignored and the list will again be read from disk
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -250,7 +250,7 @@ function nextcloud_select_server($server, $force = false){
  * This function returns an array with the domain names of all registered and available nextcloud servers. The list, once requested, will be cached and each subsequent call will return the same list of servers, even if in database the list has changed, unless $force is specified as true. If $force is specified, the cache will be ignored and the list will again be read from disk
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -283,7 +283,7 @@ function nextcloud_exec($server, $params){
  * Create a user on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -310,7 +310,7 @@ function nextcloud_users_add($user, $server = null){
  * Delete the specified user from the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -336,7 +336,7 @@ function nextcloud_users_delete($server, $user){
  * Disable the specified existing user on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -362,7 +362,7 @@ function nextcloud_users_disable($server, $user){
  * Enable the specified existing user on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -388,7 +388,7 @@ function nextcloud_users_enable($server, $user){
  * Get and return information about the speficied user on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -414,7 +414,7 @@ function nextcloud_users_info($server, $user){
  * Get and return last seen information about the speficied user on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -441,7 +441,7 @@ function nextcloud_users_last_seen($server, $user){
  * List the available users on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -466,7 +466,7 @@ function nextcloud_users_list($server){
  * Get and return a list of how many users have access on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -491,7 +491,7 @@ function nextcloud_users_report($server){
  * Reset the password for the specified user on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -519,7 +519,7 @@ function nextcloud_users_reset_password($server, $user, $password){
  * Read and return, or modify settings for the specified user on the specifed nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -546,7 +546,7 @@ function nextcloud_users_setting($server, $user, $settings = null){
  * Create a user on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -569,7 +569,7 @@ function nextcloud_check_user_ldap($server, $user){
  * Add the specified user to the specified group on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud
@@ -594,7 +594,7 @@ function nextcloud_add_user_to_group($server, $user, $group){
  * Remove the specified user from the specified group on the specified nextcloud server
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package nextcloud nextcloud

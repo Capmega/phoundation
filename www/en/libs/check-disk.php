@@ -6,7 +6,7 @@
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @category Function reference
  * @package check-disk
  */
@@ -31,7 +31,7 @@
  * The callback function signature is $params[callback](integer $total, integer $available, integer $limit_percentage integer $limit_bytes) where $total is the total size for the filesystem on the specified path, $available is the amount of bytes available, $limit_percentage is the caller specified minimum percentage, and $limit_bytes is the caller specified minimum amount of bytes
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package check-disk

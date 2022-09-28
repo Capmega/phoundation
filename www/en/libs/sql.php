@@ -5,7 +5,7 @@
  * This file contains various functions to access databases over PDO
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  */
 
 
@@ -15,7 +15,7 @@
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package
@@ -48,7 +48,7 @@ function sql_library_init(){
 /*
  * Execute specified query
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -198,7 +198,7 @@ function sql_query($query, $execute = null, $connector_name = null){
 /*
  * Prepare specified query
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -225,7 +225,7 @@ function sql_prepare($query, $connector_name = null){
 /*
  * Fetch and return data from specified resource
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -282,7 +282,7 @@ function sql_fetch($r, $single_column = false, $fetch_style = PDO::FETCH_ASSOC){
 /*
  * Execute query and return only the first row
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -330,7 +330,7 @@ function sql_get($query, $single_column = null, $execute = null, $connector_name
 /*
  * Execute query and return only the first row
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -391,7 +391,7 @@ function sql_list($query, $execute = null, $numerical_array = false, $connector_
 /*
  * Connect with the main database
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -543,7 +543,7 @@ function sql_init($connector_name = null){
 /*
  * Close the connection for the specified connector
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -570,7 +570,7 @@ function sql_close($connector = null){
  * If the database was already connected, then just ignore and continue.
  * If the database version check fails, then exception
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -684,7 +684,7 @@ function sql_connect(&$connector, $use_database = true){
 /*
  * Import data from specified file
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -741,7 +741,7 @@ function sql_import($file, $connector = null){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -822,7 +822,7 @@ function sql_columns($source, $columns){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -857,7 +857,7 @@ function sql_values($source, $columns, $prefix = ':'){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -882,7 +882,7 @@ function sql_insert_id($connector = null){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -956,7 +956,7 @@ function sql_get_id_or_name($entry, $seo = true, $code = false){
 /*
  * Return a unique, non existing ID for the specified table.column
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -991,7 +991,7 @@ function sql_unique_id($table, $column = 'id', $max = 10000000, $connector = nul
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1030,7 +1030,7 @@ function sql_filters($params, $columns, $table = ''){
 /*
  * Return a sequential array that can be used in sql_in
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1059,7 +1059,7 @@ function sql_in($source, $column = ':value', $filter_null = false, $null_string 
 /*
  * Helper for building sql_in key value pairs
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1093,7 +1093,7 @@ function sql_in_columns($in, $column_starts_with = null){
  * Try to get single data entry from memcached. If not available, get it from
  * MySQL and store results in memcached for future use
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1148,7 +1148,7 @@ function sql_get_cached($key, $query, $column = false, $execute = false, $expira
  * Try to get data list from memcached. If not available, get it from
  * MySQL and store results in memcached for future use
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1182,7 +1182,7 @@ function sql_list_cached($key, $query, $execute = false, $numerical_array = fals
 /*
  * Fetch and return data from specified resource
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1211,7 +1211,7 @@ function sql_fetch_column($r, $column){
  * Merge database entry with new posted entry, overwriting the old DB values,
  * while skipping the values specified in $skip
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1282,7 +1282,7 @@ function sql_merge($database_entry, $post, $skip = null){
 /*
  * Ensure that $connector_name is default in case its not specified
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1324,7 +1324,7 @@ function sql_connector_name($connector_name){
 /*
  * Use correct SQL in case NULL is used in queries
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1358,7 +1358,7 @@ function sql_is($value, $label, $not = false){
 /*
  * Enable / Disable all query logging on mysql server
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1387,7 +1387,7 @@ function sql_log($enable){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1416,7 +1416,7 @@ function sql_exists($table, $column, $value, $id = null){
  * Return table row count by returning results count for SELECT `id`
  * Results will be cached in a counts table
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1471,7 +1471,7 @@ function sql_count($table, $where = '', $execute = null, $column = '`id`'){
 /*
  * Returns what database currently is selected
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1493,7 +1493,7 @@ function sql_current_database(){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1525,7 +1525,7 @@ function sql_random_id($table, $min = 1, $max = 2147483648, $connector_name = nu
  * Execute a query on a remote SSH server.
  * NOTE: This does NOT support bound variables!
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1584,7 +1584,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false){
 ///*
 // *
 // *
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package sql
@@ -1604,7 +1604,7 @@ function sql_exec($server, $query, $root = false, $simple_quotes = false){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1661,7 +1661,7 @@ function sql_get_database($db_name){
  *
  * Connector data will first be searched for in $_CONFIG[db][CONNECTOR]. If the connector is not found there, the sql_connectors table will be searched. If the connector is not found there either, NULL will be returned
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1748,7 +1748,7 @@ function sql_get_connector($connector_name){
 /*
  * Create an SQL connector in $_CONFIG['db'][$connector_name] = $data
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1790,7 +1790,7 @@ function sql_make_connector($connector_name, $connector){
 /*
  * Ensure all SQL connector fields are available
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1840,7 +1840,7 @@ function sql_ensure_connector($connector){
 /*
  * Test SQL functions over SSH tunnel for the specified server
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1881,7 +1881,7 @@ function sql_test_tunnel($server){
 /*
  * Process SQL query errors
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1902,7 +1902,7 @@ function sql_error($e, $query, $execute, $sql){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1933,7 +1933,7 @@ function sql_valid_limit($limit, $connector = null){
 /*
  * Return a valid " LIMIT X, Y " string built from the specified parameters
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -1970,7 +1970,7 @@ function sql_limit($limit = null, $page = null){
 /*
  *
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -2004,7 +2004,7 @@ function sql_where_null($value, $not = false){
 /*
  * Return a valid " WHERE `column` = :value ", " WHERE `column` IS NULL ", or " WHERE `column` IN (:values) " string built from the specified parameters
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -2065,7 +2065,7 @@ function sql_simple_where($column, $values, $not = false, $extra = null){
 /*
  * Return a valid PDO execute array
  *
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -2118,7 +2118,7 @@ function sql_simple_execute($column, $values, $extra = null){
  * Build an SQL WHERE string out of the specified filters, typically used for basic foobar_list() like functions
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -2389,7 +2389,7 @@ function sql_get_where_string($filters, &$execute, $table, $combine = null){
  * If the specified column is of the "column" format, it will be returned as "`column`". If its of the "table.column" format, it will be returned as "`table`.`column`"
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -2449,7 +2449,7 @@ function sql_get_columns_string($columns, $table){
  * Build the SQL columns list for the specified columns list
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -2508,7 +2508,7 @@ function sql_get_orderby_string($orderby){
  * This function can build a SELECT query, specifying the required table columns, WHERE filtering, ORDER BY, and LIMIT
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql
@@ -2597,7 +2597,7 @@ function sql_simple_list($params){
  * This function can build a SELECT query, specifying the required table columns, WHERE filtering
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package sql

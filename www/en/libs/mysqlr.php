@@ -5,7 +5,7 @@
  * This library contains various functions to manage mysql databases and servers
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
  * @copyright Ismael Haro <support@capmega.com>
  *
  */
@@ -18,7 +18,7 @@
  * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -44,7 +44,7 @@ function mysqlr_library_init(){
  * 'enabled','preparing','paused','disabled','error'
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -109,7 +109,7 @@ function mysqlr_update_server_replication_status($params, $status){
  * 'enabled','preparing','paused','disabled','error'
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -186,7 +186,7 @@ function mysqlr_update_replication_status($params, $status){
  * 4) ON OTHER SHELL GET MYSQL LOG_FILE AND LOG_POS
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -321,7 +321,7 @@ function mysqlr_master_replication_setup($params){
  * 5) CHECK FOR SLAVE STATUS
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -456,7 +456,7 @@ function mysqlr_slave_replication_setup($params){
  * .............
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -523,7 +523,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
  * .............
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -590,7 +590,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
  * .............
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -635,7 +635,7 @@ function mysqlr_check_configuration_path($server_target){
  * .............
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -740,7 +740,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
  * .............
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -868,7 +868,7 @@ function mysqlr_full_backup(){
  * 'enabled','preparing','paused','disabled','error'
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -980,7 +980,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
  * 'enabled','preparing','paused','disabled','error'
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -1068,7 +1068,7 @@ function mysqlr_add_log($params){
  * 'enabled','preparing','paused','disabled','error'
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -1141,7 +1141,7 @@ function mysqlr_get_logs($database, $limit = 50){
  * 'enabled','preparing','paused','disabled','error'
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -1343,7 +1343,7 @@ function mysqlr_monitor_database($database){
 /*
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr
@@ -1391,7 +1391,7 @@ function mysqlr_log_type_human($type){
 /*
  *
  * @author Ismael Haro <isma@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package mysqlr

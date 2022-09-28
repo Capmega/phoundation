@@ -5,7 +5,7 @@
 // * This library contains all system functions for Phoundation
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -212,7 +212,7 @@
 // * $core is the main object for BASE. It starts automatically once the startup library is loaded, determines the platform (cli or http), and in case of http, what the call type is. The call type differentiates between http web pages, admin web pages (pages with /admin, showing the admin section), ajax requests (URL's starting with /ajax), api requests (URL's starting with /api), system pages (any 404, 403, 500, 503, etc. page), Google AMP pages (any URL starting with /amp), and explicit mobile pages (any URL starting with /mobile). $core will automatically run the correct handler for the specified request, which will automatically load the required libraries, setup timezones, configure language and locale, and load the custom library. After that, control is returned to the webpage that called the startup library
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -237,7 +237,7 @@
 //     * The core::startup() method starts the correct call type handler
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -354,7 +354,7 @@
 //     *
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -372,7 +372,7 @@
 //     * The register allows to store global variables without using the $GLOBALS scope
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -407,7 +407,7 @@
 //     * This method will return the calltype for this call, as is stored in the private variable core::callType or if $type is specified, will return true if $calltype is equal to core::callType, false if not.
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -452,7 +452,7 @@
 // * Extend basic PHP exception to automatically add exception trace information inside the exception objects
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -465,7 +465,7 @@
 //    /*
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -484,7 +484,7 @@
 //     * Add specified $message to the exception messages list
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -514,7 +514,7 @@
 //     * Set the exception objects code to the specified $code
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -533,7 +533,7 @@
 //     * Returns the current exception code but without any warning prefix. If the exception code has a prefix, it will be separated from the actual code by a forward slash /. For example, "warning/invalid" would return "invalid"
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -550,7 +550,7 @@
 //     * Returns all messages from this exception object
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -572,7 +572,7 @@
 //     * Returns the data associated with the exception
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -589,7 +589,7 @@
 //     * Set the data associated with the exception. This content could be a data structure received by the function or method that caused the exception, which could help with handling the exception, logging information, or debugging the issue
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -608,7 +608,7 @@
 //     * Returns all messages from this exception object
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -635,7 +635,7 @@
 //     * Returns all messages from this exception object
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -655,7 +655,7 @@
 // * NOTE: This function should never be called directly
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -675,7 +675,7 @@
 // * NOTE: This function should never be called directly
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -694,7 +694,7 @@
 // * IMPORTANT! After calling this function, $var will exist!
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -724,7 +724,7 @@
 // * Ensures the specified variable exists. If the variable already exists with a non NULL value, it will not be touched. If the variable does not exist, or has a NULL value, it will be set to the $initialization variable
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -764,7 +764,7 @@
 // * behaviour does NOT apply to production systems
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -830,7 +830,7 @@
 // * Set or get debug mode.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -867,7 +867,7 @@
 // * Send a notification to specified groups. This function can send one and the same message over multiple paths like email, sms, push notifications, log, etc.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -932,7 +932,7 @@
 // * load_external(array('Twilio/autoload.php', 'Facebook/facebook.php'));
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -964,7 +964,7 @@
 // * load_libs(array('buks', 'backup', 'ssl'));
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1062,7 +1062,7 @@
 // * load_libs(array('fprint', 'buks'));
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1141,7 +1141,7 @@
 // * Returns the configuration array from the specified file and specified environment
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1208,7 +1208,7 @@
 // * safe_exec('rm '.ROOT.'data/log/test', '1,2')
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1232,7 +1232,7 @@
 // * Executes the specified base script directly inside the current process
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1262,7 +1262,7 @@
 // * load_content('index/top', array(':foo' => 'bar'))
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1398,7 +1398,7 @@
 // * If $mimetype is not specified, the function will return the first mimetype that was specified in the HTTP ACCEPT header
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1462,7 +1462,7 @@
 // * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list of languages / locales accepted by the HTTP client
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1636,7 +1636,7 @@
 // * Also, if required, sets the log message color, filters double messages and can set the log_file() $class
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -1736,7 +1736,7 @@
 // * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @see log_sanitize()
@@ -1856,7 +1856,7 @@
 // * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
 //
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @see log_sanitize()
@@ -2075,7 +2075,7 @@
 // * Get a valid language from the specified language
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -2127,7 +2127,7 @@
 // * Return the correct current domain
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -2156,7 +2156,7 @@
 // * Return complete domain with HTTP and all
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @see cdn_domain()
@@ -2326,7 +2326,7 @@
 // * Return complete URL for the specified API URL section with HTTP and all
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -2358,7 +2358,7 @@
 // * Return complete URL for the specified AJAX URL section with HTTP and all
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -2404,7 +2404,7 @@
 // * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -3180,7 +3180,7 @@
 // * Returns true if the specified string is a version, or false if it is not
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -3328,7 +3328,7 @@
 // * Show the specified page
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -3493,7 +3493,7 @@
 // * Return $source if $source is not considered "empty". Return null if specified variable is considered "empty", like 0, "", array(), etc.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -3529,7 +3529,7 @@
 // * Return $source if $source is not considered "empty". Return $default if specified variable is considered "empty", like 0, "", array(), etc.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -3695,7 +3695,7 @@
 // * Execute the specified callback function with the specified $params only if the callback has been set with an executable function
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -3914,7 +3914,7 @@
 // * Return a correct URL for CDN objects like css, javascript, image, video, downloadable files and more.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -4054,7 +4054,7 @@
 // * Cut and return a piece out of the source string, starting from the start string, stopping at the stop string.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package str
@@ -4094,7 +4094,7 @@
 // * This is a simple wrapper function to strpos() which does not require testing for false, as the output is boolean. If the $needle exists in the $haystack, true will be returned, else false will be returned.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package str
@@ -4418,7 +4418,7 @@
 // * Truncate string using the specified fill and method
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -4501,7 +4501,7 @@
 // * Return a string that is suitable for logging.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -4590,7 +4590,7 @@
 // * Returns the value of the first element of the specified array
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package array
@@ -4616,7 +4616,7 @@
 // * Returns the value of the last element of the specified array
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package array
@@ -4642,7 +4642,7 @@
 // * Make sure the specified keys are available on the array
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package array
@@ -4697,7 +4697,7 @@
 // * Specified variable may be either string or array, but ensure that its returned as an array.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -4754,7 +4754,7 @@
 // * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -4836,7 +4836,7 @@
 // * Taken from http://www.if-not-true-then-false.com/2010/php-class-for-coloring-php-command-line-cli-scripts-output-php-output-colorizing-using-bash-shell-colors/
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package cli
@@ -5251,7 +5251,7 @@
 // * The specified command will be executed in the background in a separate process and run_background() will immediately return control back to BASE.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5289,7 +5289,7 @@
 // * Return the file where this call was made
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5318,7 +5318,7 @@
 // * Return the line number where this call was made
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5347,7 +5347,7 @@
 // * Return the function where this call was made
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5378,7 +5378,7 @@
 // * In environments where debug is enabled, this function can pre-fill large HTML forms with test data
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5410,7 +5410,7 @@
 // * Show data, function results and variables in a readable format
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5431,7 +5431,7 @@
 // * Short hand for show and then die
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5453,7 +5453,7 @@
 // * Show nice HTML table with all debug data
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5474,7 +5474,7 @@
 // * Show HTML <tr> for the specified debug data
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5495,7 +5495,7 @@
 // * Displays the specified query in a show() output
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5518,7 +5518,7 @@
 // * debug_backtrace() contains all function arguments and can get very clutered. debug_trace() will by default filter the function arguments and return a much cleaner back trace for displaying in debug traces. The function allows other keys to be filtered out if specified
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5537,7 +5537,7 @@
 // * Return an HTML bar with debug information that can be used to monitor site and fix issues
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5554,7 +5554,7 @@
 // * Used for ordering entries on the debug bar
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5587,7 +5587,7 @@
 // *
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5605,7 +5605,7 @@
 // *
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5625,7 +5625,7 @@
 // * A clean string, in this case, means a string data type which contains no HTML code
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5650,7 +5650,7 @@
 // * Force the specified $source variable to be an integer
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5677,7 +5677,7 @@
 // * Force the specified $source variable to be a float
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5704,7 +5704,7 @@
 // *
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5744,7 +5744,7 @@
 // *
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5778,7 +5778,7 @@
 // * This function facilitates execution of multiple registered shutdown functions
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5862,7 +5862,7 @@
 // * This function will ensure that the specified function will be executed on shutdown with the specified value.
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5894,7 +5894,7 @@
 // * This function will ensure that the specified function will not be executed on shutdown
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5924,7 +5924,7 @@
 // * Set the timeout value for this script
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5959,7 +5959,7 @@
 // * If the HTTP request is not of the specified type, this function will throw an exception
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system
@@ -5985,7 +5985,7 @@
 // * Set PHP locale data from specified configuration. If no configuration was specified, use $_CONFIG[locale] instead
 // *
 // * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-// * @copyright Copyright (c) 2018 Capmega
+// * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 // * @category Function reference
 // * @package system

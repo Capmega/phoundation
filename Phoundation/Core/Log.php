@@ -11,7 +11,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Core
  */
 Class Log {
@@ -387,7 +387,7 @@ Class Log {
 //     * Also, if required, sets the log message color, filters double messages and can set the log_file() $class
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @package system
@@ -487,7 +487,7 @@ Class Log {
 //     * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
 //     *
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @see log_sanitize()
@@ -607,7 +607,7 @@ Class Log {
 //     * The function will sanitize the log message using log_sanitize() before displaying it on the console, and by default also log to the system logs using log_file()
 //
 //     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-//     * @copyright Copyright (c) 2018 Capmega
+//     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
 //     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
 //     * @category Function reference
 //     * @see log_sanitize()

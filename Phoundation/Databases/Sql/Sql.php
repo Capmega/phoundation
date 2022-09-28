@@ -20,7 +20,7 @@ use Phoundation\Databases\Exception\SqlException;
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Databases
  */
 class Sql
@@ -31,7 +31,7 @@ class Sql
      * NOTE: This function is executed automatically by the load_libs() function and does not need to be called manually
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package
@@ -64,7 +64,7 @@ class Sql
     /**
      * Execute specified query
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -214,7 +214,7 @@ class Sql
     /**
      * Prepare specified query
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -241,7 +241,7 @@ class Sql
     /**
      * Fetch and return data from specified resource
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -299,7 +299,7 @@ class Sql
     /**
      * Execute query and return only the first row
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -425,7 +425,7 @@ class Sql
     /**
      * Connect with the main database
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -576,7 +576,7 @@ class Sql
     /**
      * Close the connection for the specified connector
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -604,7 +604,7 @@ class Sql
      * If the database was already connected, then just ignore and continue.
      * If the database version check fails, then exception
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -719,7 +719,7 @@ class Sql
     /**
      * Import data from specified file
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -777,7 +777,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -859,7 +859,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -895,7 +895,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -921,7 +921,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -996,7 +996,7 @@ class Sql
     /**
      * Return a unique, non existing ID for the specified table.column
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1032,7 +1032,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1072,7 +1072,7 @@ class Sql
     /**
      * Return a sequential array that can be used in Sql::in
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1102,7 +1102,7 @@ class Sql
     /**
      * Helper for building Sql::in key value pairs
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1138,7 +1138,7 @@ class Sql
      * Try to get single data entry from memcached. If not available, get it from
      * MySQL and store results in memcached for future use
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1194,7 +1194,7 @@ class Sql
      * Try to get data list from memcached. If not available, get it from
      * MySQL and store results in memcached for future use
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1229,7 +1229,7 @@ class Sql
     /**
      * Fetch and return data from specified resource
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1259,7 +1259,7 @@ class Sql
      * Merge database entry with new posted entry, overwriting the old DB values,
      * while skipping the values specified in $skip
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1331,7 +1331,7 @@ class Sql
     /**
      * Ensure that $connector_name is default in case its not specified
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1374,7 +1374,7 @@ class Sql
     /**
      * Use correct SQL in case NULL is used in queries
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1409,7 +1409,7 @@ class Sql
     /**
      * Enable / Disable all query logging on mysql server
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1439,7 +1439,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1469,7 +1469,7 @@ class Sql
      * Return table row count by returning results count for SELECT `id`
      * Results will be cached in a counts table
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1525,7 +1525,7 @@ class Sql
     /**
      * Returns what database currently is selected
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1548,7 +1548,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1581,7 +1581,7 @@ class Sql
      * Execute a query on a remote SSH server.
      * NOTE: This does NOT support bound variables!
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1641,7 +1641,7 @@ class Sql
     ///*
     // *
     // *
-    // * @copyright Copyright (c) 2021 Capmega
+    // * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
     // * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
     // * @category Function reference
     // * @package sql
@@ -1661,7 +1661,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1719,7 +1719,7 @@ class Sql
      *
      * Connector data will first be searched for in $_CONFIG[db][CONNECTOR]. If the connector is not found there, the Sql::connectors table will be searched. If the connector is not found there either, NULL will be returned
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1807,7 +1807,7 @@ class Sql
     /**
      * Create an SQL connector in $_CONFIG['db'][$connector_name] = $data
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1850,7 +1850,7 @@ class Sql
     /**
      * Ensure all SQL connector fields are available
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1901,7 +1901,7 @@ class Sql
     /**
      * Test SQL functions over SSH tunnel for the specified server
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1943,7 +1943,7 @@ class Sql
     /**
      * Process SQL query errors
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1965,7 +1965,7 @@ class Sql
     /**
      *
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -1997,7 +1997,7 @@ class Sql
     /**
      * Return a valid " LIMIT X, Y " string built from the specified parameters
      *
-     * @copyright Copyright (c) 2021 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package sql
@@ -2139,7 +2139,7 @@ class Sql
      * This function will use seo_string() to convert the specified $source variable to a seo optimized string, and then it will check the specified $table to ensure that it does not yet exist. If the current seo string already exists, it will be expanded with a natural number and the table will be checked again. If the seo string is still found, this number will be incremented each loop, until the string is no longer found
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2018 Capmega
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @category Function reference
      * @package seo

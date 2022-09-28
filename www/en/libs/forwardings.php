@@ -173,7 +173,7 @@ function forwardings_insert($forward, $createdby = null){
  * Deletes a forwarding rule.
  *
  * @author Marcos Prudencio <marcosp@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package forwardings
@@ -203,7 +203,7 @@ function forwardings_delete($forward){
  * Removes rules for a deleted forwarding record on database
  *
  * @author Marcos Prudencio <marcosp@capmega.com>
- * @copyright Copyright (c) 2018 Capmega
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package forwardings
