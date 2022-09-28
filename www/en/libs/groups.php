@@ -16,11 +16,11 @@
 function groups_get($group, $createdby = null){
     try{
         if(!$group){
-            throw new BException(tr('groups_get(): No group specified'), 'not-specified');
+            throw new CoreException(tr('groups_get(): No group specified'), 'not-specified');
         }
 
         if(!is_scalar($group)){
-            throw new BException(tr('groups_get(): Specified group ":group" is not scalar', array(':group' => $group)), 'invalid');
+            throw new CoreException(tr('groups_get(): Specified group ":group" is not scalar', array(':group' => $group)), 'invalid');
         }
 
         $query = 'SELECT    `groups`.`id`,
@@ -56,7 +56,7 @@ function groups_get($group, $createdby = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('groups_get(): Failed', $e);
+        throw new CoreException('groups_get(): Failed', $e);
     }
 }
 
@@ -111,7 +111,7 @@ function groups_validate($group, $old_group = null){
         return $group;
 
     }catch(Exception $e){
-        throw new BException(tr('groups_validate(): Failed'), $e);
+        throw new CoreException(tr('groups_validate(): Failed'), $e);
     }
 }
 
@@ -144,7 +144,7 @@ function groups_get_users($group){
                            OR        `groups`.`seoname` = :group)', array(':group' => $group));
 
         if(empty($retval)){
-            throw new BException(tr('groups_get_users(): Specified group ":group" does not exist', array(':group' => $group)), 'invalid');
+            throw new CoreException(tr('groups_get_users(): Specified group ":group" does not exist', array(':group' => $group)), 'invalid');
         }
 
         $users = sql_query('SELECT    `users`.`id`,
@@ -167,7 +167,7 @@ function groups_get_users($group){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('groups_get_users(): Failed'), $e);
+        throw new CoreException(tr('groups_get_users(): Failed'), $e);
     }
 }
 ?>

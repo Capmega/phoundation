@@ -25,7 +25,7 @@ function str_ensure_url($url, $protocol = 'http://') {
         }
 
     }catch(Exception $e){
-        throw new BException(tr('str_ensure_url(): Failed'), $e);
+        throw new CoreException(tr('str_ensure_url(): Failed'), $e);
     }
 }
 
@@ -44,7 +44,7 @@ function str_plural($count, $single_text, $multiple_text) {
         return $multiple_text;
 
     }catch(Exception $e){
-        throw new BException(tr('str_plural(): Failed'), $e);
+        throw new CoreException(tr('str_plural(): Failed'), $e);
     }
 }
 
@@ -58,7 +58,7 @@ function str_is_serialized($data) {
         return (boolean) preg_match( "/^([adObis]:|N;)/u", $data );
 
     }catch(Exception $e){
-        throw new BException(tr('str_is_serialized(): Failed'), $e);
+        throw new CoreException(tr('str_is_serialized(): Failed'), $e);
     }
 }
 
@@ -76,7 +76,7 @@ function str_ensure_utf8($string) {
         return utf8_encode($string);
 
     }catch(Exception $e){
-        throw new BException(tr('str_ensure_utf8(): Failed'), $e);
+        throw new CoreException(tr('str_ensure_utf8(): Failed'), $e);
     }
 }
 
@@ -90,7 +90,7 @@ function str_is_utf8($source) {
         return mb_check_encoding($source, 'UTF8');
 
     }catch(Exception $e){
-        throw new BException(tr('str_is_utf8(): Failed'), $e);
+        throw new CoreException(tr('str_is_utf8(): Failed'), $e);
     }
 
     /*return preg_match('%^(?:
@@ -118,7 +118,7 @@ function str_fix_spanish_chars($source){
         return str_replace($from, $to, $source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_fix_spanish_chars(): Failed'), $e);
+        throw new CoreException(tr('str_fix_spanish_chars(): Failed'), $e);
     }
 }
 
@@ -136,7 +136,7 @@ function str_capitalize($source, $position = 0){
         return mb_strtolower(mb_substr($source, 0, $position)).mb_strtoupper(mb_substr($source, $position, 1)).mb_strtolower(mb_substr($source, $position + 1));
 
     }catch(Exception $e){
-        throw new BException(tr('str_capitalize(): Failed'), $e);
+        throw new CoreException(tr('str_capitalize(): Failed'), $e);
     }
 }
 
@@ -151,7 +151,7 @@ function str_random($length = 8, $unique = false, $characters = '0123456789abcde
         $charlen    = mb_strlen($characters);
 
         if($unique and ($length > $charlen)){
-            throw new BException('str_random(): Can not create unique character random string with size "'.str_log($length).'". When $unique is requested, the string length can not be larger than "'.str_log($charlen).'" because there are no more then that amount of unique characters', 'invalid');
+            throw new CoreException('str_random(): Can not create unique character random string with size "'.str_log($length).'". When $unique is requested, the string length can not be larger than "'.str_log($charlen).'" because there are no more then that amount of unique characters', 'invalid');
         }
 
         for ($i = 0; $i < $length; $i++) {
@@ -171,7 +171,7 @@ function str_random($length = 8, $unique = false, $characters = '0123456789abcde
         return $string;
 
     }catch(Exception $e){
-        throw new BException(tr('str_random(): Failed'), $e);
+        throw new CoreException(tr('str_random(): Failed'), $e);
     }
 }
 
@@ -188,7 +188,7 @@ function str_is_alpha($s, $extra = '\s'){
         return $count == 0;
 
     }catch(Exception $e){
-        throw new BException(tr('str_is_alpha(): Failed'), $e);
+        throw new CoreException(tr('str_is_alpha(): Failed'), $e);
     }
 }
 
@@ -203,7 +203,7 @@ function str_escape_for_jquery($source, $replace = ''){
         return preg_replace('/[#;&,.+*~\':"!^$[\]()=>|\/]/gu', '\\\\$&', $source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_escape_for_jquery(): Failed'), $e);
+        throw new CoreException(tr('str_escape_for_jquery(): Failed'), $e);
     }
 }
 
@@ -217,7 +217,7 @@ function str_strip_function($string){
         return trim(str_from($string, '():'));
 
     }catch(Exception $e){
-        throw new BException(tr('str_strip_function(): Failed'), $e);
+        throw new CoreException(tr('str_strip_function(): Failed'), $e);
     }
 }
 
@@ -235,7 +235,7 @@ function str_safe_base64_decode($source){
         return base64_decode($source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_safe_base64_decode(): Failed'), $e);
+        throw new CoreException(tr('str_safe_base64_decode(): Failed'), $e);
     }
 }
 
@@ -250,7 +250,7 @@ function str_safe($source, $maxsize = 50){
         return str_truncate(json_encode_custom($source), $maxsize);
 
     }catch(Exception $e){
-        throw new BException(tr('str_safe(): Failed'), $e);
+        throw new CoreException(tr('str_safe(): Failed'), $e);
     }
 }
 
@@ -264,7 +264,7 @@ function str_hex($source){
         return bin2hex($source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_hex(): Failed'), $e);
+        throw new CoreException(tr('str_hex(): Failed'), $e);
     }
 }
 
@@ -286,7 +286,7 @@ function str_camelcase($source, $separator = ' ') {
         return implode($separator, $source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_camelcase(): Failed'), $e);
+        throw new CoreException(tr('str_camelcase(): Failed'), $e);
     }
 }
 
@@ -304,7 +304,7 @@ function str_explode($separator, $source){
         return explode($separator, $source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_explode(): Failed'), $e);
+        throw new CoreException(tr('str_explode(): Failed'), $e);
     }
 }
 
@@ -319,11 +319,11 @@ function str_explode($separator, $source){
 function str_interleave($source, $interleave, $end = 0, $chunksize = 1){
     try{
         if(!$source){
-            throw new BException('str_interleave(): Empty source specified', 'empty');
+            throw new CoreException('str_interleave(): Empty source specified', 'empty');
         }
 
         if(!$interleave){
-            throw new BException('str_interleave(): Empty interleave specified', 'empty');
+            throw new CoreException('str_interleave(): Empty interleave specified', 'empty');
         }
 
         if($end){
@@ -345,7 +345,7 @@ function str_interleave($source, $interleave, $end = 0, $chunksize = 1){
         return mb_substr($retval, 0, -1).$end;
 
     }catch(Exception $e){
-        throw new BException(tr('str_interleave(): Failed'), $e);
+        throw new CoreException(tr('str_interleave(): Failed'), $e);
     }
 }
 
@@ -363,7 +363,7 @@ function str_convert_accents($source){
         return str_replace($from, $to, $source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_convert_accents(): Failed'), $e);
+        throw new CoreException(tr('str_convert_accents(): Failed'), $e);
     }
 }
 
@@ -377,7 +377,7 @@ function str_strip_html_whitespace($string){
         return preg_replace('/>\s+</u', '><', $string);
 
     }catch(Exception $e){
-        throw new BException(tr('str_strip_html_whitespace(): Failed'), $e);
+        throw new CoreException(tr('str_strip_html_whitespace(): Failed'), $e);
     }
 }
 
@@ -397,7 +397,7 @@ function str_quote($string, $quote = "'"){
         return $quote.$string.$quote;
 
     }catch(Exception $e){
-        throw new BException(tr('str_quote(): Failed'), $e);
+        throw new CoreException(tr('str_quote(): Failed'), $e);
     }
 }
 
@@ -414,7 +414,7 @@ function str_is_version($source){
         return preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}$/', $source);
 
     }catch(Exception $e){
-        throw new BException('str_is_version(): Failed', $e);
+        throw new CoreException('str_is_version(): Failed', $e);
     }
 }
 
@@ -428,7 +428,7 @@ function str_is_html($source){
         return !preg_match('/<[^<]+>/', $source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_is_html(): Failed'), $e);
+        throw new CoreException(tr('str_is_html(): Failed'), $e);
     }
 }
 
@@ -443,7 +443,7 @@ function str_is_json($source){
         return !empty($source) && is_string($source) && preg_match('/^("(\\.|[^"\\\n\r])*?"|[,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t])+?$/', $source);
 
     }catch(Exception $e){
-        throw new BException(tr('str_is_json(): Failed'), $e);
+        throw new CoreException(tr('str_is_json(): Failed'), $e);
     }
 }
 
@@ -466,7 +466,7 @@ function mb_trim($string) {
         return preg_replace("/(^\s+)|(\s+$)/us", "", $string);
 
     }catch(Exception $e){
-        throw new BException('mb_trim(): Failed', $e);
+        throw new CoreException('mb_trim(): Failed', $e);
     }
 }
 
@@ -492,7 +492,7 @@ function mb_trim($string) {
 //        return preg_split("//u", $source, -1, PREG_SPLIT_NO_EMPTY);
 //
 //    }catch(Exception $e){
-//        throw new BException('mb_str_split(): Failed', $e);
+//        throw new CoreException('mb_str_split(): Failed', $e);
 //    }
 //}
 
@@ -509,7 +509,7 @@ function br2nl($string, $nl = "\n") {
         return $string;
 
     }catch(Exception $e){
-        throw new BException(tr('br2nl(): Failed'), $e);
+        throw new CoreException(tr('br2nl(): Failed'), $e);
     }
 }
 
@@ -522,7 +522,7 @@ function str_has_keywords($text, $keywords, $has_all = false, $regex = false, $u
     try{
         if(!is_array($keywords)){
             if(!is_string($keywords) and !is_numeric($keywords)){
-                throw new BException('str_has_keywords(): Specified keywords are neither string or array', 'invalid');
+                throw new CoreException('str_has_keywords(): Specified keywords are neither string or array', 'invalid');
             }
 
             if($regex){
@@ -572,7 +572,7 @@ function str_has_keywords($text, $keywords, $has_all = false, $regex = false, $u
         return $count == count($keywords);
 
     }catch(Exception $e){
-        throw new BException('str_has_keywords(): Failed', $e);
+        throw new CoreException('str_has_keywords(): Failed', $e);
     }
 }
 
@@ -676,7 +676,7 @@ function str_caps($string, $type){
                         break;
 
                     default:
-                        throw new BException('str_caps(): Unknown type "'.str_log($type).'" specified', 'unknowntype');
+                        throw new CoreException('str_caps(): Unknown type "'.str_log($type).'" specified', 'unknowntype');
                 }
 
                 str_replace($word, $replace, $string);
@@ -686,7 +686,7 @@ function str_caps($string, $type){
         return $string;
 
     }catch(Exception $e){
-        throw new BException('str_caps(): Failed', $e);
+        throw new CoreException('str_caps(): Failed', $e);
     }
 }
 
@@ -736,7 +736,7 @@ function str_caps_guess($string){
         }
 
     }catch(Exception $e){
-        throw new BException('str_caps_guess_type(): Failed', $e);
+        throw new CoreException('str_caps_guess_type(): Failed', $e);
     }
 }
 
@@ -754,10 +754,10 @@ function str_force($source, $separator = ','){
                 }
 
                 if(is_object($source)){
-                    throw new BException(tr('str_force(): Specified source is neither scalar nor array but an object of class ":class"', array(':class' => get_class($source))), 'invalid');
+                    throw new CoreException(tr('str_force(): Specified source is neither scalar nor array but an object of class ":class"', array(':class' => get_class($source))), 'invalid');
                 }
 
-                throw new BException(tr('str_force(): Specified source is neither scalar nor array but an ":type"', array(':type' => gettype($source))), 'invalid');
+                throw new CoreException(tr('str_force(): Specified source is neither scalar nor array but an ":type"', array(':type' => gettype($source))), 'invalid');
             }
 
             /*
@@ -774,7 +774,7 @@ function str_force($source, $separator = ','){
         return (string) $source;
 
     }catch(Exception $e){
-        throw new BException('str_force(): Failed', $e);
+        throw new CoreException('str_force(): Failed', $e);
     }
 }
 
@@ -803,7 +803,7 @@ function str_size($source, $size, $add = ' ', $prefix = false){
         return $source.str_repeat($add, $size - $strlen);
 
     }catch(Exception $e){
-        throw new BException('str_size(): Failed', $e);
+        throw new CoreException('str_size(): Failed', $e);
     }
 }
 
@@ -821,7 +821,7 @@ function str_escape($string, $escape = '"'){
         return $string;
 
     }catch(Exception $e){
-        throw new BException('str_escape(): Failed', $e);
+        throw new CoreException('str_escape(): Failed', $e);
     }
 }
 
@@ -842,7 +842,7 @@ function str_xor($a, $b){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('str_xor(): Failed', $e);
+        throw new CoreException('str_xor(): Failed', $e);
     }
 }
 
@@ -856,7 +856,7 @@ function str_similar($a, $b, $percent){
         return similar_text($a, $b, $percent);
 
     }catch(Exception $e){
-        throw new BException(tr('str_similar(): Failed'), $e);
+        throw new CoreException(tr('str_similar(): Failed'), $e);
     }
 }
 
@@ -881,7 +881,7 @@ function str_trim_array($source, $recurse = true){
         return $source;
 
     }catch(Exception $e){
-        throw new BException('str_trim_array(): Failed', $e);
+        throw new CoreException('str_trim_array(): Failed', $e);
     }
 }
 
@@ -920,7 +920,7 @@ function str_hide($string, $hide = '*** HIDDEN ***', $empty = '-'){
         return $hidden;
 
     }catch(Exception $e){
-        throw new BException('str_hide(): Failed', $e);
+        throw new CoreException('str_hide(): Failed', $e);
     }
 }
 
@@ -954,7 +954,7 @@ function str_hide($string, $hide = '*** HIDDEN ***', $empty = '-'){
 //        return array_merge(diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)), array_slice($new, $nmax, $maxlen), diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen)));
 //
 //    }catch(Exception $e){
-//        throw new BException('str_diff(): Failed', $e);
+//        throw new CoreException('str_diff(): Failed', $e);
 //    }
 //}
 
@@ -985,7 +985,7 @@ function str_diff($old, $new){
                      'new' => $new);
 
     }catch(Exception $e){
-        throw new BException(tr('str_diff(): Failed'), $e);
+        throw new CoreException(tr('str_diff(): Failed'), $e);
     }
 }
 
@@ -1003,7 +1003,7 @@ function str_boolean($value){
         return 'false';
 
     }catch(Exception $e){
-        throw new BException(tr('str_boolean(): Failed'), $e);
+        throw new CoreException(tr('str_boolean(): Failed'), $e);
     }
 }
 
@@ -1059,7 +1059,7 @@ function str_underscore_to_camelcase($string, $first_uppercase = false){
         return $string;
 
     }catch(Exception $e){
-        throw new BException('str_underscore_to_camelcase(): Failed', $e);
+        throw new CoreException('str_underscore_to_camelcase(): Failed', $e);
     }
 }
 
@@ -1099,7 +1099,7 @@ function str_trim_html($html){
         }
 
         if(!is_string($html)){
-            throw new BException(tr('str_trim_html(): Specified $html ":html" is not a string', array(':html' => $html)), 'invalid');
+            throw new CoreException(tr('str_trim_html(): Specified $html ":html" is not a string', array(':html' => $html)), 'invalid');
         }
 
         load_libs('simple-dom');
@@ -1129,7 +1129,7 @@ function str_trim_html($html){
         return $html->save();
 
     }catch(Exception $e){
-        throw new BException(tr('str_trim_html(): Failed'), $e);
+        throw new CoreException(tr('str_trim_html(): Failed'), $e);
     }
 }
 

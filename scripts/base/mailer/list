@@ -56,6 +56,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('scripts/mailer/list: Failed', $e);
+    throw new CoreException('scripts/mailer/list: Failed', $e);
 }
 ?>

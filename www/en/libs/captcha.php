@@ -31,7 +31,7 @@ function captcha_library_init(){
         load_config('captcha');
 
     }catch(Exception $e){
-        throw new BException('captcha_library_init(): Failed', $e);
+        throw new CoreException('captcha_library_init(): Failed', $e);
     }
 }
 
@@ -60,7 +60,7 @@ function captcha_html($class = null){
         }
 
         if((empty($_CONFIG['captcha']['public']) or empty($_CONFIG['captcha']['private']))){
-            throw new BException(tr('captcha_html(): No captcha public apikey specified'), 'not-specified');
+            throw new CoreException(tr('captcha_html(): No captcha public apikey specified'), 'not-specified');
         }
 
         /*
@@ -84,7 +84,7 @@ function captcha_html($class = null){
         return '<div class="g-recaptcha'.($class ? ' '.$class : '').'" data-sitekey="'.$_CONFIG['captcha']['public'].'"></div>';
 
     }catch(Exception $e){
-        throw new BException('captcha_html(): Failed', $e);
+        throw new CoreException('captcha_html(): Failed', $e);
     }
 }
 
@@ -116,23 +116,23 @@ function captcha_verify_response($captcha){
         }
 
         if((empty($_CONFIG['captcha']['public']) or empty($_CONFIG['captcha']['private']))){
-            throw new BException(tr('captcha_verify_response(): No captcha public apikey specified'), 'not-specified');
+            throw new CoreException(tr('captcha_verify_response(): No captcha public apikey specified'), 'not-specified');
         }
 
         if(empty($captcha)){
-            throw new BException('Please verify the captcha', 'captcha');
+            throw new CoreException('Please verify the captcha', 'captcha');
         }
 
         $response = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$_CONFIG['captcha']['private'].'&response='.$captcha.'&remoteip='.$_SERVER['REMOTE_ADDR']);
         $response = json_decode($response, true);
 
         if(!$response['success']){
-            throw new BException('captcha_verify_response(): Recaptcha is not valid', 'captcha');
+            throw new CoreException('captcha_verify_response(): Recaptcha is not valid', 'captcha');
         }
 
         return true;
 
     }catch(Exception $e){
-        throw new BException('captcha_verify_response(): Failed', $e);
+        throw new CoreException('captcha_verify_response(): Failed', $e);
     }
 }

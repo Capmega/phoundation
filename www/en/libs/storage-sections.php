@@ -80,7 +80,7 @@ function storage_sections_get($section = null, $auto_create = false){
         return $dbsection;
 
     }catch(Exception $e){
-        throw new BException('storage_sections_get(): Failed', $e);
+        throw new CoreException('storage_sections_get(): Failed', $e);
     }
 }
 
@@ -118,7 +118,7 @@ function storage_sections_list($status = null, $pdo_statement = true){
         return $sections;
 
     }catch(Exception $e){
-        throw new BException('storage_sections_list(): Failed', $e);
+        throw new CoreException('storage_sections_list(): Failed', $e);
     }
 }
 
@@ -148,7 +148,7 @@ function storage_sections_add($section, $new = false){
         return $section;
 
     }catch(Exception $e){
-        throw new BException('storage_sections_add(): Failed', $e);
+        throw new CoreException('storage_sections_add(): Failed', $e);
     }
 }
 
@@ -187,7 +187,7 @@ function storage_sections_update($section, $new = false){
         return $section;
 
     }catch(Exception $e){
-        throw new BException('storage_sections_update(): Failed', $e);
+        throw new CoreException('storage_sections_update(): Failed', $e);
     }
 }
 
@@ -232,7 +232,7 @@ function storage_sections_validate($section, $new = false){
         return $section;
 
     }catch(Exception $e){
-        throw new BException('storage_sections_validate(): Failed', $e);
+        throw new CoreException('storage_sections_validate(): Failed', $e);
     }
 }
 
@@ -245,7 +245,7 @@ function storage_section_has_access($sections_id, $users_id = null){
     try{
 
     }catch(Exception $e){
-        throw new BException('storage_section_has_access(): Failed', $e);
+        throw new CoreException('storage_section_has_access(): Failed', $e);
     }
 }
 ?>

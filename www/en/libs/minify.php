@@ -37,7 +37,7 @@ function minify_library_init(){
                                'checks'   => array(ROOT.'libs/vendor/mrclay/minify')));
 
     }catch(Exception $e){
-        throw new BException('minify_library_init(): Failed', $e);
+        throw new CoreException('minify_library_init(): Failed', $e);
     }
 }
 
@@ -67,7 +67,7 @@ function minify_setup($params){
         });
 
     }catch(Exception $e){
-        throw new BException('minify_setup(): Failed', $e);
+        throw new CoreException('minify_setup(): Failed', $e);
     }
 }
 
@@ -93,7 +93,7 @@ function minify_html($html){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('minify_html(): Failed', $e);
+        throw new CoreException('minify_html(): Failed', $e);
     }
 }
 ?>

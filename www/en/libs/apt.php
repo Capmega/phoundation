@@ -31,7 +31,7 @@ function apt_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new BException('apt_library_init(): Failed', $e);
+        throw new CoreException('apt_library_init(): Failed', $e);
     }
 }
 
@@ -108,7 +108,7 @@ function apt_install($packages, $auto_update = true, $server = null){
                             $method($server);
 
                         }catch(Exception $f){
-                            throw new BException(tr('apt_install(): apt function ":function" failed, repair failed as well with ":f"', array(':function' => $method.'()', ':f' => $f->getMessage())), $e);
+                            throw new CoreException(tr('apt_install(): apt function ":function" failed, repair failed as well with ":f"', array(':function' => $method.'()', ':f' => $f->getMessage())), $e);
                         }
                     }
 
@@ -132,7 +132,7 @@ function apt_install($packages, $auto_update = true, $server = null){
                         $match = preg_match('/^E: Unable to locate package ([a-z-_]+)$/ius', $line, $matches);
 
                         if($match){
-                            throw new BException(tr('apt_install(): The specified apt package ":package" does not exist', array(':package' => $matches[1])), 'not-exists');
+                            throw new CoreException(tr('apt_install(): The specified apt package ":package" does not exist', array(':package' => $matches[1])), 'not-exists');
                         }
                     }
 
@@ -142,7 +142,7 @@ function apt_install($packages, $auto_update = true, $server = null){
                 }
         }
 
-        throw new BException(tr('apt_install(): Failed'), $e);
+        throw new CoreException(tr('apt_install(): Failed'), $e);
     }
 }
 
@@ -225,7 +225,7 @@ function apt_update($server = null){
         }
 
         if(!$hits){
-            throw new BException(tr('apt_update(): apt update failed to download all resources, see exception data for more information'), $e);
+            throw new CoreException(tr('apt_update(): apt update failed to download all resources, see exception data for more information'), $e);
         }
 
         /*
@@ -270,7 +270,7 @@ function apt_fix($server = null){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('apt_fix(): Failed', $e);
+        throw new CoreException('apt_fix(): Failed', $e);
     }
 }
 ?>

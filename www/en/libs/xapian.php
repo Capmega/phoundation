@@ -38,7 +38,7 @@ function xapian_library_init(){
         include_once(ROOT.'libs/external/xapian/xapian.php');
 
     }catch(Exception $e){
-        throw new BException('xapian_library_init(): Failed', $e);
+        throw new CoreException('xapian_library_init(): Failed', $e);
     }
 }
 
@@ -61,7 +61,7 @@ function xapian_install($params){
     try{
 
     }catch(Exception $e){
-        throw new BException('xapian_install(): Failed', $e);
+        throw new CoreException('xapian_install(): Failed', $e);
     }
 }
 
@@ -85,7 +85,7 @@ function xapian_create(){
     try{
 
     }catch(Exception $e){
-        throw new BException('xapian_create(): Failed', $e);
+        throw new CoreException('xapian_create(): Failed', $e);
     }
 }
 
@@ -108,7 +108,7 @@ function xapian_add(){
     try{
 
     }catch(Exception $e){
-        throw new BException('xapian_add(): Failed', $e);
+        throw new CoreException('xapian_add(): Failed', $e);
     }
 }
 
@@ -131,7 +131,7 @@ function xapian_query(){
     try{
 
     }catch(Exception $e){
-        throw new BException('xapian_query(): Failed', $e);
+        throw new CoreException('xapian_query(): Failed', $e);
     }
 }
 
@@ -154,7 +154,7 @@ function xapian_add(){
     try{
 
     }catch(Exception $e){
-        throw new BException('xapian_add(): Failed', $e);
+        throw new CoreException('xapian_add(): Failed', $e);
     }
 }
 
@@ -177,7 +177,7 @@ function xapian_query(){
     try{
 
     }catch(Exception $e){
-        throw new BException('xapian_query(): Failed', $e);
+        throw new CoreException('xapian_query(): Failed', $e);
     }
 }
 
@@ -200,7 +200,7 @@ function xapian_add(){
     try{
 
     }catch(Exception $e){
-        throw new BException('xapian_add(): Failed', $e);
+        throw new CoreException('xapian_add(): Failed', $e);
     }
 }
 
@@ -223,7 +223,7 @@ function xapian_rename(){
     try{
 
     }catch(Exception $e){
-        throw new BException('xapian_rename(): Failed', $e);
+        throw new CoreException('xapian_rename(): Failed', $e);
     }
 }
 ?>

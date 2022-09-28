@@ -29,7 +29,7 @@
              * Current IP was not allowed. If this user has ip_lock rights (or god right, obviously), then we can continue
              */
             if(!has_rights('ip_lock', $user)){
-                throw new BException('handlers/user_ip_lock: Your current IP "'.str_log($_SERVER['REMOTE_ADDR']).'" is not allowed to login', 'iplock');
+                throw new CoreException('handlers/user_ip_lock: Your current IP "'.str_log($_SERVER['REMOTE_ADDR']).'" is not allowed to login', 'iplock');
             }
 
             /*
@@ -50,6 +50,6 @@
         }
 
     }catch(Exception $e){
-        throw new BException('handlers/user_ip_lock: Failed', $e);
+        throw new CoreException('handlers/user_ip_lock: Failed', $e);
     }
 ?>

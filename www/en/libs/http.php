@@ -57,7 +57,7 @@ function get_submit(){
         return $submit;
 
     }catch(Exception $e){
-        throw new BException('get_submit(): Failed', $e);
+        throw new CoreException('get_submit(): Failed', $e);
     }
 }
 
@@ -118,7 +118,7 @@ function redirect_url($url = null){
         return url_add_query($url, 'redirect='.urlencode($_GET['redirect']));
 
     }catch(Exception $e){
-        throw new BException('redirect_url(): Failed', $e);
+        throw new CoreException('redirect_url(): Failed', $e);
     }
 }
 
@@ -170,11 +170,11 @@ function session_redirect($method = 'http', $force = false){
                 redirect($redirect);
 
             default:
-                throw new BException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
+                throw new CoreException(tr('session_redirect(): Unknown method ":method" specified. Please speficy one of "json", or "http"', array(':method' => $method)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('session_redirect(): Failed', $e);
+        throw new CoreException('session_redirect(): Failed', $e);
     }
 }
 
@@ -201,7 +201,7 @@ function http_get_to_post($keys, $overwrite = true){
         }
 
     }catch(Exception $e){
-        throw new BException('http_get_to_post(): Failed', $e);
+        throw new CoreException('http_get_to_post(): Failed', $e);
     }
 }
 
@@ -225,11 +225,11 @@ function http_get_to_post($keys, $overwrite = true){
 //                             503 => 'Service Unavailable');
 //
 //    if(!is_numeric($code) or ($code < 0) or ($code > 1000)){
-//        throw new BException('http_status_message(): Invalid code "'.str_log($code).'" specified');
+//        throw new CoreException('http_status_message(): Invalid code "'.str_log($code).'" specified');
 //    }
 //
 //    if(!isset($messages[$code])){
-//        throw new BException('http_status_message(): Specified code "'.str_log($code).'" is not supported');
+//        throw new CoreException('http_status_message(): Specified code "'.str_log($code).'" is not supported');
 //    }
 //
 //    return $messages[$code];
@@ -376,7 +376,7 @@ function http_headers($params, $content_length){
                         break;
 
                     default:
-                        throw new BException(tr('http_headers(): Unknown CORS header ":header" specified', array(':header' => $key)), 'unknown');
+                        throw new CoreException(tr('http_headers(): Unknown CORS header ":header" specified', array(':header' => $key)), 'unknown');
                 }
             }
         }
@@ -443,7 +443,7 @@ function http_headers($params, $content_length){
          * longer can do this, send out the http 500 here.
          */
         http_response_code(500);
-        throw new BException('http_headers(): Failed', $e);
+        throw new CoreException('http_headers(): Failed', $e);
     }
 }
 
@@ -465,7 +465,7 @@ function http_add_variable($url, $key, $value){
         return $url.'?'.urlencode($key).'='.urlencode($value);
 
     }catch(Exception $e){
-        throw new BException('http_add_variable(): Failed', $e);
+        throw new CoreException('http_add_variable(): Failed', $e);
     }
 }
 
@@ -476,7 +476,7 @@ function http_add_variable($url, $key, $value){
  */
 function http_remove_variable($url, $key){
     try{
-throw new BException('http_remove_variable() is under construction!');
+throw new CoreException('http_remove_variable() is under construction!');
         //if(!$key){
         //    return $url;
         //}
@@ -492,7 +492,7 @@ throw new BException('http_remove_variable() is under construction!');
         //return substr($url, 0, );
 
     }catch(Exception $e){
-        throw new BException('http_remove_variable(): Failed', $e);
+        throw new CoreException('http_remove_variable(): Failed', $e);
     }
 }
 
@@ -538,7 +538,7 @@ function http_cache_etag(){
         return true;
 
     }catch(Exception $e){
-        throw new BException('http_cache_etag(): Failed', $e);
+        throw new CoreException('http_cache_etag(): Failed', $e);
     }
 }
 
@@ -578,7 +578,7 @@ function http_cache_test($etag = null){
         return true;
 
     }catch(Exception $e){
-        throw new bException('http_cache_test(): Failed', $e);
+        throw new CoreException('http_cache_test(): Failed', $e);
     }
 }
 
@@ -661,7 +661,7 @@ function http_cache($params, $http_code, $headers = array()){
         return $headers;
 
     }catch(Exception $e){
-        throw new BException('http_cache(): Failed', $e);
+        throw new CoreException('http_cache(): Failed', $e);
     }
 }
 
@@ -688,7 +688,7 @@ function http_no_cache(){
         header('Expires: Wed, 10 Jan 2000 07:00:00 GMT'                       , true);
 
     }catch(Exception $e){
-        throw new BException(tr('http_no_cache(): Failed'), $e);
+        throw new CoreException(tr('http_no_cache(): Failed'), $e);
     }
 }
 
@@ -702,7 +702,7 @@ function requested_url(){
         return $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
     }catch(Exception $e){
-        throw new BException('requested_url(): Failed', $e);
+        throw new CoreException('requested_url(): Failed', $e);
     }
 }
 
@@ -747,7 +747,7 @@ function http_done(){
         shutdown();
 
     }catch(Exception $e){
-        throw new BException('http_done(): Failed', $e);
+        throw new CoreException('http_done(): Failed', $e);
     }
 }
 
@@ -775,7 +775,7 @@ function http_validate_get(){
         foreach($_GET as $key => &$value){
             if(!is_scalar($value)){
                 if($value){
-                    throw new BException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
+                    throw new CoreException(tr('http_validate_get(): The $_GET key ":key" contains a value with the content ":content" while only scalar values are allowed', array(':key' => $key, ':content' => $value)), 400);
                 }
 
                 /*
@@ -790,7 +790,7 @@ function http_validate_get(){
         $_GET['limit'] = (integer) ensure_value(isset_get($_GET['limit'], $_CONFIG['paging']['limit']), array_keys($_CONFIG['paging']['list']), $_CONFIG['paging']['limit']);
 
     }catch(Exception $e){
-        throw new BException('http_validate_get(): Failed', $e);
+        throw new CoreException('http_validate_get(): Failed', $e);
     }
 }
 
@@ -804,7 +804,7 @@ function http_build_url($url, $query){
         return http_add_variable($url, str_until($query, '='), str_from($query, '='));
 
     }catch(Exception $e){
-        throw new BException('http_build_url(DEPRECIATED): Failed', $e);
+        throw new CoreException('http_build_url(DEPRECIATED): Failed', $e);
     }
 }
 
@@ -840,6 +840,6 @@ function http_set_ssl_default_context($params = null){
                                                                'allow_self_signed' => $params['allow_self_signed'])));
 
     }catch(Exception $e){
-        throw new BException(tr('http_ssl_context(): Failed'), $e);
+        throw new CoreException(tr('http_ssl_context(): Failed'), $e);
     }
 }

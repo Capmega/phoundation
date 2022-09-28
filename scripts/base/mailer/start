@@ -32,6 +32,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('scripts/mailer/start: Failed', $e);
+    throw new CoreException('scripts/mailer/start: Failed', $e);
 }
 ?>

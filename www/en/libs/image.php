@@ -31,7 +31,7 @@ function image_library_init(){
                 linux_install_package(null, 'php-imagick');
 
             }catch(Exception $f){
-                throw new BException(tr('image: php module "imagick" appears not to be installed, and automatic installation failed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-imagick; sudo phpenmod imagick" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-imagick" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), $f);
+                throw new CoreException(tr('image: php module "imagick" appears not to be installed, and automatic installation failed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-imagick; sudo phpenmod imagick" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-imagick" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), $f);
             }
         }
 
@@ -39,7 +39,7 @@ function image_library_init(){
         file_ensure_path(ROOT.'data/log');
 
     }catch(Exception $e){
-        throw new BException('image_library_init(): Failed', $e);
+        throw new CoreException('image_library_init(): Failed', $e);
     }
 }
 
@@ -73,11 +73,11 @@ function image_get_text($image) {
                 linux_install_package(null, 'tesseract-ocr');
 
             }catch(Exception $f){
-                throw new BException('image_get_text(): Failed to find the "tesseract" command, and automatic installation failed. On Ubuntu, use "sudo apt-get install tesseract-ocr" to install the required command', $f);
+                throw new CoreException('image_get_text(): Failed to find the "tesseract" command, and automatic installation failed. On Ubuntu, use "sudo apt-get install tesseract-ocr" to install the required command', $f);
             }
         }
 
-        throw new BException(tr('image_get_text(): Failed to get text from image ":image"', array(':image' => $image)), $e);
+        throw new CoreException(tr('image_get_text(): Failed to get text from image ":image"', array(':image' => $image)), $e);
     }
 }
 
@@ -98,7 +98,7 @@ function image_rotate($degrees, $source, $target = null){
             'degrees' => $degrees));
 
     }catch(Exception $e){
-        throw new BException(tr('image_rotate(): Failed'), $e);
+        throw new CoreException(tr('image_rotate(): Failed'), $e);
     }
 }
 
@@ -123,11 +123,11 @@ function image_convert($params){
          * Validations
          */
         if(!file_exists($source)){
-            throw new BException(tr('image_convert(): The specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
+            throw new CoreException(tr('image_convert(): The specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
         if(file_exists($target) and $target != $source){
-            throw new BException(tr('image_convert(): Destination file ":file" already exists', array(':file' => $target)), 'exists');
+            throw new CoreException(tr('image_convert(): Destination file ":file" already exists', array(':file' => $target)), 'exists');
         }
 
         array_ensure($params, 'log,nice');
@@ -140,7 +140,7 @@ function image_convert($params){
         //
         //}elseif(!empty($format) and !empty($target)){
         //    if($format != substr($target, -3, 3)){
-        //        throw new BException(tr('image_convert(): Specified format ":format1" differ from the given destination format ":format2"', array(':format1' => substr($target, -3, 3), ':format2' => $format)));
+        //        throw new CoreException(tr('image_convert(): Specified format ":format1" differ from the given destination format ":format2"', array(':format1' => substr($target, -3, 3), ':format2' => $format)));
         //    }
         //}
 
@@ -229,7 +229,7 @@ function image_convert($params){
                 break;
 
             default:
-                throw new BException(tr('image_convert(): Unknown format ":format" specified.', array(':format' => $params['format'])), 'unknown');
+                throw new CoreException(tr('image_convert(): Unknown format ":format" specified.', array(':format' => $params['format'])), 'unknown');
         }
 
         $target = slash($dest_path).$dest_file;
@@ -541,17 +541,17 @@ function image_convert($params){
                 break;
 
             case '':
-                throw new BException(tr('image_convert(): No method specified.'), 'not-specified');
+                throw new CoreException(tr('image_convert(): No method specified.'), 'not-specified');
 
             default:
-                throw new BException(tr('image_convert(): Unknown method ":method" specified. Ensure method is one of thumb, resize-w, resize, thumb-circle, crop-resize, custom', array(':method' => $params['method'])), 'unknown');
+                throw new CoreException(tr('image_convert(): Unknown method ":method" specified. Ensure method is one of thumb, resize-w, resize, thumb-circle, crop-resize, custom', array(':method' => $params['method'])), 'unknown');
         }
 
         /*
          * Verify results
          */
         if(!file_exists($target)) {
-            throw new BException(tr('image_convert(): Destination file ":file" not found after conversion', array(':file' => $target)), 'not-exists');
+            throw new CoreException(tr('image_convert(): Destination file ":file" not found after conversion', array(':file' => $target)), 'not-exists');
         }
 
         if(!empty($params['updatemode'])){
@@ -575,12 +575,12 @@ function image_convert($params){
                     return image_convert($params);
 
                 }catch(Exception $f){
-                    throw new BException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. Phoundation tried to install the package automatically but this failed. Please install imagemagick yourself. On Debian and derrivates this can be done with the command "sudo apt -y install imagemagick". On Redhat and derrivates this can be done with the command "sudo yum install imagemagick"'), $f);
+                    throw new CoreException(tr('image_convert(): The "convert" command could not be found. This probably means that imagemagick has not been installed. Phoundation tried to install the package automatically but this failed. Please install imagemagick yourself. On Debian and derrivates this can be done with the command "sudo apt -y install imagemagick". On Redhat and derrivates this can be done with the command "sudo yum install imagemagick"'), $f);
                 }
         }
 
         if(!is_array($params)){
-            throw new BException(tr('image_convert(): Invalid parameters specified, expected params array but received ":params"', array(':params' => $params)), 'invalid');
+            throw new CoreException(tr('image_convert(): Invalid parameters specified, expected params array but received ":params"', array(':params' => $params)), 'invalid');
         }
 
         /*
@@ -602,7 +602,7 @@ function image_convert($params){
                     return image_convert($params);
 
                 }catch(Exception $f){
-                    throw new BException(tr('image_convert(): The "convert" command failed because webp is not supported. On Debian and derrivates this may require installing webp, which was tried and failed. Please try installing the package manually using "sudo apt -y install webp".'), $f);
+                    throw new CoreException(tr('image_convert(): The "convert" command failed because webp is not supported. On Debian and derrivates this may require installing webp, which was tried and failed. Please try installing the package manually using "sudo apt -y install webp".'), $f);
                 }
             }
         }
@@ -620,7 +620,7 @@ function image_convert($params){
         }
 
         if(empty($contents)){
-            throw new BException(tr('image_convert(): Failed'), $e);
+            throw new CoreException(tr('image_convert(): Failed'), $e);
 
         }else{
             foreach(array_force($contents) as $line){
@@ -628,13 +628,13 @@ function image_convert($params){
                     /*
                      * Dumbo! You don't have imagemagick installed!
                      */
-                    throw new BException(tr('image_convert(): /usr/bin/convert could not be found, which means you probably do not have imagemagick installed. To resolve this, try on Ubuntu-alikes, try "sudo apt-get install imagemagick", or on RedHat-alikes, try "yum install imagemagick"'), 'notinstalled');
+                    throw new CoreException(tr('image_convert(): /usr/bin/convert could not be found, which means you probably do not have imagemagick installed. To resolve this, try on Ubuntu-alikes, try "sudo apt-get install imagemagick", or on RedHat-alikes, try "yum install imagemagick"'), 'notinstalled');
                 }
             }
 
         }
 
-        throw new BException(tr('image_convert(): Failed, with *possible* log data "%contents%"', array('%contents%' => $contents)), $e);
+        throw new CoreException(tr('image_convert(): Failed, with *possible* log data "%contents%"', array('%contents%' => $contents)), $e);
     }
 }
 
@@ -682,7 +682,7 @@ function image_interlace_valid($value, $source = false){
             break;
 
         default:
-            throw new BException(tr('image_interlace_valid(): Unknown interlace value ":value" specified', array(':value' => $value)), 'unknown');
+            throw new CoreException(tr('image_interlace_valid(): Unknown interlace value ":value" specified', array(':value' => $value)), 'unknown');
     }
 }
 
@@ -706,15 +706,15 @@ function image_is_valid($file, $min_width = 0, $min_height = 0) {
         $mimetype = file_mimetype($file);
 
         if(str_until($mimetype, '/') !== 'image'){
-            throw new BException(tr('image_is_valid(): Specified file ":file" is not an image but an ":mimetype"', array(':file' => $file, ':mimetype' => $mimetype)), 'invalid');
+            throw new CoreException(tr('image_is_valid(): Specified file ":file" is not an image but an ":mimetype"', array(':file' => $file, ':mimetype' => $mimetype)), 'invalid');
         }
 
         if(!$img_size = getimagesize($file)){
-            throw new BException(tr('image_is_valid(): Failed to get width / height data from specified image ":file"', array(':file' => $file)), 'failed');
+            throw new CoreException(tr('image_is_valid(): Failed to get width / height data from specified image ":file"', array(':file' => $file)), 'failed');
         }
 
         if(($img_size[0] < $min_width) or ($img_size[1] < $min_height)) {
-            throw new BException(tr('image_is_valid(): File ":file" has width x height ":actual" where a minimum wxh of ":required" is required', array(':file' => $file, ':actual' => $img_size[0].' x '.$img_size[1], ':required' => $min_width.' x '.$min_height)), 'rejected');
+            throw new CoreException(tr('image_is_valid(): File ":file" has width x height ":actual" where a minimum wxh of ":required" is required', array(':file' => $file, ':actual' => $img_size[0].' x '.$img_size[1], ':required' => $min_width.' x '.$min_height)), 'rejected');
         }
 
         return $mimetype;
@@ -738,7 +738,7 @@ function image_create_avatars($file){
 
         foreach($_CONFIG['avatars']['types'] as $name => $type){
             if(count($type  = explode('x', $type)) != 3){
-                throw new BException('image_create_avatar(): Invalid avatar type configuration for type "'.str_log($name).'"', 'invalid/config');
+                throw new CoreException('image_create_avatar(): Invalid avatar type configuration for type "'.str_log($name).'"', 'invalid/config');
             }
 
             image_convert(array('source' => $file['tmp_name'][0],
@@ -751,7 +751,7 @@ function image_create_avatars($file){
         return $destination;
 
     }catch(Exception $e){
-        throw new BException('image_create_avatar(): Failed to create avatars for image file "'.str_log($file).'"', $e);
+        throw new CoreException('image_create_avatar(): Failed to create avatars for image file "'.str_log($file).'"', $e);
     }
 }
 
@@ -772,7 +772,7 @@ function is_image($file){
             return false;
         }
 
-        throw new BException('is_image(): Failed', $e);
+        throw new CoreException('is_image(): Failed', $e);
     }
 }
 
@@ -788,7 +788,7 @@ function image_info($file, $no_exif = false){
         $mime = file_mimetype($file);
 
         if(str_until($mime, '/') !== 'image'){
-            throw new BException(tr('image_info(): The specified file ":file" is not an image', array(':file' => $file)), 'invalid');
+            throw new CoreException(tr('image_info(): The specified file ":file" is not an image', array(':file' => $file)), 'invalid');
         }
 
         $size = getimagesize($file);
@@ -841,7 +841,7 @@ function image_info($file, $no_exif = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('image_info(): Failed', $e);
+        throw new CoreException('image_info(): Failed', $e);
     }
 }
 
@@ -859,7 +859,7 @@ function image_type($file){
         return false;
 
     }catch(Exception $e){
-        throw new BException('image_type(): Failed', $e);
+        throw new CoreException('image_type(): Failed', $e);
     }
 }
 
@@ -909,7 +909,7 @@ function image_send($file, $cache_maxage = 86400){
         }
 
     }catch(Exception $e){
-        throw new BException('image_send(): Failed', $e);
+        throw new CoreException('image_send(): Failed', $e);
     }
 }
 
@@ -938,7 +938,7 @@ function image_fix_extension($file){
          * If the file is not an image then we're done
          */
         if(str_until($mimetype, '/') != 'image'){
-            throw new BException('image_fix_extension(): Specified file "'.str_log($file).'" is not an image', 'invalid');
+            throw new CoreException('image_fix_extension(): Specified file "'.str_log($file).'" is not an image', 'invalid');
         }
 
         /*
@@ -960,7 +960,7 @@ function image_fix_extension($file){
         return $file;
 
     }catch(Exception $e){
-        throw new BException('image_fix_extension(): Failed', $e);
+        throw new CoreException('image_fix_extension(): Failed', $e);
     }
 }
 
@@ -1006,7 +1006,7 @@ function image_fancybox($params = null){
         return html_script('$("'.$params['selector'].'").fancybox('.json_encode_custom($params['options']).');');
 
     }catch(Exception $e){
-        throw new BException('image_fancybox(): Failed', $e);
+        throw new CoreException('image_fancybox(): Failed', $e);
     }
 }
 
@@ -1034,11 +1034,11 @@ function image_watermark($params){
          */
         foreach(array('image' => $params['image'], 'watermark' => $params['watermark']) as $type => $filename){
             if(!file_exists($params['target'])){
-                throw new BException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotexists');
+                throw new CoreException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotexists');
             }
 
             if(!$size = getimagesize($filename)){
-                throw new BException(tr('image_watermark(): The specified %type% file ":file" is not a valid image', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotvalid');
+                throw new CoreException(tr('image_watermark(): The specified %type% file ":file" is not a valid image', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotvalid');
             }
         }
 
@@ -1048,7 +1048,7 @@ function image_watermark($params){
          * Make sure the target does not yet exist, UNLESS we're writing to the same image
          */
         if((realpath($params['target']) != realpath($params['image'])) and file_exists($params['target'])){
-            throw new BException('image_watermark(): The specified target "'.str_log($params['target']).'" already exists', 'targetexists');
+            throw new CoreException('image_watermark(): The specified target "'.str_log($params['target']).'" already exists', 'targetexists');
         }
 
         /*
@@ -1074,7 +1074,7 @@ function image_watermark($params){
         imagedestroy($watermark);
 
     }catch(Exception $e){
-        throw new BException('image_watermark(): Failed', $e);
+        throw new CoreException('image_watermark(): Failed', $e);
     }
 }
 
@@ -1133,24 +1133,24 @@ function imagecreatefromany($filename){
             case IMAGETYPE_XBM:
                 // FALLTHROUGH
             case IMAGETYPE_ICO:
-                throw new BException('imagecreatefromany(): Image types "'.exif_imagetype($filename).'" of file "'.str_log($filename).'" is not supported', 'notsupported');
+                throw new CoreException('imagecreatefromany(): Image types "'.exif_imagetype($filename).'" of file "'.str_log($filename).'" is not supported', 'notsupported');
 
             default:
-                throw new BException('imagecreatefromany(): The file "'.exif_imagetype($filename).'" is not an image', 'notsupported');
+                throw new CoreException('imagecreatefromany(): The file "'.exif_imagetype($filename).'" is not an image', 'notsupported');
         }
 
         if(!$resource){
-            throw new BException('imagecreatefromany(): Failed to open image type "'.exif_imagetype($filename).'" file "'.$filename.'"', 'failed');
+            throw new CoreException('imagecreatefromany(): Failed to open image type "'.exif_imagetype($filename).'" file "'.$filename.'"', 'failed');
         }
 
         return $resource;
 
     }catch(Exception $e){
         if(!file_exists($filename)){
-            throw new BException('imagecreatefromany(): Specified file "'.str_log($filename).'" does not exist', $e);
+            throw new CoreException('imagecreatefromany(): Specified file "'.str_log($filename).'" does not exist', $e);
         }
 
-        throw new BException('imagecreatefromany(): Failed', $e);
+        throw new CoreException('imagecreatefromany(): Failed', $e);
     }
 }
 
@@ -1183,7 +1183,7 @@ function imagecopymerge_alpha($dst_im, $src_im, $dst_x, $dst_y, $src_x, $src_y, 
         imagecopymerge($dst_im, $cut, $dst_x, $dst_y, 0, 0, $src_w, $src_h, $pct);
 
     }catch(Exception $e){
-        throw new BException('imagecopymerge_alpha(): Failed for source image "'.str_log($src_im).'"', $e);
+        throw new CoreException('imagecopymerge_alpha(): Failed for source image "'.str_log($src_im).'"', $e);
     }
 }
 
@@ -1282,7 +1282,7 @@ console.log("imagesloaded");
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('image_picker(): Failed', $e);
+        throw new CoreException('image_picker(): Failed', $e);
     }
 }
 
@@ -1338,11 +1338,11 @@ function image_slider($params = null){
                 return $html;
 
             default:
-                throw new BException(tr('image_picker(): Unknown library ":library" specified', array(':library' => $params['library'])), 'unknown');
+                throw new CoreException(tr('image_picker(): Unknown library ":library" specified', array(':library' => $params['library'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('image_slider(): Failed', $e);
+        throw new CoreException('image_slider(): Failed', $e);
     }
 }
 
@@ -1366,7 +1366,7 @@ function image_glitch($file, $server = null){
         $mimetype = image_is_valid($file);
 
         if(str_from($mimetype, '/') !== 'png'){
-            throw new BException(tr('image_glitch(): This function only supports PNG images. The specified file ":file" is a ":type" type file', array(':file' => $file, ':type' => str_from($mimetype, '/'))), 'not-supported');
+            throw new CoreException(tr('image_glitch(): This function only supports PNG images. The specified file ":file" is a ":type" type file', array(':file' => $file, ':type' => str_from($mimetype, '/'))), 'not-supported');
         }
 
         $file_out = file_temp();
@@ -1394,7 +1394,7 @@ function image_glitch($file, $server = null){
         return $file_out;
 
     }catch(Exception $e){
-        throw new BException(tr('image_glitch(): Failed'), $e);
+        throw new CoreException(tr('image_glitch(): Failed'), $e);
     }
 }
 
@@ -1410,7 +1410,7 @@ function image_view($file, $background = true){
         return view($file);
 
     }catch(Exception $e){
-        throw new BException('image_view(): Failed', $e);
+        throw new CoreException('image_view(): Failed', $e);
     }
 }
 ?>

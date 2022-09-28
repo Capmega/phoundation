@@ -33,7 +33,7 @@ function ip_v6_v4($ipv6){
             /*
              * IP Unparsable? How did they connect?
              */
-            throw new BException(tr('IP address ":ip" is invalid', array(':ip' => $ipv6)), 'invalid');
+            throw new CoreException(tr('IP address ":ip" is invalid', array(':ip' => $ipv6)), 'invalid');
         }
 
         /*
@@ -53,7 +53,7 @@ function ip_v6_v4($ipv6){
         return $ipv4;
 
     }catch(Exception $e){
-        throw new BException(tr('ip_v6_v4(): Failed'), $e);
+        throw new CoreException(tr('ip_v6_v4(): Failed'), $e);
     }
 }
 
@@ -72,7 +72,7 @@ function detect_ip_version($version = null){
         return strpos($version, ':') ? 6 : 4;
 
     }catch(Exception $e){
-        throw new BException(tr('detect_ip_version(): Failed'), $e);
+        throw new CoreException(tr('detect_ip_version(): Failed'), $e);
     }
 }
 
@@ -86,7 +86,7 @@ function is_ipv6($version = null){
         return detect_ip_version($version) === 6;
 
     }catch(Exception $e){
-        throw new BException(tr('is_ipv6(): Failed'), $e);
+        throw new CoreException(tr('is_ipv6(): Failed'), $e);
     }
 }
 
@@ -120,7 +120,7 @@ function inet_test_host_port($params){
         inet_validate_host($params['host']);
 
         if(!is_natural($params['timeout']) or ($params['timeout'] > 600)){
-            throw new BException(tr('inet_test_host_port(): Specified timeout ":timeout"is invalid. It must be a natural number smaller than or equal to 600', array(':timeout' => $params['timeout'])), 'invalid');
+            throw new CoreException(tr('inet_test_host_port(): Specified timeout ":timeout"is invalid. It must be a natural number smaller than or equal to 600', array(':timeout' => $params['timeout'])), 'invalid');
         }
 
         $results = servers_exec($params['server'], array('ok_exitcodes' => '0,1',
@@ -131,7 +131,7 @@ function inet_test_host_port($params){
 
         if(str_exists($results, 'connection refused')){
             if($params['exception']){
-                throw new BException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $params['host'], '%port' => $params['port'])), 'warning/failed');
+                throw new CoreException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $params['host'], '%port' => $params['port'])), 'warning/failed');
             }
 
             return false;
@@ -147,10 +147,10 @@ function inet_test_host_port($params){
         /*
          * No idea what happened
          */
-        throw new BException(tr('inet_test_host_port(): Unknown output received from nc command, see exception data'), 'unknown', $results);
+        throw new CoreException(tr('inet_test_host_port(): Unknown output received from nc command, see exception data'), 'unknown', $results);
 
     }catch(Exception $e){
-        throw new BException(tr('inet_test_host_port(): Failed'), $e);
+        throw new CoreException(tr('inet_test_host_port(): Failed'), $e);
     }
 }
 
@@ -185,7 +185,7 @@ function inet_telnet($params){
         return $results;
 
     }catch(Exception $e){
-        throw new BException(tr('inet_telnet(): Failed'), $e);
+        throw new CoreException(tr('inet_telnet(): Failed'), $e);
     }
 }
 
@@ -203,7 +203,7 @@ function inet_get_domain($strip = array('www', 'dev', 'm')){
         return $_SERVER['HTTP_HOST'];
 
     }catch(Exception $e){
-        throw new BException(tr('inet_get_domain(): Failed'), $e);
+        throw new CoreException(tr('inet_get_domain(): Failed'), $e);
     }
 }
 
@@ -239,7 +239,7 @@ function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,a
         $len = mb_strlen($root);
 
         if(substr($domain, -$len, $len) !== $root){
-            throw new BException(tr('inet_get_subdomain(): Specified $domain (Fully Qualified Domain Name) ":domain" does not end with the root domain ":root"', array(':domain' => $domain, ':root' => $root)), 'not-exists');
+            throw new CoreException(tr('inet_get_subdomain(): Specified $domain (Fully Qualified Domain Name) ":domain" does not end with the root domain ":root"', array(':domain' => $domain, ':root' => $root)), 'not-exists');
         }
 
         $subdomain = urldecode(str_until($domain, '.'.$root, 0, 0, true));
@@ -266,7 +266,7 @@ function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,a
         return $subdomain;
 
     }catch(Exception $e){
-        throw new BException(tr('inet_get_subdomain(): Failed'), $e);
+        throw new CoreException(tr('inet_get_subdomain(): Failed'), $e);
     }
 }
 
@@ -312,7 +312,7 @@ function inet_add_query($url){
         unset($queries[0]);
 
         if(!$queries){
-            throw new BException(tr('inet_add_query(): No queries specified'), 'not-specified');
+            throw new CoreException(tr('inet_add_query(): No queries specified'), 'not-specified');
         }
 
         foreach($queries as $query){
@@ -356,7 +356,7 @@ function inet_add_query($url){
             $url = str_ends_not($url, '?');
 
             if(!preg_match('/.+?=.*?/', $query)){
-                throw new BException(tr('inet_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
+                throw new CoreException(tr('inet_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
             }
 
             $key = str_until($query, '=');
@@ -385,7 +385,7 @@ function inet_add_query($url){
         return $url;
 
     }catch(Exception $e){
-        throw new BException('inet_add_query(): Failed', $e);
+        throw new CoreException('inet_add_query(): Failed', $e);
     }
 }
 
@@ -419,7 +419,7 @@ function url_remove_keys($url, $keys){
         return $url;
 
     }catch(Exception $e){
-        throw new BException('url_remove_keys(): Failed', $e);
+        throw new CoreException('url_remove_keys(): Failed', $e);
     }
 }
 
@@ -438,7 +438,7 @@ function inet_dig($domain, $section = false){
         $data = str_from($data, 'ANSWER: ');
 
         if(str_until($data, ',') == '0'){
-            throw new BException(tr('inet_dig(): Specified domain ":domain" was not found', array(':domain' => $domain)), 'not-exists');
+            throw new CoreException(tr('inet_dig(): Specified domain ":domain" was not found', array(':domain' => $domain)), 'not-exists');
         }
 
         $data   = str_cut($data, "ANSWER SECTION:\n", "\n;;");
@@ -516,7 +516,7 @@ function inet_dig($domain, $section = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('inet_dig(): Failed', $e);
+        throw new CoreException('inet_dig(): Failed', $e);
     }
 }
 
@@ -611,7 +611,7 @@ function inet_get_client_data(){
         return $client;
 
     }catch(Exception $e){
-        throw new BException('inet_get_client_data(): Failed', $e);
+        throw new CoreException('inet_get_client_data(): Failed', $e);
     }
 }
 
@@ -633,13 +633,13 @@ function inet_get_client_data(){
 function inet_validate_port($port, $lowest = 1025){
     try{
         if(!is_natural($port, $lowest) or ($port > 65535)){
-            throw new BException(tr('inet_validate_port(): Specified port ":port" is invalid', array(':port' => $port)), 'validation');
+            throw new CoreException(tr('inet_validate_port(): Specified port ":port" is invalid', array(':port' => $port)), 'validation');
         }
 
         return $port;
 
     }catch(Exception $e){
-        throw new BException('inet_validate_port(): Failed', $e);
+        throw new CoreException('inet_validate_port(): Failed', $e);
     }
 }
 
@@ -671,13 +671,13 @@ function inet_validate_host($host, $allow_all = true, $exception = true){
         }
 
         if(!filter_var($host, FILTER_VALIDATE_DOMAIN)){
-            throw new BException(tr('inet_validate_host(): Specified host ":host" is invalid', array(':host' => $host)), 'validation');
+            throw new CoreException(tr('inet_validate_host(): Specified host ":host" is invalid', array(':host' => $host)), 'validation');
         }
 
         return $host;
 
     }catch(Exception $e){
-        throw new BException('inet_validate_host(): Failed', $e);
+        throw new CoreException('inet_validate_host(): Failed', $e);
     }
 }
 
@@ -700,22 +700,22 @@ function inet_validate_host($host, $allow_all = true, $exception = true){
 function inet_validate_ip($ip, $allow_all = true, $exception = true){
     try{
         if(!$ip){
-            throw new BException(tr('inet_validate_ip(): No ip specified'), 'validation');
+            throw new CoreException(tr('inet_validate_ip(): No ip specified'), 'validation');
         }
 
         if(($ip === '0.0.0.0') and !$allow_all){
-            throw new BException(tr('inet_validate_ip(): IP "0.0.0.0" is not allowed'), 'validation');
+            throw new CoreException(tr('inet_validate_ip(): IP "0.0.0.0" is not allowed'), 'validation');
         }
 
         if(!filter_var($ip, FILTER_VALIDATE_IP)){
-            throw new BException(tr('inet_validate_ip(): Specified ip ":ip" is invalid', array(':ip' => $ip)), 'validation');
+            throw new CoreException(tr('inet_validate_ip(): Specified ip ":ip" is invalid', array(':ip' => $ip)), 'validation');
         }
 
         return $ip;
 
     }catch(Exception $e){
         if($exception){
-            throw new BException('inet_validate_ip(): Failed', $e);
+            throw new CoreException('inet_validate_ip(): Failed', $e);
         }
 
         return false;
@@ -766,7 +766,7 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null){
         return true;
 
     }catch(Exception $e){
-        throw new BException('inet_port_available(): Failed', $e);
+        throw new CoreException('inet_port_available(): Failed', $e);
     }
 }
 
@@ -794,7 +794,7 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
 
         while($port = rand($lowest, 65535)){
             if(++$count > $retries){
-                throw new BException(tr('inet_get_available_port(): Failed to find an available port in ":retries" retries', array(':retries' => $retries)), 'failed');
+                throw new CoreException(tr('inet_get_available_port(): Failed to find an available port in ":retries" retries', array(':retries' => $retries)), 'failed');
             }
 
             if(inet_port_available($port, $ip, $server)){
@@ -805,7 +805,7 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
         return $port;
 
     }catch(Exception $e){
-        throw new BException('inet_get_available_port(): Failed', $e);
+        throw new CoreException('inet_get_available_port(): Failed', $e);
     }
 }
 
@@ -825,6 +825,6 @@ function url_add_query($url){
         return call_user_func_array('inet_add_query', func_get_args());
 
     }catch(Exception $e){
-        throw new BException('url_add_query(): Failed', $e);
+        throw new CoreException('url_add_query(): Failed', $e);
     }
 }

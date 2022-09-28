@@ -36,7 +36,7 @@ function invoices_library_init(){
                                'which'     => 'invoice,foobar'));
 
     }catch(Exception $e){
-        throw new BException('invoices_library_init(): Failed', $e);
+        throw new CoreException('invoices_library_init(): Failed', $e);
     }
 }
 
@@ -61,7 +61,7 @@ function invoices_install($params){
         apt_install('invoice');
 
     }catch(Exception $e){
-        throw new BException('invoices_install(): Failed', $e);
+        throw new CoreException('invoices_install(): Failed', $e);
     }
 }
 
@@ -118,7 +118,7 @@ function invoices_validate($invoice){
       return $invoice;
 
     }catch(Exception $e){
-        throw new BException('invoices_validate(): Failed', $e);
+        throw new CoreException('invoices_validate(): Failed', $e);
     }
 }
 
@@ -166,7 +166,7 @@ function invoices_insert($invoice){
         return $invoice;
 
     }catch(Exception $e){
-        throw new BException('invoices_insert(): Failed', $e);
+        throw new CoreException('invoices_insert(): Failed', $e);
     }
 }
 
@@ -218,7 +218,7 @@ function invoices_update($invoice){
         return (boolean) $update->rowCount();
 
     }catch(Exception $e){
-        throw new BException('invoices_update(): Failed', $e);
+        throw new CoreException('invoices_update(): Failed', $e);
     }
 }
 
@@ -275,7 +275,7 @@ function invoices_get($invoice, $column = null, $status = null, $parent = false)
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('invoices_get(): Failed', $e);
+        throw new CoreException('invoices_get(): Failed', $e);
     }
 }
 
@@ -304,7 +304,7 @@ function invoices_list($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('invoices_list(): Failed', $e);
+        throw new CoreException('invoices_list(): Failed', $e);
     }
 }
 
@@ -396,7 +396,7 @@ function invoices_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('invoices_select(): Failed', $e);
+        throw new CoreException('invoices_select(): Failed', $e);
     }
 }
 
@@ -441,7 +441,7 @@ function invoices_function($params){
     try{
 
     }catch(Exception $e){
-        throw new BException('invoices_function(): Failed', $e);
+        throw new CoreException('invoices_function(): Failed', $e);
     }
 }
 ?>

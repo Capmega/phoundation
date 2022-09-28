@@ -106,12 +106,12 @@ try{
                 $accounts_data = ssh_get_account($account);
 
                 if(!$accounts_data){
-                    throw new BException(tr('Specified account ":account" does not exist, try "servers list accounts"', array(':account' => $account)), 'warning/not-exist');
+                    throw new CoreException(tr('Specified account ":account" does not exist, try "servers list accounts"', array(':account' => $account)), 'warning/not-exist');
                 }
             }
 
             if(!$domains){
-                throw new BException(tr('No server(s) specified to add'), 'warning/not-specified');
+                throw new CoreException(tr('No server(s) specified to add'), 'warning/not-specified');
             }
 
             foreach($domains as $domain){
@@ -160,7 +160,7 @@ try{
                 $accounts_data = ssh_get_account($account);
 
                 if(!$accounts_data){
-                    throw new BException(tr('Specified account ":account" does not exist, try "servers list accounts"', array(':account' => $account)), 'warning/not-exist');
+                    throw new CoreException(tr('Specified account ":account" does not exist, try "servers list accounts"', array(':account' => $account)), 'warning/not-exist');
                 }
 
                 $server['ssh_account'] = $accounts_data['name'];
@@ -246,7 +246,7 @@ try{
                 $server = servers_get($server, false, false, 'id');
 
                 if(!$server){
-                    throw new BException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exists');
+                    throw new CoreException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exists');
                 }
 
                 $servers[] = $server['id'];
@@ -279,7 +279,7 @@ try{
                 $server = servers_get($requested);
 
                 if(!$server){
-                    throw new BException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exists');
+                    throw new CoreException(tr('Specified server ":server" does not exist', array(':server' => $requested)), 'not-exists');
                 }
 
                 $servers[] = $server;
@@ -368,7 +368,7 @@ try{
                                                     'filters' => array('seoname' => $customer)));
 
                 if(!$customers_id){
-                    throw new BException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'warning');
+                    throw new CoreException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'warning');
                 }
 
                 $execute[':customers_id'] = $customers_id;
@@ -380,7 +380,7 @@ try{
                 $providers_id = providers_get($provider, 'id');
 
                 if(!$providers_id){
-                    throw new BException(tr('The specified provider ":provider" does not exist', array(':provider' => $provider)), 'warning');
+                    throw new CoreException(tr('The specified provider ":provider" does not exist', array(':provider' => $provider)), 'warning');
                 }
 
                 $execute[':providers_id'] = $providers_id;
@@ -463,19 +463,19 @@ try{
                     $protocols     = cli_argument(6);
 
                     if(empty($root_domain)){
-                        throw new BException(tr('No root domain specified'), 'warning/not-specified');
+                        throw new CoreException(tr('No root domain specified'), 'warning/not-specified');
                     }
 
                     if(empty($new_domain)){
-                        throw new BException(tr('No new domain specified'), 'warning/not-specified');
+                        throw new CoreException(tr('No new domain specified'), 'warning/not-specified');
                     }
 
                     if(empty($location)){
-                        throw new BException(tr('No location specified'), 'warning/not-specified');
+                        throw new CoreException(tr('No location specified'), 'warning/not-specified');
                     }
 
                     if(empty($target_domain)){
-                        throw new BException(tr('No target domain specified'), 'warning/not-specified');
+                        throw new CoreException(tr('No target domain specified'), 'warning/not-specified');
                     }
 
                     log_console(tr('Inserting new server ":new" in chain for server ":root"', array(':new' => $new_domain, ':root' => $root_domain)), 'white');
@@ -504,10 +504,10 @@ try{
                     break;
 
                 case '':
-                    throw new BException(tr('No sub method specified for method "proxies"'), 'no-method');
+                    throw new CoreException(tr('No sub method specified for method "proxies"'), 'no-method');
 
                 default:
-                    throw new BException(tr('Unknown sub method ":method" specified for method "proxies"', array(':method' => cli_method(1))), 'unknown-method');
+                    throw new CoreException(tr('Unknown sub method ":method" specified for method "proxies"', array(':method' => cli_method(1))), 'unknown-method');
             }
 
             break;
@@ -569,11 +569,11 @@ try{
             $requested = cli_argument(2);
 
             if(!$test){
-                throw new BException(tr('No test specified. Please specify one of "ssh", "database", or "tunnel-database"'), 'warning/not-exist');
+                throw new CoreException(tr('No test specified. Please specify one of "ssh", "database", or "tunnel-database"'), 'warning/not-exist');
             }
 
             if(!$requested){
-                throw new BException(tr('No server specified'), 'warning/not-exist');
+                throw new CoreException(tr('No server specified'), 'warning/not-exist');
             }
 
             try{
@@ -583,7 +583,7 @@ try{
                 switch($test){
                     case 'ssh':
                         if(!$server['ssh_accounts_id']){
-                            throw new BException(tr('Skipped SSH access test for server ":server", the server does not have an SSH account assigned', array(':server' => $anchor)), 'warning');
+                            throw new CoreException(tr('Skipped SSH access test for server ":server", the server does not have an SSH account assigned', array(':server' => $anchor)), 'warning');
                         }
 
                         servers_test($server['domain']);
@@ -592,14 +592,14 @@ try{
 
                     case 'database':
                         if(!$server['ssh_accounts_id'] or !$server['database_accounts_id']){
-                            throw new BException(tr('Cannot test database access, server ":server", the server does not have a database account specified', array(':server' => $anchor)), 'warning/not-specified');
+                            throw new CoreException(tr('Cannot test database access, server ":server", the server does not have a database account specified', array(':server' => $anchor)), 'warning/not-specified');
                         }
 
                         load_libs('mysql');
                         $results = mysql_exec($server['domain'], 'SELECT 1');
 
                         if((count($results) != 2) or ($results[end($results)] != 1)){
-                            throw new BException($results, 'failed');
+                            throw new CoreException($results, 'failed');
                         }
 
                         log_console(tr('Successfully tested database access for server ":server"', array(':server' => $server['domain'])), 'green');
@@ -608,7 +608,7 @@ try{
 
                     case 'tunnel-database':
                         if(!$server['ssh_accounts_id'] and !$server['database_accounts_id']){
-                            throw new BException(tr('Skipped database over SSH tunnel access test for server ":server", the server does not have an SSH account or database account assigned', array(':server' => $anchor)), 'warning');
+                            throw new CoreException(tr('Skipped database over SSH tunnel access test for server ":server", the server does not have an SSH account or database account assigned', array(':server' => $anchor)), 'warning');
                         }
 
                         sql_test_tunnel($server);
@@ -616,16 +616,16 @@ try{
                         break;
 
                     default:
-                        throw new BException(tr('Unknown test ":test" specified. Please specify one of "ssh", "database", or "tunnel-database".', array(':test' => $test)), 'warning/unknown');
+                        throw new CoreException(tr('Unknown test ":test" specified. Please specify one of "ssh", "database", or "tunnel-database".', array(':test' => $test)), 'warning/unknown');
                 }
 
             }catch(Exception $e){
                 switch($e->getCode()){
                     case 'host-verification-missing':
-                        throw new BException(tr('SSH acces test failed for server ":server" because the host key verification showed this hosts key missing. Add the server to the known_hosts file first (currently only possible with executing "./scripts/base/ssh register :domain")', array(':server' => $anchor, ':domain' => $domain)), 'warning/failed');
+                        throw new CoreException(tr('SSH acces test failed for server ":server" because the host key verification showed this hosts key missing. Add the server to the known_hosts file first (currently only possible with executing "./scripts/base/ssh register :domain")', array(':server' => $anchor, ':domain' => $domain)), 'warning/failed');
 
                     case 'host-verification-failed':
-                        throw new BException(tr('SSH acces test failed for server ":server" because the host key verification failed. Either somebody is trying to fake this server, or the server was reinstalled', array(':server' => $anchor, ':domain' => $domain)), 'failed');
+                        throw new CoreException(tr('SSH acces test failed for server ":server" because the host key verification failed. Either somebody is trying to fake this server, or the server was reinstalled', array(':server' => $anchor, ':domain' => $domain)), 'failed');
 
                     case 'not-specified':
                         // FALLTHROUGH
@@ -643,10 +643,10 @@ try{
             break;
 
         case '':
-            throw new BException(tr('No method specified'), 'no-method');
+            throw new CoreException(tr('No method specified'), 'no-method');
 
         default:
-            throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+            throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
     }
 
 }catch(Exception $e){

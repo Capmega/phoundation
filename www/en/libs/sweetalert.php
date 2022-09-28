@@ -40,7 +40,7 @@ function sweetalert_library_init(){
         html_load_css('sweetalert/sweetalert');
 
     }catch(Exception $e){
-        throw new BException('sweetalert_library_init(): Failed', $e);
+        throw new CoreException('sweetalert_library_init(): Failed', $e);
     }
 }
 
@@ -76,7 +76,7 @@ function sweetalert_install($params){
         });
 
     }catch(Exception $e){
-        throw new BException('sweetalert_install(): Failed', $e);
+        throw new CoreException('sweetalert_install(): Failed', $e);
     }
 }
 
@@ -145,7 +145,7 @@ function sweetalert($params, $html = '', $type = '', $options = array()){
         return $retval.';';
 
     }catch(Exception $e){
-        throw new BException('sweetalert(): Failed', $e);
+        throw new CoreException('sweetalert(): Failed', $e);
     }
 }
 
@@ -164,11 +164,11 @@ function sweetalert_queue($params){
         array_default($params, 'progress_steps'     , true);
 
         if(empty($params['modals'])){
-            throw new BException('sweetalert_queue(): No modals specified', 'not-specified');
+            throw new CoreException('sweetalert_queue(): No modals specified', 'not-specified');
         }
 
         if(!is_array($params['modals'])){
-            throw new BException('sweetalert_queue(): Specified modals list should be an array', 'invalid');
+            throw new CoreException('sweetalert_queue(): Specified modals list should be an array', 'invalid');
         }
 
         /*
@@ -204,7 +204,7 @@ function sweetalert_queue($params){
                     break;
 
                 default:
-                    throw new BException(tr('sweetalert_queue(): Unknown option ":option" specified', array(':option' => $key)), 'unknown');
+                    throw new CoreException(tr('sweetalert_queue(): Unknown option ":option" specified', array(':option' => $key)), 'unknown');
             }
         }
 //show($params);
@@ -216,7 +216,7 @@ function sweetalert_queue($params){
         return $javascript;
 
     }catch(Exception $e){
-        throw new BException('sweetalert_queue(): Failed', $e);
+        throw new CoreException('sweetalert_queue(): Failed', $e);
     }
 }
 ?>

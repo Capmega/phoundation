@@ -206,5 +206,5 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::ajax(): Failed'), $e);
+    throw new CoreException(tr('core::ajax(): Failed'), $e);
 }

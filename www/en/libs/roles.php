@@ -34,7 +34,7 @@ function roles_get($role = null){
 
         if($role){
             if(!is_string($role)){
-                throw new BException(tr('roles_get(): Specified role name ":name" is not a string', array(':name' => $role)), 'invalid');
+                throw new CoreException(tr('roles_get(): Specified role name ":name" is not a string', array(':name' => $role)), 'invalid');
             }
 
             $retval = sql_get($query.'
@@ -72,7 +72,7 @@ function roles_get($role = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('roles_get(): Failed', $e);
+        throw new CoreException('roles_get(): Failed', $e);
     }
 }
 
@@ -123,7 +123,7 @@ function roles_validate($role){
         return $role;
 
     }catch(Exception $e){
-        throw new BException(tr('roles_validate(): Failed'), $e);
+        throw new CoreException(tr('roles_validate(): Failed'), $e);
     }
 }
 
@@ -136,11 +136,11 @@ function roles_validate($role){
 function roles_update_rights($role, $rights){
     try{
         if(empty($role['id'])){
-            throw new BException('roles_update_rights(): Cannot update rights, no role specified', 'not_specified');
+            throw new CoreException('roles_update_rights(): Cannot update rights, no role specified', 'not_specified');
         }
 
         if(isset_get($rights) and !is_array($rights)){
-            throw new BException('roles_update_rights(): The specified rights list is invalid', 'invalid');
+            throw new CoreException('roles_update_rights(): The specified rights list is invalid', 'invalid');
         }
 
         /*
@@ -174,7 +174,7 @@ function roles_update_rights($role, $rights){
             /*
              * Specified right does not exist.
              */
-            throw new BException(tr('roles_update_rights(): Tried adding non existing right ":right" to role ":role", ignoring', array(':right' => $right, ':role' => $role['name'])), 'unknown');
+            throw new CoreException(tr('roles_update_rights(): Tried adding non existing right ":right" to role ":role", ignoring', array(':right' => $right, ':role' => $role['name'])), 'unknown');
         }
 
         /*
@@ -215,7 +215,7 @@ function roles_update_rights($role, $rights){
         return $rights_list;
 
     }catch(Exception $e){
-        throw new BException('roles_update_rights(): Failed', $e);
+        throw new CoreException('roles_update_rights(): Failed', $e);
     }
 }
 ?>

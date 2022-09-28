@@ -29,7 +29,7 @@ function databases_validate_accounts($database){
         return $database;
 
     }catch(Exception $e){
-        throw new BException('databases_validate_accounts(): Failed', $e);
+        throw new CoreException('databases_validate_accounts(): Failed', $e);
     }
 }
 
@@ -80,7 +80,7 @@ function databases_get_account($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException(tr('databases_get_account(): Failed'), $e);
+        throw new CoreException(tr('databases_get_account(): Failed'), $e);
     }
 }
 
@@ -114,7 +114,7 @@ function databases_list_accounts($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException(tr('databases_list_accounts(): Failed'), $e);
+        throw new CoreException(tr('databases_list_accounts(): Failed'), $e);
     }
 }
 ?>

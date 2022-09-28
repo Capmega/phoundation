@@ -33,7 +33,7 @@ function whatsapp_library_init(){
                                'checks'   => array(ROOT.'libs/external/whatsapp/')));
 
     }catch(Exception $e){
-        throw new BException('whatsapp_library_init(): Failed', $e);
+        throw new CoreException('whatsapp_library_init(): Failed', $e);
     }
 }
 

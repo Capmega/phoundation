@@ -33,7 +33,7 @@ function mysqlr_library_init(){
         load_libs('linux,cli,rsync');
 
     }catch(Exception $e){
-        throw new BException('mysqlr_library_init(): Failed', $e);
+        throw new CoreException('mysqlr_library_init(): Failed', $e);
     }
 }
 
@@ -61,11 +61,11 @@ function mysqlr_update_server_replication_status($params, $status){
         array_default($params, 'servers_id' , '');
 
         if(empty($params['servers_id'])){
-            throw new BException(tr('mysqlr_update_server_replication_status(): No servers_id specified'), 'not-specified');
+            throw new CoreException(tr('mysqlr_update_server_replication_status(): No servers_id specified'), 'not-specified');
         }
 
         if(empty($status)){
-            throw new BException(tr('mysqlr_update_server_replication_status(): No status specified'), 'not-specified');
+            throw new CoreException(tr('mysqlr_update_server_replication_status(): No status specified'), 'not-specified');
         }
 
         /*
@@ -94,11 +94,11 @@ function mysqlr_update_server_replication_status($params, $status){
                 break;
 
             default:
-                throw new BException(tr('Unknown status ":status"', array(':status' => $status)), 'unknown');
+                throw new CoreException(tr('Unknown status ":status"', array(':status' => $status)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_update_server_replication_status(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_update_server_replication_status(): Failed'), $e);
     }
 }
 
@@ -127,15 +127,15 @@ function mysqlr_update_replication_status($params, $status){
         array_default($params, 'servers_id' , '');
 
         if(empty($params['databases_id'])){
-            throw new BException(tr('mysqlr_update_replication_status(): No database specified'), 'not-specified');
+            throw new CoreException(tr('mysqlr_update_replication_status(): No database specified'), 'not-specified');
         }
 
         if(empty($params['servers_id'])){
-            throw new BException(tr('mysqlr_update_replication_status(): No servers_id specified'), 'not-specified');
+            throw new CoreException(tr('mysqlr_update_replication_status(): No servers_id specified'), 'not-specified');
         }
 
         if(empty($status)){
-            throw new BException(tr('mysqlr_update_replication_status(): No status specified'), 'not-specified');
+            throw new CoreException(tr('mysqlr_update_replication_status(): No status specified'), 'not-specified');
         }
 
         /*
@@ -163,7 +163,7 @@ function mysqlr_update_replication_status($params, $status){
                 break;
 
             default:
-                throw new BException(tr('Unknown status ":status"', array(':status' => $status)));
+                throw new CoreException(tr('Unknown status ":status"', array(':status' => $status)));
         }
 
         /*
@@ -172,7 +172,7 @@ function mysqlr_update_replication_status($params, $status){
         sql_query('UPDATE `databases` SET `replication_status` = :replication_status WHERE `id` = :id', array(':replication_status' => $status, ':id' => $params['databases_id']));
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_update_replication_status(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_update_replication_status(): Failed'), $e);
     }
 }
 
@@ -211,7 +211,7 @@ function mysqlr_master_replication_setup($params){
         $slave = $_CONFIG['mysqlr']['domain'];
 
         if(empty($slave)){
-            throw new BException(tr('mysqlr_master_replication_setup(): MySQL configuration for replicator domain is not set'), 'not-specified');
+            throw new CoreException(tr('mysqlr_master_replication_setup(): MySQL configuration for replicator domain is not set'), 'not-specified');
         }
 
         /*
@@ -306,7 +306,7 @@ function mysqlr_master_replication_setup($params){
     }catch(Exception $e){
         mysqlr_update_server_replication_status($database, 'disabled_lock');
         mysqlr_update_replication_status($database, 'disabled');
-        throw new BException(tr('mysqlr_master_replication_setup(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_master_replication_setup(): Failed'), $e);
     }
 }
 
@@ -341,7 +341,7 @@ function mysqlr_slave_replication_setup($params){
         $slave = $_CONFIG['mysqlr']['domain'];
 
         if(empty($slave)){
-            throw new BException(tr('mysqlr_slave_replication_setup(): MySQL configuration for replicator domain is not set'), 'not-specified');
+            throw new CoreException(tr('mysqlr_slave_replication_setup(): MySQL configuration for replicator domain is not set'), 'not-specified');
         }
 
         /*
@@ -446,7 +446,7 @@ function mysqlr_slave_replication_setup($params){
     }catch(Exception $e){
         mysqlr_update_server_replication_status($database, 'disabled_lock');
         mysqlr_update_replication_status($database, 'disabled');
-        throw new BException(tr('mysqlr_slave_replication_setup(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_slave_replication_setup(): Failed'), $e);
     }
 }
 
@@ -475,7 +475,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
         $slave = $_CONFIG['mysqlr']['domain'];
 
         if(empty($slave)){
-            throw new BException(tr('mysqlr_pause_replication(): MySQL Configuration for replicator domain is not set'), 'not-specified');
+            throw new CoreException(tr('mysqlr_pause_replication(): MySQL Configuration for replicator domain is not set'), 'not-specified');
         }
 
         /*
@@ -484,7 +484,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
         $database = mysql_get_database($db);
 
         if(empty($database)){
-            throw new BException(tr('mysqlr_pause_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
+            throw new CoreException(tr('mysqlr_pause_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
         }
 
         mysqlr_update_replication_status($database, 'pausing');
@@ -513,7 +513,7 @@ function mysqlr_pause_replication($db, $restart_mysql = true){
         return 0;
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_pause_replication(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_pause_replication(): Failed'), $e);
     }
 }
 
@@ -542,7 +542,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
         $slave = $_CONFIG['mysqlr']['domain'];
 
         if(empty($slave)){
-            throw new BException(tr('mysqlr_resume_replication(): MySQL Configuration for replicator domain is not set'), 'not-specified');
+            throw new CoreException(tr('mysqlr_resume_replication(): MySQL Configuration for replicator domain is not set'), 'not-specified');
         }
 
         /*
@@ -551,7 +551,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
         $database = mysql_get_database($db);
 
         if(empty($database)){
-            throw new BException(tr('mysqlr_resume_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
+            throw new CoreException(tr('mysqlr_resume_replication(): The specified database :database does not exist', array(':database' => $database)), 'not-exists');
         }
 
         mysqlr_update_replication_status($database, 'resuming');
@@ -580,7 +580,7 @@ function mysqlr_resume_replication($db, $restart_mysql = true){
         return 0;
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_resume_replication(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_resume_replication(): Failed'), $e);
     }
 }
 
@@ -618,14 +618,14 @@ function mysqlr_check_configuration_path($server_target){
             $mysql_cnf      = servers_exec($server_target, 'test -f '.$mysql_cnf_path.' && echo "1" || echo "0"');
 
             if(!$mysql_cnf[0]){
-                throw new BException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_target)), 'not-exists');
+                throw new CoreException(tr('mysqlr_check_configuration_path(): MySQL configuration file :file does not exist on server :server', array(':file' => $mysql_cnf_path, ':server' => $server_target)), 'not-exists');
             }
         }
 
         return $mysql_cnf_path;
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_check_configuration_path(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_check_configuration_path(): Failed'), $e);
     }
 }
 
@@ -673,7 +673,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
                                  WHERE     `servers`.`domain` = :domain', array(':domain' => $server['domain']));
 
             if(!$dbserver){
-                throw new BException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
+                throw new CoreException(tr('ssh_mysql_slave_tunnel(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
             }
 
             $server = sql_merge($server, $dbserver);
@@ -730,7 +730,7 @@ function mysqlr_slave_ssh_tunnel($server, $slave){
             notify(tr('mysqlr_slave_ssh_tunnel(): cannot delete key'), $f, 'developers');
         }
 
-        throw new BException(tr('mysqlr_slave_ssh_tunnel(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_slave_ssh_tunnel(): Failed'), $e);
     }
 }
 
@@ -857,7 +857,7 @@ function mysqlr_full_backup(){
         log_console(tr('mysqlr_full_backup(): Finished backups'), 'VERBOSEDOT');
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_full_backup(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_full_backup(): Failed'), $e);
     }
 }
 
@@ -908,7 +908,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
                                  array(':domain' => $server['domain']));
 
             if(!$dbserver){
-                throw new BException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
+                throw new CoreException(tr('mysqlr_scp_database(): Specified server ":server" does not exist', array(':server' => $server['server'])), 'not-exists');
             }
 
             $server = sql_merge($server, $dbserver);
@@ -969,7 +969,7 @@ obsolete('mysqlr_scp_database() NEEDS TO BE REIMPLEMENTED FROM THE GROUND UP USI
             notify(tr('mysqlr_scp_database() cannot delete key'), $e, 'developers');
         }
 
-        throw new BException(tr('mysqlr_scp_database(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_scp_database(): Failed'), $e);
     }
 }
 
@@ -999,11 +999,11 @@ function mysqlr_add_log($params){
         array_default($params, 'message'     , '');
 
         if(empty($params['databases_id'])){
-            throw new BException(tr('No database specified'), 'not-specified');
+            throw new CoreException(tr('No database specified'), 'not-specified');
         }
 
         if(empty($params['type'])){
-            throw new BException(tr('No type specified'), 'not-specified');
+            throw new CoreException(tr('No type specified'), 'not-specified');
         }
 
         /*
@@ -1025,11 +1025,11 @@ function mysqlr_add_log($params){
                 break;
 
             default:
-                throw new BException(tr('Specified type is not valid'), 'not-valid');
+                throw new CoreException(tr('Specified type is not valid'), 'not-valid');
         }
 
         if(empty($params['message'])){
-            throw new BException(tr('No message specified'), 'not-specified');
+            throw new CoreException(tr('No message specified'), 'not-specified');
         }
 
         /*
@@ -1058,7 +1058,7 @@ function mysqlr_add_log($params){
                      'description' => $params['message']));
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_add_log(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_add_log(): Failed'), $e);
     }
 }
 
@@ -1084,7 +1084,7 @@ function mysqlr_get_logs($database, $limit = 50){
          * Validate data
          */
         if(empty($database)){
-            throw new BException(tr('No database specified'), 'not-specified');
+            throw new CoreException(tr('No database specified'), 'not-specified');
         }
 
         /*
@@ -1130,7 +1130,7 @@ function mysqlr_get_logs($database, $limit = 50){
         return $replicator_logs;
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_add_log(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_add_log(): Failed'), $e);
     }
 }
 
@@ -1159,7 +1159,7 @@ function mysqlr_monitor_database($database){
          * Validate data
          */
         if(empty($database)){
-            throw new BException(tr('No database specified'), 'not-specified');
+            throw new CoreException(tr('No database specified'), 'not-specified');
         }
 
         /*
@@ -1333,7 +1333,7 @@ function mysqlr_monitor_database($database){
             sql_close('replicator');
 
         }else{
-            throw new BException(tr('mysqlr_monitor_database(): Failed'), $e);
+            throw new CoreException(tr('mysqlr_monitor_database(): Failed'), $e);
         }
     }
 }
@@ -1376,13 +1376,13 @@ function mysqlr_log_type_human($type){
                 break;
 
             default:
-                throw new BException(tr('Specified type is not valid'), 'not-valid');
+                throw new CoreException(tr('Specified type is not valid'), 'not-valid');
         }
 
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_log_html_tag_type(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_log_html_tag_type(): Failed'), $e);
     }
 }
 
@@ -1413,7 +1413,7 @@ function mysqlr_db_can_replicate($database_name){
         return true;
 
     }catch(Exception $e){
-        throw new BException(tr('mysqlr_log_html_tag_type(): Failed'), $e);
+        throw new CoreException(tr('mysqlr_log_html_tag_type(): Failed'), $e);
     }
 }
 ?>

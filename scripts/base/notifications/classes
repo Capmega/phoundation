@@ -26,7 +26,7 @@ if(!function_exists('s_set_status')){
             $found = sql_list('SELECT `id` FROM `notifications_classes` WHERE `id` IN ('.implode(',', array_keys($in)).') OR `name` IN ('.implode(',', array_keys($in)).')', 'id', $in);
 
             if(!$found){
-                throw new BException(tr('s_set_status(): Specified notifications classes not found'));
+                throw new CoreException(tr('s_set_status(): Specified notifications classes not found'));
             }
 
             $in            = sql_in($found);
@@ -45,7 +45,7 @@ if(!function_exists('s_set_status')){
             return $r->rowCount();
 
         }catch(Exception $e){
-            throw new BException('s_set_status(): Failed', $e);
+            throw new CoreException('s_set_status(): Failed', $e);
         }
     }
 }
@@ -75,7 +75,7 @@ try{
                 log_console(tr('Created new notifications class "%class%"', array('%class%' => $class['name'])), '', 'green');
 
             }catch(Exception $e){
-                throw new BException(tr('Failed to create new notifications class'), $e);
+                throw new CoreException(tr('Failed to create new notifications class'), $e);
             }
 
             break;
@@ -88,7 +88,7 @@ try{
                 $old_class = sql_get('SELECT `id`, `name`, `methods`, `description` FROM `notifications_classes` WHERE `id` = :class OR `name` = :class', array(':class' => $class));
 
                 if(!$old_class){
-                    throw new BException(tr('The specified class "%class%" does not exist', array('%class%' => $class)), 'not-exists');
+                    throw new CoreException(tr('The specified class "%class%" does not exist', array('%class%' => $class)), 'not-exists');
                 }
 
                 $class = array_copy_clean($old_class, cli_arguments('name,methods,description'));
@@ -113,7 +113,7 @@ try{
                 log_console(tr('Modified notifications class "%class%"', array('%class%' => $old_class['name'])), '', 'green');
 
             }catch(Exception $e){
-                throw new BException(tr('Failed to update notifications class'), $e);
+                throw new CoreException(tr('Failed to update notifications class'), $e);
             }
 
             break;
@@ -136,7 +136,7 @@ try{
                               GROUP BY  `notifications_classes`.`id`');
 
             if(!$r->rowCount()){
-                throw new BException(tr('No classes found'), 'notfound');
+                throw new CoreException(tr('No classes found'), 'notfound');
             }
 
             log_console('#id   Name             Methods                Members Description', '', 'white');
@@ -153,7 +153,7 @@ try{
                 log_console(tr('Deleted "%count%" notification classes', array('%count%' => $count)), '', 'green');
 
             }catch(Exception $e){
-                throw new BException(tr('Failed to delete notifications classes'), $e);
+                throw new CoreException(tr('Failed to delete notifications classes'), $e);
             }
 
             break;
@@ -164,7 +164,7 @@ try{
                 log_console(tr('Undeleted "%count%" notification classes', array('%count%' => $count)), '', 'green');
 
             }catch(Exception $e){
-                throw new BException(tr('Failed to undelete notifications classes'), $e);
+                throw new CoreException(tr('Failed to undelete notifications classes'), $e);
             }
 
             break;
@@ -175,13 +175,13 @@ try{
                 log_console(tr('Erased "%count%" notification classes', array('%count%' => $count)), '', 'green');
 
             }catch(Exception $e){
-                throw new BException(tr('Failed to erase notifications classes'), $e);
+                throw new CoreException(tr('Failed to erase notifications classes'), $e);
             }
 
             break;
 
         default:
-            throw new BException(tr('Unknown method "%method%" specified', array('%method%' => $method)), 'unknown');
+            throw new CoreException(tr('Unknown method "%method%" specified', array('%method%' => $method)), 'unknown');
     }
 
 }catch(Exception $e){

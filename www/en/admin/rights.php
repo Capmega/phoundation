@@ -24,11 +24,11 @@ try{
              * Erase the specified rights
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot erase rights, no rights selected', 'notspecified');
+                throw new CoreException('Cannot erase rights, no rights selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot erase rights, invalid data specified', 'invalid');
+                throw new CoreException('Cannot erase rights, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
@@ -48,11 +48,11 @@ try{
              * Erase the specified rights
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot undelete rights, no rights selected', 'notspecified');
+                throw new CoreException('Cannot undelete rights, no rights selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot undelete rights, invalid data specified', 'invalid');
+                throw new CoreException('Cannot undelete rights, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
@@ -72,11 +72,11 @@ try{
              * Erase the specified rights
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot erase rights, no rights selected', 'notspecified');
+                throw new CoreException('Cannot erase rights, no rights selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot erase rights, invalid data specified', 'invalid');
+                throw new CoreException('Cannot erase rights, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');

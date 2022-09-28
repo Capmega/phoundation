@@ -19,7 +19,7 @@ function forwardings_library_init(){
         load_libs('iptables');
 
     }catch(Exception $e){
-        throw new BException('forwardings_library_init(): Failed', $e);
+        throw new CoreException('forwardings_library_init(): Failed', $e);
     }
 }
 
@@ -42,7 +42,7 @@ function forwardings_apply_server($server){
         }
 
     }catch(Exception $e){
-        throw new BException('forwardings_apply_server(): Failed', $e);
+        throw new CoreException('forwardings_apply_server(): Failed', $e);
     }
 }
 
@@ -65,7 +65,7 @@ function forwardings_remove_server($server){
         }
 
     }catch(Exception $e){
-        throw new BException('forwardings_remove_server(): Failed', $e);
+        throw new CoreException('forwardings_remove_server(): Failed', $e);
     }
 }
 
@@ -94,7 +94,7 @@ function forwardings_apply_rule($forward, $flush = true){
 
     }catch(Exception $e){
         iptables_exec(IPTABLES_CLEAR);
-        throw new BException('forwardings_apply_rule(): Failed', $e);
+        throw new CoreException('forwardings_apply_rule(): Failed', $e);
     }
 }
 
@@ -120,7 +120,7 @@ function forwardings_exists($forward){
         return false;
 
     }catch(Exception $e){
-        throw new BException('forwardings_exists(): Failed', $e);
+        throw new CoreException('forwardings_exists(): Failed', $e);
     }
 }
 
@@ -163,7 +163,7 @@ function forwardings_insert($forward, $createdby = null){
         return $forward_id;
 
     }catch(Exception $e){
-        throw new BException('forwardings_insert(): Failed', $e);
+        throw new CoreException('forwardings_insert(): Failed', $e);
     }
 }
 
@@ -193,7 +193,7 @@ function forwardings_delete($forward){
         }
 
     }catch(Exception $e){
-        throw new BException('forwardings_delete(): Failed', $e);
+        throw new CoreException('forwardings_delete(): Failed', $e);
     }
 }
 
@@ -234,7 +234,7 @@ function forwardings_delete_apply($forward){
         }
 
     }catch(Exception $e){
-        throw new BException('forwardings_delete_apply(): Failed', $e);
+        throw new CoreException('forwardings_delete_apply(): Failed', $e);
     }
 }
 
@@ -303,7 +303,7 @@ function forwardings_update($forward, $modifiedby = null){
         }
 
     }catch(Exception $e){
-        throw new BException('forwardings_update(): Failed', $e);
+        throw new CoreException('forwardings_update(): Failed', $e);
     }
 }
 
@@ -327,7 +327,7 @@ function forwardings_update_apply($forward, $old_forward){
         forwardings_delete_apply($old_forward);
 
     }catch(Exception $e){
-        throw new BException('forwardings_update_apply(): Failed', $e);
+        throw new CoreException('forwardings_update_apply(): Failed', $e);
     }
 }
 
@@ -440,7 +440,7 @@ function forwardings_validate($forward){
         return $forward;
 
     }catch(Exception $e){
-        throw new BException('forwardings_validate(): Failed', $e);
+        throw new CoreException('forwardings_validate(): Failed', $e);
     }
 }
 
@@ -455,7 +455,7 @@ function forwardings_validate($forward){
 function forwardings_get($forwardings_id){
     try{
         if(empty($forwardings_id)){
-            throw new BException(tr('forwardings_get(): No forwarding specified'), 'not-specified');
+            throw new CoreException(tr('forwardings_get(): No forwarding specified'), 'not-specified');
         }
 
         $forward = sql_get('SELECT    `forwardings`.`id`,
@@ -491,7 +491,7 @@ function forwardings_get($forwardings_id){
         return $forward;
 
     }catch(Exception $e){
-        throw new BException('forwardings_get(): Failed', $e);
+        throw new CoreException('forwardings_get(): Failed', $e);
     }
 }
 
@@ -507,7 +507,7 @@ function forwardings_list($server){
     try{
         if(!is_numeric($server)){
             if(!is_string($server)){
-                throw new BException(tr('forwardings_list(): Server ":server" is not valid. Must be an id or a hostname.'), 'invalid');
+                throw new CoreException(tr('forwardings_list(): Server ":server" is not valid. Must be an id or a hostname.'), 'invalid');
             }
 
             $server = servers_get($server, false, false);
@@ -541,7 +541,7 @@ function forwardings_list($server){
         return $forwardings;
 
     }catch(Exception $e){
-        throw new BException('forwardings_list(): Failed', $e);
+        throw new CoreException('forwardings_list(): Failed', $e);
     }
 }
 
@@ -561,7 +561,7 @@ function forwardings_only_accept_traffic($forward){
         iptables_accept_traffic($forward['target_id'], $forward['source_ip'], $forward['target_port'], 'tcp');
 
     }catch(Exception $e){
-        throw new BException('forwardings_only_accept_traffic(): Failed', $e);
+        throw new CoreException('forwardings_only_accept_traffic(): Failed', $e);
     }
 }
 
@@ -576,7 +576,7 @@ function forwardings_only_accept_traffic($forward){
 function forwardings_delete_list($forwardings, $apply = true){
     try{
         if(empty($forwardings)){
-            throw new BException(tr('forwardings_delete_list(): No forwardings specified'), 'not-specified');
+            throw new CoreException(tr('forwardings_delete_list(): No forwardings specified'), 'not-specified');
         }
 
         foreach($forwardings as $forward){
@@ -585,7 +585,7 @@ function forwardings_delete_list($forwardings, $apply = true){
         }
 
     }catch(Exception $e){
-        throw new BException('forwardings_delete_list(): Failed', $e);
+        throw new CoreException('forwardings_delete_list(): Failed', $e);
     }
 }
 
@@ -602,7 +602,7 @@ function forwardings_destroy($server){
         iptables_flush_all(IPTABLES_BUFFER);
         iptables_clean_chain_nat($server);
     }catch(Exception $e){
-        throw new BException('forwardings_destroy(): Failed', $e);
+        throw new CoreException('forwardings_destroy(): Failed', $e);
     }
 }
 
@@ -636,7 +636,7 @@ function forwardings_get_by_protocol($server, $protocol){
         return $forward;
 
     }catch(Exception $e){
-        throw new BException('forwardings_get_by_protocol(): Failed', $e);
+        throw new CoreException('forwardings_get_by_protocol(): Failed', $e);
     }
 }
 
@@ -649,7 +649,7 @@ function forwardings_deny_access($server){
     try{
         iptalbes_drop_all($server);
     }catch(Exception $e){
-        throw new BException('forwardings_deny_access(): Failed', $e);
+        throw new CoreException('forwardings_deny_access(): Failed', $e);
     }
 }
 ?>

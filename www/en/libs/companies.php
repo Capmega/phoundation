@@ -35,7 +35,7 @@ function companies_library_init(){
         //}
 
     }catch(Exception $e){
-        throw new BException('companies_library_init(): Failed', $e);
+        throw new CoreException('companies_library_init(): Failed', $e);
     }
 }
 
@@ -161,7 +161,7 @@ function companies_validate($company){
       return $company;
 
     }catch(Exception $e){
-        throw new BException('companies_validate(): Failed', $e);
+        throw new CoreException('companies_validate(): Failed', $e);
     }
 }
 
@@ -212,7 +212,7 @@ function companies_select($params = null){
             $params['categories_id'] = categories_get($params['seocategory'], 'id');
 
             if(!$params['categories_id']){
-                throw new BException(tr('companies_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
+                throw new CoreException(tr('companies_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
             }
         }
 
@@ -258,7 +258,7 @@ function companies_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('companies_select(): Failed', $e);
+        throw new CoreException('companies_select(): Failed', $e);
     }
 }
 
@@ -323,7 +323,7 @@ function companies_get($params, $column = null, $status = null){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('companies_get(): Failed', $e);
+        throw new CoreException('companies_get(): Failed', $e);
     }
 }
 
@@ -357,7 +357,7 @@ function companies_list($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('companies_list(): Failed', $e);
+        throw new CoreException('companies_list(): Failed', $e);
     }
 }
 
@@ -455,7 +455,7 @@ function companies_validate_branch($branch, $reload_only = false){
       return $branch;
 
     }catch(Exception $e){
-        throw new BException('companies_validate_branch(): Failed', $e);
+        throw new CoreException('companies_validate_branch(): Failed', $e);
     }
 }
 
@@ -506,7 +506,7 @@ function companies_select_branch($params = null){
             $params['companies_id'] = companies_get($params['seocompany'], 'id');
 
             if(!$params['companies_id']){
-                throw new BException(tr('companies_select_branch(): The specified company ":company" does not exist or is not available', array(':company' => $params['company'])), 'not-exists');
+                throw new CoreException(tr('companies_select_branch(): The specified company ":company" does not exist or is not available', array(':company' => $params['company'])), 'not-exists');
             }
         }
 
@@ -523,7 +523,7 @@ function companies_select_branch($params = null){
                      * specified yet. Select the default company
                      */
                     if(!$_CONFIG['companies']['defaults']['company']){
-                        throw new BException(tr('companies_select_branch(): No default company specified for default branch ":branch", see $_CONFIG[companies][defaults][company]', array(':branch' => $_CONFIG['companies']['defaults']['branch'])), 'not-specified');
+                        throw new CoreException(tr('companies_select_branch(): No default company specified for default branch ":branch", see $_CONFIG[companies][defaults][company]', array(':branch' => $_CONFIG['companies']['defaults']['branch'])), 'not-specified');
                     }
 
                     $params['companies_id'] = companies_get($_CONFIG['companies']['defaults']['company'], 'id');
@@ -585,7 +585,7 @@ function companies_select_branch($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('companies_select_branch(): Failed', $e);
+        throw new CoreException('companies_select_branch(): Failed', $e);
     }
 }
 
@@ -643,7 +643,7 @@ function companies_get_branch($params, $branch, $column = null, $status = null){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('companies_get_branch(): Failed', $e);
+        throw new CoreException('companies_get_branch(): Failed', $e);
     }
 }
 
@@ -677,7 +677,7 @@ function companies_list_branches($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('companies_list_branches(): Failed', $e);
+        throw new CoreException('companies_list_branches(): Failed', $e);
     }
 }
 
@@ -791,7 +791,7 @@ function companies_validate_department($department, $reload_only = false){
       return $department;
 
     }catch(Exception $e){
-        throw new BException('companies_validate_department(): Failed', $e);
+        throw new CoreException('companies_validate_department(): Failed', $e);
     }
 }
 
@@ -843,7 +843,7 @@ function companies_select_department($params = null){
             $params['companies_id'] = companies_get($params['seocompany'], 'id');
 
             if(!$params['companies_id']){
-                throw new BException(tr('companies_select_department(): The reqested company ":company" does not exist or is not available', array(':company' => $params['seocompany'])), 'deleted');
+                throw new CoreException(tr('companies_select_department(): The reqested company ":company" does not exist or is not available', array(':company' => $params['seocompany'])), 'deleted');
             }
         }
 
@@ -851,7 +851,7 @@ function companies_select_department($params = null){
             $params['branches_id'] = companies_get_branch($params['companies_id'], $params['seobranch'], 'id');
 
             if(!$params['branches_id']){
-                throw new BException(tr('companies_select_department(): The reqested branch ":branch" does not exist or is not available', array(':branch' => $params['seobranch'])), 'deleted');
+                throw new CoreException(tr('companies_select_department(): The reqested branch ":branch" does not exist or is not available', array(':branch' => $params['seobranch'])), 'deleted');
             }
         }
 
@@ -868,7 +868,7 @@ function companies_select_department($params = null){
                      * specified yet. Select the default company
                      */
                     if(!$_CONFIG['companies']['defaults']['company']){
-                        throw new BException(tr('companies_select_branch(): No default company specified for default branch ":branch", see $_CONFIG[companies][defaults][company]', array(':branch' => $_CONFIG['companies']['defaults']['branch'])), 'not-specified');
+                        throw new CoreException(tr('companies_select_branch(): No default company specified for default branch ":branch", see $_CONFIG[companies][defaults][company]', array(':branch' => $_CONFIG['companies']['defaults']['branch'])), 'not-specified');
                     }
 
                     $params['companies_id'] = companies_get($_CONFIG['companies']['defaults']['company'], 'id');
@@ -931,7 +931,7 @@ function companies_select_department($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('companies_select_department(): Failed', $e);
+        throw new CoreException('companies_select_department(): Failed', $e);
     }
 }
 
@@ -997,7 +997,7 @@ function companies_get_department($params, $branch, $department, $column = null,
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('companies_get_department(): Failed', $e);
+        throw new CoreException('companies_get_department(): Failed', $e);
     }
 }
 
@@ -1031,7 +1031,7 @@ function companies_list_departments($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('companies_list_departments(): Failed', $e);
+        throw new CoreException('companies_list_departments(): Failed', $e);
     }
 }
 
@@ -1171,7 +1171,7 @@ function companies_validate_employee($employee, $reload_only = false){
       return $employee;
 
     }catch(Exception $e){
-        throw new BException('companies_validate_employee(): Failed', $e);
+        throw new CoreException('companies_validate_employee(): Failed', $e);
     }
 }
 
@@ -1223,7 +1223,7 @@ function companies_select_employee($params = null){
             $params['companies_id'] = companies_get($params['seocompany'], 'id');
 
             if(!$params['companies_id']){
-                throw new BException(tr('companies_select_employee(): The reqested company ":company" does not exist or is not available', array(':company' => $params['seocompany'])), 'deleted');
+                throw new CoreException(tr('companies_select_employee(): The reqested company ":company" does not exist or is not available', array(':company' => $params['seocompany'])), 'deleted');
             }
         }
 
@@ -1231,7 +1231,7 @@ function companies_select_employee($params = null){
             $params['branches_id'] = companies_get_branch($params['companies_id'], $params['seobranch'], 'id');
 
             if(!$params['branches_id']){
-                throw new BException(tr('companies_select_employee(): The reqested branch ":branch" does not exist or is not available', array(':branch' => $params['seobranch'])), 'deleted');
+                throw new CoreException(tr('companies_select_employee(): The reqested branch ":branch" does not exist or is not available', array(':branch' => $params['seobranch'])), 'deleted');
             }
         }
 
@@ -1239,7 +1239,7 @@ function companies_select_employee($params = null){
             $params['departments_id'] = companies_get($params['companies_id'], $params['branches_id'], $params['seodepartment'], 'id');
 
             if(!$params['departments_id']){
-                throw new BException(tr('companies_select_employee(): The reqested department ":department" does not exist or is not available', array(':department' => $params['seodepartment'])), 'deleted');
+                throw new CoreException(tr('companies_select_employee(): The reqested department ":department" does not exist or is not available', array(':department' => $params['seodepartment'])), 'deleted');
             }
         }
 
@@ -1279,7 +1279,7 @@ function companies_select_employee($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('companies_select_employee(): Failed', $e);
+        throw new CoreException('companies_select_employee(): Failed', $e);
     }
 }
 
@@ -1367,7 +1367,7 @@ function companies_get_employee($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException(tr('companies_get_employee(): Failed'), $e);
+        throw new CoreException(tr('companies_get_employee(): Failed'), $e);
     }
 }
 
@@ -1401,6 +1401,6 @@ function companies_list_employees($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('companies_list_employees(): Failed', $e);
+        throw new CoreException('companies_list_employees(): Failed', $e);
     }
 }

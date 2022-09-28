@@ -40,7 +40,7 @@ function rights_give($users, $rights){
                     /*
                      * This user does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified user ":user" does not exist', array(':user' => $value)), 'not-exists');
+                    throw new CoreException(tr('rights_give(): The specified user ":user" does not exist', array(':user' => $value)), 'not-exists');
                 }
 
             }else{
@@ -48,7 +48,7 @@ function rights_give($users, $rights){
                     /*
                      * This user does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified users id ":users_id" does not exist', array(':users_id' => $value)), 'not-exists');
+                    throw new CoreException(tr('rights_give(): The specified users id ":users_id" does not exist', array(':users_id' => $value)), 'not-exists');
                 }
             }
         }
@@ -62,7 +62,7 @@ function rights_give($users, $rights){
                     /*
                      * This right does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified right ":right" does not exist', array(':right' => $value)), 'not-exists');
+                    throw new CoreException(tr('rights_give(): The specified right ":right" does not exist', array(':right' => $value)), 'not-exists');
                 }
 
             }else{
@@ -70,7 +70,7 @@ function rights_give($users, $rights){
                     /*
                      * This right does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified rights id ":rights_id" does not exist', array(':rights_id' => $value)), 'not-exists');
+                    throw new CoreException(tr('rights_give(): The specified rights id ":rights_id" does not exist', array(':rights_id' => $value)), 'not-exists');
                 }
             }
         }
@@ -111,7 +111,7 @@ function rights_give($users, $rights){
         }
 
     }catch(Exception $e){
-        throw new BException('rights_give(): Failed', $e);
+        throw new CoreException('rights_give(): Failed', $e);
     }
 }
 
@@ -137,7 +137,7 @@ function rights_take($users, $rights){
                     /*
                      * This user does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified user ":user" does not exist', array(':users_id' => $value)), 'not-exists');
+                    throw new CoreException(tr('rights_give(): The specified user ":user" does not exist', array(':users_id' => $value)), 'not-exists');
                 }
 
             }else{
@@ -145,7 +145,7 @@ function rights_take($users, $rights){
                     /*
                      * This user does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified users id ":users_id" does not exist', array(':users_id' => $value)), 'not-exists');
+                    throw new CoreException(tr('rights_give(): The specified users id ":users_id" does not exist', array(':users_id' => $value)), 'not-exists');
                 }
             }
         }
@@ -159,7 +159,7 @@ function rights_take($users, $rights){
                     /*
                      * This right does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified right ":right" does not exist', array(':right' => $value)), 'not-exists');
+                    throw new CoreException(tr('rights_give(): The specified right ":right" does not exist', array(':right' => $value)), 'not-exists');
                 }
 
             }else{
@@ -167,7 +167,7 @@ function rights_take($users, $rights){
                     /*
                      * This right does not exist...
                      */
-                    throw new BException(tr('rights_give(): The specified rights id ":rights_id" does not exist', array(':rights_id' => $value)), 'not-exists');
+                    throw new CoreException(tr('rights_give(): The specified rights id ":rights_id" does not exist', array(':rights_id' => $value)), 'not-exists');
                 }
             }
         }
@@ -189,7 +189,7 @@ function rights_take($users, $rights){
         }
 
     }catch(Exception $e){
-        throw new BException('rights_take(): Failed', $e);
+        throw new CoreException('rights_take(): Failed', $e);
     }
 }
 
@@ -201,11 +201,11 @@ function rights_take($users, $rights){
 function rights_get($right){
     try{
         if(!$right){
-            throw new BException(tr('rights_get(): No right specified'), 'not-specified');
+            throw new CoreException(tr('rights_get(): No right specified'), 'not-specified');
         }
 
         if(!is_scalar($right)){
-            throw new BException(tr('rights_get(): Specified right ":right" is not scalar', array(':right' => $right)), 'invalid');
+            throw new CoreException(tr('rights_get(): Specified right ":right" is not scalar', array(':right' => $right)), 'invalid');
         }
 
         $retval = sql_get('SELECT    `rights`.`id`,
@@ -230,7 +230,7 @@ function rights_get($right){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('rights_get(): Failed', $e);
+        throw new CoreException('rights_get(): Failed', $e);
     }
 }
 
@@ -261,7 +261,7 @@ function rights_select($select = '', $name = 'rights_id', $god = true){
         return cache_write('rights_'.$name.'_'.$select.($god ? '_all' : ''), $retval.'</select>');
 
     }catch(Exception $e){
-        throw new BException('rights_select(): Failed', $e);
+        throw new CoreException('rights_select(): Failed', $e);
     }
 }
 
@@ -280,7 +280,7 @@ function rights_has($user, $right){
         }
 
         if(!$target = sql_get('SELECT `id` FROM `users` WHERE `id` = :id OR `name` = :name OR `email` = :email', array(':name' => $user, ':email' => $user, ':id' => $user), 'id')){
-            throw new BException(tr('rights_has(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
+            throw new CoreException(tr('rights_has(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
         }
 
         $rights = sql_list('SELECT `users_id`,
@@ -305,7 +305,7 @@ function rights_has($user, $right){
         return true;
 
     }catch(Exception $e){
-        throw new BException('rights_has(): Failed', $e);
+        throw new CoreException('rights_has(): Failed', $e);
     }
 }
 
@@ -365,7 +365,7 @@ function rights_validate($right, $old_right = null){
         return $right;
 
     }catch(Exception $e){
-        throw new BException(tr('rights_validate(): Failed'), $e);
+        throw new CoreException(tr('rights_validate(): Failed'), $e);
     }
 }
 ?>

@@ -89,7 +89,7 @@ if(!empty($_POST['dosubmit'])){
 try{
     if(isset_get($_POST['docreate'])){
         if(!empty($profile)){
-            throw new bException('Unknown option "docreate" specified', 'unknown');
+            throw new CoreException('Unknown option "docreate" specified', 'unknown');
         }
 
         /*
@@ -113,7 +113,7 @@ try{
     if(isset_get($_POST['doupdate'])){
         if(empty($profile)){
             if(empty($user['id'])){
-                throw new bException('Cannot update, no user specified', 'notspecified');
+                throw new CoreException('Cannot update, no user specified', 'notspecified');
             }
 
             /*
@@ -202,7 +202,7 @@ try{
 
         }else{
             if(empty($user['id'])){
-                throw new bException('Cannot update, no user specified', 'notspecified');
+                throw new CoreException('Cannot update, no user specified', 'notspecified');
             }
 
             /*
@@ -280,11 +280,11 @@ try{
 
     }elseif(isset_get($_POST['dobecome'])){
         if(!empty($profile)){
-            throw new bException('Unknown option "dobecome" specified', 'unknown');
+            throw new CoreException('Unknown option "dobecome" specified', 'unknown');
         }
 
         if(!$user){
-            throw new bException('Cannot become user, no user available', 'nouseravailable');
+            throw new CoreException('Cannot become user, no user available', 'nouseravailable');
         }
 
         user_switch($user['name']);
@@ -641,11 +641,11 @@ function s_validate_user(&$user, $id = null){
         }
 
         if(!$v->isValid()) {
-            throw new bException($v->getErrors(), 'error');
+            throw new CoreException($v->getErrors(), 'error');
         }
 
     }catch(Exception $e){
-        throw new bException('s_validate_user(): Failed', $e);
+        throw new CoreException('s_validate_user(): Failed', $e);
     }
 }
 ?>

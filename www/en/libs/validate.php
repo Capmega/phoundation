@@ -38,7 +38,7 @@ function validate_library_init(){
                 linux_install_package(null, 'php-intl');
 
             }catch(Exception $e){
-                throw new BException(tr('validate_library_init(): php module "intl" appears not to be installed, and failed to installed automatically. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-intl; sudo php5enmod intl" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-intl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), $e);
+                throw new CoreException(tr('validate_library_init(): php module "intl" appears not to be installed, and failed to installed automatically. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-intl; sudo php5enmod intl" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-intl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), $e);
             }
         }
 
@@ -80,7 +80,7 @@ function validate_library_init(){
         define('VALIDATE_IGNORE_ALL'            , 4294967232); // Ignore all special characters, except HTML
 
     }catch(Exception $e){
-        throw new BException('validate_library_init(): Failed', $e);
+        throw new CoreException('validate_library_init(): Failed', $e);
     }
 }
 
@@ -134,7 +134,7 @@ function verify_js($params){
         return html_script($script, false);
 
     }catch(Exception $e){
-        throw new BException('validate_js(): Failed', $e);
+        throw new CoreException('validate_js(): Failed', $e);
     }
 }
 
@@ -193,7 +193,7 @@ class ValidateJquery {
                 break;
 
             default:
-                throw new BException(tr('ValidateJquery->validate(): Unknown rule ":rule" specified', array(':rule' => $rule)), 'unknown');
+                throw new CoreException(tr('ValidateJquery->validate(): Unknown rule ":rule" specified', array(':rule' => $rule)), 'unknown');
         }
 
         $this->validations[$element][] = array('rule'  => $rule,
@@ -208,16 +208,16 @@ class ValidateJquery {
 
             if(!is_string($params)){
                 if(!is_array($params)){
-                    throw new BException('ValidateJquery->outputValidation(): Invalid $params specified. Must be either string, or assoc array containing at least "id"');
+                    throw new CoreException('ValidateJquery->outputValidation(): Invalid $params specified. Must be either string, or assoc array containing at least "id"');
                 }
 
                 if(empty($params['id'])){
-                    throw new BException('ValidateJquery->outputValidation(): Invalid $params specified. Must be either string, or assoc array containing at least "id"');
+                    throw new CoreException('ValidateJquery->outputValidation(): Invalid $params specified. Must be either string, or assoc array containing at least "id"');
                 }
 
             }else{
                 if(!$params){
-                    throw new BException('ValidateJquery->outputValidation(): Empty $params specified');
+                    throw new CoreException('ValidateJquery->outputValidation(): Empty $params specified');
                 }
 
                 $params = array('id' => $params);
@@ -276,14 +276,14 @@ class ValidateJquery {
 
                 if(!empty($params['submithandler'])){
                     if(!empty($params['quickhandler'])){
-                        throw new BException('ValidateJquery::outputValidation(): Both submithandler and quickhandler are specified, these handlers are mutually exclusive');
+                        throw new CoreException('ValidateJquery::outputValidation(): Both submithandler and quickhandler are specified, these handlers are mutually exclusive');
                     }
 
                     $html .= ",\n".'submitHandler : function(form){'.$params['submithandler'].'}';
 
                 }elseif(!empty($params['quickhandler'])){
                     if(!is_array($params['quickhandler'])){
-                        throw new BException('ValidateJquery::outputValidation(): Invalid quickhandler specified, it should be an assoc array');
+                        throw new CoreException('ValidateJquery::outputValidation(): Invalid quickhandler specified, it should be an assoc array');
                     }
 
                     $handler = $params['quickhandler'];
@@ -291,7 +291,7 @@ class ValidateJquery {
 // :DELETE: These checks are no longer necesary since now we have default values
                     //foreach(array('target', 'fail') as $key){
                     //    if(empty($handler[$key])){
-                    //        throw new BException('ValidateJquery::outputValidation(): No quickhandler key "'.$key.'" specified');
+                    //        throw new CoreException('ValidateJquery::outputValidation(): No quickhandler key "'.$key.'" specified');
                     //    }
                     //}
 
@@ -354,7 +354,7 @@ class ValidateJquery {
             ', false);
 
         }catch(Exception $e){
-            throw new BException('ValidateJquery::outputValidation(): Failed', $e);
+            throw new CoreException('ValidateJquery::outputValidation(): Failed', $e);
         }
     }
 }
@@ -384,7 +384,7 @@ class ValidateForm {
                     /*
                      * Specified source has an invalid data source!
                      */
-                    throw new BException(tr('ValidateForm::__construct(): Specified source ":source" has datatype ":type" while array datatype is expected', array(':source' => $source, ':type' => gettype($source))), 'validation');
+                    throw new CoreException(tr('ValidateForm::__construct(): Specified source ":source" has datatype ":type" while array datatype is expected', array(':source' => $source, ':type' => gettype($source))), 'validation');
                 }
 
                 $source = array();
@@ -415,12 +415,12 @@ class ValidateForm {
                 }
 
                 if(isset($unknown)){
-                    throw new BException(tr('ValidateForm::__construct(): Specified source ":source" contains unknown columns ":unknown"', array(':source' => $source, ':unknown' => $unknown)), 'validation');
+                    throw new CoreException(tr('ValidateForm::__construct(): Specified source ":source" contains unknown columns ":unknown"', array(':source' => $source, ':unknown' => $unknown)), 'validation');
                 }
             }
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::__construct(): Failed', $e);
+            throw new CoreException('ValidateForm::__construct(): Failed', $e);
         }
     }
 
@@ -440,7 +440,7 @@ class ValidateForm {
 
             }else{
                 if(!is_natural($flags)){
-                    throw new BException(tr('ValidateForm::parseFlags(): Invalid flags ":flags" specified, it should be a natural number value', array(':flags' => $flags)), 'invalid');
+                    throw new CoreException(tr('ValidateForm::parseFlags(): Invalid flags ":flags" specified, it should be a natural number value', array(':flags' => $flags)), 'invalid');
                 }
 
                 if($flags & VALIDATE_NOT){
@@ -683,13 +683,13 @@ class ValidateForm {
                  * variable to be empty, even though this variable can never
                  * ever be empty!
                  */
-                throw new BException(tr('ValidateForm::parseFlags(): Some VALIDATE_ALLOW_EMPTY type flag was specified by the function ":function()" for the validation method ":method", while this method does not support those flags', array(':function' => current_function(2), ':method' => current_function(1))), 'invalid');
+                throw new CoreException(tr('ValidateForm::parseFlags(): Some VALIDATE_ALLOW_EMPTY type flag was specified by the function ":function()" for the validation method ":method", while this method does not support those flags', array(':function' => current_function(2), ':method' => current_function(1))), 'invalid');
             }
 
             return $this->allowEmpty($value, $message);
 
         }catch(Exception $e){
-            throw new BException(tr('ValidateForm::parseFlags(): Failed'), $e);
+            throw new CoreException(tr('ValidateForm::parseFlags(): Failed'), $e);
         }
     }
 
@@ -722,7 +722,7 @@ class ValidateForm {
             return false;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::allowEmpty(): Failed', $e);
+            throw new CoreException('ValidateForm::allowEmpty(): Failed', $e);
         }
     }
 
@@ -764,7 +764,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isScalar(): Failed', $e);
+            throw new CoreException('ValidateForm::isScalar(): Failed', $e);
         }
     }
 
@@ -790,7 +790,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isNotEmpty(): Failed', $e);
+            throw new CoreException('ValidateForm::isNotEmpty(): Failed', $e);
         }
     }
 
@@ -817,7 +817,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isStatus(): Failed', $e);
+            throw new CoreException('ValidateForm::isStatus(): Failed', $e);
         }
     }
 
@@ -831,7 +831,7 @@ class ValidateForm {
             return $this->isFilter($value, FILTER_VALIDATE_EMAIL, $message, $flags);
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isEmail(): Failed', $e);
+            throw new CoreException('ValidateForm::isEmail(): Failed', $e);
         }
     }
 
@@ -845,7 +845,7 @@ class ValidateForm {
             return $this->isFilter($value, FILTER_VALIDATE_URL, $message, $flags);
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isUrl(): Failed', $e);
+            throw new CoreException('ValidateForm::isUrl(): Failed', $e);
         }
     }
 
@@ -859,7 +859,7 @@ class ValidateForm {
             return $this->isFilter($value, FILTER_VALIDATE_DOMAIN, $message, $flags);
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isDomain(): Failed', $e);
+            throw new CoreException('ValidateForm::isDomain(): Failed', $e);
         }
     }
 
@@ -901,7 +901,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isFilter(): Failed', $e);
+            throw new CoreException('ValidateForm::isFilter(): Failed', $e);
         }
     }
 
@@ -927,7 +927,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isNumeric(): Failed', $e);
+            throw new CoreException('ValidateForm::isNumeric(): Failed', $e);
         }
     }
 
@@ -960,7 +960,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isNatural(): Failed', $e);
+            throw new CoreException('ValidateForm::isNatural(): Failed', $e);
         }
     }
 
@@ -986,7 +986,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isAlpha(): Failed', $e);
+            throw new CoreException('ValidateForm::isAlpha(): Failed', $e);
         }
     }
 
@@ -1012,7 +1012,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isAlphaNumeric(): Failed', $e);
+            throw new CoreException('ValidateForm::isAlphaNumeric(): Failed', $e);
         }
     }
 
@@ -1042,7 +1042,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isHexadecimal(): Failed', $e);
+            throw new CoreException('ValidateForm::isHexadecimal(): Failed', $e);
         }
     }
 
@@ -1090,7 +1090,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isPhonenumber(): Failed', $e);
+            throw new CoreException('ValidateForm::isPhonenumber(): Failed', $e);
         }
     }
 
@@ -1123,7 +1123,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isEqual(): Failed', $e);
+            throw new CoreException('ValidateForm::isEqual(): Failed', $e);
         }
     }
 
@@ -1156,7 +1156,7 @@ class ValidateForm {
     //        return true;
     //
     //    }catch(Exception $e){
-    //        throw new BException('ValidateForm::isNotEqual(): Failed', $e);
+    //        throw new CoreException('ValidateForm::isNotEqual(): Failed', $e);
     //    }
     //}
 
@@ -1186,7 +1186,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isBetween(): Failed', $e);
+            throw new CoreException('ValidateForm::isBetween(): Failed', $e);
         }
     }
 
@@ -1212,7 +1212,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isEnabled(): Failed', $e);
+            throw new CoreException('ValidateForm::isEnabled(): Failed', $e);
         }
     }
 
@@ -1240,7 +1240,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::hasChars(): Failed', $e);
+            throw new CoreException('ValidateForm::hasChars(): Failed', $e);
         }
     }
 
@@ -1271,7 +1271,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::hasNoChars(): Failed', $e);
+            throw new CoreException('ValidateForm::hasNoChars(): Failed', $e);
         }
     }
 
@@ -1297,7 +1297,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::hasMinChars(): Failed', $e);
+            throw new CoreException('ValidateForm::hasMinChars(): Failed', $e);
         }
     }
 
@@ -1323,7 +1323,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::hasMaxChars(): Failed', $e);
+            throw new CoreException('ValidateForm::hasMaxChars(): Failed', $e);
         }
     }
 
@@ -1353,7 +1353,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isFacebookUserpage(): Failed', $e);
+            throw new CoreException('ValidateForm::isFacebookUserpage(): Failed', $e);
         }
     }
 
@@ -1383,7 +1383,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isTwitterUserpage(): Failed', $e);
+            throw new CoreException('ValidateForm::isTwitterUserpage(): Failed', $e);
         }
     }
 
@@ -1413,7 +1413,7 @@ class ValidateForm {
             return $matches[1];
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isGoogleplusUserpage(): Failed', $e);
+            throw new CoreException('ValidateForm::isGoogleplusUserpage(): Failed', $e);
         }
     }
 
@@ -1443,7 +1443,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isYoutubeUserpage(): Failed', $e);
+            throw new CoreException('ValidateForm::isYoutubeUserpage(): Failed', $e);
         }
     }
 
@@ -1473,7 +1473,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isLinkedinUserpage(): Failed', $e);
+            throw new CoreException('ValidateForm::isLinkedinUserpage(): Failed', $e);
         }
     }
 
@@ -1495,7 +1495,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isChecked(): Failed', $e);
+            throw new CoreException('ValidateForm::isChecked(): Failed', $e);
         }
     }
 
@@ -1521,7 +1521,7 @@ class ValidateForm {
             return true;
 
          }catch(Exception $e){
-            throw new BException(tr('ValidateForm::isRegex(): failed (possibly invalid regex?)'), $e);
+            throw new CoreException(tr('ValidateForm::isRegex(): failed (possibly invalid regex?)'), $e);
          }
     }
 
@@ -1547,7 +1547,7 @@ class ValidateForm {
             return true;
 
          }catch(Exception $e){
-            throw new BException(tr('ValidateForm::isRegex(): failed (possibly invalid regex?)'), $e);
+            throw new CoreException(tr('ValidateForm::isRegex(): failed (possibly invalid regex?)'), $e);
          }
     }
 
@@ -1572,7 +1572,7 @@ class ValidateForm {
             }
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isDate(): Failed', $e);
+            throw new CoreException('ValidateForm::isDate(): Failed', $e);
         }
     }
 
@@ -1586,7 +1586,7 @@ class ValidateForm {
 // :TODO: IMPLEMENT
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isDateTime(): Failed', $e);
+            throw new CoreException('ValidateForm::isDateTime(): Failed', $e);
         }
     }
 
@@ -1626,10 +1626,10 @@ class ValidateForm {
 
         }catch(Exception $e){
             if($e->getCode() == 'invalid'){
-                throw new BException(tr('ValidateForm->isTime(): Specified time ":value" is invalid', array(':value' => $value)), $e);
+                throw new CoreException(tr('ValidateForm->isTime(): Specified time ":value" is invalid', array(':value' => $value)), $e);
             }
 
-            throw new BException('ValidateForm::isTime(): Failed', $e);
+            throw new CoreException('ValidateForm::isTime(): Failed', $e);
         }
     }
 
@@ -1656,10 +1656,10 @@ class ValidateForm {
 
         }catch(Exception $e){
             if($e->getCode() == 'invalid'){
-                throw new BException(tr('ValidateForm->isLatitude(): Specified latitude ":value" is invalid', array(':value' => $value)), $e);
+                throw new CoreException(tr('ValidateForm->isLatitude(): Specified latitude ":value" is invalid', array(':value' => $value)), $e);
             }
 
-            throw new BException('ValidateForm::isLatitude(): Failed', $e);
+            throw new CoreException('ValidateForm::isLatitude(): Failed', $e);
         }
     }
 
@@ -1686,10 +1686,10 @@ class ValidateForm {
 
         }catch(Exception $e){
             if($e->getCode() == 'invalid'){
-                throw new BException(tr('ValidateForm->isLongitude(): Specified longitude ":value" is invalid', array(':value' => $value)), $e);
+                throw new CoreException(tr('ValidateForm->isLongitude(): Specified longitude ":value" is invalid', array(':value' => $value)), $e);
             }
 
-            throw new BException('ValidateForm::isLongitude(): Failed', $e);
+            throw new CoreException('ValidateForm::isLongitude(): Failed', $e);
         }
     }
 
@@ -1717,7 +1717,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isTimezone(): Failed', $e);
+            throw new CoreException('ValidateForm::isTimezone(): Failed', $e);
         }
     }
 
@@ -1745,7 +1745,7 @@ class ValidateForm {
             return $this->setError($message);
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isTimezone(): Failed', $e);
+            throw new CoreException('ValidateForm::isTimezone(): Failed', $e);
         }
     }
 
@@ -1773,7 +1773,7 @@ class ValidateForm {
             return $this->setError($message);
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::hasNoHTML(): Failed', $e);
+            throw new CoreException('ValidateForm::hasNoHTML(): Failed', $e);
         }
     }
 
@@ -1800,7 +1800,7 @@ class ValidateForm {
             return true;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::inArray(): Failed', $e);
+            throw new CoreException('ValidateForm::inArray(): Failed', $e);
         }
     }
 
@@ -1824,7 +1824,7 @@ class ValidateForm {
         try{
 // :TODO: add this validate
         }catch(Exception $e){
-            throw new BException('ValidateForm::isCity(): Failed', $e);
+            throw new CoreException('ValidateForm::isCity(): Failed', $e);
         }
     }
 
@@ -1847,7 +1847,7 @@ class ValidateForm {
             return false;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::setError(): Failed', $e);
+            throw new CoreException('ValidateForm::setError(): Failed', $e);
         }
     }
 
@@ -1859,13 +1859,13 @@ class ValidateForm {
     function isValid($throw_exception = true){
         try{
             if($this->errors and $throw_exception){
-                throw new BException($this->errors, 'warning/validation');
+                throw new CoreException($this->errors, 'warning/validation');
             }
 
             return ! (boolean) $this->errors;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::isValid(): Failed', $e);
+            throw new CoreException('ValidateForm::isValid(): Failed', $e);
         }
     }
 
@@ -1902,7 +1902,7 @@ class ValidateForm {
             return $this->errors;
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::listErrors(): Failed', $e);
+            throw new CoreException('ValidateForm::listErrors(): Failed', $e);
         }
     }
 
@@ -1916,7 +1916,7 @@ class ValidateForm {
             return $this->listErrors($separator);
 
         }catch(Exception $e){
-            throw new BException('ValidateForm::getErrors(): Failed', $e);
+            throw new CoreException('ValidateForm::getErrors(): Failed', $e);
         }
     }
 }

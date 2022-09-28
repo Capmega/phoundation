@@ -48,21 +48,21 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
         array_default($params, 'paragraph', true);
 
         if(empty($params['text'])){
-            throw new BException('wordai(): No text specified');
+            throw new CoreException('wordai(): No text specified');
         }
 
         if(!is_numeric($params['quality']) or ($params['quality'] < 0) or ($params['quality'] > 100)){
-            throw new BException('wordai(): Invalid quality specified, ensure it is a number between 0 and 100');
+            throw new CoreException('wordai(): Invalid quality specified, ensure it is a number between 0 and 100');
         }
 
         $params['quality'] = floor($params['quality']);
 
         if(empty($params['email'])){
-            throw new BException('wordai(): No email specified');
+            throw new CoreException('wordai(): No email specified');
         }
 
         if(empty($params['password'])){
-            throw new BException('wordai(): No password specified');
+            throw new CoreException('wordai(): No password specified');
         }
 
         load_libs('curl');
@@ -108,7 +108,7 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
 
         if(isset_get($params['synonyms'])){
 // :TEST: Not 100% sure if this will produce the correct syntax, test first!
-throw new BException('wordai(): Test the "synonymns" option befure using it, since the formatter for this option has not been tested yet!');
+throw new CoreException('wordai(): Test the "synonymns" option befure using it, since the formatter for this option has not been tested yet!');
 
             foreach($params['synonyms'] as $word => $synonyms){
                 $post['synonyms'][] = $word.'|'.str_force($post['synonyms'], ',');
@@ -126,13 +126,13 @@ throw new BException('wordai(): Test the "synonymns" option befure using it, sin
         $curl['data'] = json_decode_custom($curl['data']);
 
         if(strtolower(trim($curl['data']['status'])) != 'success'){
-            throw new BException('wordai(): wordai API returned status "'.str_log($curl['data']['status']).'" with error "'.str_log(isset_get($curl['data']['error'])).'"', 'failed', $curl['data']);
+            throw new CoreException('wordai(): wordai API returned status "'.str_log($curl['data']['status']).'" with error "'.str_log(isset_get($curl['data']['error'])).'"', 'failed', $curl['data']);
         }
 
         return $curl['data'];
 
     }catch(Exception $e){
-        throw new BException('wordai(): Failed', $e);
+        throw new CoreException('wordai(): Failed', $e);
     }
 }
 ?>

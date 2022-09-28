@@ -30,11 +30,11 @@ function init($projectfrom = null, $frameworkfrom = null){
          * Are we allowed to init?
          */
         if(!$_CONFIG['init'][PLATFORM]){
-            throw new BException('init(): This platform is not authorized to do init()', 'denied');
+            throw new CoreException('init(): This platform is not authorized to do init()', 'denied');
         }
 
         if(version_compare(PHP_VERSION, PHP_MINIMUM_VERSION) < 1){
-            throw new BException(tr('init(): This version of base requires at minimum PHP version ":required", anything below is not supported. The current version of PHP installed is ":installed" If you wish to force to run this version of base on this version of PHP, lower the required version defined with the constant PHP_MINIMUM_VERSION in the top of ROOT/libs/startup.php', array(':required' => PHP_MINIMUM_VERSION, ':installed' => PHP_VERSION)), 'denied');
+            throw new CoreException(tr('init(): This version of base requires at minimum PHP version ":required", anything below is not supported. The current version of PHP installed is ":installed" If you wish to force to run this version of base on this version of PHP, lower the required version defined with the constant PHP_MINIMUM_VERSION in the top of ROOT/libs/startup.php', array(':required' => PHP_MINIMUM_VERSION, ':installed' => PHP_VERSION)), 'denied');
         }
 
         load_libs('sql-exists');
@@ -52,7 +52,7 @@ function init($projectfrom = null, $frameworkfrom = null){
         sql_init();
 
         if(empty($_CONFIG['db']['core']['init'])){
-            throw new BException(tr('init(): Core database init system has been disabled in $_CONFIG[db][core][init]'), 'no-init');
+            throw new CoreException(tr('init(): Core database init system has been disabled in $_CONFIG[db][core][init]'), 'no-init');
         }
 
         if(!empty($core->register['time_zone_fail'])){
@@ -113,18 +113,18 @@ function init($projectfrom = null, $frameworkfrom = null){
 
         if(version_compare(FRAMEWORKCODEVERSION, $codeversions['FRAMEWORK']) < 0){
             if(!str_is_version(FRAMEWORKCODEVERSION)){
-                throw new BException('init(): Cannot continue, the FRAMEWORK code version "'.str_log(FRAMEWORKCODEVERSION).'" (Defined at the top of '.ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
+                throw new CoreException('init(): Cannot continue, the FRAMEWORK code version "'.str_log(FRAMEWORKCODEVERSION).'" (Defined at the top of '.ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
             }
 
-            throw new BException(tr('init(): Cannot continue, the FRAMEWORK code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => FRAMEWORKCODEVERSION, ':db' => FRAMEWORKDBVERSION)), 'old-framework-code');
+            throw new CoreException(tr('init(): Cannot continue, the FRAMEWORK code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => FRAMEWORKCODEVERSION, ':db' => FRAMEWORKDBVERSION)), 'old-framework-code');
         }
 
         if(version_compare(PROJECTCODEVERSION, $codeversions['PROJECT']) < 0){
             if(!str_is_version(PROJECTCODEVERSION)){
-                throw new BException(tr('init(): Cannot continue, the PROJECT code version ":version" (Defined in ":file") is invalid', array(':version' => PROJECTCODEVERSION, ':file' => ROOT.'/config/project.php')), 'invalid-project-code');
+                throw new CoreException(tr('init(): Cannot continue, the PROJECT code version ":version" (Defined in ":file") is invalid', array(':version' => PROJECTCODEVERSION, ':file' => ROOT.'/config/project.php')), 'invalid-project-code');
             }
 
-            throw new BException(tr('init(): Cannot continue, the PROJECT code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => PROJECTCODEVERSION, ':db' => PROJECTDBVERSION)), 'old-project-code');
+            throw new CoreException(tr('init(): Cannot continue, the PROJECT code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => PROJECTCODEVERSION, ':db' => PROJECTDBVERSION)), 'old-project-code');
         }
 
         /*
@@ -139,7 +139,7 @@ function init($projectfrom = null, $frameworkfrom = null){
          */
         if(FORCE){
             if(!is_bool(FORCE) and !str_is_version(FORCE)){
-                throw new BException('init(): Invalid "force" sub parameter "'.str_log(FORCE).'" specified. "force" can only be followed by a valid init version number', 'invalidforce');
+                throw new CoreException('init(): Invalid "force" sub parameter "'.str_log(FORCE).'" specified. "force" can only be followed by a valid init version number', 'invalidforce');
             }
 
             $init = 'forced init';
@@ -240,7 +240,7 @@ function init($projectfrom = null, $frameworkfrom = null){
                                 /*
                                  * INIT FILE FAILED!
                                  */
-                                throw new BException(tr('init(:type): Init "pre" hook file ":file" failed', array(':type' => $type, ':file' => $file)), $e);
+                                throw new CoreException(tr('init(:type): Init "pre" hook file ":file" failed', array(':type' => $type, ':file' => $file)), $e);
                             }
 
                             try{
@@ -251,7 +251,7 @@ function init($projectfrom = null, $frameworkfrom = null){
                                 /*
                                  * INIT FILE FAILED!
                                  */
-                                throw new BException('init('.$type.'): Init file "'.$file.'" failed', $e);
+                                throw new CoreException('init('.$type.'): Init file "'.$file.'" failed', $e);
                             }
 
                             try{
@@ -264,7 +264,7 @@ function init($projectfrom = null, $frameworkfrom = null){
                                 /*
                                  * INIT FILE FAILED!
                                  */
-                                throw new BException('init('.$type.'): Init "post" hook file "'.$file.'" failed', $e);
+                                throw new CoreException('init('.$type.'): Init "post" hook file "'.$file.'" failed', $e);
                             }
 
                             $versions[$type] = $version;
@@ -335,7 +335,7 @@ function init($projectfrom = null, $frameworkfrom = null){
                 $e->makeWarning(false);
         }
 
-        throw new BException('init(): Failed', $e);
+        throw new CoreException('init(): Failed', $e);
     }
 }
 
@@ -395,11 +395,11 @@ function init_process_version_diff(){
         }
 
         if(PLATFORM_HTTP or !cli_argument('--no-version-check')){
-            throw new BException(tr('init_process_version_diff(): Please run script ROOT/scripts/base/init because ":error"', array(':error' => $versionerror)), 'warning/do-init');
+            throw new CoreException(tr('init_process_version_diff(): Please run script ROOT/scripts/base/init because ":error"', array(':error' => $versionerror)), 'warning/do-init');
         }
 
     }catch(Exception $e){
-        throw new BException('init_process_version_diff(): Failed', $e);
+        throw new CoreException('init_process_version_diff(): Failed', $e);
     }
 }
 
@@ -420,7 +420,7 @@ function init_process_version_fail($e){
         $r = $core->sql['core']->query('SHOW TABLES WHERE `Tables_in_'.$_CONFIG['db']['core']['db'].'` = "versions";');
 
         if($r->rowCount($r)){
-            throw new BException('init_process_version_fail(): Failed version detection', $e);
+            throw new CoreException('init_process_version_fail(): Failed version detection', $e);
         }
 
         define('FRAMEWORKDBVERSION', 0);
@@ -433,7 +433,7 @@ function init_process_version_fail($e){
         }
 
     }catch(Exception $e){
-        throw new BException('init_process_version_fail(): Failed', $e);
+        throw new CoreException('init_process_version_fail(): Failed', $e);
     }
 }
 
@@ -462,7 +462,7 @@ function init_hook($hook, $disabled = false, $params = null){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('init_hook(): Hook ":hook" failed', array(':hook' => $hook)), $e);
+        throw new CoreException(tr('init_hook(): Hook ":hook" failed', array(':hook' => $hook)), $e);
     }
 }
 
@@ -474,7 +474,7 @@ function init_hook($hook, $disabled = false, $params = null){
 function init_version_upgrade($version, $part){
     try{
         if(!str_is_version($version)){
-            throw new BException('init_version_upgrade(): Specified version is not a valid n.n.n version format');
+            throw new CoreException('init_version_upgrade(): Specified version is not a valid n.n.n version format');
         }
 
         $version = explode('.', $version);
@@ -493,13 +493,13 @@ function init_version_upgrade($version, $part){
                 break;
 
             default:
-                throw new BException(tr('init_version_upgrade(): Unknown version part type ":part" specified. Please specify one of "major", "minor", or "revision"', array(':part' => $part)));
+                throw new CoreException(tr('init_version_upgrade(): Unknown version part type ":part" specified. Please specify one of "major", "minor", or "revision"', array(':part' => $part)));
         }
 
         return implode('.', $version);
 
     }catch(Exception $e){
-        throw new BException('init_version_upgrade(): Failed', $e);
+        throw new CoreException('init_version_upgrade(): Failed', $e);
     }
 }
 
@@ -516,7 +516,7 @@ function init_include($file, $section = null){
         include_once($file);
 
     }catch(Exception $e){
-        throw new BException('init_include(): Failed', $e);
+        throw new CoreException('init_include(): Failed', $e);
     }
 }
 
@@ -546,13 +546,13 @@ function init_section($section, $version){
         $path = ROOT.'init/'.$section.'/';
 
         if(!file_exists($path)){
-            throw new BException(tr('init_section(): Specified section ":section" path ":path" does not exist', array(':section' => $section, ':path' => $path)), 'not-exists');
+            throw new CoreException(tr('init_section(): Specified section ":section" path ":path" does not exist', array(':section' => $section, ':path' => $path)), 'not-exists');
         }
 
         $connector = sql_get_connector($section);
 
         if(!$connector){
-            throw new BException(tr('init_section(): Specified section ":section" does not have a connector configuration. Please check $_CONFIG[db] or the `sql_connectors` table', array(':section' => $section)), 'not-exists');
+            throw new CoreException(tr('init_section(): Specified section ":section" does not have a connector configuration. Please check $_CONFIG[db] or the `sql_connectors` table', array(':section' => $section)), 'not-exists');
         }
 
         /*
@@ -640,7 +640,7 @@ function init_section($section, $version){
                         /*
                          * INIT FILE FAILED!
                          */
-                        throw new BException('init('.$section.'): Init "pre" hook file "'.$file.'" failed', $e);
+                        throw new CoreException('init('.$section.'): Init "pre" hook file "'.$file.'" failed', $e);
                     }
 
                     try{
@@ -651,7 +651,7 @@ function init_section($section, $version){
                         /*
                          * INIT FILE FAILED!
                          */
-                        throw new BException('init('.$section.'): Init file "'.$file.'" failed', $e);
+                        throw new CoreException('init('.$section.'): Init file "'.$file.'" failed', $e);
                     }
 
                     try{
@@ -664,7 +664,7 @@ function init_section($section, $version){
                         /*
                          * INIT FILE FAILED!
                          */
-                        throw new BException('init('.$section.'): Init "post" hook file "'.$file.'" failed', $e);
+                        throw new CoreException('init('.$section.'): Init "post" hook file "'.$file.'" failed', $e);
                     }
 
                     sql_query('INSERT INTO `versions` (`version`) VALUES (:version)', array(':version' => $version));
@@ -708,7 +708,7 @@ function init_section($section, $version){
         $core->register('sql_connector', null);
 
     }catch(Exception $e){
-        throw new BException('init_section(): Failed', $e);
+        throw new CoreException('init_section(): Failed', $e);
     }
 }
 
@@ -749,7 +749,7 @@ function init_reset(){
         return $changed;
 
     }catch(Exception $e){
-        throw new BException('init_reset(): Failed', $e);
+        throw new CoreException('init_reset(): Failed', $e);
     }
 }
 
@@ -784,7 +784,7 @@ function init_get_highest_file_version($section){
                  * Custom section, check if it exists
                  */
                 if(!file_exists(ROOT.'init/'.$section)){
-                    throw new BException(tr('init_get_highest_file_version(): The specified custom init section ":section" does not exist', array(':section' => $section)), 'not-exist');
+                    throw new CoreException(tr('init_get_highest_file_version(): The specified custom init section ":section" does not exist', array(':section' => $section)), 'not-exist');
                 }
         }
 
@@ -806,7 +806,7 @@ function init_get_highest_file_version($section){
         return $version;
 
     }catch(Exception $e){
-        throw new BException('init_get_highest_file_version(): Failed', $e);
+        throw new CoreException('init_get_highest_file_version(): Failed', $e);
     }
 }
 ?>

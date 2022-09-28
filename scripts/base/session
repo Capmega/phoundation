@@ -17,7 +17,7 @@ try{
     switch(cli_argument(0)){
         case 'take':
             if(!cli_argument(1)){
-                throw new BException('No session ID to take specified', 'nosessionid');
+                throw new CoreException('No session ID to take specified', 'nosessionid');
             }
 
             session_take(cli_argument(1));
@@ -31,9 +31,9 @@ try{
             break;
 
         case '':
-            throw new BException('No command specified', 'nocommand');
+            throw new CoreException('No command specified', 'nocommand');
         default:
-            throw new BException('Unknown command "'.cli_argument(0).'" specified', 'unknowncommand');
+            throw new CoreException('Unknown command "'.cli_argument(0).'" specified', 'unknowncommand');
     }
 
 }catch(Exception $e){

@@ -16,7 +16,7 @@ function messages_send($params){
     try{
 
     }catch(Exception $e){
-        throw new BException('messages_send(): Failed', $e);
+        throw new CoreException('messages_send(): Failed', $e);
     }
 }
 ?>

@@ -38,7 +38,7 @@ function rating_library_init(){
         html_load_css('rating/rating');
 
     }catch(Exception $e){
-        throw new BException('rating_library_init(): Failed', $e);
+        throw new CoreException('rating_library_init(): Failed', $e);
     }
 }
 
@@ -76,7 +76,7 @@ function rating_install($params){
         file_delete(TMP.'ratings');
 
     }catch(Exception $e){
-        throw new BException('rating_install(): Failed', $e);
+        throw new CoreException('rating_install(): Failed', $e);
     }
 }
 
@@ -94,7 +94,7 @@ function rating($stars){
 
 
     }catch(Exception $e){
-        throw new BException('rating(): Failed', $e);
+        throw new CoreException('rating(): Failed', $e);
     }
 }
 
@@ -109,7 +109,7 @@ function rating_calculate($rating){
         return $average;
 
     }catch(Exception $e){
-        throw new BException('rating_calculate(): Failed', $e);
+        throw new CoreException('rating_calculate(): Failed', $e);
     }
 }
 
@@ -121,7 +121,7 @@ function rating_calculate($rating){
 function rating_update($ratings_id, $value){
     try{
         if(!is_numeric($value) or ($value > 5) or ($value < 0)){
-            throw new BException(tr('rating_calculate(): Specified value ":value" is invalid, it should be in between 0 and 5', array(':value' => $value)), $e);
+            throw new CoreException(tr('rating_calculate(): Specified value ":value" is invalid, it should be in between 0 and 5', array(':value' => $value)), $e);
         }
 
         sql_query('UPDATE `ratings`
@@ -134,7 +134,7 @@ function rating_update($ratings_id, $value){
                          ':value' => $value));
 
     }catch(Exception $e){
-        throw new BException('rating_calculate(): Failed', $e);
+        throw new CoreException('rating_calculate(): Failed', $e);
     }
 }
 ?>

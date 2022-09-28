@@ -31,7 +31,7 @@ function scanimage_library_init(){
         load_libs('linux,image,devices');
 
     }catch(Exception $e){
-        throw new BException('scanimage_library_init(): Failed', $e);
+        throw new CoreException('scanimage_library_init(): Failed', $e);
     }
 }
 
@@ -211,10 +211,10 @@ function scanimage($params){
                              * Scanner is having issues
                              */
 // :TODO: Rescan device?
-                            throw new BException(tr('scanimage(): Scanner failed, please check if scanner has documents. If all is okay, please restart scanner'), 'failed');
+                            throw new CoreException(tr('scanimage(): Scanner failed, please check if scanner has documents. If all is okay, please restart scanner'), 'failed');
 
                         case 'scanimage: sane_start: Document feeder out of documents':
-                            throw new BException(tr('scanimage(): Scanner document feeder has no documents'), 'empty');
+                            throw new CoreException(tr('scanimage(): Scanner document feeder has no documents'), 'empty');
                     }
 
                     if(str_exists($line, 'sane_start')){
@@ -237,7 +237,7 @@ function scanimage($params){
                     /*
                      * No scanner found
                      */
-                    throw new BException(tr('scanimage(): No scanner found'), 'not-exists');
+                    throw new CoreException(tr('scanimage(): No scanner found'), 'not-exists');
 
                 case 'scanimage: open of device':
                     /*
@@ -248,23 +248,23 @@ function scanimage($params){
                     $process = linux_pgrep($server, 'scanimage');
 
                     if(substr($line, -24, 24) === 'failed: invalid argument'){
-                        throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
+                        throw new CoreException(tr('scanimage(): The scanner ":scanner" on server ":server" is not responding. Please start or restart the scanner', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'stuck');
 
                     }else{
                         if($process){
-                            throw new BException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
+                            throw new CoreException(tr('scanimage(): The scanner ":scanner" on server ":server" is already in operation. Please wait for the process to finish, or kill the process', array(':scanner' => $params['device'], ':server' => $server['domain'])), 'busy');
                         }
                     }
 
                 default:
-                    throw new BException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
+                    throw new CoreException(tr('scanimage(): Unknown scanner process error ":e"', array(':e' => $e->getData())), $e);
             }
         }
 
         return $params;
 
     }catch(Exception $e){
-        throw new BException('scanimage(): Failed', $e);
+        throw new CoreException('scanimage(): Failed', $e);
     }
 }
 
@@ -556,7 +556,7 @@ function scanimage_validate($params){
         return $params;
 
     }catch(Exception $e){
-        throw new BException('scanimage_validate(): Failed', $e);
+        throw new CoreException('scanimage_validate(): Failed', $e);
     }
 }
 
@@ -582,7 +582,7 @@ function scanimage_list(){
         return $devices;
 
     }catch(Exception $e){
-        throw new BException('scanimage_list(): Failed', $e);
+        throw new CoreException('scanimage_list(): Failed', $e);
     }
 }
 
@@ -701,7 +701,7 @@ function scanimage_detect_devices($server = null, $sudo = false){
         return $devices;
 
     }catch(Exception $e){
-        throw new BException('scanimage_detect_devices(): Failed', $e);
+        throw new CoreException('scanimage_detect_devices(): Failed', $e);
     }
 }
 
@@ -797,10 +797,10 @@ function scanimage_detect_devices($server = null, $sudo = false){
 //            return $scanners;
 //        }
 //
-//        throw new BException(tr('scanimage_update_devices(): Failed to add ":count" scanners or driver options, see file log for more information', array(':count' => $failed)), 'warning/failed');
+//        throw new CoreException(tr('scanimage_update_devices(): Failed to add ":count" scanners or driver options, see file log for more information', array(':count' => $failed)), 'warning/failed');
 //
 //    }catch(Exception $e){
-//        throw new BException('scanimage_update_devices(): Failed', $e);
+//        throw new CoreException('scanimage_update_devices(): Failed', $e);
 //    }
 //}
 
@@ -830,10 +830,10 @@ function scanimage_get_options($device, $server = null, $sudo = false){
         foreach($results as $result){
             if(strstr($result, 'failed:')){
                 if(strtolower(trim(str_from($result, 'failed:'))) == 'invalid argument'){
-                    throw new BException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required access to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
+                    throw new CoreException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e". This could possibly be a permission issue; does the current process user has the required access to scanner devices? Please check this user\'s groups!', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
                 }
 
-                throw new BException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e"', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
+                throw new CoreException(tr('scanimage_get_options(): Options scan for device ":device" failed with ":e"', array(':device' => $device, ':e' => trim(str_from($result, 'failed:')))), 'failed', $result);
             }
 
             $result = trim($result);
@@ -854,7 +854,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                  * These are double dash options
                  */
                 if(!preg_match_all('/--([a-zA-Z-]+)(.+)/', $result, $matches)){
-                    throw new BException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
+                    throw new CoreException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
                 }
 // :DEBUG: Do not remove the folowing commented line(s), its for debugging purposes
 //show($matches);
@@ -920,7 +920,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                         default:
                             if(!strstr($data, '|')){
                                 if(!strstr($data, '..')){
-                                    throw new BException(tr('scanimage_get_options(): Unknown driver line ":result" found', array(':result' => $result)), 'unknown');
+                                    throw new CoreException(tr('scanimage_get_options(): Unknown driver line ":result" found', array(':result' => $result)), 'unknown');
                                 }
 
                                 /*
@@ -946,7 +946,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                  * These are single dash options
                  */
                 if(!preg_match_all('/-([a-zA-Z-]+)(.+)/', $result, $matches)){
-                    throw new BException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
+                    throw new CoreException(tr('scanimage_get_options(): Unknown driver line format encountered for key "resolution"'), 'unknown');
                 }
 // :DEBUG: Do not remove the folowing commented line(s), its for debugging purposes
 //show($matches);
@@ -993,7 +993,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
                         break;
 
                     default:
-                        throw new BException(tr('scanimage_get_options(): Unknown driver key ":key" found', array(':key' => $key)), 'unknown');
+                        throw new CoreException(tr('scanimage_get_options(): Unknown driver key ":key" found', array(':key' => $key)), 'unknown');
                 }
             }
 
@@ -1005,7 +1005,7 @@ function scanimage_get_options($device, $server = null, $sudo = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('scanimage_get_options(): Failed for device ":device"', array(':device' => $device)), $e);
+        throw new CoreException(tr('scanimage_get_options(): Failed for device ":device"', array(':device' => $device)), $e);
     }
 }
 
@@ -1036,7 +1036,7 @@ function scanimage_get_default(){
         return null;
 
     }catch(Exception $e){
-        throw new BException('scanimage_get_default(): Failed', $e);
+        throw new CoreException('scanimage_get_default(): Failed', $e);
     }
 }
 
@@ -1067,17 +1067,17 @@ function scanimage_get($device, $server = null){
 
         if(!$scanner){
             if(is_numeric($device)){
-                throw new BException(tr('scanimage_get(): Specified scanner ":device" does not exist', array(':device' => $device)), 'not-exists');
+                throw new CoreException(tr('scanimage_get(): Specified scanner ":device" does not exist', array(':device' => $device)), 'not-exists');
             }
 
-            throw new BException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server)), 'not-exists');
+            throw new CoreException(tr('scanimage_get(): Specified scanner ":device" does not exist on server ":server"', array(':device' => $device, ':server' => $server)), 'not-exists');
         }
 
         $scanner['options'] = devices_list_options($scanner['id']);
         return $scanner;
 
     }catch(Exception $e){
-        throw new BException('scanimage_get(): Failed', $e);
+        throw new CoreException('scanimage_get(): Failed', $e);
     }
 }
 
@@ -1119,7 +1119,7 @@ function scanimage_select($params){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('scanimage_select(): Failed', $e);
+        throw new CoreException('scanimage_select(): Failed', $e);
     }
 }
 
@@ -1164,7 +1164,7 @@ function scanimage_select_resolution($params){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('scanimage_select_resolution(): Failed', $e);
+        throw new CoreException('scanimage_select_resolution(): Failed', $e);
     }
 }
 
@@ -1190,13 +1190,13 @@ function scanimage_select_resolution($params){
 function scanimage_runs($device, $server = null){
     try{
         if(!$device){
-            throw new BException(tr('scanimage_runs(): No device specified'), 'not-specified');
+            throw new CoreException(tr('scanimage_runs(): No device specified'), 'not-specified');
         }
 
         $dbdevice = scanimage_get($device, $server);
 
         if(!$dbdevice){
-            throw new BException(tr('scanimage_runs(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
+            throw new CoreException(tr('scanimage_runs(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
         }
 
         $count   = 0;
@@ -1220,7 +1220,7 @@ function scanimage_runs($device, $server = null){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('scanimage_runs(): Failed', $e);
+        throw new CoreException('scanimage_runs(): Failed', $e);
     }
 }
 
@@ -1245,13 +1245,13 @@ function scanimage_runs($device, $server = null){
 function scanimage_kill($device, $server = null, $hard = false){
     try{
         if(!$device){
-            throw new BException(tr('scanimage_kill(): No device specified'), 'not-specified');
+            throw new CoreException(tr('scanimage_kill(): No device specified'), 'not-specified');
         }
 
         $dbdevice = scanimage_get($device, $server);
 
         if(!$dbdevice){
-            throw new BException(tr('scanimage_kill(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
+            throw new CoreException(tr('scanimage_kill(): The specified scanner ":id" does not exist', array(':id' => $device)), 'warning/not-exist');
         }
 
         $server  = servers_get($dbdevice['servers_id']);
@@ -1260,7 +1260,7 @@ function scanimage_kill($device, $server = null, $hard = false){
         log_console(tr('Successfully killed the scanimage process for scanner device ":device" on server ":server"', array(':device' => $dbdevice['string'], ':server' => $server['domain'])), 'green');
 
     }catch(Exception $e){
-        throw new BException('scanimage_kill(): Failed', $e);
+        throw new CoreException('scanimage_kill(): Failed', $e);
     }
 }
 ?>

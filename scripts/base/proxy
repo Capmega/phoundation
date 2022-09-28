@@ -42,7 +42,7 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(empty($_CONFIG['curl']['proxies'])){
-            throw new BException(tr('No proxies have been configured, please check $_CONFIG[curl][proxies]'), 'not-configured');
+            throw new CoreException(tr('No proxies have been configured, please check $_CONFIG[curl][proxies]'), 'not-configured');
         }
 
         foreach($_CONFIG['curl']['proxies'] as $proxy){
@@ -58,12 +58,12 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(!$url){
-            throw new BException(tr('No url specified'), 'not-specified');
+            throw new CoreException(tr('No url specified'), 'not-specified');
         }
 
         if(empty($proxies)){
             if(empty($_CONFIG['curl']['proxies'])){
-                throw new BException(tr('No proxies have been configured, please check $_CONFIG[curl][proxies], or specify --proxies'), 'not-configured');
+                throw new CoreException(tr('No proxies have been configured, please check $_CONFIG[curl][proxies], or specify --proxies'), 'not-configured');
             }
 
             $proxies = $_CONFIG['curl']['proxies'];
@@ -101,9 +101,9 @@ switch(cli_method()){
         showdie($data['data']);
 
     case '':
-        throw new BException(tr('No method specified'), 'not-specified');
+        throw new CoreException(tr('No method specified'), 'not-specified');
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

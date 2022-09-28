@@ -67,7 +67,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
              * Calculate back to bytes
              */
             if(!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches))  {
-                throw new BException('bytes_convert(): Specified amount "'.$amount.'" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc');
+                throw new CoreException('bytes_convert(): Specified amount "'.$amount.'" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc');
             }
 
             switch(strtolower($matches[2])){
@@ -135,7 +135,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
                     break;
 
                 default:
-                    throw new BException('bytes_convert(): Specified suffix "'.$suffix.'" on amount "'.$amount.'" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc');
+                    throw new CoreException('bytes_convert(): Specified suffix "'.$suffix.'" on amount "'.$amount.'" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc');
             }
         }
 
@@ -233,7 +233,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
                 break;
 
             default:
-                throw new BException('bytes_convert(): Specified unit "'.$unit.'" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc');
+                throw new CoreException('bytes_convert(): Specified unit "'.$unit.'" is not a valid. Should be one of b, or KB, KiB, mb, mib, etc');
         }
 
         $amount = number_format(round($amount, $precision), $precision);
@@ -257,7 +257,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
         }
 
     }catch(Exception $e){
-        throw new BException(tr('bytes_convert(): Failed'), $e);
+        throw new CoreException(tr('bytes_convert(): Failed'), $e);
     }
 }
 
@@ -291,7 +291,7 @@ function human_readable($number, $thousand = 1000, $decimals = 0){
         return number_format($number, $decimals);
 
     }catch(Exception $e){
-        throw new BException('human_readable(): Failed', $e);
+        throw new CoreException('human_readable(): Failed', $e);
     }
 }
 
@@ -335,10 +335,10 @@ function numbers_get_step(){
              */
             if(!is_numeric($value)){
                 if(!is_scalar($value)){
-                    throw new BException(tr('numbers_get_step(): Variable ":key" is not a numeric scalar value, it is an ":type"', array(':key' => $key, ':type' => gettype($value))), 'invalid');
+                    throw new CoreException(tr('numbers_get_step(): Variable ":key" is not a numeric scalar value, it is an ":type"', array(':key' => $key, ':type' => gettype($value))), 'invalid');
                 }
 
-                throw new BException(tr('numbers_get_step(): Variable ":key" has value ":value" which is not numeric', array(':key' => $key, ':value' => $value)), 'invalid');
+                throw new CoreException(tr('numbers_get_step(): Variable ":key" has value ":value" which is not numeric', array(':key' => $key, ':value' => $value)), 'invalid');
             }
 
             /*
@@ -379,7 +379,7 @@ function numbers_get_step(){
 
 
     }catch(Exception $e){
-        throw new BException('numbers_get_step(): Failed', $e);
+        throw new CoreException('numbers_get_step(): Failed', $e);
     }
 }
 ?>

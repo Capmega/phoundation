@@ -44,7 +44,7 @@ switch(isset_get($_POST['doaction'])){
              * Delete the specified blogs
              */
             if(empty($_POST['id'])){
-                throw new bException('No blogs selected to delete', 'notspecified');
+                throw new CoreException('No blogs selected to delete', 'notspecified');
             }
 
             $list = array_prefix(array_force($_POST['id']), ':id', true);
@@ -59,7 +59,7 @@ switch(isset_get($_POST['doaction'])){
                 html_flash_set(tr('Deleted %count% blogs', '%count%', $r->rowCount()), 'success');
 
             }else{
-                throw new bException(tr('Found no blogs to delete'), 'notfound');
+                throw new CoreException(tr('Found no blogs to delete'), 'notfound');
             }
 
         }catch(Exception $e){
@@ -74,7 +74,7 @@ switch(isset_get($_POST['doaction'])){
              * Delete the specified blogs
              */
             if(empty($_POST['id'])){
-                throw new bException('No blogs selected to undelete', 'notspecified');
+                throw new CoreException('No blogs selected to undelete', 'notspecified');
             }
 
             $list = array_prefix(array_force($_POST['id']), ':id', true);
@@ -89,7 +89,7 @@ switch(isset_get($_POST['doaction'])){
                 html_flash_set(tr('Undeleted %count% blogs', '%count%', $r->rowCount()), 'success');
 
             }else{
-                throw new bException(tr('Found no blogs to undelete'), 'notfound');
+                throw new CoreException(tr('Found no blogs to undelete'), 'notfound');
             }
 
         }catch(Exception $e){
@@ -104,7 +104,7 @@ switch(isset_get($_POST['doaction'])){
              * Delete the specified blogs
              */
             if(empty($_POST['id'])){
-                throw new bException('No blogs selected to erase', 'notspecified');
+                throw new CoreException('No blogs selected to erase', 'notspecified');
             }
 
             $list = array_prefix(array_force($_POST['id']), ':id', true);
@@ -115,7 +115,7 @@ switch(isset_get($_POST['doaction'])){
                 html_flash_set(tr('Erased %count% blogs', '%count%', $r->rowCount()), 'success');
 
             }else{
-                throw new bException(tr('Found no blogs to erase'), 'notfound');
+                throw new CoreException(tr('Found no blogs to erase'), 'notfound');
             }
 
         }catch(Exception $e){

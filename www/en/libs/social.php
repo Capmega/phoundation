@@ -32,7 +32,7 @@ function social_library_init(){
         load_config('social');
 
     }catch(Exception $e){
-        throw new BException('social_library_init(): Failed', $e);
+        throw new CoreException('social_library_init(): Failed', $e);
     }
 }
 
@@ -88,11 +88,11 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
                 return implode($separator, $retval);
 
             default:
-                throw new BException('social_links(): Unknown returnas "'.str_log($returnas).'" specified', 'unknown');
+                throw new CoreException('social_links(): Unknown returnas "'.str_log($returnas).'" specified', 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('social_links(): Failed', $e);
+        throw new CoreException('social_links(): Failed', $e);
     }
 }
 ?>

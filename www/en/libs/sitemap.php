@@ -33,7 +33,7 @@ function sitemap_library_init(){
         load_config('sitemap');
 
     }catch(Exception $e){
-        throw new BException('sitemap_library_init(): Failed', $e);
+        throw new CoreException('sitemap_library_init(): Failed', $e);
     }
 }
 
@@ -100,7 +100,7 @@ function sitemap_generate(){
             }
         }
 
-        throw new BException('sitemap_generate(): Failed', $e);
+        throw new CoreException('sitemap_generate(): Failed', $e);
     }
 }
 
@@ -178,7 +178,7 @@ function sitemap_install_files($files){
         return count($files);
 
     }catch(Exception $e){
-        throw new BException('sitemap_install_files(): Failed', $e);
+        throw new CoreException('sitemap_install_files(): Failed', $e);
     }
 }
 
@@ -241,7 +241,7 @@ function sitemap_generate_index_file($files){
         return $file;
 
     }catch(Exception $e){
-        throw new BException('sitemap_generate_index_file(): Failed', $e);
+        throw new CoreException('sitemap_generate_index_file(): Failed', $e);
     }
 }
 
@@ -310,7 +310,7 @@ function sitemap_generate_xml_file($language = null, $file = null){
         return $file;
 
     }catch(Exception $e){
-        throw new BException('sitemap_generate_xml_file(): Failed', $e);
+        throw new CoreException('sitemap_generate_xml_file(): Failed', $e);
     }
 }
 
@@ -361,7 +361,7 @@ function sitemap_generate_xml_file($language = null, $file = null){
 function sitemap_get_entry_xml($entry){
     try{
         if(empty($entry['url'])){
-            throw new BException(tr('sitemap_get_entry_xml(): No URL specified'), 'not-specified');
+            throw new CoreException(tr('sitemap_get_entry_xml(): No URL specified'), 'not-specified');
         }
 
         $keys = array('url',
@@ -394,7 +394,7 @@ function sitemap_get_entry_xml($entry){
         return "<url>\n".implode($retval)."</url>\n";
 
     }catch(Exception $e){
-        throw new BException('sitemap_get_entry_xml(): Failed', $e);
+        throw new CoreException('sitemap_get_entry_xml(): Failed', $e);
     }
 }
 
@@ -418,7 +418,7 @@ function sitemap_get_entry_xml($entry){
 function sitemap_get_index_xml($file, $lastmod = null){
     try{
         if(empty($file)){
-            throw new BException(tr('sitemap_get_index_xml(): No file specified'), 'not-specified');
+            throw new CoreException(tr('sitemap_get_index_xml(): No file specified'), 'not-specified');
         }
 
         if(empty($lastmod)){
@@ -438,7 +438,7 @@ function sitemap_get_index_xml($file, $lastmod = null){
                 "</sitemap>\n";
 
     }catch(Exception $e){
-        throw new BException('sitemap_get_index_xml(): Failed', $e);
+        throw new CoreException('sitemap_get_index_xml(): Failed', $e);
     }
 }
 
@@ -485,7 +485,7 @@ function sitemap_list_files(){
                                  GROUP BY `file`');
 
             if(!$files->rowCount()){
-                throw new BException(tr('sitemap_list_files(): No sitemap data available to generate sitemap files from'), 'not-available');
+                throw new CoreException(tr('sitemap_list_files(): No sitemap data available to generate sitemap files from'), 'not-available');
 
             }
 
@@ -506,7 +506,7 @@ function sitemap_list_files(){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('sitemap_list_files(): Failed', $e);
+        throw new CoreException('sitemap_list_files(): Failed', $e);
     }
 }
 
@@ -540,7 +540,7 @@ function sitemap_clear($groups = null){
         return $r->rowCount();
 
     }catch(Exception $e){
-        throw new BException('sitemap_clear(): Failed', $e);
+        throw new CoreException('sitemap_clear(): Failed', $e);
     }
 }
 
@@ -579,7 +579,7 @@ function sitemap_delete_entry($list){
         return $r->rowCount();
 
     }catch(Exception $e){
-        throw new BException('sitemap_delete_entry(): Failed', $e);
+        throw new CoreException('sitemap_delete_entry(): Failed', $e);
     }
 }
 
@@ -684,7 +684,7 @@ function sitemap_insert_entry($entry){
         return $entry;
 
     }catch(Exception $e){
-        throw new BException('sitemap_insert_entry(): Failed', $e);
+        throw new CoreException('sitemap_insert_entry(): Failed', $e);
     }
 }
 
@@ -744,7 +744,7 @@ function sitemap_make_backup(){
         }
 
     }catch(Exception $e){
-        throw new BException('sitemap_make_backup(): Failed', $e);
+        throw new CoreException('sitemap_make_backup(): Failed', $e);
     }
 }
 
@@ -794,6 +794,6 @@ function sitemap_validate_entry($entry){
         return $entry;
 
     }catch(Exception $e){
-        throw new BException('sitemap_validate_entry(): Failed', $e);
+        throw new CoreException('sitemap_validate_entry(): Failed', $e);
     }
 }

@@ -20,13 +20,13 @@ switch($_CONFIG['crypto']['backend']){
         break;
 
     case 'coinbase':
-        throw new BException(tr('crypto: Backend "coinbase" is not yet supported'), 'unsupported');
+        throw new CoreException(tr('crypto: Backend "coinbase" is not yet supported'), 'unsupported');
 
     case 'internal':
         break;
 
     default:
-        throw new BException(tr('crypto: Unknown backend ":backend" specified', array(':backend' => $_CONFIG['crypto']['backend'])), 'unknown');
+        throw new CoreException(tr('crypto: Unknown backend ":backend" specified', array(':backend' => $_CONFIG['crypto']['backend'])), 'unknown');
 }
 
 
@@ -43,7 +43,7 @@ function crypto_currencies_supported($currencies){
 
     foreach(array_force($currencies) as $currency){
         if(!in_array($currency, $_CONFIG['crypto']['currencies'])){
-            throw new BException(tr('crypto_currencies_supported(): Specified currency ":currency" is not supported', array(':currency' => $currency)), 'not-supported');
+            throw new CoreException(tr('crypto_currencies_supported(): Specified currency ":currency" is not supported', array(':currency' => $currency)), 'not-supported');
         }
     }
 }
@@ -76,19 +76,19 @@ function crypto_validate_transaction($transaction, $provider){
                 break;
 
             case 'coinbase':
-                throw new BException(tr('crypto_validate_transaction(): Backend "coinbase" is not yet supported'), 'unsupported');
+                throw new CoreException(tr('crypto_validate_transaction(): Backend "coinbase" is not yet supported'), 'unsupported');
 
             case 'internal':
                 break;
 
             default:
-                throw new BException(tr('crypto_validate_transaction(): Unknown backend ":backend" specified', array(':backend' => $provider)), 'unknown');
+                throw new CoreException(tr('crypto_validate_transaction(): Unknown backend ":backend" specified', array(':backend' => $provider)), 'unknown');
         }
 
         return $transaction;
 
     }catch(Exception $e){
-        throw new BException('crypto_validate_transaction(): Failed', $e);
+        throw new CoreException('crypto_validate_transaction(): Failed', $e);
     }
 }
 
@@ -133,13 +133,13 @@ function crypto_get_transaction($transactions_id){
 
 
         if(empty($transaction)){
-            throw new BException(tr('crypto_get_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transactions_id)), 'not-exists');
+            throw new CoreException(tr('crypto_get_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transactions_id)), 'not-exists');
         }
 
         return $transaction;
 
     }catch(Exception $e){
-        throw new BException('crypto_get_transaction(): Failed', $e);
+        throw new CoreException('crypto_get_transaction(): Failed', $e);
     }
 }
 
@@ -166,7 +166,7 @@ function crypto_write_transaction($transaction, $provider){
             $dbtransaction = crypto_get_transaction($transaction['id']);
 
             if(empty($dbtransaction)){
-                throw new BException(tr('crypto_write_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transaction['id'])), 'not-exists');
+                throw new CoreException(tr('crypto_write_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transaction['id'])), 'not-exists');
             }
 
             if(isset($transaction['data'])){
@@ -201,7 +201,7 @@ function crypto_write_transaction($transaction, $provider){
              */
             if($provider == 'internal'){
                 if(empty($transaction['users_id'])){
-                    throw new BException('crypto_write_transaction(): No users_id specified', 'not-specified');
+                    throw new CoreException('crypto_write_transaction(): No users_id specified', 'not-specified');
                 }
 
             }else{
@@ -276,7 +276,7 @@ function crypto_write_transaction($transaction, $provider){
 
     }catch(Exception $e){
         log_file(tr('Crypto transaction for address ":address" failed with ":e"', array(':address' => isset_get($_POST['address']), ':e' => $e->getMessages())), 'crypto');
-        throw new BException('crypto_write_transaction(): Failed', $e);
+        throw new CoreException('crypto_write_transaction(): Failed', $e);
     }
 }
 
@@ -306,7 +306,7 @@ function crypto_update_exchange_rates(){
         return count($currencies);
 
     }catch(Exception $e){
-        throw new BException('crypto_update_exchange_rates(): Failed', $e);
+        throw new CoreException('crypto_update_exchange_rates(): Failed', $e);
     }
 }
 
@@ -321,7 +321,7 @@ function crypto_get_exchange_rate($currency){
 
     try{
         if(!$currency){
-            throw new BException('crypto_get_exchange_rate(): No currency specified', 'not-specified');
+            throw new CoreException('crypto_get_exchange_rate(): No currency specified', 'not-specified');
         }
 
         $exchange_rate = sql_get('SELECT   `rate_btc`
@@ -342,7 +342,7 @@ function crypto_get_exchange_rate($currency){
         }
 
         if($update){
-            throw new BException('crypto_get_exchange_rate(): Exchange rates have already been updated in this process', 'failed');
+            throw new CoreException('crypto_get_exchange_rate(): Exchange rates have already been updated in this process', 'failed');
         }
 
         $update = true;
@@ -350,7 +350,7 @@ function crypto_get_exchange_rate($currency){
         return crypto_get_exchange_rate($currency);
 
     }catch(Exception $e){
-        throw new BException('crypto_get_exchange_rate(): Failed', $e);
+        throw new CoreException('crypto_get_exchange_rate(): Failed', $e);
     }
 }
 
@@ -370,7 +370,7 @@ function crypto_get_btc($amount, $currency){
         return $amount * crypto_get_exchange_rate($currency);
 
     }catch(Exception $e){
-        throw new BException('crypto_get_btc(): Failed', $e);
+        throw new CoreException('crypto_get_btc(): Failed', $e);
     }
 }
 
@@ -386,7 +386,7 @@ function crypto_get_usd($amount, $currency){
         return $amount * crypto_get_exchange_rate($currency) * (1 / crypto_get_exchange_rate('usd'));
 
     }catch(Exception $e){
-        throw new BException('crypto_get_usd(): Failed', $e);
+        throw new CoreException('crypto_get_usd(): Failed', $e);
     }
 }
 
@@ -405,7 +405,7 @@ function crypto_get_account_info(){
         }
 
     }catch(Exception $e){
-        throw new BException('crypto_get_account_info(): Failed', $e);
+        throw new CoreException('crypto_get_account_info(): Failed', $e);
     }
 }
 
@@ -426,7 +426,7 @@ function crypto_get_rates($currencies = null){
         }
 
     }catch(Exception $e){
-        throw new BException('crypto_get_rates(): Failed', $e);
+        throw new CoreException('crypto_get_rates(): Failed', $e);
     }
 }
 
@@ -447,7 +447,7 @@ function crypto_get_balances($currencies = null){
         }
 
     }catch(Exception $e){
-        throw new BException('crypto_get_balances(): Failed', $e);
+        throw new CoreException('crypto_get_balances(): Failed', $e);
     }
 }
 
@@ -468,7 +468,7 @@ function crypto_get_address($currency){
         }
 
     }catch(Exception $e){
-        throw new BException('crypto_get_address(): Failed', $e);
+        throw new CoreException('crypto_get_address(): Failed', $e);
     }
 }
 
@@ -519,7 +519,7 @@ function crypto_get_deposit_address($currency, $callback_url = null, $force = fa
         return $address;
 
     }catch(Exception $e){
-        throw new BException('crypto_get_deposit_address(): Failed', $e);
+        throw new CoreException('crypto_get_deposit_address(): Failed', $e);
     }
 }
 
@@ -549,7 +549,7 @@ function crypto_display($amount, $currency){
         return $amount.' '.strtoupper($currency);
 
     }catch(Exception $e){
-        throw new BException('crypto_get_deposit_address(): Failed', $e);
+        throw new CoreException('crypto_get_deposit_address(): Failed', $e);
     }
 }
 ?>

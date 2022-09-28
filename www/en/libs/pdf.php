@@ -42,7 +42,7 @@ function pdf_string($file){
         return $textArray;
 
     }catch(Exception $e){
-        throw new BException('pdf2string(): Failed', $e);
+        throw new CoreException('pdf2string(): Failed', $e);
     }
 }
 
@@ -66,7 +66,7 @@ function pdf_extract_text($postscript_data){
         return stripslashes($plainText);
 
     }catch(Exception $e){
-        throw new BException('pdf_extract_text(): Failed', $e);
+        throw new CoreException('pdf_extract_text(): Failed', $e);
     }
 }
 ?>

@@ -26,12 +26,12 @@
 function dig_library_init(){
     try{
         if(!file_which('dig')){
-            throw new BException(tr('dig_library_init(): The "dig" command was not found. To install "dig" on ubuntu, please execute "sudo apt-get install dnsutils"'), 'not-exists');
+            throw new CoreException(tr('dig_library_init(): The "dig" command was not found. To install "dig" on ubuntu, please execute "sudo apt-get install dnsutils"'), 'not-exists');
         }
 
 
     }catch(Exception $e){
-        throw new BException('dig_library_init(): Failed', $e);
+        throw new CoreException('dig_library_init(): Failed', $e);
     }
 }
 
@@ -55,7 +55,7 @@ function dig_install($params){
         return install($params);
 
     }catch(Exception $e){
-        throw new BException('dig_install(): Failed', $e);
+        throw new CoreException('dig_install(): Failed', $e);
     }
 }
 
@@ -83,7 +83,7 @@ function dig_clean_line($line){
         return $line;
 
     }catch(Exception $e){
-        throw new BException('dig_clean_line(): Failed', $e);
+        throw new CoreException('dig_clean_line(): Failed', $e);
     }
 }
 
@@ -134,7 +134,7 @@ function dig($hostname, $command, $dns_server = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('dig(): Failed', $e);
+        throw new CoreException('dig(): Failed', $e);
     }
 }
 
@@ -158,7 +158,7 @@ function dig_a($hostname, $dns_server = null){
         return dig('', $hostname, $dns_server);
 
     }catch(Exception $e){
-        throw new BException('dig_a(): Failed', $e);
+        throw new CoreException('dig_a(): Failed', $e);
     }
 }
 
@@ -182,7 +182,7 @@ function dig_mx($hostname, $dns_server = null){
         return dig('MX', $hostname, $dns_server);
 
     }catch(Exception $e){
-        throw new BException('dig_mx(): Failed', $e);
+        throw new CoreException('dig_mx(): Failed', $e);
     }
 }
 ?>

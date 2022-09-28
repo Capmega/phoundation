@@ -164,10 +164,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new BException(tr('No sub method specified for method "list"'), 'no-method');
+                throw new CoreException(tr('No sub method specified for method "list"'), 'no-method');
 
             default:
-                throw new BException(tr('Unknown sub method ":method" specified for method "list"', array(':method' => cli_method())), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":method" specified for method "list"', array(':method' => cli_method())), 'unknown-method');
         }
 
         break;
@@ -246,8 +246,8 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }

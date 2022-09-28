@@ -44,7 +44,7 @@ function pack_bzip2($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_bzip2(): Failed', $e);
+        throw new CoreException('pack_bzip2(): Failed', $e);
     }
 }
 
@@ -81,7 +81,7 @@ function pack_unbzip2($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_unbzip2(): Failed', $e);
+        throw new CoreException('pack_unbzip2(): Failed', $e);
     }
 }
 
@@ -117,7 +117,7 @@ function pack_rar($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_rar(): Failed', $e);
+        throw new CoreException('pack_rar(): Failed', $e);
     }
 }
 
@@ -153,7 +153,7 @@ function pack_unrar($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_unrar(): Failed', $e);
+        throw new CoreException('pack_unrar(): Failed', $e);
     }
 }
 
@@ -190,7 +190,7 @@ function pack_zip($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_zip(): Failed', $e);
+        throw new CoreException('pack_zip(): Failed', $e);
     }
 }
 
@@ -227,7 +227,7 @@ function pack_unzip($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_ungip(): Failed', $e);
+        throw new CoreException('pack_ungip(): Failed', $e);
     }
 }
 
@@ -263,7 +263,7 @@ function pack_gzip($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_gzip(): Failed', $e);
+        throw new CoreException('pack_gzip(): Failed', $e);
     }
 }
 
@@ -299,7 +299,7 @@ function pack_ungzip($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_ungip(): Failed', $e);
+        throw new CoreException('pack_ungip(): Failed', $e);
     }
 }
 
@@ -336,7 +336,7 @@ function pack_tar($params){
         return $params['target'];
 
     }catch(Exception $e){
-        throw new BException('pack_tar(): Failed', $e);
+        throw new CoreException('pack_tar(): Failed', $e);
     }
 }
 
@@ -373,7 +373,7 @@ function pack_untar($params){
         return $target;
 
     }catch(Exception $e){
-        throw new BException('pack_ungip(): Failed', $e);
+        throw new CoreException('pack_ungip(): Failed', $e);
     }
 }
 
@@ -403,6 +403,6 @@ function pack_validate($params){
         return $params;
 
     }catch(Exception $e){
-        throw new BException('pack_validate(): Failed', $e);
+        throw new CoreException('pack_validate(): Failed', $e);
     }
 }

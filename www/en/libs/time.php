@@ -113,11 +113,11 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2){
                 return time_difference($start, $stop, 'years', $decimals);
 
             default:
-                throw new BException(tr('time_difference(): Unknown precision ":precision" specified', array(':precision' => $precision)), 'unknown');
+                throw new CoreException(tr('time_difference(): Unknown precision ":precision" specified', array(':precision' => $precision)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('time_difference(): Failed', $e);
+        throw new CoreException('time_difference(): Failed', $e);
     }
 }
 
@@ -170,7 +170,7 @@ function time_ago($original){
         return $output;
 
     }catch(Exception $e){
-        throw new BException('time_ago(): Failed', $e);
+        throw new CoreException('time_ago(): Failed', $e);
     }
 }
 
@@ -216,16 +216,16 @@ function time_validate($time, $format = false, $separator = ':'){
             /*
              * The time format is either not valid at all, or not valid for the specifed 12H or 24H format
              */
-            throw new BException('time_validate(): Specified time ":time" is not a valid ":format" format time', array(':time' => $time, ':format' => $format), 'invalid');
+            throw new CoreException('time_validate(): Specified time ":time" is not a valid ":format" format time', array(':time' => $time, ':format' => $format), 'invalid');
         }
 
         /*
          * The time format is not valid
          */
-        throw new BException(tr('time_validate(): Specified time ":time" is not a valid time format', array(':time' => $time)), 'invalid');
+        throw new CoreException(tr('time_validate(): Specified time ":time" is not a valid time format', array(':time' => $time)), 'invalid');
 
     }catch(Exception $e){
-        throw new BException('time_validate(): Failed', $e);
+        throw new CoreException('time_validate(): Failed', $e);
     }
 }
 

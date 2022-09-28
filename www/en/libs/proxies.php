@@ -17,7 +17,7 @@ function proxies_library_init(){
         load_libs('servers,forwardings');
 
     }catch(Exception $e){
-        throw new BException('proxy_library_init(): Failed', $e);
+        throw new CoreException('proxy_library_init(): Failed', $e);
     }
 }
 
@@ -34,7 +34,7 @@ function proxies_library_init(){
 function proxies_insert_create($prev, $insert, $protocols, $apply){
     try{
         if(empty($protocols)){
-            throw new BException(tr('proxies_insert_create(): No protocols specified', array(':insert_hostname' => $insert['hostname'])), 'not-specified');
+            throw new CoreException(tr('proxies_insert_create(): No protocols specified', array(':insert_hostname' => $insert['hostname'])), 'not-specified');
         }
 
         $protocol_port = array();
@@ -43,11 +43,11 @@ function proxies_insert_create($prev, $insert, $protocols, $apply){
             $data_protocol = explode(':', $protocol);
 
             if(!isset($data_protocol[1])){
-                throw new BException(tr('proxies_insert_create(): Port not specified for protocol ":protocol"', array(':protocol' => $data_protocol[0])), 'invalid');
+                throw new CoreException(tr('proxies_insert_create(): Port not specified for protocol ":protocol"', array(':protocol' => $data_protocol[0])), 'invalid');
             }
 
             if(!is_natural($data_protocol[1]) or (isset($data_protocol[1]) and $data_protocol[1] > 65535)){
-                throw new BException(tr('proxies_insert_create(): Invalid port ":port" specified for protocol ":protocol"', array(':port' => $data_protocol[1], ':protocol' => $data_protocol[0])), 'invalid');
+                throw new CoreException(tr('proxies_insert_create(): Invalid port ":port" specified for protocol ":protocol"', array(':port' => $data_protocol[1], ':protocol' => $data_protocol[0])), 'invalid');
             }
 
             $protocol = proxies_validate_protocol($data_protocol[0]);
@@ -102,7 +102,7 @@ function proxies_insert_create($prev, $insert, $protocols, $apply){
         servers_add_ssh_proxy($prev['id'], $insert['id']);
 
     }catch(Exception $e){
-        throw new BException('proxies_insert_create(): Failed', $e);
+        throw new CoreException('proxies_insert_create(): Failed', $e);
     }
 }
 
@@ -123,7 +123,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply){
          * If there are not proxies, protocols must be specified otherwise throw exception
          */
         if(empty($protocols)){
-            throw new BException(tr('proxies_insert_front(): No protocols specified', array(':insert_hostname' => $insert['hostname'])), 'not-specified');
+            throw new CoreException(tr('proxies_insert_front(): No protocols specified', array(':insert_hostname' => $insert['hostname'])), 'not-specified');
         }
 
         $prev_forwardings = forwardings_list($prev['id']);
@@ -156,7 +156,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply){
                  * If source port is already in use throw exception
                  */
                 if($exists){
-                   throw new BException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $default_source_port, ':host' => $insert['hostname'])), 'invalid');
+                   throw new CoreException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $default_source_port, ':host' => $insert['hostname'])), 'invalid');
                 }
 
                 /*
@@ -169,7 +169,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply){
                 $exists = forwardings_exists($prev_forwarding);
 
                 if($exists){
-                   throw new BException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $prev['source_port'], ':host' => $prev['hostname'])), 'invalid');
+                   throw new CoreException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $prev['source_port'], ':host' => $prev['hostname'])), 'invalid');
                 }
 
                 /*
@@ -219,7 +219,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply){
                  * If source port is already in use throw exception
                  */
                 if($exists){
-                    throw new BException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $forwarding['source_port'], ':host' => $insert['hostname'], ':protocol' => $protocol)), 'invalid');
+                    throw new CoreException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $forwarding['source_port'], ':host' => $insert['hostname'], ':protocol' => $protocol)), 'invalid');
                 }
                 forwardings_insert($forwarding);
             }
@@ -253,7 +253,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply){
         servers_add_ssh_proxy($prev['id'], $insert['id']);
 
     }catch(Exception $e){
-        throw new BException('proxies_insert_front(): Failed', $e);
+        throw new CoreException('proxies_insert_front(): Failed', $e);
     }
 }
 
@@ -274,7 +274,7 @@ function proxies_insert_middle($prev, $next, $insert, $apply){
         $next_forwardings = forwardings_list($next['id']);
 
         if(empty($next_forwardings)){
-            throw new BException(tr('proxies_insert_middle(): There are not configured rule forwardings for next server, nothing to map from ":insert" server to ":next"', array(':insert' => $insert['hostname'], ':next' => $next['hostname'])), 'invalid');
+            throw new CoreException(tr('proxies_insert_middle(): There are not configured rule forwardings for next server, nothing to map from ":insert" server to ":next"', array(':insert' => $insert['hostname'], ':next' => $next['hostname'])), 'invalid');
         }
 
         foreach($next_forwardings as $forwarding){
@@ -380,7 +380,7 @@ function proxies_insert_middle($prev, $next, $insert, $apply){
         servers_add_ssh_proxy($insert['id'], $next['id']);
 
     }catch(Exception $e){
-        throw new BException('proxies_insert_middle(): Failed', $e);
+        throw new CoreException('proxies_insert_middle(): Failed', $e);
     }
 }
 
@@ -403,11 +403,11 @@ function proxies_insert($root_hostname, $insert_hostname, $target_hostname, $loc
         $prev      = array();
 
         if($on_chain){
-            throw new BException(tr('proxies_insert(): Host ":insert_hostname" is already on the proxies chain', array(':insert_hostname' => $insert_hostname)), 'exists');
+            throw new CoreException(tr('proxies_insert(): Host ":insert_hostname" is already on the proxies chain', array(':insert_hostname' => $insert_hostname)), 'exists');
         }
 
         if($root['proxies'] and $protocols){
-            throw new BException(tr('proxies_insert(): Protocols specified, but specified root server ":server" already has a proxy chain with its own protocols. Please do NOT specify protocols for this root server', array(':server' => $root_hostname)), 'invalid');
+            throw new CoreException(tr('proxies_insert(): Protocols specified, but specified root server ":server" already has a proxy chain with its own protocols. Please do NOT specify protocols for this root server', array(':server' => $root_hostname)), 'invalid');
         }
 
         /*
@@ -415,7 +415,7 @@ function proxies_insert($root_hostname, $insert_hostname, $target_hostname, $loc
          * before main server
          */
         if(empty($root['proxies']) and $location == 'before'){
-            throw new BException(tr('proxies_insert(): New host ":insert_hostname" can not be inserted before main server ":root_hostname"', array(':insert_hostname' => $insert_hostname, ':root_hostname' => $root_hostname)), 'invalid');
+            throw new CoreException(tr('proxies_insert(): New host ":insert_hostname" can not be inserted before main server ":root_hostname"', array(':insert_hostname' => $insert_hostname, ':root_hostname' => $root_hostname)), 'invalid');
         }
 
         list($prev, $next) = proxies_get_prev_next_insert($root_hostname, $target_hostname, $root['proxies'], $location);
@@ -444,7 +444,7 @@ function proxies_insert($root_hostname, $insert_hostname, $target_hostname, $loc
         }
 
     }catch(Exception $e){
-        throw new BException('proxies_insert(): Failed', $e);
+        throw new CoreException('proxies_insert(): Failed', $e);
     }
 }
 
@@ -508,7 +508,7 @@ function proxies_remove_front($prev, $remove, $apply){
         servers_delete_ssh_proxy($prev['id'], $remove['id']);
 
     }catch(Exception $e){
-        throw new BException('proxies_remove_front(): Failed', $e);
+        throw new CoreException('proxies_remove_front(): Failed', $e);
     }
 }
 
@@ -529,11 +529,11 @@ function proxies_remove_middle($prev, $next, $remove, $apply){
         $remove_forwardings = forwardings_list($remove['id']);
 
         if(empty($next_forwardings)){
-            throw new BException(tr('proxies_remove_middle(): There are not forwardings rules on next server'), 'invalid');
+            throw new CoreException(tr('proxies_remove_middle(): There are not forwardings rules on next server'), 'invalid');
         }
 
         if(empty($remove_forwardings)){
-            throw new BException(tr('proxies_remove_middle(): There are not forwardings rules on remove server'), 'invalid');
+            throw new CoreException(tr('proxies_remove_middle(): There are not forwardings rules on remove server'), 'invalid');
         }
 
         /*
@@ -579,7 +579,7 @@ function proxies_remove_middle($prev, $next, $remove, $apply){
         servers_delete_ssh_proxy($remove['id'], $next['id']);
 
     }catch(Exception $e){
-        throw new BException('proxies_remove_middle(): Failed', $e);
+        throw new CoreException('proxies_remove_middle(): Failed', $e);
     }
 }
 
@@ -595,7 +595,7 @@ function proxies_remove_middle($prev, $next, $remove, $apply){
 function proxies_remove($root_host, $remove_host, $apply = true){
     try{
         if(strcasecmp($root_host, $remove_host) == 0){
-            throw new BException(tr('proxies_remove(): You can not remove host ":remove_host", it is the main host on the proxies chain', array(':remove_host' => $remove_host)), 'invalid');
+            throw new CoreException(tr('proxies_remove(): You can not remove host ":remove_host", it is the main host on the proxies chain', array(':remove_host' => $remove_host)), 'invalid');
         }
 
         $root = proxies_get_server($root_host, true);
@@ -612,13 +612,13 @@ function proxies_remove($root_host, $remove_host, $apply = true){
         $remove = proxies_get_server($remove_host);
 
         if(empty($root['proxies'])){
-            throw new BException(tr('proxies_remove(): Root host ":root_host" does not have proxies chain', array(':root_host' => $root_host)), 'not-exists');
+            throw new CoreException(tr('proxies_remove(): Root host ":root_host" does not have proxies chain', array(':root_host' => $root_host)), 'not-exists');
         }
 
         $host_on_chain = proxies_validate_on_chain($root['proxies'], $remove_host);
 
         if(!$host_on_chain){
-            throw new BException(tr('proxies_remove(): Host ":remove_host" is not on the proxies chain', array(':remove_host' => $remove_host)), 'not-exists');
+            throw new CoreException(tr('proxies_remove(): Host ":remove_host" is not on the proxies chain', array(':remove_host' => $remove_host)), 'not-exists');
         }
 
         /*
@@ -634,7 +634,7 @@ function proxies_remove($root_host, $remove_host, $apply = true){
         }
 
     }catch(Exception $e){
-        throw new BException('proxies_remove(): Failed', $e);
+        throw new CoreException('proxies_remove(): Failed', $e);
     }
 }
 
@@ -678,7 +678,7 @@ function proxies_get_prev_next_remove($root_server, $remove_server, $proxies){
         return array($prev, $next);
 
     }catch(Exception $e){
-        throw new BException('proxies_get_prev_next_remove(): Failed', $e);
+        throw new CoreException('proxies_get_prev_next_remove(): Failed', $e);
     }
 }
 
@@ -700,7 +700,7 @@ function proxies_get_prev_next_insert($root_hostname, $target_hostname, $proxies
         switch($location){
             case 'before':
                 if($root_hostname == $target_hostname){
-                    throw new BException(tr('proxies_get_prev_next_insert(): Server can not be inserted before main host', array(':location' => $location)), 'unkown');
+                    throw new CoreException(tr('proxies_get_prev_next_insert(): Server can not be inserted before main host', array(':location' => $location)), 'unkown');
                 }
 
                 $next    = proxies_get_server($target_hostname);
@@ -742,13 +742,13 @@ function proxies_get_prev_next_insert($root_hostname, $target_hostname, $proxies
                 break;
 
             default:
-                throw new BException(tr('proxies_get_prev_next_insert(): Unknown location ":location"', array(':location' => $location)), 'unkown');
+                throw new CoreException(tr('proxies_get_prev_next_insert(): Unknown location ":location"', array(':location' => $location)), 'unkown');
         }
 
         return array($prev, $next);
 
     }catch(Exception $e){
-        throw new BException('proxies_get_prev_next_insert(): Failed', $e);
+        throw new CoreException('proxies_get_prev_next_insert(): Failed', $e);
     }
 }
 
@@ -766,13 +766,13 @@ function proxies_get_server($host, $return_proxies = false){
         $server = servers_get($host, false, $return_proxies);
 
         if(empty($server)){
-            throw new BException(tr('proxies_get_server(): No server found for host ":host"', array(':host' => $host)), 'not-exists');
+            throw new CoreException(tr('proxies_get_server(): No server found for host ":host"', array(':host' => $host)), 'not-exists');
         }
 
         return $server;
 
     }catch(Exception $e){
-        throw new BException('proxies_get_server(): Failed', $e);
+        throw new CoreException('proxies_get_server(): Failed', $e);
     }
 }
 
@@ -796,7 +796,7 @@ function proxies_validate_on_chain($proxies, $search_hostname){
         return false;
 
     }catch(Exception $e){
-        throw new BException('proxies_validate_on_chain(): Failed', $e);
+        throw new CoreException('proxies_validate_on_chain(): Failed', $e);
     }
 }
 
@@ -812,7 +812,7 @@ function proxies_validate_on_chain($proxies, $search_hostname){
 function proxies_validate_location($location){
     try{
         if(empty($location)){
-            throw new BException(tr('proxies_validate_location(): Location not specified'), 'not-specified');
+            throw new CoreException(tr('proxies_validate_location(): Location not specified'), 'not-specified');
         }
 
         $location = strtolower($location);
@@ -824,11 +824,11 @@ function proxies_validate_location($location){
                 return $location;
 
             default:
-                throw new BException(tr('proxies_validate_location(): Unknown location ":location"', array(':location' => $location)), 'unknown');
+                throw new CoreException(tr('proxies_validate_location(): Unknown location ":location"', array(':location' => $location)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('proxies_validate_location(): Failed', $e);
+        throw new CoreException('proxies_validate_location(): Failed', $e);
     }
 }
 
@@ -844,7 +844,7 @@ function proxies_validate_location($location){
 function proxies_get_default_port($protocol){
     try{
         if(empty($protocol)){
-            throw new BException(tr('proxies_get_default_port(): Protocol not specified'), 'not-specified');
+            throw new CoreException(tr('proxies_get_default_port(): Protocol not specified'), 'not-specified');
         }
 
         switch($protocol){
@@ -858,11 +858,11 @@ function proxies_get_default_port($protocol){
                 return 22;
 
             default:
-                throw new BException(tr('proxies_get_default_port(): Unknown protocol ":protocol"', array(':protocol' => $protocol)), 'unknown');
+                throw new CoreException(tr('proxies_get_default_port(): Unknown protocol ":protocol"', array(':protocol' => $protocol)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('proxies_get_default_port(): Failed', $e);
+        throw new CoreException('proxies_get_default_port(): Failed', $e);
     }
 }
 
@@ -878,7 +878,7 @@ function proxies_get_default_port($protocol){
 function proxies_validate_protocol($protocol){
     try{
         if(empty($protocol)){
-            throw new BException(tr('proxies_validate_protocol(): No protocol specified'), 'not-specified');
+            throw new CoreException(tr('proxies_validate_protocol(): No protocol specified'), 'not-specified');
         }
 
         $protocol = strtolower($protocol);
@@ -895,13 +895,13 @@ function proxies_validate_protocol($protocol){
                 break;
 
             default:
-                throw new BException(tr('proxies_validate_protocol(): Unknown protocol "ssh", allow protocols: http, https, imap, smtp'), 'unknown');
+                throw new CoreException(tr('proxies_validate_protocol(): Unknown protocol "ssh", allow protocols: http, https, imap, smtp'), 'unknown');
         }
 
         return $protocol;
 
     }catch(Exception $e){
-        throw new BException('proxies_validate_protocol(): Failed', $e);
+        throw new CoreException('proxies_validate_protocol(): Failed', $e);
     }
 }
 ?>

@@ -34,7 +34,7 @@ function crypt_library_init(){
         load_libs('sodium');
 
     }catch(Exception $e){
-        throw new BException('crypt_library_init(): Failed', $e);
+        throw new CoreException('crypt_library_init(): Failed', $e);
     }
 }
 
@@ -71,13 +71,13 @@ function encrypt($data, $key, $method = null){
                 break;
 
             default:
-                throw new BException(tr('encrypt(): Unknown backend ":backend" specified $_CONFIG[crypt][backend]', array(':backend' => $_CONFIG['crypt']['backend'])), 'unknown');
+                throw new CoreException(tr('encrypt(): Unknown backend ":backend" specified $_CONFIG[crypt][backend]', array(':backend' => $_CONFIG['crypt']['backend'])), 'unknown');
         }
 
         return $data;
 
     }catch(Exception $e){
-        throw new BException('encrypt(): Failed', $e);
+        throw new CoreException('encrypt(): Failed', $e);
     }
 }
 
@@ -107,7 +107,7 @@ function decrypt($data, $key, $method = null){
 
     try{
         if($data === false){
-            throw new BException(tr('decrypt(): base64_decode() asppears to have failed to decode data, probably invalid base64 string'), 'invalid');
+            throw new CoreException(tr('decrypt(): base64_decode() asppears to have failed to decode data, probably invalid base64 string'), 'invalid');
         }
 
         $key     = crypt_pad_key($key);
@@ -120,10 +120,10 @@ function decrypt($data, $key, $method = null){
                 break;
 
             case '':
-                throw new BException(tr('decrypt(): Data has no backend specified'), 'invalid');
+                throw new CoreException(tr('decrypt(): Data has no backend specified'), 'invalid');
 
             default:
-                throw new BException(tr('decrypt(): Unknown backend ":backend" specified by data', array(':backend' => $backend)), 'unknown');
+                throw new CoreException(tr('decrypt(): Unknown backend ":backend" specified by data', array(':backend' => $backend)), 'unknown');
         }
 
         $data = trim($data);
@@ -132,7 +132,7 @@ function decrypt($data, $key, $method = null){
         return $data;
 
     }catch(Exception $e){
-        throw new BException('decrypt(): Failed', $e);
+        throw new CoreException('decrypt(): Failed', $e);
     }
 }
 
@@ -164,6 +164,6 @@ function crypt_pad_key($key, $character = '*'){
         return $key;
 
     }catch(Exception $e){
-        throw new BException('crypt_pad_key(): Failed', $e);
+        throw new CoreException('crypt_pad_key(): Failed', $e);
     }
 }

@@ -32,7 +32,7 @@ function sane_library_init(){
         load_config('sane');
 
     }catch(Exception $e){
-        throw new BException('sane_library_init(): Failed', $e);
+        throw new CoreException('sane_library_init(): Failed', $e);
     }
 }
 
@@ -146,7 +146,7 @@ under_construction();
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('sane_find_scanners(): Failed', $e);
+        throw new CoreException('sane_find_scanners(): Failed', $e);
     }
 }
 ?>

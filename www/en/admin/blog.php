@@ -24,7 +24,7 @@ try{
                     /*
                      * A blog with this name already exists
                      */
-                    throw new bException(tr('A blog with the name "%blog%" already exists', '%blog%', $blog['name']), 'exists');
+                    throw new CoreException(tr('A blog with the name "%blog%" already exists', '%blog%', $blog['name']), 'exists');
 
                 }else{
                     $blog['seoname']     = seo_generate_unique_name($blog['name'], 'blogs', $blog['id']);
@@ -70,7 +70,7 @@ try{
                 load_libs('seo,blogs');
 
                 if(empty($_GET['blog'])){
-                    throw new bException('No blog specified to update', 'not_specified');
+                    throw new CoreException('No blog specified to update', 'not_specified');
                 }
 
                 /*
@@ -82,21 +82,21 @@ try{
                     /*
                      * Cannot update this blog, it does not exist!
                      */
-                    throw new bException(tr('The specified blogs id "'.str_log($blog['id']).'" does not exist'), 'notexists');
+                    throw new CoreException(tr('The specified blogs id "'.str_log($blog['id']).'" does not exist'), 'notexists');
                 }
 
                 if(($dbblog['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')){
                     /*
                      * This blog is not from this user and this user is also not an admin!
                      */
-                    throw new bException(tr('This blog is not yours, and you are not an admin'), 'accessdenied');
+                    throw new CoreException(tr('This blog is not yours, and you are not an admin'), 'accessdenied');
                 }
 
                 if(sql_get('SELECT `id` FROM `blogs` WHERE `name` = :name AND `seoname` != :seoname', array(':name' => $blog['name'], ':seoname' => $_GET['blog']), 'id')){
                     /*
                      * Another blog with this name already exists
                      */
-                    throw new bException(tr('A blog with the name "%blog%" already exists', '%blog%', $blog['name']));
+                    throw new CoreException(tr('A blog with the name "%blog%" already exists', '%blog%', $blog['name']));
 
                 }else{
                     /*
@@ -403,13 +403,13 @@ function s_validate_blog($blog){
         }
 
         if(!$v->isValid()) {
-           throw new bException($v->getErrors(), 'validation');
+           throw new CoreException($v->getErrors(), 'validation');
         }
 
         return $blog;
 
     }catch(Exception $e){
-        throw new bException('s_validate_blog(): Failed', $e);
+        throw new CoreException('s_validate_blog(): Failed', $e);
     }
 }
 ?>

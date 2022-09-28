@@ -15,6 +15,6 @@ load_libs('test');
 //    $results = array_shift($results);
 //
 //    if($results !== '1'){
-//        throw new BException(tr('script_exec() returned unexpected results. Expected "1" but received ":results" instead', array(':results' => $results)), 'unexpected');
+//        throw new CoreException(tr('script_exec() returned unexpected results. Expected "1" but received ":results" instead', array(':results' => $results)), 'unexpected');
 //    }
 //});

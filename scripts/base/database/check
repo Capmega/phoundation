@@ -10,11 +10,11 @@ try{
     $show   = cli_argument('show');
 
     if(!$user = cli_argument('username', true)){
-        throw new BException('No database username specified', 'not-specified');
+        throw new CoreException('No database username specified', 'not-specified');
     }
 
     if(!$password = cli_argument('password', true)){
-        throw new BException('No database password specified', 'not-specified');
+        throw new CoreException('No database password specified', 'not-specified');
     }
 
     log_console('Executing mysqlcheck on all database tables, this may take a minute');
@@ -68,6 +68,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('scripts/database/check: Failed', $e);
+    throw new CoreException('scripts/database/check: Failed', $e);
 }
 ?>

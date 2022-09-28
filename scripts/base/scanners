@@ -180,7 +180,7 @@ switch(cli_method()){
                  */
                 if(is_array($valid_values)){
                     if(!in_array($value, $valid_values)){
-                        throw new BException(tr('Value ":value" for the specified option ":key" is invalid', array(':key' => $key, ':value' => $value)), 'warning/invalid');
+                        throw new CoreException(tr('Value ":value" for the specified option ":key" is invalid', array(':key' => $key, ':value' => $value)), 'warning/invalid');
                     }
 
                 }else{
@@ -247,7 +247,7 @@ switch(cli_method()){
 
             if(!file_exists($scanimage['file'])){
                 if(!$scanimage['batch']){
-                    throw new BException(tr('Sane reported scan was saved to target file ":file", but the file was not found', array(':file' => $scanimage['file'])), 'not-found');
+                    throw new CoreException(tr('Sane reported scan was saved to target file ":file", but the file was not found', array(':file' => $scanimage['file'])), 'not-found');
                 }
             }
 
@@ -262,7 +262,7 @@ switch(cli_method()){
 
                 case 'failed':
                     $e->makeWarning(true);
-                    throw new BException(tr('Scanner failed. Please check if the scanner is turned on and functioning properly. Restart the scanner if needed'), $e);
+                    throw new CoreException(tr('Scanner failed. Please check if the scanner is turned on and functioning properly. Restart the scanner if needed'), $e);
             }
 
             throw $e;
@@ -281,7 +281,7 @@ switch(cli_method()){
                 $files = file_list_tree($scanimage['result'], $scanimage['file']);
 
                 if(!$files){
-                    throw new BException(tr('No scanned target files found in ":path"', array(':path' => $scanimage['result'])), 'not-exist');
+                    throw new CoreException(tr('No scanned target files found in ":path"', array(':path' => $scanimage['result'])), 'not-exist');
                 }
 
                 foreach($files as $file){
@@ -296,9 +296,9 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

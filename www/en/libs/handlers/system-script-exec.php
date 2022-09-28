@@ -13,15 +13,15 @@ try{
      * when the system is ready to go
      */
     if(!$core->register['ready']){
-        throw new BException(tr('script_exec(): Startup has not yet finished and base is not ready to start working properly. script_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
+        throw new CoreException(tr('script_exec(): Startup has not yet finished and base is not ready to start working properly. script_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
     if(!$params['commands']){
-        throw new BException(tr('script_exec(): No commands specified'), 'not-specified');
+        throw new CoreException(tr('script_exec(): No commands specified'), 'not-specified');
     }
 
     if(!is_array($params['commands'])){
-        throw new BException(tr('script_exec(): Invalid commands specified'), 'invalid');
+        throw new CoreException(tr('script_exec(): Invalid commands specified'), 'invalid');
     }
 
     /*
@@ -37,7 +37,7 @@ try{
              * This must be a command
              */
             if(is_array($item)){
-                throw new BException(tr('script_exec(): Invalid commands structure specified, entry ":id" is an ":datatype" while it should be a string. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
+                throw new CoreException(tr('script_exec(): Invalid commands structure specified, entry ":id" is an ":datatype" while it should be a string. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
             }
 
             $item = ROOT.'scripts/'.$item;
@@ -47,7 +47,7 @@ try{
              * These must be arguments
              */
             if(!is_array($item)){
-                throw new BException(tr('script_exec(): Invalid commands structure specified, entry ":id" is a ":datatype" while it should be an array. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
+                throw new CoreException(tr('script_exec(): Invalid commands structure specified, entry ":id" is a ":datatype" while it should be an array. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
             }
 
             /*
@@ -85,5 +85,5 @@ try{
     return safe_exec($params);
 
 }catch(Exception $e){
-    throw new bException(tr('script_exec(): Failed'), $e);
+    throw new CoreException(tr('script_exec(): Failed'), $e);
 }

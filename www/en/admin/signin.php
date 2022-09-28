@@ -17,13 +17,13 @@ if(isset($_POST['dosignin'])){
         $v->hasMinChars($_POST['password'], 8, tr('Please ensure that the password has a minimum of 8 characters'));
 
         if(!$v->isValid()) {
-            throw new bException('Signin failed with "'.$v->getErrors(', ').'"', 'validation');
+            throw new CoreException('Signin failed with "'.$v->getErrors(', ').'"', 'validation');
         }
 
         $user = user_authenticate($_POST['username'], $_POST['password']);
 
         if(!has_rights('admin', $user)){
-            throw new bException('signin: User "'.user_name($user).'" is not an administrator', 'accessdenied');
+            throw new CoreException('signin: User "'.user_name($user).'" is not an administrator', 'accessdenied');
         }
 
         log_database('Admin authenticated: "'.$_POST['username'].'"', 'ADMIN');

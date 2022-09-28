@@ -35,7 +35,7 @@ function fontawesome_select($params){
         return cache_write($html, 'select'.isset_get($params['selected']), 'fontawesome');
 
     }catch(Exception $e){
-        throw new BException('fontawesome_select(): Failed', $e);
+        throw new CoreException('fontawesome_select(): Failed', $e);
     }
 }
 
@@ -1046,7 +1046,7 @@ function fontawesome_update(){
         file_delete(TMP.'fontawesome');
 
     }catch(Exception $e){
-        throw new BException('fontawesome_update(): Failed', $e);
+        throw new CoreException('fontawesome_update(): Failed', $e);
     }
 }
 ?>

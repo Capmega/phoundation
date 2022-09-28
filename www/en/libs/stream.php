@@ -32,7 +32,7 @@ function stream_library_init(){
         load_config('stream');
 
     }catch(Exception $e){
-        throw new BException(tr('stream_library_init(): Failed'), $e);
+        throw new CoreException(tr('stream_library_init(): Failed'), $e);
     }
 }
 
@@ -81,12 +81,12 @@ function stream($params){
                  * Match the entire mimetype
                  */
                 if($mimetype !== $params['mimetype']){
-                    throw new BException(tr('stream(): Specified file ":file" failed strict mimetype check. If has mimetype ":has" while ":requested" was requested', array(':has' => $mimetype, ':mimetype' => $params['mimetype'])), 'not-authorized');
+                    throw new CoreException(tr('stream(): Specified file ":file" failed strict mimetype check. If has mimetype ":has" while ":requested" was requested', array(':has' => $mimetype, ':mimetype' => $params['mimetype'])), 'not-authorized');
                 }
 
             }else{
                 if(str_until($mimetype, '/') !== str_until($params['mimetype'], '/')){
-                    throw new BException(tr('stream(): Specified file ":file" failed lax mimetype check. If has mimetype ":has" while ":requested" was requested', array(':has' => str_until($mimetype, '/'), ':mimetype' => str_until($params['mimetype'], '/'))), 'not-authorized');
+                    throw new CoreException(tr('stream(): Specified file ":file" failed lax mimetype check. If has mimetype ":has" while ":requested" was requested', array(':has' => str_until($mimetype, '/'), ':mimetype' => str_until($params['mimetype'], '/'))), 'not-authorized');
                 }
             }
         }
@@ -103,11 +103,11 @@ function stream($params){
             case 'video':
                 return stream_video($params);
 
-            throw new BException(tr('stream(): Unsupported mimetype ":mimetype" encounered', array(':mimetype' => str_until($mimetype, '/'))), 'unsupported');
+            throw new CoreException(tr('stream(): Unsupported mimetype ":mimetype" encounered', array(':mimetype' => str_until($mimetype, '/'))), 'unsupported');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('stream(): Failed'), $e);
+        throw new CoreException(tr('stream(): Failed'), $e);
     }
 }
 
@@ -130,21 +130,21 @@ function stream($params){
 function stream_open(&$params){
     try{
         if(empty($params['file'])){
-            throw new BException(tr('stream_open(): No file specified'), 'not-specified');
+            throw new CoreException(tr('stream_open(): No file specified'), 'not-specified');
         }
 
         if(!file_exists($params['file'])){
-            throw new BException(tr('stream_open(): Specified file ":file" does not exist', array(':file' => $params['file'])), 'not-exist');
+            throw new CoreException(tr('stream_open(): Specified file ":file" does not exist', array(':file' => $params['file'])), 'not-exist');
         }
 
         if(!is_readable($params['file'])){
-            throw new BException(tr('stream_open(): Specified file ":file" is not readable', array(':file' => $params['file'])), 'not-readable');
+            throw new CoreException(tr('stream_open(): Specified file ":file" is not readable', array(':file' => $params['file'])), 'not-readable');
         }
 
         $params['resource'] = fopen($this->path, 'rb');
 
         if(!$params['resource']){
-            throw new BException(tr('stream_open(): Failed to open file ":file" for streaming', array(':file' => $params['file'])), $e);
+            throw new CoreException(tr('stream_open(): Failed to open file ":file" for streaming', array(':file' => $params['file'])), $e);
         }
 
         $params['start']     = 0;
@@ -153,7 +153,7 @@ function stream_open(&$params){
         $params['filemtime'] = filemtime($params['file']);
 
     }catch(Exception $e){
-        throw new BException(tr('stream_open(): Failed'), $e);
+        throw new CoreException(tr('stream_open(): Failed'), $e);
     }
 }
 
@@ -181,7 +181,7 @@ function stream_close($params){
         array_default($params, 'die', true);
 
         if(empty($params['resource'])){
-            throw new BException(tr('stream_close(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
+            throw new CoreException(tr('stream_close(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
         }
 
         fclose($params['resource']);
@@ -191,7 +191,7 @@ function stream_close($params){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('stream_close(): Failed'), $e);
+        throw new CoreException(tr('stream_close(): Failed'), $e);
     }
 }
 
@@ -219,7 +219,7 @@ under_construction('Audio streaming is still under construction');
         stream_end($params);
 
     }catch(Exception $e){
-        throw new BException(tr('stream_audio(): Failed'), $e);
+        throw new CoreException(tr('stream_audio(): Failed'), $e);
     }
 }
 
@@ -246,7 +246,7 @@ function stream_video($params){
         stream_end($params);
 
     }catch(Exception $e){
-        throw new BException(tr('stream_video(): Failed'), $e);
+        throw new CoreException(tr('stream_video(): Failed'), $e);
     }
 }
 
@@ -273,11 +273,11 @@ function stream_video_data_headers($params){
         array_ensure($params, 'mimetype,cache_max_age,start,end,size');
 
         if(empty($params['resource'])){
-            throw new BException(tr('stream_video_data_headers(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
+            throw new CoreException(tr('stream_video_data_headers(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
         }
 
         if(empty($params['file'])){
-            throw new BException(tr('stream_video_data_headers(): No video file specified'), 'not-specified');
+            throw new CoreException(tr('stream_video_data_headers(): No video file specified'), 'not-specified');
         }
 
         /*
@@ -336,7 +336,7 @@ function stream_video_data_headers($params){
         header('Content-Range: bytes '.$params['start'].'-'.$params['end'].'/'.$params['size']);
 
     }catch(Exception $e){
-        throw new BException(tr('stream_video_data_headers(): Failed'), $e);
+        throw new CoreException(tr('stream_video_data_headers(): Failed'), $e);
     }
 }
 
@@ -366,11 +366,11 @@ function stream_video_data($params){
 
 
         if(empty($params['resource'])){
-            throw new BException(tr('stream_video_data_headers(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
+            throw new CoreException(tr('stream_video_data_headers(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
         }
 
         if(empty($params['file'])){
-            throw new BException(tr('stream_video_data_headers(): No video file specified'), 'not-specified');
+            throw new CoreException(tr('stream_video_data_headers(): No video file specified'), 'not-specified');
         }
 
         /*
@@ -393,7 +393,7 @@ function stream_video_data($params){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('stream_video_data(): Failed'), $e);
+        throw new CoreException(tr('stream_video_data(): Failed'), $e);
     }
 }
 ?>

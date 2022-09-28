@@ -31,7 +31,7 @@ function monitors_library_init(){
 
 
     }catch(Exception $e){
-        throw new BException('monitors_library_init(): Failed', $e);
+        throw new CoreException('monitors_library_init(): Failed', $e);
     }
 }
 
@@ -54,7 +54,7 @@ function monitors_validate_host($host){
 
 
     }catch(Exception $e){
-        throw new BException('monitors_validate_host(): Failed', $e);
+        throw new CoreException('monitors_validate_host(): Failed', $e);
     }
 }
 
@@ -89,7 +89,7 @@ function monitors_insert_host($host){
         return $host;
 
     }catch(Exception $e){
-        throw new BException('monitors_insert_host(): Failed', $e);
+        throw new CoreException('monitors_insert_host(): Failed', $e);
     }
 }
 
@@ -125,7 +125,7 @@ function monitors_update_host($host){
         return $result;
 
     }catch(Exception $e){
-        throw new BException('monitors_update_host(): Failed', $e);
+        throw new CoreException('monitors_update_host(): Failed', $e);
     }
 }
 
@@ -156,7 +156,7 @@ function monitors_get_host($host){
                              ':hostname' => $host);
 
         }else{
-            throw new BException(tr(''), 'invalid');
+            throw new CoreException(tr(''), 'invalid');
         }
 
         $result = sql_get('SELECT `id`,
@@ -172,7 +172,7 @@ function monitors_get_host($host){
         return $host;
 
     }catch(Exception $e){
-        throw new BException('monitors_get_host(): Failed', $e);
+        throw new CoreException('monitors_get_host(): Failed', $e);
     }
 }
 
@@ -201,7 +201,7 @@ function monitors_update_interfaces($host, $interfaces){
 
 
     }catch(Exception $e){
-        throw new BException('monitors_update_interfaces(): Failed', $e);
+        throw new CoreException('monitors_update_interfaces(): Failed', $e);
     }
 }
 ?>

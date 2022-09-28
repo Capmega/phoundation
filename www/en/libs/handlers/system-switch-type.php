@@ -10,7 +10,7 @@ try{
             break;
 
         default:
-            throw new BException('switch_type(): Unknown type "'.$type.'" specified', 'unknown');
+            throw new CoreException('switch_type(): Unknown type "'.$type.'" specified', 'unknown');
     }
 
     if(!empty($redirect)){
@@ -50,6 +50,6 @@ try{
     redirect();
 
 }catch(Exception $e){
-    throw new BException('switch_type(): Failed', $e);
+    throw new CoreException('switch_type(): Failed', $e);
 }
 ?>

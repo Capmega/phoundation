@@ -17,7 +17,7 @@ function crontab_add_entry(){
     try{
 
     }catch(Exception $e){
-        throw new BException('crontab_add_entry(): Failed', $e);
+        throw new CoreException('crontab_add_entry(): Failed', $e);
     }
 }
 
@@ -30,7 +30,7 @@ function crontab_list(){
     try{
 
     }catch(Exception $e){
-        throw new BException('crontab_list(): Failed', $e);
+        throw new CoreException('crontab_list(): Failed', $e);
     }
 }
 ?>

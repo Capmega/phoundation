@@ -31,7 +31,7 @@ function go_library_init(){
         load_libs('linux');
 
     }catch(Exception $e){
-        throw new BException('go_library_init(): Failed', $e);
+        throw new CoreException('go_library_init(): Failed', $e);
     }
 }
 
@@ -68,7 +68,7 @@ function go_exists($file, $server = null){
         return $exists;
 
     }catch(Exception $e){
-        throw new BException(tr('go_exists(): Failed'), $e);
+        throw new CoreException(tr('go_exists(): Failed'), $e);
     }
 }
 
@@ -105,15 +105,15 @@ function go_exec($params){
          * when the system is ready to go
          */
         if(!$core->register['ready']){
-            throw new BException(tr('go_exec(): Startup has not yet finished and base is not ready to start working properly. go_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
+            throw new CoreException(tr('go_exec(): Startup has not yet finished and base is not ready to start working properly. go_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
         }
 
         if(!$params['commands']){
-            throw new BException(tr('go_exec(): No commands specified'), 'not-specified');
+            throw new CoreException(tr('go_exec(): No commands specified'), 'not-specified');
         }
 
         if(!is_array($params['commands'])){
-            throw new BException(tr('go_exec(): Invalid commands specified'), 'invalid');
+            throw new CoreException(tr('go_exec(): Invalid commands specified'), 'invalid');
         }
 
         linux_ensure_package($params['server'], 'go', 'go');
@@ -131,7 +131,7 @@ function go_exec($params){
                  * This must be a go command
                  */
                 if(!is_string($item)){
-                    throw new BException(tr('go_exec(): Invalid commands structure specified, entry ":id" is an ":datatype" while it should be a string. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
+                    throw new CoreException(tr('go_exec(): Invalid commands structure specified, entry ":id" is an ":datatype" while it should be a string. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
                 }
 
 // :TODO: Add support for remote server execution
@@ -142,7 +142,7 @@ function go_exec($params){
                  * These must be arguments
                  */
                 if(!is_array($item)){
-                    throw new BException(tr('go_exec(): Invalid commands structure specified, entry ":id" is a ":datatype" while it should be an array. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
+                    throw new CoreException(tr('go_exec(): Invalid commands structure specified, entry ":id" is a ":datatype" while it should be an array. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
                 }
             }
         }
@@ -153,7 +153,7 @@ function go_exec($params){
         return safe_exec($params);
 
     }catch(Exception $e){
-        throw new BException(tr('go_exec(): Failed'), $e);
+        throw new CoreException(tr('go_exec(): Failed'), $e);
     }
 }
 
@@ -184,7 +184,7 @@ function go_build($path, $server){
         $server = servers_get($server);
 
         if(!linux_file_exists($server, $path)){
-            throw new BException(tr('go_build(): Specified build path ":path" does not exist on server ":server"', array(':path' => $path, ':server' => $server)), 'not-exist');
+            throw new CoreException(tr('go_build(): Specified build path ":path" does not exist on server ":server"', array(':path' => $path, ':server' => $server)), 'not-exist');
         }
 
         linux_ensure_package($server, 'go', 'go');
@@ -195,7 +195,7 @@ function go_build($path, $server){
                                                                'go', array('build'))));
 
     }catch(Exception $e){
-        throw new BException(tr('go_build(): Failed'), $e);
+        throw new CoreException(tr('go_build(): Failed'), $e);
     }
 }
 ?>

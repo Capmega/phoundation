@@ -34,12 +34,12 @@ if(empty($_CONFIG['data']['global'])){
         /*
          * Umm, we don't have a user data directory
          */
-        throw new BException(tr('No user home directory found for non root user'), 'not-exists');
+        throw new CoreException(tr('No user home directory found for non root user'), 'not-exists');
     }
 }
 
 if(substr($path, 0, 1) != '/'){
-    throw new BException(tr('The specified path ":path" is invalid. An absolute path (starting with a forward slash /) is required', array(':path' => $path)), 'invalid');
+    throw new CoreException(tr('The specified path ":path" is invalid. An absolute path (starting with a forward slash /) is required', array(':path' => $path)), 'invalid');
 }
 
 $path = slash($path);
@@ -58,7 +58,7 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('The specified path "'.str_log($path).'" could not be created', $e);
+    throw new CoreException('The specified path "'.str_log($path).'" could not be created', $e);
 }
 
 // :GARBAGE: The global data directory should be supplied by automatically downloading required files from their respectitive URL's

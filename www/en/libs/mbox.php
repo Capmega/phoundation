@@ -26,7 +26,7 @@ function mbox_library_init(){
         load_config('mbox');
 
     }catch(Exception $e){
-        throw new BException('mbox_library_init(): Failed', $e);
+        throw new CoreException('mbox_library_init(): Failed', $e);
     }
 }
 
@@ -67,7 +67,7 @@ function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path =
         }
 
     }catch(Exception $e){
-        throw new BException('mbox_import_file(): Failed', $e);
+        throw new CoreException('mbox_import_file(): Failed', $e);
     }
 }
 
@@ -92,7 +92,7 @@ function mbox_convert_maildir($maildir_path, $box, $mail_path){
         safe_exec(array('commands' => array(ROOT.'scripts/md2mb.py', array($path))));
 
     }catch(Exception $e){
-        throw new BException('mbox_convert_maildir(): Failed', $e);
+        throw new CoreException('mbox_convert_maildir(): Failed', $e);
     }
 }
 
@@ -121,7 +121,7 @@ function mbox_test_access($path){
         $path = slash($path);
 
         if(!file_exists($path)){
-            throw new BException(tr('mbox_test_access(): The configured (or specified) mail directory ":path" does not exist. Please check the configuration option $_CONFIG[mbox][path]', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('mbox_test_access(): The configured (or specified) mail directory ":path" does not exist. Please check the configuration option $_CONFIG[mbox][path]', array(':path' => $path)), 'not-exists');
         }
 
         if(file_exists($path.'base-test')){
@@ -134,7 +134,7 @@ function mbox_test_access($path){
         return $path;
 
     }catch(Exception $e){
-        throw new BException('mbox_test_access(): Failed', $e);
+        throw new CoreException('mbox_test_access(): Failed', $e);
     }
 }
 ?>

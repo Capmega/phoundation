@@ -43,7 +43,7 @@ if(!$js and !$css){
 
 if(TEST){
     if(!$path){
-        throw new bException('No test path specified.', 'not-specified');
+        throw new CoreException('No test path specified.', 'not-specified');
     }
 
     log_console(tr('Running compression test'), 'white');

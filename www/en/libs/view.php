@@ -32,7 +32,7 @@ function view_library_init(){
         load_config('view');
 
     }catch(Exception $e){
-        throw new BException(tr('view_library_init(): Failed'), $e);
+        throw new CoreException(tr('view_library_init(): Failed'), $e);
     }
 }
 
@@ -61,14 +61,14 @@ function view($file){
             /*
              * A directory was specified instead of a file.
              */
-            throw new BException(tr('view(): No file specified'), 'invalid');
+            throw new CoreException(tr('view(): No file specified'), 'invalid');
         }
 
         if(!file_exists($file)){
             /*
              * A directory was specified instead of a file.
              */
-            throw new BException(tr('view(): The specified file ":file" does not exist', array(':file' => $file)), 'invalid');
+            throw new CoreException(tr('view(): The specified file ":file" does not exist', array(':file' => $file)), 'invalid');
         }
 
         if(!is_file($file)){
@@ -76,10 +76,10 @@ function view($file){
                 /*
                  * A directory was specified instead of a file.
                  */
-                throw new BException(tr('view(): The specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
+                throw new CoreException(tr('view(): The specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
             }
 
-            throw new BException(tr('view(): The specified file ":file" is not a normal viewable file', array(':file' => $file)), 'invalid');
+            throw new CoreException(tr('view(): The specified file ":file" is not a normal viewable file', array(':file' => $file)), 'invalid');
         }
 
         $mimetype = file_mimetype($file);
@@ -96,11 +96,11 @@ function view($file){
                 return view_pdf($file);
 
             default:
-                throw new BException(tr('view_image(): Unknown default image viewer ":viewer" specified', array(':viewer' => $_CONFIG['view']['images']['default'])), 'unknown');
+                throw new CoreException(tr('view_image(): Unknown default image viewer ":viewer" specified', array(':viewer' => $_CONFIG['view']['images']['default'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('view(): Failed'), $e);
+        throw new CoreException(tr('view(): Failed'), $e);
     }
 }
 
@@ -129,11 +129,11 @@ function view_image($file){
                 return view_image_feh($file);
 
             default:
-                throw new BException(tr('view_image(): Unknown default image viewer ":viewer" specified', array(':viewer' => $_CONFIG['view']['images']['default'])), 'unknown');
+                throw new CoreException(tr('view_image(): Unknown default image viewer ":viewer" specified', array(':viewer' => $_CONFIG['view']['images']['default'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('view_image(): Failed'), $e);
+        throw new CoreException(tr('view_image(): Failed'), $e);
     }
 }
 
@@ -167,7 +167,7 @@ function view_image_feh($file){
                         'commands'   => array('feh', array($file))));
 
     }catch(Exception $e){
-        throw new BException(tr('view_image_feh(): Failed'), $e);
+        throw new CoreException(tr('view_image_feh(): Failed'), $e);
     }
 }
 ?>

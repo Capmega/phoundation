@@ -29,11 +29,11 @@
 function video_library_init(){
     try{
         if(!file_which('ffmpeg')){
-            throw new BException(tr('video_library_init(): ffmpeg module not installed, run this command on your server: sudo apt update && sudo apt install ffmpeg libav-tools x264 x265;'), 'not_available');
+            throw new CoreException(tr('video_library_init(): ffmpeg module not installed, run this command on your server: sudo apt update && sudo apt install ffmpeg libav-tools x264 x265;'), 'not_available');
         }
 
     }catch(Exception $e){
-        throw new BException('video_library_init(): Failed', $e);
+        throw new CoreException('video_library_init(): Failed', $e);
     }
 }
 
@@ -60,6 +60,6 @@ function video_get_thumbnail($file, $size = '50x50'){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('video_get_thumbnail(): Failed', $e);
+        throw new CoreException('video_get_thumbnail(): Failed', $e);
     }
 }

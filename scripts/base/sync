@@ -95,11 +95,11 @@ cli_no_arguments_left();
  * Check environment
  */
 if(empty($environment)){
-    throw new BException(tr('No source environment specified to sync from'), 'warning/not-specified');
+    throw new CoreException(tr('No source environment specified to sync from'), 'warning/not-specified');
 }
 
 if($environment == ENVIRONMENT){
-    throw new BException(tr('Cannot sync from own environment ":env"', array(':env' => ENVIRONMENT)), 'warning/invalid');
+    throw new CoreException(tr('Cannot sync from own environment ":env"', array(':env' => ENVIRONMENT)), 'warning/invalid');
 }
 
 
@@ -118,7 +118,7 @@ try{
     $source_config = array_merge_complete(config_get_for_environment('production'), config_get_for_environment($environment));
 
     if(!isset($source_config['deploy'][$environment])){
-        throw new BException(tr('The specified environment ":env" does not exist', array(':env' => $environment)), 'warning/not-exist');
+        throw new CoreException(tr('The specified environment ":env" does not exist', array(':env' => $environment)), 'warning/not-exist');
     }
 
     $deploy_config = $source_config['deploy'][$environment];
@@ -174,7 +174,7 @@ if(empty($deploy_config['sudo'])){
  * Environment exists?
  */
 if(empty($deploy_config)){
-    throw new BException(tr('The specified environment ":env" does not exist', array(':env' => $environment)), 'warning/not-exist');
+    throw new CoreException(tr('The specified environment ":env" does not exist', array(':env' => $environment)), 'warning/not-exist');
 }
 
 
@@ -190,7 +190,7 @@ if($nodump){
     passthru($command = 'ssh -p '.$deploy_config['target_port'].' -t '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].' "'.($deploy_config['sudo'] ? ' sudo ' : '').'rm /tmp/'.$project.'_'.$dumpfile.'* -f; '.($deploy_config['sudo'] ? ' sudo ' : '').'mysqldump --single-transaction -n -e '.(cli_argument('nofunctions') ? '' : '-R ').'--dump-date --no-autocommit --add-drop-database -u '.$source_config['db']['core']['user'].' -p\''.str_replace('$', '\$', $source_config['db']['core']['pass']).'\' -B '.$source_config['db']['core']['db'].' > /tmp/'.$project.'_'.$dumpfile.' && '.($deploy_config['sudo'] ? ' sudo ' : '').' gzip -q /tmp/'.$project.'_'.$dumpfile.' "', $exitcode);
 
     if($exitcode){
-        throw new BException(tr('Remote mysqldump failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
+        throw new CoreException(tr('Remote mysqldump failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
     }
 }
 
@@ -211,7 +211,7 @@ if($nocopy){
     passthru($command = 'scp -P '.$deploy_config['target_port'].' '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':/tmp/'.$project.'_'.$dumpfile.'.gz '.$temp_file.'.gz', $exitcode);
 
     if($exitcode){
-        throw new BException(tr('Copy of remote mysqldump file to local server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
+        throw new CoreException(tr('Copy of remote mysqldump file to local server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
     }
 }
 
@@ -232,14 +232,14 @@ if($noimport){
     passthru($command = 'cd /tmp/; rm '.$temp_file.' -f; gunzip '.$temp_file.'.gz', $exitcode);
 
     if($exitcode){
-        throw new BException(tr('Gunzip of mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'gunzip');
+        throw new CoreException(tr('Gunzip of mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'gunzip');
     }
 
     log_console(tr('Importing remote SQL dump file ":file" in local MySQL server', array(':file' => ''.$temp_file)), 'white');
     passthru($command = 'cd /tmp/; sed -i -e"s/USE \`'.$source_config['db']['core']['db'].'\`;/USE \`'.$_CONFIG['db']['core']['db'].'\`;/" '.$temp_file, $exitcode);
 
     if($exitcode){
-        throw new BException(tr('Rewrite of "USE DATABASENAME" in mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'sql');
+        throw new CoreException(tr('Rewrite of "USE DATABASENAME" in mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'sql');
     }
 
     $GLOBALS['sql_core'] = sql_connect($_CONFIG['db']['core'], false);
@@ -250,7 +250,7 @@ if($noimport){
     passthru($command = 'cat '.$temp_file.' | mysql -u '.$_CONFIG['db']['core']['user'].' -p"'.$_CONFIG['db']['core']['pass'].'" -B '.$_CONFIG['db']['core']['db'], $exitcode);
 
     if($exitcode){
-        throw new BException(tr('MySQL import of mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'mysql');
+        throw new CoreException(tr('MySQL import of mysqldump file failed with exit code ":code"', array(':code' => $exitcode)), 'mysql');
     }
 }
 
@@ -267,13 +267,13 @@ if($nodelete){
     passthru($command = 'ssh -p '.$deploy_config['target_port'].' -t '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].' \''.($deploy_config['sudo'] ? ' sudo ' : '').'rm -f '.$temp_file.'*\'', $exitcode);
 
     if($exitcode){
-        throw new BException(tr('Removal of temporary mysqldump file on remote server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
+        throw new CoreException(tr('Removal of temporary mysqldump file on remote server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
     }
 
     passthru($command = 'rm -f '.$temp_file.'*', $exitcode);
 
     if($exitcode){
-        throw new BException(tr('Removal of temporary mysqldump file on local server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
+        throw new CoreException(tr('Removal of temporary mysqldump file on local server failed with exit code ":code"', array(':code' => $exitcode)), 'remote');
     }
 }
 
@@ -327,7 +327,7 @@ if($nofiles){
                 passthru($command = 'rsync -aczvAXHS '.$no_times.' --no-perms --progress -p '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':'.slash($deploy_config['target_dir']).slash($path).' '.ROOT.slash($path).' --exclude="*.php" --exclude="*.css" --exclude="*.js" --exclude="/scripts/*" --exclude="/data/doc" --exclude="/data/system" --exclude="/data/mock*" --exclude="/data/sources" --exclude=".htaccess" --exclude=".git*" --exclude="/pub/*"', $exitcode);
 
                 if($exitcode){
-                    throw new BException(tr('Rsync of remote files with local server failed with exit code ":code"', array(':code' => $exitcode)), 'rsync');
+                    throw new CoreException(tr('Rsync of remote files with local server failed with exit code ":code"', array(':code' => $exitcode)), 'rsync');
                 }
 
             }catch(Exception $e){
@@ -383,7 +383,7 @@ if($noinit){
     passthru(ROOT.'scripts/base/init --env '.ENVIRONMENT, $exitcode);
 
     if($exitcode){
-        throw new BException(tr('Local init failed with exit code ":code"', array(':code' => $exitcode)), 'init');
+        throw new CoreException(tr('Local init failed with exit code ":code"', array(':code' => $exitcode)), 'init');
     }
 }
 

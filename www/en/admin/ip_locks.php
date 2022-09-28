@@ -57,13 +57,13 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                  * Add the new IP
                  */
                 if(empty($_POST['ip'])){
-                    throw new bException(tr('No IP specified'), 'not_specified');
+                    throw new CoreException(tr('No IP specified'), 'not_specified');
                 }
 
                 load_libs('validate');
 
                 if(!filter_var($_POST['ip'], FILTER_VALIDATE_IP)) {
-                    throw new bException(tr('The specified IP "'.str_log($_POST['ip']).'" is not valid'), 'invalid');
+                    throw new CoreException(tr('The specified IP "'.str_log($_POST['ip']).'" is not valid'), 'invalid');
                 }
 
                 /*
@@ -96,11 +96,11 @@ if(empty($_CONFIG['security']['signin']['ip_lock'])){
                  * Erase the specified ip_locks
                  */
                 if(empty($_POST['id'])){
-                    throw new bException('Cannot erase IP locks, no IP locks selected', 'notspecified');
+                    throw new CoreException('Cannot erase IP locks, no IP locks selected', 'notspecified');
                 }
 
                 if(!is_array($_POST['id'])){
-                    throw new bException('Cannot erase IP locks, invalid data specified', 'invalid');
+                    throw new CoreException('Cannot erase IP locks, invalid data specified', 'invalid');
                 }
 
                 $in = sql_in($_POST['id'], ':id');

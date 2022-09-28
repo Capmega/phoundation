@@ -29,7 +29,7 @@ function ads_library_init(){
         load_config('ads');
 
     }catch(Exception $e){
-        throw new BException('ads_library_init(): Failed', $e);
+        throw new CoreException('ads_library_init(): Failed', $e);
     }
 }
 
@@ -112,7 +112,7 @@ function ads_validate_campaign($campaign){
         return $campaign;
 
     }catch(Exception $e){
-        throw new BException(tr('ads_validate_campaign(): Failed'), $e);
+        throw new CoreException(tr('ads_validate_campaign(): Failed'), $e);
     }
 }
 
@@ -167,7 +167,7 @@ function ads_validate_image($image, $old_image = null){
         return $image;
 
     }catch(Exception $e){
-        throw new BException(tr('ads_validate_image(): Failed'), $e);
+        throw new CoreException(tr('ads_validate_image(): Failed'), $e);
     }
 }
 
@@ -243,7 +243,7 @@ function ads_campaign_get($campaign = null, $columns = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('ads_post_get(): Failed', $e);
+        throw new CoreException('ads_post_get(): Failed', $e);
     }
 }
 
@@ -255,11 +255,11 @@ function ads_campaign_get($campaign = null, $columns = null){
 function ads_image_get($image){
     try{
         if(!$image){
-            throw new BException(tr('ads_image_get(): No image specified'), 'not-specified');
+            throw new CoreException(tr('ads_image_get(): No image specified'), 'not-specified');
         }
 
         if(!is_scalar($image)){
-            throw new BException(tr('ads_image_get(): Specified image ":image" is not scalar', array(':image' => $image)), 'invalid');
+            throw new CoreException(tr('ads_image_get(): Specified image ":image" is not scalar', array(':image' => $image)), 'invalid');
         }
 
         $retval = sql_get('SELECT    `ads_images`.`id`,
@@ -284,7 +284,7 @@ function ads_image_get($image){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('ads_image_get(): Failed', $e);
+        throw new CoreException('ads_image_get(): Failed', $e);
     }
 }
 
@@ -304,7 +304,7 @@ function ads_image_upload($files, $ad){
         upload_check_files(1);
 
         if(!empty($_FILES['files'][0]['error'])){
-            throw new BException(isset_get($_FILES['files'][0]['error_message'], $_FILES['files'][0]['error']), 'uploaderror');
+            throw new CoreException(isset_get($_FILES['files'][0]['error_message'], $_FILES['files'][0]['error']), 'uploaderror');
         }
 
         $file     = $files;
@@ -314,7 +314,7 @@ function ads_image_upload($files, $ad){
         return ads_image_process($ad, $file, $original);
 
     }catch(Exception $e){
-        throw new BException('ads_image_upload(): Failed', $e);
+        throw new CoreException('ads_image_upload(): Failed', $e);
     }
 }
 
@@ -328,7 +328,7 @@ function ads_image_process($ad, $file, $original = null){
 
     try{
         if(empty($ad['campaign'])) {
-            throw new BException('ads_image_process(): No ad image specified', 'not-specified');
+            throw new CoreException('ads_image_process(): No ad image specified', 'not-specified');
         }
 
         $campaign = sql_get('SELECT `ads_campaigns`.`id`,
@@ -339,11 +339,11 @@ function ads_image_process($ad, $file, $original = null){
                              WHERE  `ads_campaigns`.`id` = '.cfi($ad['campaign']));
 
         if(!$campaign){
-            throw new BException(tr('ads_image_process(): Unknown ad campaign ":campaign" specified', array(':campaign' => $ad['campaign'])), 'unknown');
+            throw new CoreException(tr('ads_image_process(): Unknown ad campaign ":campaign" specified', array(':campaign' => $ad['campaign'])), 'unknown');
         }
 
         if((PLATFORM_HTTP) and ($campaign['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
-            throw new BException('ads_image_process(): Cannot upload images, this campaign is not yours', 'access-denied');
+            throw new CoreException('ads_image_process(): Cannot upload images, this campaign is not yours', 'access-denied');
         }
 
 
@@ -395,7 +395,7 @@ function ads_image_process($ad, $file, $original = null){
                      'description' => '');
 
     }catch(Exception $e){
-        throw new BException('ads_image_process(): Failed', $e);
+        throw new CoreException('ads_image_process(): Failed', $e);
     }
 }
 
@@ -421,11 +421,11 @@ function ads_update_image_description($user, $image_id, $description){
                           AND    `ads_images`.`id`           = '.cfi($image_id));
 
         if(empty($image['id'])) {
-            throw new BException('ads_update_image_description(): Unknown image specified', 'unknown');
+            throw new CoreException('ads_update_image_description(): Unknown image specified', 'unknown');
         }
 
         if(($image['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
-            throw new BException('ads_update_image_description(): Cannot upload images, this campaign is not yours', 'access-denied');
+            throw new CoreException('ads_update_image_description(): Cannot upload images, this campaign is not yours', 'access-denied');
         }
 
         sql_query('UPDATE `ads_images`
@@ -438,7 +438,7 @@ function ads_update_image_description($user, $image_id, $description){
                          ':id'          => cfi($image['id'])));
 
     }catch(Exception $e){
-        throw new BException('ads_update_image_description(): Failed', $e);
+        throw new CoreException('ads_update_image_description(): Failed', $e);
     }
 }
 
@@ -461,11 +461,11 @@ function ads_update_image_cluster($user, $cluster, $image){
                              WHERE  `forwarder_clusters`.`id` = '.cfi($cluster));
 
         if(empty($clusters['id'])) {
-            throw new BException('ads_update_image_cluster(): Unknown cluster specified', 'unknown');
+            throw new CoreException('ads_update_image_cluster(): Unknown cluster specified', 'unknown');
         }
 
         if(($clusters['createdby'] != $_SESSION['user']['id']) and !has_rights('god')){
-            throw new BException('ads_update_image_cluster(): Cannot upload images, this cluster is not yours', 'access-denied');
+            throw new CoreException('ads_update_image_cluster(): Cannot upload images, this cluster is not yours', 'access-denied');
         }
 
         sql_query('UPDATE `ads_images`
@@ -478,7 +478,7 @@ function ads_update_image_cluster($user, $cluster, $image){
                          ':id'          => cfi($image)));
 
     }catch(Exception $e){
-        throw new BException('ads_update_image_cluster(): Failed', $e);
+        throw new CoreException('ads_update_image_cluster(): Failed', $e);
     }
 }
 
@@ -506,11 +506,11 @@ function ads_update_image_cluster($user, $cluster, $image){
 //                return domain('/photos/'.$media.'-original.jpg');
 //
 //            default:
-//                throw new BException(tr('ads_photo_url(): Unknown size ":size" specified', array(':size' => $size)), 'unknown');
+//                throw new CoreException(tr('ads_photo_url(): Unknown size ":size" specified', array(':size' => $size)), 'unknown');
 //        }
 //
 //    }catch(Exception $e){
-//        throw new BException('ads_photo_url(): Failed', $e);
+//        throw new CoreException('ads_photo_url(): Failed', $e);
 //    }
 //}
 
@@ -648,7 +648,7 @@ function ads_get(){
                      'html'  => $html);
 
     }catch(Exception $e){
-        throw new BException('ads_get(): Failed', $e);
+        throw new CoreException('ads_get(): Failed', $e);
     }
 }
 
@@ -768,7 +768,7 @@ function amp_ads_get(){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('ads_get(): Failed', $e);
+        throw new CoreException('ads_get(): Failed', $e);
     }
 }
 
@@ -781,19 +781,19 @@ function ads_insert_view($campaigns_id, $images_list, $userdata){
     try{
 
         if(empty($campaigns_id)){
-            throw new BException('ads_insert_view(): No campaigns id specified', 'not-specified');
+            throw new CoreException('ads_insert_view(): No campaigns id specified', 'not-specified');
         }
 
         if(!is_numeric($campaigns_id)){
-            throw new BException(tr('ads_insert_view(): Specified campaign ":campaign" is not numeric', array(':campaign' => $campaign)), 'invalid');
+            throw new CoreException(tr('ads_insert_view(): Specified campaign ":campaign" is not numeric', array(':campaign' => $campaign)), 'invalid');
         }
 
         if(empty($images_list)){
-            throw new BException('ads_insert_view(): No image id specified', 'not-specified');
+            throw new CoreException('ads_insert_view(): No image id specified', 'not-specified');
         }
 
         if(empty($userdata)) {
-            throw new BException('ads_insert_view(): No userdata specified', 'not-specified');
+            throw new CoreException('ads_insert_view(): No userdata specified', 'not-specified');
         }
 
         $insert = sql_prepare('INSERT INTO `ads_views` (`createdby`, `campaigns_id`, `images_id`, `ip`, `platform`, `reverse_host`, `latitude`, `longitude`, `referrer`, `user_agent`, `browser`)
@@ -801,7 +801,7 @@ function ads_insert_view($campaigns_id, $images_list, $userdata){
 
         foreach($images_list as $images_id){
             if(!is_numeric($images_id)){
-                throw new BException(tr('ads_insert_view(): Specified image ":image" is not numeric', array(':image' => $images_id)), 'invalid');
+                throw new CoreException(tr('ads_insert_view(): Specified image ":image" is not numeric', array(':image' => $images_id)), 'invalid');
             }
 
             $insert->execute(array(':createdby'    => isset_get($_SESSION['user']['id']),
@@ -818,7 +818,7 @@ function ads_insert_view($campaigns_id, $images_list, $userdata){
         }
 
     }catch(Exception $e){
-        throw new BException('ads_insert_view(): Failed', $e);
+        throw new CoreException('ads_insert_view(): Failed', $e);
     }
 }
 ?>

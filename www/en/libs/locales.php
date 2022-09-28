@@ -32,13 +32,13 @@ function locales_get_for_ip($ip){
                             array(':code' => strtolower($country)));
 
         if(!$locales){
-            throw new BException('locales_get_for_ip(): Country code "'.str_log($country).'" from the geoip table was not found in the  geo_countries table');
+            throw new CoreException('locales_get_for_ip(): Country code "'.str_log($country).'" from the geoip table was not found in the  geo_countries table');
         }
 
         return $locales;
 
     }catch(Exception $e){
-        throw new BException('locales_get_for_ip(): Failed', $e);
+        throw new CoreException('locales_get_for_ip(): Failed', $e);
     }
 }
 ?>

@@ -31,7 +31,7 @@ function shortlink_library_init(){
         load_config('shortlink');
 
     }catch(Exception $e){
-        throw new BException('shortlink_library_init(): Failed', $e);
+        throw new CoreException('shortlink_library_init(): Failed', $e);
     }
 }
 
@@ -58,7 +58,7 @@ function shortlink_get_provider($provider = null){
     try {
         switch($provider){
             case 'default':
-                throw new BException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
+                throw new CoreException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
 
             case '':
                 /*
@@ -70,14 +70,14 @@ function shortlink_get_provider($provider = null){
 
             default:
                 if(empty($_CONFIG['shortlink'][$provider])){
-                    throw new BException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
+                    throw new CoreException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
                 }
         }
 
         return $provider;
 
     }catch(Exception $e) {
-        throw new BException('shortlink_get_access_token(): Failed', $e);
+        throw new CoreException('shortlink_get_access_token(): Failed', $e);
     }
 }
 
@@ -117,7 +117,7 @@ function shortlink_get_access_token($provider = null){
         return $results;
 
     }catch(Exception $e) {
-        throw new BException('shortlink_get_access_token(): Failed', $e);
+        throw new CoreException('shortlink_get_access_token(): Failed', $e);
     }
 }
 
@@ -162,7 +162,7 @@ under_construction();
                     $result = json_decode_custom($result);
 
                     if(empty($result['link'])){
-                        throw new BException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
+                        throw new CoreException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
                     }
 
                     return $result['link'];
@@ -184,6 +184,6 @@ under_construction();
         }
 
     }catch(Exception $e){
-        throw new BException('shortlink_create(): Failed', $e);
+        throw new CoreException('shortlink_create(): Failed', $e);
     }
 }

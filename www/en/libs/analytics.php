@@ -33,7 +33,7 @@ function analytics_library_init(){
         load_config('analytics');
 
     }catch(Exception $e){
-        throw new BException('analytics_library_init(): Failed', $e);
+        throw new CoreException('analytics_library_init(): Failed', $e);
     }
 }
 
@@ -75,11 +75,11 @@ function analytics($sites_id, $provider = null){
                 return analytics_matomo($sites_id);
 
             default:
-                throw new BException(tr('analytics(): Unknown analytics provider ":provider" specified, see $_CONFIG[analytics][provider] or calling function', array(':provider' => $_CONFIG['analytics']['provider'])), 'unknown');
+                throw new CoreException(tr('analytics(): Unknown analytics provider ":provider" specified, see $_CONFIG[analytics][provider] or calling function', array(':provider' => $_CONFIG['analytics']['provider'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('analytics(): Failed', $e);
+        throw new CoreException('analytics(): Failed', $e);
     }
 }
 
@@ -108,15 +108,15 @@ function analytics_matomo($sites_id){
 
     try{
         if(!$sites_id){
-            throw new BException(tr('analytics_matomo(): No sites_id specified'), 'not-specified');
+            throw new CoreException(tr('analytics_matomo(): No sites_id specified'), 'not-specified');
         }
 
         if(!is_natural($sites_id)){
-            throw new BException(tr('analytics_matomo(): Invalid sites_id ":sites_id" specified', array(':sites_id' => $sites_id)), 'not-specified');
+            throw new CoreException(tr('analytics_matomo(): Invalid sites_id ":sites_id" specified', array(':sites_id' => $sites_id)), 'not-specified');
         }
 
         if(empty($_CONFIG['analytics']['matomo_domain'])){
-            throw new BException(tr('analytics_matomo(): No matomo domain configured'), 'not-specified');
+            throw new CoreException(tr('analytics_matomo(): No matomo domain configured'), 'not-specified');
         }
 
         /*
@@ -155,7 +155,7 @@ function analytics_matomo($sites_id){
                     <noscript><p><img src="//'.$_CONFIG['analytics']['matomo_domain'].'/piwik.php?idsite='.$sites_id.'&amp;rec=1" style="border:0;" alt="" /></p></noscript>';
 
     }catch(Exception $e){
-        throw new BException('analytics_matomo(): Failed', $e);
+        throw new CoreException('analytics_matomo(): Failed', $e);
     }
 }
 
@@ -185,7 +185,7 @@ function analytics_matomo($sites_id){
 function analytics_google($sites_id){
     try{
         if(!$sites_id){
-            throw new BException(tr('analytics_google(): No sites_id specified'), 'not-specified');
+            throw new CoreException(tr('analytics_google(): No sites_id specified'), 'not-specified');
         }
 
         /*
@@ -230,6 +230,6 @@ function analytics_google($sites_id){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('analytics_google(): Failed', $e);
+        throw new CoreException('analytics_google(): Failed', $e);
     }
 }

@@ -39,7 +39,7 @@ OPTIONS
 ";
 
 require_once(__DIR__.'/../../libs/startup.php');
-throw new BException('THIS SCRIPT IS OBSOLETE! PLEASE USE scripts/base/images INSTEAD!', 'OBSOLETE');
+throw new CoreException('THIS SCRIPT IS OBSOLETE! PLEASE USE scripts/base/images INSTEAD!', 'OBSOLETE');
 cli_only();
 load_libs('image');
 
@@ -97,7 +97,7 @@ if($source){
     $source = slash(realpath($source));
 
     if(!file_exists($source)){
-        throw new BException(tr('The specified source path ":path" does not exist', array(':path' => $path)), 'not-exists');
+        throw new CoreException(tr('The specified source path ":path" does not exist', array(':path' => $path)), 'not-exists');
     }
 }
 
@@ -107,7 +107,7 @@ if($source){
  * Get file list to process
  */
 if(!$files){
-    throw new BException(tr('No files specified'), 'not-specified');
+    throw new CoreException(tr('No files specified'), 'not-specified');
 }
 
 if((is_string($files) and $files == 'all') or (is_array($files) and (reset($files) == 'all'))){
@@ -137,11 +137,11 @@ foreach($files as $key => &$file){
     }
 
     if(!file_exists($source.$file)){
-        throw new BException(tr('Specified file ":file" does not exist', array(':file' => $source.$file)));
+        throw new CoreException(tr('Specified file ":file" does not exist', array(':file' => $source.$file)));
     }
 
     if(file_exists($destination.$file) and ($destination.$file != $source.$file)){
-        throw new BException(tr('Specified file ":file" already exists in the destination', array(':file' => $destination.$file)));
+        throw new CoreException(tr('Specified file ":file" already exists in the destination', array(':file' => $destination.$file)));
     }
 }
 

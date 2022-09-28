@@ -62,7 +62,7 @@ switch(cli_method()){
 
                 if($core->register['all']){
                     if($status){
-                        throw new BException(tr('--status cannot be used with --all'), 'warning/invalid');
+                        throw new CoreException(tr('--status cannot be used with --all'), 'warning/invalid');
                     }
 
                     if(!QUIET){
@@ -99,7 +99,7 @@ switch(cli_method()){
 
                 if($core->register['all']){
                     if($status){
-                        throw new BException(tr('--status cannot be used with --all'), 'warning/invalid');
+                        throw new CoreException(tr('--status cannot be used with --all'), 'warning/invalid');
                     }
 
                     if(!QUIET){
@@ -135,10 +135,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new BException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
+                throw new CoreException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
 
             default:
-                throw new BException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
         }
 
         break;
@@ -154,7 +154,7 @@ switch(cli_method()){
         $files = cli_arguments();
 
         if(!$files){
-            throw new BException(tr('No files specified'), 'warning/not-specified');
+            throw new CoreException(tr('No files specified'), 'warning/not-specified');
         }
 
         load_libs('storage-sections,storage-documents,storage-pages,storage-files');
@@ -163,38 +163,38 @@ switch(cli_method()){
          * Section
          */
         if(empty($request['sections_id'])){
-            throw new BException(tr('No section specified'), 'warning/not-specified');
+            throw new CoreException(tr('No section specified'), 'warning/not-specified');
         }
 
         if(!is_numeric($request['sections_id'])){
-            throw new BException(tr('Specified section ":section" is invalid', array(':section' => $request['sections_id'])), 'warning/invalid');
+            throw new CoreException(tr('Specified section ":section" is invalid', array(':section' => $request['sections_id'])), 'warning/invalid');
         }
 
         $section = storage_sections_get($request['sections_id']);
 
         if(!$section){
-            throw new BException(tr('Specified section ":section" does not exist', array(':section' => $request['sections_id'])), 'warning/not-exist');
+            throw new CoreException(tr('Specified section ":section" does not exist', array(':section' => $request['sections_id'])), 'warning/not-exist');
         }
 
         /*
          * Document
          */
         if(empty($request['documents_id'])){
-            throw new BException(tr('No document specified'), 'warning/not-specified');
+            throw new CoreException(tr('No document specified'), 'warning/not-specified');
         }
 
         if(!is_numeric($request['documents_id'])){
-            throw new BException(tr('Specified document ":document" is invalid', array(':document' => $request['documents_id'])), 'warning/invalid');
+            throw new CoreException(tr('Specified document ":document" is invalid', array(':document' => $request['documents_id'])), 'warning/invalid');
         }
 
         $document = storage_documents_get($section, $request['documents_id'], false, null, false);
 
         if(!$document){
-            throw new BException(tr('Specified document ":document" does not exist', array(':document' => $request['documents_id'])), 'warning/not-exist');
+            throw new CoreException(tr('Specified document ":document" does not exist', array(':document' => $request['documents_id'])), 'warning/not-exist');
         }
 
         if($document['sections_id'] !== $section['id']){
-            throw new BException(tr('Specified document ":document" is not part of section ":section"', array(':document' => $request['documents_id'], ':section' => $request['sections_id'])), 'warning/invalid');
+            throw new CoreException(tr('Specified document ":document" is not part of section ":section"', array(':document' => $request['documents_id'], ':section' => $request['sections_id'])), 'warning/invalid');
         }
 
         /*
@@ -202,21 +202,21 @@ switch(cli_method()){
          */
         if($request['pages_id']){
             if(!is_numeric($request['pages_id'])){
-                throw new BException(tr('Specified page ":page" is invalid', array(':page' => $request['pages_id'])), 'warning/invalid');
+                throw new CoreException(tr('Specified page ":page" is invalid', array(':page' => $request['pages_id'])), 'warning/invalid');
             }
 
             $page = storage_pages_get($section, $request['pages_id']);
 
             if(!$page){
-                throw new BException(tr('Specified page ":page" does not exist', array(':page' => $request['pages_id'])), 'warning/not-exist');
+                throw new CoreException(tr('Specified page ":page" does not exist', array(':page' => $request['pages_id'])), 'warning/not-exist');
             }
 
             if($page['sections_id'] !== $section['id']){
-                throw new BException(tr('Specified page ":page" is not part of section ":section"', array(':page' => $request['pages_id'], ':section' => $request['sections_id'])), 'warning/invalid');
+                throw new CoreException(tr('Specified page ":page" is not part of section ":section"', array(':page' => $request['pages_id'], ':section' => $request['sections_id'])), 'warning/invalid');
             }
 
             if($page['documents_id'] !== $document['id']){
-                throw new BException(tr('Specified page ":page" is not part of document ":document"', array(':page' => $request['pages_id'], ':document' => $request['documents_id'])), 'warning/invalid');
+                throw new CoreException(tr('Specified page ":page" is not part of document ":document"', array(':page' => $request['pages_id'], ':document' => $request['documents_id'])), 'warning/invalid');
             }
         }
 
@@ -225,7 +225,7 @@ switch(cli_method()){
          */
         foreach($files as $file){
             if(!file_exists($file)){
-                throw new BException(tr('Specified file ":file" does not exist', array(':file' => $file)), 'warning/not-exist');
+                throw new CoreException(tr('Specified file ":file" does not exist', array(':file' => $file)), 'warning/not-exist');
             }
         }
 
@@ -235,7 +235,7 @@ switch(cli_method()){
         while(true){
             foreach($files as $path){
                 if(!file_exists($path)){
-                    throw new BException(tr('Specified file or path ":path" does not exist', array(':path' => $path)), 'warning/not-exist');
+                    throw new CoreException(tr('Specified file or path ":path" does not exist', array(':path' => $path)), 'warning/not-exist');
                 }
 
                 if(is_dir($path)){
@@ -322,9 +322,9 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

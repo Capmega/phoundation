@@ -32,7 +32,7 @@ function ubuntu_install_package($package, $server){
         return apt_install($package, true, $server);
 
     }catch(Exception $e){
-        throw new BException('ubuntu_install_package(): Failed', $e);
+        throw new CoreException('ubuntu_install_package(): Failed', $e);
     }
 }
 ?>

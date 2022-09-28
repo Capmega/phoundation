@@ -85,7 +85,7 @@ $skip = array('phoundation' => array(),
  * phoundation, and if we're on toolkit, only check for phoundation changes
  */
 if(!PROJECT){
-    throw new bException(tr('This project has no project name, perhaps you are trying to run this on the phoundation project?'), 'warning/invalid');
+    throw new CoreException(tr('This project has no project name, perhaps you are trying to run this on the phoundation project?'), 'warning/invalid');
 }
 
 $phoundation_only = (PROJECT == 'CAPMEGA_TOOLKIT');
@@ -150,7 +150,7 @@ switch(cli_method()){
         $current_version_line = code_get_version_line(FRAMEWORKCODEVERSION);
 
         if(!in_array($current_version_line, $branches)){
-            throw new BException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
+            throw new CoreException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
         }
 
 
@@ -202,7 +202,7 @@ switch(cli_method()){
                     git_clean(ROOT, true, true);
                     git_stash_pop();
 
-                    throw new BException(tr('Auto update failed, please check output to find out what went wrong. All update changes have been reset and cleaned, all previous code changes have been reinstated'), $e);
+                    throw new CoreException(tr('Auto update failed, please check output to find out what went wrong. All update changes have been reset and cleaned, all previous code changes have been reinstated'), $e);
                 }
 
                 /*
@@ -212,7 +212,7 @@ switch(cli_method()){
                     git_stash_pop();
 
                 }catch(Exception $e){
-                    throw new BException(tr('Update succeeded, but "git stash pop" failed. Very likely this is due to merge conflicts. Please resolve the conflicts, and re-run this script'), $e);
+                    throw new CoreException(tr('Update succeeded, but "git stash pop" failed. Very likely this is due to merge conflicts. Please resolve the conflicts, and re-run this script'), $e);
                 }
         }
 
@@ -234,7 +234,7 @@ switch(cli_method()){
             log_console(tr('Detected that this website is a normal site...'), 'VERBOSE');
 
         }else{
-            throw new bException(tr('Failed to find role.php and roles.php files to identify website type'), 'warning/not-exist');
+            throw new CoreException(tr('Failed to find role.php and roles.php files to identify website type'), 'warning/not-exist');
         }
 
         /*
@@ -248,12 +248,12 @@ switch(cli_method()){
          */
         if((cli_method() == 'patch') and !FORCE and !$reverse){
             if(git_status($paths['phoundation'])){
-                throw new bException(tr('The phoundation project has pending git changes'), 'warning/has-changes');
+                throw new CoreException(tr('The phoundation project has pending git changes'), 'warning/has-changes');
             }
 
             if(empty($phoundation_only)){
                 if(git_status($paths['toolkit'])){
-                    throw new bException(tr('The toolkit project has pending git changes'), 'warning/has-changes');
+                    throw new CoreException(tr('The toolkit project has pending git changes'), 'warning/has-changes');
                 }
             }
         }
@@ -511,7 +511,7 @@ switch(cli_method()){
                 }
 
             }catch(Exception $e){
-                throw new bException(tr('Failed to build sections list'), $e);
+                throw new CoreException(tr('Failed to build sections list'), $e);
             }
         }
 
@@ -753,9 +753,9 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new bException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new bException(tr('Unknown argument ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown argument ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

@@ -30,7 +30,7 @@ function themify_load(){
         html_load_css('themify-icons');
 
     }catch(Exception $e){
-        throw new bException('themify_load(): Failed', $e);
+        throw new CoreException('themify_load(): Failed', $e);
     }
 }
 
@@ -55,7 +55,7 @@ function themify_select($params) {
         return cache_write($html, 'select'.isset_get($params['selected']), 'themify');
 
     }catch(Exception $e){
-        throw new bException('themify_select(): Failed', $e);
+        throw new CoreException('themify_select(): Failed', $e);
     }
 }
 

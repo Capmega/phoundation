@@ -36,7 +36,7 @@ function template_library_init(){
                                'which'     => 'template,foobar'));
 
     }catch(Exception $e){
-        throw new BException('template_library_init(): Failed', $e);
+        throw new CoreException('template_library_init(): Failed', $e);
     }
 }
 
@@ -64,7 +64,7 @@ function template_install(){
         apt_install('template');
 
     }catch(Exception $e){
-        throw new BException('template_install(): Failed', $e);
+        throw new CoreException('template_install(): Failed', $e);
     }
 }
 
@@ -109,7 +109,7 @@ function template_function($params){
     try{
 
     }catch(Exception $e){
-        throw new BException('template_function(): Failed', $e);
+        throw new CoreException('template_function(): Failed', $e);
     }
 }
 ?>

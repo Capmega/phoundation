@@ -31,7 +31,7 @@ function usb_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new BException('usb_library_init(): Failed', $e);
+        throw new CoreException('usb_library_init(): Failed', $e);
     }
 }
 
@@ -89,7 +89,7 @@ function usb_list($libusb = null, $server = null){
         return $devices;
 
     }catch(Exception $e){
-        throw new BException('usb_list(): Failed', $e);
+        throw new CoreException('usb_list(): Failed', $e);
     }
 }
 
@@ -156,7 +156,7 @@ function usb_scan($regex_filter, $server = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('usb_scan(): Failed', $e);
+        throw new CoreException('usb_scan(): Failed', $e);
     }
 }
 ?>

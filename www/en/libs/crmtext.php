@@ -41,7 +41,7 @@ load_config('crmtext');
 //        return $userid;
 //
 //    }catch(Exception $e){
-//        throw new BException('crm_authenticate(): Failed', $e);
+//        throw new CoreException('crm_authenticate(): Failed', $e);
 //    }
 //}
 
@@ -55,7 +55,7 @@ function crmtext_send_message($message, $phone){
 
     try{
         if(is_array($message)){
-            throw new BException(tr('crmtext_send_message(): Specified message is an array which probably indicates an MMS message, which currently is not supported for crmtext SMS'), 'not-supported');
+            throw new CoreException(tr('crmtext_send_message(): Specified message is an array which probably indicates an MMS message, which currently is not supported for crmtext SMS'), 'not-supported');
         }
 
         $phone      = sms_no_country_phones($phone);
@@ -82,7 +82,7 @@ function crmtext_send_message($message, $phone){
         return $message;
 
     }catch(Exception $e){
-        throw new BException('crmtext_send_message(): Failed', $e);
+        throw new CoreException('crmtext_send_message(): Failed', $e);
     }
 }
 
@@ -122,7 +122,7 @@ function crmtext_set_callback($url = null){
         return $url;
 
     }catch(Exception $e){
-        throw new BException('crmtext_set_callback(): Failed', $e);
+        throw new CoreException('crmtext_set_callback(): Failed', $e);
     }
 }
 
@@ -159,7 +159,7 @@ function crmtext_optin($phone, $lastname = '', $firstname = ''){
         return $phone;
 
     }catch(Exception $e){
-        throw new BException('crmtext_optin_customer(): Failed', $e);
+        throw new CoreException('crmtext_optin_customer(): Failed', $e);
     }
 }
 
@@ -196,7 +196,7 @@ function crmtext_optout($phone, $lastname = '', $firstname = ''){
         return $phone;
 
     }catch(Exception $e){
-        throw new BException('crmtext_optout_customer(): Failed', $e);
+        throw new CoreException('crmtext_optout_customer(): Failed', $e);
     }
 }
 
@@ -210,21 +210,21 @@ function crmtext_execute($ch, $call){
         $xml = curl_exec($ch);
 
         if($error = curl_error($ch)){
-            throw new BException(tr('crmtext_execute(): curl_exec() failed with "%error%"', array('%error%' => $error)), 'CURL'.curl_errno($ch));
+            throw new CoreException(tr('crmtext_execute(): curl_exec() failed with "%error%"', array('%error%' => $error)), 'CURL'.curl_errno($ch));
         }
 
         if(str_cut($xml, 'op="', '"') != $call){
-            throw new BException(tr('crmtext_execute(): Failed to find requested function call in crmtext results "%results%"', array('%results%' => $xml)), 'call_not_found');
+            throw new CoreException(tr('crmtext_execute(): Failed to find requested function call in crmtext results "%results%"', array('%results%' => $xml)), 'call_not_found');
         }
 
         if(($http_code = str_cut($xml, 'status="', '"')) != 200){
-            throw new BException(tr('crmtext_execute(): Got status "%status%" from crmtext with result "%results%"', array('%status%' => $http_code, '%results%' => $xml)), 'HTTP'.$http_code);
+            throw new CoreException(tr('crmtext_execute(): Got status "%status%" from crmtext with result "%results%"', array('%status%' => $http_code, '%results%' => $xml)), 'HTTP'.$http_code);
         }
 
         return $xml;
 
     }catch(Exception $e){
-        throw new BException('crmtext_execute(): Failed', $e);
+        throw new CoreException('crmtext_execute(): Failed', $e);
     }
 }
 ?>

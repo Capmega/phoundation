@@ -213,7 +213,7 @@ function s_validate_data(&$data){
         $v = new validate_form($data);
 
         if(!is_array($data)){
-            throw new bException('Specified data is invalid', 'invalid');
+            throw new CoreException('Specified data is invalid', 'invalid');
         }
 
         foreach($data as $key => $value){
@@ -248,13 +248,13 @@ function s_validate_data(&$data){
         }
 
         if(!$v->isValid()) {
-           throw new bException($v->getErrors(), 'validation');
+           throw new CoreException($v->getErrors(), 'validation');
         }
 
         return $data;
 
     }catch(Exception $e){
-        throw new bException('s_validate_data(): Failed', $e);
+        throw new CoreException('s_validate_data(): Failed', $e);
     }
 }
 ?>

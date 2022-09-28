@@ -34,7 +34,7 @@ function pear_library_init(){
                                'checks'   => array(ROOT.'libs/external/pear/')));
 
     }catch(Exception $e){
-        throw new BException('pear_library_init(): Failed', $e);
+        throw new CoreException('pear_library_init(): Failed', $e);
     }
 }
 
@@ -59,7 +59,7 @@ function pear_install($params){
         safe_exec('sudo apt -y install pear');
 
     }catch(Exception $e){
-        throw new BException('pear_install(): Failed', $e);
+        throw new CoreException('pear_install(): Failed', $e);
     }
 }
 
@@ -83,7 +83,7 @@ function pear_channel_discover($channel){
         return safe_exec('sudo pear channel-discover '.$channel);
 
     }catch(Exception $e){
-        throw new BException('pear_install(): Failed', $e);
+        throw new CoreException('pear_install(): Failed', $e);
     }
 }
 
@@ -107,7 +107,7 @@ function pear_install_package($package){
         return safe_exec('sudo pear install '.$package);
 
     }catch(Exception $e){
-        throw new BException('pear_install(): Failed', $e);
+        throw new CoreException('pear_install(): Failed', $e);
     }
 }
 ?>

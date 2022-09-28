@@ -38,7 +38,7 @@ function slack_library_init(){
         load_config('slack');
 
     }catch(Exception $e){
-        throw new BException('slack_library_init(): Failed', $e);
+        throw new CoreException('slack_library_init(): Failed', $e);
     }
 }
 
@@ -65,7 +65,7 @@ function slack_install($params){
         composer_install('slack-client');
 
     }catch(Exception $e){
-        throw new BException('slack_install(): Failed', $e);
+        throw new CoreException('slack_install(): Failed', $e);
     }
 }
 
@@ -78,7 +78,7 @@ function slack_send(){
     try{
 
     }catch(Exception $e){
-        throw new BException('slack_send(): Failed', $e);
+        throw new CoreException('slack_send(): Failed', $e);
     }
 }
 ?>

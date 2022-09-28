@@ -22,6 +22,6 @@ test('cli_list_processes()', 'This test will use cli_list_processes() to find th
         }
     }
 
-    throw new BException(tr('The current process could not be found with cli_list_processes()'), 'not-exist');
+    throw new CoreException(tr('The current process could not be found with cli_list_processes()'), 'not-exist');
 });
 ?>

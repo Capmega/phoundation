@@ -325,7 +325,7 @@ function route($regex, $target, $flags = null){
                         break;
 
                     default:
-                        throw new BException(tr('route(): Unknown variable ":variable" found in target ":target"', array(':variable' => ':'.$variable, ':target' => ':'.$target)), 'unknown');
+                        throw new CoreException(tr('route(): Unknown variable ":variable" found in target ":target"', array(':variable' => ':'.$variable, ':target' => ':'.$target)), 'unknown');
                 }
             }
         }
@@ -341,7 +341,7 @@ function route($regex, $target, $flags = null){
             foreach($replacements[1] as $replacement){
                 try{
                     if(!$replacement[0] or empty($matches[$replacement[0]])){
-                        throw new BException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
+                        throw new CoreException(tr('route(): Non existing regex replacement ":replacement" specified in route ":route"', array(':replacement' => '$'.$replacement[0], ':route' => $route)), 'invalid');
                     }
 
                     $route = str_replace('$'.$replacement[0], $matches[$replacement[0]][0], $route);
@@ -490,7 +490,7 @@ function route($regex, $target, $flags = null){
                             break;
 
                         default:
-                            throw new BException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':'.$http_code, ':target' => ':'.$target)), 'invalid');
+                            throw new CoreException(tr('route(): Invalid R flag HTTP CODE ":code" specified for target ":target"', array(':code' => ':'.$http_code, ':target' => ':'.$target)), 'invalid');
                     }
 
                     /*
@@ -759,17 +759,17 @@ function route($regex, $target, $flags = null){
             /*
              * A "user" regex failed, give pretty error
              */
-            throw new BException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
+            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match_all():', '" in')))), 'syntax');
         }
 
         if(substr($e->getMessage(), 0, 28) == 'PHP ERROR [2] "preg_match():'){
             /*
              * A "user" regex failed, give pretty error
              */
-            throw new BException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
+            throw new CoreException(tr('route(): Failed to process regex :count ":regex" with error ":e"', array(':count' => $count, ':regex' => $regex, ':e' => trim(str_cut($e->getMessage(), 'preg_match():', '" in')))), 'syntax');
         }
 
-        throw new BException('route(): Failed', $e);
+        throw new CoreException('route(): Failed', $e);
     }
 }
 
@@ -803,7 +803,7 @@ function route_exec($target, $attachment, $restrictions){
 
         if(substr($target, -3, 3) === 'php'){
             if($attachment){
-                throw new BException(tr('route_exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
+                throw new CoreException(tr('route_exec(): Found "A" flag for executable target ":target", but this flag can only be used for non PHP files', array(':target' => $target)), 'access-denied');
             }
 
             log_file(tr('Executing page ":target"', array(':target' => $target)), 'route', 'cyan');
@@ -846,7 +846,7 @@ function route_exec($target, $attachment, $restrictions){
         die();
 
     }catch(Exception $e){
-        throw new BException(tr(tr('route_exec(): Failed to execute page ":target"', array(':target' => $target))), $e);
+        throw new CoreException(tr(tr('route_exec(): Failed to execute page ":target"', array(':target' => $target))), $e);
     }
 }
 
@@ -885,7 +885,7 @@ function route_shutdown(){
         route_404();
 
     }catch(Exception $e){
-        throw new BException(tr(tr('route_shutdown(): Failed')), $e);
+        throw new CoreException(tr(tr('route_shutdown(): Failed')), $e);
     }
 }
 
@@ -1015,7 +1015,7 @@ function route_map($map = null){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('route_map(): Failed'), $e);
+        throw new CoreException(tr('route_map(): Failed'), $e);
     }
 }
 
@@ -1073,7 +1073,7 @@ function route_insert_static($route){
                          ':flags'     => $route['flags']));
 
     }catch(Exception $e){
-        throw new BException(tr('route_insert_static(): Failed'), $e);
+        throw new CoreException(tr('route_insert_static(): Failed'), $e);
     }
 }
 
@@ -1124,6 +1124,6 @@ function route_validate_static($route){
         return $route;
 
     }catch(Exception $e){
-        throw new BException(tr('route_validate_static(): Failed'), $e);
+        throw new CoreException(tr('route_validate_static(): Failed'), $e);
     }
 }

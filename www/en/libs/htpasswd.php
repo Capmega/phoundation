@@ -21,11 +21,11 @@ function htpasswd_validate($file){
         $basefile = basename($file);
 
         if($basefile != '.htpasswd'){
-            throw new BException(tr('htpasswd_validate(): Specified file ":file" is not a .htpasswd file', array(':file' => $file)), 'invalid');
+            throw new CoreException(tr('htpasswd_validate(): Specified file ":file" is not a .htpasswd file', array(':file' => $file)), 'invalid');
         }
 
     }catch(Exception $e){
-        throw new BException('htpasswd_validate(): Failed', $e);
+        throw new CoreException('htpasswd_validate(): Failed', $e);
     }
 }
 
@@ -39,7 +39,7 @@ function htpasswd_create($file, $username, $password){
         htpasswd_validate($file);
 
     }catch(Exception $e){
-        throw new BException('htpasswd_create(): Failed', $e);
+        throw new CoreException('htpasswd_create(): Failed', $e);
     }
 }
 
@@ -53,7 +53,7 @@ function htpasswd_update($file){
         htpasswd_validate($file);
 
     }catch(Exception $e){
-        throw new BException('htpasswd_update(): Failed', $e);
+        throw new CoreException('htpasswd_update(): Failed', $e);
     }
 }
 
@@ -67,7 +67,7 @@ function htpasswd_list($file){
         htpasswd_validate($file);
 
     }catch(Exception $e){
-        throw new BException('htpasswd_list(): Failed', $e);
+        throw new CoreException('htpasswd_list(): Failed', $e);
     }
 }
 
@@ -81,7 +81,7 @@ function htpasswd_authenticate($file, $username, $password){
         htpasswd_validate($file);
 
     }catch(Exception $e){
-        throw new BException('htpasswd_authenticate(): Failed', $e);
+        throw new CoreException('htpasswd_authenticate(): Failed', $e);
     }
 }
 ?>

@@ -26,7 +26,7 @@ function email_servers_library_init(){
         load_libs('linux');
 
     }catch(Exception $e){
-        throw new BException('email_servers_library_init(): Failed', $e);
+        throw new CoreException('email_servers_library_init(): Failed', $e);
     }
 }
 
@@ -102,7 +102,7 @@ function email_servers_validate($email_server){
         return $email_server;
 
     }catch(Exception $e){
-        throw new BException(tr('email_servers_validate(): Failed'), $e);
+        throw new CoreException(tr('email_servers_validate(): Failed'), $e);
     }
 }
 
@@ -146,7 +146,7 @@ function email_servers_insert($server){
         return $server;
 
     }catch(Exception $e){
-        throw new BException('email_servers_insert(): Failed', $e);
+        throw new CoreException('email_servers_insert(): Failed', $e);
     }
 }
 
@@ -201,7 +201,7 @@ function email_servers_update($server){
         return $server;
 
     }catch(Exception $e){
-        throw new BException('email_servers_update(): Failed', $e);
+        throw new CoreException('email_servers_update(): Failed', $e);
     }
 }
 
@@ -260,7 +260,7 @@ function email_servers_get($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('email_servers_get(): Failed', $e);
+        throw new CoreException('email_servers_get(): Failed', $e);
     }
 }
 
@@ -293,7 +293,7 @@ function email_servers_list($params = null){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException(tr('email_servers_list(): Failed'), $e);
+        throw new CoreException(tr('email_servers_list(): Failed'), $e);
     }
 }
 
@@ -356,7 +356,7 @@ function email_servers_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('email_servers_select(): Failed', $e);
+        throw new CoreException('email_servers_select(): Failed', $e);
     }
 }
 
@@ -423,10 +423,10 @@ function email_servers_validate_domain($domain){
             $server   = servers_get($domain['server']);
             $domain = not_empty($servers[$domain['server']], $domain['server']);
 
-            throw new BException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
+            throw new CoreException(tr('email_servers_validate_domain(): Specified email server ":server" (server domain ":domain") does not have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
         }
 
-        throw new BException(tr('email_servers_validate_domain(): Failed'), $e);
+        throw new CoreException(tr('email_servers_validate_domain(): Failed'), $e);
     }
 }
 
@@ -461,7 +461,7 @@ function email_servers_insert_domain($domain){
         return $domain;
 
     }catch(Exception $e){
-        throw new BException('email_servers_insert_domain(): Failed', $e);
+        throw new CoreException('email_servers_insert_domain(): Failed', $e);
     }
 }
 
@@ -502,7 +502,7 @@ function email_servers_update_domain($domain){
         return $domain;
 
     }catch(Exception $e){
-        throw new BException('email_servers_update_domain(): Failed', $e);
+        throw new CoreException('email_servers_update_domain(): Failed', $e);
     }
 }
 
@@ -543,7 +543,7 @@ function email_servers_get_domain($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('email_servers_get_domain(): Failed', $e);
+        throw new CoreException('email_servers_get_domain(): Failed', $e);
     }
 }
 
@@ -574,7 +574,7 @@ function email_servers_list_domains($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException(tr('email_servers_list_domains(): Failed'), $e);
+        throw new CoreException(tr('email_servers_list_domains(): Failed'), $e);
     }
 }
 
@@ -602,7 +602,7 @@ function email_servers_scan_domains($params = null){
 
         if(empty($_SESSION['user']['customer'])){
             if(!has_rights('god')){
-                throw new BException(tr('email_servers_scan_domains(): No customer specified for this user'), 'not-specified');
+                throw new CoreException(tr('email_servers_scan_domains(): No customer specified for this user'), 'not-specified');
             }
 
             return array();
@@ -654,7 +654,7 @@ function email_servers_scan_domains($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('email_servers_scan_domains(): Failed'), $e);
+        throw new CoreException(tr('email_servers_scan_domains(): Failed'), $e);
     }
 }
 
@@ -727,7 +727,7 @@ function email_servers_select_domain($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('email_servers_select_domain(): Failed', $e);
+        throw new CoreException('email_servers_select_domain(): Failed', $e);
     }
 }
 
@@ -869,10 +869,10 @@ function email_servers_validate_account($account){
             $server  = servers_get($domain['server']);
             $domain  = not_empty($servers[$domain['server']], $domain['server']);
 
-            throw new BException(tr('email_servers_validate_account(): Specified email server ":server" (server domain ":domain") does not appear to have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
+            throw new CoreException(tr('email_servers_validate_account(): Specified email server ":server" (server domain ":domain") does not appear to have a "mail" database', array(':server' => $domain, ':domain' => $server['domain'])), 'not-exists');
         }
 
-        throw new BException(tr('email_servers_validate_account(): Failed'), $e);
+        throw new CoreException(tr('email_servers_validate_account(): Failed'), $e);
     }
 }
 
@@ -922,7 +922,7 @@ function email_servers_insert_account($account){
         return $account;
 
     }catch(Exception $e){
-        throw new BException('email_servers_insert_account(): Failed', $e);
+        throw new CoreException('email_servers_insert_account(): Failed', $e);
     }
 }
 
@@ -963,7 +963,7 @@ function email_servers_update_account($account){
         return $account;
 
     }catch(Exception $e){
-        throw new BException('email_servers_update_account(): Failed', $e);
+        throw new CoreException('email_servers_update_account(): Failed', $e);
     }
 }
 
@@ -994,7 +994,7 @@ function email_servers_update_password($account, $password){
                                    ':password' => $password));
 
     }catch(Exception $e){
-        throw new BException('email_servers_update_password(): Failed', $e);
+        throw new CoreException('email_servers_update_password(): Failed', $e);
     }
 }
 
@@ -1016,7 +1016,7 @@ function email_servers_update_password($account, $password){
 function email_servers_list_mailbox_sizes($server, $domain){
     try{
         if(!filter_var($domain, FILTER_VALIDATE_DOMAIN)){
-            throw new BException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" is not a valid domain', array(':domain' => $domain)), 'invalid');
+            throw new CoreException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" is not a valid domain', array(':domain' => $domain)), 'invalid');
         }
 
         $total   = 0;
@@ -1043,10 +1043,10 @@ function email_servers_list_mailbox_sizes($server, $domain){
     }catch(Exception $e){
         if(!linux_file_exists($server, '/var/mail/vhosts/'.$domain, true)){
             $e->setCode('not-exist');
-            throw new BException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" does not exists as a mail domain', array(':domain' => $domain)), $e);
+            throw new CoreException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" does not exists as a mail domain', array(':domain' => $domain)), $e);
         }
 
-        throw new BException('email_servers_list_mailbox_sizes(): Failed', $e);
+        throw new CoreException('email_servers_list_mailbox_sizes(): Failed', $e);
     }
 }
 
@@ -1093,7 +1093,7 @@ function email_servers_check($server, $fix = true){
         return $failed;
 
     }catch(Exception $e){
-        throw new BException('email_servers_check(): Failed', $e);
+        throw new CoreException('email_servers_check(): Failed', $e);
     }
 }
 
@@ -1193,7 +1193,7 @@ function email_servers_check_seo($params){
         return $failed;
 
     }catch(Exception $e){
-        throw new BException('email_servers_check_seo(): Failed', $e);
+        throw new CoreException('email_servers_check_seo(): Failed', $e);
     }
 }
 
@@ -1255,7 +1255,7 @@ function email_servers_check_orphans($server, $add = true){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('email_servers_check_orphans(): Failed', $e);
+        throw new CoreException('email_servers_check_orphans(): Failed', $e);
     }
 }
 ?>

@@ -33,7 +33,7 @@ function smart_library_init(){
                                'checks'    => array(ROOT.'libs/external/empty/')));
 
     }catch(Exception $e){
-        throw new BException('smart_library_init(): Failed', $e);
+        throw new CoreException('smart_library_init(): Failed', $e);
     }
 }
 
@@ -57,7 +57,7 @@ function smart_install(){
         linux_install_package(null, 'smartmontools');
 
     }catch(Exception $e){
-        throw new BException('smart_install(): Failed', $e);
+        throw new CoreException('smart_install(): Failed', $e);
     }
 }
 
@@ -102,7 +102,7 @@ function empty_function($params){
     try{
 
     }catch(Exception $e){
-        throw new BException('empty(): Failed', $e);
+        throw new CoreException('empty(): Failed', $e);
     }
 }
 ?>

@@ -10,14 +10,14 @@ if(!$e instanceof PDOException){
             /*
              * This is likely not a PDO error, so it cannot be handled here
              */
-            throw new BException('sql_error(): Not a PDO exception', $e);
+            throw new CoreException('sql_error(): Not a PDO exception', $e);
     }
 }
 
 try{
     if(!is_object($sql)){
         if(empty($core->sql['core'])){
-            throw new BException('sql_error(): The $sql is not an object, cannot get more info from there', $e);
+            throw new CoreException('sql_error(): The $sql is not an object, cannot get more info from there', $e);
         }
 
         $sql = $core->sql['core'];
@@ -26,7 +26,7 @@ try{
     if($query){
         if($execute){
             if(!is_array($execute)){
-                throw new BException(tr('sql_error(): The specified $execute parameter is NOT an array, it is an ":type"', array(':type' => gettype($execute))), $e);
+                throw new CoreException(tr('sql_error(): The specified $execute parameter is NOT an array, it is an ":type"', array(':type' => gettype($execute))), $e);
             }
 
             foreach($execute as $key => $value){
@@ -34,7 +34,7 @@ try{
                     /*
                      * This is automatically a problem!
                      */
-                    throw new BException(tr('sql_error(): POSSIBLE ERROR: The specified $execute array contains key ":key" with non scalar value ":value"', array(':key' => $key, ':value' => $value)), $e);
+                    throw new CoreException(tr('sql_error(): POSSIBLE ERROR: The specified $execute array contains key ":key" with non scalar value ":value"', array(':key' => $key, ':value' => $value)), $e);
                 }
             }
         }
@@ -72,10 +72,10 @@ try{
             preg_match_all('/:\w+/imus', $query, $matches);
 
             if(count($matches[0]) != count($execute)){
-                throw new BException(tr('sql_error(): Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
+                throw new CoreException(tr('sql_error(): Query ":query" failed with error HY093, the number of query tokens does not match the number of bound variables. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
             }
 
-            throw new BException(tr('sql_error(): Query ":query" failed with error HY093, One or more query tokens does not match the bound variables keys. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
+            throw new CoreException(tr('sql_error(): Query ":query" failed with error HY093, One or more query tokens does not match the bound variables keys. The query contains tokens ":tokens", where the bound variables are ":variables"', array(':query' => $query, ':tokens' => implode(',', $matches['0']), ':variables' => implode(',', array_keys($execute)))), $e);
 
         case '23000':
             /*
@@ -87,7 +87,7 @@ try{
 //                /*
 //                 * Integrity constraint violation: Duplicate entry
 //                 */
-//                throw new BException('sql_error(): Query "'.str_log($query, 4096).'" tries to insert or update a column row with a unique index to a value that already exists', $e);
+//                throw new CoreException('sql_error(): Query "'.str_log($query, 4096).'" tries to insert or update a column row with a unique index to a value that already exists', $e);
 
         default:
             switch(isset_get($error[1])){
@@ -97,13 +97,13 @@ try{
                      */
                     if(!is_array($query)){
                         if(empty($query['db'])){
-                            throw new BException(tr('sql_error(): Query ":query" failed, access to database denied', array(':query' => $query)), $e);
+                            throw new CoreException(tr('sql_error(): Query ":query" failed, access to database denied', array(':query' => $query)), $e);
                         }
 
-                        throw new BException(tr('sql_error(): Cannot use database ":db", this user has no access to it', array(':db' => $query['db'])), $e);
+                        throw new CoreException(tr('sql_error(): Cannot use database ":db", this user has no access to it', array(':db' => $query['db'])), $e);
                     }
 
-                    throw new BException(tr('sql_error(): Cannot use database with query ":query", this user has no access to it', array(':query' => debug_sql($query, $execute, true))), $e);
+                    throw new CoreException(tr('sql_error(): Cannot use database with query ":query", this user has no access to it', array(':query' => debug_sql($query, $execute, true))), $e);
 
                 case 1049:
                     /*
@@ -130,35 +130,35 @@ try{
                         return sql_connect($query);
                     }
 
-                    throw new BException(tr('sql_error(): Cannot use database ":db", it does not exist', array(':db' => $query['db'])), $e);
+                    throw new CoreException(tr('sql_error(): Cannot use database ":db", it does not exist', array(':db' => $query['db'])), $e);
 
                 case 1052:
                     /*
                      * Integrity constraint violation
                      */
-                    throw new BException(tr('sql_error(): Query ":query" contains an abiguous column', array(':query' => debug_sql($query, $execute, true))), $e);
+                    throw new CoreException(tr('sql_error(): Query ":query" contains an abiguous column', array(':query' => debug_sql($query, $execute, true))), $e);
 
                 case 1054:
                     /*
                      * Column not found
                      */
-                    throw new BException(tr('sql_error(): Query ":query" refers to a column that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
+                    throw new CoreException(tr('sql_error(): Query ":query" refers to a column that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
 
                 case 1064:
                     /*
                      * Syntax error or access violation
                      */
                     if(str_exists(strtoupper($query), 'DELIMITER')){
-                        throw new BException(tr('sql_error(): Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => debug_sql($query, $execute, true))), $e);
+                        throw new CoreException(tr('sql_error(): Query ":query" contains the "DELIMITER" keyword. This keyword ONLY works in the MySQL console, and can NOT be used over MySQL drivers in PHP. Please remove this keword from the query', array(':query' => debug_sql($query, $execute, true))), $e);
                     }
 
-                    throw new BException(tr('sql_error(): Query ":query" has a syntax error', array(':query' => debug_sql($query, $execute, true))), $e);
+                    throw new CoreException(tr('sql_error(): Query ":query" has a syntax error', array(':query' => debug_sql($query, $execute, true))), $e);
 
                 case 1072:
                     /*
                      * Adding index error, index probably does not exist
                      */
-                    throw new BException(tr('sql_error(): Query ":query" failed with error 1072 with the message ":message"', array(':query' => debug_sql($query, $execute, true), ':message' => isset_get($error[2]))), $e);
+                    throw new CoreException(tr('sql_error(): Query ":query" failed with error 1072 with the message ":message"', array(':query' => debug_sql($query, $execute, true), ':message' => isset_get($error[2]))), $e);
 
                 case 1005:
                     //FALLTHROUGH
@@ -176,27 +176,27 @@ try{
                         $fk = str_replace("\n", ' ', $fk);
 
                     }catch(Exception $e){
-                        throw new BException(tr('sql_error(): Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', array(':query' => debug_sql($query, $execute, true))), $e);
+                        throw new CoreException(tr('sql_error(): Query ":query" failed with error 1005, but another error was encountered while trying to obtain FK error data', array(':query' => debug_sql($query, $execute, true))), $e);
                     }
 
-                    throw new BException(tr('sql_error(): Query ":query" failed with error 1005 with the message ":message"', array(':query' => debug_sql($query, $execute, true), ':message' => $fk)), $e);
+                    throw new CoreException(tr('sql_error(): Query ":query" failed with error 1005 with the message ":message"', array(':query' => debug_sql($query, $execute, true), ':message' => $fk)), $e);
 
                 case 1146:
                     /*
                      * Base table or view not found
                      */
-                    throw new BException(tr('sql_error(): Query ":query" refers to a base table or view that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
+                    throw new CoreException(tr('sql_error(): Query ":query" refers to a base table or view that does not exist', array(':query' => debug_sql($query, $execute, true))), $e);
 
                 default:
                     if(!is_string($query)){
                         if(!is_object($query) or !($query instanceof PDOStatement)){
-                            throw new BException('sql_error(): Specified query is neither a SQL string or a PDOStatement it seems to be a ":type"', array(':type' => gettype($query)), 'invalid');
+                            throw new CoreException('sql_error(): Specified query is neither a SQL string or a PDOStatement it seems to be a ":type"', array(':type' => gettype($query)), 'invalid');
                         }
 
                         $query = $query->queryString;
                     }
 
-                    throw new BException(tr('sql_error(): Query ":query" failed', array(':query' => debug_sql(preg_replace('!\s+!', ' ', $query), $execute, true))), $e);
+                    throw new CoreException(tr('sql_error(): Query ":query" failed', array(':query' => debug_sql(preg_replace('!\s+!', ' ', $query), $execute, true))), $e);
 
                     $body = "SQL STATE ERROR : \"".$error[0]."\"\n".
                             "DRIVER ERROR    : \"".$error[1]."\"\n".
@@ -215,14 +215,14 @@ try{
                     error_log('PHP SQL_ERROR: '.str_log($error[2]).' on '.str_log(debug_sql($query, $execute, true), 4096));
 
                     if(!$_CONFIG['production']){
-                        throw new BException(nl2br($body), $e);
+                        throw new CoreException(nl2br($body), $e);
                     }
 
-                    throw new BException(tr('sql_error(): An error has been detected, our staff has been notified about this problem.'), $e);
+                    throw new CoreException(tr('sql_error(): An error has been detected, our staff has been notified about this problem.'), $e);
             }
     }
 
 }catch(Exception $e){
-    throw new BException('sql_error(): Failed', $e);
+    throw new CoreException('sql_error(): Failed', $e);
 }
 ?>

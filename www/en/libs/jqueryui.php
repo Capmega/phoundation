@@ -16,7 +16,7 @@
 load_config('jqueryui');
 
 if(empty($_CONFIG['jquery-ui']['theme'])){
-    throw new BException(tr('jqueryui(): No jquery-ui theme specified, please check $_CONFIG[jquery-ui][theme]'), 'not-exists');
+    throw new CoreException(tr('jqueryui(): No jquery-ui theme specified, please check $_CONFIG[jquery-ui][theme]'), 'not-exists');
 }
 
 html_load_js('jquery-ui/jquery-ui');
@@ -41,7 +41,7 @@ function jqueryui_accordeon($selector, $options = 'collapsible: true,heightStyle
                             });');
 
     }catch(Exception $e){
-        throw new BException('jqueryui_accordeon(): Failed', $e);
+        throw new CoreException('jqueryui_accordeon(): Failed', $e);
     }
 }
 
@@ -92,7 +92,7 @@ function jqueryui_date($selector, $params = null){
         });');
 
     }catch(Exception $e){
-        throw new BException('jqueryui_date(): Failed', $e);
+        throw new CoreException('jqueryui_date(): Failed', $e);
     }
 }
 
@@ -141,14 +141,14 @@ function jqueryui_time($selector, $params = null){
 
         if($params['disable_time_ranges']){
             if(!is_array($params['disable_time_ranges'])){
-                throw new BException('jqueryui_time(): $params[disable_time_ranges] should be either false or an array containing sub arrays', 'invalid');
+                throw new CoreException('jqueryui_time(): $params[disable_time_ranges] should be either false or an array containing sub arrays', 'invalid');
             }
 
             $script  = '"disableTimeRanges": [';
 
             foreach($params['disable_time_ranges'] as $range){
                 if(!is_array($range)){
-                    throw new BException(tr('jqueryui_time(): All $params[disable_time_ranges] entries should be arrays, ":range" is not', array(':range' => $range)), 'invalid');
+                    throw new CoreException(tr('jqueryui_time(): All $params[disable_time_ranges] entries should be arrays, ":range" is not', array(':range' => $range)), 'invalid');
                 }
 
                 $script  = '["'.isset_get($range[0]).'", "'.isset_get($range[1]).'"]';
@@ -166,7 +166,7 @@ function jqueryui_time($selector, $params = null){
         return $html.html_script($script);
 
     }catch(Exception $e){
-        throw new BException('jqueryui_time(): Failed', $e);
+        throw new CoreException('jqueryui_time(): Failed', $e);
     }
 }
 
@@ -178,7 +178,7 @@ function jqueryui_time($selector, $params = null){
  */
 function jqueryui_datepair($selector, $params = null){
 // :IMPLEMENT: Still not finished
-throw new BException('jqueryui_datepair(): This function is not yet implemented', 'not_implemented');
+throw new CoreException('jqueryui_datepair(): This function is not yet implemented', 'not_implemented');
     //global $_CONFIG;
     //
     //try{
@@ -220,14 +220,14 @@ throw new BException('jqueryui_datepair(): This function is not yet implemented'
     //
     //    if($params['disable_datepair_ranges']){
     //        if(!is_array($params['disable_datepair_ranges'])){
-    //            throw new BException('jqueryui_datepair(): $params[disable_datepair_ranges] should be either false or an array containing sub arrays', 'invalid');
+    //            throw new CoreException('jqueryui_datepair(): $params[disable_datepair_ranges] should be either false or an array containing sub arrays', 'invalid');
     //        }
     //
     //        $script  = '"disabledatepairRanges": [';
     //
     //        foreach($params['disable_datepair_ranges'] as $range){
     //            if(!is_array($range)){
-    //                throw new BException('jqueryui_datepair(): All $params[disable_datepair_ranges] entries should be arrays, "'.str_log($range).'" is not', 'invalid');
+    //                throw new CoreException('jqueryui_datepair(): All $params[disable_datepair_ranges] entries should be arrays, "'.str_log($range).'" is not', 'invalid');
     //            }
     //
     //            $script  = '["'.isset_get($range[0]).'", "'.isset_get($range[1]).'"]';
@@ -242,7 +242,7 @@ throw new BException('jqueryui_datepair(): This function is not yet implemented'
     //    return $html.html_script($script);
     //
     //}catch(Exception $e){
-    //    throw new BException('jqueryui_datepair(): Failed', $e);
+    //    throw new CoreException('jqueryui_datepair(): Failed', $e);
     //}
 }
 
@@ -385,7 +385,7 @@ function jqueryui_date_range($params = null){
         });');
 
     }catch(Exception $e){
-        throw new BException('jqueryui_date_range(): Failed', $e);
+        throw new CoreException('jqueryui_date_range(): Failed', $e);
     }
 }
 
@@ -425,7 +425,7 @@ function jqueryui_fancybox($params){
         html_load_js('fancybox/jquery.fancybox');
 
         if($params['close_click'] and $params['next_click']){
-            throw new BException(tr('jqueryui_fancybox(): Both $params["close_click"] and $params["next_click"] have been set to true, but these options are mutually exclusive. Please set one (or both) to false.'), 'not-specified');
+            throw new CoreException(tr('jqueryui_fancybox(): Both $params["close_click"] and $params["next_click"] have been set to true, but these options are mutually exclusive. Please set one (or both) to false.'), 'not-specified');
         }
 
         if($params['load_css']){
@@ -433,7 +433,7 @@ function jqueryui_fancybox($params){
         }
 
         if(!strstr($params['item_template'], ':image')){
-            throw new BException(tr('jqueryui_fancybox(): Parameter $params["item_template"] does not contain :image to add the images in the template HTML'), 'not-specified');
+            throw new CoreException(tr('jqueryui_fancybox(): Parameter $params["item_template"] does not contain :image to add the images in the template HTML'), 'not-specified');
         }
 
         $items = '';
@@ -451,7 +451,7 @@ function jqueryui_fancybox($params){
 
         if($params['gallery_template']){
             if(!strstr($params['gallery_template'], ':item_template')){
-                throw new BException(tr('jqueryui_fancybox(): Parameter $params["gallery_template"] contains a template, but does not contain :item_template to add the items in there'), 'not-specified');
+                throw new CoreException(tr('jqueryui_fancybox(): Parameter $params["gallery_template"] contains a template, but does not contain :item_template to add the items in there'), 'not-specified');
             }
 
             $retval = str_replace(':item_template', $items, $params['gallery_template']);
@@ -489,7 +489,7 @@ function jqueryui_fancybox($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('jqueryui_fancybox(): Failed', $e);
+        throw new CoreException('jqueryui_fancybox(): Failed', $e);
     }
 }
 
@@ -500,9 +500,9 @@ function jqueryui_fancybox($params){
  */
 function jqueryui_fancybox_install(){
     try{
-throw new BException(tr('jqueryui_fancybox_install(): This function has not yet been implemented'), 'not_implemented');
+throw new CoreException(tr('jqueryui_fancybox_install(): This function has not yet been implemented'), 'not_implemented');
     }catch(Exception $e){
-        throw new BException('jqueryui_fancybox_install(): Failed', $e);
+        throw new CoreException('jqueryui_fancybox_install(): Failed', $e);
     }
 }
 ?>

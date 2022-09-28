@@ -29,7 +29,7 @@ function cloudflare_library_init(){
         $core->register['cf_connector'] = $cf;
 
     }catch(Exception $e){
-        throw new BException('cloudflare_library_init(): Failed', $e);
+        throw new CoreException('cloudflare_library_init(): Failed', $e);
     }
 }
 
@@ -44,7 +44,7 @@ function cf_zone_list(){
         $response = $core->register['cf_connector']->zone_load_multi();
 
         if($response->result != 'success'){
-            throw new BException('cf_zone_list(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
+            throw new CoreException('cf_zone_list(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
         }
 
         $zones = array();
@@ -56,7 +56,7 @@ function cf_zone_list(){
         return $zones;
 
     }catch(Exception $e){
-        throw new BException('cf_zone_list(): Failed', $e);
+        throw new CoreException('cf_zone_list(): Failed', $e);
     }
 }
 
@@ -73,11 +73,11 @@ function cf_whitelist($ip, $domain=null){
         $response = $core->register['cf_connector']->wl($ip);
 
         if($response->result != 'success'){
-            throw new BException('cf_whitelist(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
+            throw new CoreException('cf_whitelist(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
         }
 
     }catch(Exception $e){
-        throw new BException('cf_whitelist(): Failed', $e);
+        throw new CoreException('cf_whitelist(): Failed', $e);
     }
 }
 
@@ -94,11 +94,11 @@ function cf_blacklist($ip, $domain=null){
         $response = $core->register['cf_connector']->ban($ip);
 
         if($response->result != 'success'){
-            throw new BException('cf_blacklist(): Response from CloudFlare was unsuccessfull. Message : '.$response->msg);
+            throw new CoreException('cf_blacklist(): Response from CloudFlare was unsuccessfull. Message : '.$response->msg);
         }
 
     }catch(Exception $e){
-        throw new BException('cf_blacklist(): Failed', $e);
+        throw new CoreException('cf_blacklist(): Failed', $e);
     }
 }
 
@@ -114,11 +114,11 @@ function cf_unwhitelist($ip, $domain=null){
         $response = $core->register['cf_connector']->nul($ip);
 
         if($response->result != 'success'){
-            throw new BException('cf_unwhitelist(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
+            throw new CoreException('cf_unwhitelist(): Response from CloudFlare was unsuccessfull. MessaMessage : "'.$response->msg.'"');
         }
 
     }catch(Exception $e){
-        throw new BException('cf_unwhitelist(): Failed', $e);
+        throw new CoreException('cf_unwhitelist(): Failed', $e);
     }
 }
 
@@ -134,11 +134,11 @@ function cf_unblacklist($ip, $domain=null){
         $response = $core->register['cf_connector']->nul($ip);
 
         if($response->result != 'success'){
-            throw new BException('cf_unblacklist(): Response from CloudFlare was unsuccessfull. Message : "'.$response->msg.'"');
+            throw new CoreException('cf_unblacklist(): Response from CloudFlare was unsuccessfull. Message : "'.$response->msg.'"');
         }
 
     }catch(Exception $e){
-        throw new BException('cf_unblacklist(): Failed', $e);
+        throw new CoreException('cf_unblacklist(): Failed', $e);
     }
 }
 
@@ -153,11 +153,11 @@ function cf_clear_cache($domain){
         $response = $core->register['cf_connector']->fpurge_ts($domain);
 
         if($response->result != 'success'){
-            throw new BException('cf_clear_cache(): Response from CloudFlare was unsuccessfull. Message : "'.$response->msg.'"');
+            throw new CoreException('cf_clear_cache(): Response from CloudFlare was unsuccessfull. Message : "'.$response->msg.'"');
         }
 
     }catch(Exception $e){
-        throw new BException('cf_clear_cache(): Failed', $e);
+        throw new CoreException('cf_clear_cache(): Failed', $e);
     }
 }
 
@@ -186,7 +186,7 @@ function cf_install_apache_module(){
         return false;
 
     }catch(Exception $e){
-        throw new BException('cf_install_apache_module(): Failed', $e);
+        throw new CoreException('cf_install_apache_module(): Failed', $e);
     }
 
 }
@@ -201,7 +201,7 @@ function cf_is_apache_module_installed(){
         return shell_exec('apachectl -M | grep cloudflare_module');
 
     }catch(Exception $e){
-        throw new BException('cf_is_apache_module_installed(): Failed', $e);
+        throw new CoreException('cf_is_apache_module_installed(): Failed', $e);
     }
 }
 ?>

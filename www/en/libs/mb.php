@@ -34,15 +34,15 @@
 function mb_library_init(){
     try{
         if(!extension_loaded('mbstring')){
-            throw new BException(tr('mb_library_init: php module "mbstring" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-mbstring; sudo php5enmod mbstring" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-mbstring" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
+            throw new CoreException(tr('mb_library_init: php module "mbstring" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-mbstring; sudo php5enmod mbstring" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-mbstring" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
         }
 
         if(!utf8_decode('xml')){
-            throw new BException(tr('mb_library_init: php module "xml" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-xml; sudo php5enmod xml" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-xml" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
+            throw new CoreException(tr('mb_library_init: php module "xml" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-xml; sudo php5enmod xml" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-xml" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
         }
 
     }catch(Exception $e){
-        throw new BException('mb_library_init(): Failed', $e);
+        throw new CoreException('mb_library_init(): Failed', $e);
     }
 }
 
@@ -292,7 +292,7 @@ END;
         return preg_replace($regex, '$1', $string);
 
     }catch(Exception $e){
-        throw new BException(tr('mb_strip_invalid(): Failed'), $e);
+        throw new CoreException(tr('mb_strip_invalid(): Failed'), $e);
     }
 }
 
@@ -329,7 +329,7 @@ function mb_utf8replacer($captures){
         return "\xC3".chr(ord($captures[3])-64);
 
     }catch(Exception $e){
-        throw new BException(tr('mb_utf8replacer(): Failed'), $e);
+        throw new CoreException(tr('mb_utf8replacer(): Failed'), $e);
     }
 }
 
@@ -353,7 +353,7 @@ function mb_utf8ize($source){
         return $source;
 
     }catch(Exception $e){
-        throw new BException(tr('mb_utf8ize(): Failed'), $e);
+        throw new CoreException(tr('mb_utf8ize(): Failed'), $e);
     }
 }
 ?>

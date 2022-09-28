@@ -43,7 +43,7 @@ function messenger_send($platform, $message){
     try{
 
     }catch(Exception $e){
-        throw new BException('messenger_send(): Failed', $e);
+        throw new CoreException('messenger_send(): Failed', $e);
     }
 }
 
@@ -65,7 +65,7 @@ function messenger_list_supported(){
     try{
 
     }catch(Exception $e){
-        throw new BException('messenger_list_supported(): Failed', $e);
+        throw new CoreException('messenger_list_supported(): Failed', $e);
     }
 }
 
@@ -90,7 +90,7 @@ function messenger_icon($platform, $size){
     try{
 
     }catch(Exception $e){
-        throw new BException('messenger_icon(): Failed', $e);
+        throw new CoreException('messenger_icon(): Failed', $e);
     }
 }
 ?>

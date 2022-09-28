@@ -13,6 +13,6 @@ try{
     log_console('Initialized mailer system', 'init', 'green');
 
 }catch(Exception $e){
-    throw new BException('scripts/base/mailer/init: Failed', $e);
+    throw new CoreException('scripts/base/mailer/init: Failed', $e);
 }
 ?>

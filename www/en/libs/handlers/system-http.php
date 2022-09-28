@@ -214,5 +214,5 @@ under_construction();
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::http(): Failed'), $e);
+    throw new CoreException(tr('core::http(): Failed'), $e);
 }

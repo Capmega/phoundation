@@ -32,7 +32,7 @@ function files_library_init(){
         load_config('files');
 
     }catch(Exception $e){
-        throw new BException('files_library_init(): Failed', $e);
+        throw new CoreException('files_library_init(): Failed', $e);
     }
 }
 
@@ -108,7 +108,7 @@ function files_insert($file, $require_unique = false){
             $exists = sql_get('SELECT `id` FROM `files` WHERE `hash` = :hash', array($file['hash']));
 
             if($exists){
-                throw new BException(tr('files_insert(): Specified file ":filename" already exists with id ":id"', array(':filename' => $base_path.$target, ':id' => $exists)), 'exists');
+                throw new CoreException(tr('files_insert(): Specified file ":filename" already exists with id ":id"', array(':filename' => $base_path.$target, ':id' => $exists)), 'exists');
             }
         }
 
@@ -134,7 +134,7 @@ function files_insert($file, $require_unique = false){
         return $file;
 
     }catch(Exception $e){
-        throw new BException('files_insert(): Failed', $e);
+        throw new CoreException('files_insert(): Failed', $e);
     }
 }
 
@@ -148,7 +148,7 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
         $dbfile = files_get($file);
 
         if(!$dbfile){
-            throw new BException(tr('files_delete(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+            throw new CoreException(tr('files_delete(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
         sql_query('DELETE FROM `files` WHERE `id` = :id', array(':id' => $dbfile['id']));
@@ -159,7 +159,7 @@ function files_delete($file, $base_path = ROOT.'data/files/'){
         return $dbfile;
 
     }catch(Exception $e){
-        throw new BException('files_delete(): Failed', $e);
+        throw new CoreException('files_delete(): Failed', $e);
     }
 }
 
@@ -173,13 +173,13 @@ function files_get_history($file){
         $meta_id = sql_get('SELECT `meta_id` FROM `files` WHERE `name` = :name, `hash` = :hash', true, array(':name' => $file, ':hash' => $file));
 
         if(!$meta_id){
-            throw new BException(rt('files_get_history(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+            throw new CoreException(rt('files_get_history(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
         return meta_history($meta_id);
 
     }catch(Exception $e){
-        throw new BException('files_get_history(): Failed', $e);
+        throw new CoreException('files_get_history(): Failed', $e);
     }
 }
 
@@ -221,7 +221,7 @@ function files_get($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('files_get(): Failed', $e);
+        throw new CoreException('files_get(): Failed', $e);
     }
 }
 
@@ -253,7 +253,7 @@ function files_list($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('files_list(): Failed', $e);
+        throw new CoreException('files_list(): Failed', $e);
     }
 }
 
@@ -316,7 +316,7 @@ function files_search_orphans(){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('files_search_orphans(): Failed', $e);
+        throw new CoreException('files_search_orphans(): Failed', $e);
     }
 }
 
@@ -341,7 +341,7 @@ function files_clear_quarantine($section = null){
             log_console(tr('Clearing all quarantined files in the ":section" section', array(':section' => $section)), 'yellow');
 
             if(!is_string($section)){
-                throw new BException(tr('files_clear_quarantine(): Invalid section ":section" specified', array(':section' => $section)), $e);
+                throw new CoreException(tr('files_clear_quarantine(): Invalid section ":section" specified', array(':section' => $section)), $e);
             }
 
             $path .= '/'.$section;
@@ -353,6 +353,6 @@ function files_clear_quarantine($section = null){
         return file_delete($path, ROOT.'data/files');
 
     }catch(Exception $e){
-        throw new BException(tr('files_clear_quarantine(): Failed'), $e);
+        throw new CoreException(tr('files_clear_quarantine(): Failed'), $e);
     }
 }

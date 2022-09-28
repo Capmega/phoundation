@@ -28,7 +28,7 @@ function sessions_mm_library_init(){
 under_construction();
 
     }catch(Exception $e){
-        throw new BException('sessions_mm_library_init(): Failed', $e);
+        throw new CoreException('sessions_mm_library_init(): Failed', $e);
     }
 }
 
@@ -51,7 +51,7 @@ function sessions_mm_open($save_path, $session_name){
     try{
 
     }catch(Exception $e){
-        throw new BException('sessions_mm_open(): Failed', $e);
+        throw new CoreException('sessions_mm_open(): Failed', $e);
     }
 }
 
@@ -72,7 +72,7 @@ function sessions_mm_close(){
     try{
 
     }catch(Exception $e){
-        throw new BException('sessions_mm_close(): Failed', $e);
+        throw new CoreException('sessions_mm_close(): Failed', $e);
     }
 }
 
@@ -94,7 +94,7 @@ function sessions_mm_read($sessions_id){
     try{
 
     }catch(Exception $e){
-        throw new BException('sessions_mm_read(): Failed', $e);
+        throw new CoreException('sessions_mm_read(): Failed', $e);
     }
 }
 
@@ -117,7 +117,7 @@ function sessions_mm_write($sessions_id, $data){
     try{
 
     }catch(Exception $e){
-        throw new BException('sessions_mm_write(): Failed', $e);
+        throw new CoreException('sessions_mm_write(): Failed', $e);
     }
 }
 
@@ -139,7 +139,7 @@ function sessions_mm_destroy($sessions_id){
     try{
 
     }catch(Exception $e){
-        throw new BException('sessions_mm_destroy(): Failed', $e);
+        throw new CoreException('sessions_mm_destroy(): Failed', $e);
     }
 }
 
@@ -161,7 +161,7 @@ function sessions_mm_gc($lifetime){
     try{
 
     }catch(Exception $e){
-        throw new BException('sessions_mm_gc(): Failed', $e);
+        throw new CoreException('sessions_mm_gc(): Failed', $e);
     }
 }
 
@@ -184,4 +184,4 @@ function sessions_mm_create_sid($save_path, $session_name){
     try{
 
     }catch(Exception $e){
-        throw new BException('sessions_mm
+        throw new CoreException('sessions_mm

@@ -28,7 +28,7 @@ function progress_library_init(){
         load_config('progress');
 
     }catch(Exception $e){
-        throw new BException('progress_library_init(): Failed', $e);
+        throw new CoreException('progress_library_init(): Failed', $e);
     }
 }
 
@@ -170,7 +170,7 @@ function progress_validate_process($process){
         return $process;
 
     }catch(Exception $e){
-        throw new BException(tr('progress_validate_process(): Failed'), $e);
+        throw new CoreException(tr('progress_validate_process(): Failed'), $e);
     }
 }
 
@@ -237,7 +237,7 @@ function progress_get_process($process, $column = null, $status = null){
         return $process;
 
     }catch(Exception $e){
-        throw new BException('progress_get_process(): Failed', $e);
+        throw new CoreException('progress_get_process(): Failed', $e);
     }
 }
 
@@ -308,7 +308,7 @@ function progress_get_step($processes_id, $step, $column = null, $status = null)
         return $process;
 
     }catch(Exception $e){
-        throw new BException('progress_get_step(): Failed', $e);
+        throw new CoreException('progress_get_step(): Failed', $e);
     }
 }
 
@@ -335,7 +335,7 @@ function progress_get_steps($processes_id, $columns = null, $status = null){
         }
 
         if(!is_numeric($processes_id)){
-            throw new BException(tr('progress_get_steps(): Invalid processes_id ":id" specified', array(':id' => $processes_id)), 'invalid');
+            throw new CoreException(tr('progress_get_steps(): Invalid processes_id ":id" specified', array(':id' => $processes_id)), 'invalid');
         }
 
         $execute[':processes_id'] = $processes_id;
@@ -378,7 +378,7 @@ function progress_get_steps($processes_id, $columns = null, $status = null){
         return $steps;
 
     }catch(Exception $e){
-        throw new BException('progress_get_steps(): Failed', $e);
+        throw new CoreException('progress_get_steps(): Failed', $e);
     }
 }
 
@@ -420,7 +420,7 @@ function progress_update_steps($processes_id, $steps){
         return count($steps);
 
     }catch(Exception $e){
-        throw new BException('progress_update(): Failed', $e);
+        throw new CoreException('progress_update(): Failed', $e);
     }
 }
 
@@ -442,7 +442,7 @@ function progress_next($processes_id){
     try{
 
     }catch(Exception $e){
-        throw new BException('progress_next(): Failed', $e);
+        throw new CoreException('progress_next(): Failed', $e);
     }
 }
 
@@ -511,7 +511,7 @@ function progress_processes_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('progress_processes_select(): Failed', $e);
+        throw new CoreException('progress_processes_select(): Failed', $e);
     }
 }
 
@@ -561,7 +561,7 @@ function progress_steps_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('progress_steps_select(): Failed', $e);
+        throw new CoreException('progress_steps_select(): Failed', $e);
     }
 }
 
@@ -597,7 +597,7 @@ function progress_exec_step($project){
         $step_data = progress_get_step($project['processes_id'], $project['steps_id']);
 
         if(!$step_data){
-            throw new BException(tr('progress_redirect_to_step(): Specified step ":step" for progress ":process" in project ":project" does not exist', array(':project' => $project['id'], ':step' => $project['steps_id'], ':process' => $project['processes_id'])), 'not-exists');
+            throw new CoreException(tr('progress_redirect_to_step(): Specified step ":step" for progress ":process" in project ":project" does not exist', array(':project' => $project['id'], ':step' => $project['steps_id'], ':process' => $project['processes_id'])), 'not-exists');
         }
 
         if(preg_match('/^[a-z-]+:\/\//', $step_data['url'])){
@@ -608,7 +608,7 @@ function progress_exec_step($project){
         page_show($step_data['url'], array('project' => $project));
 
     }catch(Exception $e){
-        throw new BException('progress_exec_step(): Failed', $e);
+        throw new CoreException('progress_exec_step(): Failed', $e);
     }
 }
 ?>

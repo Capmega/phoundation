@@ -91,7 +91,7 @@ switch(cli_method()){
             break;
 
         }catch(Exception $e){
-            throw new BException(tr('Failed to create new role'), $e);
+            throw new CoreException(tr('Failed to create new role'), $e);
         }
 
         break;
@@ -104,13 +104,13 @@ switch(cli_method()){
             cli_no_arguments_left();
 
             if(!$role){
-                throw new BException(tr('No role specified'), 'warning/not-specified');
+                throw new CoreException(tr('No role specified'), 'warning/not-specified');
             }
 
             $old_role = sql_get('SELECT `id`, `name`, `description` FROM `roles` WHERE `id` = :role OR `name` = :role', array(':role' => $old_role_id));
 
             if(!$old_role){
-                throw new BException(tr('Specified role ":role" does not exist', array(':role' => $old_role_id)), 'warning/not-specified');
+                throw new CoreException(tr('Specified role ":role" does not exist', array(':role' => $old_role_id)), 'warning/not-specified');
             }
 
             $role = roles_validate($role, $old_role);
@@ -145,7 +145,7 @@ switch(cli_method()){
             break;
 
         }catch(Exception $e){
-            throw new BException(tr('Failed to modify role'), $e);
+            throw new CoreException(tr('Failed to modify role'), $e);
         }
 
         break;
@@ -157,7 +157,7 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(empty($roles)){
-            throw new BException(tr('No roles specified'), 'warning/not-specified');
+            throw new CoreException(tr('No roles specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($roles, 'name');
@@ -201,7 +201,7 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(empty($roles)){
-            throw new BException(tr('No roles specified'), 'warning/not-specified');
+            throw new CoreException(tr('No roles specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($roles, 'name');
@@ -246,7 +246,7 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(empty($roles)){
-            throw new BException(tr('No roles specified'), 'warning/not-specified');
+            throw new CoreException(tr('No roles specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($roles, 'name');
@@ -355,9 +355,9 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

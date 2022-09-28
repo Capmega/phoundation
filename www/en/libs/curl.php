@@ -28,13 +28,13 @@
 function curl_library_init(){
     try{
         if(!extension_loaded('curl')){
-            throw new BException(tr('curl_library_init(): The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'), 'missing-module');
+            throw new CoreException(tr('curl_library_init(): The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
 
         load_config('curl');
 
     }catch(Exception $e){
-        throw new BException('curl_library_init(): Failed', $e);
+        throw new CoreException('curl_library_init(): Failed', $e);
     }
 }
 
@@ -56,11 +56,11 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
         }
 
         if(is_array($url)){
-            throw new BException(tr('curl_get_proxy(): No URL specified'), 'not-specified');
+            throw new CoreException(tr('curl_get_proxy(): No URL specified'), 'not-specified');
         }
 
         if(!$serverurl){
-            throw new BException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
+            throw new CoreException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
         }
 
         log_console(tr('Using proxy ":proxy"', array(':proxy' => str_cut(str_log($serverurl), '://', '/'))), 'VERBOSE');
@@ -70,11 +70,11 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
                                'proxies'    => false));
 
         if(!trim($data['data'])){
-            throw new BException(tr('curl_get_proxy(): Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'), 'no-data');
+            throw new CoreException(tr('curl_get_proxy(): Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'), 'no-data');
         }
 
         if(substr($data['data'], 0, 12) !== 'PROXY_RESULT'){
-            throw new BException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => str_log($data), ':proxy' => str_cut(str_log($serverurl), '://', '/'))), 'not-specified');
+            throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => str_log($data), ':proxy' => str_cut(str_log($serverurl), '://', '/'))), 'not-specified');
         }
 
         $data         = substr($data['data'], 12);
@@ -91,7 +91,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
         return $data;
 
     }catch(Exception $e){
-        throw new BException('curl_get_proxy(): Failed', $e);
+        throw new CoreException('curl_get_proxy(): Failed', $e);
     }
 }
 
@@ -126,15 +126,15 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
             $results = implode("\n", $results);
 
         }catch(Exception $e){
-            throw new BException(tr('curl_list_ips(): Failed to execute ifconfig, it probably is not installed. On Ubuntu install it by executing "sudo apt install net-toolks"'), $e);
+            throw new CoreException(tr('curl_list_ips(): Failed to execute ifconfig, it probably is not installed. On Ubuntu install it by executing "sudo apt install net-toolks"'), $e);
         }
 
         if(!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)){
-            throw new BException('curl_list_ips(): ifconfig returned no IPs', 'not-exists');
+            throw new CoreException('curl_list_ips(): ifconfig returned no IPs', 'not-exists');
         }
 
         if(!$matches or empty($matches[1])) {
-            throw new BException('curl_list_ips(): No IP data found', 'not-exists');
+            throw new CoreException('curl_list_ips(): No IP data found', 'not-exists');
         }
 
         $flags   = FILTER_VALIDATE_IP;
@@ -143,7 +143,7 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
 
         if(!$ipv4){
             if(!$ipv6){
-                throw new BException('curl_list_ips(): Both IPv4 and IPv6 IP\'s are specified to be disallowed', 'not-exists');
+                throw new CoreException('curl_list_ips(): Both IPv4 and IPv6 IP\'s are specified to be disallowed', 'not-exists');
             }
 
             $options = $options | FILTER_FLAG_IPV6;
@@ -172,13 +172,13 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
         }
 
         if(!$ips){
-            throw new BException(tr('curl_list_ips(): Failed to find any IP addresses'), 'failed');
+            throw new CoreException(tr('curl_list_ips(): Failed to find any IP addresses'), 'failed');
         }
 
         return $ips;
 
     }catch(Exception $e){
-        throw new BException('curl_list_ips(): Failed', $e);
+        throw new CoreException('curl_list_ips(): Failed', $e);
     }
 }
 
@@ -211,7 +211,7 @@ function curl_get_random_ip($ipv4 = true, $ipv6 = false, $localhost = false) {
         return $ip;
 
     }catch(Exception $e){
-        throw new BException('curl_get_random_ip(): Failed', $e);
+        throw new CoreException('curl_get_random_ip(): Failed', $e);
     }
 }
 
@@ -235,7 +235,7 @@ function curl_get_random_ip($ipv4 = true, $ipv6 = false, $localhost = false) {
 //        return $ips[0];
 //
 //    }catch(Exception $e){
-//        throw new BException('curl_get_random_ip(): Failed', $e);
+//        throw new CoreException('curl_get_random_ip(): Failed', $e);
 //    }
 //}
 
@@ -328,11 +328,11 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
             }
 
         }elseif($params['httpheaders'] and !is_array($params['httpheaders'])){
-            throw new BException('curl_get(): Invalid headers specified', 'not-specified');
+            throw new CoreException('curl_get(): Invalid headers specified', 'not-specified');
         }
 
         if(empty($params['url'])){
-            throw new BException('curl_get(): No URL specified', 'not-specified');
+            throw new CoreException('curl_get(): No URL specified', 'not-specified');
         }
 
         /*
@@ -487,7 +487,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
 
                 }catch(Exception $e){
                     if(strstr($e->getMessage(), 'Array to string conversion')){
-                        throw new BException(tr('curl_get(): CURLOPT_POSTFIELDS failed with "Array to string conversion", this is very likely because the specified post array is a multi dimensional array, while CURLOPT_POSTFIELDS only accept one dimensional arrays. Please set $params[posturlencoded] = true to use http_build_query() to set CURLOPT_POSTFIELDS instead'), 'invalid');
+                        throw new CoreException(tr('curl_get(): CURLOPT_POSTFIELDS failed with "Array to string conversion", this is very likely because the specified post array is a multi dimensional array, while CURLOPT_POSTFIELDS only accept one dimensional arrays. Please set $params[posturlencoded] = true to use http_build_query() to set CURLOPT_POSTFIELDS instead'), 'invalid');
                     }
                 }
             }
@@ -532,14 +532,14 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
                 $retval['data'] = curl_exec($ch);
 
                 if(curl_errno($ch)){
-                    throw new BException(tr('curl_get(): CURL failed with ":e"', array(':e' => curl_strerror(curl_errno($ch)))), 'CURL'.curl_errno($ch));
+                    throw new CoreException(tr('curl_get(): CURL failed with ":e"', array(':e' => curl_strerror(curl_errno($ch)))), 'CURL'.curl_errno($ch));
                 }
 
             }elseif(($params['simulation'] === 'full') or ($params['simulation'] === 'partial')){
                 $retval['data'] = $params['simulation'];
 
             }else{
-                throw new BException(tr('curl_get(): Unknown simulation type ":simulation" specified. Please use either false, "partial" or "full"', array(':simulation' => $params['simulation'])), 'unknown');
+                throw new CoreException(tr('curl_get(): Unknown simulation type ":simulation" specified. Please use either false, "partial" or "full"', array(':simulation' => $params['simulation'])), 'unknown');
             }
         }
 
@@ -619,10 +619,10 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
                     $data = array('message' => tr('Failed to decode URL data ":data"', array(':data' => $retval['data'])));
                 }
 
-                throw new BException(tr('curl_get(): URL ":url" gave HTTP "403" ACCESS DENIED because ":data"', array(':url' => $params['url'], ':data' => $data)), 'HTTP'.$retval['status']['http_code'], $retval);
+                throw new CoreException(tr('curl_get(): URL ":url" gave HTTP "403" ACCESS DENIED because ":data"', array(':url' => $params['url'], ':data' => $data)), 'HTTP'.$retval['status']['http_code'], $retval);
 
             default:
-                throw new BException(tr('curl_get(): URL ":url" gave HTTP ":httpcode"', array(':url' => $params['url'], ':httpcode' => $retval['status']['http_code'])), 'HTTP'.$retval['status']['http_code'], $retval);
+                throw new CoreException(tr('curl_get(): URL ":url" gave HTTP ":httpcode"', array(':url' => $params['url'], ':httpcode' => $retval['status']['http_code'])), 'HTTP'.$retval['status']['http_code'], $retval);
         }
 
         if($params['file']){
@@ -646,7 +646,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()){
             return curl_get($params, $referer, $post, $options);
         }
 
-        throw new BException(tr('curl_get(): Failed to get url ":url"', array(':url' => $params['url'])), $e);
+        throw new CoreException(tr('curl_get(): Failed to get url ":url"', array(':url' => $params['url'])), $e);
     }
 }
 

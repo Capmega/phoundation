@@ -29,7 +29,7 @@ function mysql_library_init(){
     try{
 
     }catch(Exception $e){
-        throw new BException('mysql_library_init(): Failed', $e);
+        throw new CoreException('mysql_library_init(): Failed', $e);
     }
 }
 
@@ -60,7 +60,7 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false){
         $server = servers_get($server, true);
 
         if(empty($server['database_accounts_id'])){
-            throw new BException(tr('mysql_exec(): Cannot execute query on server ":server", it does not have a database account specified', array(':server' => $server['domain'])), 'not-specified');
+            throw new CoreException(tr('mysql_exec(): Cannot execute query on server ":server", it does not have a database account specified', array(':server' => $server['domain'])), 'not-specified');
         }
 
         /*
@@ -94,7 +94,7 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false){
             $e->addMessages($e->getMessages());
         }
 
-        throw new BException(tr('mysql_exec(): Failed'), $e);
+        throw new CoreException(tr('mysql_exec(): Failed'), $e);
     }
 }
 
@@ -121,7 +121,7 @@ function mysql_create_password_file($user, $password, $server = null){
         servers_exec($server, "rm ~/.my.cnf -f; touch ~/.my.cnf; chmod 0600 ~/.my.cnf; echo '[client]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysql]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldump]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n[mysqldiff]\nuser=\\\"".$user."\\\"\npassword=\\\"".$password."\\\"\n\n' >> ~/.my.cnf");
 
     }catch(Exception $e){
-        throw new BException(tr('mysql_create_password_file(): Failed'), $e);
+        throw new CoreException(tr('mysql_create_password_file(): Failed'), $e);
     }
 }
 
@@ -146,7 +146,7 @@ function mysql_delete_password_file($server = null){
         servers_exec($server, 'rm ~/.my.cnf -f');
 
     }catch(Exception $e){
-        throw new BException(tr('mysql_delete_password_file(): Failed'), $e);
+        throw new CoreException(tr('mysql_delete_password_file(): Failed'), $e);
     }
 }
 
@@ -178,7 +178,7 @@ function mysql_dump($params){
         load_libs('servers');
 
         if(!$params['database']){
-            throw new BException(tr('mysql_dump(): No database specified'), 'not-specified');
+            throw new CoreException(tr('mysql_dump(): No database specified'), 'not-specified');
         }
 
         $server = servers_get($params['server'], true);
@@ -191,7 +191,7 @@ function mysql_dump($params){
         mysql_delete_password_file($server);
 
     }catch(Exception $e){
-        throw new BException(tr('mysql_dump(): Failed'), $e);
+        throw new CoreException(tr('mysql_dump(): Failed'), $e);
     }
 }
 
@@ -245,13 +245,13 @@ function mysql_get_database($db_name){
                              array(':name' => $db_name));
 
         if(!$database){
-            throw new BException(tr('mysql_get_database(): Specified database ":database" does not exist', array(':database' => $db_name)), 'not-exists');
+            throw new CoreException(tr('mysql_get_database(): Specified database ":database" does not exist', array(':database' => $db_name)), 'not-exists');
         }
 
         return $database;
 
     }catch(Exception $e){
-        throw new BException(tr('mysql_get_database(): Failed'), $e);
+        throw new CoreException(tr('mysql_get_database(): Failed'), $e);
     }
 }
 
@@ -275,7 +275,7 @@ function mysql_reset_password($server, $username, $password){
     try{
 
     }catch(Exception $e){
-        throw new BException(tr('mysql_get_database(): Failed'), $e);
+        throw new CoreException(tr('mysql_get_database(): Failed'), $e);
     }
 }
 
@@ -331,7 +331,7 @@ function mysql_register_databases($server){
         return $count;
 
     }catch(Exception $e){
-        throw new BException(tr('mysql_register_databases(): Failed'), $e);
+        throw new CoreException(tr('mysql_register_databases(): Failed'), $e);
     }
 }
 
@@ -447,7 +447,7 @@ function mysql_validate_database($database, $structure_only = false){
         return $database;
 
     }catch(Exception $e){
-        throw new BException('mysql_validate_database(): Failed', $e);
+        throw new CoreException('mysql_validate_database(): Failed', $e);
     }
 }
 
@@ -482,7 +482,7 @@ function mysql_exists_database($database_name, $id = null){
         return $exists;
 
     }catch(Exception $e){
-        throw new BException('mysql_exists_database(): Failed', $e);
+        throw new CoreException('mysql_exists_database(): Failed', $e);
     }
 }
 
@@ -522,7 +522,7 @@ function mysql_insert_database($database){
         return $database;
 
     }catch(Exception $e){
-        throw new BException('mysql_insert_database(): Failed', $e);
+        throw new CoreException('mysql_insert_database(): Failed', $e);
     }
 }
 
@@ -567,7 +567,7 @@ function mysql_update_database($database){
         return $database;
 
     }catch(Exception $e){
-        throw new BException('mysql_update_database(): Failed', $e);
+        throw new CoreException('mysql_update_database(): Failed', $e);
     }
 }
 ?>

@@ -27,7 +27,7 @@ function categories_library_init(){
     try{
 
     }catch(Exception $e){
-        throw new BException('categories_library_init(): Failed', $e);
+        throw new CoreException('categories_library_init(): Failed', $e);
     }
 }
 
@@ -124,7 +124,7 @@ function categories_validate($category){
       return $category;
 
     }catch(Exception $e){
-        throw new BException('categories_validate(): Failed', $e);
+        throw new CoreException('categories_validate(): Failed', $e);
     }
 }
 
@@ -186,13 +186,13 @@ function categories_select($params = null){
                         /*
                          * The category exists, but has non NULL status, we cannot continue!
                          */
-                        throw new BException(tr('categories_select(): The reqested parent ":parent" does exist, but is not available', array(':parent' => $params['seoparent'])), 'not-available');
+                        throw new CoreException(tr('categories_select(): The reqested parent ":parent" does exist, but is not available', array(':parent' => $params['seoparent'])), 'not-available');
                     }
 
                     /*
                      * The category exists, but it's a child category
                      */
-                    throw new BException(tr('categories_select(): The reqested parent ":parent" does exist, but is a child category itself. Child categories cannot be parent categories', array(':parent' => $params['seoparent'])), 'not-available');
+                    throw new CoreException(tr('categories_select(): The reqested parent ":parent" does exist, but is a child category itself. Child categories cannot be parent categories', array(':parent' => $params['seoparent'])), 'not-available');
                 }
 
                 load_libs('seo');
@@ -260,7 +260,7 @@ function categories_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('categories_select(): Failed', $e);
+        throw new CoreException('categories_select(): Failed', $e);
     }
 }
 
@@ -310,7 +310,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
                 $parents_id = categories_get($parent, 'id', null, null);
 
                 if(!$parents_id){
-                    throw new BException(tr('categories_get(): Specified parent ":parent" does not exist', array(':parent' => $parent)), 'not-exist');
+                    throw new CoreException(tr('categories_get(): Specified parent ":parent" does not exist', array(':parent' => $parent)), 'not-exist');
                 }
 
                 $where[] = ' `categories`.`parents_id` = :parents_id ';
@@ -357,7 +357,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('categories_get(): Failed', $e);
+        throw new CoreException('categories_get(): Failed', $e);
     }
 }
 
@@ -401,7 +401,7 @@ function categories_get_children($category){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('categories_get_children(): Failed', $e);
+        throw new CoreException('categories_get_children(): Failed', $e);
     }
 }
 ?>

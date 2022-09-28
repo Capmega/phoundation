@@ -27,14 +27,14 @@ function meta_action($meta_id = null, $action = null, $data = null){
 
         }else{
             if(!is_numeric($meta_id)){
-                throw new BException(tr('meta_action(): Invalid meta_id ":meta_id" specified', array(':meta_id' => $meta_id)), 'invalid');
+                throw new CoreException(tr('meta_action(): Invalid meta_id ":meta_id" specified', array(':meta_id' => $meta_id)), 'invalid');
             }
         }
 
         return meta_add_history($meta_id, $action, $data);
 
     }catch(Exception $e){
-        throw new BException('meta_action(): Failed', $e);
+        throw new CoreException('meta_action(): Failed', $e);
     }
 }
 
@@ -57,7 +57,7 @@ function meta_add_history($meta_id, $action, $data = null){
 
     }catch(Exception $e){
         if($e->getCode() != '23000'){
-            throw new BException('meta_add_history(): Failed', $e);
+            throw new CoreException('meta_add_history(): Failed', $e);
         }
 
         /*
@@ -107,7 +107,7 @@ function meta_history($meta_id){
         return $history;
 
     }catch(Exception $e){
-        throw new BException('meta_history(): Failed', $e);
+        throw new CoreException('meta_history(): Failed', $e);
     }
 }
 
@@ -126,7 +126,7 @@ function meta_erase($meta_id){
         return $meta_id;
 
     }catch(Exception $e){
-        throw new BException('meta_erase(): Failed', $e);
+        throw new CoreException('meta_erase(): Failed', $e);
     }
 }
 
@@ -149,7 +149,7 @@ function meta_clear($meta_id, $views_only = false){
         return $meta_id;
 
     }catch(Exception $e){
-        throw new BException('meta_erase(): Failed', $e);
+        throw new CoreException('meta_erase(): Failed', $e);
     }
 }
 
@@ -200,7 +200,7 @@ function meta_link($table_id, $table){
         return $meta_id;
 
     }catch(Exception $e){
-        throw new BException('meta_link(): Failed', $e);
+        throw new CoreException('meta_link(): Failed', $e);
     }
 }
 ?>

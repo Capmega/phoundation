@@ -22,15 +22,15 @@ try{
     $message = implode(' ', cli_argument(null));
 
     if(empty($class)){
-        throw new BException(tr('No class name or id specified'), 'not-specified');
+        throw new CoreException(tr('No class name or id specified'), 'not-specified');
     }
 
     if(empty($class)){
-        throw new BException(tr('No event name specified'), 'not-specified');
+        throw new CoreException(tr('No event name specified'), 'not-specified');
     }
 
     if(empty($class)){
-        throw new BException(tr('No message specified'), 'not-specified');
+        throw new CoreException(tr('No message specified'), 'not-specified');
     }
 
     notify(array('code'    => $code,

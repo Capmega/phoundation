@@ -56,7 +56,7 @@ try{
     $branch   = cli_argument('-b,--branch' , true);
 
     if($no_stash and !$ignore){
-        throw new BException(tr('-s or --no-stash specified without -i or --ignore-changes option'), 'invalid');
+        throw new CoreException(tr('-s or --no-stash specified without -i or --ignore-changes option'), 'invalid');
     }
 
     cli_no_arguments_left();
@@ -74,22 +74,22 @@ try{
      */
     if($upgrade){
         if($reupdate){
-            throw new BException(tr('Both --upgrade and --re-update were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
+            throw new CoreException(tr('Both --upgrade and --re-update were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
         }
 
         if($branch){
-            throw new BException(tr('Both --upgrade and --branch were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
+            throw new CoreException(tr('Both --upgrade and --branch were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
         }
 
         log_console(tr('Attempting upgrade update to code line ":line"', array(':line' => $upgrade)), 'cyan');
 
         if(!str_is_version($upgrade.'.0')){
-            throw new BException(tr('Specified upgrade version line ":version" is invalid. Please specify a version in the MAJOR.MINOR format', array(':version' => $upgrade)), 'validation');
+            throw new CoreException(tr('Specified upgrade version line ":version" is invalid. Please specify a version in the MAJOR.MINOR format', array(':version' => $upgrade)), 'validation');
         }
 
     }elseif($reupdate){
         if($branch){
-            throw new BException(tr('Both --re-update and --branch were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
+            throw new CoreException(tr('Both --re-update and --branch were specified and these options are mutually exclusive. Please specify one or the other'), 'validation');
         }
 
         log_console(tr('Attempting re-update'), 'cyan');
@@ -123,7 +123,7 @@ try{
      * Check if we are not on main phoundation repository
      */
     if(trim(shell_exec('grep "/git/phoundation.git" '.ROOT.'.git/config'))) {
-        throw new bException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
+        throw new CoreException(tr('Cannot be run on main phoundation repository'), 'warning/validation');
     }
 
 
@@ -133,7 +133,7 @@ try{
      */
     if(git_status()){
         if(!$ignore){
-            throw new BException(tr('Git commit(s) pending'), 'warning/validation');
+            throw new CoreException(tr('Git commit(s) pending'), 'warning/validation');
         }
 
         if($no_stash){
@@ -152,15 +152,15 @@ try{
      * Verify data
      */
     if(!$phoundation['host']){
-        throw new BException(tr('No update host configured, see $_CONFIG[update][host]'), 'warning/configuration');
+        throw new CoreException(tr('No update host configured, see $_CONFIG[update][host]'), 'warning/configuration');
     }
 
     if(!$phoundation['port']){
-        throw new BException(tr('No update host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
+        throw new CoreException(tr('No update host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
     }
 
     if(!is_natural($phoundation['port']) or ($phoundation['port'] > 65535)){
-        throw new BException(tr('Invalid host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
+        throw new CoreException(tr('Invalid host port configured, see  $_CONFIG[update][port]'), 'warning/configuration');
     }
 
 
@@ -169,7 +169,7 @@ try{
      * Ensure phoundation can do updates, and get the latest tags and branches
      */
     if(code_phoundation_status() AND !$ignore and !FORCE) {
-        throw new BException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
+        throw new CoreException(tr('Git commit pending on your local phoundation project'), 'warning/validation');
     }
 
     log_console(tr('Fetching latest phoundation branches and tags'), 'VERBOSE/cyan');
@@ -197,7 +197,7 @@ try{
         $available_version_lines = code_get_phoundation_lines();
 
         if(!in_array($upgrade, $available_version_lines)){
-            throw new BException(tr('The requested upgrade version line ":line" is not available in your phoundation project', array(':line' => $upgrade)), 'warning/not-exists');
+            throw new CoreException(tr('The requested upgrade version line ":line" is not available in your phoundation project', array(':line' => $upgrade)), 'warning/not-exists');
         }
 
         $current_version_line = $upgrade;
@@ -213,7 +213,7 @@ try{
         $find_highest           = false;
 
         if(!in_array($branch, $available_branch_lines)){
-            throw new BException(tr('The specified version line branch ":line" is not available in your phoundation project', array(':line' => $branch)), 'warning/not-exists');
+            throw new CoreException(tr('The specified version line branch ":line" is not available in your phoundation project', array(':line' => $branch)), 'warning/not-exists');
         }
 
     }else{
@@ -225,7 +225,7 @@ try{
         $find_highest            = true;
 
         if(!in_array($current_version_line, $available_version_lines)){
-            throw new BException(tr('Your current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
+            throw new CoreException(tr('Your current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
         }
     }
 
@@ -256,11 +256,11 @@ try{
         switch($highest){
             case '0.0.0':
                 if(!$reupdate){
-                    throw new BException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => $frameworkcodeversion)), 'warning/not-exists');
+                    throw new CoreException(tr('There are currently no newer versions available on the ":line" version line in phoundation than the current framework version ":version"', array(':line' => $current_version_line, ':version' => $frameworkcodeversion)), 'warning/not-exists');
                 }
 
                 if(!isset($phoundation_frameworkcodeversion)){
-                    throw new BException(tr('Reupdate failed because current framework code version ":version" does not exist in the found Phoundation project', array(':version' => $frameworkcodeversion)), 'warning/not-exists');
+                    throw new CoreException(tr('Reupdate failed because current framework code version ":version" does not exist in the found Phoundation project', array(':version' => $frameworkcodeversion)), 'warning/not-exists');
                 }
 
                 /*
@@ -395,7 +395,7 @@ try{
         }
 
         if(isset($e) and !FORCE){
-            throw new bException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
+            throw new CoreException(tr('One or more rsync commands failed, see above log output. NOTE: If working on files that have a different user:group than your own user, rsync mtime updates may fail if sudo is not configured to be used in config/deploy [local] target!'), 'warning/rsync');
         }
 
         unset($exitcode);

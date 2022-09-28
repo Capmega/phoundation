@@ -333,7 +333,7 @@ try{
         $language = not_empty(cli_argument('--language'), cli_argument('L'), $_CONFIG['language']['default']);
 
         if($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])){
-            throw new BException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
+            throw new CoreException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
         }
 
         define('LANGUAGE', $language);
@@ -423,7 +423,7 @@ try{
      */
     if(VERBOSE){
         if(QUIET){
-            throw new BException(tr('core::startup(): Both QUIET and VERBOSE have been specified but these options are mutually exclusive. Please specify either one or the other'), 'warning/invalid');
+            throw new CoreException(tr('core::startup(): Both QUIET and VERBOSE have been specified but these options are mutually exclusive. Please specify either one or the other'), 'warning/invalid');
         }
 
         if(VERYVERBOSE){
@@ -438,7 +438,7 @@ try{
 
     if(FORCE){
         if(TEST){
-            throw new BException(tr('core::startup(): Both FORCE and TEST modes where specified, these modes are mutually exclusive'), 'invalid');
+            throw new CoreException(tr('core::startup(): Both FORCE and TEST modes where specified, these modes are mutually exclusive'), 'invalid');
         }
 
         log_console(tr('Running in FORCE mode'), 'yellow');
@@ -452,24 +452,24 @@ try{
     }
 
     if(!is_natural($core->register['page'])){
-        throw new BException(tr('paging_library_init(): Specified -P or --page ":page" is not a natural number', array(':page' => $core->register['page'])), 'invalid');
+        throw new CoreException(tr('paging_library_init(): Specified -P or --page ":page" is not a natural number', array(':page' => $core->register['page'])), 'invalid');
     }
 
     if(!is_natural($core->register['limit'])){
-        throw new BException(tr('paging_library_init(): Specified --limit":limit" is not a natural number', array(':limit' => $core->register['limit'])), 'invalid');
+        throw new CoreException(tr('paging_library_init(): Specified --limit":limit" is not a natural number', array(':limit' => $core->register['limit'])), 'invalid');
     }
 
     if($core->register['all']){
         if($core->register['page'] > 1){
-            throw new BException(tr('paging_library_init(): Both -A or --all and -P or --page have been specified, these options are mutually exclusive'), 'invalid');
+            throw new CoreException(tr('paging_library_init(): Both -A or --all and -P or --page have been specified, these options are mutually exclusive'), 'invalid');
         }
 
         if(DELETED){
-            throw new BException(tr('paging_library_init(): Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'), 'invalid');
+            throw new CoreException(tr('paging_library_init(): Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'), 'invalid');
         }
 
         if(STATUS){
-            throw new BException(tr('paging_library_init(): Both -A or --all and -S or --status have been specified, these options are mutually exclusive'), 'invalid');
+            throw new CoreException(tr('paging_library_init(): Both -A or --all and -S or --status have been specified, these options are mutually exclusive'), 'invalid');
         }
 
     }
@@ -498,5 +498,5 @@ try{
     route_map();
 
 }catch(Exception $e){
-    throw new BException(tr('core::cli(): Failed'), $e);
+    throw new CoreException(tr('core::cli(): Failed'), $e);
 }

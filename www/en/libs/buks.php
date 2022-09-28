@@ -21,7 +21,7 @@ function buks_library_init(){
 under_construction();
 
     }catch(Exception $e){
-        throw new BException('buks_library_init(): Failed', $e);
+        throw new CoreException('buks_library_init(): Failed', $e);
     }
 }
 
@@ -36,19 +36,19 @@ function buks_get_key($section, $users_id, $password){
         $key = sql_query('SELECT `key` FROM `buks` WHERE `section` = :section AND `users_id` = :users_id AND `status` IS NULL', true, array('section' => $section, ':users_id' => $users_id));
 
         if(!$key){
-            throw new BException(tr('buks_get_key(): No key found for section ":section" and user "users_id"', array(':users_id' => $users_id)), 'not-exists');
+            throw new CoreException(tr('buks_get_key(): No key found for section ":section" and user "users_id"', array(':users_id' => $users_id)), 'not-exists');
         }
 
         $key = openssl_decrypt($key, $password);
 
         if(!$key){
-            throw new BException(tr('buks_get_key(): Empty key found for section ":section" and user "users_id"', array(':users_id' => $users_id)), 'invalid');
+            throw new CoreException(tr('buks_get_key(): Empty key found for section ":section" and user "users_id"', array(':users_id' => $users_id)), 'invalid');
         }
 
         return $key;
 
     }catch(Exception $e){
-        throw new BException('buks_get_key(): Failed', $e);
+        throw new CoreException('buks_get_key(): Failed', $e);
     }
 }
 
@@ -62,7 +62,7 @@ function buks_add_key($section, $password, $users_id, $existing_password = null,
         $exists = sql_get('SELECT `id` FROM `buks` WHERE `section` = :section AND `users_id` = :users_id', array(':section' => $section, ':users_id' => $users_id));
 
         if($exists){
-            throw new BException(tr('buks_add_key(): Buks key already exists for users_id ":users_id", section ":section"', array(':users_id' => $users_id, ':section' => $section)), 'exists');
+            throw new CoreException(tr('buks_add_key(): Buks key already exists for users_id ":users_id", section ":section"', array(':users_id' => $users_id, ':section' => $section)), 'exists');
         }
 
         if($existing_users_id){
@@ -78,7 +78,7 @@ function buks_add_key($section, $password, $users_id, $existing_password = null,
             $exists = sql_get('SELECT `id` FROM `buks` WHERE `section` = :section LIMIT 1', array(':section' => $section));
 
             if($exists){
-                throw new BException(tr('buks_add_key(): Buks key already exists for section ":section"', array(':users_id' => $users_id)), 'exists');
+                throw new CoreException(tr('buks_add_key(): Buks key already exists for section ":section"', array(':users_id' => $users_id)), 'exists');
             }
 
             $key = hash('sha512', uniqid(PROJECT.openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc')), true));
@@ -95,7 +95,7 @@ function buks_add_key($section, $password, $users_id, $existing_password = null,
                          ':key'         => $key));
 
     }catch(Exception $e){
-        throw new BException('buks_add_key(): Failed', $e);
+        throw new CoreException('buks_add_key(): Failed', $e);
     }
 }
 
@@ -122,7 +122,7 @@ function buks_update_password($old_password, $new_password, $users_id = null){
 
 
     }catch(Exception $e){
-        throw new BException('buks_update_password(): Failed', $e);
+        throw new CoreException('buks_update_password(): Failed', $e);
     }
 }
 
@@ -148,13 +148,13 @@ function buks_encrypt($data, $section, $password, $user = null){
              * Lookup in the buks users configuration list
              */
             if(empty($_CONFIG['buks']['users'][$user])){
-                throw new BException(tr('buks_encrypt(): Unknown user ":user" specified', array(':user' => $user)), 'unknown');
+                throw new CoreException(tr('buks_encrypt(): Unknown user ":user" specified', array(':user' => $user)), 'unknown');
             }
 
             $users_id = sql_query('SELECT `id` FROM `users` WHERE `username` = :username', array(':username' => $user));
 
             if(!$users_id){
-                throw new BException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exists');
+                throw new CoreException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exists');
             }
 
             $password = $_CONFIG['buks']['users'][$user];
@@ -166,13 +166,13 @@ function buks_encrypt($data, $section, $password, $user = null){
         $key = buks_get_key($section, $users_id, $password);
 
         if($key){
-            throw new BException(tr('buks_encrypt(): User id ":user" does not have the ":key" key', array(':user' => $user, ':key' => $section)), 'not-exists');
+            throw new CoreException(tr('buks_encrypt(): User id ":user" does not have the ":key" key', array(':user' => $user, ':key' => $section)), 'not-exists');
         }
 
         return openssl_simple_encrypt($key, $data);
 
     }catch(Exception $e){
-        throw new BException('buks_encrypt(): Failed', $e);
+        throw new CoreException('buks_encrypt(): Failed', $e);
     }
 }
 
@@ -198,13 +198,13 @@ function buks_decrypt($data, $section, $password, $user = null){
              * Lookup in the buks users configuration list
              */
             if(empty($_CONFIG['buks']['users'][$user])){
-                throw new BException(tr('buks_encrypt(): Unknown user ":user" specified', array(':user' => $user)), 'unknown');
+                throw new CoreException(tr('buks_encrypt(): Unknown user ":user" specified', array(':user' => $user)), 'unknown');
             }
 
             $users_id = sql_query('SELECT `id` FROM `users` WHERE `username` = :username', array(':username' => $user));
 
             if(!$users_id){
-                throw new BException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exists');
+                throw new CoreException(tr('buks_encrypt(): Specified buks user ":user" does not exist', array(':user' => $user)), 'not-exists');
             }
 
             $password = $_CONFIG['buks']['users'][$user];
@@ -216,13 +216,13 @@ function buks_decrypt($data, $section, $password, $user = null){
         $key = buks_get_key($section, $users_id, $password);
 
         if($key){
-            throw new BException(tr('buks_encrypt(): User id ":user" does not have the ":key" key', array(':user' => $user, ':key' => $section)), 'not-exists');
+            throw new CoreException(tr('buks_encrypt(): User id ":user" does not have the ":key" key', array(':user' => $user, ':key' => $section)), 'not-exists');
         }
 
         return openssl_decrypt($key, $data);
 
     }catch(Exception $e){
-        throw new BException('buks_decrypt(): Failed', $e);
+        throw new CoreException('buks_decrypt(): Failed', $e);
     }
 }
 ?>

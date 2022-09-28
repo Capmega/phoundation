@@ -82,21 +82,21 @@ switch(strtolower(isset_get($_POST['doaction']))){
                     /*
                      * Specified parent does not exist at all
                      */
-                    throw new bException('The specified parent category does not exist', 'notexist');
+                    throw new CoreException('The specified parent category does not exist', 'notexist');
                 }
 
                 if($parent['blogs_id'] != $blog['id']){
                     /*
                      * Specified parent does not exist inside this blog
                      */
-                    throw new bException('The specified parent category does not exist in this blog', 'notexist');
+                    throw new CoreException('The specified parent category does not exist in this blog', 'notexist');
                 }
 
                 $category['parents_id'] = $parent['id'];
             }
 
             if(!$v->isValid()) {
-               throw new bException(str_force($v->getErrors(), ', '), 'errors');
+               throw new CoreException(str_force($v->getErrors(), ', '), 'errors');
 
             }
 
@@ -104,12 +104,12 @@ switch(strtolower(isset_get($_POST['doaction']))){
                 /*
                  * A category with this name already exists
                  */
-                throw new bException(tr('A category with the name "%category%" already exists in blog "%blog%"', array('%category%', '%blog%'), array($category['name'], $blog['name'])), 'exists');
+                throw new CoreException(tr('A category with the name "%category%" already exists in blog "%blog%"', array('%category%', '%blog%'), array($category['name'], $blog['name'])), 'exists');
 
             }
 
             if(sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name', 'id', array(':blogs_id' => $blog['id'], ':name' => $category['name']))){
-                throw new bException('A category with the name "'.str_log($category['name']).'" already exists', 'exists');
+                throw new CoreException('A category with the name "'.str_log($category['name']).'" already exists', 'exists');
             }
 
             $category['seoname']     = seo_generate_unique_name($category['name'], 'blogs_categories', $category['id']);
@@ -168,42 +168,42 @@ switch(strtolower(isset_get($_POST['doaction']))){
                     /*
                      * Specified parent does not exist at all
                      */
-                    throw new bException('The specified parent category does not exist', 'notexist');
+                    throw new CoreException('The specified parent category does not exist', 'notexist');
                 }
 
                 if($parent['blogs_id'] != $blog['id']){
                     /*
                      * Specified parent does not exist inside this blog
                      */
-                    throw new bException('The specified parent category does not exist in this blog', 'notexist');
+                    throw new CoreException('The specified parent category does not exist in this blog', 'notexist');
                 }
 
                 $category['parents_id'] = $parent['id'];
             }
 
             if(!$v->isValid()) {
-               throw new bException(str_force($v->getErrors(), ', '), 'errors');
+               throw new CoreException(str_force($v->getErrors(), ', '), 'errors');
             }
 
             if(!$dbcategory = sql_get('SELECT * FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `id` = :id', array(':blogs_id' => $blog['id'], ':id' => $category['id']))){
                 /*
                  * Cannot update this category, it does not exist in this blog!
                  */
-                throw new bException(tr('The specified categories id does not exist in the blog "'.$blog['name'].'"'), 'notexists');
+                throw new CoreException(tr('The specified categories id does not exist in the blog "'.$blog['name'].'"'), 'notexists');
             }
 
             if(($dbcategory['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')){
                 /*
                  * This category is not from this user and this user is also not an admin!
                  */
-                throw new bException(tr('This category is not yours, and you are not an admin'), 'accessdenied');
+                throw new CoreException(tr('This category is not yours, and you are not an admin'), 'accessdenied');
             }
 
             if(sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name AND `id` != :id', array(':blogs_id' => $blog['id'], ':id' => $category['id'], ':name' => $category['name']), 'id')){
                 /*
                  * Another category with this name already exists in this blog
                  */
-                throw new bException(tr('A category with the name "%category%" already exists in the blog "%blog%"', array('%category%', '%blog%'), array($category['name'], $blog['name'])), 'exists');
+                throw new CoreException(tr('A category with the name "%category%" already exists in the blog "%blog%"', array('%category%', '%blog%'), array($category['name'], $blog['name'])), 'exists');
             }
 
             /*
@@ -278,7 +278,7 @@ switch(strtolower(isset_get($_POST['doaction']))){
              * Delete the specified categories
              */
             if(empty($_POST['id'])){
-                throw new bException('No categories selected to delete', 'notspecified');
+                throw new CoreException('No categories selected to delete', 'notspecified');
             }
 
             $list = array_prefix(array_force($_POST['id']), ':id', true);
@@ -293,7 +293,7 @@ switch(strtolower(isset_get($_POST['doaction']))){
                 html_flash_set(tr('Deleted %count% categories', '%count%', $r->rowCount()), 'success');
 
             }else{
-                throw new bException(tr('Found no categories to delete'), 'notfound');
+                throw new CoreException(tr('Found no categories to delete'), 'notfound');
             }
 
         }catch(Exception $e){
@@ -308,7 +308,7 @@ switch(strtolower(isset_get($_POST['doaction']))){
              * Delete the specified categories
              */
             if(empty($_POST['id'])){
-                throw new bException('No categories selected to undelete', 'notspecified');
+                throw new CoreException('No categories selected to undelete', 'notspecified');
             }
 
             $list = array_prefix(array_force($_POST['id']), ':id', true);
@@ -323,7 +323,7 @@ switch(strtolower(isset_get($_POST['doaction']))){
                 html_flash_set(tr('Undeleted %count% categories', '%count%', $r->rowCount()), 'success');
 
             }else{
-                throw new bException(tr('Found no categories to undelete'), 'notfound');
+                throw new CoreException(tr('Found no categories to undelete'), 'notfound');
             }
 
         }catch(Exception $e){
@@ -338,7 +338,7 @@ switch(strtolower(isset_get($_POST['doaction']))){
              * Delete the specified categories
              */
             if(empty($_POST['id'])){
-                throw new bException('No categories selected to erase', 'notspecified');
+                throw new CoreException('No categories selected to erase', 'notspecified');
             }
 
             $list = array_prefix(array_force($_POST['id']), ':id', true);
@@ -349,7 +349,7 @@ switch(strtolower(isset_get($_POST['doaction']))){
                 html_flash_set(tr('Erased %count% categories', '%count%', $r->rowCount()), 'success');
 
             }else{
-                throw new bException(tr('Found no categories to erase'), 'notfound');
+                throw new CoreException(tr('Found no categories to erase'), 'notfound');
             }
 
         }catch(Exception $e){

@@ -40,7 +40,7 @@ function statistics_add($params){
         return sql_insert_id();
 
     }catch(Exception $e){
-        throw new BException('statistics_add(): Failed', $e);
+        throw new CoreException('statistics_add(): Failed', $e);
     }
 }
 
@@ -90,7 +90,7 @@ function statistics_validate($params){
         return $params;
 
     }catch(Exception $e){
-        throw new BException('statistics_validate(): Failed', $e);
+        throw new CoreException('statistics_validate(): Failed', $e);
     }
 }
 ?>

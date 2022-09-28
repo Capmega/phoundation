@@ -33,7 +33,7 @@ function git_library_init(){
         load_config('git');
 
     }catch(Exception $e){
-        throw new BException('git_library_init(): Failed', $e);
+        throw new CoreException('git_library_init(): Failed', $e);
     }
 }
 
@@ -59,7 +59,7 @@ function git_is_repository($path = ROOT){
         return (boolean) git_check_path($path, false);
 
     }catch(Exception $e){
-        throw new BException('git_is_repository(): Failed', $e);
+        throw new CoreException('git_is_repository(): Failed', $e);
     }
 }
 
@@ -82,7 +82,7 @@ function git_is_available(){
         return (boolean) file_which('git');
 
     }catch(Exception $e){
-        throw new BException('git_is_available(): Failed', $e);
+        throw new CoreException('git_is_available(): Failed', $e);
     }
 }
 
@@ -115,7 +115,7 @@ function git_check_path($path, $exception = true){
 
         if(!file_exists($path)){
             if($exception){
-                throw new BException(tr('git_check_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+                throw new CoreException(tr('git_check_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
             return false;
@@ -123,7 +123,7 @@ function git_check_path($path, $exception = true){
 
         if(!file_scan($path, '.git')){
             if($exception){
-                throw new BException(tr('git_check_path(): Specified path ":path" is not a git repository', array(':path' => $path)), 'git');
+                throw new CoreException(tr('git_check_path(): Specified path ":path" is not a git repository', array(':path' => $path)), 'git');
             }
 
             return false;
@@ -133,7 +133,7 @@ function git_check_path($path, $exception = true){
         return $path;
 
     }catch(Exception $e){
-        throw new BException('git_check_path(): Failed', $e);
+        throw new CoreException('git_check_path(): Failed', $e);
     }
 }
 
@@ -173,7 +173,7 @@ function git_exec($path, $arguments, $check_path = true){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_exec(): Failed', $e);
+        throw new CoreException('git_exec(): Failed', $e);
     }
 }
 
@@ -218,7 +218,7 @@ function git_wait_no_process($path){
                      * the one second and retry the configured amount of times
                      */
                     if($retry <= 0){
-                        throw new BException(tr('git_wait_no_process(): The target path ":path" is occupied by the process ":pid", and the waiting period timed out after ":tries" tries', array(':path' => $path, ':pid' => $pid, ':tries' => $_CONFIG['git']['retries'])), 'busy');
+                        throw new CoreException(tr('git_wait_no_process(): The target path ":path" is occupied by the process ":pid", and the waiting period timed out after ":tries" tries', array(':path' => $path, ':pid' => $pid, ':tries' => $_CONFIG['git']['retries'])), 'busy');
                     }
 
                     log_console(tr('Found git process already working on target path ":path", retrying ":tries" times in 1 second.', array(':path' => $path, ':tries' => $retry)), 'yellow');
@@ -240,7 +240,7 @@ function git_wait_no_process($path){
         }
 
     }catch(Exception $e){
-        throw new BException('git_wait_no_process(): Failed', $e);
+        throw new CoreException('git_wait_no_process(): Failed', $e);
     }
 }
 
@@ -267,7 +267,7 @@ function git_am($file, $patch_file){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_am(): Failed', $e);
+        throw new CoreException('git_am(): Failed', $e);
     }
 }
 
@@ -297,10 +297,10 @@ function git_apply($file){
         $data = array_pop($data);
 
         if(strstr($data, 'patch does not apply')){
-            throw new BException(tr('git_apply(): patch ":file" does not apply', array(':file' => $file)), 'failed');
+            throw new CoreException(tr('git_apply(): patch ":file" does not apply', array(':file' => $file)), 'failed');
         }
 
-        throw new BException('git_apply(): Failed', $e);
+        throw new CoreException('git_apply(): Failed', $e);
     }
 }
 
@@ -343,10 +343,10 @@ function git_branch($branch = null, $path = ROOT){
             }
         }
 
-        throw new BException(tr('git_branch(): Could not find current branch for ":path"', array(':path' => $path)), 'not-exists');
+        throw new CoreException(tr('git_branch(): Could not find current branch for ":path"', array(':path' => $path)), 'not-exists');
 
     }catch(Exception $e){
-        throw new BException('git_branch(): Failed', $e);
+        throw new CoreException('git_branch(): Failed', $e);
     }
 }
 
@@ -386,7 +386,7 @@ function git_list_branches($path = ROOT, $all = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('git_list_branches(): Failed', $e);
+        throw new CoreException('git_list_branches(): Failed', $e);
     }
 }
 
@@ -425,7 +425,7 @@ function git_checkout($branch = null, $path = ROOT, $create = false){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_checkout(): Failed', $e);
+        throw new CoreException('git_checkout(): Failed', $e);
     }
 }
 
@@ -451,7 +451,7 @@ function git_clean($path = ROOT, $directories = false, $force = false){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_clean(): Failed', $e);
+        throw new CoreException('git_clean(): Failed', $e);
     }
 }
 
@@ -488,7 +488,7 @@ function git_clone($repository, $path, $clean = false){
         return slash($path).$repository;
 
     }catch(Exception $e){
-        throw new BException('git_clone(): Failed', $e);
+        throw new CoreException('git_clone(): Failed', $e);
     }
 }
 
@@ -515,7 +515,7 @@ function git_diff($file, $color = false){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_diff(): Failed', $e);
+        throw new CoreException('git_diff(): Failed', $e);
     }
 }
 
@@ -551,7 +551,7 @@ function git_show($commit, $path = ROOT, $params = null){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_show(): Failed', $e);
+        throw new CoreException('git_show(): Failed', $e);
     }
 }
 
@@ -591,7 +591,7 @@ function git_fetch($path = ROOT, $params = null){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_fetch(): Failed', $e);
+        throw new CoreException('git_fetch(): Failed', $e);
     }
 }
 
@@ -618,7 +618,7 @@ under_construction();
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_format_patch(): Failed', $e);
+        throw new CoreException('git_format_patch(): Failed', $e);
     }
 }
 
@@ -662,10 +662,10 @@ function git_branch_is_tag($branch = null, $path = ROOT){
             return false;
         }
 
-        throw new BException(tr('git_branch_is_tag(): Specified branch or tag ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
+        throw new CoreException(tr('git_branch_is_tag(): Specified branch or tag ":branch" does not exist', array(':branch' => $branch)), 'not-exists');
 
     }catch(Exception $e){
-        throw new BException('git_branch_is_tag(): Failed', $e);
+        throw new CoreException('git_branch_is_tag(): Failed', $e);
     }
 }
 
@@ -692,7 +692,7 @@ function git_pull($path = ROOT, $remote, $branch){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_pull(): Failed', $e);
+        throw new CoreException('git_pull(): Failed', $e);
     }
 }
 
@@ -716,7 +716,7 @@ function git_pull($path = ROOT, $remote, $branch){
 function git_push($path = ROOT, $remote = null, $branch = null, $tags = true){
     try{
         if($branch and !$remote){
-            throw new BException(tr('git_push(): Branch ":branch" was specified without remote', array(':branch' => $branch)), 'invalid');
+            throw new CoreException(tr('git_push(): Branch ":branch" was specified without remote', array(':branch' => $branch)), 'invalid');
         }
 
         $results = git_exec($path, array('push', $remote, $branch));
@@ -729,7 +729,7 @@ function git_push($path = ROOT, $remote = null, $branch = null, $tags = true){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_push(): Failed', $e);
+        throw new CoreException('git_push(): Failed', $e);
     }
 }
 
@@ -768,7 +768,7 @@ function git_reset($commit = 'HEAD', $path = ROOT, $params = null){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_reset(): Failed', $e);
+        throw new CoreException('git_reset(): Failed', $e);
     }
 }
 
@@ -865,7 +865,7 @@ function git_status($path = ROOT, $filters = null){
                     break;
 
                 default:
-                    throw new BException(tr('git_status(): Unknown git status ":status" encountered for file ":file"', array(':status' => $status, ':file' => substr($line, 3))), 'unknown');
+                    throw new CoreException(tr('git_status(): Unknown git status ":status" encountered for file ":file"', array(':status' => $status, ':file' => substr($line, 3))), 'unknown');
             }
 
             $retval[substr($line, 3)] = $status;
@@ -874,7 +874,7 @@ function git_status($path = ROOT, $filters = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('git_status(): Failed', $e);
+        throw new CoreException('git_status(): Failed', $e);
     }
 }
 
@@ -902,7 +902,7 @@ function git_list_tags($path = ROOT){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_list_tags(): Failed', $e);
+        throw new CoreException('git_list_tags(): Failed', $e);
     }
 }
 
@@ -929,7 +929,7 @@ function git_stash($path = ROOT){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_stash(): Failed', $e);
+        throw new CoreException('git_stash(): Failed', $e);
     }
 }
 
@@ -956,7 +956,7 @@ function git_stash_pop($path = ROOT){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_stash_pop(): Failed', $e);
+        throw new CoreException('git_stash_pop(): Failed', $e);
     }
 }
 
@@ -986,7 +986,7 @@ function git_add($path = ROOT){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_add(): Failed', $e);
+        throw new CoreException('git_add(): Failed', $e);
     }
 }
 
@@ -1011,7 +1011,7 @@ function git_commit($message, $path = ROOT){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('git_commit(): Failed', $e);
+        throw new CoreException('git_commit(): Failed', $e);
     }
 }
 ?>

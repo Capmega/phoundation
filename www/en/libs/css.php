@@ -36,7 +36,7 @@ function css_library_init(){
         load_config('css');
 
     }catch(Exception $e){
-        throw new BException('css_library_init(): Failed', $e);
+        throw new CoreException('css_library_init(): Failed', $e);
     }
 }
 
@@ -94,7 +94,7 @@ function css_setup($params){
         node_install_npm('purgecss');
 
     }catch(Exception $e){
-        throw new BException('css_setup(): Failed', $e);
+        throw new CoreException('css_setup(): Failed', $e);
     }
 }
 
@@ -175,7 +175,7 @@ function css_purge($html, $css){
         return $purged_css;
 
     }catch(Exception $e){
-        throw new BException('css_purge(): Failed', $e);
+        throw new CoreException('css_purge(): Failed', $e);
     }
 }
 ?>

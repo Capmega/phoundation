@@ -22,7 +22,7 @@ function storage_pages_library_init(){
         load_libs('storage');
 
     }catch(Exception $e){
-        throw new BException('storage_pages_library_init(): Failed', $e);
+        throw new CoreException('storage_pages_library_init(): Failed', $e);
     }
 }
 
@@ -36,7 +36,7 @@ function storage_pages_get($section, $page = null, $auto_create = false){
         $section = storage_ensure_section($section);
 
         if(empty($section['id'])){
-            throw new BException(tr('storage_pages_get(): No sections id specified'), 'not-specified');
+            throw new CoreException(tr('storage_pages_get(): No sections id specified'), 'not-specified');
         }
 
         if(empty($page)){
@@ -82,7 +82,7 @@ function storage_pages_get($section, $page = null, $auto_create = false){
                              ':seoname'     => $page);
 
         }else{
-            throw new BException(tr('storage_pages_get(): Invalid page specified, is datatype ":type", should be null, numeric id, or seoname string', array(':type' => gettype($page))), 'invalid');
+            throw new CoreException(tr('storage_pages_get(): Invalid page specified, is datatype ":type", should be null, numeric id, or seoname string', array(':type' => gettype($page))), 'invalid');
         }
 
         $page = sql_get('SELECT   `storage_documents`.`id`      AS `documents_id`,
@@ -146,7 +146,7 @@ function storage_pages_get($section, $page = null, $auto_create = false){
         return $page;
 
     }catch(Exception $e){
-        throw new BException('storage_pages_get(): Failed', $e);
+        throw new CoreException('storage_pages_get(): Failed', $e);
     }
 }
 
@@ -200,7 +200,7 @@ function storage_pages_add($page, $section = null){
         return $page;
 
     }catch(Exception $e){
-        throw new BException('storage_pages_add(): Failed', $e);
+        throw new CoreException('storage_pages_add(): Failed', $e);
     }
 }
 
@@ -243,7 +243,7 @@ function storage_pages_update($page, $params){
         return $page;
 
     }catch(Exception $e){
-        throw new BException('storage_pages_update(): Failed', $e);
+        throw new CoreException('storage_pages_update(): Failed', $e);
     }
 }
 
@@ -369,7 +369,7 @@ function storage_pages_validate($page, $params = false){
         return $page;
 
     }catch(Exception $e){
-        throw new BException('storage_pages_validate(): Failed', $e);
+        throw new CoreException('storage_pages_validate(): Failed', $e);
     }
 }
 
@@ -394,7 +394,7 @@ function storage_page_attach_file($pages_id, $file){
         }
 
     }catch(Exception $e){
-        throw new BException('storage_page_attach_file(): Failed', $e);
+        throw new CoreException('storage_page_attach_file(): Failed', $e);
     }
 }
 
@@ -410,7 +410,7 @@ function storage_page_has_access($pages_id, $users_id = null){
         }
 
     }catch(Exception $e){
-        throw new BException('storage_page_has_access(): Failed', $e);
+        throw new CoreException('storage_page_has_access(): Failed', $e);
     }
 }
 ?>

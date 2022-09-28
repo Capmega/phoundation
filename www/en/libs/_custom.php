@@ -29,7 +29,7 @@ function c_page($params, $meta, $html){
         return cache_write($html, $params['cache_key'], $params['cache_namespace']);
 
     }catch(Exception $e){
-        throw new bException('c_page(): Failed', $e);
+        throw new CoreException('c_page(): Failed', $e);
     }
 }
 
@@ -56,7 +56,7 @@ function c_html_header($params, $meta, $html){
         return html_header($params, $meta, $html).$html;
 
     }catch(Exception $e){
-        throw new bException('c_html_header(): Failed', $e);
+        throw new CoreException('c_html_header(): Failed', $e);
     }
 }
 
@@ -74,7 +74,7 @@ function c_page_header($params){
         return $html;
 
     }catch(Exception $e){
-        throw new bException('c_page_header(): Failed', $e);
+        throw new CoreException('c_page_header(): Failed', $e);
     }
 }
 
@@ -90,7 +90,7 @@ function c_html_footer($params){
         return $html.html_footer();
 
     }catch(Exception $e){
-        throw new bException('c_html_footer(): Failed', $e);
+        throw new CoreException('c_html_footer(): Failed', $e);
     }
 }
 ?>

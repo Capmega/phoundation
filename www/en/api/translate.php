@@ -100,12 +100,12 @@ try {
      * Get and store translations from the database
      */
     if(!is_array($data['translations'])){
-        throw new bException(tr('Specified translation list is invalid'), 'invalid');
+        throw new CoreException(tr('Specified translation list is invalid'), 'invalid');
     }
 
     foreach($data['translations'] as $file => $list){
         if(!is_array($list)){
-            throw new bException(tr('Specified translation list for file ":file" is invalid', array(':file' => $file)), 'invalid');
+            throw new CoreException(tr('Specified translation list for file ":file" is invalid', array(':file' => $file)), 'invalid');
         }
 
         foreach($list as $string => $void){

@@ -34,13 +34,13 @@ try{
          * Cleanup path. If realpath fails, we know something is amiss
          */
         if(!$found = realpath($found)){
-            throw new BException('get_global_data_path(): Found path "'.$path.'" failed realpath() check', 'path-failed');
+            throw new CoreException('get_global_data_path(): Found path "'.$path.'" failed realpath() check', 'path-failed');
         }
     }
 
     if(!$found){
         if(!PLATFORM_CLI){
-            throw new BException('get_global_data_path(): Global data path not found', 'not-exists');
+            throw new CoreException('get_global_data_path(): Global data path not found', 'not-exists');
         }
 
         try{
@@ -53,7 +53,7 @@ try{
                 /*
                  * Something went wrong and it was not created anyway
                  */
-                throw new BException('get_global_data_path(): ./script/base/init_global_data_path reported path "'.str_log($path).'" was created but it could not be found', 'failed');
+                throw new CoreException('get_global_data_path(): ./script/base/init_global_data_path reported path "'.str_log($path).'" was created but it could not be found', 'failed');
             }
 
             /*
@@ -63,7 +63,7 @@ try{
             $path = slash($path);
 
         }catch(Exception $e){
-            throw new BException('get_global_data_path(): Global data path not found, or init_global_data_path failed / aborted', $e);
+            throw new CoreException('get_global_data_path(): Global data path not found, or init_global_data_path failed / aborted', $e);
         }
     }
 
@@ -75,7 +75,7 @@ try{
     }
 
     if($writable and !is_writable($path.$section)){
-        throw new BException(tr('The global path ":path" is not writable', array(':path' => $path.$section)), 'not-writable');
+        throw new CoreException(tr('The global path ":path" is not writable', array(':path' => $path.$section)), 'not-writable');
     }
 
     if(!$global_path = realpath($path.$section)){
@@ -83,12 +83,12 @@ try{
          * Curious, the path exists, but realpath failed and returned false..
          * This should never happen since we ensured the path above! This is just an extra check in case of.. weird problems :)
          */
-        throw new BException('The found global data path "'.str_log($path).'" is invalid (realpath returned false)', 'invalid');
+        throw new CoreException('The found global data path "'.str_log($path).'" is invalid (realpath returned false)', 'invalid');
     }
 
     return slash($global_path);
 
 }catch(BException $e){
-    throw new BException('get_global_data_path(): Failed', $e);
+    throw new CoreException('get_global_data_path(): Failed', $e);
 }
 ?>

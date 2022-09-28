@@ -87,7 +87,7 @@ if(!$connector){
 }
 
 if(empty($_CONFIG['db'][$connector])){
-    throw new BException(tr('Specified connector ":connector" does not exist. Please check the configuration $_CONFIG[db][CONNECTORNAME]', array(':connector' => $connector)), 'not-exists');
+    throw new CoreException(tr('Specified connector ":connector" does not exist. Please check the configuration $_CONFIG[db][CONNECTORNAME]', array(':connector' => $connector)), 'not-exists');
 }
 
 $connector_data = $_CONFIG['db'][$connector];
@@ -97,7 +97,7 @@ $connector_data = $_CONFIG['db'][$connector];
  */
 if($all){
     if($databases){
-        throw new BException(tr('Both --databases and --all have been specified. Use either one or the other.'), 'invalid');
+        throw new CoreException(tr('Both --databases and --all have been specified. Use either one or the other.'), 'invalid');
     }
 
     /*
@@ -121,7 +121,7 @@ if($all){
         $exist = sql_get('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = :TABLE_SCHEMA GROUP BY `TABLE_SCHEMA` LIMIT 1', 'TABLE_SCHEMA', array(':TABLE_SCHEMA' => $database), $connector);
 
         if(!$exist){
-            throw new BException(tr('Specified database ":database" does not exist', array(':database' => $database)), 'not-exists');
+            throw new CoreException(tr('Specified database ":database" does not exist', array(':database' => $database)), 'not-exists');
         }
     }
 }
@@ -151,7 +151,7 @@ switch(cli_method()){
                     $message = array_shift($message);
 
                     if(strstr($message, 'ERROR 1045')){
-                        throw new BException(tr('Incorrect MySQL root password supplied'), 'warning/passwordicorrect');
+                        throw new CoreException(tr('Incorrect MySQL root password supplied'), 'warning/passwordicorrect');
                     }
 
                     throw $e;
@@ -160,10 +160,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new BException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
+                throw new CoreException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
 
             default:
-                throw new BException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
         }
 
         break;
@@ -177,17 +177,17 @@ switch(cli_method()){
                 // FALLTHROUGH
             case 'timezones':
                 if(!$count = sql_get('SELECT COUNT(*) AS `count` FROM mysql.time_zone_name;')){
-                    throw new BException('MySQL timezone tables are empty');
+                    throw new CoreException('MySQL timezone tables are empty');
                 }
 
                 log_console($count, '', 'white');
                 break;
 
             case '':
-                throw new BException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
+                throw new CoreException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
 
             default:
-                throw new BException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
         }
 
         break;
@@ -206,7 +206,7 @@ switch(cli_method()){
                 cli_no_arguments_left();
 
                 if($tables and $all_tables){
-                    throw new BException(tr('Both --all-tables and --tables have been specified. --all-tables is not needed, if --tables is not specified, all tables will be displayed'), 'invalid');
+                    throw new CoreException(tr('Both --all-tables and --tables have been specified. --all-tables is not needed, if --tables is not specified, all tables will be displayed'), 'invalid');
                 }
 
                 $tables = s_get_tables($tables, $databases);
@@ -260,7 +260,7 @@ switch(cli_method()){
                 cli_no_arguments_left();
 
                 if($tables and $all_tables){
-                    throw new BException(tr('Both --all-tables and --tables have been specified. --all-tables is not needed, if --tables is not specified, all tables will be displayed'), 'invalid');
+                    throw new CoreException(tr('Both --all-tables and --tables have been specified. --all-tables is not needed, if --tables is not specified, all tables will be displayed'), 'invalid');
                 }
 
                 $tables = s_get_tables($tables, $databases);
@@ -344,10 +344,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new BException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
+                throw new CoreException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
 
             default:
-                throw new BException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
         }
 
         break;
@@ -417,10 +417,10 @@ switch(cli_method()){
                         break;
 
                     case '':
-                        throw new BException(tr('No sub method specified for the methods ":method0" ":method1"', array(':method0' => cli_method(), ':method1' => cli_method(1))), 'no-method');
+                        throw new CoreException(tr('No sub method specified for the methods ":method0" ":method1"', array(':method0' => cli_method(), ':method1' => cli_method(1))), 'no-method');
 
                     default:
-                        throw new BException(tr('Unknown sub method ":method2" specified for the methods ":method0" ":method1"', array(':method0' => cli_method(), ':method1' => cli_method(1), ':method2' => cli_method(2))), 'unknown-method');
+                        throw new CoreException(tr('Unknown sub method ":method2" specified for the methods ":method0" ":method1"', array(':method0' => cli_method(), ':method1' => cli_method(1), ':method2' => cli_method(2))), 'unknown-method');
                 }
 
                 break;
@@ -492,10 +492,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new BException(tr('No sub method specified for the method ":method"', array(':method' => cli_method())), 'no-method');
+                throw new CoreException(tr('No sub method specified for the method ":method"', array(':method' => cli_method())), 'no-method');
 
             default:
-                throw new BException(tr('Unknown sub method ":submethod" specified for the method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for the method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
         }
 
         break;
@@ -512,10 +512,10 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException(tr('No method specified'), 'not-specified');
+        throw new CoreException(tr('No method specified'), 'not-specified');
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 
 
@@ -571,7 +571,7 @@ function s_get_tables($tables, $databases){
         return $tables;
 
     }catch(Exception $e){
-        throw new BException(tr('s_get_tables(): Failed'), $e);
+        throw new CoreException(tr('s_get_tables(): Failed'), $e);
     }
 }
 ?>

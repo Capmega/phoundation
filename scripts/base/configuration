@@ -26,7 +26,7 @@ switch(cli_method()){
     case 'init':
         if($_CONFIG['production']){
             if(!FORCE){
-                throw new bException(tr('Cannot initialize configuration files on production without using FORCE mode. Please specify -f or --force'), 'warning/access-denied');
+                throw new CoreException(tr('Cannot initialize configuration files on production without using FORCE mode. Please specify -f or --force'), 'warning/access-denied');
             }
         }
 under_construction();
@@ -38,7 +38,7 @@ under_construction();
         cli_no_arguments_left();
 
         if(!$keys){
-            throw new bException(tr('No keys specified. This script cannot show the entire configuration array.'), 'warning/not-specified');
+            throw new CoreException(tr('No keys specified. This script cannot show the entire configuration array.'), 'warning/not-specified');
         }
 
         $default = true;
@@ -54,7 +54,7 @@ under_construction();
             config_read($environment, $basekey);
 
             if(!isset($_CONFIG[$basekey])){
-                throw new bException(tr('The specified configuration section or file ":file" does not exist', array(':file' => $basekey)), 'warning/not-exist');
+                throw new CoreException(tr('The specified configuration section or file ":file" does not exist', array(':file' => $basekey)), 'warning/not-exist');
             }
         }
 
@@ -62,7 +62,7 @@ under_construction();
 
         foreach($keys as $key){
             if(empty($config[$key])){
-                throw new bException(tr('The specified configuration section ":section" does not exist', array(':section' => $keys)), 'warning/not-exist');
+                throw new CoreException(tr('The specified configuration section ":section" does not exist', array(':section' => $keys)), 'warning/not-exist');
             }
 
             $config = $config[$key];
@@ -101,9 +101,9 @@ under_construction();
         break;
 
     case '':
-        throw new bException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new bException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

@@ -30,7 +30,7 @@
 function webpush_library_init(){
     try{
         if(version_compare(PHP_VERSION, '5.6') === -1){
-            throw new BException(tr('webpush_library_init(): The current PHP version is ":version" while version "5.6.0" or higher is required to use the webpush library', array(':version' => PHP_VERSION)), 'version');
+            throw new CoreException(tr('webpush_library_init(): The current PHP version is ":version" while version "5.6.0" or higher is required to use the webpush library', array(':version' => PHP_VERSION)), 'version');
         }
 
         //ensure_installed(array('name'      => 'sweetalert',
@@ -43,7 +43,7 @@ function webpush_library_init(){
         require_once(__DIR__.'/ext/webpush/vendor/minishlink/web-push/src/WebPush.php');
 
     }catch(Exception $e){
-        throw new BException('webpush_library_init(): Failed', $e);
+        throw new CoreException('webpush_library_init(): Failed', $e);
     }
 }
 
@@ -70,11 +70,11 @@ function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = f
         $user = sql_get('SELECT `webpush` FROM `users` WHERE `id` = :id', array(':id' => $users_id));
 
         if(empty($user)){
-            throw new BException(tr('webpush_notify_user(): Specified user ":user" does not exist', array(':user' => $users_id)), 'not-exists');
+            throw new CoreException(tr('webpush_notify_user(): Specified user ":user" does not exist', array(':user' => $users_id)), 'not-exists');
         }
 
         if(empty($_CONFIG['webpush']['public_key']) or empty($_CONFIG['webpush']['private_key'])){
-            throw new BException(tr('webpush_notify_user(): webpush has not been configured, see $_CONFIG[webpush]'), 'not-configured');
+            throw new CoreException(tr('webpush_notify_user(): webpush has not been configured, see $_CONFIG[webpush]'), 'not-configured');
         }
 
         if(!$user['webpush']){
@@ -93,7 +93,7 @@ function webpush_notify_user($users_id, $subject = '', $payload = '', $flush = f
                                  $flush);
 
     }catch(Exception $e){
-        throw new BException(tr('webpush_notify_user(): Failed'), $e);
+        throw new CoreException(tr('webpush_notify_user(): Failed'), $e);
     }
 }
 
@@ -129,7 +129,7 @@ function webpush_notify($public_key, $private_key, $p256dh, $auth, $endpoint, $s
         return true;
 
     }catch(Exception $e){
-        throw new BException(tr('send_notification(): Failed'), $e);
+        throw new CoreException(tr('send_notification(): Failed'), $e);
     }
 }
 
@@ -149,7 +149,7 @@ function webpush_subscribe($subscription){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('webpush_subscribe(): Failed'), $e);
+        throw new CoreException(tr('webpush_subscribe(): Failed'), $e);
     }
 }
 ?>

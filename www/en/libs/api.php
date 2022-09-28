@@ -26,7 +26,7 @@ function api_library_init(){
         load_config('api');
 
     }catch(Exception $e){
-        throw new BException('api_library_init(): Failed', $e);
+        throw new CoreException('api_library_init(): Failed', $e);
     }
 }
 
@@ -119,7 +119,7 @@ function api_validate_account($account){
         return $account;
 
     }catch(Exception $e){
-        throw new BException(tr('api_validate_account(): Failed'), $e);
+        throw new CoreException(tr('api_validate_account(): Failed'), $e);
     }
 }
 
@@ -138,7 +138,7 @@ function api_test_account($account){
         return $result;
 
     }catch(Exception $e){
-        throw new BException(tr('api_test_account(): Failed'), $e);
+        throw new CoreException(tr('api_test_account(): Failed'), $e);
     }
 }
 
@@ -164,13 +164,13 @@ function api_whitelist(){
         }
 
         if(isset($block)){
-            throw new BException(tr('api_whitelist(): The IP ":ip" is not allowed access', array(':ip' => $_SERVER['REMOTE_ADDR'])), 'access-denied');
+            throw new CoreException(tr('api_whitelist(): The IP ":ip" is not allowed access', array(':ip' => $_SERVER['REMOTE_ADDR'])), 'access-denied');
         }
 
         return true;
 
     }catch(Exception $e){
-        throw new BException('api_encode(): Failed', $e);
+        throw new CoreException('api_encode(): Failed', $e);
     }
 }
 
@@ -192,13 +192,13 @@ function api_encode($data){
             unset($value);
 
         }else{
-            throw new BException(tr('api_encode(): Specified data is datatype ":type", only string and array are allowed', array(':type' => gettype($data))), $e);
+            throw new CoreException(tr('api_encode(): Specified data is datatype ":type", only string and array are allowed', array(':type' => gettype($data))), $e);
         }
 
         return $data;
 
     }catch(Exception $e){
-        throw new BException('api_encode(): Failed', $e);
+        throw new CoreException('api_encode(): Failed', $e);
     }
 }
 
@@ -217,7 +217,7 @@ function api_authenticate($api_key = null){
              * authentications over a secure connection
              */
             if((PROTOCOL !== 'https://') and !empty($_CONFIG['production'])){
-                throw new BException(tr('api_authenticate(): No API key authentication allowed on unsecure connections over non HTTPS connections'), 'ssl-required');
+                throw new CoreException(tr('api_authenticate(): No API key authentication allowed on unsecure connections over non HTTPS connections'), 'ssl-required');
             }
         }
 
@@ -227,7 +227,7 @@ function api_authenticate($api_key = null){
              */
             if(!isset($_POST['api_key'])){
                 if(!isset($_POST['apikey'])){
-                    throw new BException(tr('api_authenticate(): No api key specified'), 'not-specified');
+                    throw new CoreException(tr('api_authenticate(): No api key specified'), 'not-specified');
                 }
 
                 $api_key = isset_get($_POST['apikey']);
@@ -247,7 +247,7 @@ function api_authenticate($api_key = null){
             $user = sql_get('SELECT * FROM `users` WHERE `apikey` = :apikey', array(':apikey' => $api_key));
 
             if(!$user){
-                throw new BException(tr('api_authenticate(): Specified apikey does not exist'), 'access-denied');
+                throw new CoreException(tr('api_authenticate(): Specified apikey does not exist'), 'access-denied');
             }
 
         }else{
@@ -255,7 +255,7 @@ function api_authenticate($api_key = null){
              * Use one system wide API key
              */
             if($api_key !== $_CONFIG['api']['apikey']){
-                throw new BException(tr('api_authenticate(): Specified auth key does not match configured api key'), 'access-denied');
+                throw new CoreException(tr('api_authenticate(): Specified auth key does not match configured api key'), 'access-denied');
             }
         }
 
@@ -268,7 +268,7 @@ function api_authenticate($api_key = null){
         return $session['sessions_id'];
 
     }catch(Exception $e){
-        throw new BException('api_authenticate(): Failed', $e);
+        throw new CoreException('api_authenticate(): Failed', $e);
     }
 }
 
@@ -304,7 +304,7 @@ function api_start_session($session_id){
          * Check session token
          */
         if(empty($session_id)){
-            throw new BException(tr('api_start_session(): No session key specified'), 'not-specified');
+            throw new CoreException(tr('api_start_session(): No session key specified'), 'not-specified');
         }
 
         /*
@@ -313,11 +313,11 @@ function api_start_session($session_id){
         $_SESSION = api_get_session($session_id);
 
         if(!$_SESSION){
-            throw new BException(tr('api_start_session(): The specified session_id key ":session_id" does not exist', array(':session_id' => $session_id)), 'access-denied');
+            throw new CoreException(tr('api_start_session(): The specified session_id key ":session_id" does not exist', array(':session_id' => $session_id)), 'access-denied');
         }
 
         if($_SESSION['closedon']){
-            throw new BException(tr('api_start_session(): The session for the session_id key ":session_id" has already been closed', array(':session_id' => $session_id)), 'sign-in');
+            throw new CoreException(tr('api_start_session(): The session for the session_id key ":session_id" has already been closed', array(':session_id' => $session_id)), 'sign-in');
         }
 
         /*
@@ -328,13 +328,13 @@ function api_start_session($session_id){
         $_SESSION['user'] = user_get($_SESSION['createdby']);
 
         if(!$_SESSION['user']){
-            throw new BException(tr('api_start_session(): Session ":sessions_id" was created by users_id ":users_id" but that apparently does not exist', array(':sessions_id' => $session_id, ':users_id' => $_SESSION['createdby'])), 'not-exists');
+            throw new CoreException(tr('api_start_session(): Session ":sessions_id" was created by users_id ":users_id" but that apparently does not exist', array(':sessions_id' => $session_id, ':users_id' => $_SESSION['createdby'])), 'not-exists');
         }
 
         return $_SESSION;
 
     }catch(Exception $e){
-        throw new BException('api_start_session(): Failed', $e);
+        throw new CoreException('api_start_session(): Failed', $e);
     }
 }
 
@@ -362,7 +362,7 @@ function api_stop_session(){
 
     try{
         if(!isset($core->register['session'])){
-            throw new BException(tr('api_stop_session(): Currently there is no open session'), 'sign-in');
+            throw new CoreException(tr('api_stop_session(): Currently there is no open session'), 'sign-in');
         }
 
         sql_query('UPDATE `api_sessions`
@@ -378,7 +378,7 @@ function api_stop_session(){
         return true;
 
     }catch(Exception $e){
-        throw new BException('api_close_session(): Failed', $e);
+        throw new CoreException('api_close_session(): Failed', $e);
     }
 }
 
@@ -416,7 +416,7 @@ function api_call($call, $result = null){
         }
 
     }catch(Exception $e){
-        throw new BException('api_call(): Failed', $e);
+        throw new CoreException('api_call(): Failed', $e);
     }
 }
 
@@ -438,13 +438,13 @@ function api_decode($data){
             unset($value);
 
         }else{
-            throw new BException(tr('api_decode(): Specified data is datatype ":type", only string and array are allowed', array(':type' => gettype($data))), $e);
+            throw new CoreException(tr('api_decode(): Specified data is datatype ":type", only string and array are allowed', array(':type' => gettype($data))), $e);
         }
 
         return $data;
 
     }catch(Exception $e){
-        throw new BException('api_decode(): Failed', $e);
+        throw new CoreException('api_decode(): Failed', $e);
     }
 }
 
@@ -460,7 +460,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
         load_libs('curl');
 
         if(empty($account)){
-            throw new BException(tr('api_call_base(): No API specified'), 'not-specified');
+            throw new CoreException(tr('api_call_base(): No API specified'), 'not-specified');
         }
 
         /*
@@ -469,7 +469,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
         $account_data = sql_get('SELECT `id`, `baseurl`, `apikey`, `verify_ssl` FROM `api_accounts` WHERE `seoname` = :seoname', array(':seoname' => $account));
 
         if(!$account_data){
-            throw new BException(tr('api_call_base(): Specified API account ":account" does not exist', array(':account' => $account)), 'not-exists');
+            throw new CoreException(tr('api_call_base(): Specified API account ":account" does not exist', array(':account' => $account)), 'not-exists');
         }
 
         /*
@@ -487,21 +487,21 @@ function api_call_base($account, $call, $data = array(), $files = null){
                                        'post'           => array('api_key' => $account_data['apikey'])));
 
                 if(!$json){
-                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'empty');
+                    throw new CoreException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'empty');
                 }
 
                 if(!$json['data']){
-                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned no data in response', array(':account' => $account)), 'empty');
+                    throw new CoreException(tr('api_call_base(): Authentication on API account ":account" returned no data in response', array(':account' => $account)), 'empty');
                 }
 
                 $result = json_decode_custom($json['data']);
 
                 if(isset_get($result['result']) !== 'OK'){
-                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned result ":result"', array('":account' => $account, ':result' => $result['result'])), 'failed', $result);
+                    throw new CoreException(tr('api_call_base(): Authentication on API account ":account" returned result ":result"', array('":account' => $account, ':result' => $result['result'])), 'failed', $result);
                 }
 
                 if(empty($result['data']['token'])){
-                    throw new BException(tr('api_call_base(): Authentication on API account ":account" returned ok result but no token', array('":account' => $account)), 'failed');
+                    throw new CoreException(tr('api_call_base(): Authentication on API account ":account" returned ok result but no token', array('":account' => $account)), 'failed');
                 }
 
                 $_SESSION['api']['session_keys'][$account] = $result['data']['token'];
@@ -512,19 +512,19 @@ function api_call_base($account, $call, $data = array(), $files = null){
 
                 switch($e->getCode()){
                     case 'HTTP403':
-                        throw new BException(tr('api_call_base(): [403] API authentication URL ":url" gave access denied', array(':url' => $url)), $e);
+                        throw new CoreException(tr('api_call_base(): [403] API authentication URL ":url" gave access denied', array(':url' => $url)), $e);
 
                     case 'HTTP404':
-                        throw new BException(tr('api_call_base(): [404] API authentication URL ":url" was not found', array(':url' => $url)), $e);
+                        throw new CoreException(tr('api_call_base(): [404] API authentication URL ":url" was not found', array(':url' => $url)), $e);
 
                     case 'HTTP500':
-                        throw new BException(tr('api_call_base(): [500] API server encountered an internal server error on authentication URL ":url"', array(':url' => $url)), $e);
+                        throw new CoreException(tr('api_call_base(): [500] API server encountered an internal server error on authentication URL ":url"', array(':url' => $url)), $e);
 
                     case 'HTTP503':
-                        throw new BException(tr('api_call_base(): [503] API server is in maintenance mode on authentication URL ":url"', array(':url' => $url)), $e);
+                        throw new CoreException(tr('api_call_base(): [503] API server is in maintenance mode on authentication URL ":url"', array(':url' => $url)), $e);
 
                     default:
-                        throw new BException(tr('api_call_base(): [:code] Failed to authenticate on authentication URL ":url"', array(':code' => $e->getCode(), ':url' => $url)), $e);
+                        throw new CoreException(tr('api_call_base(): [:code] Failed to authenticate on authentication URL ":url"', array(':code' => $e->getCode(), ':url' => $url)), $e);
                 }
             }
         }
@@ -552,11 +552,11 @@ function api_call_base($account, $call, $data = array(), $files = null){
                                    'post'       => $data));
 
             if(!$json){
-                throw new BException(tr('api_call_base(): API call ":call" on account ":account" returned no response', array(':account' => $account, ':call' => $call)), 'empty');
+                throw new CoreException(tr('api_call_base(): API call ":call" on account ":account" returned no response', array(':account' => $account, ':call' => $call)), 'empty');
             }
 
             if(!$json['data']){
-                throw new BException(tr('api_call_base(): API call ":call" on account ":account" returned no data in response', array(':account' => $account, ':call' => $call)), 'empty');
+                throw new CoreException(tr('api_call_base(): API call ":call" on account ":account" returned no data in response', array(':account' => $account, ':call' => $call)), 'empty');
             }
 
             $result = json_decode_custom($json['data']);
@@ -581,14 +581,14 @@ function api_call_base($account, $call, $data = array(), $files = null){
                          * with a signin request which, in this case, would cause
                          * endless recursion
                          */
-                        throw new BException(tr('api_call_base(): API call ":call" on ":api" required auto signin but that failed with a request to signin as well. Stopping to avoid endless signin loop', array(':api' => $account, ':call' => $call)), 'failed');
+                        throw new CoreException(tr('api_call_base(): API call ":call" on ":api" required auto signin but that failed with a request to signin as well. Stopping to avoid endless signin loop', array(':api' => $account, ':call' => $call)), 'failed');
                     }
 
                     unset($_SESSION['api']['session_keys'][$account]);
                     return api_call_base($account, $call, $data);
 
                 default:
-                    throw new BException(tr('api_call_base(): API call ":call" on account ":account" returned result ":result"', array(':account' => $account, ':call' => $call, ':result' => $result['result'])), 'failed', $result);
+                    throw new CoreException(tr('api_call_base(): API call ":call" on account ":account" returned result ":result"', array(':account' => $account, ':call' => $call, ':result' => $result['result'])), 'failed', $result);
             }
 
         }catch(Exception $e){
@@ -596,19 +596,19 @@ function api_call_base($account, $call, $data = array(), $files = null){
 
             switch($e->getCode()){
                 case 'HTTP403':
-                    throw new BException(tr('api_call_base(): [403] API URL ":url" gave access denied', array(':url' => $url)), $e);
+                    throw new CoreException(tr('api_call_base(): [403] API URL ":url" gave access denied', array(':url' => $url)), $e);
 
                 case 'HTTP404':
-                    throw new BException(tr('api_call_base(): [404] API URL ":url" was not found', array(':url' => $url)), $e);
+                    throw new CoreException(tr('api_call_base(): [404] API URL ":url" was not found', array(':url' => $url)), $e);
 
                 case 'HTTP500':
-                    throw new BException(tr('api_call_base(): [500] API server encountered an internal server error on URL ":url"', array(':url' => $url)), $e);
+                    throw new CoreException(tr('api_call_base(): [500] API server encountered an internal server error on URL ":url"', array(':url' => $url)), $e);
 
                 case 'HTTP503':
-                    throw new BException(tr('api_call_base(): [503] API server is in maintenance mode on URL ":url"', array(':url' => $url)), $e);
+                    throw new CoreException(tr('api_call_base(): [503] API server is in maintenance mode on URL ":url"', array(':url' => $url)), $e);
 
                 default:
-                    throw new BException(tr('api_call_base(): [:code] Failed to call API on URL ":url"', array(':code' => $e->getCode(), ':url' => $url)), $e);
+                    throw new CoreException(tr('api_call_base(): [:code] Failed to call API on URL ":url"', array(':code' => $e->getCode(), ':url' => $url)), $e);
             }
         }
 
@@ -623,7 +623,7 @@ function api_call_base($account, $call, $data = array(), $files = null){
 //show(isset_get($json));
 //show(isset_get($result));
 //showdie($e);
-        throw new BException(tr('api_call_base(): Failed for account ":account"', array(':account' => $account)), $e);
+        throw new CoreException(tr('api_call_base(): Failed for account ":account"', array(':account' => $account)), $e);
     }
 }
 
@@ -647,7 +647,7 @@ function api_generate_key($bytes = 32){
         return bin2hex(random_bytes($bytes));
 
     }catch(Exception $e){
-        throw new BException(tr('api_generate_key(): Failed'), $e);
+        throw new CoreException(tr('api_generate_key(): Failed'), $e);
     }
 }
 
@@ -686,7 +686,7 @@ function api_get_session($sessions_id){
         return $session;
 
     }catch(Exception $e){
-        throw new BException(tr('api_get_session(): Failed'), $e);
+        throw new CoreException(tr('api_get_session(): Failed'), $e);
     }
 }
 
@@ -724,7 +724,7 @@ function api_insert_session($session){
         return $session;
 
     }catch(Exception $e){
-        throw new BException(tr('api_insert_session(): Failed'), $e);
+        throw new CoreException(tr('api_insert_session(): Failed'), $e);
     }
 }
 
@@ -748,6 +748,6 @@ function api_close_all($users_id){
         sql_query('UPDATE `api_sessions` SET `closedon` = NOW WHERE `createdby` = :createdby AND `closedon` IS NULL', array(':createdby' => $users_id));
 
     }catch(Exception $e){
-        throw new BException(tr('api_close_all(): Failed'), $e);
+        throw new CoreException(tr('api_close_all(): Failed'), $e);
     }
 }

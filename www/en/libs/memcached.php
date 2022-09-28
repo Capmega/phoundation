@@ -19,11 +19,11 @@
 function memcached_library_init(){
     try{
         if(!class_exists('Memcached')){
-            throw new BException(tr('memcached_library_init(): php module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
+            throw new CoreException(tr('memcached_library_init(): php module "memcached" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo sudo apt-get -y install php5-memcached; sudo php5enmod memcached" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php5-memcached" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not_available');
         }
 
     }catch(Exception $e){
-        throw new BException('memcached_library_init(): failed', $e);
+        throw new CoreException('memcached_library_init(): failed', $e);
     }
 }
 
@@ -120,7 +120,7 @@ function memcached_connect(){
         return $core->register['memcached'];
 
     }catch(Exception $e){
-        throw new BException('memcached_connect(): failed', $e);
+        throw new CoreException('memcached_connect(): failed', $e);
     }
 }
 
@@ -153,7 +153,7 @@ function memcached_put($value, $key, $namespace = null, $expiration_time = null)
         return $value;
 
     }catch(Exception $e){
-        throw new BException('memcached_put(): failed', $e);
+        throw new CoreException('memcached_put(): failed', $e);
     }
 }
 
@@ -188,7 +188,7 @@ function memcached_add($value, $key, $namespace = null, $expiration_time = null)
         return $value;
 
     }catch(Exception $e){
-        throw new BException('memcached_add(): failed', $e);
+        throw new CoreException('memcached_add(): failed', $e);
     }
 }
 
@@ -223,7 +223,7 @@ function memcached_replace($value, $key, $namespace = null, $expiration_time = n
         return $value;
 
     }catch(Exception $e){
-        throw new BException('memcached_replace(): failed', $e);
+        throw new CoreException('memcached_replace(): failed', $e);
     }
 }
 
@@ -243,7 +243,7 @@ function memcached_get($key, $namespace = null){
         return $core->register['memcached']->get($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new BException('memcached_get(): Failed', $e);
+        throw new CoreException('memcached_get(): Failed', $e);
     }
 }
 
@@ -274,7 +274,7 @@ function memcached_delete($key, $namespace = null){
         return $core->register['memcached']->delete($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new BException('memcached_delete(): Failed', $e);
+        throw new CoreException('memcached_delete(): Failed', $e);
     }
 }
 
@@ -294,7 +294,7 @@ function memcached_clear($delay = 0){
         $core->register['memcached']->flush($delay);
 
     }catch(Exception $e){
-        throw new BException('memcached_clear(): Failed', $e);
+        throw new CoreException('memcached_clear(): Failed', $e);
     }
 }
 
@@ -314,7 +314,7 @@ function memcached_increment($key, $namespace = null){
         $core->register['memcached']->increment($_CONFIG['memcached']['prefix'].memcached_namespace($namespace).$key);
 
     }catch(Exception $e){
-        throw new BException('memcached_increment(): Failed', $e);
+        throw new CoreException('memcached_increment(): Failed', $e);
     }
 }
 
@@ -367,7 +367,7 @@ function memcached_namespace($namespace, $delete = false){
         return $key;
 
     }catch(Exception $e){
-        throw new BException('memcached_namespace(): Failed', $e);
+        throw new CoreException('memcached_namespace(): Failed', $e);
     }
 }
 
@@ -395,7 +395,7 @@ function memcached_stats(){
         return $stats;
 
     }catch(Exception $e){
-        throw new BException('memcached_stats(): Failed', $e);
+        throw new CoreException('memcached_stats(): Failed', $e);
     }
 }
 ?>

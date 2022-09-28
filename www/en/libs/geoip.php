@@ -35,7 +35,7 @@ function geoip_get($ip = null, $columns = '*'){
             $ip = isset_get($_SERVER['REMOTE_ADDR']);
 
             if(!$ip){
-                throw new BException(tr('geoip_get_country(): No IP specified and no remote client IP found either'), 'not-available');
+                throw new CoreException(tr('geoip_get_country(): No IP specified and no remote client IP found either'), 'not-available');
             }
         }
 
@@ -58,7 +58,7 @@ function geoip_get($ip = null, $columns = '*'){
             $count = sql_get('SELECT COUNT(*) AS `count` FROM `geoip_locations`');
 
             if(!$count){
-                throw new BException(tr('geoip_get(): geoip_locations table is empty'), 'empty');
+                throw new CoreException(tr('geoip_get(): geoip_locations table is empty'), 'empty');
             }
 
             return null;
@@ -72,10 +72,10 @@ function geoip_get($ip = null, $columns = '*'){
 
     }catch(Exception $e){
         if(!sql_get('SHOW TABLES LIKE "geoip_locations"')){
-            throw new BException('geoip_get(): `geoip_locations` table not found, please run the ./scripts/base/importers/geoip script to import the GEO IP data', $e);
+            throw new CoreException('geoip_get(): `geoip_locations` table not found, please run the ./scripts/base/importers/geoip script to import the GEO IP data', $e);
         }
 
-        throw new BException('geoip_get(): Failed', $e);
+        throw new CoreException('geoip_get(): Failed', $e);
     }
 }
 
@@ -100,7 +100,7 @@ function geoip_get_country($ip = null){
         return geoip_get($ip, 'country');
 
     }catch(Exception $e){
-        throw new BException('geoip_get_country(): Failed', $e);
+        throw new CoreException('geoip_get_country(): Failed', $e);
     }
 }
 
@@ -125,7 +125,7 @@ function geoip_get_city($ip){
         return geoip_get($ip, 'city');
 
     }catch(Exception $e){
-        throw new BException('geoip_get_city(): Failed', $e);
+        throw new CoreException('geoip_get_city(): Failed', $e);
     }
 }
 
@@ -181,7 +181,7 @@ function geoip_is_european($ip){
         return in_array($country, $countries);
 
     }catch(Exception $e){
-        throw new BException('geoip_is_european(): Failed', $e);
+        throw new CoreException('geoip_is_european(): Failed', $e);
     }
 }
 ?>

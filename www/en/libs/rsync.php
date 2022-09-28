@@ -85,15 +85,15 @@ function rsync($params){
          * Required parameters
          */
         if(empty($params['source'])){
-            throw new BException(tr('rsync(): No source specified'), 'not-specified');
+            throw new CoreException(tr('rsync(): No source specified'), 'not-specified');
         }
 
         if(empty($params['target'])){
-            throw new BException(tr('rsync(): No target specified'), 'not-specified');
+            throw new CoreException(tr('rsync(): No target specified'), 'not-specified');
         }
 
         if($params['source'] == $params['target']){
-            throw new BException(tr('rsync(): Specified source and target are the same'), 'not-specified');
+            throw new CoreException(tr('rsync(): Specified source and target are the same'), 'not-specified');
         }
 
         /*
@@ -106,7 +106,7 @@ function rsync($params){
 
                 if($server){
                     if(isset($remote)){
-                        throw new BException(tr('rsync(): Both source and target are on remote servers. One of the two must be local'), 'invalid');
+                        throw new CoreException(tr('rsync(): Both source and target are on remote servers. One of the two must be local'), 'invalid');
                     }
 
                     /*
@@ -143,7 +143,7 @@ function rsync($params){
                                      */
                                     try{
                                         if(str_exists(ROOT, linux_realpath($server, str_from($params[$subitem], ':')))){
-                                            throw new BException(tr('rsync(): Specified remote ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
+                                            throw new CoreException(tr('rsync(): Specified remote ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                         }
 
                                     }catch(Exception $e){
@@ -157,7 +157,7 @@ function rsync($params){
 
                                 }else{
                                     if(str_exists(ROOT, realpath($params[$subitem]))){
-                                        throw new BException(tr('rsync(): Specified local ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
+                                        throw new CoreException(tr('rsync(): Specified local ":subitem" path ":path" is ROOT or parent of ROOT', array(':path' => $params[$subitem], ':subitem' => $subitem)), 'invalid');
                                     }
                                 }
                             }
@@ -168,7 +168,7 @@ function rsync($params){
             }catch(Exception $e){
                 switch($e->getRealCode()){
                     case 'not-exists':
-                        throw new BException(tr('rsync(): Specified ":item" server ":server" does not exist', array(':item' => $item, ':server' => str_until($params['source'], ':', 0, 0, true))), $e);
+                        throw new CoreException(tr('rsync(): Specified ":item" server ":server" does not exist', array(':item' => $item, ':server' => str_until($params['source'], ':', 0, 0, true))), $e);
 
                     default:
                         throw $e;
@@ -180,7 +180,7 @@ function rsync($params){
 
         if(isset($remote)){
             if($params['ssh_options']){
-                throw new BException(tr('rsync(): Specified ":item" server ":server" is a registered server with its own ssh_options, yet "ssh_options" was also specified', array(':item' => $item, ':server' => str_until($params['source'], ':', 0, 0, true))), $e);
+                throw new CoreException(tr('rsync(): Specified ":item" server ":server" is a registered server with its own ssh_options, yet "ssh_options" was also specified', array(':item' => $item, ':server' => str_until($params['source'], ':', 0, 0, true))), $e);
             }
 
         }elseif($params['ssh_options']){
@@ -305,7 +305,7 @@ function rsync($params){
                 load_libs('tasks');
 
                 if(!is_natural($params['monitor_task'])){
-                    throw new BException(tr('rsync(): Specified monitor task ":task" is invalid', array(':task' => $params['monitor_task'])), 'invalid');
+                    throw new CoreException(tr('rsync(): Specified monitor task ":task" is invalid', array(':task' => $params['monitor_task'])), 'invalid');
                 }
 
                 if(tasks_check_pid($params['monitor_task'])){
@@ -326,7 +326,7 @@ function rsync($params){
                  * While it is running, we do not stop either.
                  */
                 if(!is_natural($params['monitor_pid'])){
-                    throw new BException(tr('rsync(): Specified process id ":pid" is invalid', array(':pid' => $params['monitor_pid'])), 'invalid');
+                    throw new CoreException(tr('rsync(): Specified process id ":pid" is invalid', array(':pid' => $params['monitor_pid'])), 'invalid');
                 }
 
                 if(cli_pid($params['monitor_pid'])){
@@ -351,86 +351,86 @@ function rsync($params){
         switch($e->getRealCode()){
             case 0:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Success"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Success"'), $e);
 
             case 1:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Syntax or usage error"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Syntax or usage error"'), $e);
 
             case 2:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Protocol incompatibility"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Protocol incompatibility"'), $e);
 
             case 3:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Errors selecting input/output files, dirs"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Errors selecting input/output files, dirs"'), $e);
 
             case 4:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Requested action not supported: an attempt was made to manipulate 64-bit files on a platform that cannot support them; or  an  option was specified that is supported by the client and not by the server."'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Requested action not supported: an attempt was made to manipulate 64-bit files on a platform that cannot support them; or  an  option was specified that is supported by the client and not by the server."'), $e);
 
             case 5:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Error starting client-server protocol"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Error starting client-server protocol"'), $e);
 
             case 6:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Daemon unable to append to log-file"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Daemon unable to append to log-file"'), $e);
 
             case 10:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Error in socket I/O"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Error in socket I/O"'), $e);
 
             case 11:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Error in file I/O"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Error in file I/O"'), $e);
 
             case 12:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Error in rsync protocol data stream"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Error in rsync protocol data stream"'), $e);
 
             case 13:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Errors with program diagnostics"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Errors with program diagnostics"'), $e);
 
             case 14:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Error in IPC code"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Error in IPC code"'), $e);
 
             case 20:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Received SIGUSR1 or SIGINT"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Received SIGUSR1 or SIGINT"'), $e);
 
             case 21:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Some error returned by waitpid()"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Some error returned by waitpid()"'), $e);
 
             case 22:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Error allocating core memory buffers"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Error allocating core memory buffers"'), $e);
 
             case 23:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Partial transfer due to error"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Partial transfer due to error"'), $e);
 
             case 24:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Partial transfer due to vanished source files"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Partial transfer due to vanished source files"'), $e);
 
             case 25:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "The --max-delete limit stopped deletions"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "The --max-delete limit stopped deletions"'), $e);
 
             case 30:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Timeout in data send/receive"'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Timeout in data send/receive"'), $e);
 
             case 35:
                 $e->makeWarning(true);
-                throw new BException(tr('rsync(): Rsync failed with "Timeout waiting for daemon connection""'), $e);
+                throw new CoreException(tr('rsync(): Rsync failed with "Timeout waiting for daemon connection""'), $e);
         }
 
-        throw new BException('rsync(): Failed', $e);
+        throw new CoreException('rsync(): Failed', $e);
     }
 }
 ?>

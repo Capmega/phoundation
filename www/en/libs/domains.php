@@ -29,7 +29,7 @@ function domains_library_init(){
         load_config('domains');
 
     }catch(Exception $e){
-        throw new BException('domains_library_init(): Failed', $e);
+        throw new CoreException('domains_library_init(): Failed', $e);
     }
 }
 
@@ -94,7 +94,7 @@ function domains_validate($domain){
 
         }else{
             if(!is_array($domain['servers'])){
-                throw new BException(tr('Invalid servers data specified'), 'invalid');
+                throw new CoreException(tr('Invalid servers data specified'), 'invalid');
 
             }else{
                 $servers = array();
@@ -118,7 +118,7 @@ function domains_validate($domain){
         return $domain;
 
     }catch(Exception $e){
-        throw new BException('domains_validate(): Failed', $e);
+        throw new CoreException('domains_validate(): Failed', $e);
     }
 }
 
@@ -156,7 +156,7 @@ function domains_validate_keyword($keyword){
         return $keyword;
 
     }catch(Exception $e){
-        throw new BException('domains_validate_keyword(): Failed', $e);
+        throw new CoreException('domains_validate_keyword(): Failed', $e);
     }
 }
 
@@ -203,7 +203,7 @@ function domains_get($domain = null){
 
         if($domain){
             if(!is_string($domain)){
-                throw new BException(tr('domains_get(): Specified domain name ":name" is not a string', array(':name' => $domain)), 'invalid');
+                throw new CoreException(tr('domains_get(): Specified domain name ":name" is not a string', array(':name' => $domain)), 'invalid');
             }
 
             $retval = sql_get($query.'
@@ -240,7 +240,7 @@ function domains_get($domain = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('domains_get(): Failed', $e);
+        throw new CoreException('domains_get(): Failed', $e);
     }
 }
 
@@ -280,7 +280,7 @@ function domains_list_servers($domain){
         return $servers;
 
     }catch(Exception $e){
-        throw new BException('domains_list_servers(): Failed', $e);
+        throw new CoreException('domains_list_servers(): Failed', $e);
     }
 }
 
@@ -322,7 +322,7 @@ function domains_update_servers($domain, $servers = null){
         return count($servers);
 
     }catch(Exception $e){
-        throw new BException('domains_update_servers(): Failed', $e);
+        throw new CoreException('domains_update_servers(): Failed', $e);
     }
 }
 
@@ -414,7 +414,7 @@ function domains_add_keyword($keyword){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('domains_add_keyword(): Failed', $e);
+        throw new CoreException('domains_add_keyword(): Failed', $e);
     }
 }
 
@@ -440,7 +440,7 @@ function domains_scan_keywords(){
         }
 
     }catch(Exception $e){
-        throw new BException('domains_scan_keywords(): Failed', $e);
+        throw new CoreException('domains_scan_keywords(): Failed', $e);
     }
 }
 
@@ -475,14 +475,14 @@ function domains_like($domain){
              * Specified domain not found in the default domains list, try domains list
              */
             if(!$domain){
-                throw new BException(tr('domains_like(): Specified domain ":domain" does not exist', array(':domain' => $domain)), 'not-exists');
+                throw new CoreException(tr('domains_like(): Specified domain ":domain" does not exist', array(':domain' => $domain)), 'not-exists');
             }
         }
 
         return $domain;
 
     }catch(Exception $e){
-        throw new BException('domains_like(): Failed', $e);
+        throw new CoreException('domains_like(): Failed', $e);
     }
 }
 
@@ -529,7 +529,7 @@ function domains_insert($domain){
         return $domain;
 
     }catch(Exception $e){
-        throw new BException('domains_insert(): Failed', $e);
+        throw new CoreException('domains_insert(): Failed', $e);
     }
 }
 
@@ -583,7 +583,7 @@ function domains_update($domain, $new = false){
         return $domain;
 
     }catch(Exception $e){
-        throw new BException('domains_update(): Failed', $e);
+        throw new CoreException('domains_update(): Failed', $e);
     }
 }
 
@@ -614,7 +614,7 @@ function domains_ensure($domain, $column = 'id'){
         return $domain[$column];
 
     }catch(Exception $e){
-		throw new BException('domains_ensure(): Failed', $e);
+		throw new CoreException('domains_ensure(): Failed', $e);
 	}
 }
 
@@ -649,7 +649,7 @@ function domains_get_id($domain){
         return $domain;
 
     }catch(Exception $e){
-		throw new BException('domains_get_id(): Failed', $e);
+		throw new CoreException('domains_get_id(): Failed', $e);
 	}
 }
 ?>

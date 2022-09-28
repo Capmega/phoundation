@@ -31,7 +31,7 @@
 function sodium_library_init(){
     try{
         if(!defined('SODIUM_LIBRARY_MAJOR_VERSION')){
-            throw new BException(tr('sodium_library_init(): PHP module "sodium" appears is not available, please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-libsodium" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
+            throw new CoreException(tr('sodium_library_init(): PHP module "sodium" appears is not available, please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-libsodium" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
         }
 
         if(!function_exists('sodium_crypto_secretbox')){
@@ -39,7 +39,7 @@ function sodium_library_init(){
         }
 
     }catch(Exception $e){
-        throw new BException('sodium_library_init(): Failed', $e);
+        throw new CoreException('sodium_library_init(): Failed', $e);
     }
 }
 
@@ -62,7 +62,7 @@ function sodium_install($params){
         return safe_exec(array('commands' => array('apt-get', array('install', 'php-libsodium', 'sudo' => true))));
 
     }catch(Exception $e){
-        throw new BException('sodium_install(): Failed to auto install php-libsodium', $e);
+        throw new CoreException('sodium_install(): Failed to auto install php-libsodium', $e);
     }
 }
 
@@ -84,7 +84,7 @@ function sodium_nonce(){
         return random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
 
     }catch(Exception $e){
-        throw new BException('sodium_nonce(): Failed', $e);
+        throw new CoreException('sodium_nonce(): Failed', $e);
     }
 }
 
@@ -115,11 +115,11 @@ function sodium_random($type){
                 return random_bytes(SODIUM_CRYPTO_AUTH_KEYBYTES);
 
             default:
-                throw new BException(tr('sodium_random(: Unknown type ":type" specified', array(':type' => $type)), 'unknown');
+                throw new CoreException(tr('sodium_random(: Unknown type ":type" specified', array(':type' => $type)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('sodium_random(): Failed', $e);
+        throw new CoreException('sodium_random(): Failed', $e);
     }
 }
 
@@ -155,7 +155,7 @@ function sodium_encrypt($data, $key){
 
     }catch(Exception $e){
         sodium_memzero($key);
-        throw new BException('sodium_encrypt(): Failed', $e);
+        throw new CoreException('sodium_encrypt(): Failed', $e);
     }
 }
 
@@ -183,7 +183,7 @@ function sodium_decrypt($cipher_data, $key){
         $nonce = base64_decode($nonce);
 
         if(!$nonce){
-            throw new BException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
+            throw new CoreException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
         $cipher_data = str_from($cipher_data, '$');
@@ -191,7 +191,7 @@ function sodium_decrypt($cipher_data, $key){
         $data        = sodium_crypto_secretbox_open($cipher_data, $nonce, $key);
 
         if($data === false){
-            throw new BException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
+            throw new CoreException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
         sodium_memzero($key);
@@ -199,7 +199,7 @@ function sodium_decrypt($cipher_data, $key){
 
     }catch(Exception $e){
         sodium_memzero($key);
-        throw new BException('sodium_decrypt(): Failed', $e);
+        throw new CoreException('sodium_decrypt(): Failed', $e);
     }
 }
 
@@ -231,7 +231,7 @@ function sodium_sign_mac($data, $key){
 
     }catch(Exception $e){
         sodium_memzero($key);
-        throw new BException('sodium_sign_mac(): Failed', $e);
+        throw new CoreException('sodium_sign_mac(): Failed', $e);
     }
 }
 
@@ -258,14 +258,14 @@ function sodium_verify_mac($data, $key){
         $mac = str_from($data, '$');
 
         if(!$mac){
-            throw new BException(tr('sodium_verify_mac(): Specified string does not contain a mac prefix'), 'not-exists');
+            throw new CoreException(tr('sodium_verify_mac(): Specified string does not contain a mac prefix'), 'not-exists');
         }
 
         $data = str_from($data, '$');
         $data = sodium_crypto_auth_verify($mac, $data, $key);
 
         if($data === false){
-            throw new BException(tr('sodium_verify_mac(): Specified text signature contains an invalid MAC'), 'invalid');
+            throw new CoreException(tr('sodium_verify_mac(): Specified text signature contains an invalid MAC'), 'invalid');
         }
 
         sodium_memzero($key);
@@ -273,7 +273,7 @@ function sodium_verify_mac($data, $key){
 
     }catch(Exception $e){
         sodium_memzero($key);
-        throw new BException('sodium_verify_mac(): Failed', $e);
+        throw new CoreException('sodium_verify_mac(): Failed', $e);
     }
 }
 
@@ -308,6 +308,6 @@ function sodium_pad_key($key, $character = '*'){
         return $key;
 
     }catch(Exception $e){
-        throw new BException('sodium_pad_key(): Failed', $e);
+        throw new CoreException('sodium_pad_key(): Failed', $e);
     }
 }

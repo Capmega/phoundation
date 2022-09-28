@@ -184,7 +184,7 @@ try{
      */
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $_POST = array();
-        throw new BException(tr('core::startup(): system pages cannot do POST requests'), '400');
+        throw new CoreException(tr('core::startup(): system pages cannot do POST requests'), '400');
     }
 
 
@@ -221,5 +221,5 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::system(): Failed'), $e);
+    throw new CoreException(tr('core::system(): Failed'), $e);
 }

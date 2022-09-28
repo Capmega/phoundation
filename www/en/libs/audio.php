@@ -28,7 +28,7 @@ function audio_library_init(){
         load_config('audio');
 
     }catch(Exception $e){
-        throw new BException('audio_library_init(): Failed', $e);
+        throw new CoreException('audio_library_init(): Failed', $e);
     }
 }
 
@@ -69,7 +69,7 @@ function audio_play($class = null){
          * Check if given class is in CONFIG[audio]
          */
         if(empty($_CONFIG['audio']['classes'][$class])){
-            throw new BException(tr('audio_play(): This audio class does not exist ":class"', array(':class' => $class)), 'not-exists');
+            throw new CoreException(tr('audio_play(): This audio class does not exist ":class"', array(':class' => $class)), 'not-exists');
         }
 
         $file = ROOT.'data/audio/'.$_CONFIG['audio']['classes'][$class];
@@ -78,7 +78,7 @@ function audio_play($class = null){
          * Check if audio file exists
          */
         if(!file_exists($file)){
-            throw new BException(tr('audio_play(): This audio file does not exist ":file"', array(':file' => $file)), 'audio');
+            throw new CoreException(tr('audio_play(): This audio file does not exist ":file"', array(':file' => $file)), 'audio');
         }
 
         /*
@@ -94,7 +94,7 @@ function audio_play($class = null){
                                 'commands'   => array($_CONFIG['audio']['command'], array($file))));
 
             }catch(Exception $e){
-                throw new BException(tr('audio_play(): Can not play audio file ":file", commando ":command" returned error: ":error"', array(':file' => $file, ':command' => $_CONFIG['audio']['command'], ':error' => $e)), 'audio');
+                throw new CoreException(tr('audio_play(): Can not play audio file ":file", commando ":command" returned error: ":error"', array(':file' => $file, ':command' => $_CONFIG['audio']['command'], ':error' => $e)), 'audio');
             }
 
         }else{
@@ -124,7 +124,7 @@ function audio_play($class = null){
         return true;
 
     }catch(Exception $e){
-        throw new BException('audio_play(): Failed', $e);
+        throw new CoreException('audio_play(): Failed', $e);
     }
 }
 ?>

@@ -29,7 +29,7 @@ function session_list(){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('session_list(): Failed', $e);
+        throw new CoreException('session_list(): Failed', $e);
     }
 }
 
@@ -43,13 +43,13 @@ function session_take($session_id){
         $path = ini_get( 'session.save_path');
 
         if(!file_exists(slash($path).'sess_'.$session_id)){
-            throw new BException('Specified session "'.str_log($session_id).'" does not exist', 'not-exists');
+            throw new CoreException('Specified session "'.str_log($session_id).'" does not exist', 'not-exists');
         }
 
         session_id($session_id);
 
     }catch(Exception $e){
-        throw new BException('session_take(): Failed', $e);
+        throw new CoreException('session_take(): Failed', $e);
     }
 }
 ?>

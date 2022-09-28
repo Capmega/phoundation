@@ -30,7 +30,7 @@ function doc_library_init(){
         load_config('doc');
 
     }catch(Exception $e){
-        throw new BException('doc_library_init(): Failed', $e);
+        throw new CoreException('doc_library_init(): Failed', $e);
     }
 }
 
@@ -69,7 +69,7 @@ function doc_parse_this(){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('doc_parse_project(): Failed', $e);
+        throw new CoreException('doc_parse_project(): Failed', $e);
     }
 }
 
@@ -91,7 +91,7 @@ function doc_parse_project($project){
         $path = ROOT.'../'.$project;
 
         if(!file_exists($path, $path)){
-            throw new BException(tr('doc_parse_project(): Specified project ":project" does not exist', array(':project' => $project)), 'not-exists');
+            throw new CoreException(tr('doc_parse_project(): Specified project ":project" does not exist', array(':project' => $project)), 'not-exists');
         }
 
         load_libs('validate,seo');
@@ -115,7 +115,7 @@ function doc_parse_project($project){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('doc_parse_project(): Failed', $e);
+        throw new CoreException('doc_parse_project(): Failed', $e);
     }
 }
 
@@ -135,7 +135,7 @@ function doc_parse_project($project){
 function doc_parse_path($project, $path, $root, $recursive = true){
     try{
         if(!file_exists($path)){
-            throw new BException(tr('doc_parse_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('doc_parse_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
         log_console(tr('Parsing path ":path"', array(':path' => $path)), 'VERBOSEDOT/cyan');
@@ -154,7 +154,7 @@ function doc_parse_path($project, $path, $root, $recursive = true){
                     continue;
                 }
 
-                throw new BException(tr('doc_parse_path(): Found non existing file ":file"', array(':file' => $path.$file)), 'not-exists');
+                throw new CoreException(tr('doc_parse_path(): Found non existing file ":file"', array(':file' => $path.$file)), 'not-exists');
             }
 
             if(is_dir($path.$file)){
@@ -184,7 +184,7 @@ function doc_parse_path($project, $path, $root, $recursive = true){
         }
 
     }catch(Exception $e){
-        throw new BException('doc_parse_path(): Failed', $e);
+        throw new CoreException('doc_parse_path(): Failed', $e);
     }
 }
 
@@ -313,7 +313,7 @@ function doc_parse_file($project, $file, $root){
                         return;
 
                     default:
-                        throw new BException(tr('doc_parse_file(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
+                        throw new CoreException(tr('doc_parse_file(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
                 }
 
             case 'css':
@@ -329,7 +329,7 @@ function doc_parse_file($project, $file, $root){
         }
 
     }catch(Exception $e){
-        throw new BException('doc_parse_file(): Failed', $e);
+        throw new CoreException('doc_parse_file(): Failed', $e);
     }
 }
 
@@ -350,7 +350,7 @@ function doc_parse_css_file($project, $file, $content){
     try{
 
     }catch(Exception $e){
-        throw new BException('doc_parse_css_file(): Failed', $e);
+        throw new CoreException('doc_parse_css_file(): Failed', $e);
     }
 }
 
@@ -371,7 +371,7 @@ function doc_parse_js_file($project, $file, $content){
     try{
 
     }catch(Exception $e){
-        throw new BException('doc_parse_js_file(): Failed', $e);
+        throw new CoreException('doc_parse_js_file(): Failed', $e);
     }
 }
 
@@ -439,7 +439,7 @@ function doc_parse_file_header($page, $file, $contents){
         }
 
     }catch(Exception $e){
-        throw new BException('doc_parse_file_header(): Failed', $e);
+        throw new CoreException('doc_parse_file_header(): Failed', $e);
     }
 }
 
@@ -460,7 +460,7 @@ function doc_parse_configuration($project, $file, $content){
     try{
 
     }catch(Exception $e){
-        throw new BException('doc_parse_configuration(): Failed', $e);
+        throw new CoreException('doc_parse_configuration(): Failed', $e);
     }
 }
 
@@ -481,7 +481,7 @@ function doc_parse_init($project, $file, $content){
     try{
 
     }catch(Exception $e){
-        throw new BException('doc_parse_init(): Failed', $e);
+        throw new CoreException('doc_parse_init(): Failed', $e);
     }
 }
 
@@ -502,7 +502,7 @@ function doc_parse_webpage($project, $file, $content){
     try{
 
     }catch(Exception $e){
-        throw new BException('doc_parse_webpage(): Failed', $e);
+        throw new CoreException('doc_parse_webpage(): Failed', $e);
     }
 }
 
@@ -523,7 +523,7 @@ function doc_parse_api($project, $file, $content){
     try{
 
     }catch(Exception $e){
-        throw new BException('doc_parse_api(): Failed', $e);
+        throw new CoreException('doc_parse_api(): Failed', $e);
     }
 }
 
@@ -544,7 +544,7 @@ function doc_parse_ajax($project, $file, $content){
     try{
 
     }catch(Exception $e){
-        throw new BException('doc_parse_ajax(): Failed', $e);
+        throw new CoreException('doc_parse_ajax(): Failed', $e);
     }
 }
 
@@ -630,7 +630,7 @@ function doc_parse_library($project, $file, $content){
          */
 
     }catch(Exception $e){
-        throw new BException('doc_parse_library(): Failed', $e);
+        throw new CoreException('doc_parse_library(): Failed', $e);
     }
 }
 
@@ -672,7 +672,7 @@ function doc_parse_function($project, $parent, $file, $content){
         return $page;
 
     }catch(Exception $e){
-        throw new BException('doc_parse_function(): Failed', $e);
+        throw new CoreException('doc_parse_function(): Failed', $e);
     }
 }
 
@@ -745,7 +745,7 @@ function doc_parse_function_header($page, $parent, $file, $content){
                             break;
 
                         default:
-                            throw new BException(tr('doc_parse_function_header(): Unknown current ":current" encountered', array(':current' => $current)), 'unknown');
+                            throw new CoreException(tr('doc_parse_function_header(): Unknown current ":current" encountered', array(':current' => $current)), 'unknown');
                     }
                 }
 
@@ -758,7 +758,7 @@ function doc_parse_function_header($page, $parent, $file, $content){
         }
 
     }catch(Exception $e){
-        throw new BException('doc_parse_function_header(): Failed', $e);
+        throw new CoreException('doc_parse_function_header(): Failed', $e);
     }
 }
 
@@ -794,7 +794,7 @@ function doc_insert_project($project, $language = null){
         return $project;
 
     }catch(Exception $e){
-        throw new BException('doc_insert_project(): Failed', $e);
+        throw new CoreException('doc_insert_project(): Failed', $e);
     }
 }
 
@@ -837,7 +837,7 @@ function doc_validate_project($project, $language = null){
         return $project;
 
     }catch(Exception $e){
-        throw new BException('doc_validate_project(): Failed', $e);
+        throw new CoreException('doc_validate_project(): Failed', $e);
     }
 }
 
@@ -876,7 +876,7 @@ function doc_insert_page($page){
         return $page;
 
     }catch(Exception $e){
-        throw new BException('doc_insert_page(): Failed', $e);
+        throw new CoreException('doc_insert_page(): Failed', $e);
     }
 }
 
@@ -947,7 +947,7 @@ function doc_validate_page($page){
         return $page;
 
     }catch(Exception $e){
-        throw new BException('doc_validate_page(): Failed', $e);
+        throw new CoreException('doc_validate_page(): Failed', $e);
     }
 }
 
@@ -968,7 +968,7 @@ function doc_validate_page($page){
 function doc_parse_value(string $line){
     try{
         if(!preg_match_all('/^@\s?([a-z-]+)\s?:?\s?(.+)/', $line, $matches)){
-            throw new BException(tr('doc_parse_value(): Specified line ":line" is of an incorrect format', array(':line' => $line)), 'invalid');
+            throw new CoreException(tr('doc_parse_value(): Specified line ":line" is of an incorrect format', array(':line' => $line)), 'invalid');
         }
 
         $value['key']   = $matches[1][0];
@@ -977,7 +977,7 @@ function doc_parse_value(string $line){
         return $value;
 
     }catch(Exception $e){
-        throw new BException('doc_parse_value(): Failed', $e);
+        throw new CoreException('doc_parse_value(): Failed', $e);
     }
 }
 
@@ -1013,7 +1013,7 @@ function doc_insert_value($value){
         return $value;
 
     }catch(Exception $e){
-        throw new BException('doc_insert_value(): Failed', $e);
+        throw new CoreException('doc_insert_value(): Failed', $e);
     }
 }
 
@@ -1051,7 +1051,7 @@ function doc_validate_value($value){
         return $value;
 
     }catch(Exception $e){
-        throw new BException('doc_validate_value(): Failed', $e);
+        throw new CoreException('doc_validate_value(): Failed', $e);
     }
 }
 
@@ -1078,7 +1078,7 @@ function doc_generate($project = null){
         $formats     = array('txt', 'html');
 
         if(!$projects_id){
-            throw new BException(tr('Failed to generate documentation for project ":project", it does not exist', array(':project' => $project)), 'not-exists');
+            throw new CoreException(tr('Failed to generate documentation for project ":project", it does not exist', array(':project' => $project)), 'not-exists');
         }
 
         log_console(tr('Generating documentation for project ":project"', array(':project' => $project)), 'white');
@@ -1119,7 +1119,7 @@ function doc_generate($project = null){
         }
 
     }catch(Exception $e){
-        throw new BException('doc_generate(): Failed', $e);
+        throw new CoreException('doc_generate(): Failed', $e);
     }
 }
 
@@ -1195,7 +1195,7 @@ function doc_generate_page($format, $page){
         file_put_contents($path.$format.'/'.$page['name'].'.'.$format, $data);
 
     }catch(Exception $e){
-        throw new BException('doc_generate_page(): Failed', $e);
+        throw new CoreException('doc_generate_page(): Failed', $e);
     }
 }
 
@@ -1223,7 +1223,7 @@ function doc_errors($error = null){
         return $errors;
 
     }catch(Exception $e){
-        throw new BException('doc_errors(): Failed', $e);
+        throw new CoreException('doc_errors(): Failed', $e);
     }
 }
 
@@ -1253,7 +1253,7 @@ function doc_clear($project){
         return true;
 
     }catch(Exception $e){
-        throw new BException('doc_errors(): Failed', $e);
+        throw new CoreException('doc_errors(): Failed', $e);
     }
 }
 ?>

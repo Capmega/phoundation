@@ -36,7 +36,7 @@ function templates_library_init(){
                                'which'     => 'template,foobar'));
 
     }catch(Exception $e){
-        throw new BException(tr('templates_library_init(): Failed'), $e);
+        throw new CoreException(tr('templates_library_init(): Failed'), $e);
     }
 }
 
@@ -61,7 +61,7 @@ function templates_install($params){
         apt_install('template');
 
     }catch(Exception $e){
-        throw new BException(tr('templates_install(): Failed'), $e);
+        throw new CoreException(tr('templates_install(): Failed'), $e);
     }
 }
 
@@ -118,7 +118,7 @@ function templates_validate($template){
       return $template;
 
     }catch(Exception $e){
-        throw new BException(tr('templates_validate(): Failed'), $e);
+        throw new CoreException(tr('templates_validate(): Failed'), $e);
     }
 }
 
@@ -166,7 +166,7 @@ function templates_insert($template){
         return $template;
 
     }catch(Exception $e){
-        throw new BException(tr('templates_insert(): Failed'), $e);
+        throw new CoreException(tr('templates_insert(): Failed'), $e);
     }
 }
 
@@ -220,7 +220,7 @@ function templates_update($template){
         return $template;
 
     }catch(Exception $e){
-        throw new BException(tr('templates_update(): Failed'), $e);
+        throw new CoreException(tr('templates_update(): Failed'), $e);
     }
 }
 
@@ -279,7 +279,7 @@ function templates_get($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException(tr('templates_get(): Failed'), $e);
+        throw new CoreException(tr('templates_get(): Failed'), $e);
     }
 }
 
@@ -319,7 +319,7 @@ function templates_list($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException(tr('templates_list(): Failed'), $e);
+        throw new CoreException(tr('templates_list(): Failed'), $e);
     }
 }
 
@@ -411,7 +411,7 @@ function templates_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('templates_select(): Failed'), $e);
+        throw new CoreException(tr('templates_select(): Failed'), $e);
     }
 }
 
@@ -456,6 +456,6 @@ function templates_function($params){
     try{
 
     }catch(Exception $e){
-        throw new BException(tr('templates_function(): Failed'), $e);
+        throw new CoreException(tr('templates_function(): Failed'), $e);
     }
 }

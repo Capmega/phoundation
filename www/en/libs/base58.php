@@ -41,7 +41,7 @@ function base58_library_init(){
                             'base58php/Base58.php'));
 
     }catch(Exception $e){
-        throw new BException('base58_library_init(): Failed', $e);
+        throw new CoreException('base58_library_init(): Failed', $e);
     }
 }
 
@@ -83,7 +83,7 @@ function base58_install($params){
         }
 
     }catch(Exception $e){
-        throw new BException('base58_install(): Failed', $e);
+        throw new CoreException('base58_install(): Failed', $e);
     }
 }
 
@@ -117,10 +117,10 @@ function base58_encode($source, $reduced = false){
 
     }catch(Exception $e){
         if($e->getMessage() == 'Please install the BC Math or GMP extension.'){
-            throw new BException(tr('base58_encode(): The PHP BC Math or PHP GMP extensions are not installed. On ubuntu, please install or enable these extensions using "sudo apt-get install php-bcmath", "sudo phpenmod bcmath", "sudo apt-get install php-gmp", or "sudo phpenmod gmp"'), 'not-available');
+            throw new CoreException(tr('base58_encode(): The PHP BC Math or PHP GMP extensions are not installed. On ubuntu, please install or enable these extensions using "sudo apt-get install php-bcmath", "sudo phpenmod bcmath", "sudo apt-get install php-gmp", or "sudo phpenmod gmp"'), 'not-available');
         }
 
-        throw new BException(tr('base58_encode(): Failed'), $e);
+        throw new CoreException(tr('base58_encode(): Failed'), $e);
     }
 }
 
@@ -154,10 +154,10 @@ function base58_decode($base58, $reduced = false){
 
     }catch(Exception $e){
         if($e->getMessage() == 'Please install the BC Math or GMP extension.'){
-            throw new BException(tr('base58_decode(): The PHP BC Math or PHP GMP extensions are not installed. On ubuntu, please install or enable these extensions using "sudo apt-get install php-bcmath", "sudo phpenmod bcmath", "sudo apt-get install php-gmp", or "sudo phpenmod gmp"'), 'not-available');
+            throw new CoreException(tr('base58_decode(): The PHP BC Math or PHP GMP extensions are not installed. On ubuntu, please install or enable these extensions using "sudo apt-get install php-bcmath", "sudo phpenmod bcmath", "sudo apt-get install php-gmp", or "sudo phpenmod gmp"'), 'not-available');
         }
 
-        throw new BException(tr('base58_decode(): Failed'), $e);
+        throw new CoreException(tr('base58_decode(): Failed'), $e);
     }
 }
 ?>

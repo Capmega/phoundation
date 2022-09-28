@@ -28,6 +28,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('scripts/stat: Failed', $e);
+    throw new CoreException('scripts/stat: Failed', $e);
 }
 ?>

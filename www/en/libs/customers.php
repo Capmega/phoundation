@@ -28,7 +28,7 @@ function customers_library_init(){
         load_config('customers');
 
     }catch(Exception $e){
-        throw new BException('customers_library_init(): Failed', $e);
+        throw new CoreException('customers_library_init(): Failed', $e);
     }
 }
 
@@ -274,7 +274,7 @@ function customers_validate($customer){
         return $customer;
 
     }catch(Exception $e){
-        throw new BException(tr('customers_validate(): Failed'), $e);
+        throw new CoreException(tr('customers_validate(): Failed'), $e);
     }
 }
 
@@ -344,7 +344,7 @@ function customers_insert($customer){
         return $customer;
 
     }catch(Exception $e){
-        throw new BException(tr('customers_insert(): Failed'), $e);
+        throw new CoreException(tr('customers_insert(): Failed'), $e);
     }
 }
 
@@ -425,7 +425,7 @@ function customers_update($customer){
         return $customer;
 
     }catch(Exception $e){
-        throw new BException(tr('customers_update(): Failed'), $e);
+        throw new CoreException(tr('customers_update(): Failed'), $e);
     }
 }
 
@@ -476,7 +476,7 @@ function customers_select($params = null){
             $params['categories_id'] = categories_get($params['seocategory'], 'id', null, $_CONFIG['customers']['categories_parent']);
 
             if(!$params['categories_id']){
-                throw new BException(tr('customers_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
+                throw new CoreException(tr('customers_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
             }
         }
 
@@ -504,7 +504,7 @@ function customers_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('customers_select(): Failed', $e);
+        throw new CoreException('customers_select(): Failed', $e);
     }
 }
 
@@ -588,7 +588,7 @@ function customers_get($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('customers_get(): Failed', $e);
+        throw new CoreException('customers_get(): Failed', $e);
     }
 }
 
@@ -622,6 +622,6 @@ function customers_list($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('customers_list(): Failed', $e);
+        throw new CoreException('customers_list(): Failed', $e);
     }
 }

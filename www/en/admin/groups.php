@@ -21,15 +21,15 @@ try{
              * Erase the specified users
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot erase groups, no groups selected', 'notspecified');
+                throw new CoreException('Cannot erase groups, no groups selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot erase groups, invalid data specified', 'invalid');
+                throw new CoreException('Cannot erase groups, invalid data specified', 'invalid');
             }
 
             if(in_array($_SESSION['user']['id'], $_POST['id'])){
-                throw new bException('You cannot delete yourself', 'invalid');
+                throw new CoreException('You cannot delete yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
@@ -49,15 +49,15 @@ try{
              * Erase the specified groups
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot undelete groups, no groups selected', 'notspecified');
+                throw new CoreException('Cannot undelete groups, no groups selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot undelete groups, invalid data specified', 'invalid');
+                throw new CoreException('Cannot undelete groups, invalid data specified', 'invalid');
             }
 
             if(in_array($_SESSION['user']['id'], $_POST['id'])){
-                throw new bException('You cannot undelete yourself', 'invalid');
+                throw new CoreException('You cannot undelete yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
@@ -77,15 +77,15 @@ try{
              * Erase the specified groups
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot erase groups, no groups selected', 'notspecified');
+                throw new CoreException('Cannot erase groups, no groups selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot erase groups, invalid data specified', 'invalid');
+                throw new CoreException('Cannot erase groups, invalid data specified', 'invalid');
             }
 
             if(in_array($_SESSION['user']['id'], $_POST['id'])){
-                throw new bException('You cannot erase yourself', 'invalid');
+                throw new CoreException('You cannot erase yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');

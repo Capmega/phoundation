@@ -39,7 +39,7 @@ function composer_library_init(){
         load_config('composer');
 
     }catch(Exception $e){
-        throw new BException('composer_library_init(): Failed', $e);
+        throw new CoreException('composer_library_init(): Failed', $e);
     }
 }
 
@@ -70,7 +70,7 @@ function composer_setup($params){
         $required_hash = trim($required_hash);
 
         if($file_hash !== $required_hash){
-            throw new BException(tr('composer_setup(): File hash check failed for composer-setup.php'), 'hash-fail');
+            throw new CoreException(tr('composer_setup(): File hash check failed for composer-setup.php'), 'hash-fail');
         }
 
         file_execute_mode(ROOT.'www/'.LANGUAGE.'/libs', 0770, function() use ($file) {
@@ -80,7 +80,7 @@ function composer_setup($params){
         file_delete(TMP.'composer');
 
     }catch(Exception $e){
-        throw new BException('composer_setup(): Failed', $e);
+        throw new CoreException('composer_setup(): Failed', $e);
     }
 }
 
@@ -93,7 +93,7 @@ function composer_init_file(){
     try{
         if(file_exists(ROOT.'composer.json')){
             if(!FORCE){
-                throw new bException('Composer has already been initialized for this project', 'already-initialized');
+                throw new CoreException('Composer has already been initialized for this project', 'already-initialized');
             }
         }
 
@@ -103,7 +103,7 @@ function composer_init_file(){
         });
 
     }catch(Exception $e){
-        throw new BException('composer_init_file(): Failed', $e);
+        throw new CoreException('composer_init_file(): Failed', $e);
     }
 }
 
@@ -132,7 +132,7 @@ function composer_init_file(){
 function composer_exec($commands, $path = null){
     try{
         if(!$commands){
-            throw new BException(tr('composer_exec(): No commands specified'), 'not-specified');
+            throw new CoreException(tr('composer_exec(): No commands specified'), 'not-specified');
         }
 
         file_execute_mode(ROOT, 0770, function() use ($commands, $path){
@@ -169,7 +169,7 @@ function composer_exec($commands, $path = null){
         });
 
     }catch(Exception $e){
-        throw new BException('composer_exec(): Failed', $e);
+        throw new CoreException('composer_exec(): Failed', $e);
     }
 }
 
@@ -197,7 +197,7 @@ function composer_exec($commands, $path = null){
 function composer_require($packages){
     try{
         if(!$packages){
-            throw new BException(tr('composer_require(): No package specified'), 'not-specified');
+            throw new CoreException(tr('composer_require(): No package specified'), 'not-specified');
         }
 
         foreach(array_force($packages) as $package){
@@ -205,7 +205,7 @@ function composer_require($packages){
         }
 
     }catch(Exception $e){
-        throw new BException('composer_require(): Failed', $e);
+        throw new CoreException('composer_require(): Failed', $e);
     }
 }
 
@@ -233,13 +233,13 @@ function composer_require($packages){
 function composer_install($path){
     try{
         if(!$path){
-            throw new BException(tr('composer_install(): No path specified'), 'not-specified');
+            throw new CoreException(tr('composer_install(): No path specified'), 'not-specified');
         }
 
         composer_exec(array('install'), $path);
 
     }catch(Exception $e){
-        throw new BException('composer_install(): Failed', $e);
+        throw new CoreException('composer_install(): Failed', $e);
     }
 }
 ?>

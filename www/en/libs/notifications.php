@@ -32,7 +32,7 @@ function notifications_library_init(){
         load_config('notifications');
 
     }catch(Exception $e){
-        throw new BException('notifications_library_init(): Failed', $e);
+        throw new CoreException('notifications_library_init(): Failed', $e);
     }
 }
 
@@ -109,7 +109,7 @@ return 0;
              * non production system, instead of notifying, throw an exception
              * that can be fixed bythe developer
              */
-            throw new BException($notification['message'], $notification['code']);
+            throw new CoreException($notification['message'], $notification['code']);
         }
 
 // :TODO: Implement all required sub sections, then enable
@@ -119,7 +119,7 @@ return 0;
 
     }catch(Exception $e){
         if(!$_CONFIG['production']){
-            throw new BException(tr('notifications(): Failed'), $e);
+            throw new CoreException(tr('notifications(): Failed'), $e);
         }
 
         if(is_array($notification) and !empty($notification['exception'])){
@@ -251,7 +251,7 @@ function notifications_validate($notification, $log, $throw = null){
                 /*
                  * Yeah, validate library hasn't been loaded, so panic
                  */
-                throw new BException(tr('notifications_validate(): Failed to validate notification, the validate library failed to load'), $e);
+                throw new CoreException(tr('notifications_validate(): Failed to validate notification, the validate library failed to load'), $e);
             }
         }
 
@@ -370,7 +370,7 @@ $notification['groups'] = array();
         return $notification;
 
     }catch(Exception $e){
-        throw new BException('notifications_validate(): Failed', $e);
+        throw new CoreException('notifications_validate(): Failed', $e);
     }
 }
 
@@ -399,7 +399,7 @@ function notifications_validate_group($group){
         return $group;
 
     }catch(Exception $e){
-        throw new BException('notifications_validate_group(): Failed', $e);
+        throw new CoreException('notifications_validate_group(): Failed', $e);
     }
 }
 
@@ -428,7 +428,7 @@ function notifications_validate_member($member){
         return $member;
 
     }catch(Exception $e){
-        throw new BException('notifications_validate_member(): Failed', $e);
+        throw new CoreException('notifications_validate_member(): Failed', $e);
     }
 }
 
@@ -457,7 +457,7 @@ function notifications_validate_method($method){
         return $method;
 
     }catch(Exception $e){
-        throw new BException('notifications_validate_method(): Failed', $e);
+        throw new CoreException('notifications_validate_method(): Failed', $e);
     }
 }
 
@@ -545,7 +545,7 @@ function notifications_insert_group($group){
         return $group;
 
     }catch(Exception $e){
-        throw new BException('notifications_insert_group(): Failed', $e);
+        throw new CoreException('notifications_insert_group(): Failed', $e);
     }
 }
 
@@ -583,7 +583,7 @@ function notifications_insert_member($member){
         return $member;
 
     }catch(Exception $e){
-        throw new BException('notifications_insert_member(): Failed', $e);
+        throw new CoreException('notifications_insert_member(): Failed', $e);
     }
 }
 
@@ -621,7 +621,7 @@ function notifications_insert_method($method){
         return $method;
 
     }catch(Exception $e){
-        throw new BException('notifications_insert_method(): Failed', $e);
+        throw new CoreException('notifications_insert_method(): Failed', $e);
     }
 }
 
@@ -653,7 +653,7 @@ function notifications_insert_groups($notification){
         }
 
     }catch(Exception $e){
-        throw new BException('notifications_insert(): Failed', $e);
+        throw new CoreException('notifications_insert(): Failed', $e);
     }
 }
 
@@ -678,7 +678,7 @@ function notifications_insert_groups($notification){
 function notifications_get($notifications_id){
     try{
         if(!is_natural($notifications_id)){
-            throw new BException(tr('notifications_get(): Invalid notifications id ":id" specified', array(':id' => $notifications_id)), 'invalid');
+            throw new CoreException(tr('notifications_get(): Invalid notifications id ":id" specified', array(':id' => $notifications_id)), 'invalid');
         }
 
         $retval = sql_get('SELECT `id`,
@@ -703,7 +703,7 @@ function notifications_get($notifications_id){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('notifications_get(): Failed', $e);
+        throw new CoreException('notifications_get(): Failed', $e);
     }
 }
 
@@ -741,7 +741,7 @@ function notifications_get_group($group, $column = null){
             $execute[':seoname'] = $group;
 
         }else{
-            throw new BException(tr('notifications_get_group(): Specified group ":group" is invalid', array(':group' => $group)), 'invalid');
+            throw new CoreException(tr('notifications_get_group(): Specified group ":group" is invalid', array(':group' => $group)), 'invalid');
         }
 
         if($column){
@@ -768,7 +768,7 @@ function notifications_get_group($group, $column = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('notifications_get_group(): Failed', $e);
+        throw new CoreException('notifications_get_group(): Failed', $e);
     }
 }
 
@@ -806,7 +806,7 @@ function notifications_get_method($method, $column = null){
             $execute[':seoname'] = $method;
 
         }else{
-            throw new BException(tr('notifications_get_method(): Specified method ":method" is invalid', array(':method' => $method)), 'invalid');
+            throw new CoreException(tr('notifications_get_method(): Specified method ":method" is invalid', array(':method' => $method)), 'invalid');
         }
 
         if($column){
@@ -833,7 +833,7 @@ function notifications_get_method($method, $column = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('notifications_get_method(): Failed', $e);
+        throw new CoreException('notifications_get_method(): Failed', $e);
     }
 }
 
@@ -871,7 +871,7 @@ function notifications_get_member($member, $column = null){
             $execute[':seoname'] = $member;
 
         }else{
-            throw new BException(tr('notifications_get_member(): Specified member ":member" is invalid', array(':member' => $member)), 'invalid');
+            throw new CoreException(tr('notifications_get_member(): Specified member ":member" is invalid', array(':member' => $member)), 'invalid');
         }
 
         if($column){
@@ -898,7 +898,7 @@ function notifications_get_member($member, $column = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('notifications_get_member(): Failed', $e);
+        throw new CoreException('notifications_get_member(): Failed', $e);
     }
 }
 
@@ -926,7 +926,7 @@ function notifications_list_groups($members_id){
          * Validate
          */
         if(!is_natural($members_id)){
-            throw new BException(tr('notifications_list_groups(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
+            throw new CoreException(tr('notifications_list_groups(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
         $retval = sql_query('SELECT `id`
@@ -940,7 +940,7 @@ function notifications_list_groups($members_id){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('notifications_list_groups(): Failed', $e);
+        throw new CoreException('notifications_list_groups(): Failed', $e);
     }
 }
 
@@ -968,7 +968,7 @@ function notifications_list_methods($members_id){
          * Validate
          */
         if(!is_natural($members_id)){
-            throw new BException(tr('notifications_list_methods(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
+            throw new CoreException(tr('notifications_list_methods(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
         $retval = sql_query('SELECT `id`
@@ -982,7 +982,7 @@ function notifications_list_methods($members_id){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('notifications_list_methods(): Failed', $e);
+        throw new CoreException('notifications_list_methods(): Failed', $e);
     }
 }
 
@@ -1010,7 +1010,7 @@ function notifications_list_members($members_id){
          * Validate
          */
         if(!is_natural($members_id)){
-            throw new BException(tr('notifications_list_members(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
+            throw new CoreException(tr('notifications_list_members(): Specified members_id ":$members_id" is invalid', array(':members_id' => $members_id)), 'invalid');
         }
 
         $retval = sql_query('SELECT `id`
@@ -1024,7 +1024,7 @@ function notifications_list_members($members_id){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('notifications_list_members(): Failed', $e);
+        throw new CoreException('notifications_list_members(): Failed', $e);
     }
 }
 
@@ -1052,7 +1052,7 @@ function notifications_get_url($notification){
     try{
 
     }catch(Exception $e){
-        throw new BException('notifications_get_url(): Failed', $e);
+        throw new CoreException('notifications_get_url(): Failed', $e);
     }
 }
 
@@ -1167,14 +1167,14 @@ function notifications_send($notification = null){
                             break;
 
                         default:
-                            throw new BException(tr('notifications_send(): Unknown notification method ":method" spefified', array(':method' => $method)), 'unknown');
+                            throw new CoreException(tr('notifications_send(): Unknown notification method ":method" spefified', array(':method' => $method)), 'unknown');
                     }
                 }
             }
         }
 
     }catch(Exception $e){
-        throw new BException('notifications_send(): Failed', $e);
+        throw new CoreException('notifications_send(): Failed', $e);
     }
 }
 
@@ -1203,7 +1203,7 @@ function notifications_email($notification){
         email_send(array());
 
     }catch(Exception $e){
-        throw new BException('notifications_email(): Failed', $e);
+        throw new CoreException('notifications_email(): Failed', $e);
     }
 }
 
@@ -1230,7 +1230,7 @@ function notifications_sms($event, $message, $users){
     try{
 
     }catch(Exception $e){
-        throw new BException('notifications_sms(): Failed', $e);
+        throw new CoreException('notifications_sms(): Failed', $e);
     }
 }
 
@@ -1257,7 +1257,7 @@ function notifications_prowl($event, $message, $users){
     try{
 
     }catch(Exception $e){
-        throw new BException('notifications_prowl(): Failed', $e);
+        throw new CoreException('notifications_prowl(): Failed', $e);
     }
 }
 
@@ -1284,7 +1284,7 @@ function notifications_pushcap($event, $message, $users){
     try{
 
     }catch(Exception $e){
-        throw new BException('notifications_pushcap(): Failed', $e);
+        throw new CoreException('notifications_pushcap(): Failed', $e);
     }
 }
 
@@ -1312,7 +1312,7 @@ function notifications_desktop($notification){
     try{
 
     }catch(Exception $e){
-        throw new BException('notifications_desktop(): Failed', $e);
+        throw new CoreException('notifications_desktop(): Failed', $e);
     }
 }
 
@@ -1337,7 +1337,7 @@ function notifications_web($notification){
     try{
 
     }catch(Exception $e){
-        throw new BException('notifications_web(): Failed', $e);
+        throw new CoreException('notifications_web(): Failed', $e);
     }
 }
 
@@ -1362,7 +1362,7 @@ function notifications_push($notification){
     try{
 
     }catch(Exception $e){
-        throw new BException('notifications_push(): Failed', $e);
+        throw new CoreException('notifications_push(): Failed', $e);
     }
 }
 
@@ -1387,7 +1387,7 @@ function notifications_api($notification){
     try{
 
     }catch(Exception $e){
-        throw new BException('notifications_api(): Failed', $e);
+        throw new CoreException('notifications_api(): Failed', $e);
     }
 }
 
@@ -1414,7 +1414,7 @@ function notifications_messenger($notification, $method){
         messenger_send($method, $notification['priority'].' '.$notification['title'].' '.$notification['url']);
 
     }catch(Exception $e){
-        throw new BException('notifications_messenger(): Failed', $e);
+        throw new CoreException('notifications_messenger(): Failed', $e);
     }
 }
 
@@ -1517,6 +1517,6 @@ function notifications_webpush($server, $check_every, $icon, $js_client = '', $t
         ');
 
     }catch(Exception $e){
-        throw new BException('notifications_webpush(): Failed', $e);
+        throw new CoreException('notifications_webpush(): Failed', $e);
     }
 }

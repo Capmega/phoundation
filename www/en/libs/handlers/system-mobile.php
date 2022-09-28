@@ -205,6 +205,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::mobile(): Failed'), $e);
+    throw new CoreException(tr('core::mobile(): Failed'), $e);
 }
 ?>

@@ -23,6 +23,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('scripts/mailer/send: Failed', $e);
+    throw new CoreException('scripts/mailer/send: Failed', $e);
 }
 ?>

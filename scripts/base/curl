@@ -47,7 +47,7 @@ if($params['noproxy']){
 }
 
 if(!$params['url']){
-    throw new BException(tr('Please specify a URL'), 'notspecfied');
+    throw new CoreException(tr('Please specify a URL'), 'notspecfied');
 }
 
 $data = curl_get($params);

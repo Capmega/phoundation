@@ -32,7 +32,7 @@ function services_library_init(){
         load_config('services');
 
     }catch(Exception $e){
-        throw new BException('services_library_init(): Failed', $e);
+        throw new CoreException('services_library_init(): Failed', $e);
     }
 }
 
@@ -139,7 +139,7 @@ function services_scan($server = null){
         return 1;
 
     }catch(Exception $e){
-        throw new BException('services_scan(): Failed', $e);
+        throw new CoreException('services_scan(): Failed', $e);
     }
 }
 
@@ -185,7 +185,7 @@ function services_validate($service){
         return $service;
 
     }catch(Exception $e){
-        throw new BException('services_validate(): Failed', $e);
+        throw new CoreException('services_validate(): Failed', $e);
     }
 }
 
@@ -223,7 +223,7 @@ function services_insert($service){
         return $service;
 
     }catch(Exception $e){
-        throw new BException('services_insert(): Failed', $e);
+        throw new CoreException('services_insert(): Failed', $e);
     }
 }
 
@@ -264,7 +264,7 @@ function services_update($service){
         return $service;
 
     }catch(Exception $e){
-        throw new BException('services_update(): Failed', $e);
+        throw new CoreException('services_update(): Failed', $e);
     }
 }
 
@@ -287,7 +287,7 @@ function services_update_server($service){
     try{
 
     }catch(Exception $e){
-        throw new BException('services_update_server(): Failed', $e);
+        throw new CoreException('services_update_server(): Failed', $e);
     }
 }
 
@@ -348,7 +348,7 @@ function services_get($service, $column = null, $status = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('services_get(): Failed', $e);
+        throw new CoreException('services_get(): Failed', $e);
     }
 }
 
@@ -383,7 +383,7 @@ function services_clear($server){
         return $r->rowCount();
 
     }catch(Exception $e){
-        throw new BException('services_clear(): Failed', $e);
+        throw new CoreException('services_clear(): Failed', $e);
     }
 }
 
@@ -443,7 +443,7 @@ function services_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('services_select(): Failed', $e);
+        throw new CoreException('services_select(): Failed', $e);
     }
 }
 
@@ -502,7 +502,7 @@ function services_list_servers($service, $domain = null, $return_array = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('services_list_servers(): Failed', $e);
+        throw new CoreException('services_list_servers(): Failed', $e);
     }
 }
 ?>

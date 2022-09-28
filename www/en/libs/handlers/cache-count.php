@@ -19,13 +19,13 @@ try{
             /*
              * Cache has been disabled
              */
-            throw new BException(tr('cache_count(): Can not count cache objects, cache has been disabled'), 'disabled');
+            throw new CoreException(tr('cache_count(): Can not count cache objects, cache has been disabled'), 'disabled');
 
         default:
-            throw new BException(tr('cache_count(): Unknown cache method "%method%" specified', array('method' => str_log($_CONFIG['cache']['method']))), 'unknown');
+            throw new CoreException(tr('cache_count(): Unknown cache method "%method%" specified', array('method' => str_log($_CONFIG['cache']['method']))), 'unknown');
     }
 
 }catch(Exception $e){
-    throw new BException('cache_count(): Failed', $e);
+    throw new CoreException('cache_count(): Failed', $e);
 }
 ?>

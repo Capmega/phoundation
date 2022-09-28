@@ -30,7 +30,7 @@ function config_get_for_environment($environment){
 
         if($environment !== 'production'){
             if(!file_exists(ROOT.'config/'.$environment.'.php')){
-                throw new BException(tr('config_get_for_environment(): Specified environment ":environment" does not exist', array(':environment' => $environment)), 'not-exists');
+                throw new CoreException(tr('config_get_for_environment(): Specified environment ":environment" does not exist', array(':environment' => $environment)), 'not-exists');
             }
 
             include(ROOT.'config/'.$environment.'.php');
@@ -46,7 +46,7 @@ function config_get_for_environment($environment){
         return $_CONFIG;
 
     }catch(Exception $e){
-        throw new BException(tr('config_get_for_environment(): Failed'), $e);
+        throw new CoreException(tr('config_get_for_environment(): Failed'), $e);
     }
 }
 
@@ -77,7 +77,7 @@ function config_read($environment, $section = null){
          * Optionally load the platform specific configuration file, if it exists
          */
         if(!file_exists($file = ROOT.'config/'.$environment.$section.'.php')){
-            throw new BException(tr('config_read(): The specified configuration file ":file" does not exist', array(':file' => 'ROOT/config/'.$environment.$section.'.php')), 'not-exists');
+            throw new CoreException(tr('config_read(): The specified configuration file ":file" does not exist', array(':file' => 'ROOT/config/'.$environment.$section.'.php')), 'not-exists');
         }
 
         $data   = file_get_contents($file);
@@ -143,7 +143,7 @@ function config_read($environment, $section = null){
         return $config;
 
     }catch(Exception $e){
-        throw new BException(tr('config_read(): Failed'), $e);
+        throw new CoreException(tr('config_read(): Failed'), $e);
     }
 }
 
@@ -210,7 +210,7 @@ function config_write($data, $environment, $section = false){
         return true;
 
     }catch(Exception $e){
-        throw new BException(tr('config_write(): Failed'), $e);
+        throw new CoreException(tr('config_write(): Failed'), $e);
     }
 }
 
@@ -235,15 +235,15 @@ function config_update($environment, $keys, $value){
 
     try{
         if(!$keys){
-            throw new BException(tr('config_update(): No keys specified. Please specify a valid configuration key set'), 'not-specified');
+            throw new CoreException(tr('config_update(): No keys specified. Please specify a valid configuration key set'), 'not-specified');
         }
 
         if(!$value){
-            throw new BException(tr('config_update(): No value specified.'), 'not-specified');
+            throw new CoreException(tr('config_update(): No value specified.'), 'not-specified');
         }
 
         if(!$environment){
-            throw new BException(tr('config_update(): No environment specified.'), 'not-specified');
+            throw new CoreException(tr('config_update(): No environment specified.'), 'not-specified');
         }
 
         $keys    = array_force($keys);
@@ -259,7 +259,7 @@ function config_update($environment, $keys, $value){
             $CONFIG  = config_read($environment, $basekey);
 
             if(!isset($CONFIG[$basekey])){
-                throw new BException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $basekey)), 'not-exists');
+                throw new CoreException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $basekey)), 'not-exists');
             }
 
         }else{
@@ -270,7 +270,7 @@ function config_update($environment, $keys, $value){
 
         foreach($keys as $key){
             if(!array_key_exists($key, $config)){
-                throw new BException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $keys)), 'not-exists');
+                throw new CoreException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $keys)), 'not-exists');
             }
 
             $config = &$config[$key];
@@ -279,11 +279,11 @@ function config_update($environment, $keys, $value){
         $value = force_datatype($value);
 
         if(!array_key_exists('__value__', $config)){
-            throw new BException(tr('config_update(): The specified configuration section ":section" is not a configuration leaf node and cannot be configured.', array(':section' => $keys)), 'invalid');
+            throw new CoreException(tr('config_update(): The specified configuration section ":section" is not a configuration leaf node and cannot be configured.', array(':section' => $keys)), 'invalid');
         }
 
         if((gettype($config['__value__']) != gettype($value)) and ($config['__value__'] !== null)){
-            throw new BException(tr('config_update(): The specified configuration section ":section" should be of datatype ":current" but is specified as datatype ":specified"', array(':current' => gettype($config['__value__']), ':specified' => gettype($value))), 'invalid');
+            throw new CoreException(tr('config_update(): The specified configuration section ":section" should be of datatype ":current" but is specified as datatype ":specified"', array(':current' => gettype($config['__value__']), ':specified' => gettype($value))), 'invalid');
         }
 
         if($config['__value__'] === $value){
@@ -298,7 +298,7 @@ function config_update($environment, $keys, $value){
         return config_write($CONFIG, $environment, $section);
 
     }catch(Exception $e){
-        throw new BException(tr('config_update(): Failed'), $e);
+        throw new CoreException(tr('config_update(): Failed'), $e);
     }
 }
 
@@ -345,7 +345,7 @@ function config_lines($key, $value, $config_string = '$_CONFIG'){
         return $lines;
 
     }catch(Exception $e){
-        throw new BException(tr('config_lines(): Failed'), $e);
+        throw new CoreException(tr('config_lines(): Failed'), $e);
     }
 }
 
@@ -396,7 +396,7 @@ function config_write_project($project, $project_code_version, $seed){
         file_put_contents(ROOT.'config/project.php', $data);
 
     }catch(Exception $e){
-        throw new BException(tr('config_write_project(): Failed'), $e);
+        throw new CoreException(tr('config_write_project(): Failed'), $e);
     }
 }
 
@@ -454,7 +454,7 @@ function config_exists($file){
         return false;
 
     }catch(Exception $e){
-        throw new BException(tr('config_exists(): Failed to check config file(s) ":file"', array(':file' => $files)), $e);
+        throw new CoreException(tr('config_exists(): Failed to check config file(s) ":file"', array(':file' => $files)), $e);
     }
 }
 ?>

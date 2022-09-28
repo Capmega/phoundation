@@ -109,7 +109,7 @@ try{
 
     if(isset_get($_POST['doupdate'])){
         if(empty($group['id'])){
-            throw new bException('Cannot update, no group specified', 'notspecified');
+            throw new CoreException('Cannot update, no group specified', 'notspecified');
         }
 
         /*
@@ -143,7 +143,7 @@ try{
 
     if(isset_get($_POST['newmembers'])){
         if(empty($group['id'])){
-            throw new bException('Cannot update, no group specified', 'notspecified');
+            throw new CoreException('Cannot update, no group specified', 'notspecified');
         }
 
         $members = explode(',' , $_POST['members']);
@@ -332,11 +332,11 @@ function s_validate_group(&$group){
         $v->hasMaxChars ($group['name'],  16, tr('Please ensure that the name has a maximum of 16 characters'));
 
         if(!$v->isValid()) {
-            throw new bException($v->getErrors(), 'invalid');
+            throw new CoreException($v->getErrors(), 'invalid');
         }
 
     }catch(Exception $e){
-        throw new bException('s_validate_group(): Failed', $e);
+        throw new CoreException('s_validate_group(): Failed', $e);
     }
 }
 
@@ -360,7 +360,7 @@ function s_delete_user_group($user_id, $group){
                      array(':id' => $user_id));
 
     if(empty($user)){
-        throw new bException(tr('This user does not exists'));
+        throw new CoreException(tr('This user does not exists'));
     }
 
     // :DELETE: We already loaded the group information
@@ -374,7 +374,7 @@ function s_delete_user_group($user_id, $group){
     //                  array(':id' => $_GET['group']));
     //
     //if(empty($group)){
-    //    throw new bException(tr('This group does not exists'));
+    //    throw new CoreException(tr('This group does not exists'));
     //}
 
     $user_group = sql_get('SELECT `id`
@@ -388,7 +388,7 @@ function s_delete_user_group($user_id, $group){
                                  ':groups_id' => $group['id']));
 
     if(empty($user_group)){
-        throw new bException(tr('The specified user ":user" is not on group ":group"', array(':user' => $user['name'], ':group' => $group['name'])));
+        throw new CoreException(tr('The specified user ":user" is not on group ":group"', array(':user' => $user['name'], ':group' => $group['name'])));
     }
 
     sql_query('DELETE FROM `users_groups`

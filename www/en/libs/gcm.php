@@ -19,7 +19,7 @@ function gcm_send_notification($registatoin_ids, $message) {
 
     try{
         if(!function_exists('curl_init')){
-            throw new BException('gcm_send_notification(): PHP CURL is not installed, this function cannot work without this library');
+            throw new CoreException('gcm_send_notification(): PHP CURL is not installed, this function cannot work without this library');
         }
 
         if(!is_array($registatoin_ids)){

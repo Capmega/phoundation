@@ -36,7 +36,7 @@ function systemd_library_init(){
                                'which'     => 'systemd,foobar'));
 
     }catch(Exception $e){
-        throw new BException('systemd_library_init(): Failed', $e);
+        throw new CoreException('systemd_library_init(): Failed', $e);
     }
 }
 
@@ -64,7 +64,7 @@ function systemd_install($params){
         apt_install('systemd');
 
     }catch(Exception $e){
-        throw new BException('systemd_install(): Failed', $e);
+        throw new CoreException('systemd_install(): Failed', $e);
     }
 }
 
@@ -109,7 +109,7 @@ function systemd_function($params){
     try{
 
     }catch(Exception $e){
-        throw new BException('systemd_function(): Failed', $e);
+        throw new CoreException('systemd_function(): Failed', $e);
     }
 }
 ?>

@@ -38,7 +38,7 @@ function node_library_init(){
                                'which'    => array('npm')));
 
     }catch(Exception $e){
-        throw new BException('node_library_init(): Failed', $e);
+        throw new CoreException('node_library_init(): Failed', $e);
     }
 }
 
@@ -64,7 +64,7 @@ function node_setup(){
         linux_install_package(null, 'nodejs');
 
     }catch(Exception $e){
-        throw new BException('node_setup(): Failed', $e);
+        throw new CoreException('node_setup(): Failed', $e);
     }
 }
 
@@ -90,7 +90,7 @@ function node_setup_npm(){
         linux_install_package(null, 'npm');
 
     }catch(Exception $e){
-        throw new BException('node_setup_npm(): Failed', $e);
+        throw new CoreException('node_setup_npm(): Failed', $e);
     }
 }
 
@@ -115,7 +115,7 @@ function node_exec($command, $arguments){
                                                    './'.$command, $arguments)));
 
     }catch(Exception $e){
-        throw new BException('node_exec(): Failed', $e);
+        throw new CoreException('node_exec(): Failed', $e);
     }
 }
 
@@ -142,14 +142,14 @@ function node_find(){
 
     }catch(Exception $e){
         if($e->getCode() == 1){
-            throw new BException('node_find(): Failed to find a node installation on this computer for this user. On Ubuntu, install node with "sudo apt-get install nodejs"', 'node_not_installed');
+            throw new CoreException('node_find(): Failed to find a node installation on this computer for this user. On Ubuntu, install node with "sudo apt-get install nodejs"', 'node_not_installed');
         }
 
         if($e->getCode() == 'node_modules_path_not_found'){
             throw $e;
         }
 
-        throw new BException('node_find(): Failed', $e);
+        throw new CoreException('node_find(): Failed', $e);
     }
 }
 
@@ -168,7 +168,7 @@ function node_find_modules(){
          * Find node_modules path
          */
         if(!$home = getenv('HOME')){
-            throw new BException('node_find_modules(): Environment variable "HOME" not found, failed to locate users home directory', 'environment_variable_not_found');
+            throw new CoreException('node_find_modules(): Environment variable "HOME" not found, failed to locate users home directory', 'environment_variable_not_found');
         }
 
         $home  = slash($home);
@@ -227,14 +227,14 @@ function node_find_modules(){
 
     }catch(Exception $e){
         if($e->getCode() == 1){
-            throw new BException('node_find_modules(): Failed to find a node installation on this computer for this user', 'not_installed');
+            throw new CoreException('node_find_modules(): Failed to find a node installation on this computer for this user', 'not_installed');
         }
 
         if($e->getCode() == 'path_not_found'){
             throw $e;
         }
 
-        throw new BException('node_find_modules(): Failed', $e);
+        throw new CoreException('node_find_modules(): Failed', $e);
     }
 }
 
@@ -252,10 +252,10 @@ function node_find_npm(){
 
     }catch(Exception $e){
         if($e->getCode() == 1){
-            throw new BException('node_find_npm(): Failed to find an npm installation on this computer for this user. On Ubuntu, install with "sudo apt-get install npm"', 'npm_not_installed');
+            throw new CoreException('node_find_npm(): Failed to find an npm installation on this computer for this user. On Ubuntu, install with "sudo apt-get install npm"', 'npm_not_installed');
         }
 
-        throw new BException('node_find_npm(): Failed', $e);
+        throw new CoreException('node_find_npm(): Failed', $e);
     }
 }
 
@@ -311,7 +311,7 @@ function node_install_npm($packages){
         return count($packages);
 
     }catch(Exception $e){
-        throw new BException('node_install_npm(): Failed', $e);
+        throw new CoreException('node_install_npm(): Failed', $e);
     }
 }
 
@@ -325,7 +325,7 @@ function node_check(){
         node_find();
 
     }catch(Exception $e){
-        throw new BException('node_check(): Failed', $e);
+        throw new CoreException('node_check(): Failed', $e);
     }
 }
 
@@ -334,6 +334,6 @@ function node_check_npm(){
         node_find_npm();
 
     }catch(Exception $e){
-        throw new BException('node_check_npm(): Failed', $e);
+        throw new CoreException('node_check_npm(): Failed', $e);
     }
 }

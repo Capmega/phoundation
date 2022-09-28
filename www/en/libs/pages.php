@@ -61,7 +61,7 @@ function pages_list($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('pages_list(): Failed'), $e);
+        throw new CoreException(tr('pages_list(): Failed'), $e);
     }
 }
 
@@ -153,7 +153,7 @@ function pages_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('pages_select(): Failed'), $e);
+        throw new CoreException(tr('pages_select(): Failed'), $e);
     }
 }
 ?>

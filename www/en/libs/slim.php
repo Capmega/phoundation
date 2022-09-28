@@ -23,7 +23,7 @@ function slim_library_init(){
                                'checks'   => array(ROOT.'vendor/slim')));
 
     }catch(Exception $e){
-        throw new BException('slim_library_init(): Failed', $e);
+        throw new CoreException('slim_library_init(): Failed', $e);
     }
 }
 
@@ -38,7 +38,7 @@ function slim_install($params){
         return install($params);
 
     }catch(Exception $e){
-        throw new BException('slim_install(): Failed', $e);
+        throw new CoreException('slim_install(): Failed', $e);
     }
 }
 ?>

@@ -32,7 +32,7 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
 
         if($result){
             if(isset($data['result'])){
-                throw new BException(tr('json_reply(): Result was specifed both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
+                throw new CoreException(tr('json_reply(): Result was specifed both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
             }
 
             /*
@@ -81,11 +81,11 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
                 return;
 
             default:
-                throw new BException(tr('json_reply(): Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', array(':after' => $after)), 'unknown');
+                throw new CoreException(tr('json_reply(): Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', array(':after' => $after)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('json_reply(): Failed', $e);
+        throw new CoreException('json_reply(): Failed', $e);
     }
 }
 
@@ -172,7 +172,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
                         $type .= '/'.get_class($message);
                     }
 
-                    throw new BException(tr('json_error(): Specified message must either be a string or an BException ojbect, or PHP Exception ojbect, but is a ":type"', array(':type' => $type)), 'invalid');
+                    throw new CoreException(tr('json_error(): Specified message must either be a string or an BException ojbect, or PHP Exception ojbect, but is a ":type"', array(':type' => $type)), 'invalid');
                 }
 
                 $code = $message->getCode();
@@ -237,7 +237,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500){
         json_reply($data, ($result ? $result : 'ERROR'), $http_code);
 
     }catch(Exception $e){
-        throw new BException('json_error(): Failed', $e);
+        throw new CoreException('json_error(): Failed', $e);
     }
 }
 
@@ -371,7 +371,7 @@ function json_message($code, $data = null){
         }
 
     }catch(Exception $e){
-        throw new BException('json_message(): Failed', $e);
+        throw new CoreException('json_message(): Failed', $e);
     }
 }
 
@@ -390,16 +390,16 @@ function json_encode_custom($source, $internal = true){
                     break;
 
                 case JSON_ERROR_DEPTH:
-                    throw new BException('json_encode_custom(): Maximum stack depth exceeded'      , 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): Maximum stack depth exceeded'      , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_STATE_MISMATCH:
-                    throw new BException('json_encode_custom(): Underflow or the modes mismatch'   , 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): Underflow or the modes mismatch'   , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_CTRL_CHAR:
-                    throw new BException('json_encode_custom(): Unexpected control character found', 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): Unexpected control character found', 'invalid', print_r($source, true));
 
                 case JSON_ERROR_SYNTAX:
-                    throw new BException('json_encode_custom(): Syntax error, malformed JSON'      , 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): Syntax error, malformed JSON'      , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_UTF8:
                     /*
@@ -409,23 +409,23 @@ function json_encode_custom($source, $internal = true){
                     return json_encode_custom(mb_utf8ize($source), true);
 
                 case JSON_ERROR_RECURSION:
-                    throw new BException('json_encode_custom(): One or more recursive references in the value to be encoded', 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): One or more recursive references in the value to be encoded', 'invalid', print_r($source, true));
 
                 case JSON_ERROR_INF_OR_NAN:
-                    throw new BException('json_encode_custom(): One or more NAN or INF values in the value to be encoded'   , 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): One or more NAN or INF values in the value to be encoded'   , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_UNSUPPORTED_TYPE:
-                    throw new BException('json_encode_custom(): A value of a type that cannot be encoded was given'         , 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): A value of a type that cannot be encoded was given'         , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_INVALID_PROPERTY_NAME:
-                    throw new BException('json_encode_custom(): A property name that cannot be encoded was given'           , 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): A property name that cannot be encoded was given'           , 'invalid', print_r($source, true));
 
                 case JSON_ERROR_UTF16:
-                    throw new BException('json_encode_custom(): Malformed UTF-16 characters, possibly incorrectly encoded'  , 'invalid', print_r($source, true));
+                    throw new CoreException('json_encode_custom(): Malformed UTF-16 characters, possibly incorrectly encoded'  , 'invalid', print_r($source, true));
 
 
                 default:
-                    throw new BException('json_encode_custom(): Unknown JSON error occured', 'error');
+                    throw new CoreException('json_encode_custom(): Unknown JSON error occured', 'error');
             }
 
             return $source;
@@ -490,7 +490,7 @@ function json_encode_custom($source, $internal = true){
 
     }catch(Exception $e){
         $e->setData($source);
-        throw new BException(tr('json_encode_custom(): Failed with ":message"', array(':message' => json_last_error_msg())), $e);
+        throw new CoreException(tr('json_encode_custom(): Failed with ":message"', array(':message' => json_last_error_msg())), $e);
     }
 }
 
@@ -518,28 +518,28 @@ function json_decode_custom($json, $as_array = true){
                 break;
 
             case JSON_ERROR_DEPTH:
-                throw new BException('json_decode_custom(): Maximum stack depth exceeded', 'invalid');
+                throw new CoreException('json_decode_custom(): Maximum stack depth exceeded', 'invalid');
 
             case JSON_ERROR_STATE_MISMATCH:
-                throw new BException('json_decode_custom(): Underflow or the modes mismatch', 'invalid');
+                throw new CoreException('json_decode_custom(): Underflow or the modes mismatch', 'invalid');
 
             case JSON_ERROR_CTRL_CHAR:
-                throw new BException('json_decode_custom(): Unexpected control character found', 'invalid');
+                throw new CoreException('json_decode_custom(): Unexpected control character found', 'invalid');
 
             case JSON_ERROR_SYNTAX:
-                throw new BException('json_decode_custom(): Syntax error, malformed JSON', 'invalid', $json);
+                throw new CoreException('json_decode_custom(): Syntax error, malformed JSON', 'invalid', $json);
 
             case JSON_ERROR_UTF8:
-                throw new BException('json_decode_custom(): Syntax error, UTF8 issue', 'invalid', $json);
+                throw new CoreException('json_decode_custom(): Syntax error, UTF8 issue', 'invalid', $json);
 
             default:
-                throw new BException('json_decode_custom(): Unknown JSON error occured', 'error');
+                throw new CoreException('json_decode_custom(): Unknown JSON error occured', 'error');
         }
 
         return $retval;
 
     }catch(Exception $e){
         $e->setData($json);
-        throw new BException('json_decode_custom(): Failed', $e);
+        throw new CoreException('json_decode_custom(): Failed', $e);
     }
 }

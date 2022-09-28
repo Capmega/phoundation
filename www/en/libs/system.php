@@ -327,24 +327,24 @@ class Core{
             if(!defined('SEED') or !SEED or (PROJECTCODEVERSION == '0.0.0')){
                 if($core->register['script'] !== 'setup'){
                     if(!FORCE){
-                        throw new BException(tr('startup: Project data in "ROOT/config/project.php" has not been fully configured. Please ensure that PROJECT is not empty, SEED is not empty, and PROJECTCODEVERSION is valid and not "0.0.0"'), 'project-not-setup');
+                        throw new CoreException(tr('startup: Project data in "ROOT/config/project.php" has not been fully configured. Please ensure that PROJECT is not empty, SEED is not empty, and PROJECTCODEVERSION is valid and not "0.0.0"'), 'project-not-setup');
                     }
                 }
             }
 
         }catch(Error $e){
-            throw new BException(tr('core::startup(): Failed calltype ":calltype" with PHP error', array(':calltype' => $this->callType)), $e);
+            throw new CoreException(tr('core::startup(): Failed calltype ":calltype" with PHP error', array(':calltype' => $this->callType)), $e);
 
         }catch(Exception $e){
             if(PLATFORM_HTTP and headers_sent($file, $line)){
                 if(preg_match('/debug-.+\.php$/', $file)){
-                    throw new BException(tr('core::startup(): Failed because headers were already sent on ":location", so probably some added debug code caused this issue', array(':location' => $file.'@'.$line)), $e);
+                    throw new CoreException(tr('core::startup(): Failed because headers were already sent on ":location", so probably some added debug code caused this issue', array(':location' => $file.'@'.$line)), $e);
                 }
 
-                throw new BException(tr('core::startup(): Failed because headers were already sent on ":location"', array(':location' => $file.'@'.$line)), $e);
+                throw new CoreException(tr('core::startup(): Failed because headers were already sent on ":location"', array(':location' => $file.'@'.$line)), $e);
             }
 
-            throw new BException(tr('core::startup(): Failed calltype ":calltype"', array(':calltype' => $this->callType)), $e);
+            throw new CoreException(tr('core::startup(): Failed calltype ":calltype"', array(':calltype' => $this->callType)), $e);
         }
     }
 
@@ -436,7 +436,7 @@ class Core{
                     break;
 
                 default:
-                    throw new BException(tr('core::callType(): Unknown call type ":type" specified', array(':type' => $type)), 'unknown');
+                    throw new CoreException(tr('core::callType(): Unknown call type ":type" specified', array(':type' => $type)), 'unknown');
             }
 
             return ($this->callType === $type);
@@ -495,7 +495,7 @@ class BException extends Exception{
     public function addMessages($messages){
         if(is_object($messages)){
             if(!($messages instanceof BException)){
-                throw new BException(tr('BException::addMessages(): Only supported object class to add to messages is BException'), 'invalid');
+                throw new CoreException(tr('BException::addMessages(): Only supported object class to add to messages is BException'), 'invalid');
             }
 
             $messages = $messages->getMessages();
@@ -803,7 +803,7 @@ function tr($text, $replace = null, $verify = true){
                         }
                     }
 
-                    throw new BException('tr(): Not all specified keywords were found in text', 'not-exists');
+                    throw new CoreException('tr(): Not all specified keywords were found in text', 'not-exists');
                 }
 
                 /*
@@ -820,7 +820,7 @@ function tr($text, $replace = null, $verify = true){
         /*
          * Do NOT use tr() here for obvious endless loop reasons!
          */
-        throw new BException('tr(): Failed with text "'.str_log($text).'". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
+        throw new CoreException('tr(): Failed with text "'.str_log($text).'". Very likely issue with $replace not containing all keywords, or one of the $replace values is non-scalar', $e);
     }
 }
 
@@ -843,11 +843,11 @@ function debug($enabled = null){
 
     try{
         if(!$core->register['ready']){
-            throw new BException(tr('debug(): Startup has not yet finished and base is not ready to start working properly. debug() may not be called until configuration is fully loaded and available'), 'invalid');
+            throw new CoreException(tr('debug(): Startup has not yet finished and base is not ready to start working properly. debug() may not be called until configuration is fully loaded and available'), 'invalid');
         }
 
         if(!is_array($_CONFIG['debug'])){
-            throw new BException(tr('debug(): Invalid configuration, $_CONFIG[debug] is boolean, and it should be an array. Please check your config/ directory for "$_CONFIG[\'debug\']"'), 'invalid');
+            throw new CoreException(tr('debug(): Invalid configuration, $_CONFIG[debug] is boolean, and it should be an array. Please check your config/ directory for "$_CONFIG[\'debug\']"'), 'invalid');
         }
 
         if($enabled !== null){
@@ -857,7 +857,7 @@ function debug($enabled = null){
         return $_CONFIG['debug']['enabled'];
 
     }catch(Exception $e){
-        throw new BException(tr('debug(): Failed'), $e);
+        throw new CoreException(tr('debug(): Failed'), $e);
     }
 }
 
@@ -949,7 +949,7 @@ function load_external($files){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('load_external(): Failed'), $e);
+        throw new CoreException(tr('load_external(): Failed'), $e);
     }
 }
 
@@ -1038,14 +1038,14 @@ function load_libs($libraries){
 
     }catch(Exception $e){
         if(empty($library)){
-            throw new BException(tr('load_libs(): Failed to load one or more of libraries ":libraries"', array(':libraries' => $libraries)), $e);
+            throw new CoreException(tr('load_libs(): Failed to load one or more of libraries ":libraries"', array(':libraries' => $libraries)), $e);
         }
 
         if(!file_exists($libs.$library.'.php')){
-            throw new BException(tr('load_libs(): Failed to load library ":library", the library does not exist', array(':library' => $library)), $e);
+            throw new CoreException(tr('load_libs(): Failed to load library ":library", the library does not exist', array(':library' => $library)), $e);
         }
 
-        throw new BException(tr('load_libs(): Failed to load library ":library" from the requested libraries list ":libraries"', array(':libraries' => $libraries, ':library' => $library)), $e);
+        throw new CoreException(tr('load_libs(): Failed to load library ":library" from the requested libraries list ":libraries"', array(':libraries' => $libraries, ':library' => $library)), $e);
     }
 }
 
@@ -1120,7 +1120,7 @@ function load_config($files = ''){
             }
 
             if(!$loaded){
-                throw new BException(tr('load_config(): No configuration file was found for requested configuration ":file"', array(':file' => $file)), 'not-exists');
+                throw new CoreException(tr('load_config(): No configuration file was found for requested configuration ":file"', array(':file' => $file)), 'not-exists');
             }
         }
 
@@ -1131,7 +1131,7 @@ function load_config($files = ''){
         $core->register['ready'] = true;
 
     }catch(Exception $e){
-        throw new BException(tr('load_config(): Failed to load some or all of config file(s) ":file"', array(':file' => $files)), $e);
+        throw new CoreException(tr('load_config(): Failed to load some or all of config file(s) ":file"', array(':file' => $files)), $e);
     }
 }
 
@@ -1187,13 +1187,13 @@ function read_config($file = null, $environment = null){
         }
 
         if(empty($loaded)){
-            throw new BException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exists');
+            throw new CoreException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exists');
         }
 
         return $_CONFIG;
 
     }catch(Exception $e){
-        throw new BException('read_config(): Failed', $e);
+        throw new CoreException('read_config(): Failed', $e);
     }
 }
 
@@ -1322,7 +1322,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
                  * Oops, specified $from array does not contain all replace markers
                  */
                 if(!$_CONFIG['production']){
-                    throw new BException(tr('load_content(): Missing markers ":markers" for content file ":file"', array(':markers' => $matches, ':file' => $realfile)), 'missing-markers');
+                    throw new CoreException(tr('load_content(): Missing markers ":markers" for content file ":file"', array(':markers' => $matches, ':file' => $realfile)), 'missing-markers');
                 }
             }
 
@@ -1348,7 +1348,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
         }
 
         if(!$autocreate){
-            throw new BException(tr('load_content(): Specified file ":file" does not exist for language ":language"', array(':file' => $file, ':language' => $language)), 'not-exists');
+            throw new CoreException(tr('load_content(): Specified file ":file" does not exist for language ":language"', array(':file' => $file, ':language' => $language)), 'not-exists');
         }
 
         /*
@@ -1384,7 +1384,7 @@ function load_content($file, $replace = false, $language = null, $autocreate = n
                 break;
         }
 
-        throw new BException(tr('load_content(): Failed for file ":file"', array(':file' => $file)), $e);
+        throw new CoreException(tr('load_content(): Failed for file ":file"', array(':file' => $file)), $e);
     }
 }
 
@@ -1452,7 +1452,7 @@ function accepts($mimetype = null){
         return key($headers);
 
     }catch(Exception $e){
-        throw new BException(tr('accepts(): Failed'), $e);
+        throw new CoreException(tr('accepts(): Failed'), $e);
     }
 }
 
@@ -1521,7 +1521,7 @@ function accepts_languages(){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('accepts_languages(): Failed'), $e);
+        throw new CoreException(tr('accepts_languages(): Failed'), $e);
     }
 }
 
@@ -1624,7 +1624,7 @@ function log_flags($color){
         return $color;
 
     }catch(Exception $e){
-        throw new BException(tr('log_flags(): Failed'), $e);
+        throw new CoreException(tr('log_flags(): Failed'), $e);
     }
 }
 
@@ -1722,7 +1722,7 @@ function log_sanitize($messages, $color, $filter_double = true, &$class = null){
         return $messages;
 
     }catch(Exception $e){
-        throw new BException('log_sanitize(): Failed', $e);
+        throw new CoreException('log_sanitize(): Failed', $e);
     }
 }
 
@@ -1842,7 +1842,7 @@ function log_console($messages = '', $color = null, $newline = true, $filter_dou
         return $messages;
 
     }catch(Exception $e){
-        throw new BException('log_console(): Failed', $e, array('message' => $messages));
+        throw new CoreException('log_console(): Failed', $e, array('message' => $messages));
     }
 }
 
@@ -1899,7 +1899,7 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
 
         if(!is_scalar($class)){
             if($class){
-                throw new BException(tr('log_file(): Specified class ":class" is not scalar', array(':class' => str_truncate(json_encode_custom($class), 20))), 'invalid');
+                throw new CoreException(tr('log_file(): Specified class ":class" is not scalar', array(':class' => str_truncate(json_encode_custom($class), 20))), 'invalid');
             }
 
             $class = $core->register['script'];
@@ -1941,11 +1941,11 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
                 $h[$file] = @fopen(ROOT.'data/log/'.$file, 'a+');
 
             }catch(Exception $e){
-                throw new BException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), $e);
+                throw new CoreException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), $e);
             }
 
             if(!$h[$file]){
-                throw new BException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), 'failed');
+                throw new CoreException(tr('log_file(): Failed to open logfile ":file" to store messages ":messages"', array(':file' => $file, ':messages' => $messages)), 'failed');
             }
         }
 
@@ -2000,7 +2000,7 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
         $log = false;
 
         if(empty($file)){
-            throw new BException('log_file(): Failed before $file was determined', $e, array('message' => $messages));
+            throw new CoreException('log_file(): Failed before $file was determined', $e, array('message' => $messages));
         }
 
         if(!is_writable(slash(ROOT.'data/log').$file)){
@@ -2008,7 +2008,7 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
                 error_log(tr('log_file() failed because log file ":file" is not writable', array(':file' => $file)));
             }
 
-            throw new BException(tr('log_file(): Failed because log file ":file" is not writable', array(':file' => $file)), $e);
+            throw new CoreException(tr('log_file(): Failed because log file ":file" is not writable', array(':file' => $file)), $e);
         }
 
         /*
@@ -2026,10 +2026,10 @@ function log_file($messages, $class = 'syslog', $color = null, $filter_double = 
             /*
              * We cannot write to the log file
              */
-            throw new BException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => str_cut($message, 'fopen(', ')'))), 'warning');
+            throw new CoreException(tr('log_file(): Failed to write to log, permission denied to write to log file ":file". Please ensure the correct write permissions for this file and the ROOT/data/log directory in general', array(':file' => str_cut($message, 'fopen(', ')'))), 'warning');
         }
 
-        throw new BException('log_file(): Failed', $e, array('message' => $messages));
+        throw new CoreException('log_file(): Failed', $e, array('message' => $messages));
     }
 }
 
@@ -2052,7 +2052,7 @@ function get_hash($source, $algorithm, $add_meta = true){
 
         }catch(Exception $e){
             if(strstr($e->getMessage(), 'Unknown hashing algorithm')){
-                throw new BException(tr('get_hash(): Unknown hash algorithm ":algorithm" specified', array(':algorithm' => $algorithm)), 'unknown-algorithm');
+                throw new CoreException(tr('get_hash(): Unknown hash algorithm ":algorithm" specified', array(':algorithm' => $algorithm)), 'unknown-algorithm');
             }
 
             throw $e;
@@ -2065,7 +2065,7 @@ function get_hash($source, $algorithm, $add_meta = true){
         return $source;
 
     }catch(Exception $e){
-        throw new BException('get_hash(): Failed', $e);
+        throw new CoreException('get_hash(): Failed', $e);
     }
 }
 
@@ -2117,7 +2117,7 @@ function get_language($language){
         return $language;
 
     }catch(Exception $e){
-        throw new BException('get_language(): Failed', $e);
+        throw new CoreException('get_language(): Failed', $e);
     }
 }
 
@@ -2146,7 +2146,7 @@ function get_domain(){
         return $_CONFIG['domain'];
 
     }catch(Exception $e){
-        throw new BException('get_domain(): Failed', $e);
+        throw new CoreException('get_domain(): Failed', $e);
     }
 }
 
@@ -2178,7 +2178,7 @@ function domain($url_params = null, $query = null, $prefix = null, $domain = nul
     try{
         if(!is_array($url_params)){
             if(!is_string($url_params) and !is_bool($url_params) and ($url_params !== null)){
-                throw new BException(tr('domain(): Specified $url_params should be either null, a string, or a parameters array but is an ":type"', array(':type' => gettype($url_params))), 'invalid');
+                throw new CoreException(tr('domain(): Specified $url_params should be either null, a string, or a parameters array but is an ":type"', array(':type' => gettype($url_params))), 'invalid');
             }
 
             $url_params = array('url'           => $url_params,
@@ -2316,7 +2316,7 @@ function domain($url_params = null, $query = null, $prefix = null, $domain = nul
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('domain(): Failed', $e);
+        throw new CoreException('domain(): Failed', $e);
     }
 }
 
@@ -2348,7 +2348,7 @@ function api_domain($url = null, $query = null, $prefix = null, $domain = null, 
         return domain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
 
     }catch(Exception $e){
-        throw new BException('api_domain(): Failed', $e);
+        throw new CoreException('api_domain(): Failed', $e);
     }
 }
 
@@ -2392,7 +2392,7 @@ function ajax_domain($url = null, $query = null, $language = null, $allow_url_cl
         return domain($url, $query, $prefix, null, $language, $allow_url_cloak);
 
     }catch(Exception $e){
-        throw new BException('ajax_domain(): Failed', $e);
+        throw new CoreException('ajax_domain(): Failed', $e);
     }
 }
 
@@ -2462,7 +2462,7 @@ function download($url, $contents = false, $callback = null){
         return $file;
 
     }catch(Exception $e){
-        throw new BException('download(): Failed', $e);
+        throw new CoreException('download(): Failed', $e);
     }
 }
 
@@ -2489,7 +2489,7 @@ function has_rights($rights, &$user = null){
             $user = &$_SESSION['user'];
 
         }elseif(!is_array($user)){
-            throw new BException(tr('has_rights(): Specified user is not an array'), 'invalid');
+            throw new CoreException(tr('has_rights(): Specified user is not an array'), 'invalid');
         }
 
         /*
@@ -2508,7 +2508,7 @@ function has_rights($rights, &$user = null){
         }
 
         if(empty($rights)){
-            throw new BException('has_rights(): No rights specified');
+            throw new CoreException('has_rights(): No rights specified');
         }
 
         if(!empty($user['rights']['god'])){
@@ -2529,7 +2529,7 @@ function has_rights($rights, &$user = null){
         return true;
 
     }catch(Exception $e){
-        throw new BException('has_rights(): Failed', $e);
+        throw new CoreException('has_rights(): Failed', $e);
     }
 }
 
@@ -2559,7 +2559,7 @@ function has_groups($groups, &$user = null){
             $user = &$_SESSION['user'];
 
         }elseif(!is_array($user)){
-            throw new BException(tr('has_groups(): Specified user is not an array'), 'invalid');
+            throw new CoreException(tr('has_groups(): Specified user is not an array'), 'invalid');
         }
 
         /*
@@ -2578,7 +2578,7 @@ function has_groups($groups, &$user = null){
         }
 
         if(empty($groups)){
-            throw new BException('has_groups(): No groups specified');
+            throw new CoreException('has_groups(): No groups specified');
         }
 
         if(!empty($user['rights']['god'])){
@@ -2599,7 +2599,7 @@ function has_groups($groups, &$user = null){
         return true;
 
     }catch(Exception $e){
-        throw new BException('has_groups(): Failed', $e);
+        throw new CoreException('has_groups(): Failed', $e);
     }
 }
 
@@ -2637,7 +2637,7 @@ function user_or_signin(){
              * Redirect all pages EXCEPT the lock page itself!
              */
             if(empty($_CONFIG['redirects'][$_SESSION['force_page']])){
-                throw new BException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exist');
+                throw new CoreException(tr('user_or_signin(): Forced page ":page" does not exist in $_CONFIG[redirects]', array(':page' => $_SESSION['force_page'])), 'not-exist');
             }
 
             if($_CONFIG['redirects'][$_SESSION['force_page']] !== str_until(str_rfrom($_SERVER['REQUEST_URI'], '/'), '?')){
@@ -2659,7 +2659,7 @@ function user_or_signin(){
         return $_SESSION['user'];
 
     }catch(Exception $e){
-        throw new BException('user_or_signin(): Failed', $e);
+        throw new CoreException('user_or_signin(): Failed', $e);
     }
 }
 
@@ -2697,7 +2697,7 @@ function rights_or_access_denied($rights, $url = null){
         page_show(403);
 
     }catch(Exception $e){
-        throw new BException('rights_or_access_denied(): Failed', $e);
+        throw new CoreException('rights_or_access_denied(): Failed', $e);
     }
 }
 
@@ -2723,7 +2723,7 @@ function groups_or_access_denied($groups){
         page_show($_CONFIG['redirects']['access-denied']);
 
     }catch(Exception $e){
-        throw new BException('groups_or_access_denied(): Failed', $e);
+        throw new CoreException('groups_or_access_denied(): Failed', $e);
     }
 }
 
@@ -2756,7 +2756,7 @@ function return_with_rights($rights, $with_rights, $without_rights = null){
         return $without_rights;
 
     }catch(Exception $e){
-        throw new BException('return_with_rights(): Failed', $e);
+        throw new CoreException('return_with_rights(): Failed', $e);
     }
 }
 
@@ -2775,7 +2775,7 @@ function return_with_groups($groups, $with_groups, $without_groups = null){
         return $without_groups;
 
     }catch(Exception $e){
-        throw new BException('return_with_groups(): Failed', $e);
+        throw new CoreException('return_with_groups(): Failed', $e);
     }
 }
 
@@ -2824,7 +2824,7 @@ function check_extended_session(){
         }
 
     }catch(Exception $e){
-        throw new BException('user_create_extended_session(): Failed', $e);
+        throw new CoreException('user_create_extended_session(): Failed', $e);
     }
 }
 
@@ -2878,7 +2878,7 @@ function pick_random($count){
         }
 
         if(($count < 1) or ($count > count($args))){
-            throw new BException(tr('pick_random(): Invalid count ":count" specified for ":args" arguments', array(':count' => $count, ':args' => count($args))), 'invalid');
+            throw new CoreException(tr('pick_random(): Invalid count ":count" specified for ":args" arguments', array(':count' => $count, ':args' => count($args))), 'invalid');
 
         }elseif($count == 1){
             if(empty($array)){
@@ -2899,7 +2899,7 @@ function pick_random($count){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('pick_random(): Failed'), $e);
+        throw new CoreException(tr('pick_random(): Failed'), $e);
     }
 }
 
@@ -2936,7 +2936,7 @@ function status($status, $list = null){
         return str_capitalize(str_replace('-', ' ', $status));
 
     }catch(Exception $e){
-        throw new BException(tr('status(): Failed'), $e);
+        throw new CoreException(tr('status(): Failed'), $e);
     }
 }
 
@@ -2992,7 +2992,7 @@ function set_csrf($prefix = ''){
         return $csrf;
 
     }catch(Exception $e){
-        throw new BException(tr('set_csrf(): Failed'), $e);
+        throw new CoreException(tr('set_csrf(): Failed'), $e);
     }
 }
 
@@ -3035,7 +3035,7 @@ function check_csrf(){
 
         if(empty($_POST['csrf'])){
 log_file($core->callType());
-            throw new BException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
+            throw new CoreException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
         }
 
         if($core->callType('ajax')){
@@ -3043,12 +3043,12 @@ log_file($core->callType());
                 /*
                  * Invalid CSRF code is sppokie, don't make this a warning
                  */
-                throw new BException(tr('check_csrf(): Specified CSRF ":code" is invalid'), 'invalid');
+                throw new CoreException(tr('check_csrf(): Specified CSRF ":code" is invalid'), 'invalid');
             }
         }
 
         if(empty($_SESSION['csrf'][$_POST['csrf']])){
-            throw new BException(tr('check_csrf(): Specified CSRF ":code" does not exist', array(':code' => $_POST['csrf'])), 'warning/not-exist');
+            throw new CoreException(tr('check_csrf(): Specified CSRF ":code" does not exist', array(':code' => $_POST['csrf'])), 'warning/not-exist');
         }
 
         /*
@@ -3064,7 +3064,7 @@ log_file($core->callType());
          */
         if($_CONFIG['security']['csrf']['timeout']){
             if(($timestamp + $_CONFIG['security']['csrf']['timeout']) < $now->getTimestamp()){
-                throw new BException(tr('check_csrf(): Specified CSRF ":code" timed out', array(':code' => $_POST['csrf'])), 'warning/timeout');
+                throw new CoreException(tr('check_csrf(): Specified CSRF ":code" timed out', array(':code' => $_POST['csrf'])), 'warning/timeout');
             }
         }
 
@@ -3122,7 +3122,7 @@ function session_request_register($key, $valid = null){
         return $_SESSION[$key];
 
     }catch(Exception $e){
-        throw new BException('session_request_register(): Failed', $e);
+        throw new CoreException('session_request_register(): Failed', $e);
     }
 }
 
@@ -3134,7 +3134,7 @@ function session_request_register($key, $valid = null){
 function in_source($source, $key, $return = true){
     try{
         if(!is_array($source)){
-            throw new BException(tr('in_source(): Specified source ":source" should be an array', array(':source' => $source)), 'invalid');
+            throw new CoreException(tr('in_source(): Specified source ":source" should be an array', array(':source' => $source)), 'invalid');
         }
 
         if(isset_get($source[$key])){
@@ -3144,7 +3144,7 @@ function in_source($source, $key, $return = true){
         return '';
 
     }catch(Exception $e){
-        throw new BException('in_source(): Failed', $e);
+        throw new CoreException('in_source(): Failed', $e);
     }
 }
 
@@ -3170,7 +3170,7 @@ function is_natural($number, $start = 1){
         return true;
 
     }catch(Exception $e){
-        throw new BException('is_natural(): Failed', $e);
+        throw new CoreException('is_natural(): Failed', $e);
     }
 }
 
@@ -3195,7 +3195,7 @@ function is_version($version){
         return $valid;
 
     }catch(Exception $e){
-        throw new BException('is_version(): Failed', $e);
+        throw new CoreException('is_version(): Failed', $e);
     }
 }
 
@@ -3207,7 +3207,7 @@ function is_version($version){
 function is_new($entry){
     try{
         if(!is_array($entry)){
-            throw new BException(tr('is_new(): Specified entry is not an array'), 'invalid');
+            throw new CoreException(tr('is_new(): Specified entry is not an array'), 'invalid');
         }
 
         if(isset_get($entry['status']) === '_new'){
@@ -3221,7 +3221,7 @@ function is_new($entry){
         return false;
 
     }catch(Exception $e){
-        throw new BException('is_new(): Failed', $e);
+        throw new CoreException('is_new(): Failed', $e);
     }
 }
 
@@ -3247,7 +3247,7 @@ function force_natural($number, $default = 1, $start = 1){
         return (integer) $number;
 
     }catch(Exception $e){
-        throw new BException('force_natural(): Failed', $e);
+        throw new CoreException('force_natural(): Failed', $e);
     }
 }
 
@@ -3263,7 +3263,7 @@ function unique_code($hash = 'sha512'){
         return hash($hash, uniqid('', true).microtime(true).$_CONFIG['security']['seed']);
 
     }catch(Exception $e){
-        throw new BException('unique_code(): Failed', $e);
+        throw new CoreException('unique_code(): Failed', $e);
     }
 }
 
@@ -3292,12 +3292,12 @@ function name($user = null, $key_prefix = '', $default = null){
                  * Fetch user data from DB, then treat it as an array
                  */
                 if(!$user = sql_get('SELECT `nickname`, `name`, `username`, `email` FROM `users` WHERE `id` = :id', array(':id' => $user))){
-                    throw new BException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exists');
+                    throw new CoreException('name(): Specified user id ":id" does not exist', array(':id' => str_log($user)), 'not-exists');
                 }
             }
 
             if(!is_array($user)){
-                throw new BException(tr('name(): Invalid data specified, please specify either user id, name, or an array containing username, email and or id'), 'invalid');
+                throw new CoreException(tr('name(): Invalid data specified, please specify either user id, name, or an array containing username, email and or id'), 'invalid');
             }
 
             $user = not_empty(isset_get($user[$key_prefix.'nickname']), isset_get($user[$key_prefix.'name']), isset_get($user[$key_prefix.'username']), isset_get($user[$key_prefix.'email']));
@@ -3318,7 +3318,7 @@ function name($user = null, $key_prefix = '', $default = null){
         return $default;
 
     }catch(Exception $e){
-        throw new BException(tr('name(): Failed'), $e);
+        throw new CoreException(tr('name(): Failed'), $e);
     }
 }
 
@@ -3341,7 +3341,7 @@ function page_show($pagename, $params = null, $get = null){
 
         if($get){
             if(!is_array($get)){
-                throw new BException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
+                throw new CoreException(tr('page_show(): Specified $get MUST be an array, but is an ":type"', array(':type' => gettype($get))), 'invalid');
             }
 
             $_GET = $get;
@@ -3433,10 +3433,10 @@ function page_show($pagename, $params = null, $get = null){
 
     }catch(Exception $e){
         if(isset($include) and !file_exists($include)){
-            throw new BException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 'not-exists');
+            throw new CoreException(tr('page_show(): The requested page ":page" does not exist', array(':page' => $pagename)), 'not-exists');
         }
 
-        throw new BException(tr('page_show(): Failed to show page ":page"', array(':page' => $pagename)), $e);
+        throw new CoreException(tr('page_show(): Failed to show page ":page"', array(':page' => $pagename)), $e);
     }
 }
 
@@ -3447,10 +3447,10 @@ function page_show($pagename, $params = null, $get = null){
  */
 function under_construction($functionality = ''){
     if($functionality){
-        throw new BException(tr('The functionality ":f" is under construction!', array(':f' => $functionality)), 'under-construction');
+        throw new CoreException(tr('The functionality ":f" is under construction!', array(':f' => $functionality)), 'under-construction');
     }
 
-    throw new BException(tr('This function is under construction!'), 'under-construction');
+    throw new CoreException(tr('This function is under construction!'), 'under-construction');
 }
 
 
@@ -3468,10 +3468,10 @@ function obsolete($functionality = ''){
                                                                                                                ':project'  => PROJECT))));
 
     if($functionality){
-        throw new BException(tr('The functionality ":f" is obsolete!', array(':f' => $functionality)), 'obsolete');
+        throw new CoreException(tr('The functionality ":f" is obsolete!', array(':f' => $functionality)), 'obsolete');
     }
 
-    throw new BException(tr('This function is obsolete!'), 'obsolete');
+    throw new CoreException(tr('This function is obsolete!'), 'obsolete');
 }
 
 
@@ -3481,10 +3481,10 @@ function obsolete($functionality = ''){
  */
 function not_supported($functionality = ''){
     if($functionality){
-        throw new BException(tr('The functionality ":f" is not support!', array(':f' => $functionality)), 'not-supported');
+        throw new CoreException(tr('The functionality ":f" is not support!', array(':f' => $functionality)), 'not-supported');
     }
 
-    throw new BException(tr('This function is not supported!'), 'not-supported');
+    throw new CoreException(tr('This function is not supported!'), 'not-supported');
 }
 
 
@@ -3519,7 +3519,7 @@ function get_null($source){
         return get_empty($source, null);
 
     }catch(Exception $e){
-        throw new BException(tr('get_null(): Failed'), $e);
+        throw new CoreException(tr('get_null(): Failed'), $e);
     }
 }
 
@@ -3559,7 +3559,7 @@ function get_empty($source, $default){
         return $default;
 
     }catch(Exception $e){
-        throw new BException(tr('get_empty(): Failed'), $e);
+        throw new CoreException(tr('get_empty(): Failed'), $e);
     }
 }
 
@@ -3577,7 +3577,7 @@ function quote($value){
         return $value;
 
     }catch(Exception $e){
-        throw new BException(tr('quote(): Failed'), $e);
+        throw new CoreException(tr('quote(): Failed'), $e);
     }
 }
 
@@ -3595,7 +3595,7 @@ function ensure_installed($params){
          * Check if specified library is installed
          */
         if(!isset($params['name'])){
-            throw new BException(tr('ensure_installed(): No name specified for library'), 'not-specified');
+            throw new CoreException(tr('ensure_installed(): No name specified for library'), 'not-specified');
         }
 
         /*
@@ -3643,7 +3643,7 @@ function ensure_installed($params){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('ensure_installed(): Failed'), $e);
+        throw new CoreException(tr('ensure_installed(): Failed'), $e);
     }
 }
 
@@ -3661,7 +3661,7 @@ function ensure_value($value, $enum, $default){
         return $default;
 
     }catch(Exception $e){
-        throw new BException(tr('ensure_value(): Failed'), $e);
+        throw new CoreException(tr('ensure_value(): Failed'), $e);
     }
 }
 
@@ -3678,14 +3678,14 @@ function disconnect(){
                 break;
 
             case '':
-                throw new BException(tr('disconnect(): No SAPI detected'), 'unknown');
+                throw new CoreException(tr('disconnect(): No SAPI detected'), 'unknown');
 
             default:
-                throw new BException(tr('disconnect(): Unknown SAPI ":sapi" detected', array(':sapi' => php_sapi_name())), 'unknown');
+                throw new CoreException(tr('disconnect(): Unknown SAPI ":sapi" detected', array(':sapi' => php_sapi_name())), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('disconnect(): Failed'), $e);
+        throw new CoreException(tr('disconnect(): Failed'), $e);
     }
 }
 
@@ -3714,7 +3714,7 @@ function execute_callback($callback, $params = null){
         return null;
 
     }catch(Exception $e){
-        throw new BException(tr('execute_callback(): Failed'), $e);
+        throw new CoreException(tr('execute_callback(): Failed'), $e);
     }
 }
 
@@ -3745,11 +3745,11 @@ function get_boolean($value){
                 return false;
 
             default:
-                throw new BException(tr('get_boolean(): Unknown value ":value"', array(':value' => $value)), 'unknown');
+                throw new CoreException(tr('get_boolean(): Unknown value ":value"', array(':value' => $value)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('get_boolean(): Failed'), $e);
+        throw new CoreException(tr('get_boolean(): Failed'), $e);
     }
 }
 
@@ -3801,7 +3801,7 @@ function language_lock($language, $script = null){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('language_lock(): Failed'), $e);
+        throw new CoreException(tr('language_lock(): Failed'), $e);
     }
 }
 
@@ -3830,7 +3830,7 @@ function session_cache($key, $callback){
         return $_SESSION['cache'][$key];
 
     }catch(Exception $e){
-        throw new BException(tr('session_cache(): Failed'), $e);
+        throw new CoreException(tr('session_cache(): Failed'), $e);
     }
 }
 
@@ -3856,11 +3856,11 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
         log_file(tr('cdn_add_files(): Adding files ":files"', array(':files' => $files)), 'DEBUG/cdn');
 
         if(!$section){
-            throw new BException(tr('cdn_add_files(): No section specified'), 'not-specified');
+            throw new CoreException(tr('cdn_add_files(): No section specified'), 'not-specified');
         }
 
         if(!$files){
-            throw new BException(tr('cdn_add_files(): No files specified'), 'not-specified');
+            throw new CoreException(tr('cdn_add_files(): No files specified'), 'not-specified');
         }
 
         /*
@@ -3904,7 +3904,7 @@ function cdn_add_files($files, $section = 'pub', $group = null, $delete = true){
         return count($files);
 
     }catch(Exception $e){
-        throw new BException('cdn_add_files(): Failed', $e);
+        throw new CoreException('cdn_add_files(): Failed', $e);
     }
 }
 
@@ -4044,7 +4044,7 @@ function cdn_domain($file = '', $section = 'pub', $default = null, $force_cdn = 
         //return $_SESSION['cdn'].$url;
 
     }catch(Exception $e){
-        throw new BException('cdn_domain(): Failed', $e);
+        throw new CoreException('cdn_domain(): Failed', $e);
     }
 }
 
@@ -4082,7 +4082,7 @@ function str_cut($source, $start, $stop){
         return str_until(str_from($source, $start), $stop);
 
     }catch(Exception $e){
-        throw new BException(tr('str_cut(): Failed'), $e);
+        throw new CoreException(tr('str_cut(): Failed'), $e);
     }
 }
 
@@ -4121,7 +4121,7 @@ function str_exists($haystack, $needle){
         return (strpos($haystack, $needle) !== false);
 
     }catch(Exception $e){
-        throw new BException(tr('str_exists(): Failed'), $e);
+        throw new CoreException(tr('str_exists(): Failed'), $e);
     }
 }
 
@@ -4134,7 +4134,7 @@ function str_clean($source, $utf8 = true){
     try{
         if(!is_scalar($source)){
             if(!is_null($source)){
-                throw new BException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1).'@'.current_line(1))), 'invalid');
+                throw new CoreException(tr('str_clean(): Specified source ":source" from ":location" should be datatype "string" but has datatype ":datatype"', array(':source' => $source, ':datatype' => gettype($source), ':location' => current_file(1).'@'.current_line(1))), 'invalid');
             }
         }
 
@@ -4151,7 +4151,7 @@ function str_clean($source, $utf8 = true){
         return mb_trim(html_entity_decode(strip_tags($source)));
 
     }catch(Exception $e){
-        throw new BException(tr('str_clean(): Failed with string ":string"', array(':string' => $source)), $e);
+        throw new CoreException(tr('str_clean(): Failed with string ":string"', array(':string' => $source)), $e);
     }
 // :TODO:SVEN:20130709: Check if we should be using mysqli_escape_string() or addslashes(), since the former requires SQL connection, but the latter does NOT have correct UTF8 support!!
 //    return mysqli_escape_string(trim(decode_entities(mb_strip_tags($str))));
@@ -4165,7 +4165,7 @@ function str_clean($source, $utf8 = true){
 function str_from($source, $needle, $more = 0, $require = false){
     try{
         if(!$needle){
-            throw new BException('str_from(): No needle specified', 'not-specified');
+            throw new CoreException('str_from(): No needle specified', 'not-specified');
         }
 
         $pos = mb_strpos($source, $needle);
@@ -4181,7 +4181,7 @@ function str_from($source, $needle, $more = 0, $require = false){
         return mb_substr($source, $pos + mb_strlen($needle) - $more);
 
     }catch(Exception $e){
-        throw new BException(tr('str_from(): Failed for string ":string"', array(':string' => $source)), $e);
+        throw new CoreException(tr('str_from(): Failed for string ":string"', array(':string' => $source)), $e);
     }
 }
 
@@ -4193,7 +4193,7 @@ function str_from($source, $needle, $more = 0, $require = false){
 function str_until($source, $needle, $more = 0, $start = 0, $require = false){
     try{
         if(!$needle){
-            throw new BException('str_until(): No needle specified', 'not-specified');
+            throw new CoreException('str_until(): No needle specified', 'not-specified');
         }
 
         $pos = mb_strpos($source, $needle);
@@ -4209,7 +4209,7 @@ function str_until($source, $needle, $more = 0, $start = 0, $require = false){
         return mb_substr($source, $start, $pos + $more);
 
     }catch(Exception $e){
-        throw new BException(tr('str_until(): Failed for string ":string"', array(':string' => $source)), $e);
+        throw new CoreException(tr('str_until(): Failed for string ":string"', array(':string' => $source)), $e);
     }
 }
 
@@ -4221,7 +4221,7 @@ function str_until($source, $needle, $more = 0, $start = 0, $require = false){
 function str_rfrom($source, $needle, $more = 0){
     try{
         if(!$needle){
-            throw new BException('str_rfrom(): No needle specified', 'not-specified');
+            throw new CoreException('str_rfrom(): No needle specified', 'not-specified');
         }
 
         $pos = mb_strrpos($source, $needle);
@@ -4231,7 +4231,7 @@ function str_rfrom($source, $needle, $more = 0){
         return mb_substr($source, $pos + mb_strlen($needle) - $more);
 
     }catch(Exception $e){
-        throw new BException(tr('str_rfrom(): Failed for string ":string"', array(':string' => $source)), $e);
+        throw new CoreException(tr('str_rfrom(): Failed for string ":string"', array(':string' => $source)), $e);
     }
 }
 
@@ -4243,7 +4243,7 @@ function str_rfrom($source, $needle, $more = 0){
 function str_runtil($source, $needle, $more = 0, $start = 0){
     try{
         if(!$needle){
-            throw new BException('str_runtil(): No needle specified', 'not-specified');
+            throw new CoreException('str_runtil(): No needle specified', 'not-specified');
         }
 
         $pos = mb_strrpos($source, $needle);
@@ -4253,7 +4253,7 @@ function str_runtil($source, $needle, $more = 0, $start = 0){
         return mb_substr($source, $start, $pos + $more);
 
     }catch(Exception $e){
-        throw new BException(tr('str_runtil(): Failed for string ":string"', array(':string' => $source)), $e);
+        throw new CoreException(tr('str_runtil(): Failed for string ":string"', array(':string' => $source)), $e);
     }
 }
 
@@ -4271,7 +4271,7 @@ function str_starts($source, $string){
         return $string.$source;
 
     }catch(Exception $e){
-        throw new BException(tr('str_starts(): Failed for ":source"', array(':source' => $source)), $e);
+        throw new CoreException(tr('str_starts(): Failed for ":source"', array(':source' => $source)), $e);
     }
 }
 
@@ -4289,7 +4289,7 @@ function str_starts_not($source, $string){
         return $source;
 
     }catch(Exception $e){
-        throw new BException(tr('str_starts_not(): Failed for ":source"', array(':source' => $source)), $e);
+        throw new CoreException(tr('str_starts_not(): Failed for ":source"', array(':source' => $source)), $e);
     }
 }
 
@@ -4309,7 +4309,7 @@ function str_ends($source, $string){
         return $source.$string;
 
     }catch(Exception $e){
-        throw new BException('str_ends(): Failed', $e);
+        throw new CoreException('str_ends(): Failed', $e);
     }
 }
 
@@ -4356,7 +4356,7 @@ function str_ends_not($source, $strings, $loop = true){
         return $source;
 
     }catch(Exception $e){
-        throw new BException('str_ends_not(): Failed', $e);
+        throw new CoreException('str_ends_not(): Failed', $e);
     }
 }
 
@@ -4370,7 +4370,7 @@ function slash($string){
         return str_ends($string, '/');
 
     }catch(Exception $e){
-        throw new BException('slash(): Failed', $e);
+        throw new CoreException('slash(): Failed', $e);
     }
 }
 
@@ -4384,7 +4384,7 @@ function unslash($string, $loop = true){
         return str_ends_not($string, '/', $loop);
 
     }catch(Exception $e){
-        throw new BException('unslash(): Failed', $e);
+        throw new CoreException('unslash(): Failed', $e);
     }
 }
 
@@ -4408,7 +4408,7 @@ function str_nodouble($source, $replace = '\1', $character = null, $case_insensi
         return preg_replace('/(.)\\1+/u'.($case_insensitive ? 'i' : ''), $replace, $source);
 
     }catch(Exception $e){
-        throw new BException('str_nodouble(): Failed', $e);
+        throw new CoreException('str_nodouble(): Failed', $e);
     }
 }
 
@@ -4446,7 +4446,7 @@ function str_nodouble($source, $replace = '\1', $character = null, $case_insensi
 function str_truncate($source, $length, $fill = ' ... ', $method = 'right', $on_word = false){
     try{
         if(!$length or ($length < (mb_strlen($fill) + 1))){
-            throw new BException('str_truncate(): No length or insufficient length specified. You must specify a length of minimal $fill length + 1', 'invalid');
+            throw new CoreException('str_truncate(): No length or insufficient length specified. You must specify a length of minimal $fill length + 1', 'invalid');
         }
 
         if($length >= mb_strlen($source)){
@@ -4487,11 +4487,11 @@ function str_truncate($source, $length, $fill = ' ... ', $method = 'right', $on_
                 return $fill.trim($retval);
 
             default:
-                throw new BException(tr('str_truncate(): Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', array(':method' => $method)), 'unknown');
+                throw new CoreException(tr('str_truncate(): Unknown method ":method" specified, please use "left", "center", or "right" or undefined which will default to "right"', array(':method' => $method)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('str_truncate(): Failed for ":source"', array(':source' => $source)), $e);
+        throw new CoreException(tr('str_truncate(): Failed for ":source"', array(':source' => $source)), $e);
     }
 }
 
@@ -4580,7 +4580,7 @@ function str_log($source, $truncate = 8187, $separator = ', '){
             return "Data converted using print_r() instead of json_encode() because json_encode_custom() failed on this data: ".print_r($source, true);
         }
 
-        throw new BException('str_log(): Failed', $e);
+        throw new CoreException('str_log(): Failed', $e);
     }
 }
 
@@ -4606,7 +4606,7 @@ function array_first($source){
         return current($source);
 
     }catch(Exception $e){
-        throw new BException('array_first(): Failed', $e);
+        throw new CoreException('array_first(): Failed', $e);
     }
 }
 
@@ -4632,7 +4632,7 @@ function array_last($source){
         return end($source);
 
     }catch(Exception $e){
-        throw new BException('array_last(): Failed', $e);
+        throw new CoreException('array_last(): Failed', $e);
     }
 }
 
@@ -4660,10 +4660,10 @@ function array_ensure(&$source, $keys = '', $default_value = null, $trim_existin
 
         }elseif(!is_array($source)){
             if(is_object($source)){
-                throw new BException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
+                throw new CoreException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
             }
 
-            throw new BException(tr('array_ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
+            throw new CoreException(tr('array_ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
         }
 
         if($keys){
@@ -4687,7 +4687,7 @@ function array_ensure(&$source, $keys = '', $default_value = null, $trim_existin
         }
 
     }catch(Exception $e){
-        throw new BException('array_ensure(): Failed', $e);
+        throw new CoreException('array_ensure(): Failed', $e);
     }
 }
 
@@ -4744,7 +4744,7 @@ function array_force($source, $separator = ','){
         return $source;
 
     }catch(Exception $e){
-        throw new BException('array_force(): Failed', $e);
+        throw new CoreException('array_force(): Failed', $e);
     }
 }
 
@@ -4825,7 +4825,7 @@ function cli_dot($each = 10, $color = 'green', $dot = '.', $quiet = false){
         }
 
     }catch(Exception $e){
-        throw new BException('cli_dot(): Failed', $e);
+        throw new CoreException('cli_dot(): Failed', $e);
     }
 }
 
@@ -4883,7 +4883,7 @@ class Colors {
             $this->background_colors['light_gray']   = '47';
 
         }catch(Exception $e){
-            throw new BException(tr('Color::__construct(): Failed'), $e);
+            throw new CoreException(tr('Color::__construct(): Failed'), $e);
         }
     }
 
@@ -4950,7 +4950,7 @@ class Colors {
             return $colored_string;
 
         }catch(Exception $e){
-            throw new BException(tr('Color::getColoredString(): Failed'), $e);
+            throw new CoreException(tr('Color::getColoredString(): Failed'), $e);
         }
     }
 
@@ -4992,7 +4992,7 @@ function cli_color($string, $fore_color = null, $back_color = null, $force = fal
         return $color->getColoredString($string, $fore_color, $back_color, $force, $reset);
 
     }catch(Exception $e){
-        throw new BException('cli_color(): Failed', $e);
+        throw new CoreException('cli_color(): Failed', $e);
     }
 }
 
@@ -5010,7 +5010,7 @@ function cli_reset_color($echo = false){
         echo "\033[0m";
 
     }catch(Exception $e){
-        throw new BException('cli_reset_color(): Failed', $e);
+        throw new CoreException('cli_reset_color(): Failed', $e);
     }
 }
 
@@ -5105,7 +5105,7 @@ function date_convert($date = null, $requested_format = 'human_datetime', $to_ti
                     break;
 
                 default:
-                    throw new BException(tr('date_convert(): Invalid force1224 hour format ":format" specified. Must be either false, "12", or "24". See $_CONFIG[formats][force1224]', array(':format' => $_CONFIG['formats']['force1224'])), 'invalid');
+                    throw new CoreException(tr('date_convert(): Invalid force1224 hour format ":format" specified. Must be either false, "12", or "24". See $_CONFIG[formats][force1224]', array(':format' => $_CONFIG['formats']['force1224'])), 'invalid');
             }
         }
 
@@ -5120,7 +5120,7 @@ function date_convert($date = null, $requested_format = 'human_datetime', $to_ti
 
         }else{
             if(!($date instanceof DateTime)){
-                throw new BException(tr('date_convert(): Specified date variable is a ":type" which is invalid. Should be either scalar or a DateTime object', array(':type' => gettype($date))), 'invalid');
+                throw new CoreException(tr('date_convert(): Specified date variable is a ":type" which is invalid. Should be either scalar or a DateTime object', array(':type' => gettype($date))), 'invalid');
             }
         }
 
@@ -5146,11 +5146,11 @@ function date_convert($date = null, $requested_format = 'human_datetime', $to_ti
             return date_translate($retval);
 
         }catch(Exception $e){
-            throw new BException(tr('date_convert(): Failed to convert to format ":format" because ":e"', array(':format' => $format, ':e' => $e)), 'invalid');
+            throw new CoreException(tr('date_convert(): Failed to convert to format ":format" because ":e"', array(':format' => $format, ':e' => $e)), 'invalid');
         }
 
     }catch(Exception $e){
-        throw new BException('date_convert(): Failed', $e);
+        throw new CoreException('date_convert(): Failed', $e);
     }
 }
 
@@ -5206,7 +5206,7 @@ function force_datatype($source){
         return (string) $source;
 
     }catch(Exception $e){
-        throw new BException('force_datatype(): Failed', $e);
+        throw new CoreException('force_datatype(): Failed', $e);
     }
 }
 
@@ -5577,7 +5577,7 @@ function debug_bar_sort($a, $b){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('debug_bar_sort(): Failed'), $e);
+        throw new CoreException(tr('debug_bar_sort(): Failed'), $e);
     }
 }
 
@@ -5640,7 +5640,7 @@ function cfm($source, $utf8 = true){
         return str_clean($source, $utf8);
 
     }catch(Exception $e){
-        throw new BException(tr('cfm(): Failed'), $e);
+        throw new CoreException(tr('cfm(): Failed'), $e);
     }
 }
 
@@ -5667,7 +5667,7 @@ function cfi($source, $allow_null = true){
         return (integer) $source;
 
     }catch(Exception $e){
-        throw new BException(tr('cfi(): Failed'), $e);
+        throw new CoreException(tr('cfi(): Failed'), $e);
     }
 }
 
@@ -5694,7 +5694,7 @@ function cf($source, $allow_null = true){
         return (float) $source;
 
     }catch(Exception $e){
-        throw new BException(tr('cf(): Failed'), $e);
+        throw new CoreException(tr('cf(): Failed'), $e);
     }
 }
 
@@ -5730,11 +5730,11 @@ function get_true_false($value, $default){
                 return true;
 
             default:
-                throw new BException(tr('get_true_false(): Please specify y / yes or n / no, or nothing for the default value.'), 'warning');
+                throw new CoreException(tr('get_true_false(): Please specify y / yes or n / no, or nothing for the default value.'), 'warning');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('get_true_false(): Failed'), $e);
+        throw new CoreException(tr('get_true_false(): Failed'), $e);
     }
 }
 
@@ -5762,10 +5762,10 @@ function get_yes_no($value){
             return 'no';
         }
 
-        throw new BException(tr('get_yes_no(): Please specify true or false'), 'warning');
+        throw new CoreException(tr('get_yes_no(): Please specify true or false'), 'warning');
 
     }catch(Exception $e){
-        throw new BException(tr('get_yes_no(): Failed'), $e);
+        throw new CoreException(tr('get_yes_no(): Failed'), $e);
     }
 }
 
@@ -5837,7 +5837,7 @@ function shutdown(){
 
         if(!empty($_CONFIG['shutdown'])){
             if(!is_array($_CONFIG['shutdown'])){
-                throw new BException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
+                throw new CoreException(tr('shutdown(): Invalid $_CONFIG[shutdown], it should be an array'), 'invalid');
             }
 
             foreach($_CONFIG['shutdown'] as $name => $parameters){
@@ -5850,7 +5850,7 @@ function shutdown(){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('shutdown(): Failed'), $e);
+        throw new CoreException(tr('shutdown(): Failed'), $e);
     }
 }
 
@@ -5882,7 +5882,7 @@ function register_shutdown($name, $value = null){
         return $core->register('shutdown_'.$name, $value);
 
     }catch(Exception $e){
-        throw new BException('register_shutdown(): Failed', $e);
+        throw new CoreException('register_shutdown(): Failed', $e);
     }
 }
 
@@ -5914,7 +5914,7 @@ function unregister_shutdown($name){
         return $value;
 
     }catch(Exception $e){
-        throw new BException(tr('unregister_shutdown(): Failed'), $e);
+        throw new CoreException(tr('unregister_shutdown(): Failed'), $e);
     }
 }
 
@@ -5947,7 +5947,7 @@ function set_timeout($timeout = null){
         set_time_limit($timeout);
 
     }catch(Exception $e){
-        throw new BException(tr('set_timeout(): Failed'), $e);
+        throw new CoreException(tr('set_timeout(): Failed'), $e);
     }
 }
 
@@ -5971,11 +5971,11 @@ function set_timeout($timeout = null){
 function limit_request_method($method){
     try{
         if($_SERVER['REQUEST_METHOD'] !== $method){
-            throw new BException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
+            throw new CoreException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('limit_request_method(): Failed'), $e);
+        throw new CoreException(tr('limit_request_method(): Failed'), $e);
     }
 }
 
@@ -6017,7 +6017,7 @@ function set_locale($data = null){
         }
 
         if(!is_array($data)){
-            throw new BException(tr('set_locale(): Specified $data should be an array but is an ":type"', array(':type' => gettype($data))), 'invalid');
+            throw new CoreException(tr('set_locale(): Specified $data should be an array but is an ":type"', array(':type' => gettype($data))), 'invalid');
         }
 
         /*
@@ -6076,7 +6076,7 @@ function set_locale($data = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('set_locale(): Failed'), $e);
+        throw new CoreException(tr('set_locale(): Failed'), $e);
     }
 }
 
@@ -6096,7 +6096,7 @@ function log_database($messages, $class = 'syslog'){
         return str_force(log_file($messages, $class));
 
     }catch(Exception $e){
-        throw new BException('log_database(): Failed', $e);
+        throw new CoreException('log_database(): Failed', $e);
     }
 }
 
@@ -6105,7 +6105,7 @@ function get_config($file = null, $environment = null){
         return read_config($file, $environment);
 
     }catch(Exception $e){
-        throw new BException('get_config(): Failed', $e);
+        throw new CoreException('get_config(): Failed', $e);
     }
 }
 
@@ -6114,6 +6114,6 @@ function mapped_domain($url = null, $query = null, $prefix = null, $domain = nul
         return domain($url, $query, $prefix, $domain, $language, $allow_url_cloak);
 
     }catch(Exception $e){
-        throw new BException('mapped_domain(): Failed', $e);
+        throw new CoreException('mapped_domain(): Failed', $e);
     }
 }

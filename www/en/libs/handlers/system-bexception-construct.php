@@ -30,7 +30,7 @@ if(is_object($code)){
     }else{
         if(!($e instanceof Exception)){
             if(!($e instanceof Error)){
-                throw new BException(tr('BException: Specified exception object for exception ":message" is not valid (either it is not an object or not a PHP Exception or PHP Error object)', array(':message' => $messages)), 'invalid');
+                throw new CoreException(tr('BException: Specified exception object for exception ":message" is not valid (either it is not an object or not a PHP Exception or PHP Error object)', array(':message' => $messages)), 'invalid');
             }
         }
 
@@ -57,7 +57,7 @@ if(is_object($code)){
         $code = isset_get($_CONFIG['exceptions']['default_code'], 'unknown');
 
     }elseif(!is_scalar($code)){
-        throw new BException(tr('BException: Specified exception code ":code" for exception ":message" is not valid (should be either scalar, or an exception object)', array(':code' => $code, ':message' => $messages)), 'invalid');
+        throw new CoreException(tr('BException: Specified exception code ":code" for exception ":message" is not valid (should be either scalar, or an exception object)', array(':code' => $code, ':message' => $messages)), 'invalid');
     }
 
     if(strlen(str_from($code, '/')) > 16){

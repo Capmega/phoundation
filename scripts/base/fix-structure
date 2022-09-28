@@ -25,7 +25,7 @@ cli_no_arguments_left();
 log_console('Ensuring site structure', 'white');
 
 if(empty($_CONFIG['deploy'][$target])){
-    throw new BException(tr('Specified environment ":env" does not exist', array(':env' => $target)), 'warning/not-exist');
+    throw new CoreException(tr('Specified environment ":env" does not exist', array(':env' => $target)), 'warning/not-exist');
 }
 
 $deploy_config = $_CONFIG['deploy'][$target];
@@ -41,7 +41,7 @@ foreach($paths as $name => $path){
     passthru((!empty($deploy_config['sudo']) ? ' sudo' : '').' mkdir '.$path.' -p;', $exitcode);
 
     if($exitcode){
-        throw new BException(tr('Failed to create ":name" path ":path"', array(':name' => $name, ':path' => $path)), 'create-path');
+        throw new CoreException(tr('Failed to create ":name" path ":path"', array(':name' => $name, ':path' => $path)), 'create-path');
     }
 
     log_console(tr('Ensured ":name" path ":path"', array(':name' => $name, ':path' => $path)), 'VERBOSE/green');

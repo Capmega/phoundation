@@ -24,7 +24,7 @@ function mail_library_init(){
         load_config('mail');
 
     }catch(Exception $e){
-        throw new BException('mail_library_init(): Failed', $e);
+        throw new CoreException('mail_library_init(): Failed', $e);
     }
 }
 
@@ -40,7 +40,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
         array_ensure($params);
 
         if(empty($params['to_email'])){
-            throw new BException('mail_send_templated_email(): No to_email specified', 'notpsecified');
+            throw new CoreException('mail_send_templated_email(): No to_email specified', 'notpsecified');
         }
 
         if(!$language) {
@@ -65,7 +65,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
             //
             //if(empty($dev)){
             //    if(!$_CONFIG['mail']['developer']){
-            //        throw new BException('No developer email specified on environment "'.ENVIRONMENT.'"');
+            //        throw new CoreException('No developer email specified on environment "'.ENVIRONMENT.'"');
             //    }
             //
             //    $params['to_email'] = $_CONFIG['mail']['developer'];
@@ -109,13 +109,13 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
         $body     = load_content($template, $from, $to, $language);
 
         if(!mail($params['to_email'], $subject, $body, mail_headers($headers))) {
-            throw new BException('mail_send_templated_email(): The PHP mail() command failed', 'mailfail');
+            throw new CoreException('mail_send_templated_email(): The PHP mail() command failed', 'mailfail');
         }
 
         return true;
 
     }catch(Exception $e){
-        throw new BException('mail_send_templated_email(): Failed', $e);
+        throw new CoreException('mail_send_templated_email(): Failed', $e);
     }
 }
 
@@ -143,7 +143,7 @@ function mail_headers($headers = array()) {
         return $string;
 
     }catch(Exception $e){
-        throw new BException('mail_headers(): Failed', $e);
+        throw new CoreException('mail_headers(): Failed', $e);
     }
 }
 
@@ -158,7 +158,7 @@ function mail_trace($email) {
         return '#IDS#'.base64_encode(encrypt($email, 'sometimesitworks')).'#IDE#';
 
     }catch(Exception $e){
-        throw new BException('mail_trace(): Failed', $e);
+        throw new CoreException('mail_trace(): Failed', $e);
     }
 }
 
@@ -173,14 +173,14 @@ function mail_feedback($subject, $message){
     try{
         foreach($_CONFIG['feedback']['emails'] as $name => $email){
             if(!mail($email, $subject, $message)) {
-                throw new BException('mail_feedback(): The PHP mail() command failed (is package "sendmail" installed?)', 'mailfail');
+                throw new CoreException('mail_feedback(): The PHP mail() command failed (is package "sendmail" installed?)', 'mailfail');
             }
         }
 
         return true;
 
     }catch(Exception $e){
-        throw new BException('mail_feedback(): Failed', $e);
+        throw new CoreException('mail_feedback(): Failed', $e);
     }
 }
 ?>

@@ -11,7 +11,7 @@ try{
         }
 
     }elseif(!is_numeric($trace_offset)){
-        throw new BException(tr('debug_show(): Specified $trace_offset ":trace" is not numeric', array(':trace' => $trace_offset)), 'invalid');
+        throw new CoreException(tr('debug_show(): Specified $trace_offset ":trace" is not numeric', array(':trace' => $trace_offset)), 'invalid');
     }
 
     if(!debug()){

@@ -36,7 +36,7 @@ function uglify_library_init(){
         node_find_npm();
 
     }catch(Exception $e){
-        throw new BException('uglify_library_init(): Failed', $e);
+        throw new CoreException('uglify_library_init(): Failed', $e);
     }
 }
 
@@ -54,7 +54,7 @@ function uglify_css_setup(){
         log_console(tr('uglify_css_setup(): Finished installing uglifycss'), 'VERBOSE/green');
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_css_setup(): Failed'), $e);
+        throw new CoreException(tr('uglify_css_setup(): Failed'), $e);
     }
 }
 
@@ -73,7 +73,7 @@ function uglify_css_find(){
                                   'commands'     => array($core->register['npm'], array('list', 'uglifycss'))));
 
         if(empty($result[1])){
-            throw new BException(tr('uglify_css_find(): npm list uglifycss returned invalid results'), 'invalid');
+            throw new CoreException(tr('uglify_css_find(): npm list uglifycss returned invalid results'), 'invalid');
         }
 
         if(substr($result[1], -7, 7) == '(empty)'){
@@ -90,7 +90,7 @@ function uglify_css_find(){
         log_console(tr('uglify_css_find(): Using uglifycss ":file"', array(':file' => $result[1])), 'VERBOSE/green');
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_css_find(): Failed'), $e);
+        throw new CoreException(tr('uglify_css_find(): Failed'), $e);
     }
 }
 
@@ -145,7 +145,7 @@ function uglify_css($paths = null, $force = false){
                 log_console(tr('uglify_css(): Minifying CSS file ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             }else{
-                throw new BException(tr('uglify_css(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
+                throw new CoreException(tr('uglify_css(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
             }
 
              /*
@@ -404,7 +404,7 @@ function uglify_css($paths = null, $force = false){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_css(): Failed'), $e);
+        throw new CoreException(tr('uglify_css(): Failed'), $e);
     }
 }
 
@@ -422,7 +422,7 @@ function uglify_js_setup(){
         log_console(tr('uglify_js_setup(): Finished installing uglify-js'), 'VERBOSE/green');
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_js_setup(): Failed'), $e);
+        throw new CoreException(tr('uglify_js_setup(): Failed'), $e);
     }
 }
 
@@ -441,7 +441,7 @@ function uglify_js_find(){
                                   'commands'     => array($core->register['npm'], array('list', 'uglify-js'))));
 
         if(empty($result[1])){
-            throw new BException(tr('uglify_js_find(): npm list uglify-js returned invalid results'), 'invalid_result');
+            throw new CoreException(tr('uglify_js_find(): npm list uglify-js returned invalid results'), 'invalid_result');
         }
 
         if(substr($result[1], -7, 7) == '(empty)'){
@@ -458,7 +458,7 @@ function uglify_js_find(){
         log_console(tr('uglify_js_find(): Using uglify-js ":file"', array(':file' => $result[1])), 'VERBOSE/green');
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_js_find(): Failed'), $e);
+        throw new CoreException(tr('uglify_js_find(): Failed'), $e);
     }
 }
 
@@ -501,7 +501,7 @@ function uglify_js($paths = null, $force = false){
                 log_console(tr('uglify_js(): Minifying javascript file ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             }else{
-                throw new BException(tr('uglify_js(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
+                throw new CoreException(tr('uglify_js(): Specified file ":path" is neither a file or a directory', array(':path' => $path)), 'unknow');
             }
 
             /*
@@ -751,7 +751,7 @@ function uglify_js($paths = null, $force = false){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('uglify_js(): Failed'), $e);
+        throw new CoreException(tr('uglify_js(): Failed'), $e);
     }
 }
 ?>

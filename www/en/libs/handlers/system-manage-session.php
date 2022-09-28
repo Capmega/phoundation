@@ -332,7 +332,7 @@ try{
                              * permissions of PHP session directory?
                              */
 // :TODO: Add check on $core->register['script'] file if it contains BOM!
-                            throw new BException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
+                            throw new CoreException('startup-webpage(): session start and session regenerate both failed, check PHP session directory', $e);
                         }
                     }
 
@@ -348,11 +348,11 @@ try{
                          */
                         if(!$core->callType('system')){
                             if(empty($core->register['url_cloak_users_id'])){
-                                throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
+                                throw new CoreException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
                             }
 
                             if($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']){
-                                throw new BException(tr('startup-webpage(): Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', array(':session_users_id' => $_SESSION['user']['id'], ':cloak_users_id' => $core->register['url_cloak_users_id'])), 403);
+                                throw new CoreException(tr('startup-webpage(): Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', array(':session_users_id' => $_SESSION['user']['id'], ':cloak_users_id' => $core->register['url_cloak_users_id'])), 403);
                             }
                         }
                     }
@@ -461,15 +461,15 @@ try{
 
         }else{
             if(!is_writable(session_save_path())){
-                throw new BException('core::manage_session(): Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
+                throw new CoreException('core::manage_session(): Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
             }
 
-            throw new BException('core::manage_session(): Session startup failed', $e);
+            throw new CoreException('core::manage_session(): Session startup failed', $e);
         }
     }
 
     http_set_ssl_default_context();
 
 }catch(Exception $e){
-    throw new BException(tr('core::manage_session(): Failed'), $e);
+    throw new CoreException(tr('core::manage_session(): Failed'), $e);
 }

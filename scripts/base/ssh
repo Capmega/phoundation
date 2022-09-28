@@ -133,7 +133,7 @@ try{
             $account_data = ssh_get_account($account);
 
             if(!$account_data){
-                throw new BException(tr('The specified SSH account ":account" does not exist', array(':account' => $account)), 'not-exists');
+                throw new CoreException(tr('The specified SSH account ":account" does not exist', array(':account' => $account)), 'not-exists');
             }
 
             $account_data = array_hide($account_data);
@@ -194,13 +194,13 @@ try{
             die();
 
         case '':
-            throw new BException(tr('No method or domain specified'), 'no-method');
+            throw new CoreException(tr('No method or domain specified'), 'no-method');
     }
 
 }catch(Exception $e){
     switch($e->getCode()){
         case 'not-found':
-            throw new BException(tr('ssh-keyscan found no public keys for domain ":domain" on port ":port", are domain and port correct?', array(':domain' => $domain, ':port' => ssh_get_port($port))), 'warning/not-found');
+            throw new CoreException(tr('ssh-keyscan found no public keys for domain ":domain" on port ":port", are domain and port correct?', array(':domain' => $domain, ':port' => ssh_get_port($port))), 'warning/not-found');
     }
 }
 
@@ -215,12 +215,12 @@ $port          = cli_method(1);
 $commands      = cli_argument(1);
 
 if(empty($domain)){
-    throw new BException(tr('No domain specified'), 'warning/not-specified');
+    throw new CoreException(tr('No domain specified'), 'warning/not-specified');
 }
 
 if(!empty($port)){
     if(!is_natural($port) or ($port > 65535)){
-        throw new BException(tr('Invalid port ":port" specified', array(':port' => $port)), 'warning/invalid');
+        throw new CoreException(tr('Invalid port ":port" specified', array(':port' => $port)), 'warning/invalid');
     }
 }
 
@@ -247,13 +247,13 @@ try{
 }catch(Exception $e){
     switch($e->getCode()){
         case 'multiple':
-            throw new BException(tr('Specified domain ":domain" matched multiple registered servers, please be more specific', array(':domain' => $domain)), 'warning/multiple');
+            throw new CoreException(tr('Specified domain ":domain" matched multiple registered servers, please be more specific', array(':domain' => $domain)), 'warning/multiple');
 
         case 'not-exists':
-            throw new BException(tr('Specified domain ":domain" matched no registered servers', array(':domain' => $domain)), 'warning/not-exist');
+            throw new CoreException(tr('Specified domain ":domain" matched no registered servers', array(':domain' => $domain)), 'warning/not-exist');
 
         case 'host-verification-failed':
-            throw new BException(tr('Specified domain ":domain" failed host key verification. Register the server first', array(':domain' => $domain)), 'warning/host-verification-failed');
+            throw new CoreException(tr('Specified domain ":domain" failed host key verification. Register the server first', array(':domain' => $domain)), 'warning/host-verification-failed');
 
         default:
             throw $e;

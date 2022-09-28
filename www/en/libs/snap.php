@@ -31,7 +31,7 @@ function snap_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new BException('snap_library_init(): Failed', $e);
+        throw new CoreException('snap_library_init(): Failed', $e);
     }
 }
 
@@ -67,7 +67,7 @@ function snap_install($packages, $server = null){
                                            'commands' => array('snap', $arguments)));
 
     }catch(Exception $e){
-        throw new BException(tr('Failed'), $e);
+        throw new CoreException(tr('Failed'), $e);
     }
 }
 ?>

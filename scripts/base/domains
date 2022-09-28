@@ -276,7 +276,7 @@ try{
                                                     'filters' => array('seoname' => $customer)));
 
                 if(!$customers_id){
-                    throw new BException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'warning');
+                    throw new CoreException(tr('The specified customer ":customer" does not exist', array(':customer' => $customer)), 'warning');
                 }
 
                 $execute[':customers_id'] = $customers_id;
@@ -288,7 +288,7 @@ try{
                 $providers_id = providers_get($provider, 'id');
 
                 if(!$providers_id){
-                    throw new BException(tr('The specified provider ":provider" does not exist', array(':provider' => $provider)), 'warning');
+                    throw new CoreException(tr('The specified provider ":provider" does not exist', array(':provider' => $provider)), 'warning');
                 }
 
                 $execute[':providers_id'] = $providers_id;
@@ -355,10 +355,10 @@ try{
             break;
 
         case '':
-            throw new BException(tr('No method specified'), 'not-specified');
+            throw new CoreException(tr('No method specified'), 'not-specified');
 
         default:
-            throw new BException(tr('Unknown argument ":method" specified', array(':method' => cli_method())), 'unknown');
+            throw new CoreException(tr('Unknown argument ":method" specified', array(':method' => cli_method())), 'unknown');
     }
 
 }catch(Exception $e){

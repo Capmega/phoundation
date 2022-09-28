@@ -21,11 +21,11 @@ function help($section){
                 break;
 
             default:
-                throw new BException(tr('help(): Unknown section ":section" specified', array(':section' => $section)), 'unknown');
+                throw new CoreException(tr('help(): Unknown section ":section" specified', array(':section' => $section)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('help(): Failed', $e);
+        throw new CoreException('help(): Failed', $e);
     }
 }
 ?>

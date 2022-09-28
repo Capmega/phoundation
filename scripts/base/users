@@ -327,7 +327,7 @@ switch(cli_method()){
                                   ':email'    => $users_id));
 
         if(!$db_user){
-            throw new BException(tr('Specified user ":user" does not exist', array(':user' => $users_id)), 'warning/not-exist');
+            throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $users_id)), 'warning/not-exist');
         }
 
         if(isset($user['role'])){
@@ -335,7 +335,7 @@ switch(cli_method()){
             $role = roles_get($user['role']);
 
             if(!$role){
-                throw new BException(tr('Specified role ":role" does not exist'), 'not-exist');
+                throw new CoreException(tr('Specified role ":role" does not exist'), 'not-exist');
             }
 
             $user['roles_id'] = $role['id'];
@@ -375,23 +375,23 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(!$specified_user){
-            throw new BException(tr('No user specified'), 'warning/not-specified');
+            throw new CoreException(tr('No user specified'), 'warning/not-specified');
         }
 
         $user = user_get($specified_user);
 
         if(!$user){
-            throw new BException(tr('Specified user ":user" does not exist', array(':user' => $specified_user)), 'warning/not-exist');
+            throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $specified_user)), 'warning/not-exist');
         }
 
         if(!$specified_role){
-            throw new BException(tr('No role specified for user ":user"', array(':user' => $user)), 'warning/not-specified');
+            throw new CoreException(tr('No role specified for user ":user"', array(':user' => $user)), 'warning/not-specified');
         }
 
         $role = roles_get($specified_role, 'id,name');
 
         if(!$role){
-            throw new BException(tr('Specified role ":role" does not exist', array(':role' => $specified_role)), 'warning/not-exist');
+            throw new CoreException(tr('Specified role ":role" does not exist', array(':role' => $specified_role)), 'warning/not-exist');
         }
 
         $user['roles_id'] = $role['id'];
@@ -428,23 +428,23 @@ switch(cli_method()){
         $execute     = array();
 
         if(!is_natural($limit) or (!$limit > 99999)){
-            throw new BException(tr('--limit must be followed by a natural number lower than 99999'), 'warning/invalid');
+            throw new CoreException(tr('--limit must be followed by a natural number lower than 99999'), 'warning/invalid');
         }
 
         if(STATUS and DELETED and $core->register['all']){
-            throw new BException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
+            throw new CoreException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
         }
 
         if(STATUS and DELETED){
-            throw new BException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
+            throw new CoreException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
         if(STATUS and $core->register['all']){
-            throw new BException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
+            throw new CoreException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
         if(DELETED and $core->register['all']){
-            throw new BException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
+            throw new CoreException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
         if(DELETED){
@@ -578,19 +578,19 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(STATUS and DELETED and $core->register['all']){
-            throw new BException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
+            throw new CoreException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
         }
 
         if(STATUS and DELETED){
-            throw new BException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
+            throw new CoreException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
         if(STATUS and $core->register['all']){
-            throw new BException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
+            throw new CoreException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
         if(DELETED and $core->register['all']){
-            throw new BException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
+            throw new CoreException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
         if(DELETED){
@@ -712,7 +712,7 @@ switch(cli_method()){
         $requested = cli_argument();
 
         if(!$requested){
-            throw new BException(tr('Specified user is invalid'), 'warning/not-specified');
+            throw new CoreException(tr('Specified user is invalid'), 'warning/not-specified');
         }
 
         if(is_numeric($requested)){
@@ -727,13 +727,13 @@ switch(cli_method()){
                              ':email'    => $requested);
 
         }else{
-            throw new BException(tr('Specified user is invalid'), 'warning/invalid');
+            throw new CoreException(tr('Specified user is invalid'), 'warning/invalid');
         }
 
         $user = sql_get('SELECT * FROM `users` '.$where, $execute);
 
         if(!$user){
-            throw new BException(tr('Specified user ":user" does not exist', array(':user' => $requested)), 'warning/not-exist');
+            throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $requested)), 'warning/not-exist');
         }
 
         ksort($user);
@@ -749,7 +749,7 @@ switch(cli_method()){
         $users = cli_arguments();
 
         if(empty($users)){
-            throw new BException(tr('No users specified'), 'warning/not-specified');
+            throw new CoreException(tr('No users specified'), 'warning/not-specified');
         }
 
         /*
@@ -801,14 +801,14 @@ switch(cli_method()){
 
         switch($r->rowCount()){
             case 0:
-                throw new BException (tr('Not unlocked any users'), 'warning/no-change');
+                throw new CoreException (tr('Not unlocked any users'), 'warning/no-change');
 
             case count($users):
                 log_console(tr('Unlocked ":count" users', array(':count' => $r->rowCount())), 'green');
                 break;
 
             default:
-                throw new BException(tr('Unlocked only ":count" users from the specified ":specified" users', array(':count' => $r->rowCount(), ':specified' => count($users))), 'warning/partial-change');
+                throw new CoreException(tr('Unlocked only ":count" users from the specified ":specified" users', array(':count' => $r->rowCount(), ':specified' => count($users))), 'warning/partial-change');
         }
 
         break;
@@ -825,7 +825,7 @@ switch(cli_method()){
         $users = cli_arguments();
 
         if(empty($users)){
-            throw new BException(tr('No users specified'), 'warning/not-specified');
+            throw new CoreException(tr('No users specified'), 'warning/not-specified');
         }
 
         /*
@@ -924,7 +924,7 @@ switch(cli_method()){
                         break;
 
                     default:
-                        throw new BException(tr('Erased only ":deleted" users from the specified ":specified" users', array(':count' => $r->rowCount(), ':specified' => count($users))), 'warning/partial-change');
+                        throw new CoreException(tr('Erased only ":deleted" users from the specified ":specified" users', array(':count' => $r->rowCount(), ':specified' => count($users))), 'warning/partial-change');
                 }
 
                 break;
@@ -940,7 +940,7 @@ switch(cli_method()){
                         break;
 
                     default:
-                        throw new BException(tr('Undeleted only ":deleted" users from the specified ":specified" users', array(':count' => $r->rowCount(), ':specified' => count($users))), 'warning/partial-change');
+                        throw new CoreException(tr('Undeleted only ":deleted" users from the specified ":specified" users', array(':count' => $r->rowCount(), ':specified' => count($users))), 'warning/partial-change');
                 }
 
                 break;
@@ -956,7 +956,7 @@ switch(cli_method()){
                         break;
 
                     default:
-                        throw new BException(tr('Deleted only ":deleted" users from the specified ":specified" users', array(':count' => $r->rowCount(), ':specified' => count($users))), 'warning/partial-change');
+                        throw new CoreException(tr('Deleted only ":deleted" users from the specified ":specified" users', array(':count' => $r->rowCount(), ':specified' => count($users))), 'warning/partial-change');
                 }
 
                 break;
@@ -972,7 +972,7 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if(!$requested){
-            throw new BException(tr('No user specified'), 'warning/not-specified');
+            throw new CoreException(tr('No user specified'), 'warning/not-specified');
         }
 
         if(is_numeric($requested)){
@@ -982,11 +982,11 @@ switch(cli_method()){
             $user = sql_get('SELECT `id`, `name`, `nickname`, `email`, `username`  FROM `users` WHERE `username` = :username OR `email` = :email', array(':username' => $requested, ':email' => $requested));
 
         }else{
-            throw new BException(tr('Specified user is invalid'), 'warning/invalid');
+            throw new CoreException(tr('Specified user is invalid'), 'warning/invalid');
         }
 
         if(!$user){
-            throw new BException(tr('Specified user ":user" does not exist', array(':user' => $requested)), 'warning/not-exist');
+            throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $requested)), 'warning/not-exist');
         }
 
         $password = cli_readline(tr('Password: ')       , true);
@@ -995,13 +995,13 @@ switch(cli_method()){
             /*
              * This will fail later anyway
              */
-            throw new BException(tr('Specified password is too short'), 'warning/validation');
+            throw new CoreException(tr('Specified password is too short'), 'warning/validation');
         }
 
         $verify   = cli_readline(tr('Verify password: '), true);
 
         if($password != $verify){
-            throw new BException(tr('Specified password does not match the verification'), 'warning/verification');
+            throw new CoreException(tr('Specified password does not match the verification'), 'warning/verification');
         }
 
         try{
@@ -1056,7 +1056,7 @@ switch(cli_method()){
 
 
         if(!$updated){
-            throw new BException(tr('Password is the same, not updated', array(':user' => $user)), 'warning/not-updated');
+            throw new CoreException(tr('Password is the same, not updated', array(':user' => $user)), 'warning/not-updated');
         }
 
         log_console(tr('Updated password for user ":user"', array(':user' => name($user))), 'green');
@@ -1084,9 +1084,9 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

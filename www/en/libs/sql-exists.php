@@ -49,7 +49,7 @@ function sql_database_exists($database, $query = null, $connector = null){
         return array_shift($retval);
 
     }catch(Exception $e){
-        throw new BException('sql_database_exists(): Failed', $e);
+        throw new CoreException('sql_database_exists(): Failed', $e);
     }
 }
 
@@ -98,7 +98,7 @@ function sql_table_exists($table, $query = null, $connector = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('sql_table_exists(): Failed', $e);
+        throw new CoreException('sql_table_exists(): Failed', $e);
     }
 }
 
@@ -147,7 +147,7 @@ function sql_index_exists($table, $index, $query = null, $connector = null){
         return array_shift($retval);
 
     }catch(Exception $e){
-        throw new BException('sql_index_exists(): Failed', $e);
+        throw new CoreException('sql_index_exists(): Failed', $e);
     }
 }
 
@@ -196,7 +196,7 @@ function sql_column_exists($table, $column, $query = null, $connector = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('sql_column_exists(): Failed', $e);
+        throw new CoreException('sql_column_exists(): Failed', $e);
     }
 }
 
@@ -255,7 +255,7 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('sql_foreignkey_exists(): Failed', $e);
+        throw new CoreException('sql_foreignkey_exists(): Failed', $e);
     }
 }
 
@@ -316,7 +316,7 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('sql_function_exists(): Failed', $e);
+        throw new CoreException('sql_function_exists(): Failed', $e);
     }
 }
 
@@ -353,7 +353,7 @@ function sql_list_foreignkeys($table, $column = null, $connector = null){
         return $list;
 
     }catch(Exception $e){
-        throw new BException('sql_list_foreignkeys(): Failed', $e);
+        throw new CoreException('sql_list_foreignkeys(): Failed', $e);
     }
 }
 
@@ -368,6 +368,6 @@ function sql_list_fk($table, $column = null){
         return sql_list_foreignkeys($table, $column);
 
     }catch(Exception $e){
-        throw new BException('sql_list_foreignkeys(): Failed', $e);
+        throw new CoreException('sql_list_foreignkeys(): Failed', $e);
     }
 }

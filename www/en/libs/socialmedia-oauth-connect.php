@@ -333,10 +333,10 @@ class socialmedia_oauth_connect
                 break;
 
             case '';
-                throw new BException('No provider specified');
+                throw new CoreException('No provider specified');
 
             default:
-                throw new BException('Provider "'.$this->provider.'" is not yet a supported. We will release soon. Contact kayalshri@gmail.com!');
+                throw new CoreException('Provider "'.$this->provider.'" is not yet a supported. We will release soon. Contact kayalshri@gmail.com!');
         }
       }
 

@@ -24,15 +24,15 @@ try{
              * Erase the specified users
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot erase users, no users selected', 'notspecified');
+                throw new CoreException('Cannot erase users, no users selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot erase users, invalid data specified', 'invalid');
+                throw new CoreException('Cannot erase users, invalid data specified', 'invalid');
             }
 
             if(in_array($_SESSION['user']['id'], $_POST['id'])){
-                throw new bException('You cannot delete yourself', 'invalid');
+                throw new CoreException('You cannot delete yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
@@ -52,15 +52,15 @@ try{
              * Erase the specified users
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot undelete users, no users selected', 'notspecified');
+                throw new CoreException('Cannot undelete users, no users selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot undelete users, invalid data specified', 'invalid');
+                throw new CoreException('Cannot undelete users, invalid data specified', 'invalid');
             }
 
             if(in_array($_SESSION['user']['id'], $_POST['id'])){
-                throw new bException('You cannot undelete yourself', 'invalid');
+                throw new CoreException('You cannot undelete yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
@@ -80,15 +80,15 @@ try{
              * Erase the specified users
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot erase users, no users selected', 'notspecified');
+                throw new CoreException('Cannot erase users, no users selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot erase users, invalid data specified', 'invalid');
+                throw new CoreException('Cannot erase users, invalid data specified', 'invalid');
             }
 
             if(in_array($_SESSION['user']['id'], $_POST['id'])){
-                throw new bException('You cannot erase yourself', 'invalid');
+                throw new CoreException('You cannot erase yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');

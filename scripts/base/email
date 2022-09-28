@@ -143,7 +143,7 @@ if($users){
  */
 if(!in_array($criteria, array('ALL', 'ANSWERED', 'DELETED', 'FLAGGED', 'NEW', 'OLD', 'RECENT', 'SEEN', 'UNANSWERED', 'UNDELETED', 'UNFLAGGED', 'UNSEEN'))){
     if(!in_array(str_until($criteria, '='), array('BCC', 'BEFORE', 'BODY', 'CC', 'FROM', 'KEYWORD', 'ON', 'SINCE', 'SUBJECT', 'TEXT', 'TO', 'UNKEYWORD'))){
-        throw new BException(tr('Unknown filter ":filter" specified', array(':filter' => $criteria)), 'unknown');
+        throw new CoreException(tr('Unknown filter ":filter" specified', array(':filter' => $criteria)), 'unknown');
     }
 }
 
@@ -157,7 +157,7 @@ switch(cli_method()){
 
         if($all){
             if(!FORCE){
-                throw new BException(tr('The "clear" method requires the -F or --force option because its dangerous, it will wipe ALL your email tables!'), 'denied');
+                throw new CoreException(tr('The "clear" method requires the -F or --force option because its dangerous, it will wipe ALL your email tables!'), 'denied');
             }
 // :TEST: Haven't tested this yet, no idea if and how it works
 
@@ -176,7 +176,7 @@ switch(cli_method()){
 
         }else{
             if(!FORCE){
-                throw new BException(tr('The "clear" method requires the -F or --force option because its dangerous, it will wipe your email_messages and email_conversations tables'), 'denied');
+                throw new CoreException(tr('The "clear" method requires the -F or --force option because its dangerous, it will wipe your email_messages and email_conversations tables'), 'denied');
             }
 
             sql_query('DELETE FROM `email_messages`');
@@ -309,10 +309,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new BException(tr('No sub method specified'), 'unknown');
+                throw new CoreException(tr('No sub method specified'), 'unknown');
 
             default:
-                throw new BException(tr('Unknown sub method ":method" specified', array(':method' => cli_method())), 'unknown');
+                throw new CoreException(tr('Unknown sub method ":method" specified', array(':method' => cli_method())), 'unknown');
         }
 
         break;
@@ -328,15 +328,15 @@ switch(cli_method()){
         cli_no_arguments_left();
 
         if($peek and $delete){
-            throw new BException(tr('Both --peek and --delete were specified, though they are mutually exclusive. Please specify one or the other'), 'conflict');
+            throw new CoreException(tr('Both --peek and --delete were specified, though they are mutually exclusive. Please specify one or the other'), 'conflict');
         }
 
         if(!is_natural($loops, 0)){
-            throw new BException(tr('Please specify a natural number for --loop (an integer number, 0 or higher)'), 'invalid');
+            throw new CoreException(tr('Please specify a natural number for --loop (an integer number, 0 or higher)'), 'invalid');
         }
 
         if($criteria != 'UNSEEN'){
-//            throw new BException(tr('Invalid filter "%filter%" specified, polling can only happen on filter "UNSEEN"', array('%filter%' => $criteria)), 'invalid');
+//            throw new CoreException(tr('Invalid filter "%filter%" specified, polling can only happen on filter "UNSEEN"', array('%filter%' => $criteria)), 'invalid');
         }
 
         $mail_boxes = explode(',', $mail_boxes);
@@ -581,8 +581,8 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new BException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
 }

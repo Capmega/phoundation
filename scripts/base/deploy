@@ -169,7 +169,7 @@ $rootdiff = str_ends_not($rootdiff, '/');
  * Deployment is always done to targets, and production is always a target, we cannot deploy from a target to a target
  */
 if(ENVIRONMENT == 'production') {
-    throw new BException('You are running the deploy script on production environment? Are you high?', 'warning/production');
+    throw new CoreException('You are running the deploy script on production environment? Are you high?', 'warning/production');
 }
 
 
@@ -180,7 +180,7 @@ if(ENVIRONMENT == 'production') {
 include(ROOT.'config/deploy.php');
 
 if(empty($_CONFIG['deploy'])){
-    throw new BException(tr('No deploy configuration found'), 'warning/validation');
+    throw new CoreException(tr('No deploy configuration found'), 'warning/validation');
 }
 
 
@@ -275,7 +275,7 @@ $categories          =  cli_arguments();
  *
  */
 if(!$message and !$notag){
-    throw new BException(tr('No tag message specified! please use ./scripts/base/deploy ..... message "commit message"'), 'warning/not-specified');
+    throw new CoreException(tr('No tag message specified! please use ./scripts/base/deploy ..... message "commit message"'), 'warning/not-specified');
 }
 
 
@@ -285,7 +285,7 @@ if(!$message and !$notag){
  */
 if(!$targets){
     if(!$categories){
-        throw new BException(tr('No target environment or environment categories specified!'), 'warning/not-specified');
+        throw new CoreException(tr('No target environment or environment categories specified!'), 'warning/not-specified');
     }
 
     /*
@@ -299,7 +299,7 @@ if(!$targets){
 
         if($branch != 'production'){
             if(!FORCE){
-                throw new BException(tr('Cannot deploy the current GIT branch ":branch" to production category. For safety, deployment to production environment is restricted to git "production" branch only', array(':branch' => $branch)), 'warning/validation');
+                throw new CoreException(tr('Cannot deploy the current GIT branch ":branch" to production category. For safety, deployment to production environment is restricted to git "production" branch only', array(':branch' => $branch)), 'warning/validation');
             }
 
             /*
@@ -328,7 +328,7 @@ if(!$targets){
     }
 
     if(empty($targets)){
-        throw new BException(tr('The specified categories or targets ":categories" contain no configured deploy targets', array(':categories' => $categories)), 'warning/not-specified');
+        throw new CoreException(tr('The specified categories or targets ":categories" contain no configured deploy targets', array(':categories' => $categories)), 'warning/not-specified');
     }
 }
 
@@ -339,7 +339,7 @@ if(!$targets){
  */
 foreach($categories as $category){
     if(substr($category, 0, 1) == '-'){
-        throw new BException(tr('Invalid category ":category" specified', array(':category' => $category)), 'warning/invalid');
+        throw new CoreException(tr('Invalid category ":category" specified', array(':category' => $category)), 'warning/invalid');
     }
 }
 
@@ -383,7 +383,7 @@ if($targets == 'all'){
 }
 
 if(!$targets){
-    throw new BException('No deployment targets specified', 'warning/not-specified');
+    throw new CoreException('No deployment targets specified', 'warning/not-specified');
 }
 
 
@@ -395,7 +395,7 @@ if(!$ignore_changes){
     if(git_status()){
         if(!FORCE){
             if(!$stash){
-                throw new BException('Git commit pending', 'warning/validation');
+                throw new CoreException('Git commit pending', 'warning/validation');
             }
 
             log_console(tr('Changes detected, git stashing changes before comming'), 'yellow');
@@ -420,7 +420,7 @@ if(in_array('production', $targets)){
 
     if($branch != 'production'){
         if(!FORCE){
-            throw new BException(tr('Cannot deploy the current GIT branch ":branch" to production environment. For safety, deployment to production environment is restricted to git "production" branch only', array(':branch' => $branch)), 'warning/validation');
+            throw new CoreException(tr('Cannot deploy the current GIT branch ":branch" to production environment. For safety, deployment to production environment is restricted to git "production" branch only', array(':branch' => $branch)), 'warning/validation');
         }
 
         /*
@@ -462,11 +462,11 @@ if($nosyntax){
     exec('find . -type f -name "*.php"', $output);
 
     if(!is_array($output)){
-        throw new BException('Syntax check failed', 'warning/validation');
+        throw new CoreException('Syntax check failed', 'warning/validation');
     }
 
     if(!$output){
-        throw new BException('No php files found.', 'warning/validation');
+        throw new CoreException('No php files found.', 'warning/validation');
     }
 
     foreach($output as $file){
@@ -480,7 +480,7 @@ if($nosyntax){
         exec('php -l '.ROOT.$file.' > /dev/null', $syntaxoutput, $return);
 
         if($return){
-            throw new BException(tr('Content scan failed on file ":file" with ":error"', array(':file' => $file, ':error' => $syntaxoutput)), 'warning/validation');
+            throw new CoreException(tr('Content scan failed on file ":file" with ":error"', array(':file' => $file, ':error' => $syntaxoutput)), 'warning/validation');
         }
 
         cli_dot();
@@ -538,7 +538,7 @@ if($noversion or $notag){
     passthru('cd '.ROOT.'; git tag -am "['.PROJECT.' / '.$newversion.'] '.$message.'" '.$newversion.';', $exitcode);
 
     if($exitcode){
-        throw new BException('Git tagging failed with exit code "'.str_log($exitcode).'"', 'warning/git');
+        throw new CoreException('Git tagging failed with exit code "'.str_log($exitcode).'"', 'warning/git');
     }
 
     init_hook('deploy_post_tag', $nohooks, array('exitcode' => $exitcode));
@@ -563,7 +563,7 @@ if($nopush or $ignore_changes){
     passthru('cd '.ROOT.'; git push origin '.$branch.' && git push origin '.$branch.' --tags', $exitcode);
 
     if($exitcode){
-        throw new BException('Git push failed with exit code "'.str_log($exitcode).'"', 'warning/git');
+        throw new CoreException('Git push failed with exit code "'.str_log($exitcode).'"', 'warning/git');
     }
 
     init_hook('deploy_post_push', $nohooks, array('exitcode' => $exitcode));
@@ -579,7 +579,7 @@ if(!$noversion){
     passthru(ROOT.'script/base/init --env '.$target_environment, $exitcode);
 
     if($exitcode){
-        throw new BException(tr('System init failed with exit code ":code"', array(':code' => $exitcode)), 'warning/init');
+        throw new CoreException(tr('System init failed with exit code ":code"', array(':code' => $exitcode)), 'warning/init');
     }
 }
 
@@ -682,7 +682,7 @@ if($notouch){
     passthru('cd '.ROOT.'; find . ! -path "./data/content/*" -exec touch {} \;', $exitcode);
 
     if($exitcode){
-        throw new BException('Touch failed with exit code ":code"', array(':code' => $exitcode), 'warning/git');
+        throw new CoreException('Touch failed with exit code ":code"', array(':code' => $exitcode), 'warning/git');
     }
 
     init_hook('deploy_post_touch', $nohooks, array('exitcode' => $exitcode));
@@ -692,18 +692,18 @@ if($notouch){
 
 foreach($targets as $target_environment){
     if(!preg_match('/^[a-z0-9]+$/', $target_environment)){
-        throw new BException('Invalid target environment name "'.str_log($target_environment).'" specified, can only contain alphanumeric characters', 'warning/invalid');
+        throw new CoreException('Invalid target environment name "'.str_log($target_environment).'" specified, can only contain alphanumeric characters', 'warning/invalid');
     }
 
     if(empty($_CONFIG['deploy'][$target_environment])){
-        throw new BException('Unknown target environment "'.str_log($target_environment).'" specified', 'warning/unknown');
+        throw new CoreException('Unknown target environment "'.str_log($target_environment).'" specified', 'warning/unknown');
     }
 
     /*
      * Ensure that target environment configuration file is available.
      */
     if(!file_exists(ROOT.'config/'.$target_environment.'.php')){
-        throw new BException('Target environment "'.str_log($target_environment).'" has no configuration file', 'warning/validation');
+        throw new CoreException('Target environment "'.str_log($target_environment).'" has no configuration file', 'warning/validation');
     }
 
     $deploy_config                         = $_CONFIG['deploy'][$target_environment];
@@ -753,7 +753,7 @@ foreach($targets as $target_environment){
             $sudo_user = 'export SHELL=/bin/bash; sudo -s -u '.$deploy_config['sudo'].' ';
 
         }else{
-            throw new BException(tr('Invalid sudo configuration ":configuration" found for target environment ":target". It should be either true, false, or an (existing) username string', array(':configuration' => $deploy_config['sudo'], ':target' => $target_environment)), 'warning/invalid');
+            throw new CoreException(tr('Invalid sudo configuration ":configuration" found for target environment ":target". It should be either true, false, or an (existing) username string', array(':configuration' => $deploy_config['sudo'], ':target' => $target_environment)), 'warning/invalid');
         }
     }
 
@@ -771,11 +771,11 @@ foreach($targets as $target_environment){
         exec('grep load_content  www scripts -R', $output);
 
         if(!is_array($output)){
-            throw new BException('Content scan failed', 'warning/failed');
+            throw new CoreException('Content scan failed', 'warning/failed');
         }
 
         if(!$output){
-            throw new BException('No "load_content" found which is impossible, because the system library has it.', 'warning/validation');
+            throw new CoreException('No "load_content" found which is impossible, because the system library has it.', 'warning/validation');
         }
 
         /*
@@ -814,7 +814,7 @@ foreach($targets as $target_environment){
                     exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'ls '.($file = $deploy_config['target_dir'].'data/content/'.$code.'/'.$file.'.html').' 2>&1 /dev/null\'', $contentoutput, $return);
 
                     if($return){
-                        throw new BException('Missing content file "'.str_log($file).'" for language "'.str_log($language).'", defined in "'.$definedin.'"', 'warning/validation');
+                        throw new CoreException('Missing content file "'.str_log($file).'" for language "'.str_log($language).'", defined in "'.$definedin.'"', 'warning/validation');
                     }
                 }
             }
@@ -851,7 +851,7 @@ foreach($targets as $target_environment){
      */
     if($continuersync){
         if(!$deploy_config['rsync_parrallel']){
-            throw new BException(tr('The continuersync option was specified which makes no sense when either the project does not support rsync_parrallel, or when rsync_parrallel has been disabled because of the command line option "noparrallel"'), 'warning/invalid');
+            throw new CoreException(tr('The continuersync option was specified which makes no sense when either the project does not support rsync_parrallel, or when rsync_parrallel has been disabled because of the command line option "noparrallel"'), 'warning/invalid');
         }
 
         /*
@@ -859,7 +859,7 @@ foreach($targets as $target_environment){
          */
         while(!preg_match('/^20\d{6}-\d{6}$/', $continuersync)){
             if(!preg_match('/^'.str_rfrom($deploy_config['target_dir'], '/').'~20\d{6}-\d{6}\/?$/', $continuersync)){
-                throw new BException(tr('The specified continuersync option "'.str_log($continuersync).'" is invalid, it should be in the Ymd-His format, or targetpath~Ymd-His'), 'warning/invalid');
+                throw new CoreException(tr('The specified continuersync option "'.str_log($continuersync).'" is invalid, it should be in the Ymd-His format, or targetpath~Ymd-His'), 'warning/invalid');
             }
 
             $continuersync = str_until(str_from($continuersync, '~'), '/');
@@ -872,7 +872,7 @@ foreach($targets as $target_environment){
      *
      */
     if($nobackup and $dobackup){
-        throw new BException(tr('The options --do-backup and --no-backup cannot be used together'), 'warning/invalid');
+        throw new CoreException(tr('The options --do-backup and --no-backup cannot be used together'), 'warning/invalid');
     }
 
     if(!isset($deploy_config['auto_backup'])){
@@ -897,19 +897,19 @@ foreach($targets as $target_environment){
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' "'.$sudo.'mkdir -p /data/backups/'.date_convert(null, 'Ymd').' > /dev/null 2>&1; sudo chown www-data:www-data /data/ -R > /dev/null 2>&1; sudo chmod g+w,o-rwx /data/ -R"', $exitcode);
 
         if($exitcode){
-            throw new BException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
+            throw new CoreException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
         }
 
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' "'.$sudo.'mysqldump -p\''.str_replace('$', '\$', $config['db']['core']['pass']).'\' -K -R -n -e --dump-date --comments -B '.$config['db']['core']['db'].' | gzip > /data/backups/'.date_convert(null, 'Ymd').'/'.$config['db']['core']['db'].'.sql.gz"', $exitcode);
 
         if($exitcode){
-            throw new BException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
+            throw new CoreException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
         }
 
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' "'.$sudo.'tar -cjf /data/backups/'.date_convert(null, 'Ymd').'/'.basename($deploy_config['target_dir']).'.tgz '.$deploy_config['target_dir'].'"', $exitcode);
 
         if($exitcode){
-            throw new BException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
+            throw new CoreException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
         }
     }
 
@@ -935,7 +935,7 @@ foreach($targets as $target_environment){
                 /*
                  * Does not exist
                  */
-                throw new BException(tr('The specified continuesync path ":path" on the target environment ":env" does not exist', array(':path' => ($deploy_config['target_dir']).'~'.$continuersync, ':env' => $target_environment)), 'warning/not-exist');
+                throw new CoreException(tr('The specified continuesync path ":path" on the target environment ":env" does not exist', array(':path' => ($deploy_config['target_dir']).'~'.$continuersync, ':env' => $target_environment)), 'warning/not-exist');
             }
 
             $tilde = '~'.$continuersync;
@@ -1019,7 +1019,7 @@ foreach($targets as $target_environment){
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mkdir -p '.$deploy_config['target_dir'].'/data/system 2> /dev/null; '.$sudo.'touch '.$deploy_config['target_dir'].'/data/system/last-deploy\'', $contentoutput, $return);
 
         if($exitcode and !$ignore_rsync_errors){
-            throw new BException('Rsync failed with exit code "'.str_log($exitcode).'"', 'warning/rsync');
+            throw new CoreException('Rsync failed with exit code "'.str_log($exitcode).'"', 'warning/rsync');
         }
 
         init_hook('deploy_post_deploy', $nohooks, array('target_user'    => $deploy_config['target_user'],
@@ -1047,7 +1047,7 @@ foreach($targets as $target_environment){
         }
 
         if($exitcode){
-            throw new BException('fix-structure failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new CoreException('fix-structure failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
 
         init_hook('deploy_post_structure', $nohooks, array('target_user'   => $deploy_config['target_user'],
@@ -1079,7 +1079,7 @@ foreach($targets as $target_environment){
             }
 
             if($exitcode){
-                throw new BException(tr('fix-permissions failed with exit code ":code" while executing command ":command"', array(':code' => $exitcode, ':command' => $command)), 'warning/failed');
+                throw new CoreException(tr('fix-permissions failed with exit code ":code" while executing command ":command"', array(':code' => $exitcode, ':command' => $command)), 'warning/failed');
             }
 
             init_hook('deploy_post_permission', $nohooks, array('target_user'   => $deploy_config['target_user'],
@@ -1106,14 +1106,14 @@ foreach($targets as $target_environment){
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mv '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde.'_old; '.$sudo.'mv '.$deploy_config['target_dir'].$tilde.' '.$deploy_config['target_dir'].'\'', $exitcode);
 
         if($exitcode){
-            throw new BException('Moving new version in place failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new CoreException('Moving new version in place failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
 
         log_console(tr('Deleting old version'), 'white');
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'rm '.$deploy_config['target_dir'].$tilde.'_old -rf\'', $exitcode);
 
         if($exitcode){
-            throw new BException('Deleting old version in place failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new CoreException('Deleting old version in place failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
     }
 
@@ -1130,7 +1130,7 @@ foreach($targets as $target_environment){
         passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/init --env '.$target_environment.' \'', $exitcode);
 
         if($exitcode){
-            throw new BException('Target version init failed with exit code "'.str_log($exitcode).'"', 'warning/init');
+            throw new CoreException('Target version init failed with exit code "'.str_log($exitcode).'"', 'warning/init');
         }
 
         init_hook('deploy_post_init', $nohooks, array('target_user'     => $deploy_config['target_user'],
@@ -1153,7 +1153,7 @@ foreach($targets as $target_environment){
     //    passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap scan --env '.$target_environment.' \'', $exitcode);
     //
     //    if($exitcode){
-    //        throw new BException('Target sitemap scan failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_scan');
+    //        throw new CoreException('Target sitemap scan failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_scan');
     //    }
     //
     //    if($_CONFIG['language']['supported']){
@@ -1161,19 +1161,19 @@ foreach($targets as $target_environment){
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy   html '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if($exitcode){
-    //                throw new BException('Target sitemap HTML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_html');
+    //                throw new CoreException('Target sitemap HTML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_html');
     //            }
     //
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy    xml '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if($exitcode){
-    //                throw new BException('Target sitemap XML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_xml');
+    //                throw new CoreException('Target sitemap XML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_xml');
     //            }
     //
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy robots '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
     //            if($exitcode){
-    //                throw new BException('Target sitemap robots build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_robots');
+    //                throw new CoreException('Target sitemap robots build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_robots');
     //            }
     //        }
     //    }
@@ -1213,7 +1213,7 @@ foreach($targets as $target_environment){
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/cache clear --env '.$target_environment.'\'', $exitcode);
 
         if($exitcode){
-            throw new BException('Cache clear failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
+            throw new CoreException('Cache clear failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
     }
 

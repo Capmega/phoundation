@@ -81,7 +81,7 @@ function check_disk($params = null){
         }
 
         if(!file_exists($params['path'])){
-            throw new BException(tr('check_disk(): The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
+            throw new CoreException(tr('check_disk(): The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
         }
 
         $total      = disk_total_space($params['path']);
@@ -109,7 +109,7 @@ function check_disk($params = null){
         return null;
 
     }catch(Exception $e){
-        throw new BException(tr('check_disk(): Failed'), $e);
+        throw new CoreException(tr('check_disk(): Failed'), $e);
     }
 }
 ?>

@@ -41,6 +41,6 @@ try{
                     </table>';
 
 }catch(Exception $e){
-    throw new BException('debug_html(): Failed', $e);
+    throw new CoreException('debug_html(): Failed', $e);
 }
 ?>

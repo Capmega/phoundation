@@ -21,6 +21,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('scripts/mailer/delete: Failed', $e);
+    throw new CoreException('scripts/mailer/delete: Failed', $e);
 }
 ?>

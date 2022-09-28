@@ -25,7 +25,7 @@ function c_page($params, $meta, $html){
         return atlant_page($params, $meta, $html);
 
     }catch(Exception $e){
-        throw new BException('c_page(): Failed', $e);
+        throw new CoreException('c_page(): Failed', $e);
     }
 }
 
@@ -39,7 +39,7 @@ function c_html_header($params = null, $meta = null, $links = null){
         return atlant_html_header($params, $meta, $links);
 
     }catch(Exception $e){
-        throw new BException('c_html_header(): Failed', $e);
+        throw new CoreException('c_html_header(): Failed', $e);
     }
 }
 
@@ -53,7 +53,7 @@ function c_page_header($params){
         return atlant_page_header($params);
 
     }catch(Exception $e){
-        throw new BException('c_page_header(): Failed', $e);
+        throw new CoreException('c_page_header(): Failed', $e);
     }
 }
 
@@ -67,7 +67,7 @@ function c_html_footer($params){
         return atlant_html_footer($params);
 
     }catch(Exception $e){
-        throw new BException('c_html_footer(): Failed', $e);
+        throw new CoreException('c_html_footer(): Failed', $e);
     }
 }
 
@@ -85,7 +85,7 @@ function c_menu(){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('c_menu(): Failed', $e);
+        throw new CoreException('c_menu(): Failed', $e);
     }
 }
 ?>

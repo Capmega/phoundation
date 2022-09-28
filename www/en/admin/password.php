@@ -185,7 +185,7 @@ function s_validate_password(&$user, $id = null){
         user_authenticate($_SESSION['user']['name'], $params['cpassword']);
 
     }catch(Exception $e){
-        throw new bException('s_validate_password(): Failed', $e);
+        throw new CoreException('s_validate_password(): Failed', $e);
     }
 }
 
@@ -205,7 +205,7 @@ function s_validate_pin(&$user, $id = null){
         $v->isNumeric   ($user['pin']                      , tr('Please ensure that the pin is numeric'));
 
     }catch(Exception $e){
-        throw new bException('s_validate_pin(): Failed', $e);
+        throw new CoreException('s_validate_pin(): Failed', $e);
     }
 }
 ?>

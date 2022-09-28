@@ -28,7 +28,7 @@ function projects_library_init(){
         load_config('projects');
 
     }catch(Exception $e){
-        throw new BException('projects_library_init(): Failed', $e);
+        throw new CoreException('projects_library_init(): Failed', $e);
     }
 }
 
@@ -228,7 +228,7 @@ function projects_validate($project, $reload_only = false){
         return $project;
 
     }catch(Exception $e){
-        throw new BException(tr('projects_validate(): Failed'), $e);
+        throw new CoreException(tr('projects_validate(): Failed'), $e);
     }
 }
 
@@ -278,7 +278,7 @@ function projects_insert($project){
         return $project;
 
     }catch(Exception $e){
-        throw new BException(tr('projects_insert(): Failed'), $e);
+        throw new CoreException(tr('projects_insert(): Failed'), $e);
     }
 }
 
@@ -339,7 +339,7 @@ function projects_update($project){
         return $project;
 
     }catch(Exception $e){
-        throw new BException(tr('projects_update(): Failed'), $e);
+        throw new CoreException(tr('projects_update(): Failed'), $e);
     }
 }
 
@@ -387,7 +387,7 @@ function projects_select($params = null){
                                                           'filters' => array('seoname' => $params['seocustomer'])));
 
             if(!$params['customers_id']){
-                throw new BException(tr('projects_select(): The reqested customer ":customer" is not available', array(':customer' => $params['seocustomer'])), 'not-available');
+                throw new CoreException(tr('projects_select(): The reqested customer ":customer" is not available', array(':customer' => $params['seocustomer'])), 'not-available');
             }
         }
 
@@ -415,7 +415,7 @@ function projects_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('projects_select(): Failed', $e);
+        throw new CoreException('projects_select(): Failed', $e);
     }
 }
 
@@ -481,7 +481,7 @@ function projects_get($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('projects_get(): Failed', $e);
+        throw new CoreException('projects_get(): Failed', $e);
     }
 }
 
@@ -513,7 +513,7 @@ function projects_list($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('projects_list(): Failed', $e);
+        throw new CoreException('projects_list(): Failed', $e);
     }
 }
 ?>

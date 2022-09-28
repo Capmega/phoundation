@@ -78,7 +78,7 @@ try{
             break;
 
         default:
-            throw new BException(tr('cache_clear(): Unknown cache method ":method" specified', array('%method' => $_CONFIG['cache']['method'])), 'unknown');
+            throw new CoreException(tr('cache_clear(): Unknown cache method ":method" specified', array('%method' => $_CONFIG['cache']['method'])), 'unknown');
     }
 
     /*

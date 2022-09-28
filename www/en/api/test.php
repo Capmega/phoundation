@@ -28,10 +28,10 @@ try{
             break;
 
         case '':
-            throw new bException(tr('No "method" specified'), 'not-specifed');
+            throw new CoreException(tr('No "method" specified'), 'not-specifed');
 
         default:
-            throw new bException(tr('Unknown method ":method" specified', array(':method' => $_GET['method'])), 'not-specifed');
+            throw new CoreException(tr('Unknown method ":method" specified', array(':method' => $_GET['method'])), 'not-specifed');
     }
 
 }catch(Exception $e){

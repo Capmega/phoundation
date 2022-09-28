@@ -24,7 +24,7 @@ function postman_get_environment($environment){
         return $environment;
 
     }catch(Exception $e){
-        throw new BException('postman_get_environment(): Failed', $e);
+        throw new CoreException('postman_get_environment(): Failed', $e);
     }
 }
 
@@ -42,7 +42,7 @@ function postman_get_config($environment){
         }
 
         if(empty($_CONFIG['metrics']['environments'][$environment])){
-            throw new BException(tr('postman_get_config(): Unknown metrics environment ":environment" specified', array(':environment' => $environment)), 'unknown');
+            throw new CoreException(tr('postman_get_config(): Unknown metrics environment ":environment" specified', array(':environment' => $environment)), 'unknown');
         }
 
         $config = $_CONFIG['metrics']['environments'][$_CONFIG['metrics']['environment']];
@@ -52,25 +52,25 @@ function postman_get_config($environment){
          * Validate configuration
          */
         if(empty($config['item'])){
-            throw new BException(tr('postman_get_config(): Missing configuration section "item" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
+            throw new CoreException(tr('postman_get_config(): Missing configuration section "item" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
         }
 
         if(empty($config['item'][0])){
-            throw new BException(tr('postman_get_config(): Missing configuration section "item 0" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
+            throw new CoreException(tr('postman_get_config(): Missing configuration section "item 0" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
         }
 
         if(empty($config['item'][0]['request'])){
-            throw new BException(tr('postman_get_config(): Missing configuration section "item 0 request" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
+            throw new CoreException(tr('postman_get_config(): Missing configuration section "item 0 request" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
         }
 
         if(empty($config['item'][0]['request']['url'])){
-            throw new BException(tr('Missing configuration entry "url" in section "item 0 request" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
+            throw new CoreException(tr('Missing configuration entry "url" in section "item 0 request" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
         }
 
         return $config;
 
     }catch(Exception $e){
-        throw new BException('postman_get_config(): Failed', $e);
+        throw new CoreException('postman_get_config(): Failed', $e);
     }
 }
 
@@ -84,7 +84,7 @@ function postman_parse_config($string){
         return json_decode_custom($string);
 
     }catch(Exception $e){
-        throw new BException('postman_parse_config(): Failed', $e);
+        throw new CoreException('postman_parse_config(): Failed', $e);
     }
 }
 
@@ -107,7 +107,7 @@ function postman_get_headers($headers){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('postman_get_headers(): Failed', $e);
+        throw new CoreException('postman_get_headers(): Failed', $e);
     }
 }
 
@@ -128,7 +128,7 @@ function postman_get_urlencoded($data){
         return $url;
 
     }catch(Exception $e){
-        throw new BException('postman_get_urlencoded(): Failed', $e);
+        throw new CoreException('postman_get_urlencoded(): Failed', $e);
     }
 }
 ?>

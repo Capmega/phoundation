@@ -60,7 +60,7 @@ console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         return $html.html_script($script);
 
     }catch(Exception $e){
-        throw new BException('jquery_blueimp(): Failed', $e);
+        throw new CoreException('jquery_blueimp(): Failed', $e);
     }
 }
 ?>

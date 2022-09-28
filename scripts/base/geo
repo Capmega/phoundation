@@ -131,7 +131,7 @@ switch(cli_method()){
                     log_console(tr('Using the global data path ":path" file because of "--no-download" argument', array(':path' => $path)));
 
                     if(!file_exists($path.'GeoLite2-City-CSV.zip')){
-                        throw new BException(tr('The global data path ":path" does not contain the required geoip file "GeoLite2-City-CSV.zip"', array(':path' => $path)), 'not-exists');
+                        throw new CoreException(tr('The global data path ":path" does not contain the required geoip file "GeoLite2-City-CSV.zip"', array(':path' => $path)), 'not-exists');
                     }
 
                     copy($path.'GeoLite2-City-CSV.zip', TMP.'GeoLite2-City-CSV.zip');
@@ -143,7 +143,7 @@ switch(cli_method()){
                 }
 
                 if(!file_exists(TMP.'GeoLite2-City-CSV.zip')){
-                    throw new BException(tr('The geoip file ":file" does not exist', array(':file' => TMP.'GeoLite2-City-CSV.zip')), 'not-exists');
+                    throw new CoreException(tr('The geoip file ":file" does not exist', array(':file' => TMP.'GeoLite2-City-CSV.zip')), 'not-exists');
                 }
 
                 if(cli_argument('--no-unzip')){
@@ -164,7 +164,7 @@ switch(cli_method()){
                         $path = file_from_part(TMP.'GeoLite2-City-CSV');
 
                         if(!$path){
-                            throw new BException(tr('No geolite data path found in data/tmp after unzipping ":file"', array(':file' => TMP.'GeoLite2-City-CSV.zip')), 'not-exist');
+                            throw new CoreException(tr('No geolite data path found in data/tmp after unzipping ":file"', array(':file' => TMP.'GeoLite2-City-CSV.zip')), 'not-exist');
                         }
 
                     }catch(BException $e){
@@ -172,7 +172,7 @@ switch(cli_method()){
                          * Unzip failed. Does the unzip program exist?
                          */
                         if(!file_which('unzip')){
-                            throw new BException(tr('The unzip command is not available. Please install it in order to continue. On Ubuntu like systems, use "apt install unzip", on Redhat like systems, use "yum install unzip"'), 'not-exists');
+                            throw new CoreException(tr('The unzip command is not available. Please install it in order to continue. On Ubuntu like systems, use "apt install unzip", on Redhat like systems, use "yum install unzip"'), 'not-exists');
                         }
 
                         throw $e;
@@ -227,11 +227,11 @@ switch(cli_method()){
                     load_libs('sql_exists');
 
                     if(!file_exists($path.'geoip_blocks-IPv4.csv')){
-                        throw new BException(tr('The required file ":file" is missing', array(':file' => $path.'geoip_blocks-IPv4.csv')), 'not-exists');
+                        throw new CoreException(tr('The required file ":file" is missing', array(':file' => $path.'geoip_blocks-IPv4.csv')), 'not-exists');
                     }
 
                     if(!file_exists($path.'geoip_locations-en.csv')){
-                        throw new BException(tr('The required file ":file" is missing', array(':file' => $path.'geoip_locations-en.csv')), 'not-exists');
+                        throw new CoreException(tr('The required file ":file" is missing', array(':file' => $path.'geoip_locations-en.csv')), 'not-exists');
                     }
 
                     sql_table_exists('geoip_location', '!RENAME TABLE `geoip_locations` TO `geoip_location`');
@@ -298,10 +298,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new BException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
+                throw new CoreException(tr('No sub method specified for method ":method"', array(':method' => cli_method())), 'not-specified');
 
             default:
-                throw new BException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
+                throw new CoreException(tr('Unknown sub method ":submethod" specified for method ":method"', array(':method' => cli_method(), ':submethod' => cli_method(1))), 'unknown-method');
         }
 
         break;
@@ -345,10 +345,10 @@ switch(cli_method()){
                 break;
 
             case '':
-                throw new BException('No "clear" sub method specified. Please specify one of "geonames", or "geotables"', 'not-specified');
+                throw new CoreException('No "clear" sub method specified. Please specify one of "geonames", or "geotables"', 'not-specified');
 
             default:
-                throw new BException(tr('Unknown "clear" sub method ":method" specified. Please specify one of "geonames", or "geotables"', array(':method' => cli_method())), 'unknown');
+                throw new CoreException(tr('Unknown "clear" sub method ":method" specified. Please specify one of "geonames", or "geotables"', array(':method' => cli_method())), 'unknown');
         }
 
         break;
@@ -382,7 +382,7 @@ switch(cli_method()){
 
         if($no_check_certificate){
             if($no_ssl){
-                throw new BException(tr('The --no-check-certificate and --no-ssl options are mutually exclusive. Please choose one or the other'), 'invalid');
+                throw new CoreException(tr('The --no-check-certificate and --no-ssl options are mutually exclusive. Please choose one or the other'), 'invalid');
             }
 
             /*
@@ -417,7 +417,7 @@ switch(cli_method()){
         $result = passthru('cd '.$geoimport_path.'; '.$geoimport_path.'geonames_importer.sh -a download-data', $exitcode);
 
         if($exitcode){
-            throw new BException(tr('Data download failed'), 'failed');
+            throw new CoreException(tr('Data download failed'), 'failed');
         }
 
         break;
@@ -432,7 +432,7 @@ switch(cli_method()){
         $geoimport_path = get_global_data_path('geonames');
 
         if(!$username or !$password){
-            throw new BException('No user name and / or password specified', 'not-specified');
+            throw new CoreException('No user name and / or password specified', 'not-specified');
         }
 
         /*
@@ -502,17 +502,17 @@ switch(cli_method()){
             passthru('cd '.$geoimport_path.' ; ./geonames_importer.sh -a create-db -u '.$username.' -p "'.$password.'" -n "'.$database.'"', $exitcode);
 
             if($exitcode){
-                throw new BException(tr('Creating geonames database failed'), 'failed');
+                throw new CoreException(tr('Creating geonames database failed'), 'failed');
             }
 
             passthru('cd '.$geoimport_path.' ; ./geonames_importer.sh -a import-dumps -u '.$username.' -p "'.$password.'" -n "'.$database.'"', $exitcode);
 
             if($exitcode){
-                throw new BException(tr('Importing data dumps to geonames database failed'), 'failed');
+                throw new CoreException(tr('Importing data dumps to geonames database failed'), 'failed');
             }
 
         }catch(Exception $e){
-            throw new BException('Import failed. In case of "The used command is not allowed with this MySQL version" error, please try the "notlocal" command line option, see geo.txt documentation for more information', $e);
+            throw new CoreException('Import failed. In case of "The used command is not allowed with this MySQL version" error, please try the "notlocal" command line option, see geo.txt documentation for more information', $e);
         }
 
         if(cli_argument('notlocal')){
@@ -581,7 +581,7 @@ switch(cli_method()){
     case 'import':
         set_time_limit(600);
         if(!$country_list = cli_argument('country', true)){
-            throw new BException('No country list specified to import data from. Please specify "country COUNTRY,COUNTRY,COUNTRY"', 'not-specified');
+            throw new CoreException('No country list specified to import data from. Please specify "country COUNTRY,COUNTRY,COUNTRY"', 'not-specified');
         }
 
         $country_list = explode(',', $country_list);
@@ -731,7 +731,7 @@ switch(cli_method()){
 
                 }else{
                     if(!$result = sql_get('SELECT `id`, `name` FROM `geo_countries` WHERE `name` = :name OR `seoname` = :seoname or `code` = :code', array('name' => $country, 'seoname' => $country, 'code' => $country))){
-                        throw new BException('Specified country "'.str_log($country).'" not found');
+                        throw new CoreException('Specified country "'.str_log($country).'" not found');
                     }
 
                     log_console($result['name'], 'yellow');
@@ -1231,10 +1231,10 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException('No method specified. Please specify one of "clear", "download", "load-data", "fix-data", "fix-errors", "import"', 'no-method');
+        throw new CoreException('No method specified. Please specify one of "clear", "download", "load-data", "fix-data", "fix-errors", "import"', 'no-method');
 
     default:
-        throw new BException(tr('Unknown  method ":method" specified. Please specify one of "clear", "download", "load-data", "fix-data", "fix-errors", "import"', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown  method ":method" specified. Please specify one of "clear", "download", "load-data", "fix-data", "fix-errors", "import"', array(':method' => cli_method())), 'unknown-method');
 }
 
 sql_query('SET autocommit         = 1;');

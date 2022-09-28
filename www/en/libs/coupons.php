@@ -98,7 +98,7 @@ function coupons_validate($coupon){
         return $coupon;
 
     }catch(Exception $e){
-        throw new BException('coupons_validate(): Failed', $e);
+        throw new CoreException('coupons_validate(): Failed', $e);
     }
 }
 
@@ -158,7 +158,7 @@ function coupons_insert($coupon){
         return $coupon;
 
     }catch(Exception $e){
-        throw new BException('coupons_insert(): Failed', $e);
+        throw new CoreException('coupons_insert(): Failed', $e);
     }
 }
 
@@ -221,7 +221,7 @@ function coupons_update($coupon){
         return $coupon;
 
     }catch(Exception $e){
-        throw new BException('coupons_update(): Failed', $e);
+        throw new CoreException('coupons_update(): Failed', $e);
     }
 }
 
@@ -343,7 +343,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('coupons_get(): Failed', $e);
+        throw new CoreException('coupons_get(): Failed', $e);
     }
 }
 
@@ -369,7 +369,7 @@ function coupons_use($code){
         $coupon = coupons_get($code, null, null, false, true);
 
         if(!$coupon){
-            throw new BException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exists');
+            throw new CoreException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exists');
         }
 
         sql_query('INSERT INTO `coupons_used` (`createdby`, `coupons_id`, `meta_id`)
@@ -382,7 +382,7 @@ function coupons_use($code){
         return $coupon;
 
     }catch(Exception $e){
-        throw new BException('coupons_use(): Failed', $e);
+        throw new CoreException('coupons_use(): Failed', $e);
     }
 }
 
@@ -461,7 +461,7 @@ function coupons_add_coupon($code, $new_amount = 0){
         }
 
     }catch(Exception $e){
-        throw new bException('coupons_discount_coupon(): Failed', $e);
+        throw new CoreException('coupons_discount_coupon(): Failed', $e);
     }
 }
 
@@ -512,6 +512,6 @@ function coupons_add_to_wallet($amount){
         return $amount;
 
     }catch(Exception $e){
-        throw new bException('coupons_add_to_wallet(): Failed', $e);
+        throw new CoreException('coupons_add_to_wallet(): Failed', $e);
     }
 }

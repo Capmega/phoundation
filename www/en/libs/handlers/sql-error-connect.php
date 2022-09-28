@@ -3,7 +3,7 @@ try{
     global $_CONFIG, $core;
 
     if($e->getMessage() == 'could not find driver'){
-        throw new BException(tr('sql_connect(): Failed to connect with ":driver" driver, it looks like its not available', array(':driver' => $connector['driver'])), 'driverfail');
+        throw new CoreException(tr('sql_connect(): Failed to connect with ":driver" driver, it looks like its not available', array(':driver' => $connector['driver'])), 'driverfail');
     }
 
     log_console(tr('Encountered exception ":e" while connecting to database server, attempting to resolve', array(':e' => $e->getMessage())), 'yellow');
@@ -14,10 +14,10 @@ try{
     foreach(array('driver', 'host', 'user', 'pass') as $key){
         if(empty($connector[$key])){
             if($_CONFIG['production']){
-                throw new BException(tr('sql_connect(): The database configuration has key ":key" missing, check your database configuration in :rootconfig/production.php', array(':key' => $key, ':root' => ROOT)), 'configuration');
+                throw new CoreException(tr('sql_connect(): The database configuration has key ":key" missing, check your database configuration in :rootconfig/production.php', array(':key' => $key, ':root' => ROOT)), 'configuration');
             }
 
-            throw new BException(tr('sql_connect(): The database configuration has key ":key" missing, probably check your database connector configuration, possibly in :rootconfig/production.php and / or :rootconfig/:environment.php', array(':key' => $key, ':root' => ROOT, ':environment' => ENVIRONMENT), false), 'configuration');
+            throw new CoreException(tr('sql_connect(): The database configuration has key ":key" missing, probably check your database connector configuration, possibly in :rootconfig/production.php and / or :rootconfig/:environment.php', array(':key' => $key, ':root' => ROOT, ':environment' => ENVIRONMENT), false), 'configuration');
         }
     }
 
@@ -55,7 +55,7 @@ try{
              * Connection refused
              */
             if(empty($connector['ssh_tunnel']['required'])){
-                throw new BException(tr('sql_connect(): Connection refused for host ":hostname::port"', array(':hostname' => $connector['host'], ':port' => $connector['port'])), $e);
+                throw new CoreException(tr('sql_connect(): Connection refused for host ":hostname::port"', array(':hostname' => $connector['host'], ':port' => $connector['port'])), $e);
             }
 
             /*
@@ -68,11 +68,11 @@ try{
                 $registered = ssh_host_is_known($server['hostname'], $server['port']);
 
                 if($registered === false){
-                    throw new BException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $connector['ssh_tunnel']['domain'])), $e);
+                    throw new CoreException(tr('sql_connect(): Connection refused for host ":hostname" because the tunnel process was canceled due to missing server fingerprints in the ROOT/data/ssh/known_hosts file and `ssh_fingerprints` table. Please register the server first', array(':hostname' => $connector['ssh_tunnel']['domain'])), $e);
                 }
 
                 if($registered === true){
-                    throw new BException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the ROOT/data/ssh/known_hosts file.', array(':hostname' => $connector['ssh_tunnel']['domain'], ':port' => $connector['port'])), $e);
+                    throw new CoreException(tr('sql_connect(): Connection refused for host ":hostname" on local port ":port" because the tunnel process either started too late or already died. The server has its SSH fingerprints registered in the ROOT/data/ssh/known_hosts file.', array(':hostname' => $connector['ssh_tunnel']['domain'], ':port' => $connector['port'])), $e);
                 }
 
                 /*
@@ -82,7 +82,7 @@ try{
             }
 
 //:TODO: SSH to the server and check if the msyql process is up!
-            throw new BException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', array(':hostname' => $connector['host'], ':port' => $connector['port'])), $e);
+            throw new CoreException(tr('sql_connect(): Connection refused for SSH tunnel requiring host ":hostname::port". The tunnel process is available, maybe the MySQL on the target server is down?', array(':hostname' => $connector['host'], ':port' => $connector['port'])), $e);
 
         case 2006:
             /*
@@ -110,7 +110,7 @@ try{
                  * is not allowed. Allow it and retry
                  */
                 if(!$server['allow_sshd_modification']){
-                    throw new BException(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', array(':connector' => $connector)), 'configuration');
+                    throw new CoreException(tr('sql_connect(): Connector ":connector" requires SSH tunnel to server, but that server does not allow TCP fowarding, nor does it allow auto modification of its SSH server configuration', array(':connector' => $connector)), 'configuration');
                 }
 
                 log_console(tr('Connector ":connector" requires SSH tunnel to server ":server", but that server does not allow TCP fowarding. Server allows SSH server configuration modification, attempting to resolve issue', array(':server' => $connector['ssh_tunnel']['domain'])), 'yellow');
@@ -133,7 +133,7 @@ try{
              * Check if the tunnel process is still up and about
              */
             if(!cli_pid($connector['ssh_tunnel']['pid'])){
-                throw new BException(tr('sql_connect(): SSH tunnel process ":pid" is gone', array(':pid' => $connector['ssh_tunnel']['pid'])), 'failed');
+                throw new CoreException(tr('sql_connect(): SSH tunnel process ":pid" is gone', array(':pid' => $connector['ssh_tunnel']['pid'])), 'failed');
             }
 
             /*
@@ -145,10 +145,10 @@ try{
 // :TODO: Implement further error handling.. From here on, appearently inet_telnet() did NOT cause an exception, so we have a result.. We can check the result for mysql server data and with that confirm that it is working, but what would.. well, cause a problem, because if everything worked we would not be here...
 
       default:
-            throw new BException('sql_connect(): Failed to create PDO SQL object', $e);
+            throw new CoreException('sql_connect(): Failed to create PDO SQL object', $e);
     }
 
 }catch(Exception $e){
-    throw new BException(tr('sql_connect(): Failed'), $e);
+    throw new CoreException(tr('sql_connect(): Failed'), $e);
 }
 ?>

@@ -26,7 +26,7 @@ function pushover_send_msg($user, $params){
          * Validations
          */
         if(empty($user)){
-            throw new BException(tr('pushover_send_msg(): not user specified'));
+            throw new CoreException(tr('pushover_send_msg(): not user specified'));
         }
 
         if($user = 'all'){
@@ -57,7 +57,7 @@ function pushover_send_msg($user, $params){
         }
 
     }catch(Exception $e){
-        throw new BException(tr('pushover_send_msg(): Failed'), $e);
+        throw new CoreException(tr('pushover_send_msg(): Failed'), $e);
     }
 }
 
@@ -111,7 +111,7 @@ function pushover_prepare_msg($user, $params){
         return $push;
 
     }catch(Exception $e){
-        throw new BException(tr('pushover_prepare_msg(): Failed'), $e);
+        throw new CoreException(tr('pushover_prepare_msg(): Failed'), $e);
     }
 }
 ?>

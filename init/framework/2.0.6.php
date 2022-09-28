@@ -6,7 +6,7 @@ load_libs('git');
 
 if(git_is_available() and git_is_repository()){
     if(git_status()){
-        throw new bException(tr('This init file needs to make code changes which will be automatically committed. Please commit all code before continuing running this init'), 'warning/failed');
+        throw new CoreException(tr('This init file needs to make code changes which will be automatically committed. Please commit all code before continuing running this init'), 'warning/failed');
     }
 }
 

@@ -28,17 +28,17 @@ if(!function_exists('s_get_user_class')){
             $retval['classes_id'] = sql_get('SELECT `id` FROM `notifications_classes` WHERE `id` = :id    OR `name`     = :class', 'id', array(':id' => $class, ':class' => $class));
 
             if(!$retval['classes_id']){
-                throw new BException(tr('s_get_user_class(): Specified class "%name%" does not exist', array('%name%' => $class)));
+                throw new CoreException(tr('s_get_user_class(): Specified class "%name%" does not exist', array('%name%' => $class)));
             }
 
             if(!$retval['users_id']){
-                throw new BException(tr('s_get_user_class(): Specified user "%name%" does not exist', array('%name%' => $user)));
+                throw new CoreException(tr('s_get_user_class(): Specified user "%name%" does not exist', array('%name%' => $user)));
             }
 
             return $retval;
 
         }catch(Exception $e){
-            throw new BException('s_get_user_class(): Failed', $e);
+            throw new CoreException('s_get_user_class(): Failed', $e);
         }
     }
 }
@@ -54,7 +54,7 @@ try{
                 $data = s_get_user_class(cli_argument(1), cli_argument(2));
 
                 if(sql_get('SELECT `id` FROM `notifications_members` WHERE `users_id` = :users_id AND `classes_id` = :classes_id', 'id', array(':users_id' => $data['users_id'], ':classes_id' => $data['classes_id']))){
-                    throw new BException(tr('User "%user%" is already a member of the notifications class "%class%"', array('%user%' => $data['user'], '%class%' => $data['class'])), 'alreadyexists');
+                    throw new CoreException(tr('User "%user%" is already a member of the notifications class "%class%"', array('%user%' => $data['user'], '%class%' => $data['class'])), 'alreadyexists');
                 }
 
                 sql_query('INSERT INTO `notifications_members` (`createdby`, `classes_id`, `users_id`)
@@ -67,7 +67,7 @@ try{
                 log_console(tr('Added user "%user%" to notifications class "%class%"', array('%user%' => $data['user'], '%class%' => $data['class'])), '', 'green');
 
             }catch(Exception $e){
-                throw new BException(tr('Failed to add member to notifications class'), $e);
+                throw new CoreException(tr('Failed to add member to notifications class'), $e);
             }
 
             break;
@@ -87,7 +87,7 @@ try{
                               ON        `notifications_members`.`classes_id` = `notifications_classes`.`id`');
 
             if(!$r->rowCount()){
-                throw new BException(tr('No members found'), 'notfound');
+                throw new CoreException(tr('No members found'), 'notfound');
             }
 
             log_console('#id   Notifications class             User', '', 'white');
@@ -109,13 +109,13 @@ try{
                 log_console(tr('Removed "%count%" notification member', array('%count%' => isset_get($count, 0))), '', 'green');
 
             }catch(Exception $e){
-                throw new BException(tr('Failed to remove member from notifications class'), $e);
+                throw new CoreException(tr('Failed to remove member from notifications class'), $e);
             }
 
             break;
 
         default:
-            throw new BException(tr('Unknown method "%method%" specified', array('%method%' => $method)), 'unknown');
+            throw new CoreException(tr('Unknown method "%method%" specified', array('%method%' => $method)), 'unknown');
     }
 
 }catch(Exception $e){

@@ -23,6 +23,6 @@ try{
     die();
 
 }catch(Exception $e){
-    throw new BException(tr('showdie(): Failed'), $e);
+    throw new CoreException(tr('showdie(): Failed'), $e);
 }
 ?>

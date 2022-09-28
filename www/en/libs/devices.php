@@ -35,7 +35,7 @@ function devices_library_init(){
         load_config('devices');
 
     }catch(Exception $e){
-        throw new BException('devices_library_init(): Failed', $e);
+        throw new CoreException('devices_library_init(): Failed', $e);
     }
 }
 
@@ -63,7 +63,7 @@ function devices_merge($device, $post, $server = null){
         return $device;
 
     }catch(Exception $e){
-        throw new BException('devices_merge(): Failed', $e);
+        throw new CoreException('devices_merge(): Failed', $e);
     }
 }
 
@@ -153,7 +153,7 @@ function devices_insert($device, $server = null){
         return $device;
 
     }catch(Exception $e){
-        throw new BException('devices_insert(): Failed', $e);
+        throw new CoreException('devices_insert(): Failed', $e);
     }
 }
 
@@ -210,7 +210,7 @@ function devices_update($device, $server = null){
         return $device;
 
     }catch(Exception $e){
-        throw new BException('devices_update(): Failed', $e);
+        throw new CoreException('devices_update(): Failed', $e);
     }
 }
 
@@ -587,7 +587,7 @@ function devices_validate($device, $server = null, $update = true){
         return $device;
 
     }catch(Exception $e){
-        throw new BException('devices_validate(): Failed', $e);
+        throw new CoreException('devices_validate(): Failed', $e);
     }
 }
 
@@ -631,7 +631,7 @@ function devices_set_status($status, $device = null){
         return $update->rowCount();
 
     }catch(Exception $e){
-        throw new BException('devices_set_status(): Failed', $e);
+        throw new CoreException('devices_set_status(): Failed', $e);
     }
 }
 
@@ -693,7 +693,7 @@ function devices_insert_options($devices_id, $options){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('devices_insert_options(): Failed', $e);
+        throw new CoreException('devices_insert_options(): Failed', $e);
     }
 }
 
@@ -722,7 +722,7 @@ function devices_validate_options($option){
         return $option;
 
     }catch(Exception $e){
-        throw new BException('devices_validate_options(): Failed', $e);
+        throw new CoreException('devices_validate_options(): Failed', $e);
     }
 }
 
@@ -754,7 +754,7 @@ function devices_list_options($devices_id, $inactive = false){
         }
 
         if(!$options){
-            throw new BException(tr('devices_list_options(): Speficied drivers id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
+            throw new CoreException(tr('devices_list_options(): Speficied drivers id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
         }
 
         foreach($options as $option){
@@ -772,7 +772,7 @@ function devices_list_options($devices_id, $inactive = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('devices_list_options(): Failed', $e);
+        throw new CoreException('devices_list_options(): Failed', $e);
     }
 }
 
@@ -812,10 +812,10 @@ function devices_list_option_keys($devices_id, $inactive = false){
             }
 
             if($exists){
-                throw new BException(tr('devices_list_options(): Speficied devices id ":id" does not have any device options', array(':id' => $devices_id)), 'not-exists');
+                throw new CoreException(tr('devices_list_options(): Speficied devices id ":id" does not have any device options', array(':id' => $devices_id)), 'not-exists');
             }
 
-            throw new BException(tr('devices_list_options(): Speficied devices id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
+            throw new CoreException(tr('devices_list_options(): Speficied devices id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
         }
 
         foreach($options as $option){
@@ -833,7 +833,7 @@ function devices_list_option_keys($devices_id, $inactive = false){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('devices_list_option_keys(): Failed', $e);
+        throw new CoreException('devices_list_option_keys(): Failed', $e);
     }
 }
 
@@ -857,11 +857,11 @@ function devices_list_option_values($devices_id, $key){
         array_ensure($params, '');
 
         if(empty($devices_id)){
-            throw new BException(tr('devices_list_options(): No devices_id specified'), 'not-specified');
+            throw new CoreException(tr('devices_list_options(): No devices_id specified'), 'not-specified');
         }
 
         if(empty($key)){
-            throw new BException(tr('devices_list_options(): No key specified for devices id ":id"', array(':id' => $devices_id)), 'not-specified');
+            throw new CoreException(tr('devices_list_options(): No key specified for devices id ":id"', array(':id' => $devices_id)), 'not-specified');
         }
 
         $retval = sql_query('SELECT `value`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `key` = :key', array(':devices_id' => $devices_id, ':key' => $key));
@@ -869,7 +869,7 @@ function devices_list_option_values($devices_id, $key){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('devices_list_option_values(): Failed', $e);
+        throw new CoreException('devices_list_option_values(): Failed', $e);
     }
 }
 
@@ -904,7 +904,7 @@ function devices_get_option_html_element($params){
 
         switch($params['resource']->rowCount()){
             case 0:
-                throw new BException(tr('devices_get_option_html_element(): Speficied devices id ":id" does not have the key ":key"', array(':id' => $params['devices_id'], ':key' => $params['key'])), 'not-exists');
+                throw new CoreException(tr('devices_get_option_html_element(): Speficied devices id ":id" does not have the key ":key"', array(':id' => $params['devices_id'], ':key' => $params['key'])), 'not-exists');
 
             case 1:
                 /*
@@ -941,7 +941,7 @@ function devices_get_option_html_element($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('devices_get_option_html_element(): Failed', $e);
+        throw new CoreException('devices_get_option_html_element(): Failed', $e);
     }
 }
 
@@ -1020,7 +1020,7 @@ function devices_list($type, $all = false, $default_only = false){
         return $devices;
 
     }catch(Exception $e){
-        throw new BException('devices_list(): Failed', $e);
+        throw new CoreException('devices_list(): Failed', $e);
     }
 }
 
@@ -1044,7 +1044,7 @@ function devices_get($device, $server = null){
     try{
         if(is_numeric($device)){
             if(!is_natural($device)){
-                throw new BException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
+                throw new CoreException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
             }
 
             $where = ' WHERE `devices`.`id` = :id ';
@@ -1061,10 +1061,10 @@ function devices_get($device, $server = null){
 
         }else{
             if(!$device){
-                throw new BException(tr('devices_get(): No device specified'), 'not-specified');
+                throw new CoreException(tr('devices_get(): No device specified'), 'not-specified');
             }
 
-            throw new BException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
+            throw new CoreException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
         }
 
         $device = sql_get('SELECT    `devices`.`id`,
@@ -1134,7 +1134,7 @@ function devices_get($device, $server = null){
         return $device;
 
     }catch(Exception $e){
-        throw new BException('devices_get(): Failed', $e);
+        throw new CoreException('devices_get(): Failed', $e);
     }
 }
 
@@ -1174,7 +1174,7 @@ function devices_select($product, $category = null){
             $params['categories_id'] = categories_get($params['seocategory'], 'id');
 
             if(!$params['categories_id']){
-                throw new BException(tr('devices_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
+                throw new CoreException(tr('devices_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
             }
         }
 
@@ -1202,7 +1202,7 @@ function devices_select($product, $category = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('devices_select(): Failed', $e);
+        throw new CoreException('devices_select(): Failed', $e);
     }
 }
 
@@ -1235,7 +1235,7 @@ function devices_clear($type = null){
         return $erase->rowCount();
 
     }catch(Exception $e){
-        throw new BException('devices_clear(): Failed', $e);
+        throw new CoreException('devices_clear(): Failed', $e);
     }
 }
 
@@ -1408,14 +1408,14 @@ function devices_scan($types, $server = null, $sudo = false){
                     break;
 
                 default:
-                    throw new BException(tr('devices_scan(): Unknown device type ":type" specified', array(':type' => $types)), 'unknown');
+                    throw new CoreException(tr('devices_scan(): Unknown device type ":type" specified', array(':type' => $types)), 'unknown');
             }
         }
 
         return $retval;
 
     }catch(Exception $e){
-        throw new bException('devices_scan(): Failed', $e);
+        throw new CoreException('devices_scan(): Failed', $e);
     }
 }
 
@@ -1465,7 +1465,7 @@ function devices_validate_types($types = null, $return_filters = false){
             if(is_array($types)){
                 foreach($types as $key => &$type){
                     if(!is_string($type)){
-                        throw new BException(tr('devices_validate_types(): Specified device type list is invalid. Key ":key" should be a string but is an ":type" instead', array(':key' => $key, ':type' => gettype($type))), 'invalid');
+                        throw new CoreException(tr('devices_validate_types(): Specified device type list is invalid. Key ":key" should be a string but is an ":type" instead', array(':key' => $key, ':type' => gettype($type))), 'invalid');
                     }
 
                     $retval[devices_validate_types($type)] = devices_validate_types($type, $return_filters);
@@ -1482,7 +1482,7 @@ function devices_validate_types($types = null, $return_filters = false){
                 foreach($supported as $support => $filter){
                     if(str_exists($support, $types)){
                         if(isset($match)){
-                            throw new BException(tr('devices_validate_types(): Specified device type ":type" matches multiple supported devices', array(':type' => $types)), 'multiple');
+                            throw new CoreException(tr('devices_validate_types(): Specified device type ":type" matches multiple supported devices', array(':type' => $types)), 'multiple');
                         }
 
                         if($return_filters){
@@ -1495,7 +1495,7 @@ function devices_validate_types($types = null, $return_filters = false){
                 }
 
                 if(!isset($match)){
-                    throw new BException(tr('devices_validate_types(): Specified device type ":type" does not match any of the supported devices', array(':type' => $types)), 'not-exists');
+                    throw new CoreException(tr('devices_validate_types(): Specified device type ":type" does not match any of the supported devices', array(':type' => $types)), 'not-exists');
                 }
 
                 return $match;
@@ -1504,7 +1504,7 @@ function devices_validate_types($types = null, $return_filters = false){
             /*
              * Specified device type is neither string nor array
              */
-            throw new BException(tr('devices_validate_types(): Invalid device type or list of device types specified. Expected a string or array, but got an ":type" instead', array(':type' => gettype($types))), 'invalid');
+            throw new CoreException(tr('devices_validate_types(): Invalid device type or list of device types specified. Expected a string or array, but got an ":type" instead', array(':type' => gettype($types))), 'invalid');
         }
 
         /*
@@ -1513,7 +1513,7 @@ function devices_validate_types($types = null, $return_filters = false){
         return $supported;
 
     }catch(Exception $e){
-        throw new BException('devices_validate_types(): Failed', $e);
+        throw new CoreException('devices_validate_types(): Failed', $e);
     }
 }
 ?>

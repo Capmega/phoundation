@@ -27,7 +27,7 @@ function twiml_library_init(){
     try{
 
     }catch(Exception $e){
-        throw new BException('twiml_library_init(): Failed', $e);
+        throw new CoreException('twiml_library_init(): Failed', $e);
     }
 }
 
@@ -55,14 +55,14 @@ function twiml_write($name, $data, $root = null){
         }
 
         if(!preg_match('/[a-z0-9-]+/', $name)){
-            throw new BException(tr('twiml_write(): Invalid twiml file name ":name" specified, use only a-z, 0-9 and -', array(':name' => $name)), 'invalid');
+            throw new CoreException(tr('twiml_write(): Invalid twiml file name ":name" specified, use only a-z, 0-9 and -', array(':name' => $name)), 'invalid');
         }
 
         file_ensure_path($root);
         file_put_contents($root.$name, $data);
 
     }catch(Exception $e){
-        throw new BException('twiml_write(): Failed', $e);
+        throw new CoreException('twiml_write(): Failed', $e);
     }
 }
 
@@ -94,13 +94,13 @@ function twiml_create($params){
                 break;
 
             default:
-                throw new BException(tr('twiml_create(): Unknown twiml type ":type" specified, use one of "forward", or "simulring"', array(':type' => $type)), 'unknown');
+                throw new CoreException(tr('twiml_create(): Unknown twiml type ":type" specified, use one of "forward", or "simulring"', array(':type' => $type)), 'unknown');
         }
 
         twiml_write($params['name'], $data, $params['root']);
 
     }catch(Exception $e){
-        throw new BException('twiml_create(): Failed', $e);
+        throw new CoreException('twiml_create(): Failed', $e);
     }
 }
 
@@ -124,7 +124,7 @@ function twiml_create_forward($params){
         $data = '';
 
         if(!$params['phone_number']){
-            throw new BException(tr('twiml_create_forward(): No forward phone number specified'), 'not-specified');
+            throw new CoreException(tr('twiml_create_forward(): No forward phone number specified'), 'not-specified');
         }
 
         if(!$params['timeout']){
@@ -145,7 +145,7 @@ function twiml_create_forward($params){
         return $data;
 
     }catch(Exception $e){
-        throw new BException('twiml_create_forward(): Failed', $e);
+        throw new CoreException('twiml_create_forward(): Failed', $e);
     }
 }
 ?>

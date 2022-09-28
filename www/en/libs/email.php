@@ -38,13 +38,13 @@ use PHPMailer\PHPMailer\Exception;
 function email_library_init(){
     try{
         if(!extension_loaded('imap')){
-            throw new BException(tr('email_library_init(): The PHP "imap" module is not available, please install it first. On ubuntu install the module with "apt -y install php-imap"; a restart of the webserver or php fpm server may be required'), 'missing-module');
+            throw new CoreException(tr('email_library_init(): The PHP "imap" module is not available, please install it first. On ubuntu install the module with "apt -y install php-imap"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
 
         load_config('email');
 
     }catch(\Exception $e){
-        throw new BException('email_library_init(): Failed', $e);
+        throw new CoreException('email_library_init(): Failed', $e);
     }
 }
 
@@ -104,7 +104,7 @@ function email_connect($userdata, $mail_box = null){
         return $connection;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_connect(): Failed'), $e);
+        throw new CoreException(tr('email_connect(): Failed'), $e);
     }
 }
 
@@ -133,7 +133,7 @@ function email_poll($params){
         array_default($params, 'forward_option', false);
 
         if($params['peek'] and $params['delete']){
-            throw new BException(tr('email_poll(): Both peek and delete were specified, though they are mutually exclusive. Please specify one or the other'), 'conflict');
+            throw new CoreException(tr('email_poll(): Both peek and delete were specified, though they are mutually exclusive. Please specify one or the other'), 'conflict');
         }
 
         log_console(tr('Polling email account ":account"', array(':account' => $params['account'])), 'VERBOSE/cyan');
@@ -245,13 +245,13 @@ function email_poll($params){
                                         break;
 
                                     default:
-                                        throw new BException(tr('email_poll(): Unknown account forward_option ":option" specified', array(':option' => $params['forward_option'])), 'unknown');
+                                        throw new CoreException(tr('email_poll(): Unknown account forward_option ":option" specified', array(':option' => $params['forward_option'])), 'unknown');
                                 }
 
                                 break;
 
                             default:
-                                throw new BException(tr('email_poll(): Unknown $_CONFIG[email][forward_option] ":option" specified', array(':option' => $_CONFIG['email']['forward_option'])), 'unknown');
+                                throw new CoreException(tr('email_poll(): Unknown $_CONFIG[email][forward_option] ":option" specified', array(':option' => $_CONFIG['email']['forward_option'])), 'unknown');
                         }
                     }
 
@@ -346,7 +346,7 @@ function email_poll($params){
 
     }catch(\Exception $e){
         log_console(tr('Failed to poll email data for account ":account" because ":e"', array(':account' => $params['account'], ':e' => $e->getMessages())), 'yellow');
-        throw new BException(tr('email_poll(): Failed'), $e);
+        throw new CoreException(tr('email_poll(): Failed'), $e);
     }
 }
 
@@ -431,7 +431,7 @@ function email_get_attachments($imap, $email, $data, $flags){
        return $data;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_attachments(): Failed'), $e);
+        throw new CoreException(tr('email_get_attachments(): Failed'), $e);
     }
 }
 
@@ -495,7 +495,7 @@ function email_get_conversation($email){
         return $conversation;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_conversation(): Failed'), $e);
+        throw new CoreException(tr('email_get_conversation(): Failed'), $e);
     }
 }
 
@@ -513,19 +513,19 @@ function email_update_conversation($email, $direction){
         $email = email_update_message($email, $direction);
 
         if(empty($direction)){
-            throw new BException(tr('email_update_conversation(): No conversation direction specified'), 'not-specified');
+            throw new CoreException(tr('email_update_conversation(): No conversation direction specified'), 'not-specified');
         }
 
         if(($direction != 'sent') and ($direction != 'received')){
-            throw new BException(tr('email_update_conversation(): Invalid conversation direction ":direction:" specified', array(':direction' => $direction)), 'not-specified');
+            throw new CoreException(tr('email_update_conversation(): Invalid conversation direction ":direction:" specified', array(':direction' => $direction)), 'not-specified');
         }
 
         if(empty($email['conversation'])){
-            throw new BException(tr('email_update_conversation(): Specified email ":subject" does not contain a conversation', array(':subject' => $email['subject'])), 'not-specified');
+            throw new CoreException(tr('email_update_conversation(): Specified email ":subject" does not contain a conversation', array(':subject' => $email['subject'])), 'not-specified');
         }
 
         if(empty($email['id'])){
-            throw new BException(tr('email_update_conversation(): Specified email ":subject" has no database id', array(':subject' => $email['subject'])), 'not-specified');
+            throw new CoreException(tr('email_update_conversation(): Specified email ":subject" has no database id', array(':subject' => $email['subject'])), 'not-specified');
         }
 
         /*
@@ -628,7 +628,7 @@ function email_update_conversation($email, $direction){
         }
 
     }catch(\Exception $e){
-        throw new BException(tr('email_update_conversation(): Failed'), $e);
+        throw new CoreException(tr('email_update_conversation(): Failed'), $e);
     }
 }
 
@@ -699,7 +699,7 @@ function email_update_message($email, $direction){
                     break;
 
                 default:
-                    throw new BException(tr('email_update_message(): Unknown direction "%direction%" specified', array('%direction%' => $direction)), 'unknown');
+                    throw new CoreException(tr('email_update_message(): Unknown direction "%direction%" specified', array('%direction%' => $direction)), 'unknown');
             }
 
             $email['id'] = sql_insert_id();
@@ -741,7 +741,7 @@ function email_update_message($email, $direction){
         return $email;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_update_message(): Failed'), $e);
+        throw new CoreException(tr('email_update_message(): Failed'), $e);
     }
 }
 
@@ -771,7 +771,7 @@ function email_cleanup($email){
         return $email;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_cleanup(): Failed'), $e);
+        throw new CoreException(tr('email_cleanup(): Failed'), $e);
     }
 }
 
@@ -817,7 +817,7 @@ function email_check_images($email){
         }
 
     }catch(\Exception $e){
-        throw new BException(tr('email_check_images(): Failed'), $e);
+        throw new CoreException(tr('email_check_images(): Failed'), $e);
     }
 }
 
@@ -835,7 +835,7 @@ function email_get_reply_to_id($email){
         return sql_get('SELECT `id` FROM `email_messages` WHERE `conversations_id` = :conversations_id LIMIT 1', 'id', array(':conversations_id' => $email['conversation']['id']));
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_reply_to_id(): Failed'), $e);
+        throw new CoreException(tr('email_get_reply_to_id(): Failed'), $e);
     }
 }
 
@@ -866,7 +866,7 @@ function email_get_users_id($email){
         return sql_get('SELECT `id` FROM `users` WHERE `email` = :from', 'id', array(':from' => $email['from']));
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_users_id(): Failed'), $e);
+        throw new CoreException(tr('email_get_users_id(): Failed'), $e);
     }
 }
 
@@ -897,7 +897,7 @@ function email_get_accounts_id($email){
         return sql_get('SELECT `id` FROM `email_client_accounts` WHERE `email` = :from', 'id', array(':from' => $email['from']));
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_accounts_id(): Failed'), $e);
+        throw new CoreException(tr('email_get_accounts_id(): Failed'), $e);
     }
 }
 
@@ -969,7 +969,7 @@ function email_send($email, $smtp = null, $account = null){
                     break;
 
                 default:
-                    throw new BException(tr('email_send(): Unknown global SMTP secure setting ":value" for host "%host%". Use either false, "tls", or "ssl"', array(':value' => $_CONFIG['email']['smtp']['secure'], '%host%' => $_CONFIG['email']['smtp']['host'])), 'unknow');
+                    throw new CoreException(tr('email_send(): Unknown global SMTP secure setting ":value" for host "%host%". Use either false, "tls", or "ssl"', array(':value' => $_CONFIG['email']['smtp']['secure'], '%host%' => $_CONFIG['email']['smtp']['host'])), 'unknow');
             }
 
         }else{
@@ -995,7 +995,7 @@ function email_send($email, $smtp = null, $account = null){
                     break;
 
                 default:
-                    throw new BException(tr('email_send(): Unknown user specific SMTP secure setting ":value" for host ":host". Use either false, "tls", or "ssl"', array(':value' => $smtp['secure'], ':host' => $_CONFIG['email']['smtp']['host'])), 'unknown');
+                    throw new CoreException(tr('email_send(): Unknown user specific SMTP secure setting ":value" for host ":host". Use either false, "tls", or "ssl"', array(':value' => $smtp['secure'], ':host' => $_CONFIG['email']['smtp']['host'])), 'unknown');
             }
         }
 
@@ -1030,7 +1030,7 @@ function email_send($email, $smtp = null, $account = null){
         }
 
         if(!$mail->Send()){
-            throw new BException(tr('email_send(): Failed because ":error"',  array(':error' => $mail->ErrorInfo)), 'mailfail');
+            throw new CoreException(tr('email_send(): Failed because ":error"',  array(':error' => $mail->ErrorInfo)), 'mailfail');
         }
 
         $email['sent'] = date_convert(null, 'mysql');
@@ -1040,7 +1040,7 @@ function email_send($email, $smtp = null, $account = null){
         }
 
     }catch(\Exception $e){
-        throw new BException(tr('email_send(): Failed'), $e);
+        throw new CoreException(tr('email_send(): Failed'), $e);
     }
 }
 
@@ -1060,7 +1060,7 @@ function email_from_exists($email){
             $email = str_cut($email, '<', '>');
 
             if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-                throw new BException(tr('email_from_exists(): Specified "from" email address ":email" is not a valid email address', array(':email' => $email)), 'invalid');
+                throw new CoreException(tr('email_from_exists(): Specified "from" email address ":email" is not a valid email address', array(':email' => $email)), 'invalid');
             }
         }
 
@@ -1072,13 +1072,13 @@ function email_from_exists($email){
 
             if(!$account){
 // :DELETE: _exists() functions should just return true or false, the entry exists or not
-                //throw new BException(tr('email_from_exists(): Specified email address ":email" does not exist', array(':email' => $email)), 'not-exists');
+                //throw new CoreException(tr('email_from_exists(): Specified email address ":email" does not exist', array(':email' => $email)), 'not-exists');
                 return false;
             }
 
             if($account['status']){
 // :DELETE: _exists() functions should just return true or false, the entry exists or not
-                //throw new BException(tr('email_from_exists(): Specified email address ":email" is currently not available', array(':email' => $email)), 'not-available');
+                //throw new CoreException(tr('email_from_exists(): Specified email address ":email" is currently not available', array(':email' => $email)), 'not-available');
                 return false;
             }
 
@@ -1096,7 +1096,7 @@ function email_from_exists($email){
         return !empty($_CONFIG['email']['users'][$email]);
 
     }catch(\Exception $e){
-        throw new BException(tr('email_from_exists(): Failed'), $e);
+        throw new CoreException(tr('email_from_exists(): Failed'), $e);
     }
 }
 
@@ -1155,7 +1155,7 @@ function email_load_phpmailer(){
         return new PHPMailer(true);
 
     }catch(\Exception $e){
-        throw new BException(tr('email_load_phpmailer(): Failed'), $e);
+        throw new CoreException(tr('email_load_phpmailer(): Failed'), $e);
     }
 }
 
@@ -1217,7 +1217,7 @@ function email_validate($email){
         return $email;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_validate(): Failed'), $e);
+        throw new CoreException(tr('email_validate(): Failed'), $e);
     }
 }
 
@@ -1247,7 +1247,7 @@ function email_prepare($email){
              * Ensure that the specified type exists on configuration
              */
             if(empty($_CONFIG['email']['templates'][$email['template']])){
-                throw new BException(tr('email_prepare(): Unkown template ":template"', array(':template' => $email['template'])), 'unkown');
+                throw new CoreException(tr('email_prepare(): Unkown template ":template"', array(':template' => $email['template'])), 'unkown');
             }
 
             array_ensure($_CONFIG['email']['templates'][$email['template']], 'subject,file');
@@ -1280,7 +1280,7 @@ function email_prepare($email){
         //
         //if(!$user){
         //    if($params['require_user']){
-        //        throw new BException(tr('email_delay(): Specified user ":user" does not exist', array(':user' => $params['to'])), 'not-exists');
+        //        throw new CoreException(tr('email_delay(): Specified user ":user" does not exist', array(':user' => $params['to'])), 'not-exists');
         //    }
         //
         //    $user = array('id' => null);
@@ -1336,7 +1336,7 @@ function email_prepare($email){
                     break;
 
                 default:
-                    throw new BException(tr('email_prepare(): Invalid "replace" specified, is a ":type" but should be either true, false, or an array containing the from => to values', array(':type' => gettype($email['replace']))), 'invalid');
+                    throw new CoreException(tr('email_prepare(): Invalid "replace" specified, is a ":type" but should be either true, false, or an array containing the from => to values', array(':type' => gettype($email['replace']))), 'invalid');
             }
 
             $email['body'] = str_replace(array_keys($email['replace']), array_values($email['replace']), $email['body']);
@@ -1345,7 +1345,7 @@ function email_prepare($email){
         return $email;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_prepare(): Failed'), $e);
+        throw new CoreException(tr('email_prepare(): Failed'), $e);
     }
 }
 
@@ -1405,13 +1405,13 @@ function email_get_account($email, $columns = null){
                            array(':email' => $email));
 
         if(!$retval){
-            throw new BException(tr('email_get_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
+            throw new CoreException(tr('email_get_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
         }
 
         return $retval;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_account(): Failed'), $e);
+        throw new CoreException(tr('email_get_account(): Failed'), $e);
     }
 }
 
@@ -1474,13 +1474,13 @@ function email_get_client_account($email, $columns = null){
                                  ':seoemail' => $email));
 
         if(!$retval){
-            throw new BException(tr('email_get_client_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
+            throw new CoreException(tr('email_get_client_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
         }
 
         return $retval;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_client_account(): Failed'), $e);
+        throw new CoreException(tr('email_get_client_account(): Failed'), $e);
     }
 }
 
@@ -1530,7 +1530,7 @@ function email_get_domain($email_or_domain, $columns = null, $table = 'email_dom
         return $retval;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_domain(): Failed'), $e);
+        throw new CoreException(tr('email_get_domain(): Failed'), $e);
     }
 }
 
@@ -1544,7 +1544,7 @@ function email_client_get_domain($email_or_domain, $columns = null){
         return email_get_domain($email_or_domain, $columns, 'email_client_domains');
 
     }catch(\Exception $e){
-        throw new BException(tr('email_client_get_domain(): Failed'), $e);
+        throw new CoreException(tr('email_client_get_domain(): Failed'), $e);
     }
 }
 
@@ -1587,7 +1587,7 @@ function email_delay($email){
         return sql_insert_id();
 
     }catch(\Exception $e){
-        throw new BException(tr('email_delay(): Failed'), $e);
+        throw new CoreException(tr('email_delay(): Failed'), $e);
     }
 }
 
@@ -1674,7 +1674,7 @@ function email_send_unsent(){
         return $count;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_send_unsent(): Failed'), $e);
+        throw new CoreException(tr('email_send_unsent(): Failed'), $e);
     }
 }
 
@@ -1688,13 +1688,13 @@ function email_get_encryption_key(){
 
     try{
         if(empty($_CONFIG['email']['encryption_key'])){
-            throw new BException(tr('email_get_encryption_key(): $_CONFIG[email][encryption_key] has not been specified. Please specify a random key first'), 'not-specified');
+            throw new CoreException(tr('email_get_encryption_key(): $_CONFIG[email][encryption_key] has not been specified. Please specify a random key first'), 'not-specified');
         }
 
         return $_CONFIG['email']['encryption_key'];
 
     }catch(\Exception $e){
-        throw new BException(tr('email_get_encryption_key(): Failed'), $e);
+        throw new CoreException(tr('email_get_encryption_key(): Failed'), $e);
     }
 }
 
@@ -1741,7 +1741,7 @@ function email_validate_domain($domain, $table = 'email_domains'){
         return $domain;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_validate_domain(): Failed'), $e);
+        throw new CoreException(tr('email_validate_domain(): Failed'), $e);
     }
 }
 
@@ -1800,7 +1800,7 @@ function email_validate_account($account, $client){
         return $account;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_validate_account(): Failed'), $e);
+        throw new CoreException(tr('email_validate_account(): Failed'), $e);
     }
 }
 
@@ -1818,19 +1818,19 @@ function email_delete($params){
         array_default($params, 'filters' , array());
 
         if(!$params['account']){
-            throw new BException(tr('email_delete(): No account specified'), 'not-specified');
+            throw new CoreException(tr('email_delete(): No account specified'), 'not-specified');
         }
 
         if(!$params['mail_box']){
-            throw new BException(tr('email_delete(): No mail_box specified'), 'not-specified');
+            throw new CoreException(tr('email_delete(): No mail_box specified'), 'not-specified');
         }
 
         if(!$params['criteria']){
-            throw new BException(tr('email_delete(): No criteria specified'), 'not-specified');
+            throw new CoreException(tr('email_delete(): No criteria specified'), 'not-specified');
         }
 
         if(!$params['filters']){
-            throw new BException(tr('email_delete(): No filters specified'), 'not-specified');
+            throw new CoreException(tr('email_delete(): No filters specified'), 'not-specified');
         }
 
         if(PLATFORM_CLI){
@@ -1850,7 +1850,7 @@ function email_delete($params){
                 $date->sub(new DateInterval('P'.$params['filters']['old']));
 
             }catch(\Exception $e){
-                throw new BException(tr('email_delete(): Invalid datetime interval ":interval" specified for the --old filter. See http://php.net/manual/en/dateinterval.construct.php on how to construct these.', array(':interval' => 'P'.$params['filters']['old'])), 'invalid');
+                throw new CoreException(tr('email_delete(): Invalid datetime interval ":interval" specified for the --old filter. See http://php.net/manual/en/dateinterval.construct.php on how to construct these.', array(':interval' => 'P'.$params['filters']['old'])), 'invalid');
             }
 
             $params['criteria'] .= ' SINCE '.$date->format('d-M-Y');
@@ -1931,7 +1931,7 @@ function email_delete($params){
         return $count;
 
     }catch(\Exception $e){
-        throw new BException(tr('email_delete(): Failed'), $e);
+        throw new CoreException(tr('email_delete(): Failed'), $e);
     }
 }
 
@@ -1942,7 +1942,7 @@ function email_delete($params){
  */
 function email_test_account($account, $mail_box = 'INBOX'){
     try{
-throw new BException(tr('email_test(): This functionality is still under construction'), 'under-construction');
+throw new CoreException(tr('email_test(): This functionality is still under construction'), 'under-construction');
         $userdata = email_get_client_account($account);
         $imap     = email_connect($userdata, $mail_box);
         $mails    = imap_search($imap, 'UNSEEN', SE_FREE, 'UTF-8');
@@ -1959,7 +1959,7 @@ showdie($data);
 
     }catch(\Exception $e){
 showdie($e);
-        throw new BException(tr('email_test_account(): Failed'), $e);
+        throw new CoreException(tr('email_test_account(): Failed'), $e);
     }
 }
 
@@ -1974,7 +1974,7 @@ function email_get_user($email, $columns = null){
         return email_get_client_account($email, $columns = null);
 
     }catch(\Exception $e){
-        throw new BException(tr('email_delete(): Failed'), $e);
+        throw new CoreException(tr('email_delete(): Failed'), $e);
     }
 }
 
@@ -1983,6 +1983,6 @@ function email_validate_user($user){
         return email_validate_account($user);
 
     }catch(\Exception $e){
-        throw new BException(tr('email_validate_user(): Failed'), $e);
+        throw new CoreException(tr('email_validate_user(): Failed'), $e);
     }
 }

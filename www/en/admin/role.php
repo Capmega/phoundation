@@ -95,7 +95,7 @@ try{
          * This role does not exist yet?
          */
         if(sql_get('SELECT `id` FROM `roles` WHERE `name` = :name', 'id', array(':name' => $role['name']))){
-            throw new bException(tr('The role "%name%" already exists', '%name%', str_log($role['name'])), 'exists');
+            throw new CoreException(tr('The role "%name%" already exists', '%name%', str_log($role['name'])), 'exists');
         }
 
         sql_query('INSERT INTO `roles` (`createdby`, `name`, `description`)
@@ -114,7 +114,7 @@ try{
 
     }elseif(isset_get($_POST['doupdate'])){
         if(empty($role['id'])){
-            throw new bException('Cannot update, no role specified', 'notspecified');
+            throw new CoreException('Cannot update, no role specified', 'notspecified');
         }
 
         /*
@@ -127,7 +127,7 @@ try{
          * This role does not exist yet?
          */
         if(sql_get('SELECT `name` FROM `roles` WHERE `name` = :name AND `id` != :id', 'name', array(':name' => $role['name'], ':id' => $role['id']))){
-            throw new bException(tr('The role "%name%" already exists', '%name%', str_log($role['name'])), 'exists');
+            throw new CoreException(tr('The role "%name%" already exists', '%name%', str_log($role['name'])), 'exists');
         }
 
 
@@ -364,11 +364,11 @@ function s_validate_role(&$role){
         sort($role['rights']);
 
         if(!$v->isValid()) {
-            throw new bException($v->getErrors(), 'invalid');
+            throw new CoreException($v->getErrors(), 'invalid');
         }
 
     }catch(Exception $e){
-        throw new bException('s_validate_role(): Failed', $e);
+        throw new CoreException('s_validate_role(): Failed', $e);
     }
 }
 
@@ -380,11 +380,11 @@ function s_validate_role(&$role){
 function s_update_rights($role){
     try{
         if(empty($role['id'])){
-            throw new bException('s_update_rights(): Cannot update rights, no role specified', 'not_specified');
+            throw new CoreException('s_update_rights(): Cannot update rights, no role specified', 'not_specified');
         }
 
         if(isset_get($role['rights']) and !is_array($role['rights'])){
-            throw new bException('s_update_rights(): The specified rights list is invalid', 'invalid');
+            throw new CoreException('s_update_rights(): The specified rights list is invalid', 'invalid');
         }
 
         sql_query('DELETE FROM `roles_rights` WHERE `roles_id` = :roles_id', array(':roles_id' => $role['id']));
@@ -416,7 +416,7 @@ function s_update_rights($role){
         return $role['rights'];
 
     }catch(Exception $e){
-        throw new bException('s_update_rights(): Failed', $e);
+        throw new CoreException('s_update_rights(): Failed', $e);
     }
 }
 ?>

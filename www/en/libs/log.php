@@ -29,7 +29,7 @@ function log_rotate(){
     try{
 
     }catch(Exception $e){
-        throw new BException('log_rotate(): Failed', $e);
+        throw new CoreException('log_rotate(): Failed', $e);
     }
 }
 ?>

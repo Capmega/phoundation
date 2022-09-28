@@ -14,15 +14,15 @@ $time     = new DateTime();
 $time     = $time->format('YmdHis');
 
 if(!$user = cli_argument('username', true)){
-    throw new BException(tr('No database username specified'), 'not-specified');
+    throw new CoreException(tr('No database username specified'), 'not-specified');
 }
 
 if(!$password = cli_argument('password', true)){
-    throw new BException(tr('No database password specified'), 'not-specified');
+    throw new CoreException(tr('No database password specified'), 'not-specified');
 }
 
 if(!$database){
-    throw new BException(tr('No database specified'), 'not-specified');
+    throw new CoreException(tr('No database specified'), 'not-specified');
 }
 
 file_ensure_path(TMP.'dropload');

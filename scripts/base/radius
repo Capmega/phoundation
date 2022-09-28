@@ -140,7 +140,7 @@ try{
             cli_no_arguments_left();
 
             if(!$device){
-                throw new bException(tr('No mac address or ID specified'), 'warning/not-specified');
+                throw new CoreException(tr('No mac address or ID specified'), 'warning/not-specified');
             }
 
             $device = radius_get_device($device);
@@ -156,13 +156,13 @@ try{
             cli_no_arguments_left();
 
             if(!$device){
-                throw new bException(tr('No mac address or ID specified'), 'warning/not-specified');
+                throw new CoreException(tr('No mac address or ID specified'), 'warning/not-specified');
             }
 
             $device = radius_get_device($device);
 
             if($device['status'] === null){
-                throw new bException(tr('This device is already enabled'), 'warning/not-specified');
+                throw new CoreException(tr('This device is already enabled'), 'warning/not-specified');
             }else{
                 radius_insert_device_server($device);
             }
@@ -181,7 +181,7 @@ try{
             cli_no_arguments_left();
 
             if(!$device){
-                throw new bException(tr('No mac address or ID specified'), 'warning/not-specified');
+                throw new CoreException(tr('No mac address or ID specified'), 'warning/not-specified');
             }
 
             $valid = radius_test_device(array('mac_address' => $device));
@@ -189,10 +189,10 @@ try{
         break;
 
         case '':
-            throw new bException(tr('No method specified'), 'no-method');
+            throw new CoreException(tr('No method specified'), 'no-method');
 
         default:
-            throw new bException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
+            throw new CoreException(tr('Unknown method ":method" specified', array(':method' => cli_method())), 'unknown-method');
     }
 
 }catch(Exception $e){

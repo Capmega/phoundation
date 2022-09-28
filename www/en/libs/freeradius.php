@@ -34,7 +34,7 @@ function freeradius_library_init(){
                                'which'     => 'freeradius'));
 
     }catch(Exception $e){
-        throw new BException('freeradius_library_init(): Failed', $e);
+        throw new CoreException('freeradius_library_init(): Failed', $e);
     }
 }
 
@@ -64,7 +64,7 @@ function freeradius_install($params){
         }
 
     }catch(Exception $e){
-        throw new BException('freeradius_install(): Failed', $e);
+        throw new CoreException('freeradius_install(): Failed', $e);
     }
 }
 
@@ -115,7 +115,7 @@ function freeradius_sync_server($devices_local){
         }
 
     }catch(Exception $e){
-        throw new bException('radius_sync_server(): Failed', $e);
+        throw new CoreException('radius_sync_server(): Failed', $e);
     }
 }
 
@@ -160,7 +160,7 @@ function freeradius_update_device_server($old_device, $device){
                          ':old_username' => $old_device['mac_address']), 'radius');
 
     }catch(Exception $e){
-        throw new bException('radius_update_device_server(): Failed', $e);
+        throw new CoreException('radius_update_device_server(): Failed', $e);
     }
 }
 
@@ -195,7 +195,7 @@ function freeradius_insert_device_server($device){
                          ':username' => $device['mac_address']), 'radius');
 
     }catch(Exception $e){
-        throw new bException('radius_insert_device_server(): Failed', $e);
+        throw new CoreException('radius_insert_device_server(): Failed', $e);
     }
 
 }
@@ -232,7 +232,7 @@ function freeradius_delete_device_server($device){
 
 
     }catch(Exception $e){
-        throw new bException('radius_delete_device_server(): Failed', $e);
+        throw new CoreException('radius_delete_device_server(): Failed', $e);
     }
 
 }
@@ -274,10 +274,10 @@ function freeradius_test_device($device){
         load_libs('linux');
 
         if(!linux_which($_CONFIG['radius']['server'], 'radtest')){
-            throw new bException(tr('freeradius_test_device(): The program "radtest" is not installed on server""', array(':server' => $_CONFIG['radius']['server'])), $e);
+            throw new CoreException(tr('freeradius_test_device(): The program "radtest" is not installed on server""', array(':server' => $_CONFIG['radius']['server'])), $e);
         };
 
-        throw new bException('freeradius_test_device(): Failed', $e);
+        throw new CoreException('freeradius_test_device(): Failed', $e);
     }
 }
 ?>

@@ -24,11 +24,11 @@ try{
              * Erase the specified roles
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot erase roles, no roles selected', 'notspecified');
+                throw new CoreException('Cannot erase roles, no roles selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot erase roles, invalid data specified', 'invalid');
+                throw new CoreException('Cannot erase roles, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
@@ -48,11 +48,11 @@ try{
              * Erase the specified roles
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot undelete roles, no roles selected', 'notspecified');
+                throw new CoreException('Cannot undelete roles, no roles selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot undelete roles, invalid data specified', 'invalid');
+                throw new CoreException('Cannot undelete roles, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
@@ -72,11 +72,11 @@ try{
              * Erase the specified roles
              */
             if(empty($_POST['id'])){
-                throw new bException('Cannot erase roles, no roles selected', 'notspecified');
+                throw new CoreException('Cannot erase roles, no roles selected', 'notspecified');
             }
 
             if(!is_array($_POST['id'])){
-                throw new bException('Cannot erase roles, invalid data specified', 'invalid');
+                throw new CoreException('Cannot erase roles, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');

@@ -11,7 +11,7 @@ test('str_interleave()', 'Create fully forward slash interleaved string with UTF
     $test = str_interleave('This should be a fully forward slash interleaved string. Some UTF8 tests: ñ', '/', 0);
 
     if($test !== 'T/h/i/s/ /s/h/o/u/l/d/ /b/e/ /a/ /f/u/l/l/y/ /f/o/r/w/a/r/d/ /s/l/a/s/h/ /i/n/t/e/r/l/e/a/v/e/d/ /s/t/r/i/n/g/./ /S/o/m/e/ /U/T/F/8/ /t/e/s/t/s/:/ /ñ'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -19,7 +19,7 @@ test('str_interleave()', 'Create a partially forward slash 2 character interleav
     $test = str_interleave('This should be a partially forward slash interleaved string. Some UTF8 tests: ñ', '/', 30, 2);
 
     if($test !== 'Th/is/ s/ho/ul/d /be/ a/ p/ar/ti/al/ly/ f/orward slash interleaved string. Some UTF8 tests: ñ'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -27,7 +27,7 @@ test('cfm()', 'This tests if the cfm() function correctly filters HTML and speci
     $test = cfm('This <b>should</b>\'""\' have escaped quotes. Some UTF8 tests: ñ');
 
     if($test !== 'This should\\\'\"\"\\\' have escaped quotes. Some UTF8 tests: ñ'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -35,7 +35,7 @@ test('str_truncate()', 'Function should truncate string after > character (displ
     $test = str_truncate('Some UTF8 tests: ñ >This text should not be visible', 25);
 
     if($test !== 'Some UTF8 tests: ñ > ... '){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -43,7 +43,7 @@ test('str_truncate()', 'Function should truncate string after > character (displ
     $test = str_truncate('Some UTF8 tests: ñ >This text should not be visible', 25, '***');
 
     if($test !== 'Some UTF8 tests: ñ >Th***'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -51,7 +51,7 @@ test('str_truncate()', 'Function should truncate string left (before > character
     $test = str_truncate('This text should not be visible>Some UTF8 tests: ñ ', 25, ' ... ', 'left');
 
     if($test !== ' ... >Some UTF8 tests: ñ'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -59,7 +59,7 @@ test('str_truncate()', 'Function should truncate string center (between > and < 
     $test = str_truncate('Some UTF8>This text should not be visible<tests   ñ', 25, ' ... ', 'center');
 
     if($test !== 'Some UTF8> ... <tests   ñ'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -67,7 +67,7 @@ test('str_truncate()', 'Function should truncate string after 24 characters, wit
     $test = str_truncate('This text should notbbe visible>Some UTF8 tests: ññ ', 24, '...', 'right', true);
 
     if($test !== 'This text should...'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -75,7 +75,7 @@ test('str_ends_not()', 'Function should remove last / character only', function(
     $test = str_ends_not('test//', '/', false);
 
     if($test !== 'test/'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -83,7 +83,7 @@ test('str_ends_not()', 'Function should remove all / characters at the end', fun
     $test = str_ends_not('test//', '/');
 
     if($test !== 'test'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 
@@ -91,7 +91,7 @@ test('str_ends_not()', 'Function should remove all t and / characters at the end
     $test = str_ends_not('test//', array('t', '/'));
 
     if($test !== 'tes'){
-        throw new BException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
+        throw new CoreException(tr('Created incorrect string ":test"', array(':test' => $test)), 'failed');
     }
 });
 ?>

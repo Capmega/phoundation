@@ -21,7 +21,7 @@ function upload_library_init(){
         load_config('upload');
 
     }catch(Exception $e){
-        throw new BException('upload_library_init(): Failed', $e);
+        throw new CoreException('upload_library_init(): Failed', $e);
     }
 }
 
@@ -48,7 +48,7 @@ function upload_dropzone($selector = null, $url = '/ajax/upload.php', $params = 
         return html_script('$("'.$selector.'").dropzone({ url: "'.$url.'" })');
 
     }catch(Exception $e){
-        throw new BException('upload_dropzone(): Failed', $e);
+        throw new CoreException('upload_dropzone(): Failed', $e);
     }
 }
 
@@ -69,7 +69,7 @@ function upload_ocupload($selector = 'input[name=upload]', $url = '/ajax/upload.
 
         if(!empty($params['params'])){
             if(!is_array($params['params'])){
-                throw new BException(tr('upload_ocupload(): Specified $params[params] is not an array'), 'invalid');
+                throw new CoreException(tr('upload_ocupload(): Specified $params[params] is not an array'), 'invalid');
             }
         }
 
@@ -92,7 +92,7 @@ function upload_ocupload($selector = 'input[name=upload]', $url = '/ajax/upload.
                 });', $params['executeon']);
 
     }catch(Exception $e){
-        throw new BException('upload_ocupload(): Failed', $e);
+        throw new CoreException('upload_ocupload(): Failed', $e);
     }
 }
 
@@ -130,7 +130,7 @@ function upload_multi($params){
              * Validate post to be an array first to ensure clean exceptions
              */
             if(!is_array($params['post'])){
-                throw new BException(tr('upload_multi(): Specified post parameter should be an array but is a ":type"', array(':type' => gettype($params['post']))), 'invalid');
+                throw new CoreException(tr('upload_multi(): Specified post parameter should be an array but is a ":type"', array(':type' => gettype($params['post']))), 'invalid');
             }
 
             if($_CONFIG['security']['csrf']['enabled']){
@@ -142,11 +142,11 @@ function upload_multi($params){
         }
 
         if(empty($params['selector'])){
-            throw new BException(tr('upload_multi(): No "selector" specified'), 'not-specified');
+            throw new CoreException(tr('upload_multi(): No "selector" specified'), 'not-specified');
         }
 
         if(empty($params['url'])){
-            throw new BException(tr('upload_multi(): No "url" specified'), 'not-specified');
+            throw new CoreException(tr('upload_multi(): No "url" specified'), 'not-specified');
         }
 
         html_load_js('jquery-ui,base/base,base/strings');
@@ -190,7 +190,7 @@ function upload_multi($params){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('upload_multi(): Failed', $e);
+        throw new CoreException('upload_multi(): Failed', $e);
     }
 }
 
@@ -270,7 +270,7 @@ function upload_get_html($type, $target = null, $params = null){
          *Determine what uploader to use
          */
         if(empty($type)){
-            throw new BException('upload_get_html(): No upload widget type specified');
+            throw new CoreException('upload_get_html(): No upload widget type specified');
         }
 
         switch($type){
@@ -329,7 +329,7 @@ function upload_get_html($type, $target = null, $params = null){
                 break;
 
             default:
-                throw new BException('upload_get_html(): Unknown widget type "'.str_log($type).'" specified');
+                throw new CoreException('upload_get_html(): Unknown widget type "'.str_log($type).'" specified');
         }
 
         if($params['lister']){
@@ -339,7 +339,7 @@ function upload_get_html($type, $target = null, $params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('upload_get_html(): Failed', $e);
+        throw new CoreException('upload_get_html(): Failed', $e);
     }
 }
 
@@ -481,18 +481,18 @@ function upload_check_files($max_uploads = null, $min_uploads = null){
          */
         if($max_uploads and ($count > $max_uploads)){
             if($max_uploads == 1){
-                throw new BException(tr('upload_check_files(): Multiple file uploads are not allowed'), 'multiple');
+                throw new CoreException(tr('upload_check_files(): Multiple file uploads are not allowed'), 'multiple');
             }
 
-            throw new BException(tr('upload_check_files(): $_FILES contains ":count" which is more than the maximum of ":max"', array(':count' => $count, ':max' => str_log($max_uploads))), 'toomany');
+            throw new CoreException(tr('upload_check_files(): $_FILES contains ":count" which is more than the maximum of ":max"', array(':count' => $count, ':max' => str_log($max_uploads))), 'toomany');
         }
 
         if($min_uploads and ($count < $min_uploads)){
             if($min_uploads == 1){
-                throw new BException(tr('upload_check_files(): No files were uploaded'), 'none');
+                throw new CoreException(tr('upload_check_files(): No files were uploaded'), 'none');
             }
 
-            throw new BException(tr('upload_check_files(): $_FILES contains ":count" which less more than the minimum of ":min"', array(':count' => $count, ':min' => str_log($min_uploads))), 'toofew');
+            throw new CoreException(tr('upload_check_files(): $_FILES contains ":count" which less more than the minimum of ":min"', array(':count' => $count, ':min' => str_log($min_uploads))), 'toofew');
         }
 
         /*
@@ -546,13 +546,13 @@ function upload_check_files($max_uploads = null, $min_uploads = null){
         unset($value);
 
         if(!empty($_FILES['files'][0]['error'])){
-            throw new BException(isset_get($_FILES['files'][0]['error_message'], tr('PHP upload error code ":error"', array(':error' => $_FILES['files'][0]['error']))), $_FILES['files'][0]['error']);
+            throw new CoreException(isset_get($_FILES['files'][0]['error_message'], tr('PHP upload error code ":error"', array(':error' => $_FILES['files'][0]['error']))), $_FILES['files'][0]['error']);
         }
 
         return isset_get($error_list);
 
     }catch(Exception $e){
-        throw new BException('upload_check_files(): Failed', $e);
+        throw new CoreException('upload_check_files(): Failed', $e);
     }
 }
 
@@ -572,7 +572,7 @@ function upload_multi_js($selector, $url, $done_script = '', $fail_script = '', 
                                   '$processall' => $processall_script));
 
     }catch(Exception $e){
-        throw new BException('upload_multi_js(): Failed', $e);
+        throw new CoreException('upload_multi_js(): Failed', $e);
     }
 }
 ?>

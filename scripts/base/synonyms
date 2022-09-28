@@ -7,7 +7,7 @@
 require_once(__DIR__.'/../../libs/startup.php');
 
 if(!$language = cli_argument(0)){
-    throw new BException('No language specified, please specify one of "en"', 'not-specified');
+    throw new CoreException('No language specified, please specify one of "en"', 'not-specified');
 }
 
 if($language == 'clear'){
@@ -20,7 +20,7 @@ if($language == 'clear'){
 }
 
 if(!in_array($language, array('en'))){
-    throw new BException('No valid language specified, please specify one of "en"', 'not-specified');
+    throw new CoreException('No valid language specified, please specify one of "en"', 'not-specified');
 }
 
 if($count = sql_get('SELECT COUNT(`id`) AS count FROM `synonyms`;', 'count')){

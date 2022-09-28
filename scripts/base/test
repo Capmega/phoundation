@@ -17,6 +17,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('scripts/test: Failed', $e);
+    throw new CoreException('scripts/test: Failed', $e);
 }
 ?>

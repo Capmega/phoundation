@@ -16,7 +16,7 @@ function whois($domain){
     try{
 
     }catch(Exception $e){
-        throw new BException('whois(): Failed', $e);
+        throw new CoreException('whois(): Failed', $e);
     }
 }
 ?>

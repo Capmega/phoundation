@@ -28,7 +28,7 @@ function formats_phone($phone){
         }
 
     }catch(Exception $e){
-        throw new BException('formats_phone(): Failed', $e);
+        throw new CoreException('formats_phone(): Failed', $e);
     }
 }
 ?>

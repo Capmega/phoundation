@@ -3,11 +3,11 @@ global $core, $_CONFIG;
 
 try{
     if(!$core->register['ready']){
-        throw new BException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
+        throw new CoreException(tr('safe_exec(): Startup has not yet finished and base is not ready to start working properly. safe_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
     }
 
     if(!is_array($params)){
-        throw new BException(tr('safe_exec(): Specified $params ":params" is a ":datatype" but should be a params array', array(':params' => $params, ':datatype' => gettype($params))), 'invalid');
+        throw new CoreException(tr('safe_exec(): Specified $params ":params" is a ":datatype" but should be a params array', array(':params' => $params, ':datatype' => gettype($params))), 'invalid');
     }
 
     array_default($params, 'path'            , $_CONFIG['exec']['path']);
@@ -35,7 +35,7 @@ try{
      * Validate command structure
      */
     if(empty($params['commands'])){
-        throw new BException(tr('safe_exec(): No commands specified'), 'invalid');
+        throw new CoreException(tr('safe_exec(): No commands specified'), 'invalid');
     }
 
     if(is_array($params['commands'])){
@@ -90,7 +90,7 @@ try{
             log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
 
             if($params['background']){
-                throw new BException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the shell_exec()', array(':command' => $params['commands'])), 'not-supported');
+                throw new CoreException(tr('safe_exec(): The specified command ":command" requires background execution (because of the & at the end) which is not supported by the shell_exec()', array(':command' => $params['commands'])), 'not-supported');
             }
 
             $exitcode = null;
@@ -116,7 +116,7 @@ try{
             log_console(tr('Executing command ":commands" using PHP function ":function"', array(':commands' => $params['commands'], ':function' => $params['function'])), $color);
 
             if($params['background']){
-                throw new BException(tr('safe_exec(): The specified command ":command" requires background execution which is not supported by PHP passthru()', array(':command' => $params['commands'])), 'not-supported');
+                throw new CoreException(tr('safe_exec(): The specified command ":command" requires background execution which is not supported by PHP passthru()', array(':command' => $params['commands'])), 'not-supported');
             }
 
             $output   = array();
@@ -168,7 +168,7 @@ under_construction();
             break;
 
         default:
-            throw new BException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, system, shell_exec, or pcntl_exec', array(':function' => $params['function'])), 'not-specified');
+            throw new CoreException(tr('safe_exec(): Unknown exec function ":function" specified, please use exec, passthru, system, shell_exec, or pcntl_exec', array(':function' => $params['function'])), 'not-specified');
             break;
     }
 
@@ -203,10 +203,10 @@ under_construction();
             }
 
             if($exitcode === 124){
-                throw new BException(tr('safe_exec(): Received exitcode 124 from executed program, which very likely is a timeout'), 124, $output);
+                throw new CoreException(tr('safe_exec(): Received exitcode 124 from executed program, which very likely is a timeout'), 124, $output);
             }
 
-            throw new BException(tr('safe_exec(): Command ":command" stopped with exit code ":exitcode". This may be a problem, or no problem at all. See attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode, $output);
+            throw new CoreException(tr('safe_exec(): Command ":command" stopped with exit code ":exitcode". This may be a problem, or no problem at all. See attached data for output', array(':command' => $params['commands'], ':exitcode' => $exitcode)), $exitcode, $output);
         }
     }
 
@@ -233,9 +233,9 @@ under_construction();
         }
 
         if($e->getRealCode() === 124){
-            throw new BException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);
+            throw new CoreException(tr('safe_exec(): Command appears to have been terminated by timeout'), $e);
         }
     }
 
-    throw new BException(tr('safe_exec(): Failed'), $e);
+    throw new CoreException(tr('safe_exec(): Failed'), $e);
 }

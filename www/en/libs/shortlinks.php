@@ -33,7 +33,7 @@ function shortlink_library_init(){
         load_config('shortlink');
 
     }catch(Exception $e){
-        throw new BException('shortlink_library_init(): Failed', $e);
+        throw new CoreException('shortlink_library_init(): Failed', $e);
     }
 }
 
@@ -93,7 +93,7 @@ function shortlink_validate($link){
         return $link;
 
     }catch(Exception $e){
-        throw new BException('shortlink_validate(): Failed', $e);
+        throw new CoreException('shortlink_validate(): Failed', $e);
     }
 }
 
@@ -141,7 +141,7 @@ function shortlink_create($link){
         return $link;
 
     }catch(Exception $e){
-        throw new BException('shortlink_create(): Failed', $e);
+        throw new CoreException('shortlink_create(): Failed', $e);
     }
 }
 
@@ -187,7 +187,7 @@ function shortlink_update($link){
         return $link;
 
     }catch(Exception $e){
-        throw new BException('shortlink_update(): Failed', $e);
+        throw new CoreException('shortlink_update(): Failed', $e);
     }
 }
 
@@ -225,10 +225,10 @@ function shortlink_get_code(){
             return $code;
         }
 
-        throw new BException(tr('shortlink_get_code(): Failed to find a unique URL code after ":tries" tries', array(':tries' => $attempts)), 'failed');
+        throw new CoreException(tr('shortlink_get_code(): Failed to find a unique URL code after ":tries" tries', array(':tries' => $attempts)), 'failed');
 
     }catch(Exception $e){
-        throw new BException('shortlink_get_code(): Failed', $e);
+        throw new CoreException('shortlink_get_code(): Failed', $e);
     }
 }
 
@@ -263,14 +263,14 @@ function shortlink_redirect($code){
             /*
              * Specified shortlink code does not exist
              */
-            throw new BException(tr('shortlink(): The specified URL code ":code" does not exist'), 404);
+            throw new CoreException(tr('shortlink(): The specified URL code ":code" does not exist'), 404);
         }
 
         log_file(tr('Redirecting IP ":ip" to URL ":url" for code ":code"', array(':ip' => $_SERVER['REMOTE_ADDR'], ':url' => $url, ':code' => $code)), 'shortlink', 'cyan');
         redirect($url);
 
     }catch(Exception $e){
-        throw new BException('shortlink_redirect(): Failed', $e);
+        throw new CoreException('shortlink_redirect(): Failed', $e);
     }
 }
 
@@ -312,13 +312,13 @@ function shortlink_get_provider($provider = null){
                 break;
 
             default:
-                throw new BException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
+                throw new CoreException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
         }
 
         return $provider;
 
     }catch(Exception $e) {
-        throw new BException('shortlink_get_provider(): Failed', $e);
+        throw new CoreException('shortlink_get_provider(): Failed', $e);
     }
 }
 
@@ -358,7 +358,7 @@ function shortlink_get_access_token($provider = null){
         return $results;
 
     }catch(Exception $e) {
-        throw new BException('shortlink_get_access_token(): Failed', $e);
+        throw new CoreException('shortlink_get_access_token(): Failed', $e);
     }
 }
 
@@ -400,13 +400,13 @@ under_construction();
                 $result = json_decode_custom($result);
 
                 if(empty($result['link'])){
-                    throw new BException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
+                    throw new CoreException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
                 }
 
                 return $result['link'];
         }
 
     }catch(Exception $e){
-        throw new BException('shortlink_create(): Failed', $e);
+        throw new CoreException('shortlink_create(): Failed', $e);
     }
 }

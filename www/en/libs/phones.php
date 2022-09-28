@@ -30,7 +30,7 @@ function phones_library_init(){
     try{
 
     }catch(Exception $e){
-        throw new BException('phones_library_init(): Failed', $e);
+        throw new CoreException('phones_library_init(): Failed', $e);
     }
 }
 
@@ -68,7 +68,7 @@ function phones_clean_number($number){
         return $number;
 
     }catch(Exception $e){
-        throw new BException('phones_clean_number(): Failed', $e);
+        throw new CoreException('phones_clean_number(): Failed', $e);
     }
 }
 
@@ -162,7 +162,7 @@ function phones_format_number($number){
         return $number;
 
     }catch(Exception $e){
-        throw new BException('phones_format_number(): Failed', $e);
+        throw new CoreException('phones_format_number(): Failed', $e);
     }
 }
 ?>

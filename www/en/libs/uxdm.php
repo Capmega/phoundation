@@ -21,7 +21,7 @@ function uxdm_library_init(){
         // Composer command composer require divineomega/uxdm
 
     }catch(Exception $e){
-        throw new BException('uxdm_library_init(): Failed', $e);
+        throw new CoreException('uxdm_library_init(): Failed', $e);
     }
 }
 ?>

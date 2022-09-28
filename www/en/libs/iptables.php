@@ -19,7 +19,7 @@ function iptables_library_init(){
         define('IPTABLES_BUFFER', '__BUFFER__');
 
     }catch(Exception $e){
-        throw new BException('iptables_library_init(): Failed', $e);
+        throw new CoreException('iptables_library_init(): Failed', $e);
     }
 }
 
@@ -71,7 +71,7 @@ function iptables_exec($server, $parameters = null){
         }
 
     }catch(Exception $e){
-        throw new BException('iptables_exec(): Failed', $e);
+        throw new CoreException('iptables_exec(): Failed', $e);
     }
 }
 
@@ -85,7 +85,7 @@ function iptables_set_forward($server, $value = 1){
         servers_exec($server, 'sudo bash -c "echo '.$value.' > /proc/sys/net/ipv4/ip_forward"');
 
     }catch(Exception $e){
-        throw new BException('iptables_set_forward(): Failed', $e);
+        throw new CoreException('iptables_set_forward(): Failed', $e);
     }
 }
 
@@ -99,7 +99,7 @@ function iptables_flush_nat_rules($server){
         servers_exec($server, 'iptables -t nat -F');
 
     }catch(Exception $e){
-        throw new BException('iptables_flush_nat_rules(): Failed', $e);
+        throw new CoreException('iptables_flush_nat_rules(): Failed', $e);
     }
 }
 
@@ -132,7 +132,7 @@ function iptables_set_prerouting($server, $protocol, $origin_port, $destination_
         iptables_exec($server, ' -t nat '.$operation.' PREROUTING -p tcp --dport '.$origin_port.' -j DNAT --to-destination '.$destination_ip.':'.$destination_port);
 
     }catch(Exception $e){
-        throw new BException('iptables_add_prerouting(): Failed', $e);
+        throw new CoreException('iptables_add_prerouting(): Failed', $e);
     }
 }
 
@@ -159,7 +159,7 @@ function iptables_set_postrouting($server, $protocol, $port, $source_ip, $destin
         iptables_exec($server, '-t nat '.$operation.' POSTROUTING -p tcp -d '.$destination_ip.' --dport '.$port.' -j SNAT --to-source '.$source_ip);
 
     }catch(Exception $e){
-        throw new BException('iptables_add_postrouting(): Failed', $e);
+        throw new CoreException('iptables_add_postrouting(): Failed', $e);
     }
 }
 
@@ -176,7 +176,7 @@ function iptables_flush_all($server){
         iptables_exec($server, '-F');
 
     }catch(Exception $e){
-        throw new BException('iptables_flush_all(): Failed', $e);
+        throw new CoreException('iptables_flush_all(): Failed', $e);
     }
 }
 
@@ -194,7 +194,7 @@ function iptables_clean_chain_nat($server){
         iptables_exec($server, '-t nat -F');
 
     }catch(Exception $e){
-        throw new BException('iptables_clean_chain_nat(): Failed', $e);
+        throw new CoreException('iptables_clean_chain_nat(): Failed', $e);
     }
 }
 
@@ -211,7 +211,7 @@ function iptables_delete_all($server){
         iptables_exec($server, '-X');
 
     }catch(Exception $e){
-        throw new BException('iptables_delete_all(): Failed', $e);
+        throw new CoreException('iptables_delete_all(): Failed', $e);
     }
 }
 
@@ -239,7 +239,7 @@ function iptables_accept_traffic($server, $ip, $port, $protocol){
         }
 
     }catch(Exception $e){
-        throw new BException('iptables_accept_traffic(): Failed', $e);
+        throw new CoreException('iptables_accept_traffic(): Failed', $e);
     }
 }
 
@@ -263,7 +263,7 @@ function iptables_stop_accepting_traffic($server, $ip, $port, $protocol){
         }
 
     }catch(Exception $e){
-        throw new BException('iptables_stop_traffic(): Failed', $e);
+        throw new CoreException('iptables_stop_traffic(): Failed', $e);
     }
 }
 
@@ -281,13 +281,13 @@ function iptables_stop_accepting_traffic($server, $ip, $port, $protocol){
  function iptables_validate_ip($ip){
     try{
         if(filter_var($ip, FILTER_VALIDATE_IP) === false){
-            throw new BException(tr('iptables_validate_ip(): Specified ip ":ip" is not valid', array(':ip' => $ip)), 'invalid');
+            throw new CoreException(tr('iptables_validate_ip(): Specified ip ":ip" is not valid', array(':ip' => $ip)), 'invalid');
         }
 
         return $ip;
 
     }catch(Exception $e){
-        throw new BException('iptables_validate_ip(): Failed', $e);
+        throw new CoreException('iptables_validate_ip(): Failed', $e);
     }
 }
 
@@ -302,7 +302,7 @@ function iptables_stop_accepting_traffic($server, $ip, $port, $protocol){
 function iptables_validate_protocol($protocol){
     try{
         if(empty($protocol)){
-            throw new BException(tr('iptables_validate_protocol(): No protocol specified'), 'not-specified');
+            throw new CoreException(tr('iptables_validate_protocol(): No protocol specified'), 'not-specified');
         }
 
         $protocol = strtolower($protocol);
@@ -317,13 +317,13 @@ function iptables_validate_protocol($protocol){
                 break;
 
             default:
-                throw new BException(tr('iptables_validate_protocol(): Unknown protocol ":protocol" specified', array(':protocol' => $protocol)), 'unknown');
+                throw new CoreException(tr('iptables_validate_protocol(): Unknown protocol ":protocol" specified', array(':protocol' => $protocol)), 'unknown');
         }
 
         return $protocol;
 
     }catch(Exception $e){
-        throw new BException('iptables_validate_protocol(): Failed', $e);
+        throw new CoreException('iptables_validate_protocol(): Failed', $e);
     }
 }
 
@@ -340,17 +340,17 @@ function iptables_validate_protocol($protocol){
 function iptables_validate_port($port){
     try{
         if(empty($port)){
-            throw new BException(tr('iptables_validate_port(): No port specified'), 'not-specified');
+            throw new CoreException(tr('iptables_validate_port(): No port specified'), 'not-specified');
         }
 
         if(!is_natural($port) or ($port > 65535)){
-            throw new BException(tr('iptables_validate_port(): Invalid port ":port" specified', array(':port' => $port)), 'invalid');
+            throw new CoreException(tr('iptables_validate_port(): Invalid port ":port" specified', array(':port' => $port)), 'invalid');
         }
 
         return $port;
 
     }catch(Exception $e){
-        throw new BException('iptables_validate_port(): Failed', $e);
+        throw new CoreException('iptables_validate_port(): Failed', $e);
     }
 }
 
@@ -367,7 +367,7 @@ function iptables_validate_port($port){
 function iptables_validate_chain_type($chain_type){
     try{
         if(empty($chain_type)){
-            throw new BException(tr('iptables_validate_chain_type(): No chain type specified'), 'not-specified');
+            throw new CoreException(tr('iptables_validate_chain_type(): No chain type specified'), 'not-specified');
         }
 
         $chain_type = strtolower($chain_type);
@@ -380,13 +380,13 @@ function iptables_validate_chain_type($chain_type){
                 break;
 
             default:
-                throw new BException(tr('iptables_validate_chain_type(): Unknown chain type ":chaintype" specified', array(':chaintype' => $chain_type)), 'unknown');
+                throw new CoreException(tr('iptables_validate_chain_type(): Unknown chain type ":chaintype" specified', array(':chaintype' => $chain_type)), 'unknown');
         }
 
         return $chain_type;
 
     }catch(Exception $e){
-        throw new BException('iptables_validate_chain_type(): Failed', $e);
+        throw new CoreException('iptables_validate_chain_type(): Failed', $e);
     }
 }
 
@@ -412,7 +412,7 @@ function iptables_prerouting_exists($server, $origin_port, $destination_port, $d
         return false;
 
     }catch(Exception $e){
-        throw new BException('iptables_prerouting_exists(): Failed', $e);
+        throw new CoreException('iptables_prerouting_exists(): Failed', $e);
     }
 }
 
@@ -437,7 +437,7 @@ function iptables_postrouting_exists($server, $port, $source_ip){
         return false;
 
     }catch(Exception $e){
-        throw new BException('iptables_postrouting_exists(): Failed', $e);
+        throw new CoreException('iptables_postrouting_exists(): Failed', $e);
     }
 }
 
@@ -454,7 +454,7 @@ function iptalbes_drop_all($server){
         iptables_exec($server, '-P INPUT DROP');
 
     }catch(Exception $e){
-        throw new BException('iptalbes_drop_all(): Failed', $e);
+        throw new CoreException('iptalbes_drop_all(): Failed', $e);
     }
 }
 ?>

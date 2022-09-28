@@ -34,7 +34,7 @@ function code_library_init(){
         load_libs('git');
 
     }catch(Exception $e){
-        throw new BException('code_library_init(): Failed', $e);
+        throw new CoreException('code_library_init(): Failed', $e);
     }
 }
 
@@ -106,13 +106,13 @@ function code_locate_phoundation(){
         }
 
         if(!$found){
-            throw new BException(tr('code_locate_phoundation(): Failed to find the Phoundation project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
+            throw new CoreException(tr('code_locate_phoundation(): Failed to find the Phoundation project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
         }
 
         return $found;
 
     }catch(Exception $e){
-        throw new BException('code_locate_phoundation(): Failed', $e);
+        throw new CoreException('code_locate_phoundation(): Failed', $e);
     }
 }
 
@@ -181,13 +181,13 @@ function code_locate_toolkit(){
         }
 
         if(!$found){
-            throw new BException(tr('code_locate_toolkit(): Failed to find the Toolkit project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
+            throw new CoreException(tr('code_locate_toolkit(): Failed to find the Toolkit project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
         }
 
         return $found;
 
     }catch(Exception $e){
-        throw new BException('code_locate_toolkit(): Failed', $e);
+        throw new CoreException('code_locate_toolkit(): Failed', $e);
     }
 }
 
@@ -216,7 +216,7 @@ function code_phoundation_fetch($params = null){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('code_phoundation_fetch(): Failed', $e);
+        throw new CoreException('code_phoundation_fetch(): Failed', $e);
     }
 }
 
@@ -245,7 +245,7 @@ function code_phoundation_branch_is_tag($branch = null){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('code_phoundation_branch_is_tag(): Failed', $e);
+        throw new CoreException('code_phoundation_branch_is_tag(): Failed', $e);
     }
 }
 
@@ -281,11 +281,11 @@ function code_phoundation_pull($remote = 'origin', $branch = null){
             $match = preg_match('/You asked to pull from the remote \'[a-z0-9-_]+\', but did not specify a branch\. Because this is not the default configured remote for your current branch, you must specify a branch on the command line\./', $data);
 
             if($match){
-                throw new BException(tr('code_phoundation_pull(): No Phoundation remote branch was specified and the current branch ":branch" has no upstream / default remote branch specified', array(':branch' => git_branch())), 'not-specified');
+                throw new CoreException(tr('code_phoundation_pull(): No Phoundation remote branch was specified and the current branch ":branch" has no upstream / default remote branch specified', array(':branch' => git_branch())), 'not-specified');
             }
         }
 
-        throw new BException('code_phoundation_pull(): Failed', $e);
+        throw new CoreException('code_phoundation_pull(): Failed', $e);
     }
 }
 
@@ -314,7 +314,7 @@ function code_phoundation_checkout($branch){
         return $branch;
 
     }catch(Exception $e){
-        throw new BException('code_phoundation_checkout(): Failed', $e);
+        throw new CoreException('code_phoundation_checkout(): Failed', $e);
     }
 }
 
@@ -343,7 +343,7 @@ function code_phoundation_branch($branch = null){
         return $branch;
 
     }catch(Exception $e){
-        throw new BException('code_phoundation_branch(): Failed', $e);
+        throw new CoreException('code_phoundation_branch(): Failed', $e);
     }
 }
 
@@ -370,7 +370,7 @@ function code_phoundation_status(){
         return $status;
 
     }catch(Exception $e){
-        throw new BException('code_phoundation_status(): Failed', $e);
+        throw new CoreException('code_phoundation_status(): Failed', $e);
     }
 }
 
@@ -395,7 +395,7 @@ function code_get_version_line($version){
         return str_runtil($version, '.');
 
     }catch(Exception $e){
-        throw new BException('code_get_version_line(): Failed', $e);
+        throw new CoreException('code_get_version_line(): Failed', $e);
     }
 }
 
@@ -423,7 +423,7 @@ function code_get_phoundation_branch_lines(){
         return $branches;
 
     }catch(Exception $e){
-        throw new BException('code_get_phoundation_branch_lines(): Failed', $e);
+        throw new CoreException('code_get_phoundation_branch_lines(): Failed', $e);
     }
 }
 
@@ -452,7 +452,7 @@ function code_get_phoundation_lines(){
         return $tags;
 
     }catch(Exception $e){
-        throw new BException('code_get_phoundation_lines(): Failed', $e);
+        throw new CoreException('code_get_phoundation_lines(): Failed', $e);
     }
 }
 
@@ -482,7 +482,7 @@ function code_get_phoundation_versions($version_lines = null){
         return $tags;
 
     }catch(Exception $e){
-        throw new BException('code_get_phoundation_versions(): Failed', $e);
+        throw new CoreException('code_get_phoundation_versions(): Failed', $e);
     }
 }
 
@@ -519,7 +519,7 @@ function code_bump_phoundation_framework_version(){
         return $version;
 
     }catch(Exception $e){
-        throw new BException('code_bump_phoundation_framework_version(): Failed', $e);
+        throw new CoreException('code_bump_phoundation_framework_version(): Failed', $e);
     }
 }
 
@@ -548,7 +548,7 @@ function code_get_phoundation_framework_version(){
         return $version;
 
     }catch(Exception $e){
-        throw new BException('code_get_phoundation_framework_version(): Failed', $e);
+        throw new CoreException('code_get_phoundation_framework_version(): Failed', $e);
     }
 }
 
@@ -577,7 +577,7 @@ function code_get_phoundation_project_version(){
         return $version;
 
     }catch(Exception $e){
-        throw new BException('code_get_phoundation_project_version(): Failed', $e);
+        throw new CoreException('code_get_phoundation_project_version(): Failed', $e);
     }
 }
 
@@ -610,7 +610,7 @@ function code_get_branch_lines($path = ROOT){
         return $branches;
 
     }catch(Exception $e){
-        throw new BException('code_get_branch_lines(): Failed', $e);
+        throw new CoreException('code_get_branch_lines(): Failed', $e);
     }
 }
 
@@ -649,7 +649,7 @@ function code_get_available_lines($path = ROOT){
         return array_unique($retval);
 
     }catch(Exception $e){
-        throw new BException('code_get_available_lines(): Failed', $e);
+        throw new CoreException('code_get_available_lines(): Failed', $e);
     }
 }
 
@@ -696,7 +696,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null){
         return array_unique($retval);
 
     }catch(Exception $e){
-        throw new BException('code_get_available_versions(): Failed', $e);
+        throw new CoreException('code_get_available_versions(): Failed', $e);
     }
 }
 
@@ -720,20 +720,20 @@ function code_get_framework_version($path = ROOT){
         $file = slash($path).'libs/system.php';
 
         if(!file_exists($file)){
-            throw new bException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data   = file_get_contents($file);
         $exists = preg_match_all('/define\(\'FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
 
         if(!$exists){
-            throw new bException(tr('code_get_framework_version(): Failed to extract project framework version from system library file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
+            throw new CoreException(tr('code_get_framework_version(): Failed to extract project framework version from system library file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
         }
 
         return $matches[1][0];
 
     }catch(Exception $e){
-        throw new BException('code_get_framework_version(): Failed', $e);
+        throw new CoreException('code_get_framework_version(): Failed', $e);
     }
 }
 
@@ -757,7 +757,7 @@ function code_update_framework_version($version, $path = ROOT){
         $file = slash($path).'libs/system.php';
 
         if(!file_exists($file)){
-            throw new bException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data = file_get_contents($file);
@@ -766,7 +766,7 @@ function code_update_framework_version($version, $path = ROOT){
         file_put_contents($file, $data);
 
     }catch(Exception $e){
-        throw new BException('code_update_framework_version(): Failed', $e);
+        throw new CoreException('code_update_framework_version(): Failed', $e);
     }
 }
 
@@ -790,20 +790,20 @@ function code_get_project_version($path = ROOT){
         $file = slash($path).'config/project.php';
 
         if(!file_exists($file)){
-            throw new bException(tr('code_get_project_version(): No project configuration file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
+            throw new CoreException(tr('code_get_project_version(): No project configuration file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data   = file_get_contents($file);
         $exists = preg_match_all('/define\(\'PROJECTCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
 
         if(!$exists){
-            throw new bException(tr('code_get_project_version(): Failed to extract project code version from project file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
+            throw new CoreException(tr('code_get_project_version(): Failed to extract project code version from project file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
         }
 
         return $matches[1][0];
 
     }catch(Exception $e){
-        throw new BException('code_get_project_version(): Failed', $e);
+        throw new CoreException('code_get_project_version(): Failed', $e);
     }
 }
 
@@ -830,7 +830,7 @@ function code_file_exists_in_phoundation($file){
         return file_exists($path.$file);
 
     }catch(Exception $e){
-        throw new BException('code_file_exists_in_phoundation(): Failed', $e);
+        throw new CoreException('code_file_exists_in_phoundation(): Failed', $e);
     }
 }
 
@@ -858,7 +858,7 @@ function code_file_exists_in_toolkit($file){
 
 
     }catch(Exception $e){
-        throw new BException('code_file_exists_in_toolkit(): Failed', $e);
+        throw new CoreException('code_file_exists_in_toolkit(): Failed', $e);
     }
 }
 
@@ -886,7 +886,7 @@ function code_diff($file, $file2){
                                'commands'     => array('diff', array($file, $file2))));
 
     }catch(Exception $e){
-        throw new BException('code_diff(): Failed', $e);
+        throw new CoreException('code_diff(): Failed', $e);
     }
 }
 
@@ -914,7 +914,7 @@ function code_diff_phoundation($file){
         return code_diff(ROOT.$file, $path.$file);
 
     }catch(Exception $e){
-        throw new BException('code_diff_phoundation(): Failed', $e);
+        throw new CoreException('code_diff_phoundation(): Failed', $e);
     }
 }
 
@@ -942,7 +942,7 @@ function code_diff_toolkit($file){
         return code_diff(ROOT.$file, $path.$file);
 
     }catch(Exception $e){
-        throw new BException('code_diff_toolkit(): Failed', $e);
+        throw new CoreException('code_diff_toolkit(): Failed', $e);
     }
 }
 
@@ -979,15 +979,15 @@ function code_patch($params){
         file_restrict($params);
 
         if(!$params['target_path']){
-            throw new BException(tr('code_patch(): No target path specified'), 'empty');
+            throw new CoreException(tr('code_patch(): No target path specified'), 'empty');
         }
 
         if(!file_exists($params['source_path'])){
-            throw new BException(tr('code_patch(): Specified source path ":source" does not exist', array(':source' => $params['source_path'])), 'not-exist');
+            throw new CoreException(tr('code_patch(): Specified source path ":source" does not exist', array(':source' => $params['source_path'])), 'not-exist');
         }
 
         if(!file_exists($params['target_path'])){
-            throw new BException(tr('code_patch(): Specified target path ":target" does not exist', array(':target' => $params['target_path'])), 'not-exist');
+            throw new CoreException(tr('code_patch(): Specified target path ":target" does not exist', array(':target' => $params['target_path'])), 'not-exist');
         }
 
         $params['source_path'] = slash($params['source_path']);
@@ -1014,7 +1014,7 @@ function code_patch($params){
                     $patch_file = slash($params['target_path']).sha1($params['file']).'.patch';
 
                     if(empty($patch)){
-                        throw new BException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $params['file'])), 'empty');
+                        throw new CoreException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $params['file'])), 'empty');
                     }
 
                     if($params['replaces']){
@@ -1051,11 +1051,11 @@ function code_patch($params){
                 return 'created';
 
             default:
-                throw new BException(tr('code_patch(): Unknown method ":method" specified', array(':method' => $params['method'])), 'unknown');
+                throw new CoreException(tr('code_patch(): Unknown method ":method" specified', array(':method' => $params['method'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('code_patch(): Failed for file ":file"', array(':file' => $params['file'])), $e, array('patch_file' => isset_get($patch_file)));
+        throw new CoreException(tr('code_patch(): Failed for file ":file"', array(':file' => $params['file'])), $e, array('patch_file' => isset_get($patch_file)));
     }
 }
 ?>

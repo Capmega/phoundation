@@ -48,12 +48,12 @@ function cache_library_init(){
                 return false;
 
             default:
-                throw new BException(tr('Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
+                throw new CoreException(tr('Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
         }
 
 
     }catch(Exception $e){
-        throw new BException('cache_library_init(): Failed', $e);
+        throw new CoreException('cache_library_init(): Failed', $e);
     }
 }
 
@@ -80,7 +80,7 @@ function cache_read($key, $namespace = null){
 
     try{
         if(!$key){
-            throw new BException(tr('cache_read(): No cache key specified'), 'not-specified');
+            throw new CoreException(tr('cache_read(): No cache key specified'), 'not-specified');
         }
 
         switch($_CONFIG['cache']['method']){
@@ -104,7 +104,7 @@ function cache_read($key, $namespace = null){
                 return false;
 
             default:
-                throw new BException(tr('cache_read(): Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
+                throw new CoreException(tr('cache_read(): Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
         }
 
         if($data){
@@ -114,7 +114,7 @@ function cache_read($key, $namespace = null){
         return $data;
 
     }catch(Exception $e){
-        throw new BException('cache_read(): Failed', $e);
+        throw new CoreException('cache_read(): Failed', $e);
     }
 }
 
@@ -157,7 +157,7 @@ function cache_read_file($key, $namespace = null){
         return file_get_contents($file);
 
     }catch(Exception $e){
-        throw new BException('cache_read_file(): Failed', $e);
+        throw new CoreException('cache_read_file(): Failed', $e);
     }
 }
 
@@ -189,7 +189,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null){
         }
 
         if(!$key){
-            throw new BException(tr('cache_write(): No cache key specified'), 'warning/not-specified');
+            throw new CoreException(tr('cache_write(): No cache key specified'), 'warning/not-specified');
         }
 
         switch($_CONFIG['cache']['method']){
@@ -209,7 +209,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null){
                 return $value;
 
             default:
-                throw new BException(tr('cache_write(): Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
+                throw new CoreException(tr('cache_write(): Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
         }
 
         log_console(tr('Wrote cache blob for key ":namespace-:key"', array(':namespace' => $namespace, ':key' => $key)), 'VERBOSE/green');
@@ -260,7 +260,7 @@ function cache_write_file($value, $key, $namespace = null){
         return $value;
 
     }catch(Exception $e){
-        throw new BException('cache_write_file(): Failed', $e);
+        throw new CoreException('cache_write_file(): Failed', $e);
     }
 }
 
@@ -289,7 +289,7 @@ function cache_key_hash($key){
             get_hash($key, $_CONFIG['cache']['key_hash']);
 
         }catch(Exception $e){
-            throw new BException(tr('Unknown key hash algorithm ":algorithm" configured in $_CONFIG[hash][key_hash]', array(':algorithm' => $_CONFIG['cache']['key_hash'])), $e);
+            throw new CoreException(tr('Unknown key hash algorithm ":algorithm" configured in $_CONFIG[hash][key_hash]', array(':algorithm' => $_CONFIG['cache']['key_hash'])), $e);
         }
 
         if($_CONFIG['cache']['key_interlace']){
@@ -302,7 +302,7 @@ function cache_key_hash($key){
         return $key;
 
     }catch(Exception $e){
-        throw new BException('cache_key_hash(): Failed', $e);
+        throw new CoreException('cache_key_hash(): Failed', $e);
     }
 }
 
@@ -345,7 +345,7 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null){
         return false;
 
     }catch(Exception $e){
-        throw new BException('cache_showpage(): Failed', $e);
+        throw new CoreException('cache_showpage(): Failed', $e);
     }
 }
 

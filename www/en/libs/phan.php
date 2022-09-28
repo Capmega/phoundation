@@ -30,7 +30,7 @@ function phan_library_init(){
         // Composer command composer require phan/phan
 
     }catch(Exception $e){
-        throw new BException('phan_library_init(): Failed', $e);
+        throw new CoreException('phan_library_init(): Failed', $e);
     }
 }
 ?>

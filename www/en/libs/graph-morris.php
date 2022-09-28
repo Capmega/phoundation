@@ -30,7 +30,7 @@ function graph_morris_library_init(){
         html_load_js('plugins/icheck/icheck.min.js,js/plugins/mcustomscrollbar/jquery.mCustomScrollbar.min,plugins/morris/raphael-min,plugins/morris/morris.min');
 
     }catch(Exception $e){
-        throw new BException('graph_morris_library_init(): Failed', $e);
+        throw new CoreException('graph_morris_library_init(): Failed', $e);
     }
 }
 
@@ -108,7 +108,7 @@ function graph_morris_generate(array $params){
         return html_script($script);
 
      }catch(Exception $e){
-        throw new BException('graph_morris_generate(): Failed', $e);
+        throw new CoreException('graph_morris_generate(): Failed', $e);
     }
 }
 ?>

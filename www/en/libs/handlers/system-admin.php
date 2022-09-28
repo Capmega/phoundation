@@ -225,5 +225,5 @@ under_construction();
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::admin(): Failed'), $e);
+    throw new CoreException(tr('core::admin(): Failed'), $e);
 }

@@ -23,7 +23,7 @@ try{
          */
 
     }else{
-        throw new BException(tr('debug_bar(): Unknown configuration option ":option" specified. Please specify true, false, or "limited"', array(':option' => $_CONFIG['debug']['bar'])), 'unknown');
+        throw new CoreException(tr('debug_bar(): Unknown configuration option ":option" specified. Please specify true, false, or "limited"', array(':option' => $_CONFIG['debug']['bar'])), 'unknown');
     }
 
     /*
@@ -141,6 +141,6 @@ try{
     return $html;
 
 }catch(Exception $e){
-    throw new BException(tr('debug_bar(): Failed'), $e);
+    throw new CoreException(tr('debug_bar(): Failed'), $e);
 }
 ?>

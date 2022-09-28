@@ -37,7 +37,7 @@ function test_library_init(){
         define('TESTPATH', ROOT.'data/tests/content/');
 
     }catch(Exception $e){
-        throw new BException('test_library_init(): Failed', $e);
+        throw new CoreException('test_library_init(): Failed', $e);
     }
 }
 
@@ -53,7 +53,7 @@ function test($name, $description, $function){
         log_console($name.' [TEST] '.$description, '', false);
 
         if(!is_callable($function)){
-            throw new BException(tr('test(): Specified function is not a function but a ":type"', array(':type' => gettype($function))), 'invalid');
+            throw new CoreException(tr('test(): Specified function is not a function but a ":type"', array(':type' => gettype($function))), 'invalid');
         }
 
         $results = $function();

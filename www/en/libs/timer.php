@@ -31,7 +31,7 @@ function timer_start($process){
         return $id;
 
     }catch(Exception $e){
-        throw new BException('timer_start(): Failed', $e);
+        throw new CoreException('timer_start(): Failed', $e);
     }
 }
 
@@ -43,7 +43,7 @@ function timer_start($process){
 function timer_stop($id){
     try{
         if(empty($core->register['timers'][$id])){
-            throw new BException(tr('timer_stop(): Specified timers id %id%" is not registered as a timer', array('%id%' => $id)), 'not-exists');
+            throw new CoreException(tr('timer_stop(): Specified timers id %id%" is not registered as a timer', array('%id%' => $id)), 'not-exists');
         }
 
         $time = (integer) round((microtime(true) - $core->register['timers'][$id]) * 1000, 0);
@@ -58,7 +58,7 @@ function timer_stop($id){
                                  ':time' => $time));
 
         if(!$r->rowCount()){
-            throw new BException(tr('timer_stop(): Specified id %id%" exist in memory, but not in the database', array('%id%' => $id)), 'not-exists');
+            throw new CoreException(tr('timer_stop(): Specified id %id%" exist in memory, but not in the database', array('%id%' => $id)), 'not-exists');
         }
 
         unset($core->register['timers'][$id]);
@@ -66,7 +66,7 @@ function timer_stop($id){
         return $time;
 
     }catch(Exception $e){
-        throw new BException('timer_stop(): Failed', $e);
+        throw new CoreException('timer_stop(): Failed', $e);
     }
 }
 
@@ -81,10 +81,10 @@ function timer_get($process, $type = 'average'){
             return $time;
         }
 
-        throw new BException('timer_get(): Specified process "%process%" was not found', array('%process%' => $process), 'not-exists');
+        throw new CoreException('timer_get(): Specified process "%process%" was not found', array('%process%' => $process), 'not-exists');
 
     }catch(Exception $e){
-        throw new BException('timer_get(): Failed', $e);
+        throw new CoreException('timer_get(): Failed', $e);
     }
 }
 ?>

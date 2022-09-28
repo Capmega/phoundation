@@ -34,7 +34,7 @@ function cli_library_init(){
                                'functions' => 'posix_getuid'));
 
     }catch(Exception $e){
-        throw new BException('cli_library_init(): Failed', $e);
+        throw new CoreException('cli_library_init(): Failed', $e);
     }
 }
 
@@ -61,7 +61,7 @@ function cli_install($params){
         php_enmod('posix');
 
     }catch(Exception $e){
-        throw new BException('cli_install(): Failed', $e);
+        throw new CoreException('cli_install(): Failed', $e);
     }
 }
 
@@ -78,7 +78,7 @@ function cli_strip_color($string){
 //        return preg_replace('/\033\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]/', '',  $string);
 
     }catch(Exception $e){
-        throw new BException('cli_strip_color(): Failed', $e);
+        throw new CoreException('cli_strip_color(): Failed', $e);
     }
 }
 
@@ -90,7 +90,7 @@ function cli_strip_color($string){
 function cli_only($exclusive = false){
     try{
         if(!PLATFORM_CLI){
-            throw new BException('cli_only(): This can only be done from command line', 'clionly');
+            throw new CoreException('cli_only(): This can only be done from command line', 'clionly');
         }
 
         if($exclusive){
@@ -98,7 +98,7 @@ function cli_only($exclusive = false){
         }
 
     }catch(Exception $e){
-        throw new BException('cli_only(): Failed', $e);
+        throw new CoreException('cli_only(): Failed', $e);
     }
 }
 
@@ -123,7 +123,7 @@ function cli_die($exitcode, $message = '', $color = ''){
                  * Do NOT die!!
                  */
                 if($exitcode){
-                    throw new BException(tr('cli_die(): Script failed with exit code ":code"', array(':code' => $exitcode)), $exitcode);
+                    throw new CoreException(tr('cli_die(): Script failed with exit code ":code"', array(':code' => $exitcode)), $exitcode);
                 }
 
                 return $exitcode;
@@ -133,7 +133,7 @@ function cli_die($exitcode, $message = '', $color = ''){
         die($exitcode);
 
     }catch(Exception $e){
-        throw new BException('cli_die(): Failed', $e);
+        throw new CoreException('cli_die(): Failed', $e);
     }
 }
 
@@ -153,7 +153,7 @@ function cli_code_back($count){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('cli_code_back(): Failed', $e);
+        throw new CoreException('cli_code_back(): Failed', $e);
     }
 }
 
@@ -171,7 +171,7 @@ function cli_code_begin($echo = false){
         echo "\033[D";
 
     }catch(Exception $e){
-        throw new BException('cli_code_begin(): Failed', $e);
+        throw new CoreException('cli_code_begin(): Failed', $e);
     }
 }
 
@@ -189,7 +189,7 @@ function cli_hide($echo = false){
         echo "\033[30;40m\e[?25l";
 
     }catch(Exception $e){
-        throw new BException('cli_hide(): Failed', $e);
+        throw new CoreException('cli_hide(): Failed', $e);
     }
 }
 
@@ -207,7 +207,7 @@ function cli_restore($echo = false){
         echo "\033[0m\e[?25h";
 
     }catch(Exception $e){
-        throw new BException('cli_restore(): Failed', $e);
+        throw new CoreException('cli_restore(): Failed', $e);
     }
 }
 
@@ -236,7 +236,7 @@ function cli_readline($prompt = '', $hidden = false, $question_fore_color = null
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('cli_readline(): Failed', $e);
+        throw new CoreException('cli_readline(): Failed', $e);
     }
 }
 
@@ -299,7 +299,7 @@ function cli_run_once_local($close = false){
              * Hey, script has already been run before, and its run again
              * without the close option, this should never happen!
              */
-            throw new BException(tr('cli_run_once_local(): The function has been called twice by script ":script" without $close set to true! This function should be called twice, once without argument, and once with boolean "true"', array(':script' => $script)), 'invalid');
+            throw new CoreException(tr('cli_run_once_local(): The function has been called twice by script ":script" without $close set to true! This function should be called twice, once without argument, and once with boolean "true"', array(':script' => $script)), 'invalid');
         }
 
         $executed = true;
@@ -326,7 +326,7 @@ function cli_run_once_local($close = false){
                     preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
 
                     if(!empty($matches[1][0])){
-                        throw new BException(tr('cli_run_once_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
+                        throw new CoreException(tr('cli_run_once_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
                     }
                 }
             }
@@ -355,7 +355,7 @@ function cli_run_once_local($close = false){
             throw($e);
         }
 
-        throw new BException('cli_run_once_local(): Failed', $e);
+        throw new CoreException('cli_run_once_local(): Failed', $e);
     }
 }
 
@@ -378,7 +378,7 @@ under_construction();
                 /*
                  * Hey, this script is being closed but was never opened?
                  */
-                throw new BException(tr('cli_run_max_local(): The cli_run_max_local() has been called with close option, but it was never opened'), 'invalid');
+                throw new CoreException(tr('cli_run_max_local(): The cli_run_max_local() has been called with close option, but it was never opened'), 'invalid');
             }
 
             file_delete(array('patterns'     => $run_dir.$script,
@@ -394,7 +394,7 @@ under_construction();
              * Hey, script has already been run before, and its run again
              * without the close option, this should never happen!
              */
-            throw new BException(tr('cli_run_max_local(): The cli_run_max_local() has been called twice by script ":script" without $processes set to false! This function should be called twice, once without argument, and once with boolean "true"', array(':script' => $script)), 'invalid');
+            throw new CoreException(tr('cli_run_max_local(): The cli_run_max_local() has been called twice by script ":script" without $processes set to false! This function should be called twice, once without argument, and once with boolean "true"', array(':script' => $script)), 'invalid');
         }
 
         $executed = true;
@@ -421,7 +421,7 @@ under_construction();
                     preg_match_all('/.+?\d{2}:\d{2}:\d{2}\s+('.str_replace('/', '\/', $script).')/', $name, $matches);
 
                     if(!empty($matches[1][0])){
-                        throw new BException(tr('cli_run_max_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
+                        throw new CoreException(tr('cli_run_max_local(): The script ":script" for this project is already running', array(':script' => $script)), 'already-running');
                     }
                 }
             }
@@ -450,7 +450,7 @@ under_construction();
             throw($e);
         }
 
-        throw new BException('cli_run_max_local(): Failed', $e);
+        throw new CoreException('cli_run_max_local(): Failed', $e);
     }
 }
 
@@ -464,7 +464,7 @@ function cli_run_once($action = 'exception', $force = false){
 
     try{
         if(!PLATFORM_CLI){
-            throw new BException('cli_run_once(): This function does not work for platform "'.PLATFORM.'", it is only for "shell" usage');
+            throw new CoreException('cli_run_once(): This function does not work for platform "'.PLATFORM.'", it is only for "shell" usage');
         }
 
         exec('ps -eF | grep php | grep -v grep', $output);
@@ -488,7 +488,7 @@ function cli_run_once($action = 'exception', $force = false){
                 if(++$count >= 2){
                     switch($action){
                         case 'exception':
-                            throw new BException('cli_run_once(): This script is already running', 'already-running');
+                            throw new CoreException('cli_run_once(): This script is already running', 'already-running');
 
                         case 'kill':
                             $thispid = getmypid();
@@ -516,7 +516,7 @@ function cli_run_once($action = 'exception', $force = false){
                             return false;
 
                         default:
-                            throw new BException('cli_run_once(): Unknown action "'.str_log($action).'" specified', 'unknown');
+                            throw new CoreException('cli_run_once(): Unknown action "'.str_log($action).'" specified', 'unknown');
                     }
 
                     return true;
@@ -534,7 +534,7 @@ function cli_run_once($action = 'exception', $force = false){
             throw($e);
         }
 
-        throw new BException('cli_run_once(): Failed', $e);
+        throw new CoreException('cli_run_once(): Failed', $e);
     }
 }
 
@@ -593,7 +593,7 @@ function cli_method($index = null, $default = null){
         return $default;
 
     }catch(Exception $e){
-        throw new BException('cli_method(): Failed', $e);
+        throw new CoreException('cli_method(): Failed', $e);
     }
 }
 
@@ -717,7 +717,7 @@ function cli_argument($keys = null, $next = null, $default = null){
                      * Multiple command line options were specified, this is not
                      * allowed!
                      */
-                    throw new BException(tr('cli_argument(): Multiple command line arguments ":arguments" for the same option specified. Please specify only one', array(':arguments' => array_keys($results))), 'warning/multiple');
+                    throw new CoreException(tr('cli_argument(): Multiple command line arguments ":arguments" for the same option specified. Please specify only one', array(':arguments' => array_keys($results))), 'warning/multiple');
             }
         }
 
@@ -782,7 +782,7 @@ function cli_argument($keys = null, $next = null, $default = null){
             }
 
             if(substr($retval, 0, 1) == '-'){
-                throw new BException(tr('cli_argument(): Argument ":argument1" has no assigned value, it is immediately followed by argument ":argument2"', array(':argument1' => $keys, ':argument2' => $retval)), 'invalid');
+                throw new CoreException(tr('cli_argument(): Argument ":argument1" has no assigned value, it is immediately followed by argument ":argument2"', array(':argument1' => $keys, ':argument2' => $retval)), 'invalid');
             }
 
             return $retval;
@@ -792,7 +792,7 @@ function cli_argument($keys = null, $next = null, $default = null){
         return true;
 
     }catch(Exception $e){
-        throw new BException(tr('cli_argument(): Failed'), $e);
+        throw new CoreException(tr('cli_argument(): Failed'), $e);
     }
 }
 
@@ -818,7 +818,7 @@ function cli_arguments($arguments = null){
                 /*
                  * If the key would be numeric, argument() would get into an endless loop
                  */
-                throw new BException(tr('cli_arguments(): The specified argument ":argument" is numeric, and as such, invalid. cli_arguments() can only check for key-value pairs, where the keys can not be numeric', array(':argument' => $argument)), 'invalid');
+                throw new CoreException(tr('cli_arguments(): The specified argument ":argument" is numeric, and as such, invalid. cli_arguments() can only check for key-value pairs, where the keys can not be numeric', array(':argument' => $argument)), 'invalid');
             }
 
             if($value = cli_argument($argument, true)){
@@ -829,7 +829,7 @@ function cli_arguments($arguments = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException(tr('cli_arguments(): Failed'), $e);
+        throw new CoreException(tr('cli_arguments(): Failed'), $e);
     }
 }
 
@@ -846,7 +846,7 @@ function cli_no_arguments_left(){
         return true;
     }
 
-    throw new BException(tr('cli_no_arguments_left(): Unknown arguments ":arguments" encountered', array(':arguments' => str_force($argv, ', '))), 'invalid-arguments');
+    throw new CoreException(tr('cli_no_arguments_left(): Unknown arguments ":arguments" encountered', array(':arguments' => str_force($argv, ', '))), 'invalid-arguments');
 }
 
 
@@ -869,7 +869,7 @@ function cli_highlight($string, $keywords, $fore_color, $back_color = null){
         return $string;
 
     }catch(Exception $e){
-        throw new BException('cli_highlight(): Failed', $e);
+        throw new CoreException('cli_highlight(): Failed', $e);
     }
 }
 
@@ -922,7 +922,7 @@ function cli_show_usage($usage, $color){
         }
 
     }catch(Exception $e){
-        throw new BException('cli_show_usage(): Failed', $e);
+        throw new CoreException('cli_show_usage(): Failed', $e);
     }
 }
 
@@ -954,7 +954,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
             }
 
             if(!$auto_switch){
-                throw new BException(tr('cli_process_uid_matches(): The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', array(':puser' => get_current_user(), ':fuser' => cli_get_process_user())), 'not-authorized');
+                throw new CoreException(tr('cli_process_uid_matches(): The user ":puser" is not allowed to execute these scripts, only user ":fuser" can do this. use "sudo -u :fuser COMMANDS instead.', array(':puser' => get_current_user(), ':fuser' => cli_get_process_user())), 'not-authorized');
             }
 
             /*
@@ -985,7 +985,7 @@ function cli_process_uid_matches($auto_switch = false, $permit_root = true){
         }
 
     }catch(Exception $e){
-        throw new BException('cli_process_uid_matches(): Failed', $e);
+        throw new CoreException('cli_process_uid_matches(): Failed', $e);
     }
 }
 
@@ -1009,7 +1009,7 @@ function cli_process_user_has_free_sudo(){
         return !$results;
 
     }catch(Exception $e){
-        throw new BException('cli_process_user_has_free_sudo(): Failed', $e);
+        throw new CoreException('cli_process_user_has_free_sudo(): Failed', $e);
     }
 }
 
@@ -1038,7 +1038,7 @@ function cli_get_process_uid(){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('cli_get_process_uid(): Failed', $e);
+        throw new CoreException('cli_get_process_uid(): Failed', $e);
     }
 }
 
@@ -1067,7 +1067,7 @@ function cli_get_process_user(){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('cli_get_process_user(): Failed', $e);
+        throw new CoreException('cli_get_process_user(): Failed', $e);
     }
 }
 
@@ -1087,7 +1087,7 @@ function cli_is_root(){
         return cli_get_process_uid() === 0;
 
     }catch(Exception $e){
-        throw new BException('cli_is_root(): Failed', $e);
+        throw new CoreException('cli_is_root(): Failed', $e);
     }
 }
 
@@ -1105,13 +1105,13 @@ function cli_is_root(){
 function cli_root_only(){
     try{
         if(!cli_is_root()){
-            throw new BException('cli_root_only(): This script can ONLY be executed by the root user', 'not-allowed');
+            throw new CoreException('cli_root_only(): This script can ONLY be executed by the root user', 'not-allowed');
         }
 
         return true;
 
     }catch(Exception $e){
-        throw new BException('cli_root_only(): Failed', $e);
+        throw new CoreException('cli_root_only(): Failed', $e);
     }
 }
 
@@ -1129,13 +1129,13 @@ function cli_root_only(){
 function cli_not_root(){
     try{
         if(cli_is_root()){
-            throw new BException('cli_not_root(): This script can NOT be executed by the root user', 'not-allowed');
+            throw new CoreException('cli_not_root(): This script can NOT be executed by the root user', 'not-allowed');
         }
 
         return true;
 
     }catch(Exception $e){
-        throw new BException('cli_not_root(): Failed', $e);
+        throw new CoreException('cli_not_root(): Failed', $e);
     }
 }
 
@@ -1153,13 +1153,13 @@ function cli_not_root(){
 function cli_sudo($command){
     try{
         if(!cli_process_user_has_free_sudo()){
-            throw new BException(tr('cli_sudo(): This script requires sudo privileges but the current user ":user" does not have these', array(':user' => cli_get_process_user())), 'no-sudo');
+            throw new CoreException(tr('cli_sudo(): This script requires sudo privileges but the current user ":user" does not have these', array(':user' => cli_get_process_user())), 'no-sudo');
         }
 
         return $command;
 
     }catch(Exception $e){
-        throw new BException('cli_sudo(): Failed', $e);
+        throw new CoreException('cli_sudo(): Failed', $e);
     }
 }
 
@@ -1223,7 +1223,7 @@ function cli_done(){
         die($exit_code);
 
     }catch(Exception $e){
-        throw new BException('cli_done(): Failed', $e);
+        throw new CoreException('cli_done(): Failed', $e);
     }
 }
 
@@ -1249,7 +1249,7 @@ function cli_pgrep($name){
                                'commands'     => array('pgrep', array($name))));
 
     }catch(Exception $e){
-        throw new BException('cli_pgrep(): Failed', $e);
+        throw new CoreException('cli_pgrep(): Failed', $e);
     }
 }
 
@@ -1280,7 +1280,7 @@ function cli_pidgrep($pid){
         return $result;
 
     }catch(Exception $e){
-        throw new BException('cli_pgrep(): Failed', $e);
+        throw new CoreException('cli_pgrep(): Failed', $e);
     }
 }
 
@@ -1304,7 +1304,7 @@ function cli_pidgrep($pid){
 function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
     try{
         if(!$pids){
-            throw new BException(tr('cli_kill(): No process ids specified'), 'not-specified');
+            throw new CoreException(tr('cli_kill(): No process ids specified'), 'not-specified');
         }
 
         if(!$signal){
@@ -1374,14 +1374,14 @@ function cli_kill($pids, $signal = 15, $verify = -20, $sudo = false){
                     }
                 }
 
-                throw new BException(tr('cli_kill(): Failed to kill PID ":pid"', array(':pid' => $pid)), 'failed');
+                throw new CoreException(tr('cli_kill(): Failed to kill PID ":pid"', array(':pid' => $pid)), 'failed');
             }
         }
 
         return $count;
 
     }catch(Exception $e){
-        throw new BException('cli_kill(): Failed', $e);
+        throw new CoreException('cli_kill(): Failed', $e);
     }
 }
 
@@ -1435,11 +1435,11 @@ function cli_pkill($process, $signal = null, $sudo = false, $verify = 3, $sigkil
                 }
             }
 
-            throw new BException(tr('cli_pkill(): Failed to kill process ":process"', array(':process' => $process)), 'failed');
+            throw new CoreException(tr('cli_pkill(): Failed to kill process ":process"', array(':process' => $process)), 'failed');
         }
 
     }catch(Exception $e){
-        throw new BException('cli_pkill(): Failed', $e);
+        throw new CoreException('cli_pkill(): Failed', $e);
     }
 }
 
@@ -1454,7 +1454,7 @@ function cli_get_term(){
         return $term;
 
     }catch(Exception $e){
-        throw new BException('cli_get_term(): Failed', $e);
+        throw new CoreException('cli_get_term(): Failed', $e);
     }
 }
 
@@ -1469,7 +1469,7 @@ function cli_get_columns(){
         return $cols;
 
     }catch(Exception $e){
-        throw new BException('cli_get_columns(): Failed', $e);
+        throw new CoreException('cli_get_columns(): Failed', $e);
     }
 }
 
@@ -1483,7 +1483,7 @@ function cli_get_lines(){
         return $rows;
 
     }catch(Exception $e){
-        throw new BException('cli_get_lines(): Failed', $e);
+        throw new CoreException('cli_get_lines(): Failed', $e);
     }
 }
 
@@ -1503,7 +1503,7 @@ function cli_run_process($command, $callback){
 //pclose($p);
 
     }catch(Exception $e){
-        throw new BException('cli_run_process(): Failed', $e);
+        throw new CoreException('cli_run_process(): Failed', $e);
     }
 }
 
@@ -1517,7 +1517,7 @@ function cli_progress_bar($width, $percentage, $color){
     try{
 
     }catch(Exception $e){
-        throw new BException('cli_progress_bar(): Failed', $e);
+        throw new CoreException('cli_progress_bar(): Failed', $e);
     }
 }
 
@@ -1561,7 +1561,7 @@ function cli_status_color($status){
         return cli_color($status, 'purple');
 
     }catch(Exception $e){
-        throw new BException('cli_status_color(): Failed', $e);
+        throw new CoreException('cli_status_color(): Failed', $e);
     }
 }
 
@@ -1584,7 +1584,7 @@ function cli_pid($pid){
         return file_exists('/proc/'.$pid);
 
     }catch(Exception $e){
-        throw new BException('cli_pid(): Failed', $e);
+        throw new CoreException('cli_pid(): Failed', $e);
     }
 }
 
@@ -1635,7 +1635,7 @@ function cli_list_processes($filters){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('cli_list_processes(): Failed', $e);
+        throw new CoreException('cli_list_processes(): Failed', $e);
     }
 }
 
@@ -1692,10 +1692,10 @@ function cli_unzip($file, $target_path = null, $remove = true){
 
     }catch(Exception $e){
         if(!file_exists($file)){
-            throw new BException(tr('cli_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+            throw new CoreException(tr('cli_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
-        throw new BException('cli_unzip(): Failed', $e);
+        throw new CoreException('cli_unzip(): Failed', $e);
     }
 }
 
@@ -1739,10 +1739,10 @@ function cli_is_builtin($command){
 
     }catch(Exception $e){
         if($e->getRealCode() === '127'){
-            throw new BException(tr('cli_is_builtin(): The specified command ":command" was not found and probably does not exist', array(':command' => $command)), 'not-installed');
+            throw new CoreException(tr('cli_is_builtin(): The specified command ":command" was not found and probably does not exist', array(':command' => $command)), 'not-installed');
         }
 
-        throw new BException('cli_is_builtin(): Failed', $e);
+        throw new CoreException('cli_is_builtin(): Failed', $e);
     }
 }
 
@@ -1775,7 +1775,7 @@ function cli_build_commands_string(&$params){
         array_default($params, 'delay'       , 0);
 
         if(!is_array($params['commands'])){
-            throw new BException(tr('cli_build_commands_string(): Specified commands is not an array'), 'invalid');
+            throw new CoreException(tr('cli_build_commands_string(): Specified commands is not an array'), 'invalid');
         }
 
         /*
@@ -1787,7 +1787,7 @@ function cli_build_commands_string(&$params){
 
         if($params['delay']){
             if(!is_numeric($params['delay']) or ($params['delay'] < 0)){
-                throw new BException(tr('cli_build_commands_string(): Invalid delay ":delay" specified. Please specify a valid amount of seconds, like 1, 0.5, .4, 3.9, 7, etc.', array(':delay' => $params['delay'])), 'invalid');
+                throw new CoreException(tr('cli_build_commands_string(): Invalid delay ":delay" specified. Please specify a valid amount of seconds, like 1, 0.5, .4, 3.9, 7, etc.', array(':delay' => $params['delay'])), 'invalid');
             }
 
             array_unshift($params['commands'], array($params['delay']));
@@ -1809,7 +1809,7 @@ function cli_build_commands_string(&$params){
          */
         foreach($params['commands'] as $key => $value){
             if(!is_numeric($key)){
-                throw new BException(tr('cli_build_commands_string(): Specified command structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['commands'])), 'invalid');
+                throw new CoreException(tr('cli_build_commands_string(): Specified command structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['commands'])), 'invalid');
             }
 
             if(!($key % 2)){
@@ -1817,11 +1817,11 @@ function cli_build_commands_string(&$params){
                  * This value should contain a command
                  */
                 if(!$value){
-                    throw new BException(tr('cli_build_commands_string(): No command specified'), 'invalid');
+                    throw new CoreException(tr('cli_build_commands_string(): No command specified'), 'invalid');
                 }
 
                 if(!is_string($value)){
-                    throw new BException(tr('cli_build_commands_string(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
+                    throw new CoreException(tr('cli_build_commands_string(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
                 }
 
                 /*
@@ -1884,10 +1884,10 @@ function cli_build_commands_string(&$params){
                         /*
                          * No command was set yet, probably commands / arguments out of order?
                          */
-                        throw new BException(tr('cli_build_commands_string(): Encountered (arguments?) array before command. Please check the commands parameter ":commands"', array(':commands' => $params['commands'])), 'invalid');
+                        throw new CoreException(tr('cli_build_commands_string(): Encountered (arguments?) array before command. Please check the commands parameter ":commands"', array(':commands' => $params['commands'])), 'invalid');
                     }
 
-                    throw new BException(tr('cli_build_commands_string(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['commands']))), 'invalid');
+                    throw new CoreException(tr('cli_build_commands_string(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['commands']))), 'invalid');
                 }
 
                 foreach($value as $special => &$argument){
@@ -1902,7 +1902,7 @@ function cli_build_commands_string(&$params){
                     }
 
                     if(!is_scalar($argument)){
-                        throw new BException(tr('cli_build_commands_string(): Specified arguments ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
+                        throw new CoreException(tr('cli_build_commands_string(): Specified arguments ":argument" for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $params['commands'], ':argument' => $argument, ':type' => gettype($params['commands']))), 'invalid');
                     }
 
                     if(is_string($special) and ($special[0] === '#')){
@@ -1936,7 +1936,7 @@ function cli_build_commands_string(&$params){
                             }
 
                             if(!$valid){
-                                throw new BException(tr('cli_build_commands_string(): Encountered what appears to be an invalid shell variable ":variable". Shell variables are only allowed to use A-Z, -, and _', array(':variable' => $argument)), 'invalid');
+                                throw new CoreException(tr('cli_build_commands_string(): Encountered what appears to be an invalid shell variable ":variable". Shell variables are only allowed to use A-Z, -, and _', array(':variable' => $argument)), 'invalid');
                             }
 
                             /*
@@ -2014,10 +2014,10 @@ function cli_build_commands_string(&$params){
                             default:
                                 switch($special){
                                     case 'connect':
-                                        throw new BException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified, maybe should be "connector" ?', array(':argument' => $special)), 'invalid');
+                                        throw new CoreException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified, maybe should be "connector" ?', array(':argument' => $special)), 'invalid');
                                 }
 
-                                throw new BException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified', array(':argument' => $special)), 'invalid');
+                                throw new CoreException(tr('cli_build_commands_string(): Unknown argument modifier ":argument" specified', array(':argument' => $special)), 'invalid');
                         }
                     }
                 }
@@ -2053,7 +2053,7 @@ function cli_build_commands_string(&$params){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('cli_build_commands_string(): Failed', $e);
+        throw new CoreException('cli_build_commands_string(): Failed', $e);
     }
 }
 
@@ -2075,7 +2075,7 @@ function cli_build_commands_string(&$params){
 function cli_get_cwd($pid, $ignore_gone = false){
     try{
         if(!is_natural($pid) or ($pid > 65535)){
-            throw new BException(tr('cli_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
+            throw new CoreException(tr('cli_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
         }
 
         $results = safe_exec(array('ok_exitcodes' => ($ignore_gone ? '1' : ''),
@@ -2085,7 +2085,7 @@ function cli_get_cwd($pid, $ignore_gone = false){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('cli_get_cwd(): Failed', $e);
+        throw new CoreException('cli_get_cwd(): Failed', $e);
     }
 }
 
@@ -2109,7 +2109,7 @@ function cli_restart($delay = 1){
     global $core;
     try{
         if(!PLATFORM_CLI){
-            throw new BException(tr('cli_restart(): This function can only be run from a CLI platform'), $e);
+            throw new CoreException(tr('cli_restart(): This function can only be run from a CLI platform'), $e);
         }
 
         $pid = script_exec(array('background' => true,
@@ -2120,7 +2120,7 @@ function cli_restart($delay = 1){
         die();
 
     }catch(Exception $e){
-        throw new BException(tr('cli_restart(): Failed'), $e);
+        throw new CoreException(tr('cli_restart(): Failed'), $e);
     }
 }
 
@@ -2154,7 +2154,7 @@ function cli_find($params){
         array_default($params, 'timeout', 30);
 
         if(empty($params['start'])){
-            throw new BException(tr('cli_find(): No start specified'), 'not-specified');
+            throw new CoreException(tr('cli_find(): No start specified'), 'not-specified');
         }
 
         /*
@@ -2221,7 +2221,7 @@ function cli_find($params){
                     break;
 
                 default:
-                    throw new BException(tr('cli_find(): Unknown parameter key ":key" specified', array(':key' => $key)), 'unknown');
+                    throw new CoreException(tr('cli_find(): Unknown parameter key ":key" specified', array(':key' => $key)), 'unknown');
             }
         }
 
@@ -2242,7 +2242,7 @@ function cli_find($params){
         return $results;
 
     }catch(Exception $e){
-        throw new BException(tr('cli_find(): Failed'), $e);
+        throw new CoreException(tr('cli_find(): Failed'), $e);
     }
 }
 

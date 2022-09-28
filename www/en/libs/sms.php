@@ -35,11 +35,11 @@ function sms_send_message($message, $to, $from = null){
                 return twilio_send_message($message, $to, $from);
 
             default:
-                throw new BException(tr('sms_send(): Unknown preferred SMS provider "%provider%" specified, check your configuration $_CONFIG[sms][prefer]', array('%provider%' => $_CONFIG['sms']['prefer'])), 'unknown');
+                throw new CoreException(tr('sms_send(): Unknown preferred SMS provider "%provider%" specified, check your configuration $_CONFIG[sms][prefer]', array('%provider%' => $_CONFIG['sms']['prefer'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('sms_send(): Failed', $e);
+        throw new CoreException('sms_send(): Failed', $e);
     }
 }
 
@@ -129,7 +129,7 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
         return $conversation;
 
     }catch(Exception $e){
-        throw new BException(tr('sms_get_conversation(): Failed for numbers local ":local", remote ":remote"', array(':local' => $phone_local, ':remote' => $phone_remote)), $e);
+        throw new CoreException(tr('sms_get_conversation(): Failed for numbers local ":local", remote ":remote"', array(':local' => $phone_local, ':remote' => $phone_remote)), $e);
     }
 }
 
@@ -143,15 +143,15 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
 
     try{
         if(empty($conversation['id'])){
-            throw new BException('sms_update_conversation(): No conversation id specified', 'not-specified');
+            throw new CoreException('sms_update_conversation(): No conversation id specified', 'not-specified');
         }
 
         if(empty($direction)){
-            throw new BException('sms_update_conversation(): No conversation direction specified', 'not-specified');
+            throw new CoreException('sms_update_conversation(): No conversation direction specified', 'not-specified');
         }
 
         if(empty($message)){
-            throw new BException('sms_update_conversation(): No conversation message specified', 'not-specified');
+            throw new CoreException('sms_update_conversation(): No conversation message specified', 'not-specified');
         }
 
         /*
@@ -247,7 +247,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
         }
 
     }catch(Exception $e){
-        throw new BException('sms_update_conversation(): Failed', $e);
+        throw new CoreException('sms_update_conversation(): Failed', $e);
     }
 }
 
@@ -283,7 +283,7 @@ function sms_full_phones($phones){
         return str_force($phones, ',');
 
     }catch(Exception $e){
-        throw new BException('sms_full_phones(): Failed', $e);
+        throw new CoreException('sms_full_phones(): Failed', $e);
     }
 }
 
@@ -320,7 +320,7 @@ function sms_no_country_phones($phones){
         return str_force($phones, ',');
 
     }catch(Exception $e){
-        throw new BException('sms_full_phones(): Failed', $e);
+        throw new CoreException('sms_full_phones(): Failed', $e);
     }
 }
 
@@ -355,7 +355,7 @@ function sms_select_source($name, $selected, $provider, $class){
         return html_select($sources);
 
     }catch(Exception $e){
-        throw new BException('sms_select_source(): Failed', $e);
+        throw new CoreException('sms_select_source(): Failed', $e);
     }
 }
 
@@ -396,7 +396,7 @@ function sms_block($phone_numbers, $status = null){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('sms_block(): Failed', $e);
+        throw new CoreException('sms_block(): Failed', $e);
     }
 }
 
@@ -441,7 +441,7 @@ function sms_unblock($phone_numbers, $status = null){
         return $count;
 
     }catch(Exception $e){
-        throw new BException('sms_unblock(): Failed', $e);
+        throw new CoreException('sms_unblock(): Failed', $e);
     }
 }
 ?>

@@ -45,7 +45,7 @@ function exif_clear($file, $target = null){
         fclose($hi);
 
     }catch(Exception $e){
-        throw new BException('exif_clear(): Failed', $e);
+        throw new CoreException('exif_clear(): Failed', $e);
     }
 }
 

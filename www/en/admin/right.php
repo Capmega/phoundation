@@ -81,7 +81,7 @@ try{
          * This right does not exist yet?
          */
         if(sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', 'id', array(':name' => $right['name']))){
-            throw new bException(tr('The right "%name%" already exists', '%name%', str_log($right['name'])), 'exists');
+            throw new CoreException(tr('The right "%name%" already exists', '%name%', str_log($right['name'])), 'exists');
         }
 
         sql_query('INSERT INTO `rights` (`createdby`, `name`, `description`)
@@ -97,7 +97,7 @@ try{
 
     }elseif(isset_get($_POST['doupdate'])){
         if(empty($right['id'])){
-            throw new bException('Cannot update, no right specified', 'notspecified');
+            throw new CoreException('Cannot update, no right specified', 'notspecified');
         }
 
         /*
@@ -109,7 +109,7 @@ try{
          * This right does not exist yet?
          */
         if(sql_get('SELECT `name` FROM `rights` WHERE `name` = :name AND `id` != :id', 'id', array(':name' => $right['name'], ':id' => $right['id']))){
-            throw new bException(tr('The right "%name%" already exists', '%name%', str_log($right['name'])), 'exists');
+            throw new CoreException(tr('The right "%name%" already exists', '%name%', str_log($right['name'])), 'exists');
         }
 
         sql_query('UPDATE `rights`
@@ -255,11 +255,11 @@ function s_validate_right(&$right){
         sort($right['rights']);
 
         if(!$v->isValid()) {
-            throw new bException($v->getErrors(), 'invalid');
+            throw new CoreException($v->getErrors(), 'invalid');
         }
 
     }catch(Exception $e){
-        throw new bException('s_validate_right(): Failed', $e);
+        throw new CoreException('s_validate_right(): Failed', $e);
     }
 }
 ?>

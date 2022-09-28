@@ -62,7 +62,7 @@ function url_cloak($url){
         return $cloak;
 
     }catch(Exception $e){
-        throw new BException('url_cloak(): Failed', $e);
+        throw new CoreException('url_cloak(): Failed', $e);
     }
 }
 
@@ -102,7 +102,7 @@ function url_decloak($cloak){
         return '';
 
     }catch(Exception $e){
-        throw new BException('url_decloak(): Failed', $e);
+        throw new CoreException('url_decloak(): Failed', $e);
     }
 }
 
@@ -136,7 +136,7 @@ function url_cloak_cleanup(){
         return $r->rowCount();
 
     }catch(Exception $e){
-        throw new BException('url_cloak_cleanup(): Failed', $e);
+        throw new CoreException('url_cloak_cleanup(): Failed', $e);
     }
 }
 ?>

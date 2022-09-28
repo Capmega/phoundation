@@ -15,11 +15,11 @@ $users   = cli_argument('users'  , true);
 load_libs('mailer');
 
 if(!$mailings_id = mailer_get($mailing)){
-    throw new BException('Mailing "'.$mailing.'" does not exist', 'not-exists');
+    throw new CoreException('Mailing "'.$mailing.'" does not exist', 'not-exists');
 }
 
 if(!$users){
-    throw new BException('No users specified', 'not-specified');
+    throw new CoreException('No users specified', 'not-specified');
 }
 
 $mailings_id = $mailings_id['id'];

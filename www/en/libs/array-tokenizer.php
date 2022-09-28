@@ -24,7 +24,7 @@ function array_tokenizer($string){
         }
 
         if(!is_string($string)){
-            throw new BException(tr('array_tokenizer(): Specified variable is not a string but datatype ":type"', array(':type' => gettype($string))), 'invalid');
+            throw new CoreException(tr('array_tokenizer(): Specified variable is not a string but datatype ":type"', array(':type' => gettype($string))), 'invalid');
         }
 
         $string = preg_replace('/\/\/.+?\n/', '', $string);
@@ -34,7 +34,7 @@ function array_tokenizer($string){
         return $scanner->scan($string);
 
     }catch(Exception $e){
-        throw new BException(tr('array_tokenizer(): Failed'), $e);
+        throw new CoreException(tr('array_tokenizer(): Failed'), $e);
     }
 }
 

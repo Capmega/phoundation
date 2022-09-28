@@ -32,7 +32,7 @@ function twilio_library_init(){
         load_config('twilio');
 
     }catch(Exception $e){
-        throw new BException('twilio_library_init(): Failed', $e);
+        throw new CoreException('twilio_library_init(): Failed', $e);
     }
 }
 
@@ -83,7 +83,7 @@ function twilio_install(){
         });
 
     }catch(Exception $e){
-        throw new BException('twilio_install(): Failed', $e);
+        throw new CoreException('twilio_install(): Failed', $e);
     }
 }
 
@@ -116,13 +116,13 @@ function twilio_load($source, $auto_install = true){
             log_console('twilio_load(): Twilio API library not found', 'warning');
 
             if(!$auto_install){
-                throw new BException(tr('twilio_load(): Twilio API library file ":file" was not found', array(':file' => $file)), 'notinstalled');
+                throw new CoreException(tr('twilio_load(): Twilio API library file ":file" was not found', array(':file' => $file)), 'notinstalled');
             }
 
             twilio_install();
 
             if(!file_exists($file)){
-                throw new BException(tr('twilio_load(): Twilio API library file ":file" was not found, and auto install seems to have failed', array(':file' => $file)), 'notinstalled');
+                throw new CoreException(tr('twilio_load(): Twilio API library file ":file" was not found, and auto install seems to have failed', array(':file' => $file)), 'notinstalled');
             }
         }
 
@@ -134,13 +134,13 @@ function twilio_load($source, $auto_install = true){
         $account = twilio_get_account_by_phone_number($source);
 
         if(!$account){
-            throw new BException(tr('twilio_load(): No Twilio account found for source ":source"', array(':source' => $source)), 'not-exists');
+            throw new CoreException(tr('twilio_load(): No Twilio account found for source ":source"', array(':source' => $source)), 'not-exists');
         }
 
         return new Client($account['account_id'], $account['account_token']);
 
     }catch(Exception $e){
-        throw new BException('twilio_load(): Failed', $e);
+        throw new CoreException('twilio_load(): Failed', $e);
     }
 }
 
@@ -189,7 +189,7 @@ function twilio_name_phones($numbers, $non_numeric = null){
         return str_force($numbers, ', ');
 
     }catch(Exception $e){
-        throw new BException('twilio_name_phones(): Failed', $e);
+        throw new CoreException('twilio_name_phones(): Failed', $e);
     }
 }
 
@@ -216,7 +216,7 @@ function twilio_verify_source_phone($number){
         return sql_get('SELECT `number` FROM `twilio_numbers` WHERE `number` = :number', 'number', array(':number' => $number));
 
     }catch(Exception $e){
-        throw new BException('twilio_verify_source_phone(): Failed', $e);
+        throw new CoreException('twilio_verify_source_phone(): Failed', $e);
     }
 }
 
@@ -255,7 +255,7 @@ function twilio_send_message($message, $to, $from = null){
         $source = sql_get('SELECT `number` FROM `twilio_numbers` WHERE `number` = :number', 'number', array(':number' => $from));
 
         if(!$source){
-            throw new BException(tr('twilio_send_message(): Specified source phone ":from" is not known', array(':from' => $from)), 'unknown');
+            throw new CoreException(tr('twilio_send_message(): Specified source phone ":from" is not known', array(':from' => $from)), 'unknown');
         }
 
         if(empty($account)){
@@ -267,11 +267,11 @@ function twilio_send_message($message, $to, $from = null){
              * This is an MMS message
              */
             if(empty($message['message'])){
-                throw new BException(tr('twilio_send_message(): No message specified'), 'not-specified');
+                throw new CoreException(tr('twilio_send_message(): No message specified'), 'not-specified');
             }
 
             if(empty($message['media'])){
-                throw new BException(tr('twilio_send_message(): No media specified'), 'not-specified');
+                throw new CoreException(tr('twilio_send_message(): No media specified'), 'not-specified');
             }
 
             return $account->messages->create($to, array('body'     => $message['message'],
@@ -286,7 +286,7 @@ function twilio_send_message($message, $to, $from = null){
                                                      'from' => $source));
 
     }catch(Exception $e){
-        throw new BException(tr('twilio_send_message(): Failed'), $e);
+        throw new CoreException(tr('twilio_send_message(): Failed'), $e);
     }
 }
 
@@ -321,7 +321,7 @@ function twilio_add_image($messages_id, $url, $mimetype){
         run_background('base/sms getimages');
 
     }catch(Exception $e){
-        throw new BException(tr('twilio_add_image(): Failed'), $e);
+        throw new CoreException(tr('twilio_add_image(): Failed'), $e);
     }
 }
 
@@ -363,7 +363,7 @@ function twilio_download_image($messages_id, $url){
         return $file;
 
     }catch(Exception $e){
-        throw new BException(tr('twilio_download_image(): Failed'), $e);
+        throw new CoreException(tr('twilio_download_image(): Failed'), $e);
     }
 }
 
@@ -427,7 +427,7 @@ function twilio_validate_group($group){
         return $group;
 
     }catch(Exception $e){
-        throw new BException(tr('twilio_validate_group(): Failed'), $e);
+        throw new CoreException(tr('twilio_validate_group(): Failed'), $e);
     }
 }
 
@@ -450,11 +450,11 @@ function twilio_validate_group($group){
 function twilio_get_group($group){
     try{
         if(!$group){
-            throw new BException(tr('twilio_get_group(): No twilio specified'), 'not-specified');
+            throw new CoreException(tr('twilio_get_group(): No twilio specified'), 'not-specified');
         }
 
         if(!is_scalar($group)){
-            throw new BException(tr('twilio_get_group(): Specified twilio ":group" is not scalar', array(':group' => $group)), 'invalid');
+            throw new CoreException(tr('twilio_get_group(): Specified twilio ":group" is not scalar', array(':group' => $group)), 'invalid');
         }
 
         $retval = sql_get('SELECT    `twilio_groups`.`id`,
@@ -480,7 +480,7 @@ function twilio_get_group($group){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('twilio_get_group(): Failed', $e);
+        throw new CoreException('twilio_get_group(): Failed', $e);
     }
 }
 
@@ -538,7 +538,7 @@ function twilio_validate_account($account){
         return $account;
 
     }catch(Exception $e){
-        throw new BException(tr('twilio_validate_account(): Failed'), $e);
+        throw new CoreException(tr('twilio_validate_account(): Failed'), $e);
     }
 }
 
@@ -561,11 +561,11 @@ function twilio_validate_account($account){
 function twilio_get_account($account){
     try{
         if(!$account){
-            throw new BException(tr('twilio_get_account(): No twilio account specified'), 'not-specified');
+            throw new CoreException(tr('twilio_get_account(): No twilio account specified'), 'not-specified');
         }
 
         if(!is_scalar($account)){
-            throw new BException(tr('twilio_get_account(): Specified twilio account ":account" is not scalar', array(':account' => $account)), 'invalid');
+            throw new CoreException(tr('twilio_get_account(): Specified twilio account ":account" is not scalar', array(':account' => $account)), 'invalid');
         }
 
         if(is_numeric($account)){
@@ -604,7 +604,7 @@ function twilio_get_account($account){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('twilio_get_account(): Failed', $e);
+        throw new CoreException('twilio_get_account(): Failed', $e);
     }
 }
 
@@ -628,11 +628,11 @@ function twilio_get_account($account){
 function twilio_get_account_by_phone_number($number){
     try{
         if(!$number){
-            throw new BException(tr('twilio_get_account_by_phone_number(): No twilio number specified'), 'not-specified');
+            throw new CoreException(tr('twilio_get_account_by_phone_number(): No twilio number specified'), 'not-specified');
         }
 
         if(!is_scalar($number)){
-            throw new BException(tr('twilio_get_account_by_phone_number(): Specified twilio number ":number" is not scalar', array(':numbers' => $numbers)), 'invalid');
+            throw new CoreException(tr('twilio_get_account_by_phone_number(): Specified twilio number ":number" is not scalar', array(':numbers' => $numbers)), 'invalid');
         }
 
         $retval = sql_get('SELECT    `twilio_accounts`.`id`,
@@ -660,7 +660,7 @@ function twilio_get_account_by_phone_number($number){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('twilio_get_account_by_phone_number(): Failed', $e);
+        throw new CoreException('twilio_get_account_by_phone_number(): Failed', $e);
     }
 }
 
@@ -744,7 +744,7 @@ function twilio_validate_number($number){
         return $number;
 
     }catch(Exception $e){
-        throw new BException(tr('twilio_validate_number(): Failed'), $e);
+        throw new CoreException(tr('twilio_validate_number(): Failed'), $e);
     }
 }
 
@@ -768,11 +768,11 @@ function twilio_validate_number($number){
 function twilio_get_number($number){
     try{
         if(!$number){
-            throw new BException(tr('twilio_get_number(): No number specified'), 'not-specified');
+            throw new CoreException(tr('twilio_get_number(): No number specified'), 'not-specified');
         }
 
         if(!is_scalar($number)){
-            throw new BException(tr('twilio_get_number(): Specified twilio number ":number" is not scalar', array(':number' => $number)), 'invalid');
+            throw new CoreException(tr('twilio_get_number(): Specified twilio number ":number" is not scalar', array(':number' => $number)), 'invalid');
         }
 
         $retval = sql_get('SELECT   `twilio_numbers`.`id`,
@@ -810,7 +810,7 @@ function twilio_get_number($number){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('twilio_get_number(): Failed', $e);
+        throw new CoreException('twilio_get_number(): Failed', $e);
     }
 }
 
@@ -843,7 +843,7 @@ function twilio_list_accounts(){
         return $accounts;
 
     }catch(Exception $e){
-        throw new BException('twilio_list_accounts(): Failed', $e);
+        throw new CoreException('twilio_list_accounts(): Failed', $e);
     }
 }
 
@@ -883,7 +883,7 @@ function twilio_api_get_number($number, $array = true){
         }
 
     }catch(Exception $e){
-        throw new BException('twilio_api_get_number(): Failed', $e);
+        throw new CoreException('twilio_api_get_number(): Failed', $e);
     }
 }
 
@@ -923,7 +923,7 @@ function twilio_api_list_numbers($account, $array = true){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('twilio_api_list_numbers(): Failed', $e);
+        throw new CoreException('twilio_api_list_numbers(): Failed', $e);
     }
 }
 
@@ -980,7 +980,7 @@ function twilio_number_to_array($number){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('twilio_number_to_array(): Failed', $e);
+        throw new CoreException('twilio_number_to_array(): Failed', $e);
     }
 }
 
@@ -1019,7 +1019,7 @@ function twilio_select_accounts($params){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('twilio_select_accounts(): Failed', $e);
+        throw new CoreException('twilio_select_accounts(): Failed', $e);
     }
 }
 
@@ -1058,7 +1058,7 @@ function twilio_select_number($params){
             $accounts_id = twilio_get_account($params['account']);
 
             if(!$accounts_id){
-                throw new BException(tr('twilio_select_number(): Specified Twilio account ":account" does not exist', array(':account' => $params['account'])), 'not-exists');
+                throw new CoreException(tr('twilio_select_number(): Specified Twilio account ":account" does not exist', array(':account' => $params['account'])), 'not-exists');
             }
 
             $where   = 'WHERE    `accounts_id` = :accounts_id
@@ -1091,6 +1091,6 @@ function twilio_select_number($params){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('twilio_select_number(): Failed', $e);
+        throw new CoreException('twilio_select_number(): Failed', $e);
     }
 }

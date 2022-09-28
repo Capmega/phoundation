@@ -30,7 +30,7 @@ function os_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new BException('os_library_init(): Failed', $e);
+        throw new CoreException('os_library_init(): Failed', $e);
     }
 }
 
@@ -65,7 +65,7 @@ function os_execute_command($hostname, $command = null){
             $server = servers_get($hostname);
 
             if(!$server){
-                throw new BException(tr('os_execute_command(): Specified hostname ":hostname" does not exist', array(':hostname' => $hostname)), 'not-exists');
+                throw new CoreException(tr('os_execute_command(): Specified hostname ":hostname" does not exist', array(':hostname' => $hostname)), 'not-exists');
             }
         }
 
@@ -99,11 +99,11 @@ showdie($command);
                 not_supported();
 
             default:
-                throw new BException(tr('os_execute_command(): Unknown operating system type ":type" found for hostname ":hostname"', array(':hostname' => $hostname, ':type' => $server['type'])), 'unknown');
+                throw new CoreException(tr('os_execute_command(): Unknown operating system type ":type" found for hostname ":hostname"', array(':hostname' => $hostname, ':type' => $server['type'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('os_execute_command(): Failed', $e);
+        throw new CoreException('os_execute_command(): Failed', $e);
     }
 }
 
@@ -126,7 +126,7 @@ function os_enable_ssh_tcp_forwarding($hostname){
         return os_execute_command($hostname);
 
     }catch(Exception $e){
-        throw new BException('os_enable_ssh_tcp_forwarding(): Failed', $e);
+        throw new CoreException('os_enable_ssh_tcp_forwarding(): Failed', $e);
     }
 }
 ?>

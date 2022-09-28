@@ -5,7 +5,7 @@ try{
     load_libs('admin,json,blogs');
 
     if(empty($_POST['id'])){
-        throw new bException(tr('No photo specified'));
+        throw new CoreException(tr('No photo specified'));
     }
 
     $user = rights_or_access_denied('admin', '/admin/signin.php', 'json');

@@ -36,7 +36,7 @@ function calendars_library_init(){
         //                       'which'     => 'calendar,foobar'));
 
     }catch(Exception $e){
-        throw new BException('calendars_library_init(): Failed', $e);
+        throw new CoreException('calendars_library_init(): Failed', $e);
     }
 }
 
@@ -61,7 +61,7 @@ function calendars_install($params){
         //apt_install('calendar');
 
     }catch(Exception $e){
-        throw new BException('calendars_install(): Failed', $e);
+        throw new CoreException('calendars_install(): Failed', $e);
     }
 }
 
@@ -118,7 +118,7 @@ function calendars_validate($calendar){
       return $calendar;
 
     }catch(Exception $e){
-        throw new BException('calendars_validate(): Failed', $e);
+        throw new CoreException('calendars_validate(): Failed', $e);
     }
 }
 
@@ -166,7 +166,7 @@ function calendars_insert($calendar){
         return $calendar;
 
     }catch(Exception $e){
-        throw new BException('calendars_insert(): Failed', $e);
+        throw new CoreException('calendars_insert(): Failed', $e);
     }
 }
 
@@ -218,7 +218,7 @@ function calendars_update($calendar){
         return (boolean) $update->rowCount();
 
     }catch(Exception $e){
-        throw new BException('calendars_update(): Failed', $e);
+        throw new CoreException('calendars_update(): Failed', $e);
     }
 }
 
@@ -275,7 +275,7 @@ function calendars_get($calendar, $column = null, $status = null, $parent = fals
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('calendars_get(): Failed', $e);
+        throw new CoreException('calendars_get(): Failed', $e);
     }
 }
 
@@ -304,7 +304,7 @@ function calendars_list($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('calendars_list(): Failed', $e);
+        throw new CoreException('calendars_list(): Failed', $e);
     }
 }
 
@@ -396,7 +396,7 @@ function calendars_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('calendars_select(): Failed', $e);
+        throw new CoreException('calendars_select(): Failed', $e);
     }
 }
 
@@ -453,7 +453,7 @@ function calendars_validate_event($event){
       return $event;
 
     }catch(Exception $e){
-        throw new BException('calendars_validate_event(): Failed', $e);
+        throw new CoreException('calendars_validate_event(): Failed', $e);
     }
 }
 
@@ -502,7 +502,7 @@ function calendars_insert_event($event){
         return $event;
 
     }catch(Exception $e){
-        throw new BException('calendars_insert_event(): Failed', $e);
+        throw new CoreException('calendars_insert_event(): Failed', $e);
     }
 }
 
@@ -554,7 +554,7 @@ function calendars_update_event($event){
         return (boolean) $update->rowCount();
 
     }catch(Exception $e){
-        throw new BException('calendars_update_event(): Failed', $e);
+        throw new CoreException('calendars_update_event(): Failed', $e);
     }
 }
 
@@ -611,7 +611,7 @@ function calendars_get_event($event, $column = null, $status = null, $parent = f
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('calendars_get_event(): Failed', $e);
+        throw new CoreException('calendars_get_event(): Failed', $e);
     }
 }
 
@@ -640,7 +640,7 @@ function calendars_list_events($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('calendars_list_events(): Failed', $e);
+        throw new CoreException('calendars_list_events(): Failed', $e);
     }
 }
 
@@ -732,7 +732,7 @@ function calendars_select_event($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('calendars_select_event(): Failed', $e);
+        throw new CoreException('calendars_select_event(): Failed', $e);
     }
 }
 ?>

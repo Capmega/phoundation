@@ -26,7 +26,7 @@ function csf_library_init(){
         load_libs('servers,ssh');
 
     }catch(Exception $e){
-        throw new BException('csf_library_init(): Failed', $e);
+        throw new CoreException('csf_library_init(): Failed', $e);
     }
 }
 
@@ -38,7 +38,7 @@ function csf_library_init(){
 function csf_install($server = null){
     try{
         if($csf = csf_get_exec($server)){
-            throw new BException(tr('csf_install(): CSF has already been installed and is available at ":csf"', array(':csf' => $csf)), 'executable-not-exists');
+            throw new CoreException(tr('csf_install(): CSF has already been installed and is available at ":csf"', array(':csf' => $csf)), 'executable-not-exists');
         }
 
         $command = 'wget --directory-prefix=/tmp https://download.configserver.com/csf.tgz; cd /tmp/; tar -xf csf.tgz; cd csf/; sh install.sh;';
@@ -46,7 +46,7 @@ function csf_install($server = null){
         return csf_get_exec($server);
 
     }catch(Exception $e){
-        throw new BException('csf_install(): Failed', $e);
+        throw new CoreException('csf_install(): Failed', $e);
     }
 }
 
@@ -67,7 +67,7 @@ function csf_start($server = null){
         forwards_apply_server($server);
 
     }catch(Exception $e){
-        throw new BException('csf_start(): Failed', $e);
+        throw new CoreException('csf_start(): Failed', $e);
     }
 }
 
@@ -88,7 +88,7 @@ function csf_stop($server = null){
         forwards_apply_server($server);
 
     }catch(Exception $e){
-        throw new BException('csf_stop(): Failed', $e);
+        throw new CoreException('csf_stop(): Failed', $e);
     }
 }
 
@@ -109,7 +109,7 @@ function csf_restart($server = null){
         forwards_apply_server($server);
 
     }catch(Exception $e){
-        throw new BException('csf_restart(): Failed', $e);
+        throw new CoreException('csf_restart(): Failed', $e);
     }
 }
 
@@ -126,7 +126,7 @@ function csf_get_exec($server = null){
 
         if(!$csf){
             if(!$install){
-                throw new BException('csf_exec(): CSF is not installed, and installation failed', 'failed');
+                throw new CoreException('csf_exec(): CSF is not installed, and installation failed', 'failed');
             }
 
             $install = true;
@@ -137,7 +137,7 @@ function csf_get_exec($server = null){
         return $csf;
 
     }catch(Exception $e){
-        throw new BException('csf_get_exec(): Failed', $e);
+        throw new CoreException('csf_get_exec(): Failed', $e);
     }
 }
 
@@ -152,7 +152,7 @@ function csf_exec($server, $command){
         return servers_exec($server, str_replace(':csf', $csf, $command));
 
     }catch(Exception $e){
-        throw new BException('csf_exec(): Failed', $e);
+        throw new CoreException('csf_exec(): Failed', $e);
     }
 }
 
@@ -169,7 +169,7 @@ function csf_set_restrict_syslog($server, $value){
         return csf_exec($server, $command);
 
     }catch(Exception $e){
-        throw new BException('csf_set_testing(): Failed', $e);
+        throw new CoreException('csf_set_testing(): Failed', $e);
     }
 }
 
@@ -186,7 +186,7 @@ function csf_set_testing($server, $value){
         return csf_exec($server, $command);
 
     }catch(Exception $e){
-        throw new BException('csf_set_testing(): Failed', $e);
+        throw new CoreException('csf_set_testing(): Failed', $e);
     }
 }
 
@@ -206,7 +206,7 @@ function csf_set_ports($server, $protocol, $rule_type, $ports){
         return csf_exec($server, $command);
 
     }catch(Exception $e){
-        throw new BException('csf_set_ports(): Failed', $e);
+        throw new CoreException('csf_set_ports(): Failed', $e);
     }
 }
 
@@ -222,7 +222,7 @@ function csf_allow_ip($server, $ip=false){
         return csf_exec($server, ':csf -dr '.$ip.'; :csf -a '.$ip);
 
     }catch(Exception $e){
-        throw new BException('csf_allow_ip(): Failed', $e);
+        throw new CoreException('csf_allow_ip(): Failed', $e);
     }
 }
 
@@ -237,7 +237,7 @@ function csf_deny_ip($server, $ip=false){
         return csf_exec($server, ':csf -ar '.$ip.'; :csf -d '.$ip);
 
     }catch(Exception $e){
-        throw new BException('csf_deny_ip(): Failed', $e);
+        throw new CoreException('csf_deny_ip(): Failed', $e);
     }
 }
 
@@ -262,7 +262,7 @@ function csf_allow_rule($server, $protocol, $rule_type, $port, $ip=false, $comme
         return csf_exec($server, $command);
 
     }catch(Exception $e){
-        throw new BException('csf_allow_rule(): Failed', $e);
+        throw new CoreException('csf_allow_rule(): Failed', $e);
     }
 }
 
@@ -284,7 +284,7 @@ function csf_deny_rule($server, $protocol, $rule_type, $port, $ip=false, $commen
         return csf_exec($server, $command);
 
     }catch(Exception $e){
-        throw new BException('csf_deny_rule(): Failed', $e);
+        throw new CoreException('csf_deny_rule(): Failed', $e);
     }
 }
 
@@ -304,7 +304,7 @@ function csf_remove_allow_rule($server, $protocol, $connection_type, $port, $ip)
         return $result;
 
     }catch(Exception $e){
-        throw new BException('csf_remove_allow_rule(): Failed', $e);
+        throw new CoreException('csf_remove_allow_rule(): Failed', $e);
     }
 }
 
@@ -323,7 +323,7 @@ function csf_remove_deny_rule($server, $protocol, $connection_type, $port, $ip){
         return $result;
 
     }catch(Exception $e){
-        throw new BException('csf_deny_rule(): Failed', $e);
+        throw new CoreException('csf_deny_rule(): Failed', $e);
     }
 }
 
@@ -335,7 +335,7 @@ function csf_remove_deny_rule($server, $protocol, $connection_type, $port, $ip){
 function csf_validate_protocol($protocol, $lower_case = false){
     try{
         if(empty($protocol)){
-            throw new BException(tr('csf_validate_protocol(): No protocol specified'), 'not-specified');
+            throw new CoreException(tr('csf_validate_protocol(): No protocol specified'), 'not-specified');
         }
 
         $protocol = strtoupper($protocol);
@@ -354,13 +354,13 @@ function csf_validate_protocol($protocol, $lower_case = false){
                 break;
 
             default:
-                throw new BException(tr('csf_validate_protocol(): Unknown protocol ":protocol" specified', array(':protocol' => $protocol)), 'unknown');
+                throw new CoreException(tr('csf_validate_protocol(): Unknown protocol ":protocol" specified', array(':protocol' => $protocol)), 'unknown');
         }
 
         return $lower_case ? strtolower($protocol) : $protocol;
 
     }catch(Exception $e){
-        throw new BException('csf_validate_protocol(): Failed', $e);
+        throw new CoreException('csf_validate_protocol(): Failed', $e);
     }
 }
 
@@ -372,7 +372,7 @@ function csf_validate_protocol($protocol, $lower_case = false){
 function csf_validate_rule_type($rule_type, $upper_case = false){
     try{
         if(empty($rule_type)){
-            throw new BException(tr('csf_validate_rule_type(): No rule type specified'), 'not-specified');
+            throw new CoreException(tr('csf_validate_rule_type(): No rule type specified'), 'not-specified');
         }
 
         $rule_type = strtolower($rule_type);
@@ -387,13 +387,13 @@ function csf_validate_rule_type($rule_type, $upper_case = false){
                 break;
 
             default:
-                throw new BException(tr('csf_validate_rule_type(): Unknown rule type ":ruletype" specified', array(':ruletype' => $rule_type)), 'unknown');
+                throw new CoreException(tr('csf_validate_rule_type(): Unknown rule type ":ruletype" specified', array(':ruletype' => $rule_type)), 'unknown');
         }
 
         return $upper_case ? strtoupper($rule_type) : $rule_type;
 
     }catch(Exception $e){
-        throw new BException('csf_validate_rule_type(): Failed', $e);
+        throw new CoreException('csf_validate_rule_type(): Failed', $e);
     }
 }
 
@@ -405,13 +405,13 @@ function csf_validate_rule_type($rule_type, $upper_case = false){
  function csf_validate_ip($ip){
     try{
         if(filter_var($ip, FILTER_VALIDATE_IP) === false){
-            throw new BException(tr('csf_validate_ip(): Specified ip ":ip" is not valid', array(':ip' => $ip)), 'invalid');
+            throw new CoreException(tr('csf_validate_ip(): Specified ip ":ip" is not valid', array(':ip' => $ip)), 'invalid');
         }
 
         return $ip;
 
     }catch(Exception $e){
-        throw new BException('csf_validate_ip(): Failed', $e);
+        throw new CoreException('csf_validate_ip(): Failed', $e);
     }
 }
 
@@ -423,25 +423,25 @@ function csf_validate_rule_type($rule_type, $upper_case = false){
 function csf_validate_ports($ports, $single = false){
     try{
         if(empty($ports)){
-            throw new BException(tr('csf_validate_ports(): No ports specified'), 'not-specified');
+            throw new CoreException(tr('csf_validate_ports(): No ports specified'), 'not-specified');
         }
 
         $ports = array_force($ports);
 
         if($single and (count($ports) > 1)){
-            throw new BException(tr('csf_validate_ports(): Multiple ports specified with single port flag'), 'multiple');
+            throw new CoreException(tr('csf_validate_ports(): Multiple ports specified with single port flag'), 'multiple');
         }
 
         foreach($ports as $port){
             if(!is_natural($port) or ($port > 65535)){
-                throw new BException(tr('csf_validate_ports(): Invalid port ":port" specified', array(':port' => $port)), 'invalid');
+                throw new CoreException(tr('csf_validate_ports(): Invalid port ":port" specified', array(':port' => $port)), 'invalid');
             }
         }
 
         return $single?$ports[0]:$ports;
 
     }catch(Exception $e){
-        throw new BException('csf_validate_ports(): Failed', $e);
+        throw new CoreException('csf_validate_ports(): Failed', $e);
     }
 }
 
@@ -464,13 +464,13 @@ function csf_validate_testing($value){
                 break;
 
             default:
-                throw new BException(tr('csf_validate_testing(): Invalid testing value ":value" specified', array(':value' => $value)), 'invalid');
+                throw new CoreException(tr('csf_validate_testing(): Invalid testing value ":value" specified', array(':value' => $value)), 'invalid');
         }
 
         return $value;
 
     }catch(Exception $e){
-        throw new BException('csf_validate_testing(): Failed', $e);
+        throw new CoreException('csf_validate_testing(): Failed', $e);
     }
 }
 
@@ -497,13 +497,13 @@ function csf_validate_restrictsyslog($value){
                 break;
 
             default:
-                throw new BException(tr('csf_validate_restrictsyslog(): Invalid restrict syslog value ":value" specified', array(':value' => $value)), 'invalid');
+                throw new CoreException(tr('csf_validate_restrictsyslog(): Invalid restrict syslog value ":value" specified', array(':value' => $value)), 'invalid');
         }
 
         return $value;
 
     }catch(Exception $e){
-        throw new BException('csf_validate_restrictsyslog(): Failed', $e);
+        throw new CoreException('csf_validate_restrictsyslog(): Failed', $e);
     }
 }
 ?>

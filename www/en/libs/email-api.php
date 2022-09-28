@@ -26,7 +26,7 @@ function emailapi_library_init(){
         load_libs('api');
 
     }catch(Exception $e){
-        throw new BException('emailapi_library_init(): Failed', $e);
+        throw new CoreException('emailapi_library_init(): Failed', $e);
     }
 }
 
@@ -47,7 +47,7 @@ function emailapi_init(){
         return api_call_base($server, '/email/init');
 
     }catch(Exception $e){
-        throw new BException('emailapi_init(): Failed', $e);
+        throw new CoreException('emailapi_init(): Failed', $e);
     }
 }
 
@@ -68,7 +68,7 @@ function emailapi_clear_all($server){
         return api_call_base($server, '/email/clear-all');
 
     }catch(Exception $e){
-        throw new BException('emailapi_clear_all(): Failed', $e);
+        throw new CoreException('emailapi_clear_all(): Failed', $e);
     }
 }
 
@@ -89,7 +89,7 @@ function emailapi_create_domains($domains){
         return api_call_base($server, '/email/create-domains', array('domains' => $domains));
 
     }catch(Exception $e){
-        throw new BException('emailapi_create_domains(): Failed', $e);
+        throw new CoreException('emailapi_create_domains(): Failed', $e);
     }
 }
 
@@ -110,7 +110,7 @@ function emailapi_create_accounts($accounts){
         return api_call_base($server, '/email/create-accounts', array('accounts' => $accounts));
 
     }catch(Exception $e){
-        throw new BException('emailapi_create_accounts(): Failed', $e);
+        throw new CoreException('emailapi_create_accounts(): Failed', $e);
     }
 }
 
@@ -131,7 +131,7 @@ function emailapi_create_aliases($aliases){
         return api_call_base($server, '/email/create-aliases', array('aliases' => $aliases));
 
     }catch(Exception $e){
-        throw new BException('emailapi_create_aliases(): Failed', $e);
+        throw new CoreException('emailapi_create_aliases(): Failed', $e);
     }
 }
 
@@ -152,7 +152,7 @@ function emailapi_delete_domains($domains){
         return api_call_base($server, '/email/delete-domains', array('domains' => $domains));
 
     }catch(Exception $e){
-        throw new BException('emailapi_delete_domains(): Failed', $e);
+        throw new CoreException('emailapi_delete_domains(): Failed', $e);
     }
 }
 
@@ -173,7 +173,7 @@ function emailapi_delete_accounts($accounts){
         return api_call_base($server, '/email/delete-accounts', array('accounts' => $accounts));
 
     }catch(Exception $e){
-        throw new BException('emailapi_delete_accounts(): Failed', $e);
+        throw new CoreException('emailapi_delete_accounts(): Failed', $e);
     }
 }
 
@@ -194,7 +194,7 @@ function emailapi_delete_aliases($aliases){
         return api_call_base($server, '/email/delete-aliases', array('aliases' => $aliases));
 
     }catch(Exception $e){
-        throw new BException('emailapi_delete_aliases(): Failed', $e);
+        throw new CoreException('emailapi_delete_aliases(): Failed', $e);
     }
 }
 
@@ -215,7 +215,7 @@ function emailapi_list_domains($server){
         return api_call_base($server, '/email/list-domains');
 
     }catch(Exception $e){
-        throw new BException('emailapi_list_domains(): Failed', $e);
+        throw new CoreException('emailapi_list_domains(): Failed', $e);
     }
 }
 
@@ -236,7 +236,7 @@ function emailapi_list_accounts($server, $domain){
         return api_call_base($server, '/email/list-accounts', array('domain' => $domain));
 
     }catch(Exception $e){
-        throw new BException('emailapi_list_accounts(): Failed', $e);
+        throw new CoreException('emailapi_list_accounts(): Failed', $e);
     }
 }
 
@@ -257,7 +257,7 @@ function emailapi_list_aliases($server, $domain){
         return api_call_base($server, '/email/list-accounts', array('domain' => $domain));
 
     }catch(Exception $e){
-        throw new BException('emailapi_list_aliases(): Failed', $e);
+        throw new CoreException('emailapi_list_aliases(): Failed', $e);
     }
 }
 
@@ -280,7 +280,7 @@ function emailapi_update_password($account, $password){
         return api_call_base($server, '/email/update-password', array('accounts' => $accounts));
 
     }catch(Exception $e){
-        throw new BException('emailapi_update_password(): Failed', $e);
+        throw new CoreException('emailapi_update_password(): Failed', $e);
     }
 }
 ?>

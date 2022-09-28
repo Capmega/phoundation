@@ -40,7 +40,7 @@ function fancybox_library_init(){
         html_load_css('jquery.fancybox');
 
     }catch(Exception $e){
-        throw new BException('fancybox_library_init(): Failed', $e);
+        throw new CoreException('fancybox_library_init(): Failed', $e);
     }
 }
 
@@ -75,7 +75,7 @@ function fancybox_install($params){
         });
 
     }catch(Exception $e){
-        throw new BException('fancybox_install(): Failed', $e);
+        throw new CoreException('fancybox_install(): Failed', $e);
     }
 }
 
@@ -111,7 +111,7 @@ function fancybox_image($img_big, $img_small){
         return '<a data-fancybox="gallery" href="'.cdn_domain($img_big).'">'.$img_small.'</a>';
 
     }catch(Exception $e){
-        throw new BException('fancybox_image(): Failed', $e);
+        throw new CoreException('fancybox_image(): Failed', $e);
     }
 }
 ?>

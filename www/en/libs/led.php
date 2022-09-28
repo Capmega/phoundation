@@ -24,7 +24,7 @@ function led(){
         return '<div id="led" class="led"></div>';
 
     }catch(Exception $e){
-        throw new BException('led(): Failed', $e);
+        throw new CoreException('led(): Failed', $e);
     }
 }
 ?>

@@ -11,12 +11,12 @@ test('curl_list_ips()', 'Function should return an arary of all available IPS on
     $ips = curl_list_ips();
 
     if(!$ips){
-        throw new BException(tr('Returned no data'), 'empty');
+        throw new CoreException(tr('Returned no data'), 'empty');
     }
 
     foreach($ips as $ip){
         if(!filter_var($ip, FILTER_VALIDATE_IP)){
-            throw new BException(tr('Returned invalid data ":data"', array(':data' => $ip)), 'invalid');
+            throw new CoreException(tr('Returned invalid data ":data"', array(':data' => $ip)), 'invalid');
         }
     }
 
@@ -27,11 +27,11 @@ test('curl_get_random_ip()', 'Function should return any random IP from this ser
     $ip = curl_get_random_ip();
 
     if(!$ip){
-        throw new BException(tr('Returned no data'), 'empty');
+        throw new CoreException(tr('Returned no data'), 'empty');
     }
 
     if(!preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/', $ip)){
-        throw new BException(tr('Did not return a valid IP, but ":data"', array(':data' => $ip)), 'invalid');
+        throw new CoreException(tr('Did not return a valid IP, but ":data"', array(':data' => $ip)), 'invalid');
     }
 
     return $ip;
@@ -44,11 +44,11 @@ test('curl_get()', 'Function should return complete github.com page', function()
 test('curl_get()', 'Function should return github.com 404 exception', function(){
     try{
         $results = curl_get('https://github.com//foobar');
-        throw new BException(tr('Function did not throw exception for HTTP code ":code"', array(':code' => $results['status']['http_code'])), 'unexpected');
+        throw new CoreException(tr('Function did not throw exception for HTTP code ":code"', array(':code' => $results['status']['http_code'])), 'unexpected');
 
     }catch(Exception $e){
         if($e->getCode() != 'HTTP404'){
-            throw new BException(tr('Function returned invalid HTTP error code ":code"', array(':code' => $e->getCode())), $e);
+            throw new CoreException(tr('Function returned invalid HTTP error code ":code"', array(':code' => $e->getCode())), $e);
         }
 
         /*

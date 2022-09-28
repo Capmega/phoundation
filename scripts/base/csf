@@ -133,10 +133,10 @@ switch(cli_method()){
                 break;
 
             case '';
-                throw new BException(tr('No rule type specified'), 'not-specified');
+                throw new CoreException(tr('No rule type specified'), 'not-specified');
 
             default:
-                throw new BException(tr('Unknown rule type ":ruletype"', array(':ruletype' => $rule_type)), 'unknown');
+                throw new CoreException(tr('Unknown rule type ":ruletype"', array(':ruletype' => $rule_type)), 'unknown');
 
         }
 
@@ -163,10 +163,10 @@ switch(cli_method()){
                 break;
 
             case '';
-                throw new BException(tr('No rule type specified'), 'not-specified');
+                throw new CoreException(tr('No rule type specified'), 'not-specified');
 
             default:
-                throw new BException(tr('Unknown rule type ":ruletype"', array(':ruletype' => $rule_type)), 'unknown');
+                throw new CoreException(tr('Unknown rule type ":ruletype"', array(':ruletype' => $rule_type)), 'unknown');
 
         }
 
@@ -189,9 +189,9 @@ switch(cli_method()){
         break;
 
     case '':
-        throw new BException(tr('No method specified'), 'no-method');
+        throw new CoreException(tr('No method specified'), 'no-method');
 
     default:
-        throw new BException(tr('Unknown method ":method"', array(':method' => cli_method())), 'unknown-method');
+        throw new CoreException(tr('Unknown method ":method"', array(':method' => cli_method())), 'unknown-method');
 }
 ?>

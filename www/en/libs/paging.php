@@ -45,7 +45,7 @@ function paging_library_init(){
         }
 
     }catch(Exception $e){
-        throw new BException('paging_library_init(): Failed', $e);
+        throw new CoreException('paging_library_init(): Failed', $e);
     }
 }
 
@@ -109,7 +109,7 @@ function paging_generate($params){
         }
 
         if(!fmod($params['show_pages'], 2)){
-            throw new BException('paging_generate(): show_pages should always be an odd number (1, 3, 5, etc)', 'invalid');
+            throw new CoreException('paging_generate(): show_pages should always be an odd number (1, 3, 5, etc)', 'invalid');
         }
 
         if($page_count < $params['show_pages']){
@@ -219,7 +219,7 @@ function paging_generate($params){
         return $html.'<input type="hidden" name="page" id="page" value="'.$params['current'].'">';
 
     }catch(Exception $e){
-        throw new BException('paging_generate(): Failed', $e);
+        throw new CoreException('paging_generate(): Failed', $e);
     }
 }
 
@@ -241,7 +241,7 @@ function paging_check_page($page, $page_max){
 
         if(($page and ($checked_page != $page)) or ($page > $page_max)){
             if($page_max){
-                throw new BException(tr('paging_check_page(): Specified page "%page%" appears out of range with page_max "%max%"', array('%page%' => $page, '%max%' => $page_max)), 'range');
+                throw new CoreException(tr('paging_check_page(): Specified page "%page%" appears out of range with page_max "%max%"', array('%page%' => $page, '%max%' => $page_max)), 'range');
             }
 
             /*
@@ -252,7 +252,7 @@ function paging_check_page($page, $page_max){
         return $page;
 
     }catch(Exception $e){
-        throw new BException('paging_check_page(): Failed', $e);
+        throw new CoreException('paging_check_page(): Failed', $e);
     }
 }
 
@@ -298,7 +298,7 @@ function paging_data($page, $limit, $rows){
             page_show(404);
         }
 
-        throw new BException('paging_data(): Failed', $e);
+        throw new CoreException('paging_data(): Failed', $e);
     }
 }
 
@@ -318,7 +318,7 @@ function paging_get_url($url, $page = null, $disabled = false){
         }
 
         if(!is_array($url)){
-            throw new BException(tr('paging_get_url(): Invalid url specified, should be either string, or array, but is "%type%"', array('%type%' => gettype($url))), 'invalid');
+            throw new CoreException(tr('paging_get_url(): Invalid url specified, should be either string, or array, but is "%type%"', array('%type%' => gettype($url))), 'invalid');
         }
 
         if(isset($url[$page])){
@@ -326,13 +326,13 @@ function paging_get_url($url, $page = null, $disabled = false){
         }
 
         if(!isset($url['default'])){
-            throw new BException(tr('paging_get_url(): URL was specified as array, but no "default" key was specified'), 'invalid');
+            throw new CoreException(tr('paging_get_url(): URL was specified as array, but no "default" key was specified'), 'invalid');
         }
 
         return $url['default'];
 
     }catch(Exception $e){
-        throw new BException('paging_get_url(): Failed', $e);
+        throw new CoreException('paging_get_url(): Failed', $e);
     }
 }
 
@@ -369,13 +369,13 @@ function paging_limit($limit = null, $default_limit = null){
         $limit = sql_valid_limit($limit);
 
         if(!is_natural($limit)){
-            throw new BException(tr('paging_limit(): Specified limit ":limit" is not a natural number', array(':limit' => $limit)), 'invalid');
+            throw new CoreException(tr('paging_limit(): Specified limit ":limit" is not a natural number', array(':limit' => $limit)), 'invalid');
         }
 
         return $limit;
 
     }catch(Exception $e){
-        throw new BException('paging_limit(): Failed', $e);
+        throw new CoreException('paging_limit(): Failed', $e);
     }
 }
 
@@ -406,7 +406,7 @@ function paging_page($page = null){
 
         if($page){
             if(!is_natural($page)){
-                throw new BException(tr('paging_page(): $core::register[page] ":page" is not a natural number', array(':page' => $page)), 'invalid');
+                throw new CoreException(tr('paging_page(): $core::register[page] ":page" is not a natural number', array(':page' => $page)), 'invalid');
             }
 
             return $page;
@@ -415,7 +415,7 @@ function paging_page($page = null){
         return 1;
 
     }catch(Exception $e){
-        throw new BException(tr('paging_page(): Failed'), $e);
+        throw new CoreException(tr('paging_page(): Failed'), $e);
     }
 }
 ?>

@@ -5,7 +5,7 @@
         //load_libs('googlemaps,json');
         //
         //if(empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])){
-        //    throw new bException('Invalid location parameters specified');
+        //    throw new CoreException('Invalid location parameters specified');
         //}
         //
         //$_SESSION['location'] = array('components' => array());
@@ -19,7 +19,7 @@
         //     * No location found for the specified lat/long
         //     */
         //    unset($_SESSION['location']);
-        //    throw new bException('No location data found', 'notfound');
+        //    throw new CoreException('No location data found', 'notfound');
         //}
         //
         ///*
@@ -116,7 +116,7 @@
         load_config('geo');
 
         if(empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])){
-            throw new bException('Invalid location parameters specified');
+            throw new CoreException('Invalid location parameters specified');
         }
 
         $_SESSION['location'] = array('components' => array());
@@ -160,7 +160,7 @@
                     $_SESSION['location']['country'] = c_get_country('%'.$country.'%');
 
                     if(!$_SESSION['location']['country']){
-                        throw new bException(tr('Indicated country "%country%" was not found', array('%country%' => $country)), 'notexists');
+                        throw new CoreException(tr('Indicated country "%country%" was not found', array('%country%' => $country)), 'notexists');
                     }
                 }
         //show($_SESSION['location']['country']);
@@ -174,7 +174,7 @@
                     $_SESSION['location']['state'] = c_get_state('%'.$state.'%', $_SESSION['location']['country']['id']);
 
                     if(!$_SESSION['location']['state']){
-                        throw new bException(tr('Indicated state "%state%" was not found', array('%state%' => $state)), 'notexists');
+                        throw new CoreException(tr('Indicated state "%state%" was not found', array('%state%' => $state)), 'notexists');
                     }
                 }
         //show($_SESSION['location']['state']);
@@ -188,7 +188,7 @@
                     $_SESSION['location']['city'] = c_get_state('%'.$state.'%', $_SESSION['location']['state']['id']);
 
                     if(!$_SESSION['location']['city']){
-                        throw new bException(tr('Indicated city "%city%" was not found', array('%city%' => $state)), 'notexists');
+                        throw new CoreException(tr('Indicated city "%city%" was not found', array('%city%' => $state)), 'notexists');
                     }
                 }
         //show($_SESSION['location']['city']);
@@ -198,7 +198,7 @@
                 break;
 
             default:
-                throw new bException(tr('Unknown geo lookup method "%method%" specified', array('%method%' => $_CONFIG['geo']['lookup'])), 'unknown');
+                throw new CoreException(tr('Unknown geo lookup method "%method%" specified', array('%method%' => $_CONFIG['geo']['lookup'])), 'unknown');
         }
 
 

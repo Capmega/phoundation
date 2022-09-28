@@ -194,7 +194,7 @@ try{
 
             }catch(Exception $e){
                 $e->setCode(400);
-                throw new BException(tr('Core::system_api(): Failed to process application/json request'), $e);
+                throw new CoreException(tr('Core::system_api(): Failed to process application/json request'), $e);
             }
         }
     }
@@ -208,5 +208,5 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::api(): Failed'), $e);
+    throw new CoreException(tr('core::api(): Failed'), $e);
 }

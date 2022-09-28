@@ -79,7 +79,7 @@ function twitter_get_bearer_token(){
         return $bearer_token->{'access_token'};
 
     }catch(Exception $e){
-        throw new BException('twitter_get_bearer_token(): Failed', $e);
+        throw new CoreException('twitter_get_bearer_token(): Failed', $e);
     }
 }
 
@@ -126,7 +126,7 @@ function twitter_invalidate_bearer_token($bearer_token){
         return $retrievedhtml;
 
     }catch(Exception $e){
-        throw new BException('twitter_invalidate_bearer_token(): Failed', $e);
+        throw new CoreException('twitter_invalidate_bearer_token(): Failed', $e);
     }
 }
 
@@ -165,7 +165,7 @@ function twitter_search_for_a_term($bearer_token, $query, $result_type='mixed', 
         return $retrievedhtml;
 
     }catch(Exception $e){
-        throw new BException('twitter_search_for_a_term(): Failed', $e);
+        throw new CoreException('twitter_search_for_a_term(): Failed', $e);
     }
 }
 
@@ -193,13 +193,13 @@ function twitter_user_info($token, $secret){
         $response   = $finalTw->get('account/verify_credentials');
 
         if($finalTw->http_code != 200){
-            throw new BException('twitter_user_info(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
+            throw new CoreException('twitter_user_info(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $response;
 
     }catch(Exception $e){
-        throw new BException('twitter_user_info(): Failed', $e);
+        throw new CoreException('twitter_user_info(): Failed', $e);
     }
 }
 
@@ -222,13 +222,13 @@ function twitter_post_message($msg, $token, $secret){
         $response = $finalTw->post('statuses/update', array('status' => $msg));
 
         if(!($response instanceof stdClass)){
-            throw new BException('twitter_user_info(): Response should be of class "stdClass" but instead is of clas "'.get_class($response).'"', 'unknown_class');
+            throw new CoreException('twitter_user_info(): Response should be of class "stdClass" but instead is of clas "'.get_class($response).'"', 'unknown_class');
         }
 
         return $response;
 
     }catch (Exception $e){
-        throw new BException('twitter_post_message(): Failed', $e);
+        throw new CoreException('twitter_post_message(): Failed', $e);
     }
 }
 
@@ -254,13 +254,13 @@ function twitter_redirect_to_authorize(){
         $authz_link = $tw_tmp->getAuthorizeURL($token_tmp);
 
         if($tw_tmp->http_code != 200){
-            throw new BException('twitter_redirect_to_authorize(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
+            throw new CoreException('twitter_redirect_to_authorize(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $authz_link;
 
     }catch (Exception $e){
-        throw new BException('twitter_redirect_to_authorize(): Failed', $e);
+        throw new CoreException('twitter_redirect_to_authorize(): Failed', $e);
     }
 }
 
@@ -280,20 +280,20 @@ function twitter_get_user_token(){
         $access_token = null;
 
         if(empty($app_id) or empty($app_secret) or empty($token) or empty($secret)){
-            throw new BException('Incomplete or bad params in get_user_token', 'badparams');
+            throw new CoreException('Incomplete or bad params in get_user_token', 'badparams');
         }
 
         $tw_tmp       = new TwitterOAuth($app_id, $app_secret, $token, $secret);
         $access_token = $tw_tmp->getAccessToken($_GET['oauth_verifier']);
 
         if($tw_tmp->http_code != 200){
-            throw new BException('twitter_get_user_token(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
+            throw new CoreException('twitter_get_user_token(): Twitter returned HTTP code "'.str_log($finalTw->http_code).'"', 'HTTP'.$finalTw->http_code);
         }
 
         return $access_token;
 
     }catch (Exception $e){
-        throw new BException('twitter_get_user_token(): Failed', $e);
+        throw new CoreException('twitter_get_user_token(): Failed', $e);
     }
 }
 ?>

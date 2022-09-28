@@ -33,7 +33,7 @@ function detect_hostile_urls(){
 ?=PHPE9568F34-D428-11d2-A769-00AA001ACF42
 */
     }catch(Exception $e){
-        throw new BException('detect_hostile_urls(): Failed', $e);
+        throw new CoreException('detect_hostile_urls(): Failed', $e);
     }
 }
 
@@ -47,7 +47,7 @@ function detect_hostile_ip_block(){
     try{
 
     }catch(Exception $e){
-        throw new BException('detect_hostile_ip_block(): Failed', $e);
+        throw new CoreException('detect_hostile_ip_block(): Failed', $e);
     }
 }
 

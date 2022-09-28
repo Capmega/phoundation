@@ -10,13 +10,13 @@ try{
 
     if(!is_numeric($wait)){
         if($wait){
-            throw new BException(tr('run_background(): Invalid wait ":wait" specified, must be a positive number', array(':wait' => $wait)), 'invalid');
+            throw new CoreException(tr('run_background(): Invalid wait ":wait" specified, must be a positive number', array(':wait' => $wait)), 'invalid');
         }
 
         $wait = 0;
 
     }elseif($wait < 0){
-        throw new BException(tr('run_background(): Invalid wait ":wait" specified, must be a positive number', array(':wait' => $wait)), 'invalid');
+        throw new CoreException(tr('run_background(): Invalid wait ":wait" specified, must be a positive number', array(':wait' => $wait)), 'invalid');
     }
 
     if($path == './'){
@@ -32,15 +32,15 @@ try{
     }
 
     if(!file_exists($path.$cmd)){
-        throw new BException(tr('run_background(): Specified command ":cmd" does not exists', array(':cmd' => $path.$cmd)), 'not-exists');
+        throw new CoreException(tr('run_background(): Specified command ":cmd" does not exists', array(':cmd' => $path.$cmd)), 'not-exists');
     }
 
     if(!is_file($path.$cmd)){
-        throw new BException(tr('run_background(): Specified command ":cmd" is not a file', array(':cmd' => $path.$cmd)), 'notfile');
+        throw new CoreException(tr('run_background(): Specified command ":cmd" is not a file', array(':cmd' => $path.$cmd)), 'notfile');
     }
 
     if(!is_executable($path.$cmd)){
-        throw new BException(tr('run_background(): Specified command ":cmd" is not executable', array(':cmd' => $path.$cmd)), 'notexecutable');
+        throw new CoreException(tr('run_background(): Specified command ":cmd" is not executable', array(':cmd' => $path.$cmd)), 'notexecutable');
     }
 
     if($log === true){
@@ -98,6 +98,6 @@ try{
     return $pid;
 
 }catch(Exception $e){
-    throw new BException('run_background(): Failed', $e);
+    throw new CoreException('run_background(): Failed', $e);
 }
 ?>

@@ -122,6 +122,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException('debug_html_row(): Failed', $e);
+    throw new CoreException('debug_html_row(): Failed', $e);
 }
 ?>

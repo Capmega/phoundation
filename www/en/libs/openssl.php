@@ -20,12 +20,12 @@
 function openssl_library_init(){
     try{
         if(!function_exists('openssl_encrypt')){
-            throw new BException(tr('openssl_library_init(): PHP module "openssl" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-openssl; sudo phpenmod openssl" to install and enable the module., on Redhat and alikes use "sudo yum -y install php-openssl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not-exists');
+            throw new CoreException(tr('openssl_library_init(): PHP module "openssl" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-openssl; sudo phpenmod openssl" to install and enable the module., on Redhat and alikes use "sudo yum -y install php-openssl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not-exists');
         }
 under_construction();
 
     }catch(Exception $e){
-        throw new BException('openssl_library_init(): Failed', $e);
+        throw new CoreException('openssl_library_init(): Failed', $e);
     }
 }
 
@@ -71,7 +71,7 @@ function openssl_simple_encrypt($data, $password, $seed = false){
         return $encrypted;
 
     }catch(Exception $e){
-        throw new BException('openssl_simple_encrypt(): Failed', $e);
+        throw new CoreException('openssl_simple_encrypt(): Failed', $e);
     }
 }
 
@@ -100,7 +100,7 @@ function openssl_simple_decrypt($data, $password, $cipher = null){
         $init_vector = str_until($data, ':');
 
         if(!$init_vector){
-            throw new BException(tr('openssl_simple_decrypt(): Specified encrypted string has no init vector'), 'empty');
+            throw new CoreException(tr('openssl_simple_decrypt(): Specified encrypted string has no init vector'), 'empty');
         }
 
         $init_vector = base64_decode($data);
@@ -110,7 +110,7 @@ function openssl_simple_decrypt($data, $password, $cipher = null){
         return $data;
 
     }catch(Exception $e){
-        throw new BException('openssl_simple_decrypt(): Failed', $e);
+        throw new CoreException('openssl_simple_decrypt(): Failed', $e);
     }
 }
 
@@ -118,11 +118,11 @@ function openssl_simple_decrypt($data, $password, $cipher = null){
 function openssl_simple_test_cypher($cipher){
     try{
         if(!in_array($cipher, openssl_get_cipher_methods())){
-            throw new BException(tr('openssl_simple_test_cypher(): Unknown cipher ":cipher" specifed', array(':cipher' => $cipher)), 'unknown');
+            throw new CoreException(tr('openssl_simple_test_cypher(): Unknown cipher ":cipher" specifed', array(':cipher' => $cipher)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('openssl_simple_test_cypher(): Failed', $e);
+        throw new CoreException('openssl_simple_test_cypher(): Failed', $e);
     }
 }
 ?>

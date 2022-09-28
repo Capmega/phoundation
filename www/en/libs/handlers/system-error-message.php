@@ -19,7 +19,7 @@ try{
             return $e->getMessage();
         }
 
-        throw new BException(tr('error_message(): Specified $e is not an exception object'), 'invalid');
+        throw new CoreException(tr('error_message(): Specified $e is not an exception object'), 'invalid');
 
     }elseif(empty($messages[$e->getCode()])){
         if(!$default){
@@ -32,6 +32,6 @@ try{
     return $messages[$e->getCode()];
 
 }catch(Exception $e){
-    throw new BException('error_message(): Failed', $e);
+    throw new CoreException('error_message(): Failed', $e);
 }
 ?>

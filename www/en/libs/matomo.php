@@ -24,7 +24,7 @@ function matomo_get_code($sites_id){
         return analytics_matomo($sites_id);
 
     }catch(Exception $e){
-        throw new BException('matomo_get_code(): Failed', $e);
+        throw new CoreException('matomo_get_code(): Failed', $e);
     }
 }
 ?>

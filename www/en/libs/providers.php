@@ -28,7 +28,7 @@ function providers_library_init(){
         load_config('providers');
 
     }catch(Exception $e){
-        throw new BException('providers_library_init(): Failed', $e);
+        throw new CoreException('providers_library_init(): Failed', $e);
     }
 }
 
@@ -141,7 +141,7 @@ function providers_validate($provider){
         return $provider;
 
     }catch(Exception $e){
-        throw new BException(tr('providers_validate(): Failed'), $e);
+        throw new CoreException(tr('providers_validate(): Failed'), $e);
     }
 }
 
@@ -191,7 +191,7 @@ function providers_insert($provider){
         return $provider;
 
     }catch(Exception $e){
-        throw new BException(tr('providers_insert(): Failed'), $e);
+        throw new CoreException(tr('providers_insert(): Failed'), $e);
     }
 }
 
@@ -253,7 +253,7 @@ function providers_update($provider){
         return $provider;
 
     }catch(Exception $e){
-        throw new BException(tr('providers_update(): Failed'), $e);
+        throw new CoreException(tr('providers_update(): Failed'), $e);
     }
 }
 
@@ -318,7 +318,7 @@ function providers_select($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('providers_select(): Failed', $e);
+        throw new CoreException('providers_select(): Failed', $e);
     }
 }
 
@@ -374,7 +374,7 @@ function providers_get($params){
         return sql_simple_get($params);
 
     }catch(Exception $e){
-        throw new BException('providers_get(): Failed', $e);
+        throw new CoreException('providers_get(): Failed', $e);
     }
 }
 
@@ -408,7 +408,7 @@ function providers_list($params){
         return sql_simple_list($params);
 
     }catch(Exception $e){
-        throw new BException('providers_list(): Failed', $e);
+        throw new CoreException('providers_list(): Failed', $e);
     }
 }
 ?>

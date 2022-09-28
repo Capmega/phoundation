@@ -31,7 +31,7 @@ function inventories_library_init(){
         load_config('inventories');
 
     }catch(Exception $e){
-        throw new BException('inventories_library_init(): Failed', $e);
+        throw new CoreException('inventories_library_init(): Failed', $e);
     }
 }
 
@@ -282,7 +282,7 @@ function inventories_validate($item, $reload_only = false){
         return $item;
 
     }catch(Exception $e){
-        throw new BException('inventories_validate(): Failed', $e);
+        throw new CoreException('inventories_validate(): Failed', $e);
     }
 }
 
@@ -331,7 +331,7 @@ function inventories_select($params){
             $params['categories_id'] = categories_get($params['category'], 'id');
 
             if(!$params['categories_id']){
-                throw new BException(tr('inventories_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['category'])), 'deleted');
+                throw new CoreException(tr('inventories_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['category'])), 'deleted');
             }
         }
 
@@ -361,7 +361,7 @@ function inventories_select($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('inventories_select(): Failed', $e);
+        throw new CoreException('inventories_select(): Failed', $e);
     }
 }
 
@@ -411,7 +411,7 @@ function inventories_autosuggest($params){
         return html_autosuggest($params);
 
     }catch(Exception $e){
-        throw new BException('inventories_autosuggest(): Failed', $e);
+        throw new CoreException('inventories_autosuggest(): Failed', $e);
     }
 }
 
@@ -443,7 +443,7 @@ function inventories_get($entry, $column = null, $status = null){
             $execute[':code'] = $entry;
 
         }else{
-            throw new BException(tr('inventories_get(): Specified entry ":entry" is invalid, it should be natural or string', array(':entry' => $entry)), 'invalid');
+            throw new CoreException(tr('inventories_get(): Specified entry ":entry" is invalid, it should be natural or string', array(':entry' => $entry)), 'invalid');
         }
 
         if($status !== false){
@@ -540,7 +540,7 @@ function inventories_get($entry, $column = null, $status = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('inventories_get(): Failed', $e);
+        throw new CoreException('inventories_get(): Failed', $e);
     }
 }
 
@@ -671,7 +671,7 @@ function inventories_validate_item($item, $reload_only = false){
         return $item;
 
     }catch(Exception $e){
-        throw new BException('inventories_validate_item(): Failed', $e);
+        throw new CoreException('inventories_validate_item(): Failed', $e);
     }
 }
 
@@ -722,7 +722,7 @@ function inventories_select_item($params = null){
             $params['categories_id'] = inventories_get($params['seocategory'], 'id');
 
             if(!$params['categories_id']){
-                throw new BException(tr('inventories_select_items(): The specified category ":category" does not exist or is not available', array(':category' => $params['category'])), 'not-exists');
+                throw new CoreException(tr('inventories_select_items(): The specified category ":category" does not exist or is not available', array(':category' => $params['category'])), 'not-exists');
             }
         }
 
@@ -756,7 +756,7 @@ function inventories_select_item($params = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('inventories_select_item(): Failed', $e);
+        throw new CoreException('inventories_select_item(): Failed', $e);
     }
 }
 
@@ -783,7 +783,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
          * Filter by specified id
          */
         if(!$items_id){
-            throw new BException(tr('inventories_get_item(): No modelspecified'), 'not-specified');
+            throw new CoreException(tr('inventories_get_item(): No modelspecified'), 'not-specified');
         }
 
         $where[] = ' `inventories_items`.`id` = :id ';
@@ -797,7 +797,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
             $categories_id = categories_get($category, 'id');
 
             if(!$categories_id){
-                throw new BException(tr('Specified category ":category" does not exist', array(':category' => $category)), 'not-exists');
+                throw new CoreException(tr('Specified category ":category" does not exist', array(':category' => $category)), 'not-exists');
             }
 
             $where[] = ' `inventories_items`.`categories_id` = :categories_id ';
@@ -852,7 +852,7 @@ function inventories_get_item($items_id, $category = null, $column = null, $stat
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('inventories_get_item(): Failed', $e);
+        throw new CoreException('inventories_get_item(): Failed', $e);
     }
 }
 
@@ -877,11 +877,11 @@ function inventories_get_default_code($items_id, $companies_id){
         $item = sql_get('SELECT `id`, `code` FROM `inventories_items` WHERE `id` = :id', array(':id' => $items_id));
 
         if(!$item){
-            throw new BException(tr('inventories_get_default_code(): The specified item ":id" does not exist', array(':id' => $items_id)), 'not-exists');
+            throw new CoreException(tr('inventories_get_default_code(): The specified item ":id" does not exist', array(':id' => $items_id)), 'not-exists');
         }
 
         if(!$item['code']){
-            throw new BException(tr('inventories_get_default_code(): The specified item ":id" has no code specified', array(':id' => $items_id)), 'not-available');
+            throw new CoreException(tr('inventories_get_default_code(): The specified item ":id" has no code specified', array(':id' => $items_id)), 'not-available');
         }
 
         if(strstr('#', $item['code'])){
@@ -901,7 +901,7 @@ function inventories_get_default_code($items_id, $companies_id){
         return $code.$highest;
 
     }catch(Exception $e){
-        throw new BException('inventories_get_default_code(): Failed', $e);
+        throw new CoreException('inventories_get_default_code(): Failed', $e);
     }
 }
 ?>

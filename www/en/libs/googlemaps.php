@@ -26,7 +26,7 @@ function googlemaps_library_init(){
         load_config('googlemaps');
 
     }catch(Exception $e){
-        throw new BException('googlemaps_library_init(): Failed', $e);
+        throw new CoreException('googlemaps_library_init(): Failed', $e);
     }
 }
 
@@ -129,7 +129,7 @@ function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_k
         return $html;
 
     }catch(Exception $e){
-        throw new BException('googlemaps_basic(): Failed', $e);
+        throw new CoreException('googlemaps_basic(): Failed', $e);
     }
 }
 
@@ -166,11 +166,11 @@ function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
             }
 
         } else {
-            throw new BException('googlemap_get_streetview_image() googleapi failed : '.show($data['status']));
+            throw new CoreException('googlemap_get_streetview_image() googleapi failed : '.show($data['status']));
         }
 
     }catch(Exception $e){
-        throw new BException('googlemaps_get_streetview_image(): Failed', $e);
+        throw new CoreException('googlemaps_get_streetview_image(): Failed', $e);
     }
 }
 
@@ -200,7 +200,7 @@ function googlemaps_cache_streetmaps($lat, $long, $x = 640, $y = 480) {
         return '/streetview_cache/'.$cache_file;
 
     }catch(Exception $e){
-        throw new BException('googlemaps_cache_streetmaps(): Failed', $e);
+        throw new CoreException('googlemaps_cache_streetmaps(): Failed', $e);
     }
 }
 
@@ -233,16 +233,16 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
                 var locations = [';
 
             if(empty($markers)){
-                throw new BException('googlemaps_map_with_markers(): Failed to place any markers', isset_get($e, 'markerfailed'));
+                throw new CoreException('googlemaps_map_with_markers(): Failed to place any markers', isset_get($e, 'markerfailed'));
             }
             foreach($markers as $key => $data) {
                 try{
                     if(empty($data['lat'])){
-                        throw new BException('googlemaps_map_with_markers(): No latitute specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
+                        throw new CoreException('googlemaps_map_with_markers(): No latitute specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
                     }
 
                     if(empty($data['lng'])){
-                        throw new BException('googlemaps_map_with_markers(): No longitude specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
+                        throw new CoreException('googlemaps_map_with_markers(): No longitude specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
                     }
 
                     if(!isset($first)) {
@@ -357,7 +357,7 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
         return $html;
 
     }catch(Exception $e){
-        throw new BException('googlemaps_map_with_markers(): Failed', $e);
+        throw new CoreException('googlemaps_map_with_markers(): Failed', $e);
     }
 }
 
@@ -382,7 +382,7 @@ function googlemaps_geocoding($street, $city, $state, $country) {
         return false;
 
     }catch(Exception $e){
-        throw new BException('googlemaps_geocoding(): Failed', $e);
+        throw new CoreException('googlemaps_geocoding(): Failed', $e);
     }
 }
 
@@ -396,7 +396,7 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
 
     try{
         if(empty($latitude) or empty($longitude)){
-            throw new BException('googlemaps_reverse_geocoding(): Latitude or Longitude empty', 'invalid');
+            throw new CoreException('googlemaps_reverse_geocoding(): Latitude or Longitude empty', 'invalid');
         }
 
         if($sensor === null){
@@ -420,7 +420,7 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
         return false;
 
     }catch(Exception $e){
-        throw new BException('googlemaps_reverse_geocoding(): Failed', $e);
+        throw new CoreException('googlemaps_reverse_geocoding(): Failed', $e);
     }
 }
 
@@ -452,7 +452,7 @@ function googlemaps_markers($locations, $longitude = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('googlemaps_markers(): Failed', $e);
+        throw new CoreException('googlemaps_markers(): Failed', $e);
     }
 }
 
@@ -497,7 +497,7 @@ function googlemaps_map_drag_marker($lat, $lng, $divid = 'map-canvas'){
         return $html;
 
     }catch(Exception $e){
-        throw new BException('googlemaps_map_drag marker(): Failed', $e);
+        throw new CoreException('googlemaps_map_drag marker(): Failed', $e);
     }
 }
 ?>

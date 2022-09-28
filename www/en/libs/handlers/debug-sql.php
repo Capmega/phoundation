@@ -20,7 +20,7 @@ try{
              * Query to be debugged is a PDO statement, extract the query
              */
             if(!($query instanceof PDOStatement)){
-                throw new BException(tr('debug_sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
+                throw new CoreException(tr('debug_sql(): Object of unknown class ":class" specified where PDOStatement was expected', array(':class' => get_class($query))), 'invalid');
             }
 
             $query = $query->queryString;
@@ -39,7 +39,7 @@ try{
 
             }else{
                 if(!is_scalar($value)){
-                    throw new BException(tr('debug_sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
+                    throw new CoreException(tr('debug_sql(): Specified key ":key" has non-scalar value ":value"', array(':key' => $key, ':value' => $value)), 'invalid');
                 }
 
                 $query = str_replace($key, $value, $query);
@@ -66,6 +66,6 @@ try{
     return show(str_ends($query, ';'), 6);
 
 }catch(Exception $e){
-    throw new BException('debug_sql(): Failed', $e);
+    throw new CoreException('debug_sql(): Failed', $e);
 }
 ?>

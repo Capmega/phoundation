@@ -33,7 +33,7 @@ function backup_library_init(){
         load_config('backup');
 
     }catch(Exception $e){
-        throw new BException('backup_library_init(): Failed', $e);
+        throw new CoreException('backup_library_init(): Failed', $e);
     }
 }
 
@@ -254,7 +254,7 @@ function backup_library_init(){
 //                break;
 //
 //            default:
-//                throw new BException('backup_mysql(): Unknown compression type "'.str_log($params['compression']).'" specified', 'unknown');
+//                throw new CoreException('backup_mysql(): Unknown compression type "'.str_log($params['compression']).'" specified', 'unknown');
 //        }
 //
 //        $command .= ' > "'.$target.'"';
@@ -264,7 +264,7 @@ function backup_library_init(){
 //        return $params['target'];
 //
 //    }catch(Exception $e){
-//        throw new BException('backup_mysql(): Failed', $e);
+//        throw new CoreException('backup_mysql(): Failed', $e);
 //    }
 //}
 ?>

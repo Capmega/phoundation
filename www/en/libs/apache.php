@@ -19,7 +19,7 @@ function apache_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new BException('apache_library_init(): Failed', $e);
+        throw new CoreException('apache_library_init(): Failed', $e);
     }
 }
 
@@ -48,7 +48,7 @@ function apache_library_init(){
 function apache_write_vhost($hostname, $vhost_name, $params, $port){
     try{
         if(!is_array($params)){
-            throw new BException(tr('apache_write_vhost(): Invalid data for params. Params must be  an array', 'invalid'));
+            throw new CoreException(tr('apache_write_vhost(): Invalid data for params. Params must be  an array', 'invalid'));
         }
 
         $os = servers_detect_os($hostname);
@@ -84,11 +84,11 @@ function apache_write_vhost($hostname, $vhost_name, $params, $port){
                 break;
 
             default:
-                throw new BException(tr('apache_write_vhost(): Unknown operating system ":os" detected', array(':os' => $os['name'])), 'unknown');
+                throw new CoreException(tr('apache_write_vhost(): Unknown operating system ":os" detected', array(':os' => $os['name'])), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('apache_write_vhost(): Failed', $e);
+        throw new CoreException('apache_write_vhost(): Failed', $e);
     }
 }
 
@@ -119,7 +119,7 @@ function apache_set_identification($hostname, $params){
         servers_exec($hostname, $command);
 
     }catch(Exception $e){
-        throw new BException('apache_set_identification(): Failed', $e);
+        throw new CoreException('apache_set_identification(): Failed', $e);
     }
 }
 
@@ -134,7 +134,7 @@ function apache_set_identification($hostname, $params){
 function apache_get_vhosts_path($server_os){
     try{
         if(empty($server_os)){
-            throw new BException(tr('apache_get_vhosts_path(): No operating system specified'), 'not-specified');
+            throw new CoreException(tr('apache_get_vhosts_path(): No operating system specified'), 'not-specified');
         }
         switch($server_os){
             case 'mint':
@@ -148,13 +148,13 @@ function apache_get_vhosts_path($server_os){
                 break;
 
             default:
-                throw new BException(tr('apache_get_vhosts_path(): Invalid operating system ":os" specified', array(':os' => $server_os['name'])), 'invalid');
+                throw new CoreException(tr('apache_get_vhosts_path(): Invalid operating system ":os" specified', array(':os' => $server_os['name'])), 'invalid');
         }
 
         return $vhost_path;
 
     } catch(Exception $e){
-        throw new BException('apache_get_vhosts_path(): Failed', $e);
+        throw new CoreException('apache_get_vhosts_path(): Failed', $e);
     }
 }
 
@@ -182,13 +182,13 @@ function apache_get_config_path($hostname){
                 break;
 
             default:
-                throw new BException(tr('apache_get_config_path(): Invalid operating system ":os" specified', array(':os' => $server_os['name'])), 'invalid');
+                throw new CoreException(tr('apache_get_config_path(): Invalid operating system ":os" specified', array(':os' => $server_os['name'])), 'invalid');
         }
 
         return $path;
 
     }catch(Exception $e){
-        throw new BException('apache_get_config_path(): Failed', $e);
+        throw new CoreException('apache_get_config_path(): Failed', $e);
     }
 }
 ?>

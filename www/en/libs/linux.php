@@ -35,7 +35,7 @@ function linux_library_init(){
         load_libs('servers');
 
     }catch(Exception $e){
-        throw new BException('linux_library_init(): Failed', $e);
+        throw new CoreException('linux_library_init(): Failed', $e);
     }
 }
 
@@ -70,11 +70,11 @@ function linux_get_ssh_tcp_forwarding($server){
                 return false;
 
             default:
-                throw new BException(tr('linux_get_ssh_tcp_forwarding(): Unknown result ":result" received from SSHD configuration on server ":server"', array(':server' => $server['domain'], ':result' => $result)), 'unknown');
+                throw new CoreException(tr('linux_get_ssh_tcp_forwarding(): Unknown result ":result" received from SSHD configuration on server ":server"', array(':server' => $server['domain'], ':result' => $result)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException('linux_get_ssh_tcp_forwarding(): Failed', $e);
+        throw new CoreException('linux_get_ssh_tcp_forwarding(): Failed', $e);
     }
 }
 
@@ -99,7 +99,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
         $server = servers_get($server);
 
         if(!$server['allow_sshd_modification'] and !$force){
-            throw new BException(tr('linux_set_ssh_tcp_forwarding(): The specified server ":server" does not allow SSHD modifications', array(':server' => $server['domain'])), 'not-allowed');
+            throw new CoreException(tr('linux_set_ssh_tcp_forwarding(): The specified server ":server" does not allow SSHD modifications', array(':server' => $server['domain'])), 'not-allowed');
         }
 
         $enable   = ($enable ? 'yes' : 'no');
@@ -110,7 +110,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false){
         return $enable;
 
     }catch(Exception $e){
-        throw new BException('linux_enable_ssh_tcp_forwarding(): Failed', $e);
+        throw new CoreException('linux_enable_ssh_tcp_forwarding(): Failed', $e);
     }
 }
 
@@ -143,7 +143,7 @@ function linux_file_exists($server, $path, $sudo = false){
         return $result;
 
     }catch(Exception $e){
-        throw new BException('linux_file_exists(): Failed', $e);
+        throw new CoreException('linux_file_exists(): Failed', $e);
     }
 }
 
@@ -178,7 +178,7 @@ function linux_test($server, $flag, $path, $sudo = false){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('linux_test(): Failed', $e);
+        throw new CoreException('linux_test(): Failed', $e);
     }
 }
 
@@ -207,7 +207,7 @@ function linux_scandir($server, $path){
         return $result;
 
     }catch(Exception $e){
-        throw new BException('linux_scandir(): Failed', $e);
+        throw new CoreException('linux_scandir(): Failed', $e);
     }
 }
 
@@ -236,7 +236,7 @@ function linux_file_delete($server, $params, $restrictions = null){
         }
 
         if(!$params){
-            throw new BException(tr('file_delete(): No files or parameters specified'), 'not-specified');
+            throw new CoreException(tr('file_delete(): No files or parameters specified'), 'not-specified');
         }
 
         array_params ($params, 'patterns');
@@ -264,7 +264,7 @@ function linux_file_delete($server, $params, $restrictions = null){
         }
 
     }catch(Exception $e){
-        throw new BException('linux_file_delete(): Failed', $e);
+        throw new CoreException('linux_file_delete(): Failed', $e);
     }
 }
 
@@ -349,7 +349,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
         linux_file_clear_path($server, $path, $sudo, $restrictions);
 
     }catch(Exception $e){
-        throw new BException('linux_file_clear_path(): Failed', $e);
+        throw new CoreException('linux_file_clear_path(): Failed', $e);
     }
 }
 
@@ -379,7 +379,7 @@ function linux_is_writable($server, $file){
         return $result;
 
     }catch(Exception $e){
-        throw new BException('linux_is_writable(): Failed', $e);
+        throw new CoreException('linux_is_writable(): Failed', $e);
     }
 }
 
@@ -417,7 +417,7 @@ function linux_pgrep($server, $name){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('linux_pgrep(): Failed', $e);
+        throw new CoreException('linux_pgrep(): Failed', $e);
     }
 }
 
@@ -454,7 +454,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
                 break;
 
             default:
-                throw new BException(tr('linux_pkill(): Unknown signal ":signal" specified', array(':signal' => $signal)), 'unknown');
+                throw new CoreException(tr('linux_pkill(): Unknown signal ":signal" specified', array(':signal' => $signal)), 'unknown');
         }
 
         /*
@@ -468,7 +468,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
             /*
              * pkill returned some issue
              */
-            throw new BException(tr('linux_pkill(): Failed to kill process ":process" with error ":e"', array(':process' => $process, ':e' => $results)), 'failed');
+            throw new CoreException(tr('linux_pkill(): Failed to kill process ":process" with error ":e"', array(':process' => $process, ':e' => $results)), 'failed');
         }
 
         /*
@@ -504,10 +504,10 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
             }
         }
 
-        throw new BException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
+        throw new CoreException(tr('linux_pkill(): Failed to kill process ":process" on server ":server"', array(':process' => $process, ':server' => $server['domain'])), 'failed');
 
     }catch(Exception $e){
-        throw new BException('linux_pkill(): Failed', $e);
+        throw new CoreException('linux_pkill(): Failed', $e);
     }
 }
 
@@ -551,7 +551,7 @@ function linux_list_processes($server, $filters){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('linux_list_processes(): Failed', $e);
+        throw new CoreException('linux_list_processes(): Failed', $e);
     }
 }
 
@@ -575,7 +575,7 @@ function linux_pid($server, $pid){
         return linux_file_exists($server, '/proc/'.$pid);
 
     }catch(Exception $e){
-        throw new BException('linux_pid(): Failed', $e);
+        throw new CoreException('linux_pid(): Failed', $e);
     }
 }
 
@@ -600,7 +600,7 @@ under_construction();
 //        return linux_file_exists($server, 'netstat '.$parameters);
 
     }catch(Exception $e){
-        throw new BException('linux_netstat(): Failed', $e);
+        throw new CoreException('linux_netstat(): Failed', $e);
     }
 }
 
@@ -632,7 +632,7 @@ function linux_which($server, $command, $whereis = false){
         return get_null($result);
 
     }catch(Exception $e){
-        throw new BException('linux_which(): Failed', $e);
+        throw new CoreException('linux_which(): Failed', $e);
     }
 }
 
@@ -667,20 +667,20 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
         }
 
         if(!$path){
-            throw new BException(tr('linux_ensure_path(): No path specified'), 'not-specified');
+            throw new CoreException(tr('linux_ensure_path(): No path specified'), 'not-specified');
         }
 
         if($path[0] !== '/'){
-            throw new BException(tr('linux_ensure_path(): Specified path ":path" is not absolute', array(':path' => $path)), 'invalid');
+            throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is not absolute', array(':path' => $path)), 'invalid');
         }
 
         if(str_exists($path, '..')){
-            throw new BException(tr('linux_ensure_path(): Specified path ":path" contains parent path sections', array(':path' => $path)), 'invalid');
+            throw new CoreException(tr('linux_ensure_path(): Specified path ":path" contains parent path sections', array(':path' => $path)), 'invalid');
         }
 
         if(substr_count($path, '/') < 3){
             if(substr($path, 0, 5) !== '/tmp/'){
-                throw new BException(tr('linux_ensure_path(): Specified path ":path" is not deep enough. Top level- and second level directories cannot be ensured except in /tmp/', array(':path' => $path)), 'invalid');
+                throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is not deep enough. Top level- and second level directories cannot be ensured except in /tmp/', array(':path' => $path)), 'invalid');
             }
         }
 
@@ -695,7 +695,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
             case 'localhost':
                 try{
                     if(str_exists(ROOT, linux_realpath($server, $path))){
-                        throw new BException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
+                        throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
                     }
 
                 }catch(Exception $e){
@@ -732,7 +732,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false){
         return $path;
 
     }catch(Exception $e){
-        throw new BException('linux_ensure_path(): Failed', $e);
+        throw new CoreException('linux_ensure_path(): Failed', $e);
     }
 }
 
@@ -755,7 +755,7 @@ function linux_rename($server, $path, $source, $target, $sudo = false){
     try{
 
     }catch(Exception $e){
-        throw new BException('linux_rename(): Failed', $e);
+        throw new CoreException('linux_rename(): Failed', $e);
     }
 }
 
@@ -778,7 +778,7 @@ function linux_copy($server, $source, $target, $sudo = false){
     try{
 
     }catch(Exception $e){
-        throw new BException('linux_copy(): Failed', $e);
+        throw new CoreException('linux_copy(): Failed', $e);
     }
 }
 
@@ -817,7 +817,7 @@ under_construction('linux_delete() does not yet have support for $clean_path');
         }
 
     }catch(Exception $e){
-        throw new BException('linux_delete(): Failed', $e);
+        throw new CoreException('linux_delete(): Failed', $e);
     }
 }
 
@@ -864,10 +864,10 @@ under_construction('Move this to compress_unzip()');
 
     }catch(Exception $e){
         if(!linux_file_exists($file)){
-            throw new BException(tr('linux_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+            throw new CoreException(tr('linux_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
-        throw new BException('linux_unzip(): Failed', $e);
+        throw new CoreException('linux_unzip(): Failed', $e);
     }
 }
 
@@ -900,7 +900,7 @@ function linux_download($server, $url, $section = false, $callback = null){
 
         if($section){
             if(!is_string($section)){
-                throw new BException(tr('linux_download(): Specified section should either be false or a string. However, it is not false, and is of type ":type"', array(':type' => gettype($section))), 'invalid');
+                throw new CoreException(tr('linux_download(): Specified section should either be false or a string. However, it is not false, and is of type ":type"', array(':type' => gettype($section))), 'invalid');
             }
 
             $file = TMP.$section.'/'.$file;
@@ -946,7 +946,7 @@ function linux_download($server, $url, $section = false, $callback = null){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('linux_download(): Failed', $e);
+        throw new CoreException('linux_download(): Failed', $e);
     }
 }
 
@@ -981,7 +981,7 @@ function linux_ensure_package($server, $command, $packages){
         return linux_install_package($server, $packages);
 
     }catch(Exception $e){
-        throw new BException('linux_ensure_package(): Failed', $e);
+        throw new CoreException('linux_ensure_package(): Failed', $e);
     }
 }
 
@@ -1034,11 +1034,11 @@ function linux_install_package($server, $package){
                 break;
 
             default:
-                throw new BException(tr('linux_install_package(): The detected operating system ":distribution" is not supported', array(':distribution' => $os['distribution'])), 'not-supported');
+                throw new CoreException(tr('linux_install_package(): The detected operating system ":distribution" is not supported', array(':distribution' => $os['distribution'])), 'not-supported');
         }
 
     }catch(Exception $e){
-        throw new BException('linux_install_package(): Failed', $e);
+        throw new CoreException('linux_install_package(): Failed', $e);
     }
 }
 
@@ -1064,7 +1064,7 @@ function linux_detect_os($server){
 showdie($results);
 
     }catch(Exception $e){
-        throw new BException('linux_detect_os(): Failed', $e);
+        throw new CoreException('linux_detect_os(): Failed', $e);
     }
 }
 
@@ -1093,7 +1093,7 @@ function linux_realpath($server, $path){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('linux_realpath(): Failed', $e);
+        throw new CoreException('linux_realpath(): Failed', $e);
     }
 }
 
@@ -1119,7 +1119,7 @@ function linux_service($server, $service, $action){
         servers_exec($server, array('commands' => array('service', array('sudo' => true, $service, $action))));
 
     }catch(Exception $e){
-        throw new BException('linux_service(): Failed', $e);
+        throw new CoreException('linux_service(): Failed', $e);
     }
 }
 
@@ -1142,7 +1142,7 @@ function linux_service($server, $service, $action){
 function linux_get_cwd($server, $pid){
     try{
         if(!is_natural($pid) or ($pid > 65535)){
-            throw new BException(tr('linux_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
+            throw new CoreException(tr('linux_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
         }
 
         $results = servers_exec($server, array('commands' => array('readlink', array('sudo' => true, '-e', '/proc/'.$pid.'/cwd'))));
@@ -1151,7 +1151,7 @@ function linux_get_cwd($server, $pid){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('linux_get_cwd(): Failed', $e);
+        throw new CoreException('linux_get_cwd(): Failed', $e);
     }
 }
 
@@ -1179,7 +1179,7 @@ function linux_ls($server, $path, $sudo = false, $restrictions = null){
         return $results;
 
     }catch(Exception $e){
-        throw new BException('linux_ls(): Failed', $e);
+        throw new CoreException('linux_ls(): Failed', $e);
     }
 }
 
@@ -1242,7 +1242,7 @@ function linux_find($server, $params){
 
             foreach($params['exec'] as $key => $value){
                 if(!is_numeric($key)){
-                    throw new BException(tr('linux_find(): Specified exec structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['exec'])), 'invalid');
+                    throw new CoreException(tr('linux_find(): Specified exec structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['exec'])), 'invalid');
                 }
 
                 if(!($key % 2)){
@@ -1250,11 +1250,11 @@ function linux_find($server, $params){
                      * This value should contain a command
                      */
                     if(!$value){
-                        throw new BException(tr('linux_find(): No exec command specified'), 'invalid');
+                        throw new CoreException(tr('linux_find(): No exec command specified'), 'invalid');
                     }
 
                     if(!is_string($value)){
-                        throw new BException(tr('linux_find(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
+                        throw new CoreException(tr('linux_find(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
                     }
 
                     $command     = $value;
@@ -1267,15 +1267,15 @@ function linux_find($server, $params){
                                 /*
                                  * No command was set yet, probably commands / arguments out of order?
                                  */
-                                throw new BException(tr('linux_find(): Encountered (arguments?) array before command. Please check the commands parameter ":commands"', array(':commands' => $params['exec'])), 'invalid');
+                                throw new CoreException(tr('linux_find(): Encountered (arguments?) array before command. Please check the commands parameter ":commands"', array(':commands' => $params['exec'])), 'invalid');
                             }
 
-                            throw new BException(tr('linux_find(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['exec']))), 'invalid');
+                            throw new CoreException(tr('linux_find(): Specified arguments for command ":command" are invalid, should be an array but is an ":type"', array(':command' => $command, ':type' => gettype($params['exec']))), 'invalid');
                         }
 
                         foreach($value as $sub_key => $sub_value){
                             if(!is_numeric($sub_key)){
-                                throw new BException(tr('linux_find(): Specified exec sub structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $value)), 'invalid');
+                                throw new CoreException(tr('linux_find(): Specified exec sub structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $value)), 'invalid');
                             }
 
                             $arguments[] = $sub_value;
@@ -1299,7 +1299,7 @@ function linux_find($server, $params){
         return $results;
 
     }catch(Exception $e){
-        throw new BException(tr('linux_find(): Failed'), $e);
+        throw new CoreException(tr('linux_find(): Failed'), $e);
     }
 }
 
@@ -1402,7 +1402,7 @@ function linux_restrict($server, $params, $restrictions = null){
                 }
             }
 
-            throw new BException(tr('linux_restrict(): The specified file or path ":path" is outside of the authorized paths', array(':path' => $params)), 'access-denied', $restrictions);
+            throw new CoreException(tr('linux_restrict(): The specified file or path ":path" is outside of the authorized paths', array(':path' => $params)), 'access-denied', $restrictions);
         }
 
         /*
@@ -1419,13 +1419,13 @@ function linux_restrict($server, $params, $restrictions = null){
                     linux_restrict($params[$key], $restrictions);
 
                 }catch(Exception $e){
-                    throw new BException(tr('linux_restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
+                    throw new CoreException(tr('linux_restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
                 }
             }
         }
 
     }catch(Exception $e){
-        throw new BException('linux_restrict(): Failed', $e);
+        throw new CoreException('linux_restrict(): Failed', $e);
     }
 }
 ?>

@@ -31,7 +31,7 @@ function php_enmod($module){
         safe_exec(array('commands' => array('phpenmod', array('sudo' => true, $module))));
 
     }catch(Exception $e){
-        throw new BException('php_enmod(): Failed', $e);
+        throw new CoreException('php_enmod(): Failed', $e);
     }
 }
 ?>

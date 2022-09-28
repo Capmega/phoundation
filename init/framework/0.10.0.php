@@ -34,7 +34,7 @@ if(!$user = sql_get('SELECT `id`, `name`, `username` FROM `users` WHERE `usernam
         /*
          * Erw, something went wrong?
          */
-        throw new bException('init/framework/0.10.0(): Failed to create user "'.$_SERVER['USER'].'"', 'user_create_failed');
+        throw new CoreException('init/framework/0.10.0(): Failed to create user "'.$_SERVER['USER'].'"', 'user_create_failed');
     }
 }
 

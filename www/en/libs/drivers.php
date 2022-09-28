@@ -60,15 +60,15 @@ function drivers_setup($type, $brand, $model, $server = null){
                         break;
 
                     default:
-                        throw new BException(tr('drivers_setup(): Unknown brand ":brand" for device type ":type" specified', array(':type' => $type, ':brand' => $brand)), 'unknown');
+                        throw new CoreException(tr('drivers_setup(): Unknown brand ":brand" for device type ":type" specified', array(':type' => $type, ':brand' => $brand)), 'unknown');
                 }
 
             default:
-                throw new BException(tr('drivers_setup(): Unknown device type ":type" specified', array(':type' => $type)), 'unknown');
+                throw new CoreException(tr('drivers_setup(): Unknown device type ":type" specified', array(':type' => $type)), 'unknown');
         }
 
     }catch(Exception $e){
-        throw new BException(tr('drivers_setup(): Failed'), $e);
+        throw new CoreException(tr('drivers_setup(): Failed'), $e);
     }
 }
 ?>

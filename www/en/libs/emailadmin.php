@@ -54,7 +54,7 @@ function emailadmin_query(){
         $emailsql->query($query);
 
     }catch(Exception $e){
-        throw new BException('emailadmin_query(): Failed', $e);
+        throw new CoreException('emailadmin_query(): Failed', $e);
     }
 }
 
@@ -79,10 +79,10 @@ function emailadmin_get($query, $column = null, $execute = null, $sql = 'sql') {
 
     }catch(Exception $e){
         if(strtolower(substr(trim($query), 0, 6)) != 'select'){
-            throw new BException('emailadmin_get(): Query "'.str_log($query, 4096).'" is not a select query and as such cannot return results', $e);
+            throw new CoreException('emailadmin_get(): Query "'.str_log($query, 4096).'" is not a select query and as such cannot return results', $e);
         }
 
-        throw new BException('emailadmin_get(): Failed', $e);
+        throw new CoreException('emailadmin_get(): Failed', $e);
     }
 }
 
@@ -130,10 +130,10 @@ function emailadmin_list($query, $column = null, $execute = null, $sql = 'sql') 
 
     }catch(Exception $e){
         if(strtolower(substr(trim($query), 0, 6)) != 'select'){
-            throw new BException('emailadmin_list(): Query "'.str_log($query, 4096).'" is not a select query and as such cannot return results', $e);
+            throw new CoreException('emailadmin_list(): Query "'.str_log($query, 4096).'" is not a select query and as such cannot return results', $e);
         }
 
-        throw new BException('emailadmin_list(): Failed', $e);
+        throw new CoreException('emailadmin_list(): Failed', $e);
     }
 }
 
@@ -151,11 +151,11 @@ function emailadmin_get_domain($domain){
             return emailadmin_get('SELECT `id`   FROM `virtual_domains` WHERE `name` = :name', 'id'  , array(':name' => $domain));
 
         }else{
-            throw new BException(tr('emailadmin_get_domain(): Invalid domain name or id type ":value" specified, please specify either string (domain name) or integer (domain id)', array(':value' => gettype($domain))), 'invalid');
+            throw new CoreException(tr('emailadmin_get_domain(): Invalid domain name or id type ":value" specified, please specify either string (domain name) or integer (domain id)', array(':value' => gettype($domain))), 'invalid');
         }
 
     }catch(Exception $e){
-        throw new BException('emailadmin_get_domain(): Failed', $e);
+        throw new CoreException('emailadmin_get_domain(): Failed', $e);
     }
 }
 
@@ -169,7 +169,7 @@ function emailadmin_list_domains(){
         return emailadmin_list('SELECT `id`, `name` FROM `virtual_domains` ORDER BY `id` DESC');
 
     }catch(Exception $e){
-        throw new BException('emailadmin_list_domains(): Failed', $e);
+        throw new CoreException('emailadmin_list_domains(): Failed', $e);
     }
 }
 
@@ -181,12 +181,12 @@ function emailadmin_list_domains(){
 function emailadmin_add_domain($domain){
     try{
         if(!$domain){
-            throw new BException(tr('emailadmin_add_domain(): No domain name specified'), 'not-specified');
+            throw new CoreException(tr('emailadmin_add_domain(): No domain name specified'), 'not-specified');
         }
 
 // :TODO: Add check for valid domain
         //if(!$domain){
-        //    throw new BException(tr('emailadmin_add_domain(): No domain name specified'), 'not-specified');
+        //    throw new CoreException(tr('emailadmin_add_domain(): No domain name specified'), 'not-specified');
         //}
 
         emailadmin_query('INSERT INTO `virtual_domains` (`name`)
@@ -197,7 +197,7 @@ function emailadmin_add_domain($domain){
         return $core->register['emailsql']->lastInsertId();
 
     }catch(Exception $e){
-        throw new BException('emailadmin_add_domain(): Failed', $e);
+        throw new CoreException('emailadmin_add_domain(): Failed', $e);
     }
 }
 
@@ -232,13 +232,13 @@ function emailadmin_remove_domains($domain){
                               $in);
 
         }else{
-            throw new BException(tr('emailadmin_remove_domains(): Invalid domain name or id type ":value" specified, please specify either string (domain name) or integer (domain id) or an array with both mixed', array(':value' => gettype($domain))), 'invalid');
+            throw new CoreException(tr('emailadmin_remove_domains(): Invalid domain name or id type ":value" specified, please specify either string (domain name) or integer (domain id) or an array with both mixed', array(':value' => gettype($domain))), 'invalid');
         }
 
         return $core->register['emailsql']->rowCount();
 
     }catch(Exception $e){
-        throw new BException('emailadmin_remove_domains(): Failed', $e);
+        throw new CoreException('emailadmin_remove_domains(): Failed', $e);
     }
 }
 
@@ -256,11 +256,11 @@ function emailadmin_get_user($user){
             return emailadmin_get('SELECT `id`    FROM `virtual_users` WHERE `email` = :email', 'id'  , array(':email' => $user));
 
         }else{
-            throw new BException(tr('emailadmin_get_user(): Invalid user name or id type ":value" specified, please specify either string (user name) or integer (user id)', array(':value' => gettype($user))), 'invalid');
+            throw new CoreException(tr('emailadmin_get_user(): Invalid user name or id type ":value" specified, please specify either string (user name) or integer (user id)', array(':value' => gettype($user))), 'invalid');
         }
 
     }catch(Exception $e){
-        throw new BException('emailadmin_get_user(): Failed', $e);
+        throw new CoreException('emailadmin_get_user(): Failed', $e);
     }
 }
 
@@ -292,7 +292,7 @@ function emailadmin_list_users($domain){
                                array(':domains_id' => $domain));
 
     }catch(Exception $e){
-        throw new BException('emailadmin_list_users(): Failed', $e);
+        throw new CoreException('emailadmin_list_users(): Failed', $e);
     }
 }
 
@@ -306,16 +306,16 @@ function emailadmin_list_users($domain){
 function emailadmin_add_user($email, $password){
     try{
         if(!$email){
-            throw new BException(tr('emailadmin_add_user(): No email specified'), 'not-specified');
+            throw new CoreException(tr('emailadmin_add_user(): No email specified'), 'not-specified');
         }
 
 // :TODO: Add check for valid user
         //if(!$user){
-        //    throw new BException(tr('emailadmin_add_user(): No user name specified'), 'not-specified');
+        //    throw new CoreException(tr('emailadmin_add_user(): No user name specified'), 'not-specified');
         //}
 
         if(!$domains_id = emailadmin_get_domain(str_from($email, '@'))){
-            throw new BException(tr('emailadmin_add_user(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-exists');
+            throw new CoreException(tr('emailadmin_add_user(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-exists');
         }
 
         emailadmin_query('INSERT INTO `virtual_users` (`domains_id`, `email`, `password`)
@@ -328,7 +328,7 @@ function emailadmin_add_user($email, $password){
         return $core->register['emailsql']->lastInsertId();
 
     }catch(Exception $e){
-        throw new BException('emailadmin_add_user(): Failed', $e);
+        throw new CoreException('emailadmin_add_user(): Failed', $e);
     }
 }
 
@@ -363,13 +363,13 @@ function emailadmin_remove_users($user){
                               $in);
 
         }else{
-            throw new BException(tr('emailadmin_remove_users(): Invalid user name or id type ":value" specified, please specify either string (user name) or integer (user id) or an array with both mixed', array(':value' => gettype($user))), 'invalid');
+            throw new CoreException(tr('emailadmin_remove_users(): Invalid user name or id type ":value" specified, please specify either string (user name) or integer (user id) or an array with both mixed', array(':value' => gettype($user))), 'invalid');
         }
 
         return $core->register['emailsql']->rowCount();
 
     }catch(Exception $e){
-        throw new BException('emailadmin_remove_users(): Failed', $e);
+        throw new CoreException('emailadmin_remove_users(): Failed', $e);
     }
 }
 
@@ -387,11 +387,11 @@ function emailadmin_get_alias($alias){
             return emailadmin_get('SELECT `id`    FROM `virtual_aliases` WHERE `email` = :email', 'id'  , array(':email' => $alias));
 
         }else{
-            throw new BException(tr('emailadmin_get_alias(): Invalid alias name or id type ":value" specified, please specify either string (alias name) or integer (alias id)', array(':value' => gettype($alias))), 'invalid');
+            throw new CoreException(tr('emailadmin_get_alias(): Invalid alias name or id type ":value" specified, please specify either string (alias name) or integer (alias id)', array(':value' => gettype($alias))), 'invalid');
         }
 
     }catch(Exception $e){
-        throw new BException('emailadmin_get_alias(): Failed', $e);
+        throw new CoreException('emailadmin_get_alias(): Failed', $e);
     }
 }
 
@@ -423,7 +423,7 @@ function emailadmin_list_aliases($domain){
                                array(':domains_id' => $domain));
 
     }catch(Exception $e){
-        throw new BException('emailadmin_list_aliases(): Failed', $e);
+        throw new CoreException('emailadmin_list_aliases(): Failed', $e);
     }
 }
 
@@ -435,16 +435,16 @@ function emailadmin_list_aliases($domain){
 function emailadmin_add_alias($source, $destination){
     try{
         if(!$email){
-            throw new BException(tr('emailadmin_add_alias(): No email specified'), 'not-specified');
+            throw new CoreException(tr('emailadmin_add_alias(): No email specified'), 'not-specified');
         }
 
 // :TODO: Add check for valid alias
         //if(!$alias){
-        //    throw new BException(tr('emailadmin_add_alias(): No alias name specified'), 'not-specified');
+        //    throw new CoreException(tr('emailadmin_add_alias(): No alias name specified'), 'not-specified');
         //}
 
         if(!$domains_id = emailadmin_get_domain(str_from($email, '@'))){
-            throw new BException(tr('emailadmin_add_alias(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-exists');
+            throw new CoreException(tr('emailadmin_add_alias(): Specified domain "%domain%" is not managed', array('%domain%' => str_from($email, '@'))), 'not-exists');
         }
 
         emailadmin_query('INSERT INTO `virtual_aliases` (`domains_id`, `source`, `destination`)
@@ -457,7 +457,7 @@ function emailadmin_add_alias($source, $destination){
         return $core->register['emailsql']->lastInsertId();
 
     }catch(Exception $e){
-        throw new BException('emailadmin_add_alias(): Failed', $e);
+        throw new CoreException('emailadmin_add_alias(): Failed', $e);
     }
 }
 
@@ -494,13 +494,13 @@ function emailadmin_remove_aliases($alias){
                               $in);
 
         }else{
-            throw new BException(tr('emailadmin_remove_aliases(): Invalid alias name or id type ":value" specified, please specify either string (alias name) or integer (alias id) or an array with both mixed', array(':value' => gettype($alias))), 'invalid');
+            throw new CoreException(tr('emailadmin_remove_aliases(): Invalid alias name or id type ":value" specified, please specify either string (alias name) or integer (alias id) or an array with both mixed', array(':value' => gettype($alias))), 'invalid');
         }
 
         return $core->register['emailsql']->rowCount();
 
     }catch(Exception $e){
-        throw new BException('emailadmin_remove_aliass(): Failed', $e);
+        throw new CoreException('emailadmin_remove_aliass(): Failed', $e);
     }
 }
 ?>

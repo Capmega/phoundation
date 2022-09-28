@@ -33,19 +33,19 @@ function wp_admin_signin($params){
         array_default($params, 'redirect'  , isset_get($params['url'])); //
 
         if(empty($params['url'])){
-            throw new BException('wp_signin_admin(): No URL specified', 'not-specified');
+            throw new CoreException('wp_signin_admin(): No URL specified', 'not-specified');
         }
 
         if(strpos($params['url'], 'wp-admin') !== false){
-            throw new BException('wp_signin_admin(): The specified URL contains "wp-admin" section. Please specify the URL without this part', 'not-specified');
+            throw new CoreException('wp_signin_admin(): The specified URL contains "wp-admin" section. Please specify the URL without this part', 'not-specified');
         }
 
         if(empty($params['username'])){
-            throw new BException('wp_signin_admin(): No username specified', 'not-specified');
+            throw new CoreException('wp_signin_admin(): No username specified', 'not-specified');
         }
 
         if(empty($params['password'])){
-            throw new BException('wp_signin_admin(): No password specified', 'not-specified');
+            throw new CoreException('wp_signin_admin(): No password specified', 'not-specified');
         }
 
         load_libs('curl');
@@ -83,15 +83,15 @@ function wp_admin_signin($params){
             $failed = str_until($failed, '</div>');
 
             if(strpos($failed, 'The password you entered for the username') !== false){
-                throw new BException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed because the specified password for user "'.$params['username'].'" is incorrect', 'passwordincorrect');
+                throw new CoreException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed because the specified password for user "'.$params['username'].'" is incorrect', 'passwordincorrect');
             }
 
-            throw new BException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed with "'.str_log($failed).'"', 'signinfailed');
+            throw new CoreException('wp_admin_signin(): Signin on site "'.str_log($params['url']).'" failed with "'.str_log($failed).'"', 'signinfailed');
         }
 
         if(!$curl['user_id'] = str_cut($curl['data'], '"uid":"', '"')){
             if(!$params['simulation']){
-                throw new BException('wp_signin_admin(): Failed to find user id', 'failed');
+                throw new CoreException('wp_signin_admin(): Failed to find user id', 'failed');
             }
 
             $curl['user_id'] = -1;
@@ -106,7 +106,7 @@ function wp_admin_signin($params){
         return $curl;
 
     }catch(Exception $e){
-        throw new BException('wp_signin_admin(): Failed', $e);
+        throw new CoreException('wp_signin_admin(): Failed', $e);
     }
 }
 
@@ -124,16 +124,16 @@ function wp_admin_post($params, $force_new = false){
         array_default($params, 'retries',  5);    // Retry howmany time on postid failures
 
         if(empty($params['curl'])){
-            throw new BException('wp_admin_post(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
+            throw new CoreException('wp_admin_post(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
         if(empty($params['title'])){
-            throw new BException('wp_admin_post(): No title specified', 'not-specified');
+            throw new CoreException('wp_admin_post(): No title specified', 'not-specified');
         }
 
         if(empty($params['type'])){
             if(empty($params['post_type'])){
-                throw new BException('wp_admin_post(): No type specified (typically one of page or post)', 'not-specified');
+                throw new CoreException('wp_admin_post(): No type specified (typically one of page or post)', 'not-specified');
             }
 
             $params['type'] = $params['post_type'];
@@ -141,7 +141,7 @@ function wp_admin_post($params, $force_new = false){
 
         if(empty($params['user_id'])){
             if(empty($params['curl']['user_id'])){
-                throw new BException('wp_admin_post(): No user_id specified', 'not-specified');
+                throw new CoreException('wp_admin_post(): No user_id specified', 'not-specified');
             }
 
             /*
@@ -183,7 +183,7 @@ function wp_admin_post($params, $force_new = false){
 
             if(empty($params['post_id']) or !is_numeric($params['post_id'])){
                 if(empty($params['curl']['simulation'])){
-                    throw new BException('wp_admin_post(): Unable to find a valid post id from the wordpress post-new.php page', 'postid');
+                    throw new CoreException('wp_admin_post(): Unable to find a valid post id from the wordpress post-new.php page', 'postid');
                 }
 
                 $params['post_id'] = -1;
@@ -263,7 +263,7 @@ function wp_admin_post($params, $force_new = false){
              */
             if(empty($retval['curl']['simulation'])){
 show($retval['curl']['data']);
-               throw new BException('wp_admin_post(): Failed to find post URL', 'posturl');
+               throw new CoreException('wp_admin_post(): Failed to find post URL', 'posturl');
             }
 
             $retval['post_url'] = 'simulation_'.uniqid();
@@ -290,7 +290,7 @@ show($retval['curl']['data']);
             return wp_admin_post($params, $force_new);
         }
 
-        throw new BException('wp_admin_post(): Failed', $e);
+        throw new CoreException('wp_admin_post(): Failed', $e);
     }
 }
 
@@ -304,19 +304,19 @@ function wp_admin_trash($params){
         array_ensure($params);
 
         if(empty($params['curl'])){
-            throw new BException('wp_admin_trash(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
+            throw new CoreException('wp_admin_trash(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
         if(empty($params['type'])){
             if(empty($params['delete_type'])){
-                throw new BException('wp_admin_trash(): No type specified (typically one of page or delete)', 'not-specified');
+                throw new CoreException('wp_admin_trash(): No type specified (typically one of page or delete)', 'not-specified');
             }
 
             $params['type'] = $params['delete_type'];
         }
 
         if(empty($params['post_id'])){
-            throw new BException('wp_admin_trash(): No post_id specified', 'not-specified');
+            throw new CoreException('wp_admin_trash(): No post_id specified', 'not-specified');
         }
 
         /*
@@ -345,7 +345,7 @@ function wp_admin_trash($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('wp_admin_trash(): Failed', $e);
+        throw new CoreException('wp_admin_trash(): Failed', $e);
     }
 }
 
@@ -359,19 +359,19 @@ function wp_admin_restore($params){
         array_ensure($params);
 
         if(empty($params['curl'])){
-            throw new BException('wp_admin_restore(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
+            throw new CoreException('wp_admin_restore(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
         if(empty($params['type'])){
             if(empty($params['delete_type'])){
-                throw new BException('wp_admin_restore(): No type specified (typically one of page or delete)', 'not-specified');
+                throw new CoreException('wp_admin_restore(): No type specified (typically one of page or delete)', 'not-specified');
             }
 
             $params['type'] = $params['delete_type'];
         }
 
         if(empty($params['post_id'])){
-            throw new BException('wp_admin_restore(): No post_id specified', 'not-specified');
+            throw new CoreException('wp_admin_restore(): No post_id specified', 'not-specified');
         }
 
         /*
@@ -398,7 +398,7 @@ function wp_admin_restore($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('wp_admin_restore(): Failed', $e);
+        throw new CoreException('wp_admin_restore(): Failed', $e);
     }
 }
 
@@ -412,19 +412,19 @@ function wp_admin_remove_permanently($params){
         array_ensure($params);
 
         if(empty($params['curl'])){
-            throw new BException('wp_admin_remove_permanently(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
+            throw new CoreException('wp_admin_remove_permanently(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
         if(empty($params['type'])){
             if(empty($params['delete_type'])){
-                throw new BException('wp_admin_remove_permanently(): No type specified (typically one of page or delete)', 'not-specified');
+                throw new CoreException('wp_admin_remove_permanently(): No type specified (typically one of page or delete)', 'not-specified');
             }
 
             $params['type'] = $params['delete_type'];
         }
 
         if(empty($params['post_id'])){
-            throw new BException('wp_admin_remove_permanently(): No post_id specified', 'not-specified');
+            throw new CoreException('wp_admin_remove_permanently(): No post_id specified', 'not-specified');
         }
 
         /*
@@ -451,7 +451,7 @@ function wp_admin_remove_permanently($params){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('wp_admin_remove_permanently(): Failed', $e);
+        throw new CoreException('wp_admin_remove_permanently(): Failed', $e);
     }
 }
 
@@ -465,15 +465,15 @@ function wp_admin_get($post_id, $curl){
         array_ensure($params);
 
         if(!is_array($curl)){
-            throw new BException('wp_admin_get(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
+            throw new CoreException('wp_admin_get(): No wordpress cURL connection ($params[curl]) specified', 'not-specified');
         }
 
         if(empty($post_id)){
-            throw new BException('wp_admin_get(): No post_id specified', 'not-specified');
+            throw new CoreException('wp_admin_get(): No post_id specified', 'not-specified');
         }
 
         if(!is_numeric($post_id)){
-            throw new BException('wp_admin_get(): Invalid post_id specified', 'invalid');
+            throw new CoreException('wp_admin_get(): Invalid post_id specified', 'invalid');
         }
 
         load_libs('curl');
@@ -511,7 +511,7 @@ function wp_admin_get($post_id, $curl){
 
         if(empty($retval['data']['post_id']) or !is_numeric($retval['data']['post_id'])){
             if(empty($retval['curl']['simulation'])){
-                throw new BException('wp_admin_post(): Unable to find a valid post id from the wordpress post-new.php page', 'postid');
+                throw new CoreException('wp_admin_post(): Unable to find a valid post id from the wordpress post-new.php page', 'postid');
             }
 
             $retval['data']['post_id'] = -1;
@@ -520,7 +520,7 @@ function wp_admin_get($post_id, $curl){
         return $retval;
 
     }catch(Exception $e){
-        throw new BException('wp_admin_get(): Failed', $e);
+        throw new CoreException('wp_admin_get(): Failed', $e);
     }
 }
 
@@ -537,39 +537,39 @@ function wp_xmlrpc_post($params){
         array_default($params, 'categories', '');
 
         if(empty($params['url'])){
-            throw new BException('wp_xmlrpc_post(): No URL specified', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): No URL specified', 'not-specified');
         }
 
         if(strpos($params['url'], 'wp-admin') !== false){
-            throw new BException('wp_xmlrpc_post(): The specified URL contains "wp-admin" section. Please specify the URL without this part', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): The specified URL contains "wp-admin" section. Please specify the URL without this part', 'not-specified');
         }
 
         if(empty($params['username'])){
-            throw new BException('wp_xmlrpc_post(): No username specified', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): No username specified', 'not-specified');
         }
 
         if(empty($params['password'])){
-            throw new BException('wp_xmlrpc_post(): No password specified', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): No password specified', 'not-specified');
         }
 
         if(empty($params['title'])){
-            throw new BException('wp_xmlrpc_post(): No title specified', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): No title specified', 'not-specified');
         }
 
         if(empty($params['content'])){
-            throw new BException('wp_xmlrpc_post(): No content specified', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): No content specified', 'not-specified');
         }
 
         if(empty($params['type'])){
-            throw new BException('wp_xmlrpc_post(): No type specified (typically one of page or post)', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): No type specified (typically one of page or post)', 'not-specified');
         }
 
         if(empty($params['author'])){
-            throw new BException('wp_xmlrpc_post(): No author specified', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): No author specified', 'not-specified');
         }
 
         if(empty($params['status'])){
-            throw new BException('wp_xmlrpc_post(): No status specified', 'not-specified');
+            throw new CoreException('wp_xmlrpc_post(): No status specified', 'not-specified');
         }
 
         load_libs('curl');
@@ -604,7 +604,7 @@ function wp_xmlrpc_post($params){
                               'post' => $request));
 
     }catch(Exception $e){
-        throw new BException('wp_xmlrpc_post(): Failed', $e);
+        throw new CoreException('wp_xmlrpc_post(): Failed', $e);
     }
 }
 
@@ -618,7 +618,7 @@ function wp_admin_delete($params){
         return wp_admin_trash($params);
 
     }catch(Exception $e){
-        throw new BException('wp_admin_delete(): Failed', $e);
+        throw new CoreException('wp_admin_delete(): Failed', $e);
     }
 }
 
@@ -632,7 +632,7 @@ function wp_admin_undelete($params){
         return wp_admin_restore($params);
 
     }catch(Exception $e){
-        throw new BException('wp_admin_undelete(): Failed', $e);
+        throw new CoreException('wp_admin_undelete(): Failed', $e);
     }
 }
 
@@ -646,7 +646,7 @@ function wp_admin_erase($params){
         return wp_admin_remove_permanently($params);
 
     }catch(Exception $e){
-        throw new BException('wp_admin_erase(): Failed', $e);
+        throw new CoreException('wp_admin_erase(): Failed', $e);
     }
 }
 ?>

@@ -28,7 +28,7 @@ function process_get_user(){
         return $user;
 
     }catch(Exception $e){
-        throw new BException(tr('process_get_user(): Failed'), $e);
+        throw new CoreException(tr('process_get_user(): Failed'), $e);
     }
 }
 
@@ -44,7 +44,7 @@ function process_runs($process_name){
         return (boolean) count($results);
 
     }catch(Exception $e){
-        throw new BException('process_runs(): Failed', $e);
+        throw new CoreException('process_runs(): Failed', $e);
     }
 }
 
@@ -56,13 +56,13 @@ function process_runs($process_name){
 function process_detect_root(){
     try{
         if(!is_executable('posix_getuid')){
-            throw new BException(tr('process_detect_root(): The PHP posix module is not installed. Do note that this function only works on Linux machines!'), 'not-installed');
+            throw new CoreException(tr('process_detect_root(): The PHP posix module is not installed. Do note that this function only works on Linux machines!'), 'not-installed');
         }
 
         return posix_getuid() == 0;
 
     }catch(Exception $e){
-        throw new BException(tr('process_detect_root(): Failed'), $e);
+        throw new CoreException(tr('process_detect_root(): Failed'), $e);
     }
 }
 
@@ -75,7 +75,7 @@ function process_detect_sudo(){
     try{
 // :TODO: Implement function
     }catch(Exception $e){
-        throw new BException(tr('process_detect_sudo(): Failed'), $e);
+        throw new CoreException(tr('process_detect_sudo(): Failed'), $e);
     }
 }
 ?>

@@ -208,5 +208,5 @@ try{
     }
 
 }catch(Exception $e){
-    throw new BException(tr('core::amp(): Failed'), $e);
+    throw new CoreException(tr('core::amp(): Failed'), $e);
 }

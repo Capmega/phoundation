@@ -36,7 +36,7 @@ function math_average(...$items){
         return 0;
 
     }catch(Exception $e){
-        throw new BException('math_average(): Failed', $e);
+        throw new CoreException('math_average(): Failed', $e);
     }
 }
 ?>
