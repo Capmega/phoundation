@@ -858,4 +858,692 @@ class Http
             throw new CoreException('get_submit(): Failed', $e);
         }
     }
+
+
+
+//    /*
+//     * Returns requested main mimetype, or if requested mimetype is accepted or not
+//     *
+//     * If $mimetype is specified, the function will return true if the specified mimetype is supported, or false, if not
+//     *
+//     * If $mimetype is not specified, the function will return the first mimetype that was specified in the HTTP ACCEPT header
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2018 Capmega
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package system
+//     * @see accepts_languages()
+//     * @version 2.4.11: Added function and documentation
+//     * @version 2.5.170: Added documentation, added support for $mimetype
+//     * @example
+//     * code
+//     * // This will return true
+//     * $result = accepts('image/webp');
+//     *
+//     * // This will return false
+//     * $result = accepts('image/foobar');
+//     *
+//     * // On a browser, this typically would return text/html
+//     * $result = accepts();
+//     * /code
+//     *
+//     * This would return
+//     * code
+//     * Foo...bar
+//     * /code
+//     *
+//     * @param null string $mimetype If specified, the mimetype that must be tested if accepted by the client
+//     * @return mixed If $mimetype was specified, true if the client accepts it, false if not. If $mimetype was not specified, a string will be returned containing the first requested mimetype
+//     */
+//    function accepts($mimetype = null)
+//    {
+//        static $headers = null;
+//
+//        try {
+//            if (!$headers) {
+//                /*
+//                 * Cleanup the HTTP accept headers (opera aparently puts spaces in
+//                 * there, wtf?), then convert them to an array where the accepted
+//                 * headers are the keys so that they are faster to access
+//                 */
+//                $headers = isset_get($_SERVER['HTTP_ACCEPT']);
+//                $headers = str_replace(', ', '', $headers);
+//                $headers = array_force($headers);
+//                $headers = array_flip($headers);
+//            }
+//
+//            if ($mimetype) {
+//                /*
+//                 * Return if the browser supports the specified mimetype
+//                 */
+//                return isset($headers[$mimetype]);
+//            }
+//
+//            reset($headers);
+//            return key($headers);
+//
+//        } catch (Exception $e) {
+//            throw new OutOfBoundsException(tr('accepts(): Failed'), $e);
+//        }
+//    }
+//
+//
+//    /*
+//     * Parse the HTTP_ACCEPT_LANGUAGES header and return requested / available languages by priority and return a list of languages / locales accepted by the HTTP client
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2018 Capmega
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package system
+//     * @see accepts()
+//     * @note: This function is called by the startup system and its output stored in $core->register['accept_language']. There is typically no need to execute this function on any other places
+//     * @version 1.27.0: Added function and documentation
+//     *
+//     * @return array The list of accepted languages and locales as specified by the HTTP client
+//     */
+//    function accepts_languages()
+//    {
+//        global $_CONFIG;
+//
+//        try {
+//            if (empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+//                /*
+//                 * No accept language headers were specified
+//                 */
+//                $retval = array('1.0' => array('language' => isset_get($_CONFIG['language']['default'], 'en'),
+//                    'locale' => str_cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.')));
+//
+//            } else {
+//                $headers = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+//                $headers = array_force($headers, ',');
+//                $default = array_shift($headers);
+//                $retval = array('1.0' => array('language' => str_until($default, '-'),
+//                    'locale' => (str_exists($default, '-') ? str_from($default, '-') : null)));
+//
+//                if (empty($retval['1.0']['language'])) {
+//                    /*
+//                     * Specified accept language headers contain no language
+//                     */
+//                    $retval['1.0']['language'] = isset_get($_CONFIG['language']['default'], 'en');
+//                }
+//
+//                if (empty($retval['1.0']['locale'])) {
+//                    /*
+//                     * Specified accept language headers contain no locale
+//                     */
+//                    $retval['1.0']['locale'] = str_cut(isset_get($_CONFIG['locale'][LC_ALL], 'US'), '_', '.');
+//                }
+//
+//                foreach ($headers as $header) {
+//                    $requested = str_until($header, ';');
+//                    $requested = array('language' => str_until($requested, '-'),
+//                        'locale' => (str_exists($requested, '-') ? str_from($requested, '-') : null));
+//
+//                    if (empty($_CONFIG['language']['supported'][$requested['language']])) {
+//                        continue;
+//                    }
+//
+//                    $retval[str_from(str_from($header, ';'), 'q=')] = $requested;
+//                }
+//            }
+//
+//            krsort($retval);
+//            return $retval;
+//
+//        } catch (Exception $e) {
+//            throw new OutOfBoundsException(tr('accepts_languages(): Failed'), $e);
+//        }
+//    }
+//
+
+    /*
+     * Return complete domain with HTTP and all
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @see cdn_domain()
+     * @see get_domain()
+     * @see mapped_domain()
+     * @package system
+     *
+     * @param null string $url
+     * @param null string $query
+     * @param null string $prefix
+     * @param null string $domain
+     * @param null string $language
+     * @param null boolean $allow_cloak
+     * @return string the URL
+     */
+    function domain($url_params = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_cloak = true)
+    {
+        global $_CONFIG, $core;
+
+        try {
+            if (!is_array($url_params)) {
+                if (!is_string($url_params) and !is_bool($url_params) and ($url_params !== null)) {
+                    throw new OutOfBoundsException(tr('domain(): Specified $url_params should be either null, a string, or a parameters array but is an ":type"', array(':type' => gettype($url_params))), 'invalid');
+                }
+
+                $url_params = array('url' => $url_params,
+                    'query' => $query,
+                    'prefix' => $prefix,
+                    'domain' => $domain,
+                    'language' => $language,
+                    'allow_cloak' => $allow_cloak);
+            }
+
+            array_default($url_params, 'from_language', LANGUAGE);
+
+            if (preg_match('/^(?:(?:https?)|(?:ftp):)?\/\//i', $url_params['url'])) {
+                /*
+                 * Absolute URL specified, don't modify
+                 */
+                return $url_params['url'];
+            }
+
+            if (!$url_params['domain']) {
+                /*
+                 * Use current domain.
+                 * Current domain MAY not be the same as the configured domain, so
+                 * always use $_SESSION[domain] unless we're at the point where
+                 * sessions are not available (yet) or are not available (cli, for
+                 * example). In that case, fall back on the configured domain
+                 * $_CONFIG[domain]
+                 */
+                $url_params['domain'] = get_domain();
+
+            } elseif ($url_params['domain'] === true) {
+                /*
+                 * Use current domain name
+                 */
+                $url_params['domain'] = $_SERVER['HTTP_HOST'];
+            }
+
+            /*
+             * Use url_prefix, for URL's like domain.com/en/admin/page.html, where
+             * "/admin/" is the prefix
+             */
+            if ($url_params['prefix'] === null) {
+                $url_params['prefix'] = $_CONFIG['url_prefix'];
+            }
+
+            $url_params['prefix'] = str_starts_not(str_ends($url_params['prefix'], '/'), '/');
+            $url_params['domain'] = slash($url_params['domain']);
+            $url_params['language'] = get_language($url_params['language']);
+
+            /*
+             * Build up the URL part
+             */
+            if (!$url_params['url']) {
+                $retval = PROTOCOL . $url_params['domain'] . ($url_params['language'] ? $url_params['language'] . '/' : '') . $url_params['prefix'];
+
+            } elseif ($url_params['url'] === true) {
+                $retval = PROTOCOL . $url_params['domain'] . str_starts_not($_SERVER['REQUEST_URI'], '/');
+
+            } else {
+                $retval = PROTOCOL . $url_params['domain'] . ($url_params['language'] ? $url_params['language'] . '/' : '') . $url_params['prefix'] . str_starts_not($url_params['url'], '/');
+            }
+
+            /*
+             * Do language mapping, but only if routemap has been set
+             */
+// :TODO: This will fail when using multiple CDN servers (WHY?)
+            if (!empty($_CONFIG['language']['supported']) and ($url_params['domain'] !== $_CONFIG['cdn']['domain'] . '/')) {
+                if ($url_params['from_language'] !== 'en') {
+                    /*
+                     * Translate the current non-English URL to English first
+                     * because the specified could be in dutch whilst we want to end
+                     * up with Spanish. So translate always
+                     * FOREIGN1 > English > Foreign2.
+                     *
+                     * Also add a / in front of $retval before replacing to ensure
+                     * we don't accidentally replace sections like "services/" with
+                     * "servicen/" with Spanish URL's
+                     */
+                    $retval = str_replace('/' . $url_params['from_language'] . '/', '/en/', '/' . $retval);
+                    $retval = substr($retval, 1);
+
+                    if (!empty($core->register['route_map'])) {
+                        foreach ($core->register['route_map'][$url_params['from_language']] as $foreign => $english) {
+                            $retval = str_replace($foreign, $english, $retval);
+                        }
+                    }
+                }
+
+                /*
+                 * From here the URL *SHOULD* be in English. If the URL is not
+                 * English here, then conversion from local language to English
+                 * right above failed
+                 */
+                if ($url_params['language'] !== 'en') {
+                    /*
+                     * Map the english URL to the requested non-english URL
+                     * Only map if routemap has been set for the requested language
+                     */
+                    if (empty($core->register['route_map'])) {
+                        /*
+                         * No route_map was set, only translate language selector
+                         */
+                        $retval = str_replace('en/', $url_params['language'] . '/', $retval);
+
+                    } else {
+                        if (empty($core->register['route_map'][$url_params['language']])) {
+                            notify(new OutOfBoundsException(tr('domain(): Failed to update language sections for url ":url", no language routemap specified for requested language ":language"', array(':url' => $retval, ':language' => $url_params['language'])), 'not-specified'));
+
+                        } else {
+                            $retval = str_replace('en/', $url_params['language'] . '/', $retval);
+
+                            foreach ($core->register['route_map'][$url_params['language']] as $foreign => $english) {
+                                $retval = str_replace($english, $foreign, $retval);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($url_params['query']) {
+                load_libs('inet');
+                $retval = url_add_query($retval, $url_params['query']);
+
+            } elseif ($url_params['query'] === false) {
+                $retval = str_until($retval, '?');
+            }
+
+            if ($url_params['allow_cloak'] and $_CONFIG['security']['url_cloaking']['enabled']) {
+                /*
+                 * Cloak the URL before returning it
+                 */
+                $retval = url_cloak($retval);
+            }
+
+            return $retval;
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException('domain(): Failed', $e);
+        }
+    }
+
+
+    /*
+     * Return complete URL for the specified API URL section with HTTP and all
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see domain()
+     * @see cdn_domain()
+     * @version 2.7.102: Added function and documentation
+     *
+     * @param null string $url
+     * @param null string $query
+     * @param null string $prefix
+     * @param null string $domain
+     * @param null string $language
+     * @param null boolean $allow_url_cloak
+     * @return string the URL
+     */
+    function api_domain($url = null, $query = null, $prefix = null, $domain = null, $language = null, $allow_url_cloak = true)
+    {
+        try {
+            load_config('api');
+            return domain($url, $query, $prefix, $_CONFIG['api']['domain'], $language, $allow_url_cloak);
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException('api_domain(): Failed', $e);
+        }
+    }
+
+
+    /*
+     * Return complete URL for the specified AJAX URL section with HTTP and all
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see domain()
+     * @see cdn_domain()
+     * @version 2.7.102: Added function and documentation
+     *
+     * @param null string $url
+     * @param null string $query
+     * @param null string $prefix
+     * @param null string $domain
+     * @param null string $language
+     * @param null boolean $allow_url_cloak
+     * @return string the URL
+     */
+    function ajax_domain($url = null, $query = null, $language = null, $allow_url_cloak = true)
+    {
+        global $_CONFIG;
+
+        try {
+            if ($_CONFIG['ajax']['prefix']) {
+                $prefix = $_CONFIG['ajax']['prefix'];
+
+            } else {
+                $prefix = null;
+            }
+
+            if ($_CONFIG['ajax']['domain']) {
+                return domain($url, $query, $prefix, $_CONFIG['ajax']['domain'], $language, $allow_url_cloak);
+            }
+
+            return domain($url, $query, $prefix, null, $language, $allow_url_cloak);
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException('ajax_domain(): Failed', $e);
+        }
+    }
+
+
+    /*
+     * Download the specified single file to the specified path
+     *
+     * If the path is not specified then by default the function will download to the TMP directory; ROOT/data/tmp
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see file_get_local()
+     * @version 2.0.3: Added function and documentation
+     * @example This shows how to download a single file
+     * code
+     * $result = download('https://capmega.com', TMP);
+     * showdie($result);
+     * /code
+     *
+     * This would display
+     * code
+     * ROOT/data/tmp/capmega.com
+     * /code
+     *
+     * @param string $url The URL of the file to be downloaded
+     * @param mixed $section If set to false, will return the contents of the downloaded file instead of the target filename. As the caller function will not know the exact filename used, the target file will be deleted automatically! If set to a string
+     * @param null function $callback If specified, download will execute this callback with either the filename or file contents (depending on $section)
+     * @return string The downloaded file
+     */
+    function download($url, $contents = false, $callback = null)
+    {
+        try {
+            load_libs('wget');
+            $file = wget($url);
+
+            if ($contents) {
+                /*
+                 * Do not return the filename but the file contents instead
+                 * When doing this, automatically delete the temporary file in
+                 * question, since the caller will not know the exact file name used
+                 */
+                $retval = file_get_contents($file);
+                file_delete($file);
+
+                if ($callback) {
+                    $callback($retval);
+                }
+
+                return $retval;
+            }
+
+            /*
+             * No section was specified, return contents of file instead.
+             */
+            if ($callback) {
+                /*
+                 * Execute the callbacks before returning the data, delete the
+                 * temporary file after
+                 */
+                $callback($file);
+                file_delete($file);
+            }
+
+            return $file;
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException('download(): Failed', $e);
+        }
+    }
+
+    /*
+ * Read extended signin
+ */
+    function check_extended_session()
+    {
+        global $_CONFIG;
+
+        try {
+            if (empty($_CONFIG['sessions']['extended']['enabled'])) {
+                return false;
+            }
+
+            if (isset($_COOKIE['extsession']) and !isset($_SESSION['user'])) {
+                /*
+                 * Pull  extsession data
+                 */
+                $ext = sql_get('SELECT `users_id` FROM `extended_sessions` WHERE `session_key` = ":session_key" AND DATE(`addedon`) < DATE(NOW());', array(':session_key' => cfm($_COOKIE['extsession'])));
+
+                if ($ext['users_id']) {
+                    $user = sql_get('SELECT * FROM `users` WHERE `users`.`id` = :id', array(':id' => cfi($ext['users_id'])));
+
+                    if ($user['id']) {
+                        /*
+                         * Auto sign in user
+                         */
+                        load_libs('user');
+                        user_signin($user, true);
+
+                    } else {
+                        /*
+                         * Remove cookie
+                         */
+                        setcookie('extsession', 'stub', 1);
+                    }
+
+                } else {
+                    /*
+                     * Remove cookie
+                     */
+                    setcookie('extsession', 'stub', 1);
+                }
+            }
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException('user_create_extended_session(): Failed', $e);
+        }
+    }
+
+
+
+    /*
+     * Generate a CSRF code and set it in the $_SESSION[csrf] array
+     */
+    function set_csrf($prefix = '')
+    {
+        global $_CONFIG, $core;
+
+        try {
+            if (empty($_CONFIG['security']['csrf']['enabled'])) {
+                /*
+                 * CSRF check system has been disabled
+                 */
+                return false;
+            }
+
+            if ($core->register('csrf')) {
+                return $core->register('csrf');
+            }
+
+            /*
+             * Avoid people messing around
+             */
+            if (isset($_SESSION['csrf']) and (count($_SESSION['csrf']) >= $_CONFIG['security']['csrf']['buffer_size'])) {
+                /*
+                 * Too many csrf, so too many post requests open. Remove the oldest
+                 * CSRF code and add a new one
+                 */
+                if (count($_SESSION['csrf']) >= ($_CONFIG['security']['csrf']['buffer_size'] + 5)) {
+                    /*
+                     * WTF? How did we get so many?? Throw it all away, start over
+                     */
+                    unset($_SESSION['csrf']);
+
+                } else {
+                    array_shift($_SESSION['csrf']);
+                }
+            }
+
+            $csrf = $prefix . unique_code('sha256');
+
+            if (empty($_SESSION['csrf'])) {
+                $_SESSION['csrf'] = array();
+            }
+
+            $_SESSION['csrf'][$csrf] = new DateTime();
+            $_SESSION['csrf'][$csrf] = $_SESSION['csrf'][$csrf]->getTimestamp();
+
+            $core->register('csrf', $csrf);
+            return $csrf;
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException(tr('set_csrf(): Failed'), $e);
+        }
+    }
+
+
+    /*
+     *
+     */
+    function check_csrf()
+    {
+        global $_CONFIG, $core;
+
+        try {
+            if (empty($_CONFIG['security']['csrf']['enabled'])) {
+                /*
+                 * CSRF check system has been disabled
+                 */
+                return false;
+            }
+
+            if (!$core->callType('http') and !$core->callType('admin')) {
+                /*
+                 * CSRF only works for HTTP or ADMIN requests
+                 */
+                return false;
+            }
+
+            if (!empty($core->register['csrf_ok'])) {
+                /*
+                 * CSRF check has already been executed for this post, all okay!
+                 */
+                return true;
+            }
+
+            if (empty($_POST)) {
+                /*
+                 * There is no POST data
+                 */
+                return false;
+            }
+
+            if (empty($_POST['csrf'])) {
+                log_file($core->callType());
+                throw new OutOfBoundsException(tr('check_csrf(): No CSRF field specified'), 'warning/not-specified');
+            }
+
+            if ($core->callType('ajax')) {
+                if (substr($_POST['csrf'], 0, 5) != 'ajax_') {
+                    /*
+                     * Invalid CSRF code is sppokie, don't make this a warning
+                     */
+                    throw new OutOfBoundsException(tr('check_csrf(): Specified CSRF ":code" is invalid'), 'invalid');
+                }
+            }
+
+            if (empty($_SESSION['csrf'][$_POST['csrf']])) {
+                throw new OutOfBoundsException(tr('check_csrf(): Specified CSRF ":code" does not exist', array(':code' => $_POST['csrf'])), 'warning/not-exist');
+            }
+
+            /*
+             * Get the code from $_SESSION and delete it so it won't be used twice
+             */
+            $timestamp = $_SESSION['csrf'][$_POST['csrf']];
+            $now = new DateTime();
+
+            unset($_SESSION['csrf'][$_POST['csrf']]);
+
+            /*
+             * Code timed out?
+             */
+            if ($_CONFIG['security']['csrf']['timeout']) {
+                if (($timestamp + $_CONFIG['security']['csrf']['timeout']) < $now->getTimestamp()) {
+                    throw new OutOfBoundsException(tr('check_csrf(): Specified CSRF ":code" timed out', array(':code' => $_POST['csrf'])), 'warning/timeout');
+                }
+            }
+
+            $core->register['csrf_ok'] = true;
+
+            if ($core->callType('ajax')) {
+                /*
+                 * Send new CSRF code with the AJAX return payload
+                 */
+                $core->register['ajax_csrf'] = set_csrf('ajax_');
+            }
+
+            return true;
+
+        } catch (Exception $e) {
+            /*
+             * CSRF check failed, drop $_POST
+             */
+            foreach ($_POST as $key => $value) {
+                if (substr($key, -6, 6) === 'submit') {
+                    unset($_POST[$key]);
+                }
+            }
+            log_file('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            log_file($core->callType('http'));
+            log_file($e);
+            html_flash_set(tr('The form data was too old, please try again'), 'warning');
+        }
+    }
+
+    /*
+     * Limit the HTTP request to the specified request type, typically GET or POST
+     *
+     * If the HTTP request is not of the specified type, this function will throw an exception
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @version 2.7.98: Added function and documentation
+     *
+     * @param params $params A parameters array
+     * @return void
+     */
+    function limit_request_method($method)
+    {
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== $method) {
+                throw new OutOfBoundsException(tr('limit_request_method(): This request was made with HTTP method ":server_method" but for this page or call only HTTP method ":method" is allowed', array(':method' => $method, ':server_method' => $_SERVER['REQUEST_METHOD'])), 'warning/method-not-allowed');
+            }
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException(tr('limit_request_method(): Failed'), $e);
+        }
+    }
+
+
+
 }

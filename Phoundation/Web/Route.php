@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Http;
+namespace Phoundation\Web;
 
 use Exception;
 use Phoundation\Databases\Sql;
@@ -11,7 +11,7 @@ use Phoundation\Filesystem\File;
 /**
  * Class Route
  *
- * Core routing class that will route URL requests to PHP scripts
+ * Core routing class that will route URL request queries to PHP scripts in the ROOT/www/LANGUAGE_CODE/ path
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2

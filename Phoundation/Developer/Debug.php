@@ -1,6 +1,6 @@
 <?php
 
-namespace Phoundation\Core;
+namespace Phoundation\Developer;
 
 use Phoundation\Core\Config;
 use Phoundation\Core\CoreException;
@@ -13,7 +13,7 @@ use Phoundation\Core\CoreException;
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
- * @package Phoundation\Core
+ * @package Phoundation\Developer
  */
 class Debug {
     /**
@@ -504,4 +504,235 @@ class Debug {
                 </tr>';
         }
     }
+
+
+    /*
+     * Auto fill in values in HTML forms (very useful for debugging and testing)
+     *
+     * In environments where debug is enabled, this function can pre-fill large HTML forms with test data
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @note This function will NOT return any values when not running in debug mode
+     * @see debug()
+     * @example
+     * code
+     * echo '<input type="text" name="username" value="'.value('username').'">';
+     * /code
+     *
+     * This will show something like
+
+     * code
+     * <input type="text" name="username" value="YtiukrtyeG">
+     * /code
+     *
+     * @param mixed $format
+     * @param natural $size
+     * @return string The value to be inserted.
+     */
+    function value($format, $size = null)
+    {
+        if (!debug()) return '';
+        return include(__DIR__ . '/handlers/debug-value.php');
+    }
+
+
+    /*
+     * Show data, function results and variables in a readable format
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see showdie()
+     *
+     * @param mixed $data
+     * @param integer $trace_offset
+     * @param boolean $quiet
+     * @return void
+     */
+    function show($data = null, $trace_offset = null, $quiet = false)
+    {
+        return include(__DIR__ . '/handlers/debug-show.php');
+    }
+
+
+    /*
+     * Short hand for show and then die
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see show()
+     * @see shutdown()
+     * @note This function will show() and then die(). This will cause the execution of your web page or command line script to stop, but any and all registered shutdown functions (see shutdown() for more) will still execute
+     *
+     * @param mixed $data
+     * @param integer $trace_offset
+     * @return void
+     */
+    function showdie($data = null, $trace_offset = null)
+    {
+        return include(__DIR__ . '/handlers/debug-showdie.php');
+    }
+
+
+    /*
+     * Show nice HTML table with all debug data
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see show()
+     *
+     * @param mixed $value
+     * @param scalar $key
+     * @param integer $trace_offset
+     * @return
+     */
+    function debug_html($value, $key = null, $trace_offset = 0)
+    {
+        return include(__DIR__ . '/handlers/debug-html.php');
+    }
+
+
+    /*
+     * Show HTML <tr> for the specified debug data
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see show()
+     *
+     * @param mixed $value
+     * @param scalar $key
+     * @param string $type
+     * @return
+     */
+    function debug_html_row($value, $key = null, $type = null)
+    {
+        return include(__DIR__ . '/handlers/debug-html-row.php');
+    }
+
+
+    /*
+     * Displays the specified query in a show() output
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @see show()
+     *
+     * @param string $query
+     * @param array $execute
+     * @param boolean $return_only
+     * @return
+     */
+    function debug_sql($query, $execute = null, $return_only = false)
+    {
+        return include(__DIR__ . '/handlers/debug-sql.php');
+    }
+
+
+    /*
+     * Returns a filtered debug_backtrace()
+     *
+     * debug_backtrace() contains all function arguments and can get very clutered. debug_trace() will by default filter the function arguments and return a much cleaner back trace for displaying in debug traces. The function allows other keys to be filtered out if specified
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     *
+     * @param mixed $filters A list of keys that should be filtered from the debug_backtrace() output
+     * @param boolean $skip_own If specified as true, will skip the debug_trace() call and its handler inclusion from the trace
+     * @return array The debug_backtrace() output with the specified keys filtered out
+     */
+    function debug_trace($filters = 'args', $skip_own = true)
+    {
+        return include(__DIR__ . '/handlers/debug-trace.php');
+    }
+
+
+    /*
+     * Return an HTML bar with debug information that can be used to monitor site and fix issues
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     *
+     * @return string The HTML that can be included at the end of the web page which will show the debug bar.
+     */
+    function debug_bar()
+    {
+        return include(__DIR__ . '/handlers/debug-bar.php');
+    }
+
+
+    /*
+     * Used for ordering entries on the debug bar
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     *
+     * @return
+     */
+    function debug_bar_sort($a, $b)
+    {
+        try {
+            if ($a['time'] > $b['time']) {
+                return -1;
+
+            } elseif ($a['time'] < $b['time']) {
+                return 1;
+
+            } else {
+                /*
+                 * They're the same, so ordering doesn't matter
+                 */
+                return 0;
+            }
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException(tr('debug_bar_sort(): Failed'), $e);
+        }
+    }
+
+
+    /*
+     *
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     *
+     * @param mixed $variable
+     * @return
+     */
+    function die_in($count, $message = null)
+    {
+        return include(__DIR__ . '/handlers/debug-die-in.php');
+    }
+
+
 }

@@ -6,6 +6,16 @@ use Phoundation\Core\CoreException;
 use Phoundation\Core\Json\Strings;
 use Phoundation\Databases\Sql;
 
+/**
+ * Class
+ *
+ *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @package Phoundation\Http
+ */
 class Url {
     /**
      * Return the specified URL with a redirect URL stored in $core->register['redirect']

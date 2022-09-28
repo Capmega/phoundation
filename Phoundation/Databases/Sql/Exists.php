@@ -11,7 +11,7 @@ namespace Phoundation\Databases;
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @copyright 2019 Capmega <license@capmega.com>
  * @category Function reference
- * @package sql-exists
+ * @package Phoundation/Databases
  */
 class SqlExists
 {

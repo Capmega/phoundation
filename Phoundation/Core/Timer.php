@@ -1,7 +1,9 @@
 <?php
 
+namespace Phoundation\Core;
+
 /**
- * Class Bz2
+ * Class Timer
  *
  *
  *
@@ -10,7 +12,7 @@
  * @copyright Copyright (c) 2021 <copyright@capmega.com>
  * @package Phoundation\Core
  */
-cclass Bz2
+cclass Timer
 {
 
 }

@@ -369,4 +369,126 @@ class Cli
         unset($argv[$key]);
         return true;
     }
+
+
+    /*
+     * Show a dot on the console each $each call if $each is false, "DONE" will be printed, with next line. Internal counter will reset if a different $each is received.
+     *
+     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+     * @copyright Copyright (c) 2018 Capmega
+     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+     * @category Function reference
+     * @package system
+     * @note While log_console() will log towards the ROOT/data/log/ log files, cli_dot() will only log one single dot even though on the command line multiple dots may be shown
+     * @see log_console()
+     * @example
+     * code
+     * for($i=0; $i < 100; $i++){
+     *     cli_dot();
+     * }
+     * /code
+     *
+     * This will return something like
+     *
+     * code
+     * ..........
+     * /code
+     *
+     * @param natural $each
+     * @param string $color
+     * @param string $dot
+     * @param boolean $quiet
+     * @return boolean True if a dot was printed, false if not
+     */
+    public function dot($each = 10, $color = 'green', $dot = '.', $quiet = false)
+    {
+        static $count = 0,
+        $l_each = 0;
+
+        try {
+            if (!PLATFORM_CLI) {
+                return false;
+            }
+
+            if ($quiet and QUIET) {
+                /*
+                 * Don't show this in QUIET mode
+                 */
+                return false;
+            }
+
+            if ($each === false) {
+                if ($count) {
+                    /*
+                     * Only show "Done" if we have shown any dot at all
+                     */
+                    log_console(tr('Done'), $color);
+
+                } else {
+                    log_console('');
+                }
+
+                $l_each = 0;
+                $count = 0;
+                return true;
+            }
+
+            $count++;
+
+            if ($l_each != $each) {
+                $l_each = $each;
+                $count = 0;
+            }
+
+            if ($count >= $l_each) {
+                $count = 0;
+                log_console($dot, $color, false);
+                return true;
+            }
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException('cli_dot(): Failed', $e);
+        }
+    }
+
+
+
+    /*
+     * Return the specified string in the specified color
+     */
+    function cli_color($string, $fore_color = null, $back_color = null, $force = false, $reset = true)
+    {
+        try {
+            static $color;
+
+            if (!$color) {
+                $color = new Colors();
+            }
+
+            return $color->getColoredString($string, $fore_color, $back_color, $force, $reset);
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException('cli_color(): Failed', $e);
+        }
+    }
+
+
+    /*
+     * Return or echo CLI code to reset all colors
+     */
+    function cli_reset_color($echo = false)
+    {
+        try {
+            if (!$echo) {
+                return "\033[0m";
+            }
+
+            echo "\033[0m";
+
+        } catch (Exception $e) {
+            throw new OutOfBoundsException('cli_reset_color(): Failed', $e);
+        }
+    }
+
+
 }

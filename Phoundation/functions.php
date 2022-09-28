@@ -136,6 +136,29 @@ function isset_get(mixed &$variable, mixed $return = null): mixed
 
 
 /**
+ * Ensures the specified variable exists. If the variable already exists with a non NULL value, it will not be touched.
+ * If the variable does not exist, or has a NULL value, it will be set to the $initialization variable
+ *
+ * @param mixed $variable
+ * @param mixed $initialize The value to initialize the variable with
+ * @return mixed the value of the variable. Either the value of the existing variable, or the value of the $initialize
+ *               variable, if the variable did not exist, or was NULL
+ */
+function ensure_variable(mixed &$variable, mixed $initialize): mixed
+{
+    if (isset($variable)) {
+        $variable = $initialize;
+
+    } elseif ($variable === null) {
+        $variable = $initialize;
+    }
+
+    return $variable;
+}
+
+
+
+/**
  * Force the specified number to be a natural number.
  *
  * This function will ensure that the specified $source variable is returned as an integer. If a float value was
@@ -262,3 +285,193 @@ public function br2nl(string $source, string $nl = "\n"): string
 
     return $source;
 }
+
+
+
+/*
+ * Return the first non empty argument
+ */
+function not_empty()
+{
+    foreach (func_get_args() as $argument) {
+        if ($argument) {
+            return $argument;
+        }
+    }
+
+    return $argument;
+}
+
+
+/*
+ * Return the first non null argument
+ */
+function not_null()
+{
+    foreach (func_get_args() as $argument) {
+        if ($argument === null) continue;
+        return $argument;
+    }
+}
+
+
+/*
+ * Return the first non empty argument
+ */
+function pick_random($count)
+{
+    try {
+        $args = func_get_args();
+
+        /*
+         * Remove the $count argument from the list
+         */
+        array_shift($args);
+
+        if (!$count) {
+            /*
+             * Get a random count
+             */
+            $count = mt_rand(1, count($args));
+            $array = true;
+        }
+
+        if (($count < 1) or ($count > count($args))) {
+            throw new OutOfBoundsException(tr('pick_random(): Invalid count ":count" specified for ":args" arguments', array(':count' => $count, ':args' => count($args))), 'invalid');
+
+        } elseif ($count == 1) {
+            if (empty($array)) {
+                return $args[array_rand($args, $count)];
+            }
+
+            return array($args[array_rand($args, $count)]);
+
+        } else {
+            $retval = array();
+
+            for ($i = 0; $i < $count; $i++) {
+                $retval[] = $args[$key = array_rand($args)];
+                unset($args[$key]);
+            }
+
+            return $retval;
+        }
+
+    } catch (Exception $e) {
+        throw new OutOfBoundsException(tr('pick_random(): Failed'), $e);
+    }
+}
+
+
+
+/*
+ * Return $source if $source is not considered "empty". Return null if specified variable is considered "empty", like 0, "", array(), etc.
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see get_empty()
+ * @note This function is a wrapper for get_empty($source, null);
+ * @version 2.6.27: Added documentation
+ * @example
+ * code
+ * $result = get_null(false);
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * null
+ * /code
+ *
+ * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @return mixed Either $source or null, depending on if $source is empty or not
+ */
+function get_null($source)
+{
+    try {
+        return get_empty($source, null);
+
+    } catch (Exception $e) {
+        throw new OutOfBoundsException(tr('get_null(): Failed'), $e);
+    }
+}
+
+
+/*
+ * Return $source if $source is not considered "empty". Return $default if specified variable is considered "empty", like 0, "", array(), etc.
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2018 Capmega
+ * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+ * @category Function reference
+ * @package system
+ * @see get_null()
+ * @version 2.6.27: Added function and documentation
+ * @example
+ * code
+ * $result = get_empty(null, false);
+ * showdie($result);
+ * /code
+ *
+ * This would return
+ * code
+ * false
+ * /code
+ *
+ * @param mixed $source The value to be tested. If this value doesn't evaluate to empty, it will be returned
+ * @param mixed $default The value to be returned if $source evalidates to empty
+ * @return mixed Either $source or $default, depending on if $source is empty or not
+ */
+function get_empty($source, $default)
+{
+    try {
+        if ($source) {
+            return $source;
+        }
+
+        return $default;
+
+    } catch (Exception $e) {
+        throw new OutOfBoundsException(tr('get_empty(): Failed'), $e);
+    }
+}
+
+
+/*
+ * Return the value quoted if non numeric string
+ */
+function quote($value)
+{
+    try {
+        if (!is_numeric($value) and is_string($value)) {
+            return '"' . $value . '"';
+        }
+
+        return $value;
+
+    } catch (Exception $e) {
+        throw new OutOfBoundsException(tr('quote(): Failed'), $e);
+    }
+}
+
+/*
+ *
+ */
+function ensure_value($value, $enum, $default)
+{
+    try {
+        if (in_array($value, $enum)) {
+            return $value;
+        }
+
+        return $default;
+
+    } catch (Exception $e) {
+        throw new OutOfBoundsException(tr('ensure_value(): Failed'), $e);
+    }
+}
+
+

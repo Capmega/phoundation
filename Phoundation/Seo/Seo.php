@@ -6,12 +6,14 @@ use Exception;
 use Phoundation\Databases\Sql;
 
 /**
- * SEO library
+ * Class Seo
  *
- * This are functions only used for seo things
  *
+ *
+ * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Johan Geuze, Sven Oostenbrink <support@capmega.com>
+ * @copyright Copyright (c) 2021 <copyright@capmega.com>
+ * @package Phoundation\Core
  */
 class Seo
 {

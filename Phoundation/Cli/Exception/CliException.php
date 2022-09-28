@@ -1,6 +1,6 @@
 <?php
 
-use Phoundation\Core\CoreException;
+use Phoundation\Core\Exception\CoreException;
 
 /**
  * Class CliException

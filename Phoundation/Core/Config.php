@@ -155,4 +155,155 @@ class Config{
 
         return true;
     }
+
+
+
+//
+//    /*
+//     * Load specified configuration files. All files must be specified by their section name only, no extension nor environment.
+//     * The function will then load the files ROOT/config/base/NAME.php, ROOT/config/base/production_NAME.php, and on non "production" environments, ROOT/config/base/ENVIRONMENT_NAME.php
+//     * For example, if you want to load the "fprint" configuration, use load_config('fprint'); The function will load ROOT/config/base/fprint.php, ROOT/config/base/production_fprint.php, and on (for example) the "local" environment, ROOT/config/base/local_fprint.php
+//     *
+//     * Examples:
+//     * load_config('fprint');
+//     * load_config('fprint,buks');
+//     * load_libs(array('fprint', 'buks'));
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2018 Capmega
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package system
+//     *
+//     * @param mixed $files Either array or CSV string with the libraries to be loaded
+//     * @return void
+//     */
+//    function load_config($files = '')
+//    {
+//        global $_CONFIG, $core;
+//        static $paths;
+//
+//        try {
+//            if (!$paths) {
+//                $paths = array(ROOT . 'config/base/',
+//                    ROOT . 'config/production',
+//                    ROOT . 'config/' . ENVIRONMENT);
+//            }
+//
+//            $files = array_force($files);
+//
+//            foreach ($files as $file) {
+//                $loaded = false;
+//                $file = trim($file);
+//
+//                /*
+//                 * Include first the default configuration file, if available, then
+//                 * production configuration file, if available, and then, if
+//                 * available, the environment file
+//                 */
+//                foreach ($paths as $id => $path) {
+//                    if (!$file) {
+//                        /*
+//                         * Trying to load default configuration files again
+//                         */
+//                        if (!$id) {
+//                            $path .= 'default.php';
+//
+//                        } else {
+//                            $path .= '.php';
+//                        }
+//
+//                    } else {
+//                        if ($id) {
+//                            $path .= '_' . $file . '.php';
+//
+//                        } else {
+//                            $path .= $file . '.php';
+//                        }
+//                    }
+//
+//                    if (file_exists($path)) {
+//                        include($path);
+//                        $loaded = true;
+//                    }
+//                }
+//
+//                if (!$loaded) {
+//                    throw new OutOfBoundsException(tr('load_config(): No configuration file was found for requested configuration ":file"', array(':file' => $file)), 'not-exists');
+//                }
+//            }
+//
+//            /*
+//             * Configuration has been loaded succesfully, from here all debug
+//             * functions will work correctly. This is
+//             */
+//            $core->register['ready'] = true;
+//
+//        } catch (Exception $e) {
+//            throw new OutOfBoundsException(tr('load_config(): Failed to load some or all of config file(s) ":file"', array(':file' => $files)), $e);
+//        }
+//    }
+//
+//
+//    /*
+//     * Returns the configuration array from the specified file and specified environment
+//     *
+//     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+//     * @copyright Copyright (c) 2018 Capmega
+//     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
+//     * @category Function reference
+//     * @package system
+//     * @version 2.0.7: Fixed loading bugs, improved error handling
+//     * @version 2.4.62: Fixed bug with "deploy" config
+//     *
+//     * @param string $file
+//     * @param string $environment
+//     * @return array The requested configuration array
+//     */
+//    function read_config($file = null, $environment = null)
+//    {
+//        try {
+//            if (!$environment) {
+//                $environment = ENVIRONMENT;
+//            }
+//
+//            if ($file === 'deploy') {
+//                include(ROOT . 'config/deploy.php');
+//                return $_CONFIG;
+//            }
+//
+//            if ($file) {
+//                if (file_exists(ROOT . 'config/base/' . $file . '.php')) {
+//                    $loaded = true;
+//                    include(ROOT . 'config/base/' . $file . '.php');
+//                }
+//
+//                $file = '_' . $file;
+//
+//            } else {
+//                $loaded = true;
+//                include(ROOT . 'config/base/default.php');
+//            }
+//
+//            if (file_exists(ROOT . 'config/production' . $file . '.php')) {
+//                $loaded = true;
+//                include(ROOT . 'config/production' . $file . '.php');
+//            }
+//
+//            if (file_exists(ROOT . 'config/' . $environment . $file . '.php')) {
+//                $loaded = true;
+//                include(ROOT . 'config/' . $environment . $file . '.php');
+//            }
+//
+//            if (empty($loaded)) {
+//                throw new OutOfBoundsException(tr('The specified configuration ":config" does not exist', array(':config' => $file)), 'not-exists');
+//            }
+//
+//            return $_CONFIG;
+//
+//        } catch (Exception $e) {
+//            throw new OutOfBoundsException('read_config(): Failed', $e);
+//        }
+//    }
+//
 }
