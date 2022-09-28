@@ -3,7 +3,7 @@
  * This is the startup sequence for admin web pages
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>, Johan Geuze
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 
 
@@ -113,7 +113,7 @@ under_construction();
             define('LANGUAGE', 'en');
         }
 
-        $e = new BException('core::startup(): Language selection failed', $e);
+        $e = new OutOfBoundsException('core::startup(): Language selection failed', $e);
     }
 
     define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
@@ -225,5 +225,5 @@ under_construction();
     }
 
 }catch(Exception $e){
-    throw new CoreException(tr('core::admin(): Failed'), $e);
+    throw new OutOfBoundsException(tr('core::admin(): Failed'), $e);
 }

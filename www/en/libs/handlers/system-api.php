@@ -3,7 +3,7 @@
  * This is the startup sequence for api call scripts
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>, Johan Geuze
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 
 
@@ -106,7 +106,7 @@ try{
             define('LANGUAGE', 'en');
         }
 
-        $e = new BException('core::startup(): Language selection failed', $e);
+        $e = new OutOfBoundsException('core::startup(): Language selection failed', $e);
     }
 
     define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
@@ -194,7 +194,7 @@ try{
 
             }catch(Exception $e){
                 $e->setCode(400);
-                throw new CoreException(tr('Core::system_api(): Failed to process application/json request'), $e);
+                throw new OutOfBoundsException(tr('Core::system_api(): Failed to process application/json request'), $e);
             }
         }
     }
@@ -208,5 +208,5 @@ try{
     }
 
 }catch(Exception $e){
-    throw new CoreException(tr('core::api(): Failed'), $e);
+    throw new OutOfBoundsException(tr('core::api(): Failed'), $e);
 }

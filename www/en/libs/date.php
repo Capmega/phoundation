@@ -3,7 +3,7 @@
  *
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>, Johan Geuze
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 
 
@@ -33,7 +33,7 @@ function date_relative($timestamp, $now = null, $periods = null){
         }
 
     }catch(Exception $e){
-        throw new CoreException(tr('date_relative(): Failed'), $e);
+        throw new OutOfBoundsException(tr('date_relative(): Failed'), $e);
     }
 }
 
@@ -64,7 +64,7 @@ function date_random($min = null, $max = null){
         return date("Y-m-d", $timestamp);
 
     }catch(Exception $e){
-        throw new CoreException(tr('date_random(): Failed'), $e);
+        throw new OutOfBoundsException(tr('date_random(): Failed'), $e);
     }
 }
 
@@ -94,7 +94,7 @@ function date_timezones_select($params = null){
         return html_select($params);
 
     }catch(Exception $e){
-        throw new CoreException(tr('date_timezones_select(): Failed'), $e);
+        throw new OutOfBoundsException(tr('date_timezones_select(): Failed'), $e);
     }
 }
 
@@ -108,7 +108,7 @@ function date_timezones_exists($timezone){
         return isset_get(date_timezones_list()[strtolower($timezone)]);
 
     }catch(Exception $e){
-        throw new CoreException(tr('date_timezones_exists(): Failed'), $e);
+        throw new OutOfBoundsException(tr('date_timezones_exists(): Failed'), $e);
     }
 }
 
@@ -132,7 +132,7 @@ function date_timezones_list(){
         return $list;
 
     }catch(Exception $e){
-        throw new CoreException(tr('date_timezones_list(): Failed'), $e);
+        throw new OutOfBoundsException(tr('date_timezones_list(): Failed'), $e);
     }
 }
 
@@ -160,7 +160,7 @@ function date_interval($date, $interval, $format = null){
         return date_convert($date, $format);
 
     }catch(Exception $e){
-        throw new CoreException('date_interval(): Failed', $e);
+        throw new OutOfBoundsException('date_interval(): Failed', $e);
     }
 }
 
@@ -204,7 +204,7 @@ function date_translate($date){
          * First check if there are any translatable words in the specified date
          */
         if(!is_string($date)){
-            throw new CoreException(tr('date_translate(): The specified date should be a string but is a ":type"', array(':type' => gettype($date))), 'invalid');
+            throw new OutOfBoundsException(tr('date_translate(): The specified date should be a string but is a ":type"', array(':type' => gettype($date))), 'invalid');
         }
 
         if(!preg_match('/[a-z]/', $date)){
@@ -260,7 +260,7 @@ function date_translate($date){
         return $date;
 
     }catch(Exception $e){
-        throw new CoreException(tr('date_translate(): Failed'), $e);
+        throw new OutOfBoundsException(tr('date_translate(): Failed'), $e);
     }
 }
 

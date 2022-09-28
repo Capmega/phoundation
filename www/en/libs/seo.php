@@ -5,7 +5,7 @@
  * This are functions only used for seo things
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Johan Geuze, Sven Oostenbrink <support@capmega.com>
+ * @copyright Sven Oostenbrink <support@capmega.com>
  */
 
 
@@ -95,7 +95,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
 
                 if(!is_numeric($ownid[$key])){
                     if(!is_scalar($ownid[$key])){
-                        throw new CoreException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
+                        throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
                     }
 
                     $ownid[$key] = '"'.$ownid[$key].'"';
@@ -104,7 +104,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
                 $ownid = ' AND `'.$key.'` != '.$ownid[$key];
 
             }else{
-                throw new CoreException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
+                throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
             }
 
         }else{
@@ -162,7 +162,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
         }
 
     }catch(Exception $e){
-        throw new CoreException('seo_unique(): Failed', $e);
+        throw new OutOfBoundsException('seo_unique(): Failed', $e);
     }
 }
 
@@ -222,7 +222,7 @@ function seo_string($source, $replace = '-') {
         }
 
     }catch(Exception $e){
-        throw new CoreException('seo_string(): Failed', $e);
+        throw new OutOfBoundsException('seo_string(): Failed', $e);
     }
 }
 
@@ -237,7 +237,7 @@ function seo_create_string($source, $replace = '-') {
         return seo_string($source, $replace = '-');
 
     }catch(Exception $e){
-        throw new CoreException('seo_string(): Failed', $e);
+        throw new OutOfBoundsException('seo_string(): Failed', $e);
     }
 }
 
@@ -246,7 +246,7 @@ function seo_generate_unique_name($source, $table, $ownid = null, $field = 'seon
         return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
 
     }catch(Exception $e){
-        throw new CoreException('seo_generate_unique_name(): Failed', $e);
+        throw new OutOfBoundsException('seo_generate_unique_name(): Failed', $e);
     }
 }
 
@@ -255,7 +255,7 @@ function seo_unique_string($source, $table, $ownid = null, $field = 'seoname', $
         return seo_unique($source, $table, $ownid, $field, $replace, $first_suffix);
 
     }catch(Exception $e){
-        throw new CoreException('seo_unique_string(): Failed', $e);
+        throw new OutOfBoundsException('seo_unique_string(): Failed', $e);
     }
 }
 ?>

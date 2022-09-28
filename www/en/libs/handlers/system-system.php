@@ -3,7 +3,7 @@
  * This is the startup sequence for system web pages, like 404, 500, etc
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>, Johan Geuze
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 
 
@@ -113,7 +113,7 @@ try{
             define('LANGUAGE', 'en');
         }
 
-        $e = new BException('core::startup(): Language selection failed', $e);
+        $e = new OutOfBoundsException('core::startup(): Language selection failed', $e);
     }
 
     define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
@@ -184,7 +184,7 @@ try{
      */
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $_POST = array();
-        throw new CoreException(tr('core::startup(): system pages cannot do POST requests'), '400');
+        throw new OutOfBoundsException(tr('core::startup(): system pages cannot do POST requests'), '400');
     }
 
 
@@ -221,5 +221,5 @@ try{
     }
 
 }catch(Exception $e){
-    throw new CoreException(tr('core::system(): Failed'), $e);
+    throw new OutOfBoundsException(tr('core::system(): Failed'), $e);
 }

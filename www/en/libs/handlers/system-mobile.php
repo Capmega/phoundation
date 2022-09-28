@@ -3,7 +3,7 @@
  * This is the startup sequence for mobile specific web pages
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright 2019 Capmega <license@capmega.com>, Johan Geuze
+ * @copyright 2019 Capmega <license@capmega.com>
  */
 
 
@@ -104,7 +104,7 @@ try{
             define('LANGUAGE', 'en');
         }
 
-        $e = new BException('core::startup(): Language selection failed', $e);
+        $e = new OutOfBoundsException('core::startup(): Language selection failed', $e);
     }
 
     define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
@@ -205,6 +205,6 @@ try{
     }
 
 }catch(Exception $e){
-    throw new CoreException(tr('core::mobile(): Failed'), $e);
+    throw new OutOfBoundsException(tr('core::mobile(): Failed'), $e);
 }
 ?>
