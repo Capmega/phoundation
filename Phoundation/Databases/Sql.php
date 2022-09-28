@@ -2219,7 +2219,7 @@ class Sql
 
                 if (!is_numeric($ownid[$key])) {
                     if (!is_scalar($ownid[$key])) {
-                        throw new BException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
+                        throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
                     }
 
                     $ownid[$key] = '"' . $ownid[$key] . '"';
@@ -2228,7 +2228,7 @@ class Sql
                 $ownid = ' AND `' . $key . '` != ' . $ownid[$key];
 
             } else {
-                throw new BException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
+                throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid datatype specified, should be either scalar, or array, but is "%type%"', array('%type%' => gettype($ownid))), 'invalid');
             }
 
         } else {

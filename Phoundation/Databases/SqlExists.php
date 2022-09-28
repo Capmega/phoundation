@@ -51,7 +51,7 @@ class SqlExists
             return array_shift($retval);
 
         }catch(Exception $e) {
-            throw new BException('sql_database_exists(): Failed', $e);
+            throw new OutOfBoundsException('sql_database_exists(): Failed', $e);
         }
     }
 
@@ -100,7 +100,7 @@ class SqlExists
             return $retval;
 
         }catch(Exception $e) {
-            throw new BException('sql_table_exists(): Failed', $e);
+            throw new OutOfBoundsException('sql_table_exists(): Failed', $e);
         }
     }
 
@@ -149,7 +149,7 @@ class SqlExists
             return array_shift($retval);
 
         }catch(Exception $e) {
-            throw new BException('sql_index_exists(): Failed', $e);
+            throw new OutOfBoundsException('sql_index_exists(): Failed', $e);
         }
     }
 
@@ -198,7 +198,7 @@ class SqlExists
             return $retval;
 
         }catch(Exception $e) {
-            throw new BException('sql_column_exists(): Failed', $e);
+            throw new OutOfBoundsException('sql_column_exists(): Failed', $e);
         }
     }
 
@@ -257,7 +257,7 @@ class SqlExists
             return $retval;
 
         }catch(Exception $e) {
-            throw new BException('sql_foreignkey_exists(): Failed', $e);
+            throw new OutOfBoundsException('sql_foreignkey_exists(): Failed', $e);
         }
     }
 
@@ -318,7 +318,7 @@ class SqlExists
             return $retval;
 
         }catch(Exception $e) {
-            throw new BException('sql_function_exists(): Failed', $e);
+            throw new OutOfBoundsException('sql_function_exists(): Failed', $e);
         }
     }
 
@@ -355,7 +355,7 @@ class SqlExists
             return $list;
 
         }catch(Exception $e) {
-            throw new BException('sql_list_foreignkeys(): Failed', $e);
+            throw new OutOfBoundsException('sql_list_foreignkeys(): Failed', $e);
         }
     }
 }

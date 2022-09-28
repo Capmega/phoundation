@@ -1396,7 +1396,7 @@ class Strings
         if (!is_scalar($source)) {
             if (is_array($source)) {
                 foreach ($source as $key => &$value) {
-                    $value = Strings::hide($value, ['password', 'ssh_key'])
+                    $value = Strings::hide($value, ['password', 'ssh_key']);
                 }
 
                 unset($value);
@@ -1428,12 +1428,7 @@ class Strings
      */
     public static function escapeUtf8(string $string): string
     {
-        try{
-            return Zend_Utf8::escape((string) $string);
-
-        }catch(Exception $e){
-            throw new CoreException('utf8_escape(): Failed for string "'.str_log($string).'"', $e);
-        }
+        return Zend_Utf8::escape((string) $string);
     }
 
 
@@ -1452,6 +1447,7 @@ class Strings
     {
         return Zend_Utf8::unescape($string);
     }
+
 
 
     /**
@@ -1478,7 +1474,7 @@ class Strings
             /*
              * Do a regex search instead
              */
-            return preg_match('/' . $keyword.'/ims'.($unicode ? 'u' : ''), $source, $matches) !== false);
+            return preg_match('/' . $keyword.'/ims'.($unicode ? 'u' : ''), $source, $matches) !== false;
         }
 
         return str_contains($source, $keyword);
