@@ -99,7 +99,7 @@ class Arrays {
 
         if (!$restart) {
             // The current value was found, but it was at the end of the array
-            throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', array(':value' => $current_value)), 'invalid');
+            throw new OutOfBoundsException(tr('Option ":value" does not have a value specified', [':value' => $current_value]), 'invalid');
         }
 
         reset($source);
@@ -124,7 +124,7 @@ class Arrays {
      * @note $source is passed by reference and will be modified directly!
      * @version 1.22.0: Added documentation
      * @example
-     * $b = array();
+     * $b = [];
      * Arrays::default($b, 'foo', 'bar');
      * showdie($b)
      * /code
@@ -186,7 +186,7 @@ class Arrays {
      */
     public static function fromObject(object $object, bool $recurse = true): array
     {
-        $retval = array();
+        $retval = [];
 
         foreach ($object as $key => $value) {
             if (is_object($value) and $recurse) {
@@ -204,11 +204,6 @@ class Arrays {
     /**
      * Return an object from the given array, recursively
      *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     *
      * @param array $array
      * @return object The array that was created from the specified array
      */
@@ -221,6 +216,9 @@ class Arrays {
 
     /**
      * Return a random value from the specified array
+     *
+     * @param array $array
+     * @return mixed
      */
     public static function getRandomValue(array $array): mixed
     {
@@ -230,11 +228,17 @@ class Arrays {
 
 
     /**
-     * Implode the array with keys
+     * Implode the array with keys preserved
+     *
+     * @param array $source
+     * @param string $row_separator
+     * @param string $key_separator
+     * @param bool $auto_quote
+     * @return string
      */
     public static function implodeWithKeys(array $source, string $row_separator, string $key_separator, bool $auto_quote = false): string
     {
-        $retval = array();
+        $retval = [];
 
         foreach ($source as $key => $value) {
             if (is_array($value)) {
@@ -254,210 +258,203 @@ class Arrays {
 
 
     /**
+     * Merge all specified arrays
      *
+     * @param array $array1
+     * @param array $array2
+     * @param...
+     * @return array
      */
-    public static function mergeComplete()
+    public static function mergeComplete(): array
     {
-        try{
-            $arguments = func_get_args();
+        $arguments = func_get_args();
 
-            if (count($arguments) < 2) {
-                throw new CoreException('array_merge_complete(): Specify at least 2 arrays');
-            }
-
-            $retval = array();
-            $count  = 0;
-
-            foreach ($arguments as $argk => $argv) {
-                $count++;
-
-                if (!is_array($argv)) {
-                    throw new CoreException(tr('array_merge_complete(): Specified argument ":count" is not an array', array(':count' => Strings::log($count))));
-                }
-
-                foreach ($argv as $key => $value) {
-                    if (is_array($value) and array_key_exists($key, $retval) and is_array($retval[$key])) {
-                        $retval[$key] = Arrays::mergeComplete($retval[$key], $value);
-
-                    } else {
-                        $retval[$key] = $value;
-                    }
-                }
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_merge_complete(): Failed', $e);
+        if (count($arguments) < 2) {
+            throw new CoreException('array_merge_complete(): Specify at least 2 arrays');
         }
+
+        $retval = [];
+        $count  = 0;
+
+        foreach ($arguments as $argk => $argv) {
+            $count++;
+
+            if (!is_array($argv)) {
+                throw new CoreException(tr('array_merge_complete(): Specified argument ":count" is not an array', array(':count' => Strings::log($count))));
+            }
+
+            foreach ($argv as $key => $value) {
+                if (is_array($value) and array_key_exists($key, $retval) and is_array($retval[$key])) {
+                    $retval[$key] = Arrays::mergeComplete($retval[$key], $value);
+
+                } else {
+                    $retval[$key] = $value;
+                }
+            }
+        }
+
+        return $retval;
     }
 
 
 
     /**
      * Limit the specified array to the specified amount of entries
+     *
+     * @param array $source
+     * @param int $count
+     * @param bool $return_source
+     * @return array
      */
     public static function limit(array $source, int $count, bool $return_source = true): array
     {
-        try{
-            if (!is_array($source)) {
-                throw new CoreException(tr('array_limit(): Specified source is not an array'));
-            }
-
-            if (!is_numeric($count) or ($count < 0)) {
-                throw new CoreException(tr('array_limit(): Specified count is not valid'));
-            }
-
-            $retval = array();
-
-            while (count($source) > $count) {
-                $retval[] = array_pop($source);
-            }
-
-            if ($return_source) {
-                return $source;
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_limit(): Failed', $e);
+        if (!is_numeric($count) or ($count < 0)) {
+            throw new CoreException(tr('Specified count is not valid'));
         }
+
+        $retval = [];
+
+        while (count($source) > $count) {
+            $retval[] = array_pop($source);
+        }
+
+        if ($return_source) {
+            return $source;
+        }
+
+        return $retval;
     }
 
 
 
     /**
+     * Filter the specified values out of the source array
      *
+     * @param array $source
+     * @param array $values
+     * @return array
      */
     public static function filterValues(array $source, array $values): array
     {
-        try{
-            if (!is_array($source)) {
-                throw new CoreException(tr('array_filter_values(): Specified source is not an array'), 'invalid');
-            }
-
-            foreach (Arrays::force($values) as $value) {
-                if (($key = array_search($value, $source)) !== false) {
-                    unset($source[$key]);
-                }
-            }
-
-            return $source;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_filter_values(): Failed');
+        if (!is_array($source)) {
+            throw new CoreException(tr('Specified source is not an array'), 'invalid');
         }
-    }
 
+        foreach (Arrays::force($values) as $value) {
+            if (($key = array_search($value, $source)) !== false) {
+                unset($source[$key]);
+            }
+        }
+
+        return $source;
+    }
 
 
     /**
      * Return an array with the amount of values where each value name is $base_valuename# and # is a sequential number
+     *
+     * @param int $count
+     * @param int|string $base_valuename
+     * @return array
      */
     public static function sequentialValues(int $count, int|string $base_valuename): array
     {
-        try{
-            if ($count < 1) {
-                throw new CoreException(tr('array_sequential_values(): Invalid count specified. Make sure count is numeric, and greater than 0'), 'invalid');
-            }
-
-            for($i = 0; $i < $count; $i++) {
-                $retval[] = $base_valuename.$i;
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_sequential_values(): Failed', $e);
+        if ($count < 1) {
+            throw new CoreException(tr('Invalid count specified. Make sure count is numeric, and greater than 0'), 'invalid');
         }
+
+        for($i = 0; $i < $count; $i++) {
+            $retval[] = $base_valuename.$i;
+        }
+
+        return $retval;
     }
 
 
 
     /**
      * Return the source array with the keys all replaced by sequential values based on base_keyname
+     *
+     * @param array $source
+     * @param int|string $base_keyname
+     * @param bool $filter_null
+     * @param bool $null_string
+     * @return array
      */
     public static function sequentialKeys(array $source, int|string $base_keyname, bool $filter_null = false, $null_string = false): array
     {
-        try{
-            if (!is_array($source)) {
-                throw new CoreException(tr('array_sequential_keys(): Specified source is an ":type", but it should be an array', array(':type' => gettype($source))), 'invalid');
-            }
-
-            $i      = 0;
-            $retval = array();
-
-            foreach ($source as $value) {
-                /*
-                 * Regard all "null" and "NULL" strings as NULL
-                 */
-                if ($null_string) {
-                    if (($value === 'null') or ($value === 'NULL')) {
-                        $value = null;
-                    }
-                }
-
-                /*
-                 * Filter out all NULL values
-                 */
-                if ($filter_null) {
-                    if ($value === null) {
-                        continue;
-                    }
-                }
-
-                $retval[$base_keyname.$i++] = $value;
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_sequential_keys(): Failed', $e);
+        if (!is_array($source)) {
+            throw new CoreException(tr('Specified source is an ":type", but it should be an array', [':type' => gettype($source)]), 'invalid');
         }
+
+        $i      = 0;
+        $retval = [];
+
+        foreach ($source as $value) {
+            /*
+             * Regard all "null" and "NULL" strings as NULL
+             */
+            if ($null_string) {
+                if (($value === 'null') or ($value === 'NULL')) {
+                    $value = null;
+                }
+            }
+
+            /*
+             * Filter out all NULL values
+             */
+            if ($filter_null) {
+                if ($value === null) {
+                    continue;
+                }
+            }
+
+            $retval[$base_keyname.$i++] = $value;
+        }
+
+        return $retval;
     }
 
 
 
     /**
      * Return the source array with the specified keys kept, all else removed.
+     *
+     * @param array $source
+     * @param array $keys
+     * @return array
      */
     public static function keep(array $source, array $keys): array
     {
-        try{
-            $retval = array();
+        $retval = [];
 
-            foreach (Arrays::force($keys) as $key) {
-                if (array_key_exists($key, $source)) {
-                    $retval[$key] = $source[$key];
-                }
+        foreach (Arrays::force($keys) as $key) {
+            if (array_key_exists($key, $source)) {
+                $retval[$key] = $source[$key];
             }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_keep(): Failed', $e);
         }
+
+        return $retval;
     }
 
 
 
     /**
      * Return the source array with the specified keys removed.
+     *
+     * @param array $source
+     * @param array|string $keys
+     * @return array
      */
-    public static function remove(array $source, array $keys): array
+    public static function remove(array $source, array|string $keys): array
     {
-        try{
-            foreach (Arrays::force($keys) as $key) {
-                unset($source[$key]);
-            }
-
-            return $source;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_remove(): Failed', $e);
+        foreach (Arrays::force($keys) as $key) {
+            unset($source[$key]);
         }
+
+        return $source;
     }
+
 
 
     /**
@@ -471,126 +468,120 @@ class Arrays {
      */
     public static function from(array &$source, int|string $from_key, bool $delete = false, bool $skip = true): array
     {
-        try{
-            $retval = array();
-            $add    = false;
+        $retval = [];
+        $add    = false;
 
-            foreach ($source as $key => $value) {
-                if (!$add) {
-                    if ($key == $from_key) {
-                        if ($delete) {
-                            unset($source[$key]);
-                        }
+        foreach ($source as $key => $value) {
+            if (!$add) {
+                if ($key == $from_key) {
+                    if ($delete) {
+                        unset($source[$key]);
+                    }
 
-                        $add = true;
+                    $add = true;
 
-                        if ($skip) {
-                            /*
-                             * Do not include the key itself, skip it
-                             */
-                            continue;
-                        }
-
-                    } else {
+                    if ($skip) {
+                        /*
+                         * Do not include the key itself, skip it
+                         */
                         continue;
                     }
-                }
 
-                $retval[$key] = $value;
-
-                if ($delete) {
-                    unset($source[$key]);
+                } else {
+                    continue;
                 }
             }
 
-            return $retval;
+            $retval[$key] = $value;
 
-        } catch (Exception $e) {
-            throw new CoreException('array_from(): Failed', $e);
+            if ($delete) {
+                unset($source[$key]);
+            }
         }
+
+        return $retval;
     }
 
 
 
     /**
      * Return all array parts until (but without) the specified key
+     *
+     * @param array $source
+     * @param int|string $until_key
+     * @param bool $delete
+     * @return array
      */
     public static function until(array $source, int|string $until_key, bool $delete = false): array
     {
-        try{
-            $retval = array();
+        $retval = [];
 
-            foreach ($source as $key => $value) {
-                if ($key == $until_key) {
-                    break;
-                }
-
-                $retval[$key] = $value;
-
-                if ($delete) {
-                    unset($source[$key]);
-                }
+        foreach ($source as $key => $value) {
+            if ($key == $until_key) {
+                break;
             }
 
-            return $retval;
+            $retval[$key] = $value;
 
-        } catch (Exception $e) {
-            throw new CoreException('array_until(): Failed', $e);
+            if ($delete) {
+                unset($source[$key]);
+            }
         }
+
+        return $retval;
     }
 
 
 
     /**
      * Merge two arrays together, using the values of array1 as keys, and the values of array2 as values
+     *
+     * @param array $keys
+     * @param array $values
+     * @return array
      */
     public static function mergeKeysValues(array $keys, array $values): array
     {
-        try{
-            $retval = array();
+        $retval = [];
 
-            foreach ($keys as $key) {
-                if (!isset($next)) {
-                    $next = true;
-                    $retval[$key] = reset($values);
+        foreach ($keys as $key) {
+            if (!isset($next)) {
+                $next = true;
+                $retval[$key] = reset($values);
 
-                } else {
-                    $retval[$key] = next($values);
-                }
+            } else {
+                $retval[$key] = next($values);
             }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_merge_keys_values(): Failed', $e);
         }
+
+        return $retval;
     }
 
 
 
     /**
      * Prefix all keys in this array with the specified prefix
+     *
+     * @param array $source
+     * @param int|string $prefix
+     * @param bool $auto
+     * @return array
      */
     public static function prefix(array $source, int|string $prefix, bool $auto = false): array
     {
-        try{
-            $count  = 0;
-            $retval = array();
+        $count  = 0;
+        $retval = [];
 
-            foreach ($source as $key => $value) {
-                if ($auto) {
-                    $retval[$prefix.$count++] = $value;
+        foreach ($source as $key => $value) {
+            if ($auto) {
+                $retval[$prefix.$count++] = $value;
 
-                } else {
-                    $retval[$prefix.$key] = $value;
-                }
+            } else {
+                $retval[$prefix.$key] = $value;
             }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_prefix(): Failed', $e);
         }
+
+        return $retval;
     }
 
 
@@ -599,99 +590,99 @@ class Arrays {
      * Return the array keys that has a STRING value that contains the specified keyword
      *
      * NOTE: Non string values will be quietly ignored!
+     *
+     * @param array $array
+     * @param int|string $keyword
+     * @return array
      */
     public static function find(array $array, int|string $keyword): array
     {
-        try{
-            $retval = array();
+        $retval = [];
 
-            foreach ($array as $key => $value) {
-                if (is_string($value)) {
-                    if (str_contains($value, $keyword)) {
-                        $retval[$key] = $value;
-                    }
+        foreach ($array as $key => $value) {
+            if (is_string($value)) {
+                if (str_contains($value, $keyword)) {
+                    $retval[$key] = $value;
                 }
             }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_find(): Failed', $e);
         }
+
+        return $retval;
     }
 
 
 
     /**
      * Copy all elements from source to target, and clean them up. Any columns specified in "skip" will be skipped
+     *
+     * @param array $target
+     * @param array $source
+     * @param array $skip
+     * @return array
      */
     public static function copyClean(array $target, array $source, array $skip = ['id']): array
     {
-        try{
-            foreach ($source as $key => $value) {
-                if (in_array($key, $skip)) continue;
+        foreach ($source as $key => $value) {
+            if (in_array($key, $skip)) continue;
 
-                if (is_string($value)) {
-                    $target[$key] = mb_trim($value);
+            if (is_string($value)) {
+                $target[$key] = mb_trim($value);
 
-                } elseif ($value !== null) {
-                    $target[$key] = $value;
-                }
+            } elseif ($value !== null) {
+                $target[$key] = $value;
             }
-
-            return $target;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_copy_clean(): Failed', $e);
         }
+
+        return $target;
     }
 
 
 
     /**
      * Return an array with all the values in the specified column
+     *
+     * @param array $source
+     * @param int|string $column
+     * @return array
      */
     public static function getColumn(array $source, int|string $column): array
     {
-        try{
-            $retval = array();
+        $retval = [];
 
-            foreach ($source as $id => $value) {
-                if (array_key_exists($column, $value)) {
-                    $retval[] = $value[$column];
-                }
+        foreach ($source as $id => $value) {
+            if (array_key_exists($column, $value)) {
+                $retval[] = $value[$column];
             }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_get_column(): Failed', $e);
         }
+
+        return $retval;
     }
 
 
 
     /**
      * Return the value of one of the first found key of the specified keys
+     *
+     * @param array $source
+     * @param array $keys
+     * @return array
      */
     public static function extractFirst(array $source, array $keys): array
     {
-        try{
-            foreach ($keys as $key) {
-                if (!empty($source[$key])) {
-                    return $source[$key];
-                }
+        foreach ($keys as $key) {
+            if (!empty($source[$key])) {
+                return $source[$key];
             }
-
-        } catch (Exception $e) {
-            throw new CoreException('array_extract(): Failed', $e);
         }
     }
 
 
-
     /**
      * Check the specified array and ensure it has not too many elements (to avoid attack with processing foreach over 2000000 elements, for example)
+     *
+     * @param array $source
+     * @param int $max
+     * @return array
      */
     public static function max(array $source, int $max = 20): array
     {
@@ -700,7 +691,7 @@ class Arrays {
         }
 
         if (count($source) > $max) {
-            throw new CoreException(tr('array_max(): Specified array has too many elements'), 'arraytoolarge');
+            throw new CoreException(tr('Specified array has too many elements'), 'arraytoolarge');
         }
 
         return $source;
@@ -709,52 +700,45 @@ class Arrays {
 
 
     /**
+     * Returns the values of the source array as array[value] = value
      *
+     * @param array $source
+     * @return array
      */
     public static function valueToKeys(array $source): array
     {
-        try{
-            $retval = array();
+        $retval = [];
 
-            foreach ($source as $value) {
-                if (!is_scalar($value)) {
-                    throw new CoreException(tr('array_value_to_keys(): Specified source array contains non scalar values, cannot use non scalar values for the keys'));
-                }
-
-                $retval[$value] = $value;
+        foreach ($source as $value) {
+            if (!is_scalar($value)) {
+                throw new CoreException(tr('Specified source array contains non scalar values, cannot use non scalar values for the keys'));
             }
 
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_value_to_keys(): Failed', $e);
+            $retval[$value] = $value;
         }
+
+        return $retval;
     }
 
 
 
     /**
-     *
+     * Filter
      */
     public static function filteredMerge()
     {
-        try{
-            $args = func_get_args();
+        $args = func_get_args();
 
-            if (count($args) < 3) {
-                throw new CoreException(tr('array_filtered_merge(): Function requires at least 3 arguments: filter, source, merge, ...'), 'missing_argument');
-            }
-
-            $filter = array_shift($args);
-            $source = array_shift($args);
-            $source = Arrays::remove($source, $filter);
-            array_unshift($args, $source);
-
-            return call_user_func_array('array_merge', $args);
-
-        } catch (Exception $e) {
-            throw new CoreException('array_filtered_merge(): Failed', $e);
+        if (count($args) < 3) {
+            throw new CoreException(tr('Function requires at least 3 arguments: filters, source, merge, ...'), 'missing_argument');
         }
+
+        $filters = array_shift($args);
+        $source  = array_shift($args);
+        $source  = Arrays::remove($source, $filters);
+        array_unshift($args, $source);
+
+        return call_user_func_array('array_merge', $args);
     }
 
 
@@ -772,119 +756,111 @@ class Arrays {
      */
     public static function notNull(array &$source1, array $source2, mixed $default = null): bool
     {
-        try{
-            $modified = false;
+        $modified = false;
 
-            foreach ($source1 as $key => $value) {
-                if ($value === null) {
-                    $source1[$key] = isset_get($source2[$key], $default);
-                    $modified      = true;
-                }
+        foreach ($source1 as $key => $value) {
+            if ($value === null) {
+                $source1[$key] = isset_get($source2[$key], $default);
+                $modified      = true;
             }
-
-            return $modified;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_not_null(): Failed', $e);
         }
+
+        return $modified;
     }
 
 
 
     /**
      * Return the average value of all values in the specified source array
+     *
+     * @param array $source
+     * @param bool $ignore_non_numbers
+     * @return int
      */
     public static function average(array $source, bool $ignore_non_numbers = false): int
     {
-        try{
-            $total = 0;
+        $total = 0;
 
-            foreach ($source as $key => $value) {
-                if (!is_numeric($value)) {
-                    if (!$ignore_non_numbers) {
-                        throw new OutOfBoundsException('The specified source array contains non numeric values');
-                    }
+        foreach ($source as $key => $value) {
+            if (!is_numeric($value)) {
+                if (!$ignore_non_numbers) {
+                    throw new OutOfBoundsException('The specified source array contains non numeric values');
                 }
-
-                $total += $value;
             }
 
-            return $total / count($source);
-
-        } catch (Exception $e) {
-            throw new CoreException('array_average(): Failed', $e);
+            $total += $value;
         }
+
+        return $total / count($source);
     }
 
 
 
     /**
      * Return an array with values ranging from $min to $max
+     *
+     * @param int $min
+     * @param int $max
+     * @return array
      */
     public static function range(int $min, int $max): array
     {
-        try{
-            if (!is_numeric($min)) {
-                throw new CoreException(tr('array_range(): Specified $min not numeric'), 'invalid');
-            }
-
-            if (!is_numeric($max)) {
-                throw new CoreException(tr('array_range(): Specified $max not numeric'), 'invalid');
-            }
-
-            if ($min > $max) {
-                throw new CoreException(tr('array_range(): Specified $min is equal or larger than $max. Please ensure that $min is smaller'), 'invalid');
-            }
-
-            $retval = array();
-
-            for($i = $min; $i <= $max; $i++) {
-                $retval[$i] = $i;
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_range(): Failed', $e);
+        if (!is_numeric($min)) {
+            throw new CoreException(tr('array_range(): Specified $min not numeric'), 'invalid');
         }
+
+        if (!is_numeric($max)) {
+            throw new CoreException(tr('array_range(): Specified $max not numeric'), 'invalid');
+        }
+
+        if ($min > $max) {
+            throw new CoreException(tr('array_range(): Specified $min is equal or larger than $max. Please ensure that $min is smaller'), 'invalid');
+        }
+
+        $retval = [];
+
+        for($i = $min; $i <= $max; $i++) {
+            $retval[$i] = $i;
+        }
+
+        return $retval;
     }
 
 
 
     /**
      * Ensure that all array values
+     *
+     * @param array $source
+     * @param bool $recursive
+     * @return array
      */
     public static function clean(array $source, bool $recursive = true): array
     {
-        try{
-            foreach ($source as &$value) {
-                switch (gettype($value)) {
-                    case 'integer':
-                        // FALLTHROUGH
-                    case 'double':
-                        // FALLTHROUGH
-                    case 'float':
-                        $value = cfi($value);
-                        break;
+        foreach ($source as &$value) {
+            switch (gettype($value)) {
+                case 'integer':
+                    // FALLTHROUGH
+                case 'double':
+                    // FALLTHROUGH
+                case 'float':
+                    $value = cfi($value);
+                    break;
 
-                    case 'string':
-                        $value = cfm($value);
-                        break;
+                case 'string':
+                    $value = cfm($value);
+                    break;
 
-                    case 'array':
-                        if ($recursive) {
-                            $value = Arrays::clean($value, $recursive);
-                        }
+                case 'array':
+                    if ($recursive) {
+                        $value = Arrays::clean($value, $recursive);
+                    }
 
-                        break;
-                }
+                    break;
             }
-
-            return $source;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_clean(): Failed', $e);
         }
+
+        return $source;
     }
 
 
@@ -902,23 +878,18 @@ class Arrays {
      * @package array
      *
      * @param array $source The array to check
-     * @param string $function The function to execute
+     * @param callable $function The function to execute
      * @return boolean Returns true if the specified callback function returned true for all elements in the array, false otherwise
      */
     public static function allExecuteTrue(array $source, callable $function): bool
     {
-        try{
-            foreach ($source as $key => $value) {
-                if (!$function($value)) {
-                    return false;
-                }
+        foreach ($source as $key => $value) {
+            if (!$function($value)) {
+                return false;
             }
-
-            return true;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_all(): Failed', $e);
         }
+
+        return true;
     }
 
 
@@ -936,23 +907,18 @@ class Arrays {
      * @package array
      *
      * @param array $source The array to check
-     * @param string $function The function to execute
+     * @param callable $function The function to execute
      * @return boolean Returns true if the specified callback function returned true for any of the elements in the array, false otherwise
      */
     public static function anyExecuteTrue(array $source, callable $function): bool
     {
-        try{
-            foreach ($source as $key => $value) {
-                if ($function($value)) {
-                    return true;
-                }
+        foreach ($source as $key => $value) {
+            if ($function($value)) {
+                return true;
             }
-
-            return false;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_any(): Failed', $e);
         }
+
+        return false;
     }
 
 
@@ -996,12 +962,7 @@ class Arrays {
      */
     public static function hasDuplicates(array $source): bool
     {
-        try{
-            return (bool) Arrays::countDuplicates($source);
-
-        } catch (Exception $e) {
-            throw new CoreException('array_has_duplicates(): Failed', $e);
-        }
+        return (bool) Arrays::countDuplicates($source);
     }
 
 
@@ -1025,29 +986,18 @@ class Arrays {
      */
     public static function pluck(array $source, string $regex): array
     {
-        try{
-            $retval = array();
+        $retval = [];
 
-            foreach ($source as $key => $value) {
-                if (is_string($value)) {
-                    if (preg_match($regex, $value)) {
-                        $retval[$key] = $value;
-                    }
+        foreach ($source as $key => $value) {
+            if (is_string($value)) {
+                if (preg_match($regex, $value)) {
+                    $retval[$key] = $value;
                 }
             }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_pluck(): Failed', $e);
         }
+
+        return $retval;
     }
-
-
-
-    /*
-     * OBSOLETE
-     */
 
 
 
@@ -1065,23 +1015,18 @@ class Arrays {
      */
     public static function mergeNull()
     {
-        try{
-            $args   = func_get_args();
-            $retval = array();
+        $args   = func_get_args();
+        $retval = [];
 
-            foreach ($args as $array) {
-                foreach ($array as $key => $value) {
-                    if (!isset($retval[$key]) or ($value !== null)) {
-                        $retval[$key] = $value;
-                    }
+        foreach ($args as $array) {
+            foreach ($array as $key => $value) {
+                if (!isset($retval[$key]) or ($value !== null)) {
+                    $retval[$key] = $value;
                 }
             }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_merge_null(): Failed', $e);
         }
+
+        return $retval;
     }
 
 
@@ -1104,47 +1049,42 @@ class Arrays {
      */
     public static function hide(?array $source, array $keys = ['GLOBALS', '%pass', 'ssh_key'], string $hide = '*** HIDDEN ***', string $empty = '-', bool $recurse = true): ?array
     {
-        try{
-            if (!is_array($source)) {
-                if ($source === null) {
-                    return null;
-                }
-
-                throw new CoreException(tr('array_hide(): Specified source is not an array'), 'invalid');
+        if (!is_array($source)) {
+            if ($source === null) {
+                return null;
             }
 
-            $keys = Arrays::force($keys);
-
-            foreach ($source as $source_key => &$source_value) {
-                foreach ($keys as $key) {
-                    /*
-                     *
-                     */
-                    if (strstr($key, '%')) {
-                        if (strstr($source_key, Strings::replace('%', '', $key))) {
-                            $source_value = Strings::hide($source_value, $hide, $empty);
-                        }
-
-                    } else {
-                        if ($source_key === $key) {
-                            $source_value = Strings::hide($source_value, $hide, $empty);
-                        }
-                    }
-
-                    if (is_array($source_value)) {
-                        if ($recurse) {
-                            $source_value = Arrays::hide($source_value, $keys, $hide, $empty, $recurse);
-                        }
-                    }
-                }
-            }
-
-            unset($source_value);
-            return $source;
-
-        } catch (Exception $e) {
-            throw new CoreException('array_merge_null(): Failed', $e);
+            throw new CoreException(tr('Specified source is not an array'), 'invalid');
         }
+
+        $keys = Arrays::force($keys);
+
+        foreach ($source as $source_key => &$source_value) {
+            foreach ($keys as $key) {
+                /*
+                 *
+                 */
+                if (strstr($key, '%')) {
+                    if (strstr($source_key, Strings::replace('%', '', $key))) {
+                        $source_value = Strings::hide($source_value, $hide, $empty);
+                    }
+
+                } else {
+                    if ($source_key === $key) {
+                        $source_value = Strings::hide($source_value, $hide, $empty);
+                    }
+                }
+
+                if (is_array($source_value)) {
+                    if ($recurse) {
+                        $source_value = Arrays::hide($source_value, $keys, $hide, $empty, $recurse);
+                    }
+                }
+            }
+        }
+
+        unset($source_value);
+        return $source;
     }
 
 
@@ -1166,24 +1106,20 @@ class Arrays {
      */
     public static function renameKey(array $source, int|string $old_key, int|string $new_key): array
     {
-        try{
-            if (!is_array($source)) {
-                throw new CoreException(tr('array_rename_key(): Specified source is not an array'), 'invalid');
-            }
-
-            if (!array_key_exists($old_key, $source)) {
-                throw new CoreException(tr('array_rename_key(): Specified $old_key does not exist in the specified source array'), 'not-exists');
-            }
-
-            $source[$new_key] = $source[$old_key];
-            unset($source[$old_key]);
-
-            return $source;
-
-        } catch (Exception $e) {
-            throw new CoreException(tr('array_rename_key(): Failed'), $e);
+        if (!is_array($source)) {
+            throw new CoreException(tr('array_rename_key(): Specified source is not an array'), 'invalid');
         }
+
+        if (!array_key_exists($old_key, $source)) {
+            throw new CoreException(tr('array_rename_key(): Specified $old_key does not exist in the specified source array'), 'not-exists');
+        }
+
+        $source[$new_key] = $source[$old_key];
+        unset($source[$old_key]);
+
+        return $source;
     }
+
 
 
     /**
@@ -1200,15 +1136,10 @@ class Arrays {
      * @param array $source The source array from which the first value must be returned
      * @return mixed The first value of the specified source array
      */
-    public static function first(array$source): array
+    public static function firstValue(array$source): array
     {
-        try{
-            reset($source);
-            return current($source);
-
-        } catch (Exception $e) {
-            throw new CoreException('array_first(): Failed', $e);
-        }
+        reset($source);
+        return current($source);
     }
 
 
@@ -1228,14 +1159,9 @@ class Arrays {
      * @param array $source The source array from which the last value must be returned
      * @return mixed The last value of the specified source array
      */
-    public static function last(array $source): array
+    public static function lastValue(array $source): array
     {
-        try{
-            return end($source);
-
-        } catch (Exception $e) {
-            throw new CoreException('array_last(): Failed', $e);
-        }
+        return end($source);
     }
 
 
@@ -1257,40 +1183,35 @@ class Arrays {
      */
     public static function ensure(array &$source, array $keys = [], mixed $default_value = null, bool $trim_existing = false): array
     {
-        try{
-            if (!$source) {
-                $source = array();
+        if (!$source) {
+            $source = [];
 
-            } elseif (!is_array($source)) {
-                if (is_object($source)) {
-                    throw new CoreException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
-                }
-
-                throw new CoreException(tr('array_ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
+        } elseif (!is_array($source)) {
+            if (is_object($source)) {
+                throw new CoreException(tr('array_ensure(): Specified source is not an array but an object of the class ":class"', array(':class' => get_class($source))), 'invalid');
             }
 
-            if ($keys) {
-                foreach (array_force($keys) as $key) {
-                    if (!$key) {
-                        continue;
+            throw new CoreException(tr('array_ensure(): Specified source is not an array but a ":type"', array(':type' => gettype($source))), 'invalid');
+        }
+
+        if ($keys) {
+            foreach (array_force($keys) as $key) {
+                if (!$key) {
+                    continue;
+                }
+
+                if (array_key_exists($key, $source)) {
+                    if ($trim_existing and is_string($source[$key])) {
+                        /*
+                         * Automatically trim the found value
+                         */
+                        $source[$key] = trim($source[$key], (is_bool($trim_existing) ? ' ' : $trim_existing));
                     }
 
-                    if (array_key_exists($key, $source)) {
-                        if ($trim_existing and is_string($source[$key])) {
-                            /*
-                             * Automatically trim the found value
-                             */
-                            $source[$key] = trim($source[$key], (is_bool($trim_existing) ? ' ' : $trim_existing));
-                        }
-
-                    } else {
-                        $source[$key] = $default_value;
-                    }
+                } else {
+                    $source[$key] = $default_value;
                 }
             }
-
-        } catch (Exception $e) {
-            throw new CoreException('array_ensure(): Failed', $e);
         }
     }
 
@@ -1331,24 +1252,19 @@ class Arrays {
      */
     public static function force(mixed $source, string $separator = ','): array
     {
-        try{
-            if (($source === '') or ($source === null)) {
-                return array();
-            }
-
-            if (!is_array($source)) {
-                if (!is_string($source)) {
-                    return array($source);
-                }
-
-                return explode($separator, $source);
-            }
-
-            return $source;
-
-        } catch (\Exception $e) {
-            throw new CoreException('array_force(): Failed', $e);
+        if (($source === '') or ($source === null)) {
+            return array();
         }
+
+        if (!is_array($source)) {
+            if (!is_string($source)) {
+                return array($source);
+            }
+
+            return explode($separator, $source);
+        }
+
+        return $source;
     }
 
 
