@@ -2,8 +2,15 @@
 
 namespace Phoundation\Core;
 
+use Phoundation\Core\Exception\ConfigException;
+use Phoundation\Exception\OutOfBoundsException;
+
 /**
  * Class Config
+ *
+ * This class contains the methods to read, write and manage configuration options. Default configuration values are
+ * specified in the classes themselves whereas users can add configuration sections in the YAML file
+ * ROOT/config/ENVIRONMENT/CLASSNAME and this class will apply those values.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
@@ -17,41 +24,37 @@ class Config{
      * @var array $data
      */
     protected static array $data = [];
-
+ v
     /**
      * Configuration files that have been read
      *
-     * @var array $sections
+     * @var array $files
      */
-    protected static array $sections = [];
+    protected static array $files = [];
 
 
 
     /**
-     * Reads the configuration file for the specified configuration section
+     * Reads the configuration file for the specified configuration environment
      *
-     * @param string $section
+     * @param string $environment
      * @return bool True if any configuration files were read, false if the file already was read before, or if no
      *      configuration files are available for the specified section
      */
-    public function read(string $section): bool
+    public function read(string $environment): bool
     {
-        if (isset(self::$sections[$section])) {
-            return false;
-        }
-
         $read = false;
 
         // Read the section for each environment
         foreach (['production', ENVIRONMENT] as $environment) {
-            $file = ROOT . 'config/' . $environment . '/' . $section . '.php';
+            $file = ROOT . 'config/' . $environment . '.yaml';
 
-            // Check if a configuration file exists
+            // Check if a configuration file exists for this environment
             if (!file_exists($file)) {
                 // Read the configuration data and merge it in the internal configuration data array
                 $read = true;
                 $data = yaml_parse_file($file);
-                self::$data[$section] = array_merge(self::$data[$section], $data);
+                self::$data = array_merge(self::$data, $data);
             }
         }
 
@@ -81,51 +84,65 @@ class Config{
 
 
     /**
-     * Set configuration data for the specified . separated keys
+     * Return configuration data for the specified key path
      *
      * @param string $keys
-     * @param mixed $value
+     * @param mixed|null $default
+     * @return mixed
      */
-    public static function set(string $keys, mixed $value): void
+    public static function get(string $keys, mixed $default = null): mixed
     {
-        $keys = explode($keys, '.');
-        $data = &self::$data;
-
-        foreach ($keys as $key) {
-            if (!array_key_exists($key, $data)) {
-                // Create the specified key
-                $data[$key] = [];
-            }
-
-            $data = &$data[$key];
-        }
-
-        $data = $value;
+        return self::getSection($keys, $default);
     }
 
 
 
     /**
-     * Get configuration data for the specified key
+     * Return configuration data for the specified key path
      *
      * @param string $keys
+     * @param mixed $value
      * @return mixed
-     * @throws ConfigException
      */
-    public static function get(string $keys, mixed $default = null): mixed
+    public static function set(string $keys, mixed $value = null): mixed
+    {
+        // Get the section and store the data in the return value
+        $section = self::getSection($keys, $value);
+        $return = $section;
+
+        // Update the sectoin data
+        $section = $value;
+        return $return;
+    }
+
+
+
+    /**
+     * Return a byreference configuration data section for the specified key path
+     *
+     * @param string|array $keys
+     * @param mixed $default
+     * @return mixed
+     */
+    protected static function &getSection(string|array $keys, mixed $default = null): mixed
     {
         $keys = explode($keys, '.');
         $data = &static::$data;
 
+        // Go over each key and if the value for the key is an array, request a subsection
         foreach ($keys as $key) {
             if (!isset($data[$key])) {
+                // The requested key does not exist
                 if ($default === null) {
-                    throw new ConfigException(tr('The configuration key ":key" from ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
+                    // We have no default configuration either
+                    throw new ConfigException(tr('The configuration key ":key" from key path ":keys" does not exist', [':key' => $key, ':keys' => $keys]));
                 }
 
+                // The requested key does not exist in configuration, return the default value instead
                 return $default;
             }
 
+            // Get the requested subsection
             $data = &$data[$key];
         }
 
@@ -134,30 +151,30 @@ class Config{
 
 
 
-    /**
-     * Returns true if the specified configuration keys exist, false if not
-     *
-     * @param string $keys
-     * @return bool
-     */
-    public static function exists(string $keys): bool
-    {
-        $keys = explode($keys, '.');
-        $data = &static::$data;
-
-        foreach ($keys as $key) {
-            if (!isset($data[$key])) {
-                return false;
-            }
-
-            $data = &$data[$key];
-        }
-
-        return true;
-    }
-
-
-
+//    /**
+//     * Returns true if the specified configuration keys exist, false if not
+//     *
+//     * @param string $keys
+//     * @return bool
+//     */
+//    public static function exists(string $keys): bool
+//    {
+//        $keys = explode($keys, '.');
+//        $data = &static::$data;
+//
+//        foreach ($keys as $key) {
+//            if (!isset($data[$key])) {
+//                return false;
+//            }
+//
+//            $data = &$data[$key];
+//        }
+//
+//        return true;
+//    }
+//
+//
+//
 //
 //    /*
 //     * Load specified configuration files. All files must be specified by their section name only, no extension nor environment.

@@ -2,6 +2,8 @@
 
 namespace Phoundation\Core;
 
+use Throwable;
+
 /**
  * Class Core
  *
@@ -176,7 +178,6 @@ class Core {
                      * Load basic configuration for the current environment
                      * Load cache libraries (done until here since these need configuration @ load time)
                      */
-                    load_config(' ');
                     $core->register['ready'] = true;
 
                     /*
@@ -190,15 +191,6 @@ class Core {
                      */
                     global $_CONFIG;
                     define('PROTOCOL', 'http' . ($_CONFIG['sessions']['secure'] ? 's' : '') . '://');
-
-                    if ($_CONFIG['security']['url_cloaking']['enabled']) {
-                        /*
-                         * URL cloaking enabled. Load the URL library so that the URL cloaking
-                         * functions are available
-                         */
-                        load_libs('url');
-                    }
-
                     break;
             }
 
@@ -276,13 +268,7 @@ class Core {
 
 
 
-}
-
-
-
-
-
-    /*
+    /**
      * The core::startup() method starts the correct call type handler
      *
      * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -293,7 +279,7 @@ class Core {
      *
      * @return void
      */
-    public function startup()
+    public function startup(): void
     {
         global $_CONFIG, $core;
 

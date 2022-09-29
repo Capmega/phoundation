@@ -2,10 +2,11 @@
 
 namespace Phoundation\Core;
 
+use Phoundation\Core\Exception\LogException;
 use Throwable;
 
 /**
- * Core\Log class
+ * Log class
  *
  * This class is the main event logger class
  *
@@ -28,9 +29,24 @@ Class Log {
     protected static string $target = '';
 
     /**
-     * Keeps track of the LOG FAILURE statuc
+     * Keeps track of the LOG FAILURE status
      */
     protected static bool $fail = false;
+
+    /**
+     * The current threshold level of the log class. The higher this value, the less will be logged
+     *
+     * @var int $threshold
+     */
+    protected static int $threshold = 10;
+
+    /**
+     * Log constructor
+     */
+    protected function __construct()
+    {
+
+    }
 
 
 
@@ -55,6 +71,38 @@ Class Log {
         }
 
         return self::$instance;
+    }
+
+
+
+    /**
+     * Returns the log level on which log messages will pass
+     *
+     * @return int
+     */
+    public static function getThreshold(): int
+    {
+        return self::$threshold;
+    }
+
+
+
+    /**
+     * Sets the log threshold level to the newly specified level and will return the previous level.
+     *
+     * @param int $threshold
+     * @return int
+     * @throws LogException if the specified threshold is invalid.
+     */
+    public static function setThreshold(int $threshold): int
+    {
+        if ($threshold < 1 or $threshold > 10) {
+            throw new LogException(tr('The specified log threshold level ":level" is invalid. Please ensure the level is between 0 and 10', [':level' => $threshold]));
+        }
+
+        $return = $threshold;
+        self::$threshold = $threshold;
+        return $return;
     }
 
 
@@ -236,17 +284,6 @@ Class Log {
     public static function statistics(string $message, int $level = 1): bool
     {
 
-    }
-
-
-
-    /**
-     * Log constructor.
-     *
-     * @param string|null $target
-     */
-    protected function __construct(string $target = null)
-    {
     }
 
 
