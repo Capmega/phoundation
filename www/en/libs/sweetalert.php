@@ -121,24 +121,24 @@ function sweetalert($params, $html = '', $type = '', $options = array()) {
         $options['html']  = $params['html'];
         $options['type']  = $params['type'];
 
-        if($params['options']['confirmAction']) {
+        if ($params['options']['confirmAction']) {
             $then['confirm'] = $params['options']['confirmAction'];
             unset($params['options']['confirmAction']);
         }
 
-        if($params['options']['cancelAction']) {
+        if ($params['options']['cancelAction']) {
             $then['cancel'] = $params['options']['cancelAction'];
             unset($params['options']['cancelAction']);
         }
 
         foreach($params['options'] as $key => $value) {
-            if($value === null) continue;
+            if ($value === null) continue;
             $options[$key] = $value;
         }
 
         $retval = 'swal('.json_encode_custom($options).')';
 
-        if(!empty($then)) {
+        if (!empty($then)) {
             $retval .= '.then('.isset_get($then['confirm'], 'undefined').', '.isset_get($then['cancel'], 'undefined').')';
         }
 
@@ -163,11 +163,11 @@ function sweetalert_queue($params) {
         array_default($params, 'animation'          , false);
         array_default($params, 'progress_steps'     , true);
 
-        if(empty($params['modals'])) {
+        if (empty($params['modals'])) {
             throw new CoreException('sweetalert_queue(): No modals specified', 'not-specified');
         }
 
-        if(!is_array($params['modals'])) {
+        if (!is_array($params['modals'])) {
             throw new CoreException('sweetalert_queue(): Specified modals list should be an array', 'invalid');
         }
 
@@ -192,8 +192,8 @@ function sweetalert_queue($params) {
                     break;
 
                 case 'progress_steps':
-                    if($value) {
-                        if($value === true) {
+                    if ($value) {
+                        if ($value === true) {
                             $value = array_keys($params['modals']);
 
                         } else {

@@ -9,17 +9,17 @@ load_libs('editors,blogs,validate,upload');
 /*
  * Ensure we have an existing blog with access!
  */
-if(empty($_GET['blog'])) {
+if (empty($_GET['blog'])) {
     html_flash_set(tr('Please select a blog'), 'error');
     redirect('/admin/blogs.php');
 }
 
-if(!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
+if (!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr('The specified blog "'.$_GET['blog'].'" does not exist'), 'error');
     redirect('/admin/blogs.php');
 }
 
-if(($blog['createdby'] != $_SESSION['user']['id']) and !has_rights($blog['seoname'])) {
+if (($blog['createdby'] != $_SESSION['user']['id']) and !has_rights($blog['seoname'])) {
     html_flash_set(tr('You do not have access to the %object% "%blog%"', array('%object%' => $params['object'], '%blog%' => $blog['name'])), 'error');
     redirect('/admin/blogs_posts.php?blog='.$blog['seoname']);
 }
@@ -29,7 +29,7 @@ if(($blog['createdby'] != $_SESSION['user']['id']) and !has_rights($blog['seonam
 /*
  * Set parameter defaults
  */
-if(!isset($params)) {
+if (!isset($params)) {
     $params = null;
 }
 
@@ -102,11 +102,11 @@ array_default($params['errors'], 'name_min'            , tr('Please ensure that 
 /*
  * Edit or add?
  */
-if(empty($_GET['post'])) {
+if (empty($_GET['post'])) {
     $mode = 'create';
     $post = array('blog' => isset($blog['seoname']));
 
-    if(!empty($_POST['docreate'])) {
+    if (!empty($_POST['docreate'])) {
         try{
             /*
              * Create the specified post
@@ -141,7 +141,7 @@ if(empty($_GET['post'])) {
             $post['id'] = sql_insert_id();
             blogs_update_keywords($post['blogs_id'], $post['id'], $post['keywords']);
 
-            if(!empty($params['use_key_value'])) {
+            if (!empty($params['use_key_value'])) {
                 blogs_update_key_value_store($post['id'], $post, isset_get($params['key_value']));
             }
 
@@ -166,7 +166,7 @@ if(empty($_GET['post'])) {
                      WHERE     `blogs_posts`.`blogs_id` = :blogs_id
                      AND       `blogs_posts`.`seoname`  = :seoname', array(':blogs_id' => $blog['id'], ':seoname' => $_GET['post']));
 
-    if(!$post) {
+    if (!$post) {
         /*
          *
          */
@@ -177,7 +177,7 @@ if(empty($_GET['post'])) {
     $post['blog']       = $blog['seoname'];
     $post['key_values'] = sql_list('SELECT `key`, `value` FROM `blogs_key_values` WHERE `blogs_posts_id` = :blogs_posts_id', array(':blogs_posts_id' => $post['id']));
 
-    if(!empty($_POST['doupdate'])) {
+    if (!empty($_POST['doupdate'])) {
         /*
          * Modify the specified post
          */
@@ -230,7 +230,7 @@ if(empty($_GET['post'])) {
                              ':seoname'        => $post['seoname'],
                              ':body'           => $post['body']);
 
-            if($params['use_createdon']) {
+            if ($params['use_createdon']) {
                 $execute[':createdon'] = date_convert($post['createdon'], 'mysql');
             }
 
@@ -238,7 +238,7 @@ if(empty($_GET['post'])) {
 
             blogs_update_keywords($post['blogs_id'], $post['id'], $post['keywords']);
 
-            if(!empty($params['use_key_value'])) {
+            if (!empty($params['use_key_value'])) {
                 blogs_update_key_value_store($post['id'], $post, isset_get($params['key_value']));
             }
 
@@ -273,7 +273,7 @@ $html = '   <form id="blogpost" name="blogpost" action="'.domain($params['form_a
 $controls = array('left'  => array(),
                   'right' => array());
 
-if($params['use_category']) {
+if ($params['use_category']) {
     $controls[blog_side()][] = '<div class="form-group">
                                     <label class="col-md-3 control-label" for="category">'.$params['label_category'].'</label>
                                     <div class="col-md-9">
@@ -286,7 +286,7 @@ if($params['use_category']) {
                                 </div>';
 }
 
-if($params['use_createdon']) {
+if ($params['use_createdon']) {
     load_libs('jqueryui');
 
     $createdon  = array('class'       => 'form-control',
@@ -301,7 +301,7 @@ if($params['use_createdon']) {
                                 </div>';
 }
 
-if($params['use_groups']) {
+if ($params['use_groups']) {
     $controls[blog_side()][] = '<div class="form-group">
                                     <label class="col-md-3 control-label" for="group">'.$params['label_group'].'</label>
                                     <div class="col-md-9">
@@ -315,7 +315,7 @@ if($params['use_groups']) {
                                 </div>';
 }
 
-if($params['use_assigned_to']) {
+if ($params['use_assigned_to']) {
     $controls[blog_side()][] = '<div class="form-group">
                                     <label class="col-md-3 control-label" for="group">'.$params['label_assigned_to'].'</label>
                                     <div class="col-md-9">
@@ -329,7 +329,7 @@ if($params['use_assigned_to']) {
                                 </div>';
 }
 
-if($params['use_priorities']) {
+if ($params['use_priorities']) {
     $controls[blog_side()][] = '<div class="form-group">
                                     <label class="col-md-3 control-label" for="priority">'.$params['label_priority'].'</label>
                                     <div class="col-md-9">
@@ -353,7 +353,7 @@ $controls[blog_side()][] = '<div class="form-group">
                                 </div>
                             </div>';
 
-if($params['use_keywords']) {
+if ($params['use_keywords']) {
     $controls[blog_side()][] = '<div class="form-group">
                                     <label class="col-md-3 control-label" for="keywords">'.$params['label_keywords'].'</label>
                                     <div class="col-md-9">
@@ -362,7 +362,7 @@ if($params['use_keywords']) {
                                 </div>';
 }
 
-if($params['use_description']) {
+if ($params['use_description']) {
     $controls[blog_side()][] = '<div class="form-group">
                                     <label class="col-md-3 control-label" for="description">'.$params['label_description'].'</label>
                                     <div class="col-md-9">
@@ -371,7 +371,7 @@ if($params['use_description']) {
                                 </div>';
 }
 
-if($params['use_url']) {
+if ($params['use_url']) {
     $controls[blog_side()][] = '<div class="form-group">
                                     <label class="col-md-3 control-label" for="urlref">'.tr('URL').'</label>
                                     <div class="col-md-9">
@@ -380,7 +380,7 @@ if($params['use_url']) {
                                 </div>';
 }
 
-if($params['use_status']) {
+if ($params['use_status']) {
     $params['status_select']['selected'] = isset_get($post['status'], '');
 
     $controls[blog_side()][] = '<div class="form-group">
@@ -391,7 +391,7 @@ if($params['use_status']) {
                                 </div>';
 }
 
-if($params['use_key_value']) {
+if ($params['use_key_value']) {
     $side = blog_side();
 
     foreach($params['key_value'] as $keyvalue) {
@@ -401,7 +401,7 @@ if($params['use_key_value']) {
                                 <label class="col-md-3 control-label" for="status">'.isset_get($keyvalue['label']).'</label>
                                 <div class="col-md-9">';
 
-        if(empty($keyvalue['resource'])) {
+        if (empty($keyvalue['resource'])) {
             $keyvalue_html .= '<input type="text" class="form-control" name="key_value['.isset_get($keyvalue['name']).']" id="key_value['.isset_get($keyvalue['name']).']" value="'.isset_get($post['key_values'][$keyvalue['name']]).'" placeholder="'.isset_get($keyvalue['placeholder_url']).'" maxlength="255">';
 
         } else {
@@ -423,7 +423,7 @@ foreach($controls['left'] as $id => $control) {
                         '.$control.'
                     </div>';
 
-    if(!empty($controls['right'][$id])) {
+    if (!empty($controls['right'][$id])) {
         $html .= '  <div class="col-md-6">
                         '.$controls['right'][$id].'
                     </div>';
@@ -432,11 +432,11 @@ foreach($controls['left'] as $id => $control) {
     $html .= '  </div>';
 }
 
-if($params['use_append']) {
+if ($params['use_append']) {
     /*
      * Show a readonly history, allow only add hisory, no edits
      */
-    if(isset_get($post['body'])) {
+    if (isset_get($post['body'])) {
         $html .= '                      <hr>
                                         <div class="row">
                                             <div class="col-md-12">
@@ -475,7 +475,7 @@ $html .= '                      <hr>
                 </div>
             </form>';
 
-if(empty($post['id'])) {
+if (empty($post['id'])) {
     $html .= $params['label_photos'];
 
 } else {
@@ -489,7 +489,7 @@ if(empty($post['id'])) {
                             </header>
                             <div class="panel-body blogpost photos">';
 
-    if(!count($photos)) {
+    if (!count($photos)) {
         $html .= '<div class="blogpost nophotos">'.tr('This post has no separate photos yet').'</div>';
 
     } else {
@@ -504,7 +504,7 @@ if(empty($post['id'])) {
                 $image = false;
             }
 
-            if(!$image) {
+            if (!$image) {
                 $image = array(tr('Invalid image'), tr('Invalid image'));
             }
 
@@ -616,24 +616,24 @@ $vj->validate('body'       , 'required' , 'true', '<span class="FcbErrorTail"></
 $vj->validate('name'    , 'minlength', '2'               , '<span class="FcbErrorTail"></span>'.$params['errors']['name_min']);
 $vj->validate('body'    , 'minlength', $params['bodymin'], '<span class="FcbErrorTail"></span>'.$params['errors']['body_min']);
 
-if($params['use_status']) {
+if ($params['use_status']) {
     $vj->validate('status', 'required' , 'true', '<span class="FcbErrorTail"></span>'.$params['errors']['status_required']);
 }
 
-if($params['use_groups']) {
+if ($params['use_groups']) {
     $vj->validate('seogroup', 'required', 'true', '<span class="FcbErrorTail"></span>'.$params['errors']['group_required']);
 }
 
-if($params['use_priorities']) {
+if ($params['use_priorities']) {
     $vj->validate('priority', 'required' , 'true', '<span class="FcbErrorTail"></span>'.$params['errors']['priority_required']);
 }
 
-if($params['use_keywords']) {
+if ($params['use_keywords']) {
     $vj->validate('keywords'   , 'minlength', '2'   , '<span class="FcbErrorTail"></span>'.$params['errors']['keywords_required']);
     $vj->validate('keywords'   , 'required' , 'true', '<span class="FcbErrorTail"></span>'.$params['errors']['keywords_min']);
 }
 
-if($params['use_description']) {
+if ($params['use_description']) {
     $vj->validate('description', 'required' , 'true', '<span class="FcbErrorTail"></span>'.$params['errors']['description_required']);
     $vj->validate('description', 'minlength', '16'  , '<span class="FcbErrorTail"></span>'.$params['errors']['description_min']);
     $vj->validate('description', 'maxlength', '160' , '<span class="FcbErrorTail"></span>'.$params['errors']['description_max']);
@@ -657,7 +657,7 @@ echo ca_page($html, $params);
 function blog_side() {
     static $side;
 
-    if(!$side or ($side == 'right')) {
+    if (!$side or ($side == 'right')) {
         return $side = 'left';
     }
 

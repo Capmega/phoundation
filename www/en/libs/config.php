@@ -28,8 +28,8 @@ function config_get_for_environment($environment) {
         include(ROOT.'config/production.php');
         include(ROOT.'config/deploy.php');
 
-        if($environment !== 'production') {
-            if(!file_exists(ROOT.'config/'.$environment.'.php')) {
+        if ($environment !== 'production') {
+            if (!file_exists(ROOT.'config/'.$environment.'.php')) {
                 throw new CoreException(tr('config_get_for_environment(): Specified environment ":environment" does not exist', array(':environment' => $environment)), 'not-exists');
             }
 
@@ -39,7 +39,7 @@ function config_get_for_environment($environment) {
         /*
          * Optionally load the platform specific configuration file, if it exists
          */
-        if(file_exists($file = ROOT.'config/'.$environment.'_'.PLATFORM.'.php')) {
+        if (file_exists($file = ROOT.'config/'.$environment.'_'.PLATFORM.'.php')) {
             include($file);
         }
 
@@ -69,14 +69,14 @@ function config_read($environment, $section = null) {
     try{
         load_libs('array-tokenizer');
 
-        if($section) {
+        if ($section) {
             $section = '_'.$section;
         }
 
         /*
          * Optionally load the platform specific configuration file, if it exists
          */
-        if(!file_exists($file = ROOT.'config/'.$environment.$section.'.php')) {
+        if (!file_exists($file = ROOT.'config/'.$environment.$section.'.php')) {
             throw new CoreException(tr('config_read(): The specified configuration file ":file" does not exist', array(':file' => 'ROOT/config/'.$environment.$section.'.php')), 'not-exists');
         }
 
@@ -86,7 +86,7 @@ function config_read($environment, $section = null) {
         preg_match_all('/\$_CONFIG\[(.+?)\]\s*=\s*(.+?;)(?:\s*\/\/\s*(.+?)\n)?/imus', $data, $matches);
 
         foreach($matches as $level => $submatches) {
-            if($level !== 1) {
+            if ($level !== 1) {
                 continue;
             }
 
@@ -97,11 +97,11 @@ function config_read($environment, $section = null) {
                 $section = &$config;
 
                 foreach($keys as $key) {
-                    if((substr($key, 0, 1) == '"') or (substr($key, 0, 1) == "'")) {
+                    if ((substr($key, 0, 1) == '"') or (substr($key, 0, 1) == "'")) {
                         $key = substr($key, 1, -1);
                     }
 
-                    if(!isset($section[$key])) {
+                    if (!isset($section[$key])) {
                         $section[$key] = array();
                     }
 
@@ -110,7 +110,7 @@ function config_read($environment, $section = null) {
 
                 $section['__value__'] = $matches[2][$id];
 
-                if(preg_match('/array(.+?);/imus', $section['__value__'])) {
+                if (preg_match('/array(.+?);/imus', $section['__value__'])) {
                     /*
                      * The value is an array that can contain various keys, values and descriptions
                      */
@@ -118,7 +118,7 @@ function config_read($environment, $section = null) {
                     $section['__value__'] = array_tokenizer($section['__value__']);
 
                     foreach($section['__value__'] as $key => $value) {
-                        if(strstr($key, '____')) {
+                        if (strstr($key, '____')) {
                             $section['__value__'][str_replace('____', '::', $key)] = $value;
                             unset($section['__value__'][$key]);
                         }
@@ -131,7 +131,7 @@ function config_read($environment, $section = null) {
                     $section['__value__'] = Strings::endsNotWith($section['__value__'], ';');
                     $section['__value__'] = force_datatype($section['__value__']);
 
-                    if((substr($section['__value__'], 0, 1) == '"') or (substr($section['__value__'], 0, 1) == "'")) {
+                    if ((substr($section['__value__'], 0, 1) == '"') or (substr($section['__value__'], 0, 1) == "'")) {
                         $section['__value__'] = substr($section['__value__'], 1, -1);
                     }
                 }
@@ -172,7 +172,7 @@ function config_write($data, $environment, $section = false) {
     try{
         $lines = array();
 
-        if($section) {
+        if ($section) {
             $config_string = '$_CONFIG[\''.$section.'\']';
 
         } else {
@@ -182,17 +182,17 @@ function config_write($data, $environment, $section = false) {
         foreach($data as $key => $value) {
             $line = config_lines($key, $value);
 
-            if($line) {
+            if ($line) {
                 $lines   = array_merge($lines, config_lines($key, $value, $config_string));
                 $lines[] = '';
             }
         }
 
-        if(!$lines) {
+        if (!$lines) {
             return false;
         }
 
-        if($section) {
+        if ($section) {
             $file = ROOT.'config/'.$environment.'_'.$section.'.php';
 
         } else {
@@ -234,15 +234,15 @@ function config_update($environment, $keys, $value) {
     global $_CONFIG;
 
     try{
-        if(!$keys) {
+        if (!$keys) {
             throw new CoreException(tr('config_update(): No keys specified. Please specify a valid configuration key set'), 'not-specified');
         }
 
-        if(!$value) {
+        if (!$value) {
             throw new CoreException(tr('config_update(): No value specified.'), 'not-specified');
         }
 
-        if(!$environment) {
+        if (!$environment) {
             throw new CoreException(tr('config_update(): No environment specified.'), 'not-specified');
         }
 
@@ -250,7 +250,7 @@ function config_update($environment, $keys, $value) {
         $basekey = current($keys);
         $section = false;
 
-        if(config_exists($basekey)) {
+        if (config_exists($basekey)) {
             /*
              * This base key is not available in default configuration, load
              * specific configuration file
@@ -258,7 +258,7 @@ function config_update($environment, $keys, $value) {
             $section = $basekey;
             $CONFIG  = config_read($environment, $basekey);
 
-            if(!isset($CONFIG[$basekey])) {
+            if (!isset($CONFIG[$basekey])) {
                 throw new CoreException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $basekey)), 'not-exists');
             }
 
@@ -269,7 +269,7 @@ function config_update($environment, $keys, $value) {
         $config = &$CONFIG;
 
         foreach($keys as $key) {
-            if(!array_key_exists($key, $config)) {
+            if (!array_key_exists($key, $config)) {
                 throw new CoreException(tr('config_update(): The specified configuration section ":section" does not exist', array(':section' => $keys)), 'not-exists');
             }
 
@@ -278,15 +278,15 @@ function config_update($environment, $keys, $value) {
 
         $value = force_datatype($value);
 
-        if(!array_key_exists('__value__', $config)) {
+        if (!array_key_exists('__value__', $config)) {
             throw new CoreException(tr('config_update(): The specified configuration section ":section" is not a configuration leaf node and cannot be configured.', array(':section' => $keys)), 'invalid');
         }
 
-        if((gettype($config['__value__']) != gettype($value)) and ($config['__value__'] !== null)) {
+        if ((gettype($config['__value__']) != gettype($value)) and ($config['__value__'] !== null)) {
             throw new CoreException(tr('config_update(): The specified configuration section ":section" should be of datatype ":current" but is specified as datatype ":specified"', array(':current' => gettype($config['__value__']), ':specified' => gettype($value))), 'invalid');
         }
 
-        if($config['__value__'] === $value) {
+        if ($config['__value__'] === $value) {
             /*
              * The value hasn't changed, do not write anything
              */
@@ -322,7 +322,7 @@ function config_lines($key, $value, $config_string = '$_CONFIG') {
     try{
         $lines = array();
 
-        if(array_key_exists('__value__', $value)) {
+        if (array_key_exists('__value__', $value)) {
             /*
              * Leaf node. Clean data and insert
              */
@@ -412,7 +412,7 @@ function config_exists($file) {
     static $paths;
 
     try{
-        if(!$paths) {
+        if (!$paths) {
             $paths = array(ROOT.'config/base/',
                            ROOT.'config/production',
                            ROOT.'config/'.ENVIRONMENT.'');
@@ -426,11 +426,11 @@ function config_exists($file) {
          * available, the environment file
          */
         foreach($paths as $id => $path) {
-            if(!$file) {
+            if (!$file) {
                 /*
                  * Trying to load default configuration files again
                  */
-                if(!$id) {
+                if (!$id) {
                     $path .= 'default.php';
 
                 } else {
@@ -438,7 +438,7 @@ function config_exists($file) {
                 }
 
             } else {
-                if($id) {
+                if ($id) {
                     $path .= '_'.$file.'.php';
 
                 } else {
@@ -446,7 +446,7 @@ function config_exists($file) {
                 }
             }
 
-            if(file_exists($path)) {
+            if (file_exists($path)) {
                 return true;
             }
         }

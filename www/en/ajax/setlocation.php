@@ -4,7 +4,7 @@
     try{
         //load_libs('googlemaps,json');
         //
-        //if(empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])) {
+        //if (empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])) {
         //    throw new CoreException('Invalid location parameters specified');
         //}
         //
@@ -14,7 +14,7 @@
         //$address   = array();
         //$city      = array();
         //
-        //if(empty($locations[0])) {
+        //if (empty($locations[0])) {
         //    /*
         //     * No location found for the specified lat/long
         //     */
@@ -59,7 +59,7 @@
         //            break;
         //
         //        case 'administrative_area_level_2':
-        //            if($_SESSION['location']['components']['locality'] != $value) {
+        //            if ($_SESSION['location']['components']['locality'] != $value) {
         //                $city['c']    = $value['short_name'];
         //                $address['c'] = $value['short_name'];
         //            }
@@ -76,7 +76,7 @@
         //            break;
         //
         //        case 'route':
-        //            if(empty($address['g'])) {
+        //            if (empty($address['g'])) {
         //                $address['g'] = $value['short_name'];
         //
         //            } else {
@@ -85,7 +85,7 @@
         //            break;
         //
         //        case 'street_number':
-        //            if(empty($address['g'])) {
+        //            if (empty($address['g'])) {
         //                $address['g'] = $value['short_name'];
         //
         //            } else {
@@ -115,7 +115,7 @@
         load_libs('geo,json,googlemaps,json');
         load_config('geo');
 
-        if(empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])) {
+        if (empty($_GET['latitude']) or !is_numeric($_GET['latitude']) or empty($_GET['longitude']) or !is_numeric($_GET['longitude'])) {
             throw new CoreException('Invalid location parameters specified');
         }
 
@@ -156,10 +156,10 @@
                  */
                 $_SESSION['location']['country'] = c_get_country($country);
 
-                if(!$_SESSION['location']['country']) {
+                if (!$_SESSION['location']['country']) {
                     $_SESSION['location']['country'] = c_get_country('%'.$country.'%');
 
-                    if(!$_SESSION['location']['country']) {
+                    if (!$_SESSION['location']['country']) {
                         throw new CoreException(tr('Indicated country "%country%" was not found', array('%country%' => $country)), 'notexists');
                     }
                 }
@@ -170,10 +170,10 @@
                  */
                 $_SESSION['location']['state'] = c_get_state($state, $_SESSION['location']['country']['id']);
 
-                if(!$_SESSION['location']['state']) {
+                if (!$_SESSION['location']['state']) {
                     $_SESSION['location']['state'] = c_get_state('%'.$state.'%', $_SESSION['location']['country']['id']);
 
-                    if(!$_SESSION['location']['state']) {
+                    if (!$_SESSION['location']['state']) {
                         throw new CoreException(tr('Indicated state "%state%" was not found', array('%state%' => $state)), 'notexists');
                     }
                 }
@@ -184,10 +184,10 @@
                  */
                 $_SESSION['location']['city'] = c_get_city($city, $_SESSION['location']['state']['id']);
 
-                if(!$_SESSION['location']['city']) {
+                if (!$_SESSION['location']['city']) {
                     $_SESSION['location']['city'] = c_get_state('%'.$state.'%', $_SESSION['location']['state']['id']);
 
-                    if(!$_SESSION['location']['city']) {
+                    if (!$_SESSION['location']['city']) {
                         throw new CoreException(tr('Indicated city "%city%" was not found', array('%city%' => $state)), 'notexists');
                     }
                 }

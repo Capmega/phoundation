@@ -47,7 +47,7 @@ function apache_library_init() {
  */
 function apache_write_vhost($hostname, $vhost_name, $params, $port) {
     try{
-        if(!is_array($params)) {
+        if (!is_array($params)) {
             throw new CoreException(tr('apache_write_vhost(): Invalid data for params. Params must be  an array', 'invalid'));
         }
 
@@ -133,7 +133,7 @@ function apache_set_identification($hostname, $params) {
  */
 function apache_get_vhosts_path($server_os) {
     try{
-        if(empty($server_os)) {
+        if (empty($server_os)) {
             throw new CoreException(tr('apache_get_vhosts_path(): No operating system specified'), 'not-specified');
         }
         switch($server_os) {

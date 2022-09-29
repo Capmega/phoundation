@@ -11,17 +11,17 @@ $update = sql_prepare('UPDATE `blogs_media` SET `hash` = :hash WHERE `id` = :id'
 log_console(tr('Updating all blog media hash values. This might take a little while. NOTE: Each following dot represents one file'));
 
 while($media = sql_fetch($medias)) {
-    if(empty($media['file'])) continue;
+    if (empty($media['file'])) continue;
     cli_dot(1);
 
     $hash = '';
     $file = ROOT.'data/content/photos/'.$media['file'].'-original.jpg';
 
-    if(file_exists($file)) {
+    if (file_exists($file)) {
         $hash = hash('sha256', $file);
     }
 
-    if($hash) {
+    if ($hash) {
         $update->execute(array(':id'   => $media['id'],
                                ':hash' => $hash));
     }

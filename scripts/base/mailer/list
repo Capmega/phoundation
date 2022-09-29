@@ -17,8 +17,8 @@ try{
 
     log_console('Mailer list for "'.PROJECT.'"', '', 'white');
 
-    if(!$list = mailer_list($status, '`id`, `name`, `addedon`, `starton`, `startedon`, `finishedon`, `status`')) {
-        if($status) {
+    if (!$list = mailer_list($status, '`id`, `name`, `addedon`, `starton`, `startedon`, `finishedon`, `status`')) {
+        if ($status) {
             log_console('There currently are no mailers for this project with the status "'.str_log($status).'"', '', 'yellow');
 
         } else {

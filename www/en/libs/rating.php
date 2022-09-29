@@ -120,7 +120,7 @@ function rating_calculate($rating) {
  */
 function rating_update($ratings_id, $value) {
     try{
-        if(!is_numeric($value) or ($value > 5) or ($value < 0)) {
+        if (!is_numeric($value) or ($value > 5) or ($value < 0)) {
             throw new CoreException(tr('rating_calculate(): Specified value ":value" is invalid, it should be in between 0 and 5', array(':value' => $value)), $e);
         }
 

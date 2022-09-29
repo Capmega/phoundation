@@ -26,25 +26,25 @@ function synonym($source, $params = array()) {
         array_default($params, 'chance'  , 50);
         array_default($params, 'skip'    , null);
 
-        if(!is_numeric($params['chance']) or ($params['chance'] < 0) or ($params['chance'] > 100)) {
+        if (!is_numeric($params['chance']) or ($params['chance'] < 0) or ($params['chance'] > 100)) {
             throw new CoreException(tr('synonym(): Invalid chance specified, please specify a numeric value in between 0 and 100'), 'invalid');
         }
 
-        if($params['skip']) {
+        if ($params['skip']) {
             $params['skip'] = Arrays::force(strtolower(str_force($params['skip'])));
         }
 
         /*
          * Do replace from specified synonyms list
          */
-        if(!empty($params['synonyms'])) {
+        if (!empty($params['synonyms'])) {
             $params['synonyms'] = Arrays::force($params['synonyms']);
 
             foreach($params['synonyms'] as $list) {
                 $list = Arrays::force($list);
 
                 foreach($list as $synonym) {
-                    if(mt_rand(0, 100) < $params['chance']) {
+                    if (mt_rand(0, 100) < $params['chance']) {
                         $source = preg_replace('/\b'.$synonym.'\b/imus', array_get_random($list), $source);
                     }
                 }
@@ -59,11 +59,11 @@ function synonym($source, $params = array()) {
             $minlength = 4;
             $retval    = '';
 
-            if(preg_match_all('/(\W*)(\w+)(\W*)/imus', $source, $matches)) {
+            if (preg_match_all('/(\W*)(\w+)(\W*)/imus', $source, $matches)) {
                 foreach($matches[2] as $id => $match) {
-                    if(strlen($match) >= $minlength) {
-                        if(mt_rand(0, 100) < $params['chance']) {
-                            if(!in_array(strtolower($match), $params['skip'])) {
+                    if (strlen($match) >= $minlength) {
+                        if (mt_rand(0, 100) < $params['chance']) {
+                            if (!in_array(strtolower($match), $params['skip'])) {
                                 $match = synonym_get($match);
                             }
                         }
@@ -88,8 +88,8 @@ function synonym($source, $params = array()) {
  */
 function synonym_get($word) {
     try{
-        if(!$data = sql_list('SELECT `synonyms` FROM `synonyms` WHERE `word` = :word', array(':word' => $word))) {
-            if(!sql_get('SELECT COUNT(`id`) AS count FROM `synonyms`', 'count')) {
+        if (!$data = sql_list('SELECT `synonyms` FROM `synonyms` WHERE `word` = :word', array(':word' => $word))) {
+            if (!sql_get('SELECT COUNT(`id`) AS count FROM `synonyms`', 'count')) {
                 throw new CoreException(tr('synonym_get(): Synonyms table is empty. Please run ./scripts/base/importers/synonyms'), 'empty');
             }
 
@@ -117,25 +117,25 @@ function synonym_get($word) {
  */
 function synonym_random($count = 1, $nospaces = false) {
     try{
-        if($nospaces) {
-            if(!is_string($nospaces)) {
+        if ($nospaces) {
+            if (!is_string($nospaces)) {
                 $nospaces = '';
             }
         }
 
-        if(!$data = sql_list('SELECT `word` FROM `synonyms` ORDER BY RAND() LIMIT '.cfi($count))) {
+        if (!$data = sql_list('SELECT `word` FROM `synonyms` ORDER BY RAND() LIMIT '.cfi($count))) {
             throw new CoreException(tr('synonym_get(): Synonyms table is empty. Please run ./scripts/base/importers/synonyms'), 'empty');
         }
 
-        if($count == 1) {
-            if($nospaces !== false) {
+        if ($count == 1) {
+            if ($nospaces !== false) {
                 return str_replace(' ', $nospaces, array_pop($data));
             }
 
             return array_pop($data);
         }
 
-        if($nospaces) {
+        if ($nospaces) {
             foreach($data as $key => &$value) {
                 $value = str_replace(' ', $nospaces, $value);
             }

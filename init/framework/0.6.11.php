@@ -2,7 +2,7 @@
 sql_index_exists('geo_states', 'latitude' , '!ALTER TABLE `geo_states` ADD INDEX (`latitude`);');
 sql_index_exists('geo_states', 'longitude', '!ALTER TABLE `geo_states` ADD INDEX (`longitude`);');
 
-if(sql_table_exists('geo_provences')) {
+if (sql_table_exists('geo_provences')) {
     sql_query('RENAME TABLE `geo_provences` TO `geo_counties`;');
 
     sql_foreignkey_exists('geo_cities', 'fk_geo_cities_provences_id', 'ALTER TABLE `geo_cities` DROP FOREIGN KEY `fk_geo_cities_provences_id`;');

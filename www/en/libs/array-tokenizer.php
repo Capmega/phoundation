@@ -19,11 +19,11 @@ function array_tokenizer($string) {
     static $scanner;
 
     try{
-        if(empty($scanner)) {
+        if (empty($scanner)) {
             $scanner = new ArrayTokenScanner();
         }
 
-        if(!is_string($string)) {
+        if (!is_string($string)) {
             throw new CoreException(tr('array_tokenizer(): Specified variable is not a string but datatype ":type"', array(':type' => gettype($string))), 'invalid');
         }
 
@@ -61,8 +61,8 @@ class ArrayTokenScanner
     {
         // Remove whitespace and semi colons
         $sanitized = trim($string, " \t\n\r\0\x0B;");
-        if(preg_match('/^(\[|array\().*(\]|\))$/', $sanitized)) {
-            if($tokens = $this->tokenize("<?php {$sanitized}")) {
+        if (preg_match('/^(\[|array\().*(\]|\))$/', $sanitized)) {
+            if ($tokens = $this->tokenize("<?php {$sanitized}")) {
                 $this->initialize($tokens);
                 return $this->parse($tokens);
             }
@@ -80,7 +80,7 @@ class ArrayTokenScanner
         $this->arrayKeys = [];
         while($current = current($tokens)) {
             $next = next($tokens);
-            if($next[0] === T_DOUBLE_ARROW) {
+            if ($next[0] === T_DOUBLE_ARROW) {
                 $this->arrayKeys[] = $current[1];
             }
         }
@@ -94,7 +94,7 @@ class ArrayTokenScanner
     {
         $array = [];
         $token = current($tokens);
-        if(in_array($token[0], [T_ARRAY, T_BRACKET_OPEN])) {
+        if (in_array($token[0], [T_ARRAY, T_BRACKET_OPEN])) {
 
             // Is array!
             $assoc = false;
@@ -104,12 +104,12 @@ class ArrayTokenScanner
 
 
                 // Skip arrow ( => )
-                if(in_array($token[0], [T_DOUBLE_ARROW])) {
+                if (in_array($token[0], [T_DOUBLE_ARROW])) {
                     continue;
                 }
 
                 // Reset associative array key
-                if($token[0] === T_COMMA_SEPARATOR) {
+                if ($token[0] === T_COMMA_SEPARATOR) {
                     $assoc = false;
                     continue;
                 }
@@ -117,14 +117,14 @@ class ArrayTokenScanner
                 // Look for array keys
                 $next = next($tokens);
                 prev($tokens);
-                if($next[0] === T_DOUBLE_ARROW) {
+                if ($next[0] === T_DOUBLE_ARROW) {
                     // Is assoc key
                     $assoc = $token[1];
-                    if(preg_match('/^-?(0|[1-9][0-9]*)$/', $assoc)) {
+                    if (preg_match('/^-?(0|[1-9][0-9]*)$/', $assoc)) {
                         $index = $assoc = (int) $assoc;
                     }
 
-                    if((substr($assoc, 0, 1) == '"') or (substr($assoc, 0, 1) == "'")) {
+                    if ((substr($assoc, 0, 1) == '"') or (substr($assoc, 0, 1) == "'")) {
                         $assoc = substr($assoc, 1, -1);
                     }
 
@@ -132,23 +132,23 @@ class ArrayTokenScanner
                 }
 
                 // Parse array contents recursively
-                if(in_array($token[0], [T_ARRAY, T_BRACKET_OPEN])) {
+                if (in_array($token[0], [T_ARRAY, T_BRACKET_OPEN])) {
                     $array[($assoc !== false) ? $assoc : $this->createKey($index)] = $this->parse($tokens);
                     continue;
                 }
 
                 // Parse atomic string
-                if(in_array($token[0], [T_STRING, T_NUM_STRING, T_CONSTANT_ENCAPSED_STRING])) {
+                if (in_array($token[0], [T_STRING, T_NUM_STRING, T_CONSTANT_ENCAPSED_STRING])) {
                     $array[($assoc !== false) ? $assoc : $this->createKey($index)] = $this->parseAtomic($token[1]);
                 }
 
                 // Parse atomic number
-                if(in_array($token[0], [T_LNUMBER, T_DNUMBER])) {
+                if (in_array($token[0], [T_LNUMBER, T_DNUMBER])) {
 
                     // Check if number is negative
                     $prev = prev($tokens);
                     $value = $token[1];
-                    if($prev[0] === T_MINUS) {
+                    if ($prev[0] === T_MINUS) {
                         $value = "-{$value}";
                     }
                     next($tokens);
@@ -157,7 +157,7 @@ class ArrayTokenScanner
                 }
 
                 // Increment index unless a associative key is used. In this case we want too reuse the current value.
-                if(!is_string($assoc)) {
+                if (!is_string($assoc)) {
                     $index++;
                 }
             }
@@ -175,7 +175,7 @@ class ArrayTokenScanner
     protected function until(array &$tokens, $discriminator)
     {
         $next = next($tokens);
-        if($next === false or $next[0] === $discriminator) {
+        if ($next === false or $next[0] === $discriminator) {
             return false;
         }
 
@@ -185,7 +185,7 @@ class ArrayTokenScanner
     protected function createKey(&$index)
     {
         do {
-            if(!in_array($index, $this->arrayKeys, true)) {
+            if (!in_array($index, $this->arrayKeys, true)) {
                 return $index;
             }
         } while(++$index);
@@ -198,7 +198,7 @@ class ArrayTokenScanner
     protected function tokenize($string)
     {
         $tokens = token_get_all($string);
-        if(is_array($tokens)) {
+        if (is_array($tokens)) {
 
             // Filter tokens
             $tokens = array_values(array_filter($tokens, [$this, 'accept']));
@@ -219,11 +219,11 @@ class ArrayTokenScanner
      */
     protected function accept($value)
     {
-        if(is_string($value)) {
+        if (is_string($value)) {
             // Allowed syntax characters: comma's and brackets.
             return in_array($value, [',', '[', ']', ')', '-']);
         }
-        if(!in_array($value[0], [T_ARRAY, T_CONSTANT_ENCAPSED_STRING, T_DOUBLE_ARROW, T_STRING, T_NUM_STRING, T_LNUMBER, T_DNUMBER])) {
+        if (!in_array($value[0], [T_ARRAY, T_CONSTANT_ENCAPSED_STRING, T_DOUBLE_ARROW, T_STRING, T_NUM_STRING, T_LNUMBER, T_DNUMBER])) {
             // Token did not match requirement. The token is not listed in the collection above.
             return false;
         }
@@ -267,28 +267,28 @@ class ArrayTokenScanner
     protected function parseAtomic($value)
     {
         // If the parameter type is a string than it will be enclosed with quotes
-        if(preg_match('/^["\'].*["\']$/', $value)) {
+        if (preg_match('/^["\'].*["\']$/', $value)) {
             // is (already) a string
             return substr($value, 1, -1);
         }
 
         // Parse integer
-        if(preg_match('/^-?(0|[1-9][0-9]*)$/', $value)) {
+        if (preg_match('/^-?(0|[1-9][0-9]*)$/', $value)) {
             return (int) $value;
         }
 
         // Parse other sorts of numeric values (floats, scientific notation etc)
-        if(is_numeric($value)) {
+        if (is_numeric($value)) {
             return  (float) $value;
         }
 
         // Parse bool
-        if(in_array(strtolower($value), ['true', 'false'])) {
+        if (in_array(strtolower($value), ['true', 'false'])) {
             return ($value == 'true') ? true : false;
         }
 
         // Parse null
-        if(strtolower($value) === 'null') {
+        if (strtolower($value) === 'null') {
             return null;
         }
 

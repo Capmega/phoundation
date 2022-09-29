@@ -55,12 +55,12 @@ function storage_documents_get($section, $document = null, $auto_create = false,
     try{
         $section = storage_ensure_section($section);
 
-        if(empty($document)) {
+        if (empty($document)) {
             /*
              * Get a _new record for the current user
              */
-            if(empty($_SESSION['user']['id'])) {
-                if($status === false) {
+            if (empty($_SESSION['user']['id'])) {
+                if ($status === false) {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
                                  AND   `createdby`   IS NULL LIMIT 1';
@@ -77,7 +77,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                 }
 
             } else {
-                if($status === false) {
+                if ($status === false) {
                     $where   = ' WHERE `sections_id` = :sections_id
                                  AND   `status`      = "_new"
                                  AND   `createdby`   = :createdby LIMIT 1';
@@ -96,11 +96,11 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                 }
             }
 
-        } elseif(is_numeric($document)) {
+        } elseif (is_numeric($document)) {
             /*
              * Assume this is pages id
              */
-            if($status === false) {
+            if ($status === false) {
                 $where   = ' WHERE  `sections_id` = :sections_id
                              AND    `id`          = :id
                              AND    `status`      IN ("published", "unpublished", "_new")';
@@ -122,7 +122,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
             throw new CoreException(tr('storage_documents_get(): Invalid document specified, is datatype ":type", should be null, numeric, string, or array', array(':type' => gettype($document))), 'invalid');
         }
 
-        if($column) {
+        if ($column) {
             $document = sql_get('SELECT `'.$column.'`,
 
                                  FROM   `storage_documents`
@@ -162,7 +162,7 @@ function storage_documents_get($section, $document = null, $auto_create = false,
                                  $execute);
         }
 
-        if(empty($document) and empty($document) and $auto_create) {
+        if (empty($document) and empty($document) and $auto_create) {
             $document = storage_documents_add(array('status' => '_new'));
         }
 
@@ -192,10 +192,10 @@ function storage_documents_get($section, $document = null, $auto_create = false,
  */
 function storage_documents_list($status = null, $section = null, $pdo_statement = true) {
     try{
-        if($section) {
+        if ($section) {
             $dbsection = storage_sections_get($section);
 
-            if(!$dbsection) {
+            if (!$dbsection) {
                 throw new CoreException(tr('storage_documents_list(): The specified section ":section" does not exist', array(':section' => $section)), 'not-exists');
             }
 
@@ -248,11 +248,11 @@ function storage_documents_add($document, $section = null) {
     try{
         $document = storage_documents_validate($document);
 
-        if(!$section) {
+        if (!$section) {
             $section = storage_sections_get($document['sections_id'], false);
         }
 
-        if($section['random_ids']) {
+        if ($section['random_ids']) {
             $document['id'] = sql_random_id('storage_documents');
         }
 
@@ -448,7 +448,7 @@ function storage_documents_validate($document) {
  */
 function storage_document_has_access($documents_id, $users_id = null) {
     try{
-        if(empty($users_id)) {
+        if (empty($users_id)) {
             $users_id = $_SESSION['user']['id'];
         }
 

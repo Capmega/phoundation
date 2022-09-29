@@ -94,7 +94,7 @@ function share_sharethis_buttons($buttons) {
     try{
         $html = '';
 
-        if(empty($buttons)) {
+        if (empty($buttons)) {
             throw new CoreException('share_sharethis_buttons(): No buttons specified');
         }
 
@@ -204,7 +204,7 @@ function share_addtoany_buttons($buttons) {
 
         $html = '<div class="a2a_kit a2a_kit_size_32 a2a_default_style">';
 
-        if(empty($buttons)) {
+        if (empty($buttons)) {
             throw new CoreException('share_addtoany_buttons(): No buttons specified');
         }
 

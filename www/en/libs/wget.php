@@ -29,7 +29,7 @@
  */
 function wget_library_init() {
     try{
-        if(!file_which('wget')) {
+        if (!file_which('wget')) {
             linux_install_package('wget');
         }
 
@@ -59,11 +59,11 @@ function wget($params) {
     try{
         array_params($params, 'url');
 
-        if(empty($params['url'])) {
+        if (empty($params['url'])) {
             throw new CoreException(tr('wget(): No url specified'), 'not-specified');
         }
 
-        if(empty($params['file'])) {
+        if (empty($params['file'])) {
             file_ensure_path(TMP);
             $params['file'] = file_temp(false);
         }

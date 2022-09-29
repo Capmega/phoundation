@@ -108,7 +108,7 @@ function phones_format_number($number) {
         $number = phones_clean_number($number);
         $plus   = (substr($number, 0, 1) == '+');
 
-        if($plus) {
+        if ($plus) {
             $number = substr($number, 1);
         }
 
@@ -155,7 +155,7 @@ function phones_format_number($number) {
                 break;
         }
 
-        if($plus) {
+        if ($plus) {
             $number = '+'.$number;
         }
 

@@ -37,7 +37,7 @@ use PHPMailer\PHPMailer\Exception;
  */
 function email_library_init() {
     try{
-        if(!extension_loaded('imap')) {
+        if (!extension_loaded('imap')) {
             throw new CoreException(tr('email_library_init(): The PHP "imap" module is not available, please install it first. On ubuntu install the module with "apt -y install php-imap"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
 
@@ -60,8 +60,8 @@ function email_connect($userdata, $mail_box = null) {
     static $connections = array();
 
     try{
-        if($mail_box) {
-            if($mail_box == 'inbox') {
+        if ($mail_box) {
+            if ($mail_box == 'inbox') {
                 $mail_box = 'INBOX';
 
             } else {
@@ -71,11 +71,11 @@ function email_connect($userdata, $mail_box = null) {
 
         $imap = Strings::until($userdata['imap'], '}').'}'.$mail_box;
 
-        if(!empty($connections[$userdata['email'].$mail_box])) {
+        if (!empty($connections[$userdata['email'].$mail_box])) {
             /*
              * Return cached connection
              */
-            if(VERBOSE and PLATFORM_CLI) {
+            if (VERBOSE and PLATFORM_CLI) {
                 log_console(tr('Using cached IMAP connection for account ":email" mailbox ":mailbox"', array(':email' => $userdata['email'], ':mailbox' => $mail_box)));
             }
 
@@ -88,14 +88,14 @@ function email_connect($userdata, $mail_box = null) {
 // :TODO: array('DISABLE_AUTHENTICATOR' => array('NTLM', 'GSSAPI')) is hard coded, make this configurable as well!
         $connection = imap_open($imap, $userdata['email'], $userdata['password'], null, 1, array('DISABLE_AUTHENTICATOR' => array('NTLM', 'GSSAPI')));
 
-        if(VERBOSE and PLATFORM_CLI) {
+        if (VERBOSE and PLATFORM_CLI) {
             log_console(tr('Created IMAP connection for account  ":email" mailbox ":mailbox"', array(':email' => $userdata['email'], ':mailbox' => $mail_box)));
         }
 
         /*
          * Cache and return the connection
          */
-        if(count($connections) >= $_CONFIG['email']['imap_cache']) {
+        if (count($connections) >= $_CONFIG['email']['imap_cache']) {
             array_shift($connections);
         }
 
@@ -132,13 +132,13 @@ function email_poll($params) {
         array_default($params, 'return'        , false);
         array_default($params, 'forward_option', false);
 
-        if($params['peek'] and $params['delete']) {
+        if ($params['peek'] and $params['delete']) {
             throw new CoreException(tr('email_poll(): Both peek and delete were specified, though they are mutually exclusive. Please specify one or the other'), 'conflict');
         }
 
         log_console(tr('Polling email account ":account"', array(':account' => $params['account'])), 'VERBOSE/cyan');
 
-        if($params['peek']) {
+        if ($params['peek']) {
             log_console(tr('Using peek flag'), 'VERBOSE');
         }
 
@@ -158,18 +158,18 @@ function email_poll($params) {
          */
         $mails = execute_callback(isset_get($params['post_search']), $mails);
 
-        if(!$mails) {
-            if(PLATFORM_CLI) {
+        if (!$mails) {
+            if (PLATFORM_CLI) {
                 log_console(tr('No emails found for account ":email"', array(':email' => $userdata['email'])), 'yellow');
             }
 
         } else {
-            if(!$mails) {
+            if (!$mails) {
                 log_console(tr('Callback "post_search" canceled email_poll'), 'yellow');
                 return false;
             }
 
-            if(PLATFORM_CLI) {
+            if (PLATFORM_CLI) {
                 log_console(tr('Found ":count" mails for account ":email"', array(':count' => count($mails), ':email' => $userdata['email'])), 'green');
             }
 
@@ -189,7 +189,7 @@ function email_poll($params) {
                  */
                 $mail = execute_callback(isset_get($params['callbacks']['pre_fetch']), $mails_id);
 
-                if(!$mail) {
+                if (!$mail) {
                     log_console(tr('Callback "pre_fetch" canceled processing of email ":mails_id"', array(':mails_id' => $mails_id)), 'yellow');
                     continue;
                 }
@@ -198,7 +198,7 @@ function email_poll($params) {
                 $data = array_shift($data);
                 $data = array_from_object($data);
 
-                if(VERBOSE and PLATFORM_CLI) {
+                if (VERBOSE and PLATFORM_CLI) {
                     log_console(tr('Found mail ":subject"', array(':subject' => isset_get($data['subject']))));
                 }
 
@@ -212,7 +212,7 @@ function email_poll($params) {
                 $delete       = $params['delete'];
                 $delete_count = 0;
 
-                if(empty($data['from']) or empty($data['to'])) {
+                if (empty($data['from']) or empty($data['to'])) {
                         /*
                          * Apparently this is not an email
                          */
@@ -223,7 +223,7 @@ function email_poll($params) {
                         $delete = true;
 
                 } else {
-                    if($userdata['email'] !== $data['to']) {
+                    if ($userdata['email'] !== $data['to']) {
                         switch($_CONFIG['email']['forward_option']) {
                             case 'source':
                                 $data['to'] = $userdata['email'];
@@ -258,7 +258,7 @@ function email_poll($params) {
                     $data['text'] = imap_fetchbody($imap, $mail, 1.1, $flags);
                     $data['html'] = imap_fetchbody($imap, $mail, 1.2, $flags);
 
-                    if(!$data['text']) {
+                    if (!$data['text']) {
                         $data['text'] = imap_fetchbody($imap, $mail, 1, $flags);
                     }
 
@@ -282,14 +282,14 @@ function email_poll($params) {
 
                     $data = execute_callback(isset_get($params['callbacks']['post_fetch']), $data);
 
-                    if(!$data) {
+                    if (!$data) {
                         log_console(tr('Callback "post_fetch" canceled processing of email ":mails_id"', array(':mails_id' => $mails_id)), 'yellow');
                         continue;
                     }
 
-                    if($params['store']) {
+                    if ($params['store']) {
                         try{
-                            if(VERBOSE AND PLATFORM_CLI) {
+                            if (VERBOSE AND PLATFORM_CLI) {
                                 log_console(tr('Processing email ":subject"', array(':subject' => $mail['subject'])));
                             }
 
@@ -300,12 +300,12 @@ function email_poll($params) {
                             email_update_conversation($data, 'received');
                             $data = execute_callback(isset_get($params['callbacks']['post_update']), $data);
 
-                            if(!$data) {
+                            if (!$data) {
                                 log_console(tr('Callback "post_update" canceled processing of email ":mails_id"', array(':mails_id' => $mails_id)), 'yellow');
                                 continue;
                             }
 
-                        }catch(BException $e) {
+                        }catch(CoreException $e) {
                             /*
                              * Continue working on the next mail
                              */
@@ -314,13 +314,13 @@ function email_poll($params) {
                         }
                     }
 
-                    if($params['return']) {
+                    if ($params['return']) {
                         $retval[$mails_id] = $data;
                     }
 
                 }
 
-                if($delete) {
+                if ($delete) {
                     $delete_count++;
 
                     imap_delete($imap, $mail);
@@ -329,13 +329,13 @@ function email_poll($params) {
                 execute_callback(isset_get($params['callbacks']['post_delete']), $mail);
             }
 
-            if($delete_count) {
+            if ($delete_count) {
                 imap_expunge($imap);
             }
 
             execute_callback(isset_get($params['callbacks']['post_expunge']), $mails);
 
-            if(VERBOSE and PLATFORM_CLI) {
+            if (VERBOSE and PLATFORM_CLI) {
                 log_console(tr('Processed ":count" new mails for account ":account"', array(':count' => count($mails), ':account' => $params['account'])));
             }
 
@@ -365,7 +365,7 @@ function email_get_attachments($imap, $email, $data, $flags) {
         $decode = imap_fetchbody($imap, $email , '', $flags);
         $count  = substr_count($decode, "Content-Transfer-Encoding: base64");
 
-        if(!$count) {
+        if (!$count) {
             /*
              * Hhmm, there are no attachments, why are we here?
              */
@@ -403,7 +403,7 @@ function email_get_attachments($imap, $email, $data, $flags) {
 
                 $file_name = time().'_'.$i.$extension;
 
-                if(!empty($structure->parts[$i + 1]->id)) {
+                if (!empty($structure->parts[$i + 1]->id)) {
                     /*
                      * This is an inline image
                      */
@@ -467,14 +467,14 @@ function email_get_conversation($email) {
                                        ':subject'   => mb_trim(Strings::startsNotWith($email['subject'], 'RE:')),
                                        ':resubject' => Strings::startsWith($email['subject'], 'RE:')));
 
-        if(!$conversation) {
+        if (!$conversation) {
             /*
              * This is a new conversation
              */
-            if(empty($email['email_accounts_id'])) {
+            if (empty($email['email_accounts_id'])) {
                 $email['email_accounts_id'] = sql_get('SELECT `id` FROM `email_client_accounts` WHERE `email` = :email', 'id', array(':email' => $email['from']));
 
-                if(!$email['email_accounts_id']) {
+                if (!$email['email_accounts_id']) {
                     $email['email_accounts_id'] = sql_get('SELECT `id` FROM `email_client_accounts` WHERE `email` = :email', 'id', array(':email' => $email['to']));
                 }
             }
@@ -512,19 +512,19 @@ function email_update_conversation($email, $direction) {
     try{
         $email = email_update_message($email, $direction);
 
-        if(empty($direction)) {
+        if (empty($direction)) {
             throw new CoreException(tr('email_update_conversation(): No conversation direction specified'), 'not-specified');
         }
 
-        if(($direction != 'sent') and ($direction != 'received')) {
+        if (($direction != 'sent') and ($direction != 'received')) {
             throw new CoreException(tr('email_update_conversation(): Invalid conversation direction ":direction:" specified', array(':direction' => $direction)), 'not-specified');
         }
 
-        if(empty($email['conversation'])) {
+        if (empty($email['conversation'])) {
             throw new CoreException(tr('email_update_conversation(): Specified email ":subject" does not contain a conversation', array(':subject' => $email['subject'])), 'not-specified');
         }
 
-        if(empty($email['id'])) {
+        if (empty($email['id'])) {
             throw new CoreException(tr('email_update_conversation(): Specified email ":subject" has no database id', array(':subject' => $email['subject'])), 'not-specified');
         }
 
@@ -536,7 +536,7 @@ function email_update_conversation($email, $direction) {
         /*
          * Decode the current last_messages
          */
-        if($conversation['last_messages']) {
+        if ($conversation['last_messages']) {
             try{
                 $conversation['last_messages'] = json_decode_custom($conversation['last_messages']);
 
@@ -552,7 +552,7 @@ function email_update_conversation($email, $direction) {
             /*
              * Ensure the conversation does not pass the max size
              */
-            if(count($conversation['last_messages']) >= $_CONFIG['email']['conversations']['size']) {
+            if (count($conversation['last_messages']) >= $_CONFIG['email']['conversations']['size']) {
                 array_pop($conversation['last_messages']);
             }
 
@@ -563,7 +563,7 @@ function email_update_conversation($email, $direction) {
         /*
          * Add message timestamp to each message?
          */
-        if($_CONFIG['email']['conversations']['message_dates']) {
+        if ($_CONFIG['email']['conversations']['message_dates']) {
             $email['text'] = str_replace('%datetime%', date_convert($email['date']), $_CONFIG['email']['conversations']['message_dates']).$email['text'];
         }
 
@@ -600,7 +600,7 @@ function email_update_conversation($email, $direction) {
             $message_length = strlen($last_messages);
         }
 
-        if($direction == 'sent') {
+        if ($direction == 'sent') {
             sql_query('UPDATE `email_conversations`
 
                        SET    `last_messages` = :last_messages,
@@ -644,14 +644,14 @@ function email_update_message($email, $direction) {
         $email['conversation']      = email_get_conversation($email);
         $email['reply_to_id']       = email_get_reply_to_id($email);
 
-        if(empty($email['id']) and !empty($email['message_id'])) {
+        if (empty($email['id']) and !empty($email['message_id'])) {
             /*
              * Perhaps we already have this email, check the messages_id
              */
             $email['id'] = sql_get('SELECT `id` FROM `email_messages` WHERE `message_id` = :message_id', 'id', array('message_id' => $email['message_id']));
         }
 
-        if(empty($email['id'])) {
+        if (empty($email['id'])) {
            switch($direction) {
                 case 'sent':
                     sql_query('INSERT INTO `email_messages` (`direction`, `conversations_id`, `reply_to_id`, `from`, `to`, `users_id`, `email_accounts_id`, `date`, `subject`, `text`, `html`, `sent`                             )
@@ -753,18 +753,18 @@ function email_update_message($email, $direction) {
 function email_cleanup($email) {
     try{
         foreach($email as $key => &$value) {
-            if(is_scalar($value)) {
-                if(strstr($value, '?utf-8?B?')) {
+            if (is_scalar($value)) {
+                if (strstr($value, '?utf-8?B?')) {
                     $value = base64_decode(Strings::from($value, '?utf-8?B?'));
                 }
             }
         }
 
-        if(strstr($email['to'], '<')) {
+        if (strstr($email['to'], '<')) {
             $email['to'] = Strings::cut(($email['to'], '<', '>');
         }
 
-        if(strstr($email['from'], '<')) {
+        if (strstr($email['from'], '<')) {
             $email['from'] = Strings::cut(($email['from'], '<', '>');
         }
 
@@ -792,7 +792,7 @@ function email_check_images($email) {
         $domain = str_from ($email['to'], '@');
 
         while(!empty($email['img'.$i])) {
-            if(empty($path)) {
+            if (empty($path)) {
                 $path = ROOT.'data/email/images/'.$domain.'/'.$name.'/'.$email['id'];
                 file_ensure_path($path);
             }
@@ -828,7 +828,7 @@ function email_check_images($email) {
  */
 function email_get_reply_to_id($email) {
     try{
-        if(empty($email['conversation']['id'])) {
+        if (empty($email['conversation']['id'])) {
             return null;
         }
 
@@ -846,7 +846,7 @@ function email_get_reply_to_id($email) {
  */
 function email_get_users_id($email) {
     try{
-        if(!empty($email['users_id'])) {
+        if (!empty($email['users_id'])) {
             return $email['users_id'];
         }
 
@@ -877,7 +877,7 @@ function email_get_users_id($email) {
  */
 function email_get_accounts_id($email) {
     try{
-        if(!empty($email['email_accounts_id'])) {
+        if (!empty($email['email_accounts_id'])) {
             return $email['email_accounts_id'];
         }
 
@@ -921,7 +921,7 @@ function email_send($email, $smtp = null, $account = null) {
 
         $email = email_validate($email);
 
-        if($email['delayed']) {
+        if ($email['delayed']) {
             /*
              * Don't send the email right now. The email script can be used
              * later to send all delayed emails. This way, when a mail message
@@ -936,7 +936,7 @@ function email_send($email, $smtp = null, $account = null) {
         /*
          *
          */
-		if(empty($account)) {
+		if (empty($account)) {
             $account = email_get_client_account($email['from']);
 		}
 
@@ -946,7 +946,7 @@ function email_send($email, $smtp = null, $account = null) {
         $mail = email_load_phpmailer();
         $mail->IsSMTP(); // send via SMTP
 
-        if(empty($smtp)) {
+        if (empty($smtp)) {
             /*
              * Use the default SMTP configuration
              */
@@ -1009,7 +1009,7 @@ function email_send($email, $smtp = null, $account = null) {
         $mail->Username = $account['email'];
         $mail->Password = $account['password'];
 
-        if(empty($email['html'])) {
+        if (empty($email['html'])) {
             $mail->IsHTML(false);
             $mail->Body = $email['text'];
 
@@ -1021,7 +1021,7 @@ function email_send($email, $smtp = null, $account = null) {
         $mail->Subject = $email['subject'];
         $mail->AltBody = $email['text'];
 
-        if(!empty($email['attachments'])) {
+        if (!empty($email['attachments'])) {
             foreach(Arrays::force($email['attachments']) as $attachment) {
 // :IMPLEMENT:
             //$mail->AddAttachment("/var/tmp/file.tar.gz"); // attachment
@@ -1029,13 +1029,13 @@ function email_send($email, $smtp = null, $account = null) {
             }
         }
 
-        if(!$mail->Send()) {
+        if (!$mail->Send()) {
             throw new CoreException(tr('email_send(): Failed because ":error"',  array(':error' => $mail->ErrorInfo)), 'mailfail');
         }
 
         $email['sent'] = date_convert(null, 'mysql');
 
-        if($email['conversation']) {
+        if ($email['conversation']) {
             email_update_conversation($email, 'sent');
         }
 
@@ -1056,27 +1056,27 @@ function email_from_exists($email) {
         /*
          * Validate email, extract it from "user <email>" if needed
          */
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $email = Strings::cut(($email, '<', '>');
 
-            if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 throw new CoreException(tr('email_from_exists(): Specified "from" email address ":email" is not a valid email address', array(':email' => $email)), 'invalid');
             }
         }
 
-        if(empty($_CONFIG['email']['users'])) {
+        if (empty($_CONFIG['email']['users'])) {
             /*
              * Get list from database
              */
             $account = sql_get('SELECT `id`, `email`, `status` FROM `email_client_accounts` WHERE `email` = :email', array(':email' => $email));
 
-            if(!$account) {
+            if (!$account) {
 // :DELETE: _exists() functions should just return true or false, the entry exists or not
                 //throw new CoreException(tr('email_from_exists(): Specified email address ":email" does not exist', array(':email' => $email)), 'not-exists');
                 return false;
             }
 
-            if($account['status']) {
+            if ($account['status']) {
 // :DELETE: _exists() functions should just return true or false, the entry exists or not
                 //throw new CoreException(tr('email_from_exists(): Specified email address ":email" is currently not available', array(':email' => $email)), 'not-available');
                 return false;
@@ -1089,7 +1089,7 @@ function email_from_exists($email) {
         /*
          * Using the old (and obsoleted) hard configured emails
          */
-        if(!empty($_CONFIG['email']['aliases'][$email])) {
+        if (!empty($_CONFIG['email']['aliases'][$email])) {
             return $_CONFIG['email']['aliases'][$email];
         }
 
@@ -1118,7 +1118,7 @@ function email_from_exists($email) {
  */
 function email_load_phpmailer() {
     try{
-        if(!file_exists(ROOT.'/libs/vendor/PHPMailer/PHPMailer.php')) {
+        if (!file_exists(ROOT.'/libs/vendor/PHPMailer/PHPMailer.php')) {
             /*
              * phpmailer is not installed yet, install it now
              */
@@ -1176,16 +1176,16 @@ function email_validate($email) {
         $v->isNotEmpty($email['subject'], tr('Please specify an email subject'));
         $v->isNotEmpty($email['subject'], tr('Please write something in the email'));
 
-        if(!email_from_exists($email['from'])) {
+        if (!email_from_exists($email['from'])) {
             $v->setError(tr('Specified source email ":email" does not exist', array(':email' => $email['from'])));
         }
 
-        if(!$email['body']) {
-            if($email['html']) {
+        if (!$email['body']) {
+            if ($email['html']) {
                 $email['body']   = $email['html'];
                 $email['format'] = 'html';
 
-            } elseif($email['html']) {
+            } elseif ($email['html']) {
                 $email['body']   = $email['text'];
                 $email['format'] = 'text';
 
@@ -1239,14 +1239,14 @@ function email_prepare($email) {
         /*
          * Which format are we using?
          */
-        if(empty($email['template'])) {
+        if (empty($email['template'])) {
             $email['template'] = null;
 
         } else {
             /*
              * Ensure that the specified type exists on configuration
              */
-            if(empty($_CONFIG['email']['templates'][$email['template']])) {
+            if (empty($_CONFIG['email']['templates'][$email['template']])) {
                 throw new CoreException(tr('email_prepare(): Unkown template ":template"', array(':template' => $email['template'])), 'unkown');
             }
 
@@ -1258,7 +1258,7 @@ function email_prepare($email) {
             $email['replace']['###BODY###'] = load_content('emails/'.$_CONFIG['email']['templates'][$email['template']]['file'], $email['replace'], LANGUAGE);
             $email['body']                  = load_content('emails/'.$_CONFIG['email']['templates']['design']                  , $email['replace'], LANGUAGE);
 
-            if(empty($email['subject'])) {
+            if (empty($email['subject'])) {
                 $email['subject'] = $_CONFIG['email']['templates'][$email['template']]['subject'];
             }
         }
@@ -1278,8 +1278,8 @@ function email_prepare($email) {
         //
         //                 array(':email' => $params['to']));
         //
-        //if(!$user) {
-        //    if($params['require_user']) {
+        //if (!$user) {
+        //    if ($params['require_user']) {
         //        throw new CoreException(tr('email_delay(): Specified user ":user" does not exist', array(':user' => $params['to'])), 'not-exists');
         //    }
         //
@@ -1291,12 +1291,12 @@ function email_prepare($email) {
         /*
          * Add header / footer
          */
-        if($email['header']) {
+        if ($email['header']) {
             $email['text'] = $_CONFIG['email']['header'].$email['text'];
             $email['html'] = $_CONFIG['email']['header'].$email['html'];
         }
 
-        if($email['footer']) {
+        if ($email['footer']) {
             $email['text'] = $email['text'].$_CONFIG['email']['footer'];
             $email['html'] = $email['html'].$_CONFIG['email']['footer'];
         }
@@ -1304,7 +1304,7 @@ function email_prepare($email) {
         /*
          *
          */
-        if(strpos($email['to'], '<') !== false) {
+        if (strpos($email['to'], '<') !== false) {
             $email['to_name'] = trim(Strings::until($email['to'], '<'));
             $email['to']      = trim(Strings::cut(($email['to'], '<', '>'));
 
@@ -1312,7 +1312,7 @@ function email_prepare($email) {
             $email['to_name'] = '';
         }
 
-        if(strpos($email['from'], '<') !== false) {
+        if (strpos($email['from'], '<') !== false) {
             $email['from_name'] = trim(Strings::until($email['from'], '<'));
             $email['from']      = trim(Strings::cut(($email['from'], '<', '>'));
 
@@ -1323,7 +1323,7 @@ function email_prepare($email) {
         /*
          * Do search / replace over the email body
          */
-        if($email['replace']) {
+        if ($email['replace']) {
             load_libs('user');
 
             switch(gettype($email['replace'])) {
@@ -1360,11 +1360,11 @@ function email_get_account($email, $columns = null) {
          * Ensure we have only email address
          * Get domain name
          */
-        if(strpos($email, '<') !== false) {
+        if (strpos($email, '<') !== false) {
             $email = Strings::cut(($email, '<', '>');
         }
 
-        if(!$columns) {
+        if (!$columns) {
             $columns = '`email_client_accounts`.`id`,
                         `email_client_accounts`.`createdby`,
                         `email_client_accounts`.`createdon`,
@@ -1404,7 +1404,7 @@ function email_get_account($email, $columns = null) {
 
                            array(':email' => $email));
 
-        if(!$retval) {
+        if (!$retval) {
             throw new CoreException(tr('email_get_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
         }
 
@@ -1426,11 +1426,11 @@ function email_get_client_account($email, $columns = null) {
          * Ensure we have only email address
          * Get domain name
          */
-        if(strpos($email, '<') !== false) {
+        if (strpos($email, '<') !== false) {
             $email = Strings::cut(($email, '<', '>');
         }
 
-        if(!$columns) {
+        if (!$columns) {
             $columns = '`email_client_accounts`.`id`,
                         `email_client_accounts`.`createdby`,
                         `email_client_accounts`.`createdon`,
@@ -1473,7 +1473,7 @@ function email_get_client_account($email, $columns = null) {
                            array(':email'    => $email,
                                  ':seoemail' => $email));
 
-        if(!$retval) {
+        if (!$retval) {
             throw new CoreException(tr('email_get_client_account(): Specified email ":email" does not exist', array(':email' => $email)), 'not-exists');
         }
 
@@ -1491,7 +1491,7 @@ function email_get_client_account($email, $columns = null) {
  */
 function email_get_domain($email_or_domain, $columns = null, $table = 'email_domains') {
     try{
-        if(!$columns) {
+        if (!$columns) {
             $columns = '`id`,
                         `createdby`,
                         `createdon`,
@@ -1513,7 +1513,7 @@ function email_get_domain($email_or_domain, $columns = null, $table = 'email_dom
          * Ensure we have only email address
          * Get domain name
          */
-        if(strpos($email_or_domain, '<') !== false) {
+        if (strpos($email_or_domain, '<') !== false) {
             $email_or_domain = Strings::cut(($email_or_domain, '<', '>');
         }
 
@@ -1577,7 +1577,7 @@ function email_delay($email) {
                          ':text'      => $email['text'],
                          ':format'    => $email['format']));
 
-        if($email['auto_start']) {
+        if ($email['auto_start']) {
             /*
              * Run the script to send the "new" emails
              */
@@ -1687,7 +1687,7 @@ function email_get_encryption_key() {
     global $_CONFIG;
 
     try{
-        if(empty($_CONFIG['email']['encryption_key'])) {
+        if (empty($_CONFIG['email']['encryption_key'])) {
             throw new CoreException(tr('email_get_encryption_key(): $_CONFIG[email][encryption_key] has not been specified. Please specify a random key first'), 'not-specified');
         }
 
@@ -1712,7 +1712,7 @@ function email_validate_domain($domain, $table = 'email_domains') {
         $v->hasMinChars ($domain['name'], 2, tr('Please ensure that the name has a minimum of 2 characters'));
         $v->hasMaxChars ($domain['name'], 96, tr('Please ensure that the name has a maximum of 96 characters'));
 
-        if(strpos($domain['name'], ' ') !== false) {
+        if (strpos($domain['name'], ' ') !== false) {
             $v->setError(tr('Please ensure that the domain name contains no spaces'));
         }
 
@@ -1728,7 +1728,7 @@ function email_validate_domain($domain, $table = 'email_domains') {
         $v->isNotEmpty ($domain['imap'], tr('Please provide an IMAP connection string'));
         $v->isRegex    ($domain['imap'], '/^\{[a-zA-Z0-9\.-]+?:\d{1,5}(?:\/imap\/ssl(?:\/novalidate-cert)?)?\}[A-Z]+$/', tr('Please provide valid a IMAP connection string, like {mail.domain.com:993/imap/ssl}INBOX'));
 
-        if($domain['poll_interval'] === '') {
+        if ($domain['poll_interval'] === '') {
             $domain['poll_interval'] = null;
         }
 
@@ -1754,7 +1754,7 @@ function email_validate_account($account, $client) {
     try{
         load_libs('seo');
 
-        if($client) {
+        if ($client) {
             $client = '_client';
         }
 
@@ -1765,7 +1765,7 @@ function email_validate_account($account, $client) {
         $v->hasMinChars($account['name'], 1, tr('Please ensure that the name has a minimum of 1 character'));
         $v->isNotEmpty($account['password'], tr('Please provide a password'));
 
-        if(empty($account['domain'])) {
+        if (empty($account['domain'])) {
             $v->setError(tr('Please specify a domain from the list'));
         }
 
@@ -1775,10 +1775,10 @@ function email_validate_account($account, $client) {
 
         $domain = sql_get('SELECT `id`, `status` FROM `email'.$client.'_domains` WHERE `seoname` = :seoname', array(':seoname' => $account['domain']));
 
-        if(!$domain) {
+        if (!$domain) {
             $v->setError(tr('The specified domain ":domain" does not exist', array(':domain' => $account['domain'])));
 
-        } elseif($domain['status']) {
+        } elseif ($domain['status']) {
             /*
              * Domain is possibly deleted, or disabled
              */
@@ -1787,7 +1787,7 @@ function email_validate_account($account, $client) {
 
         $account['domains_id'] = $domain['id'];
 
-        if(!$account['poll_interval']) {
+        if (!$account['poll_interval']) {
             $account['poll_interval'] = 0;
         }
 
@@ -1817,27 +1817,27 @@ function email_delete($params) {
         array_default($params, 'criteria', '');
         array_default($params, 'filters' , array());
 
-        if(!$params['account']) {
+        if (!$params['account']) {
             throw new CoreException(tr('email_delete(): No account specified'), 'not-specified');
         }
 
-        if(!$params['mail_box']) {
+        if (!$params['mail_box']) {
             throw new CoreException(tr('email_delete(): No mail_box specified'), 'not-specified');
         }
 
-        if(!$params['criteria']) {
+        if (!$params['criteria']) {
             throw new CoreException(tr('email_delete(): No criteria specified'), 'not-specified');
         }
 
-        if(!$params['filters']) {
+        if (!$params['filters']) {
             throw new CoreException(tr('email_delete(): No filters specified'), 'not-specified');
         }
 
-        if(PLATFORM_CLI) {
+        if (PLATFORM_CLI) {
             log_console(tr('Polling email account ":account"', array(':account' => $params['account'])));
         }
 
-        if($params['filters']['old']) {
+        if ($params['filters']['old']) {
             /*
              * When scanning for old messages, already filter for them to scan
              * less messages. Since imap_search doesn't work below day level,
@@ -1862,13 +1862,13 @@ function email_delete($params) {
         $mails    = imap_search($imap, $params['criteria']);
         $retval   = array();
 
-        if(!$mails) {
-            if(PLATFORM_CLI) {
+        if (!$mails) {
+            if (PLATFORM_CLI) {
                 log_console(tr('No emails found for account ":email"', array(':email' => $userdata['email'])), 'yellow');
             }
 
         } else {
-            if(PLATFORM_CLI) {
+            if (PLATFORM_CLI) {
                 log_console(tr('Found ":count" mails for account ":email"', array(':count' => count($mails), ':email' => $userdata['email'])), 'green');
             }
 
@@ -1890,7 +1890,7 @@ function email_delete($params) {
                 foreach($params['filters'] as $filter => $value) {
                     switch($filter) {
                         case 'seen':
-                            if($mail['seen']) $delete = true;
+                            if ($mail['seen']) $delete = true;
                             break;
 
                         case 'old':
@@ -1899,18 +1899,18 @@ function email_delete($params) {
                              */
                             $mail_date = new DateTime($data['date']);
 
-                            if($mail_date < $date) {
+                            if ($mail_date < $date) {
                                 $delete = true;
                             }
 
                             break;
                     }
 
-                    if($delete) break;
+                    if ($delete) break;
                 }
 
-                if($delete) {
-                    if(VERBOSE and PLATFORM_CLI) {
+                if ($delete) {
+                    if (VERBOSE and PLATFORM_CLI) {
                         log_console(tr('Marked mail ":subject" for deletion', array(':subject' => $data['subject'])));
                     }
 
@@ -1919,11 +1919,11 @@ function email_delete($params) {
                 }
             }
 
-            if($delete) {
+            if ($delete) {
                 imap_expunge($imap);
             }
 
-            if(VERBOSE and PLATFORM_CLI) {
+            if (VERBOSE and PLATFORM_CLI) {
                 log_console(tr('Deleted ":count" new mails for account ":account"', array(':count' => $count, ':account' => $params['account'])));
             }
         }

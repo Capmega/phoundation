@@ -17,7 +17,7 @@ load_libs('test,googlemaps,inet');
 //    $img = googlemaps_get_streetview_image(40.452205,-23.892807);
 //    log_console('Testing googlemaps_get_streetview_image (invalid location)', 'test');
 //
-//    if(!$img) {
+//    if (!$img) {
 ////            log_console("Image recieved was too small, that is ok");
 //
 //    } else {

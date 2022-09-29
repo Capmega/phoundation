@@ -52,13 +52,13 @@ function test($name, $description, $function) {
     try{
         log_console($name.' [TEST] '.$description, '', false);
 
-        if(!is_callable($function)) {
+        if (!is_callable($function)) {
             throw new CoreException(tr('test(): Specified function is not a function but a ":type"', array(':type' => gettype($function))), 'invalid');
         }
 
         $results = $function();
 
-        if($results) {
+        if ($results) {
             echo ' ['.$results.']';
         }
 

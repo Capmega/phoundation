@@ -159,6 +159,19 @@ class Debug {
     }
 
 
+
+    /**
+     * Returns an array with debug information
+     *
+     * @return array
+     */
+    public static function getJson(): array
+    {
+        return [];
+    }
+
+
+
     /**
      * Show the given value on screen.
      *
@@ -535,51 +548,8 @@ class Debug {
      */
     function value($format, $size = null)
     {
-        if (!debug()) return '';
+        if (!self::enabled()) return '';
         return include(__DIR__ . '/handlers/debug-value.php');
-    }
-
-
-    /*
-     * Show data, function results and variables in a readable format
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     * @see showdie()
-     *
-     * @param mixed $data
-     * @param integer $trace_offset
-     * @param boolean $quiet
-     * @return void
-     */
-    function show($data = null, $trace_offset = null, $quiet = false)
-    {
-        return include(__DIR__ . '/handlers/debug-show.php');
-    }
-
-
-    /*
-     * Short hand for show and then die
-     *
-     * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink
-     * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @category Function reference
-     * @package system
-     * @see show()
-     * @see shutdown()
-     * @note This function will show() and then die(). This will cause the execution of your web page or command line script to stop, but any and all registered shutdown functions (see shutdown() for more) will still execute
-     *
-     * @param mixed $data
-     * @param integer $trace_offset
-     * @return void
-     */
-    function showdie($data = null, $trace_offset = null)
-    {
-        return include(__DIR__ . '/handlers/debug-showdie.php');
     }
 
 
@@ -598,7 +568,7 @@ class Debug {
      * @param integer $trace_offset
      * @return
      */
-    function debug_html($value, $key = null, $trace_offset = 0)
+    function debugHtml($value, $key = null, $trace_offset = 0)
     {
         return include(__DIR__ . '/handlers/debug-html.php');
     }
@@ -619,7 +589,7 @@ class Debug {
      * @param string $type
      * @return
      */
-    function debug_html_row($value, $key = null, $type = null)
+    function debugHtmlRow($value, $key = null, $type = null)
     {
         return include(__DIR__ . '/handlers/debug-html-row.php');
     }
@@ -640,7 +610,7 @@ class Debug {
      * @param boolean $return_only
      * @return
      */
-    function debug_sql($query, $execute = null, $return_only = false)
+    function debugSql($query, $execute = null, $return_only = false)
     {
         return include(__DIR__ . '/handlers/debug-sql.php');
     }
@@ -661,7 +631,7 @@ class Debug {
      * @param boolean $skip_own If specified as true, will skip the debug_trace() call and its handler inclusion from the trace
      * @return array The debug_backtrace() output with the specified keys filtered out
      */
-    function debug_trace($filters = 'args', $skip_own = true)
+    function debugTrace($filters = 'args', $skip_own = true)
     {
         return include(__DIR__ . '/handlers/debug-trace.php');
     }
@@ -678,7 +648,7 @@ class Debug {
      *
      * @return string The HTML that can be included at the end of the web page which will show the debug bar.
      */
-    function debug_bar()
+    function debugBar()
     {
         return include(__DIR__ . '/handlers/debug-bar.php');
     }
@@ -695,7 +665,7 @@ class Debug {
      *
      * @return
      */
-    function debug_bar_sort($a, $b)
+    function barSort($a, $b)
     {
         try {
             if ($a['time'] > $b['time']) {
@@ -729,7 +699,7 @@ class Debug {
      * @param mixed $variable
      * @return
      */
-    function die_in($count, $message = null)
+    function dieIn($count, $message = null)
     {
         return include(__DIR__ . '/handlers/debug-die-in.php');
     }

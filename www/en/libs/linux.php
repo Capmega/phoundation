@@ -98,7 +98,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false) {
     try{
         $server = servers_get($server);
 
-        if(!$server['allow_sshd_modification'] and !$force) {
+        if (!$server['allow_sshd_modification'] and !$force) {
             throw new CoreException(tr('linux_set_ssh_tcp_forwarding(): The specified server ":server" does not allow SSHD modifications', array(':server' => $server['domain'])), 'not-allowed');
         }
 
@@ -132,7 +132,7 @@ function linux_set_ssh_tcp_forwarding($server, $enable, $force = false) {
  */
 function linux_file_exists($server, $path, $sudo = false) {
     try{
-        if($server === null) {
+        if ($server === null) {
             /*
              * Do this locally!
              */
@@ -223,7 +223,7 @@ function linux_scandir($server, $path) {
  * @category Function reference
  * @package linux
  * @note If the specified file pattern does not exist (doesn't match any files), no error will be thrown
- * @exception BException will be thrown if files, for whatever reasons, cannot be deleted
+ * @exception CoreException will be thrown if files, for whatever reasons, cannot be deleted
  *
  * @param mixed $server
  * @param string $path
@@ -231,11 +231,11 @@ function linux_scandir($server, $path) {
  */
 function linux_file_delete($server, $params, $restrictions = null) {
     try{
-        if(!$server) {
+        if (!$server) {
             return file_delete($params, $clean_path, $sudo, $restrictions);
         }
 
-        if(!$params) {
+        if (!$params) {
             throw new CoreException(tr('file_delete(): No files or parameters specified'), 'not-specified');
         }
 
@@ -256,7 +256,7 @@ function linux_file_delete($server, $params, $restrictions = null) {
             linux_restrict($server, $pattern, $params['restrictions']);
             servers_exec($server, array('commands' => array('rm', array('sudo' => $params['sudo'], $pattern, '-rf'))));
 
-            if($params['clean_path']) {
+            if ($params['clean_path']) {
                 linux_file_clear_path($server, dirname($pattern), $params['sudo'], $params['restrictions']);
             }
 
@@ -288,14 +288,14 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
     try{
         $server = servers_get($server);
 
-        if(!linux_file_exists($server, $path, $sudo)) {
+        if (!linux_file_exists($server, $path, $sudo)) {
             /*
              * This section does not exist, jump up to the next section
              */
             return linux_file_clear_path($server, dirname($path), $sudo, $restrictions);
         }
 
-        if(!is_dir($path)) {
+        if (!is_dir($path)) {
             /*
              * This is a normal file. Delete it and continue with the directory above
              */
@@ -308,13 +308,13 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
                 /*
                  * Skip . and ..
                  */
-                if(($file == '.') or ($file == '..')) continue;
+                if (($file == '.') or ($file == '..')) continue;
 
                 $contents = true;
                 break;
             }
 
-            if($contents) {
+            if ($contents) {
                 /*
                  * Do not remove anything more, there is contents here!
                  */
@@ -405,8 +405,8 @@ function linux_pgrep($server, $name) {
         $results = servers_exec($server, array('ok_exitcodes' => '0,1',
                                                'commands'     => array('pgrep', array($name))));
 
-        if(count($results) == 1) {
-            if(!current($results)) {
+        if (count($results) == 1) {
+            if (!current($results)) {
                 /*
                  * No process id's found
                  */
@@ -464,7 +464,7 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
                                                'commands'     => array('pkill', array('sudo' => $sudo, '-'.$signal, $process))));
         $results = array_shift($results);
 
-        if($results) {
+        if ($results) {
             /*
              * pkill returned some issue
              */
@@ -474,12 +474,12 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
         /*
          * Ensure that the progress is gone?
          */
-        if(--$verify_tries > 0) {
+        if (--$verify_tries > 0) {
             sleep($check_timeout);
 
             $results = linux_pgrep($server, $process);
 
-            if(!$results) {
+            if (!$results) {
                 /*
                  * Killed it softly
                  */
@@ -489,14 +489,14 @@ function linux_pkill($server, $process, $signal = null, $sudo = false, $verify_t
             return linux_pkill($server, $process, $signal, $sudo, $verify_tries, $check_timeout, $sigkill);
         }
 
-        if($sigkill) {
+        if ($sigkill) {
             /*
              * Verifications failed, now sigkill it
              * Sigkill it!
              */
             $result = linux_pkill($server, $process, 9, $sudo, false, $check_timeout, true);
 
-            if($result) {
+            if ($result) {
                 /*
                  * Killed it the hard way!
                  */
@@ -538,7 +538,7 @@ function linux_list_processes($server, $filters) {
         $retval  = array();
 
         foreach($results as $key => $result) {
-            if(strstr($result, $command)) {
+            if (strstr($result, $command)) {
                 unset($results[$key]);
                 continue;
             }
@@ -655,31 +655,31 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
     global $_CONFIG;
 
     try{
-        if($server === null) {
+        if ($server === null) {
             /*
              * Do this locally!
              */
             return file_ensure_path($path, $mode, $clear);
         }
 
-        if(!$mode) {
+        if (!$mode) {
             $mode = $_CONFIG['file']['dir_mode'];
         }
 
-        if(!$path) {
+        if (!$path) {
             throw new CoreException(tr('linux_ensure_path(): No path specified'), 'not-specified');
         }
 
-        if($path[0] !== '/') {
+        if ($path[0] !== '/') {
             throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is not absolute', array(':path' => $path)), 'invalid');
         }
 
-        if(str_contains($path, '..')) {
+        if (str_contains($path, '..')) {
             throw new CoreException(tr('linux_ensure_path(): Specified path ":path" contains parent path sections', array(':path' => $path)), 'invalid');
         }
 
-        if(substr_count($path, '/') < 3) {
-            if(substr($path, 0, 5) !== '/tmp/') {
+        if (substr_count($path, '/') < 3) {
+            if (substr($path, 0, 5) !== '/tmp/') {
                 throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is not deep enough. Top level- and second level directories cannot be ensured except in /tmp/', array(':path' => $path)), 'invalid');
             }
         }
@@ -694,12 +694,12 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
                 // FALLTHROUGH
             case 'localhost':
                 try{
-                    if(str_contains(ROOT, linux_realpath($server, $path))) {
+                    if (str_contains(ROOT, linux_realpath($server, $path))) {
                         throw new CoreException(tr('linux_ensure_path(): Specified path ":path" is ROOT or parent of ROOT', array(':path' => $path)), 'invalid');
                     }
 
                 }catch(Exception $e) {
-                    if($e->getRealCode() !== 'not-exists') {
+                    if ($e->getRealCode() !== 'not-exists') {
                         /*
                          * If the target path would not exist we'd be okay
                          */
@@ -711,7 +711,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
         /*
          * Set mode if required so
          */
-        if($mode) {
+        if ($mode) {
             $arguments = array('-p', $path);
 
         } else {
@@ -721,7 +721,7 @@ function linux_ensure_path($server, $path, $mode = null, $clear = false) {
         /*
          * Ensure that the specified path is cleared if specified so
          */
-        if($clear) {
+        if ($clear) {
             servers_exec($server, array('commands' => array('rm'   , array($path, '-rf'),
                                                             'mkdir', $arguments)));
 
@@ -803,17 +803,17 @@ function linux_copy($server, $source, $target, $sudo = false) {
 function linux_delete($server, $patterns, $sudo = false, $clean_path = true) {
     try{
 under_construction('linux_delete() does not yet have support for $clean_path');
-        if(!is_array()) {
+        if (!is_array()) {
             $patterns = array($patterns);
         }
 
-        if($sudo) {
+        if ($sudo) {
             $patterns['sudo'] = $sudo;
         }
 
         servers_exec($server, array('commands' => array('rm', $patterns)));
 
-        if($clean_path) {
+        if ($clean_path) {
         }
 
     }catch(Exception $e) {
@@ -846,7 +846,7 @@ under_construction('Move this to compress_unzip()');
 
         linux_ensure_path($server, $path);
 
-        if($move) {
+        if ($move) {
             linux_rename($server, $file, $path.$filename);
 
         } else {
@@ -863,7 +863,7 @@ under_construction('Move this to compress_unzip()');
         return $path;
 
     }catch(Exception $e) {
-        if(!linux_file_exists($file)) {
+        if (!linux_file_exists($file)) {
             throw new CoreException(tr('linux_unzip(): The specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
@@ -898,8 +898,8 @@ function linux_download($server, $url, $section = false, $callback = null) {
         $file = Strings::fromReverse($url, '/');
         $file = Strings::until($file, '?');
 
-        if($section) {
-            if(!is_string($section)) {
+        if ($section) {
+            if (!is_string($section)) {
                 throw new CoreException(tr('linux_download(): Specified section should either be false or a string. However, it is not false, and is of type ":type"', array(':type' => gettype($section))), 'invalid');
             }
 
@@ -916,11 +916,11 @@ function linux_download($server, $url, $section = false, $callback = null) {
                    'url'    => $url,
                    'file'   => $file));
 
-        if(!$section) {
+        if (!$section) {
             /*
              * No section was specified, return contents of file instead.
              */
-            if($callback) {
+            if ($callback) {
                 /*
                  * Execute the callbacks before returning the data
                  */
@@ -939,7 +939,7 @@ function linux_download($server, $url, $section = false, $callback = null) {
         $retval = file_get_contents($file);
         file_delete($file);
 
-        if($callback) {
+        if ($callback) {
             $callback($retval);
         }
 
@@ -971,7 +971,7 @@ function linux_ensure_package($server, $command, $packages) {
     try{
         $exists = linux_which($server, $command);
 
-        if($exists) {
+        if ($exists) {
             /*
              * The requested commands are available
              */
@@ -1141,7 +1141,7 @@ function linux_service($server, $service, $action) {
  */
 function linux_get_cwd($server, $pid) {
     try{
-        if(!is_natural($pid) or ($pid > 65535)) {
+        if (!is_natural($pid) or ($pid > 65535)) {
             throw new CoreException(tr('linux_get_cwd(): Specified PID ":pid" is invalid', array(':pid' => $pid)), 'invalid');
         }
 
@@ -1212,23 +1212,23 @@ function linux_find($server, $params) {
 
         $commands = array();
 
-        if($params['cwd']) {
+        if ($params['cwd']) {
             $commands[] = 'cd';
             $commands[] = array($params['cwd']);
         }
 
         $arguments[] = $params['path'];
 
-        if($params['sudo']) {
+        if ($params['sudo']) {
             $arguments['sudo'] = true;
         }
 
-        if($params['maxdepth']) {
+        if ($params['maxdepth']) {
             $arguments[] = '-maxdepth';
             $arguments[] = $params['maxdepth'];
         }
 
-        if($params['type']) {
+        if ($params['type']) {
             $arguments[] = '-type';
             $arguments[] = $params['type'];
         }
@@ -1237,23 +1237,23 @@ function linux_find($server, $params) {
          * For -exec we're executing commands within find. Build up the exec
          * parameters as normal arguments to the find command
          */
-        if($params['exec']) {
+        if ($params['exec']) {
             $arguments[] = '-exec';
 
             foreach($params['exec'] as $key => $value) {
-                if(!is_numeric($key)) {
+                if (!is_numeric($key)) {
                     throw new CoreException(tr('linux_find(): Specified exec structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $params['exec'])), 'invalid');
                 }
 
-                if(!($key % 2)) {
+                if (!($key % 2)) {
                     /*
                      * This value should contain a command
                      */
-                    if(!$value) {
+                    if (!$value) {
                         throw new CoreException(tr('linux_find(): No exec command specified'), 'invalid');
                     }
 
-                    if(!is_string($value)) {
+                    if (!is_string($value)) {
                         throw new CoreException(tr('linux_find(): Specified command ":command" is invalid. It should be a string but is a ":type"', array(':command' => $value, ':type' => gettype($value))), 'invalid');
                     }
 
@@ -1261,9 +1261,9 @@ function linux_find($server, $params) {
                     $arguments[] = $command;
 
                 } else {
-                    if($value) {
-                        if(!is_array($value)) {
-                            if(empty($command)) {
+                    if ($value) {
+                        if (!is_array($value)) {
+                            if (empty($command)) {
                                 /*
                                  * No command was set yet, probably commands / arguments out of order?
                                  */
@@ -1274,7 +1274,7 @@ function linux_find($server, $params) {
                         }
 
                         foreach($value as $sub_key => $sub_value) {
-                            if(!is_numeric($sub_key)) {
+                            if (!is_numeric($sub_key)) {
                                 throw new CoreException(tr('linux_find(): Specified exec sub structure ":commands" is invalid. It should be a numerical array with a list of "string "command", array "argurments", string "command", array "argurments", etc.."', array(':commands' => $value)), 'invalid');
                             }
 
@@ -1347,7 +1347,7 @@ function linux_restrict($server, $params, $restrictions = null) {
         /*
          * Disable all restrictions?
          */
-        if(!empty($params['unrestricted']) or ($restrictions === false)) {
+        if (!empty($params['unrestricted']) or ($restrictions === false)) {
             /*
              * No restrictions required
              */
@@ -1358,16 +1358,16 @@ function linux_restrict($server, $params, $restrictions = null) {
          * Determine what restrictions apply. The restrictions is a white list
          * containing the paths where the calling function is allowed to work
          */
-        if(!$restrictions) {
+        if (!$restrictions) {
             /*
              * If the file was specified as an array, then the restrictions may
              * have been included in there for convenience.
              */
-            if(is_array($params) and isset($params['restrictions'])) {
+            if (is_array($params) and isset($params['restrictions'])) {
                 $restrictions = $params['restrictions'];
             }
 
-            if(!$restrictions) {
+            if (!$restrictions) {
                 /*
                  * Apply default restrictions
                  */
@@ -1385,7 +1385,7 @@ function linux_restrict($server, $params, $restrictions = null) {
         /*
          * If this is a string containing a single path, then test it
          */
-        if(is_string($params)) {
+        if (is_string($params)) {
             /*
              * The file or path to be checked must start with the $restriction
              * Unslash the $restriction to avoid checking a path like "/test/"
@@ -1394,7 +1394,7 @@ function linux_restrict($server, $params, $restrictions = null) {
              */
             foreach($restrictions as $restriction) {
                 Strings::unslash($restriction);
-                if(substr($params, 0, strlen($restriction)) === $restriction) {
+                if (substr($params, 0, strlen($restriction)) === $restriction) {
                     /*
                      * Passed!
                      */
@@ -1411,7 +1411,7 @@ function linux_restrict($server, $params, $restrictions = null) {
         $keys = array('source', 'target', 'source_path', 'source_path', 'path');
 
         foreach($keys as $key) {
-            if(isset($params[$key])) {
+            if (isset($params[$key])) {
                 /*
                  * All these must be tested
                  */

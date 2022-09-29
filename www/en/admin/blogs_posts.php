@@ -16,17 +16,17 @@ array_default($params, 'redirects'      , array('blogs'       => '/admin/blogs.p
 /*
  * Ensure we have an existing blog with access!
  */
-if(empty($_GET['blog'])) {
+if (empty($_GET['blog'])) {
     html_flash_set(tr('Please select %object%', array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs']);
 }
 
-if(!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
+if (!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr($params['noblog'], array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs']);
 }
 
-if(($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+if (($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
     html_flash_set(tr('You do not have access to the %object% "'.$blog['name'].'"', array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs_posts']);
 }
@@ -75,8 +75,8 @@ array_default($params, 'title'          , tr('Blog posts'));
 /*
  * Do we have a category to filter on?
  */
-if(!empty($_POST['category'])) {
-    if(!$category = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['category']))) {
+if (!empty($_POST['category'])) {
+    if (!$category = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['category']))) {
         $category = array('id'      => null,
                           'seoname' => '');
     }
@@ -91,8 +91,8 @@ if(!empty($_POST['category'])) {
 /*
  * Do we have a group to filter on?
  */
-if(!empty($_POST['group'])) {
-    if(!$group = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['group']))) {
+if (!empty($_POST['group'])) {
+    if (!$group = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['group']))) {
         $group = array('id'      => null,
                        'seoname' => '');
     }
@@ -107,8 +107,8 @@ if(!empty($_POST['group'])) {
 /*
  * Do we have a group to filter on?
  */
-if(!empty($_POST['group'])) {
-    if(!$group = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['category']))) {
+if (!empty($_POST['group'])) {
+    if (!$group = sql_get('SELECT `id`, `createdby`, `name`, `seoname` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $_POST['category']))) {
         $group = array('id'      => null,
                        'seoname' => '');
     }
@@ -123,7 +123,7 @@ if(!empty($_POST['group'])) {
 /*
  * Set parameter defaults
  */
-if(!isset($params)) {
+if (!isset($params)) {
     $params = null;
 }
 
@@ -132,8 +132,8 @@ if(!isset($params)) {
 /*
  * We have to set status?
  */
-if(isset_get($_POST['status'])) {
-    if(empty($params['status_list'][$_POST['status']])) {
+if (isset_get($_POST['status'])) {
+    if (empty($params['status_list'][$_POST['status']])) {
         html_flash_set(tr('Unknown status "%status%" specified', '%status%', $_POST['status']), 'error');
         redirect('self');
     }
@@ -144,13 +144,13 @@ if(isset_get($_POST['status'])) {
                 /*
                  * Publish the specified blog posts
                  */
-                if(empty($_POST['id'])) {
+                if (empty($_POST['id'])) {
                     throw new CoreException('No '.$params['object_name'].' selected to publish', 'notspecified');
                 }
 
                 $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
-                if($blog) {
+                if ($blog) {
                     $list[':blogs_id'] = $blog['id'];
                 }
 
@@ -165,7 +165,7 @@ if(isset_get($_POST['status'])) {
 
                            $list);
 
-                if(!$r->rowCount()) {
+                if (!$r->rowCount()) {
                     throw new CoreException(tr('Found no %object% to publish', array('%object%' => $params['object_name'])), 'notfound');
                 }
 
@@ -183,13 +183,13 @@ if(isset_get($_POST['status'])) {
                 /*
                  * Delete the specified blog posts
                  */
-                if(empty($_POST['id'])) {
+                if (empty($_POST['id'])) {
                     throw new CoreException('No '.$params['object_name'].' selected to delete', 'notspecified');
                 }
 
                 $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
-                if($blog) {
+                if ($blog) {
                     $list[':blogs_id'] = $blog['id'];
                 }
 
@@ -203,7 +203,7 @@ if(isset_get($_POST['status'])) {
 
                            $list);
 
-                if(!$r->rowCount()) {
+                if (!$r->rowCount()) {
                     throw new CoreException(tr('Found no %object% to delete', array('%object%' => $params['object_name'])), 'notfound');
                 }
 
@@ -220,13 +220,13 @@ if(isset_get($_POST['status'])) {
                 /*
                  * Delete the specified blog posts
                  */
-                if(empty($_POST['id'])) {
+                if (empty($_POST['id'])) {
                     throw new CoreException('No '.$params['object_name'].' selected to undelete', 'notspecified');
                 }
 
                 $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
-                if($blog) {
+                if ($blog) {
                     $list[':blogs_id'] = $blog['id'];
                 }
 
@@ -240,7 +240,7 @@ if(isset_get($_POST['status'])) {
 
                            $list);
 
-                if(!$r->rowCount()) {
+                if (!$r->rowCount()) {
                     throw new CoreException(tr('Found no %object% to undelete', array('%object%' => $params['object_name'])), 'notfound');
                 }
 
@@ -257,13 +257,13 @@ if(isset_get($_POST['status'])) {
                 /*
                  * Delete the specified blog posts
                  */
-                if(empty($_POST['id'])) {
+                if (empty($_POST['id'])) {
                     throw new CoreException('No '.$params['object_name'].' selected to erase', 'notspecified');
                 }
 
                 $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
-                if($blog) {
+                if ($blog) {
                     $list[':blogs_id'] = $blog['id'];
                 }
 
@@ -277,7 +277,7 @@ if(isset_get($_POST['status'])) {
 
                                 $list);
 
-                if(!$r->rowCount()) {
+                if (!$r->rowCount()) {
                     throw new CoreException(tr('Found no %object% to erase', array('%object%' => $params['object_name'])), 'notfound');
                 }
 
@@ -294,13 +294,13 @@ if(isset_get($_POST['status'])) {
                 /*
                  * Set status for the specified blog posts
                  */
-                if(empty($_POST['id'])) {
+                if (empty($_POST['id'])) {
                     throw new CoreException(tr('No %object% selected for status change', array('%object%' => $params['object_name'].'(s)')), 'notspecified');
                 }
 
                 $list = array_prefix(Arrays::force($_POST['id']), ':id', true);
 
-                if($blog) {
+                if ($blog) {
                     $list[':blogs_id'] = $blog['id'];
                 }
 
@@ -316,7 +316,7 @@ if(isset_get($_POST['status'])) {
 
                            $list);
 
-                if(!$r->rowCount()) {
+                if (!$r->rowCount()) {
                     throw new CoreException(tr('Found no %object% to change status', array('%object%' => $params['object_name'])), 'notfound');
                 }
 
@@ -398,12 +398,12 @@ $query = 'SELECT `blogs_posts`.`id`        AS post_id,
 
 $execute = array(':blogs_id' => $blog['id']);
 
-if(!empty($params['filter_category']) and $category['id']) {
+if (!empty($params['filter_category']) and $category['id']) {
     $query .= ' AND `blogs_posts`.`categories_id` = :categories_id';
     $execute[':categories_id'] = $category['id'];
 }
 
-if(!empty($params['filter_group']) and $group['id']) {
+if (!empty($params['filter_group']) and $group['id']) {
     $query .= ' AND `blogs_posts`.`groups_id` = :groups_id';
     $execute[':groups_id'] = $group['id'];
 }
@@ -434,7 +434,7 @@ $html = '   <form action="'.domain($params['form_action']).'" method="post">
                                                     '.html_select($view).'
                                                 </div>';
 
-if(!empty($params['show_categories'])) {
+if (!empty($params['show_categories'])) {
     /*
      * Show the categories select
      */
@@ -449,7 +449,7 @@ if(!empty($params['show_categories'])) {
                 '</div>';
 }
 
-if(!empty($params['show_groups'])) {
+if (!empty($params['show_groups'])) {
     /*
      * Show the categories select
      */
@@ -481,11 +481,11 @@ $html .= '                                      <div class="visible-xs mb-md"></
                             </header>
                             <div class="panel-body">';
 
-if(!$r->rowCount()) {
+if (!$r->rowCount()) {
     /*
      * There are no blog posts
      */
-    if($blog) {
+    if ($blog) {
         $html .= '<h3>The blog "'.str_log($blog['name']).'" has no posts yet</h3>';
 
     } else {
@@ -573,11 +573,11 @@ if(!$r->rowCount()) {
 /*
  *
  */
-if(!empty($actions)) {
+if (!empty($actions)) {
     $html .= ' '.html_select($actions);
 }
 
-if($r->rowCount()) {
+if ($r->rowCount()) {
     $html .= ' '.$params['status_set'];
 }
 

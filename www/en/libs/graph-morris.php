@@ -67,11 +67,11 @@ function graph_morris_generate(array $params) {
                               data: [';
 
         foreach($params['items'] as $key => $item) {
-            if($params['type'] == 'Donut') {
+            if ($params['type'] == 'Donut') {
                 $script .= '{label: "'.$key.'", value: '.$item.'},';
 
             } else {
-                if(is_array($item)) {
+                if (is_array($item)) {
                     // :TODO: add validation for multiples values
                     //
                 } else {
@@ -86,7 +86,7 @@ function graph_morris_generate(array $params) {
         $optional_params = '';
 
         foreach($params['options'] as $key => $value) {
-            if(is_numeric($value)) {
+            if (is_numeric($value)) {
                 $optional_params .= $key.': '.$value.','.PHP_EOL;
 
             } else {

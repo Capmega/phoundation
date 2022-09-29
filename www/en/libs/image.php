@@ -25,7 +25,7 @@
  */
 function image_library_init() {
     try{
-        if(!class_exists('Imagick')) {
+        if (!class_exists('Imagick')) {
             try{
                 load_libs('linux');
                 linux_install_package(null, 'php-imagick');
@@ -67,7 +67,7 @@ function image_get_text($image) {
         return $retval;
 
     }catch(Exception $e) {
-        if(!file_which('tesseract')) {
+        if (!file_which('tesseract')) {
             try{
                 load_libs('linux');
                 linux_install_package(null, 'tesseract-ocr');
@@ -88,7 +88,7 @@ function image_get_text($image) {
  */
 function image_rotate($degrees, $source, $target = null) {
     try{
-        if(!$target) {
+        if (!$target) {
             $target = $source;
         }
 
@@ -122,11 +122,11 @@ function image_convert($params) {
         /*
          * Validations
          */
-        if(!file_exists($source)) {
+        if (!file_exists($source)) {
             throw new CoreException(tr('image_convert(): The specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
         }
 
-        if(file_exists($target) and $target != $source) {
+        if (file_exists($target) and $target != $source) {
             throw new CoreException(tr('image_convert(): Destination file ":file" already exists', array(':file' => $target)), 'exists');
         }
 
@@ -135,11 +135,11 @@ function image_convert($params) {
         ///*
         // * Validate format
         // */
-        //if(empty($format) and !empty($target)) {
+        //if (empty($format) and !empty($target)) {
         //    $format = substr($target, -3, 3);
         //
-        //} elseif(!empty($format) and !empty($target)) {
-        //    if($format != substr($target, -3, 3)) {
+        //} elseif (!empty($format) and !empty($target)) {
+        //    if ($format != substr($target, -3, 3)) {
         //        throw new CoreException(tr('image_convert(): Specified format ":format1" differ from the given destination format ":format2"', array(':format1' => substr($target, -3, 3), ':format2' => $format)));
         //    }
         //}
@@ -158,12 +158,12 @@ function image_convert($params) {
         $command   = $imagick['convert'];
         $arguments = array();
 
-        if($imagick['nice']) {
+        if ($imagick['nice']) {
             $arguments['nice'] = $imagick['nice'];
         }
 
-        if($params['log']) {
-            if($params['log'] === true) {
+        if ($params['log']) {
+            if ($params['log'] === true) {
                 $params['log'] = ROOT.'data/log/syslog';
             }
 
@@ -222,7 +222,7 @@ function image_convert($params) {
                  */
                 $extension = Strings::fromReverse($source_file, '.');
 
-                if(!$extension) {
+                if (!$extension) {
                     $dest_file = Strings::untilReverse($dest_file, '.').'.'.$extension;
                 }
 
@@ -242,7 +242,7 @@ function image_convert($params) {
          */
         file_ensure_path(ROOT.'data/log');
 
-        if($_CONFIG['log']['single']) {
+        if ($_CONFIG['log']['single']) {
             array_default($params, 'log', ROOT.'data/log/syslog');
 
         } else {
@@ -253,7 +253,7 @@ function image_convert($params) {
             file_delete(ROOT.'data/log/imagemagick-convert', false);
         }
 
-        if($params['defaults']) {
+        if ($params['defaults']) {
             array_default($params, 'quality'         , $imagick['quality']);
             array_default($params, 'interlace'       , $imagick['interlace']);
             array_default($params, 'strip'           , $imagick['strip']);
@@ -276,15 +276,15 @@ function image_convert($params) {
             array_default($params, 'limit_map'       , null);
         }
 
-        if($params['format'] === 'webp') {
+        if ($params['format'] === 'webp') {
             $webp = $_CONFIG['images']['webp'];
 
             foreach($webp as $key => $value) {
-                if($value === null) {
+                if ($value === null) {
                     continue;
                 }
 
-                if(is_bool($value)) {
+                if (is_bool($value)) {
                     $value = str_boolean($value);
                 }
 
@@ -295,7 +295,7 @@ function image_convert($params) {
         foreach($params as $key => $value) {
             switch($key) {
                 case 'limit_memory':
-                    if($value) {
+                    if ($value) {
                         $arguments[] = '-limit memory';
                         $arguments[] = $value;
                     }
@@ -303,7 +303,7 @@ function image_convert($params) {
                     break;
 
                 case 'limit_map':
-                    if($value) {
+                    if ($value) {
                         $arguments[] = '-limit map';
                         $arguments[] = $value;
                     }
@@ -311,7 +311,7 @@ function image_convert($params) {
                     break;
 
                 case 'quality':
-                    if($value) {
+                    if ($value) {
                         $arguments[] = '-quality';
                         $arguments[] = $value.'%';
                     }
@@ -319,7 +319,7 @@ function image_convert($params) {
                     break;
 
                 case 'blur':
-                    if($value) {
+                    if ($value) {
                         $arguments[] = '-gaussian-blur';
                         $arguments[] = $value;
                     }
@@ -330,7 +330,7 @@ function image_convert($params) {
                     break;
 
                 case 'sampling_factor':
-                    if($value) {
+                    if ($value) {
                         $arguments[] = '-sampling-factor';
                         $arguments[] = $value;
                     }
@@ -338,7 +338,7 @@ function image_convert($params) {
                     break;
 
                 case 'defines':
-                    if($value) {
+                    if ($value) {
                         foreach($value as $define) {
                             $arguments[] = '-define';
                             $arguments[] = $define;
@@ -358,7 +358,7 @@ function image_convert($params) {
                     break;
 
                 case 'background':
-                    if($value) {
+                    if ($value) {
                         $arguments[] = '-background';
                         $arguments[] = $value;
                     }
@@ -366,7 +366,7 @@ function image_convert($params) {
                     break;
 
                 case 'interlace':
-                    if($value) {
+                    if ($value) {
                         $value       = image_interlace_valid(strtolower($value));
                         $arguments[] = '-interlace';
                         $arguments[] = $value;
@@ -375,7 +375,7 @@ function image_convert($params) {
                     break;
 
                 case 'updatemode':
-                    if($params['updatemode'] === true) {
+                    if ($params['updatemode'] === true) {
                         $params['updatemode'] = $_CONFIG['file']['dir_mode'];
                     }
 
@@ -410,21 +410,21 @@ function image_convert($params) {
          *
          * If either width or height is not specified then
          */
-        if(!$params['x'] or !$params['y']) {
+        if (!$params['x'] or !$params['y']) {
             $size = getimagesize($source);
 
-            if($params['keep_aspectratio'] and $size[0] and $size[1]) {
+            if ($params['keep_aspectratio'] and $size[0] and $size[1]) {
                 $ar = $size[1] / $size[0];
 
             } else {
                 $ar = 1;
             }
 
-            if(!$params['x']) {
+            if (!$params['x']) {
                 $params['x'] = not_empty($params['y'], $size[1]) * (1 / $ar);
             }
 
-            if(!$params['y']) {
+            if (!$params['y']) {
                 $params['y'] = not_empty($params['y'], $size[0]) * $ar;
             }
         }
@@ -550,11 +550,11 @@ function image_convert($params) {
         /*
          * Verify results
          */
-        if(!file_exists($target)) {
+        if (!file_exists($target)) {
             throw new CoreException(tr('image_convert(): Destination file ":file" not found after conversion', array(':file' => $target)), 'not-exists');
         }
 
-        if(!empty($params['updatemode'])) {
+        if (!empty($params['updatemode'])) {
             chmod($target, $params['updatemode']);
         }
 
@@ -579,18 +579,18 @@ function image_convert($params) {
                 }
         }
 
-        if(!is_array($params)) {
+        if (!is_array($params)) {
             throw new CoreException(tr('image_convert(): Invalid parameters specified, expected params array but received ":params"', array(':params' => $params)), 'invalid');
         }
 
         /*
          * webp support missing?
          */
-        if(isset_get($params['format']) === 'webp') {
+        if (isset_get($params['format']) === 'webp') {
             $line = $e->getData();
             $line = array_pop($line);
 
-            if(str_contains($line, 'delegate failed') and str_contains($line, 'error/delegate.c/InvokeDelegate')) {
+            if (str_contains($line, 'delegate failed') and str_contains($line, 'error/delegate.c/InvokeDelegate')) {
                 /*
                  * WebP conversion failed. Very likely this is due to webp being
                  * not installed. Install it and retry
@@ -611,7 +611,7 @@ function image_convert($params) {
          * Get error information from the imagemagic_convert log file
          */
         try{
-            if(file_exists(ROOT.'data/log/imagemagic_convert.log')) {
+            if (file_exists(ROOT.'data/log/imagemagic_convert.log')) {
                 $contents = safe_exec(array('commands' => array('tail', array('-n', '3', ROOT.'data/log/imagemagic_convert.log'))));
             }
 
@@ -619,12 +619,12 @@ function image_convert($params) {
             $contents = tr('image_convert(): Failed to get contents of imagemagick log file ":file"', array(':file' => ROOT.'data/log/imagemagic_convert.log'));
         }
 
-        if(empty($contents)) {
+        if (empty($contents)) {
             throw new CoreException(tr('image_convert(): Failed'), $e);
 
         } else {
             foreach(Arrays::force($contents) as $line) {
-                if(strstr($line, '/usr/bin/convert: not found')) {
+                if (strstr($line, '/usr/bin/convert: not found')) {
                     /*
                      * Dumbo! You don't have imagemagick installed!
                      */
@@ -644,7 +644,7 @@ function image_convert($params) {
  *
  */
 function image_interlace_valid($value, $source = false) {
-    if($source) {
+    if ($source) {
         $check = Strings::until($value, '-');
 
     } else {
@@ -669,7 +669,7 @@ function image_interlace_valid($value, $source = false) {
             return '';
 
         case 'auto':
-            if(file_size($source) > 10240) {
+            if (file_size($source) > 10240) {
                 /*
                  * Use specified interlace
                  */
@@ -705,22 +705,22 @@ function image_is_valid($file, $min_width = 0, $min_height = 0) {
     try{
         $mimetype = file_mimetype($file);
 
-        if(Strings::until($mimetype, '/') !== 'image') {
+        if (Strings::until($mimetype, '/') !== 'image') {
             throw new CoreException(tr('image_is_valid(): Specified file ":file" is not an image but an ":mimetype"', array(':file' => $file, ':mimetype' => $mimetype)), 'invalid');
         }
 
-        if(!$img_size = getimagesize($file)) {
+        if (!$img_size = getimagesize($file)) {
             throw new CoreException(tr('image_is_valid(): Failed to get width / height data from specified image ":file"', array(':file' => $file)), 'failed');
         }
 
-        if(($img_size[0] < $min_width) or ($img_size[1] < $min_height)) {
+        if (($img_size[0] < $min_width) or ($img_size[1] < $min_height)) {
             throw new CoreException(tr('image_is_valid(): File ":file" has width x height ":actual" where a minimum wxh of ":required" is required', array(':file' => $file, ':actual' => $img_size[0].' x '.$img_size[1], ':required' => $min_width.' x '.$min_height)), 'rejected');
         }
 
         return $mimetype;
 
     }catch(Exception $e) {
-        log_file(new BException('image_is_valid(): Failed', $e->makeWarning(true)), 'image-is-valid', 'warning');
+        log_file(new CoreException('image_is_valid(): Failed', $e->makeWarning(true)), 'image-is-valid', 'warning');
         return false;
     }
 }
@@ -737,7 +737,7 @@ function image_create_avatars($file) {
         $destination = file_assign_target(ROOT.'www/avatars/');
 
         foreach($_CONFIG['avatars']['types'] as $name => $type) {
-            if(count($type  = explode('x', $type)) != 3) {
+            if (count($type  = explode('x', $type)) != 3) {
                 throw new CoreException('image_create_avatar(): Invalid avatar type configuration for type "'.str_log($name).'"', 'invalid/config');
             }
 
@@ -765,7 +765,7 @@ function is_image($file) {
         return (boolean) image_type($file);
 
     }catch(Exception $e) {
-        if($e->getCode() === 'not-file') {
+        if ($e->getCode() === 'not-file') {
             /*
              * Specified path is just not a file
              */
@@ -787,7 +787,7 @@ function image_info($file, $no_exif = false) {
     try{
         $mime = file_mimetype($file);
 
-        if(Strings::until($mime, '/') !== 'image') {
+        if (Strings::until($mime, '/') !== 'image') {
             throw new CoreException(tr('image_info(): The specified file ":file" is not an image', array(':file' => $file)), 'invalid');
         }
 
@@ -814,7 +814,7 @@ function image_info($file, $no_exif = false) {
                     log_console(tr('Failed to get compression information for file ":file" because ":e"', array(':e' => $e->getMessage(), ':file' => $file)), 'red');
                 }
 
-                if(!$no_exif) {
+                if (!$no_exif) {
                     try{
                         $retval['exif'] = exif_read_data($file, null, true, true);
 
@@ -826,7 +826,7 @@ function image_info($file, $no_exif = false) {
                 break;
 
             case 'tiff':
-                if(!$no_exif) {
+                if (!$no_exif) {
                     try{
                         $retval['exif'] = exif_read_data($file, null, true, true);
 
@@ -852,7 +852,7 @@ function image_info($file, $no_exif = false) {
  */
 function image_type($file) {
     try{
-        if(Strings::until(file_mimetype($file), '/') == 'image') {
+        if (Strings::until(file_mimetype($file), '/') == 'image') {
             return Strings::from(file_mimetype($file), '/');
         }
 
@@ -870,7 +870,7 @@ function image_type($file) {
  */
 function image_send($file, $cache_maxage = 86400) {
     try{
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
             /*
              * Requested image does not exist
              */
@@ -885,7 +885,7 @@ function image_send($file, $cache_maxage = 86400) {
         /*
          * Check if the client is validating his cache and if it is current.
          */
-        if($cache_maxage and isset($headers['If-Modified-Since']) and (strtotime($headers['If-Modified-Since']) >= filemtime($file))) {
+        if ($cache_maxage and isset($headers['If-Modified-Since']) and (strtotime($headers['If-Modified-Since']) >= filemtime($file))) {
             /*
              * Client's cache IS current, so we just respond '304 Not Modified'.
              */
@@ -897,7 +897,7 @@ function image_send($file, $cache_maxage = 86400) {
              */
             header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT', true, 200);
 
-            if($cache_maxage) {
+            if ($cache_maxage) {
                 header('Cache-Control: max-age='.$cache_maxage.', public');
                 header('Expires: '. gmdate('D, d M Y H:i:s \G\M\T', time() + $cache_maxage));
             }
@@ -927,7 +927,7 @@ function image_fix_extension($file) {
         $mimetype  = file_mimetype($file);
         $extension = strtolower(file_get_extension($file));
 
-        if(($extension == 'jpg') or ($extension == 'jpeg')) {
+        if (($extension == 'jpg') or ($extension == 'jpeg')) {
             $specified = 'jpeg';
 
         } else {
@@ -937,17 +937,17 @@ function image_fix_extension($file) {
         /*
          * If the file is not an image then we're done
          */
-        if(Strings::until($mimetype, '/') != 'image') {
+        if (Strings::until($mimetype, '/') != 'image') {
             throw new CoreException('image_fix_extension(): Specified file "'.str_log($file).'" is not an image', 'invalid');
         }
 
         /*
          * If the extension specified type differs from the mimetype, then autorename the file to the correct extension
          */
-        if($specified != Strings::from($mimetype, '/')) {
+        if ($specified != Strings::from($mimetype, '/')) {
             $new = Strings::from($mimetype, '/');
 
-            if($new == 'jpeg') {
+            if ($new == 'jpeg') {
                 $new = 'jpg';
             }
 
@@ -1033,11 +1033,11 @@ function image_watermark($params) {
          * Verify image and water mark image
          */
         foreach(array('image' => $params['image'], 'watermark' => $params['watermark']) as $type => $filename) {
-            if(!file_exists($params['target'])) {
+            if (!file_exists($params['target'])) {
                 throw new CoreException(tr('image_watermark(): The specified %type% file ":file" does not exists', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotexists');
             }
 
-            if(!$size = getimagesize($filename)) {
+            if (!$size = getimagesize($filename)) {
                 throw new CoreException(tr('image_watermark(): The specified %type% file ":file" is not a valid image', array('%type%' => $type, ':file' => str_log($filename))), 'imagenotvalid');
             }
         }
@@ -1047,7 +1047,7 @@ function image_watermark($params) {
         /*
          * Make sure the target does not yet exist, UNLESS we're writing to the same image
          */
-        if((realpath($params['target']) != realpath($params['image'])) and file_exists($params['target'])) {
+        if ((realpath($params['target']) != realpath($params['image'])) and file_exists($params['target'])) {
             throw new CoreException('image_watermark(): The specified target "'.str_log($params['target']).'" already exists', 'targetexists');
         }
 
@@ -1093,7 +1093,7 @@ function imagecreatefromany($filename) {
     try{
         switch(exif_imagetype($filename)) {
             case IMAGETYPE_GIF:
-                $resource = @imagecreatefromgif($filename);
+                $resource = @imagecreatefromgif ($filename);
                 break;
 
             case IMAGETYPE_JPEG:
@@ -1139,14 +1139,14 @@ function imagecreatefromany($filename) {
                 throw new CoreException('imagecreatefromany(): The file "'.exif_imagetype($filename).'" is not an image', 'notsupported');
         }
 
-        if(!$resource) {
+        if (!$resource) {
             throw new CoreException('imagecreatefromany(): Failed to open image type "'.exif_imagetype($filename).'" file "'.$filename.'"', 'failed');
         }
 
         return $resource;
 
     }catch(Exception $e) {
-        if(!file_exists($filename)) {
+        if (!file_exists($filename)) {
             throw new CoreException('imagecreatefromany(): Specified file "'.str_log($filename).'" does not exist', $e);
         }
 
@@ -1208,7 +1208,7 @@ function image_picker($params) {
         array_default($params, 'none'      , false);
         array_default($params, 'show_label', false);
 
-        if($params['masonry']) {
+        if ($params['masonry']) {
             html_load_js('masonry.pkgd');
             $params['class'] .= ' masonry';
         }
@@ -1216,7 +1216,7 @@ function image_picker($params) {
         /*
          * If resource is a string, then assume its a path to an image directory
          */
-        if(is_string($params['resource'])) {
+        if (is_string($params['resource'])) {
             $params['resource'] = scandir($params['resource']);
             $params['resource'] = array_merge_keys_values($params['resource'], $params['resource']);
         }
@@ -1225,11 +1225,11 @@ function image_picker($params) {
          * Convert image file names into URL's
          * Remove ., .., and hidden files
          */
-        if(!empty($params['url'])) {
+        if (!empty($params['url'])) {
             foreach($params['resource'] as $key => &$image) {
-                if(!$image) continue;
+                if (!$image) continue;
 
-                if($image[0] == '.') {
+                if ($image[0] == '.') {
                     unset($params['resource'][$key]);
                 }
 
@@ -1242,7 +1242,7 @@ function image_picker($params) {
         /*
          * Add required data info for html_select();
          */
-        if(empty($params['data_resources'])) {
+        if (empty($params['data_resources'])) {
             $params['data_resources'] = array();
         }
 
@@ -1253,8 +1253,8 @@ function image_picker($params) {
                     { show_label : '.str_boolean($params['show_label']).'}
                   );');
 
-        if($params['masonry']) {
-            if($params['loaded']) {
+        if ($params['masonry']) {
+            if ($params['loaded']) {
                 html_load_js('imagesloaded');
                 $retval .= html_script('
                     var $grid = $("#'.$params['id'].'").masonry({
@@ -1365,20 +1365,20 @@ function image_glitch($file, $server = null) {
     try{
         $mimetype = image_is_valid($file);
 
-        if(Strings::from($mimetype, '/') !== 'png') {
+        if (Strings::from($mimetype, '/') !== 'png') {
             throw new CoreException(tr('image_glitch(): This function only supports PNG images. The specified file ":file" is a ":type" type file', array(':file' => $file, ':type' => Strings::from($mimetype, '/'))), 'not-supported');
         }
 
         $file_out = file_temp();
 
-        if($server) {
+        if ($server) {
 // :TODO: Git doesnt support multi server yet
             under_construction();
         }
 
         load_libs('go');
 
-        if(!go_exists('corrupter/corrupter')) {
+        if (!go_exists('corrupter/corrupter')) {
             load_libs('git');
             log_console('Corrupter program not setup yet, creating now');
 

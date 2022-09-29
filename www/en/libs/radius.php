@@ -239,7 +239,7 @@ function radius_validate_device($device) {
          */
         $user = sql_get('SELECT `id` FROM `users` WHERE `id` = :id', true, array(':id' => $device['users_id']));
 
-        if(!$user) {
+        if (!$user) {
             $v->setError(tr('The specified user does not exist'));
         }
 
@@ -257,7 +257,7 @@ function radius_validate_device($device) {
                          array(':mac_address' => $device['mac_address'],
                                ':id' => isset_get($device['id'], 0)));
 
-        if($user) {
+        if ($user) {
             $v->setError(tr('The specified mac_address is already in devices'));
         }
 

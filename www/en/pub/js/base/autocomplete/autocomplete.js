@@ -32,10 +32,10 @@ $.fn.autocomplete = function(options) {
 
 	function go_enter() {
 		var obj=target.find('.' + options.returnClass + '_hover');
-		if(obj.length>0) {
+		if (obj.length>0) {
 			self.val(obj.prop('title'));
 		}
-		if(options.autoSubmit==true) {
+		if (options.autoSubmit==true) {
 			$.flashMessage(self.clostest('form').html(), "error");
 			self.closest('form').submit();
 		}
@@ -43,12 +43,12 @@ $.fn.autocomplete = function(options) {
 
 	function go_down() {
 		var obj=target.find('.' + options.returnClass + '_hover');
-		if(obj.length==0) {
+		if (obj.length==0) {
 			var next=target.find('li:first');
 		} else {
 			var next = obj.next();
 		}
-		if(next.length>0) {
+		if (next.length>0) {
 			obj.removeClass(options.returnClass + '_hover');
 			next.addClass(options.returnClass + '_hover');
 		} else {
@@ -61,11 +61,11 @@ $.fn.autocomplete = function(options) {
 	function go_up() {
 		//console.log('up');
 		var obj=target.find('.' + options.returnClass + '_hover');
-		if(obj.length==0) {
+		if (obj.length==0) {
 			var obj=target.find('li:first');
 		}
 		var next = obj.prev();
-		if(next.length>0) {
+		if (next.length>0) {
 			obj.removeClass(options.returnClass + '_hover');
 			next.addClass(options.returnClass + '_hover');
 		} else {
@@ -75,8 +75,8 @@ $.fn.autocomplete = function(options) {
 
 	function onChange(event) {
 		var value = self.val();
-		if(value.length>=options.minLength && event.keyCode!=40 && event.keyCode!=38 && event.keyCode!=13) {
-			if(loading == false) {
+		if (value.length>=options.minLength && event.keyCode!=40 && event.keyCode!=38 && event.keyCode!=13) {
+			if (loading == false) {
 				loading = true;
 				$.ajax({
 					type: 'POST',
@@ -85,13 +85,13 @@ $.fn.autocomplete = function(options) {
 					dataType: 'json',
 					success: function(data) {
 						loading = false;
-						if(data.result=='OK' && data.count>0) {
+						if (data.result=='OK' && data.count>0) {
 							target.html(data.html).show();
 							//add onclicks
 							$(document).on("click","." + options.returnClass + " li", function(event) {
 								self.val($(this).prop('title'));
 								target.hide();
-								if(options.autoSubmit==true) {
+								if (options.autoSubmit==true) {
 									self.closest('form').submit();
 								}
 							 });

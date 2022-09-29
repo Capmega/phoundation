@@ -78,7 +78,7 @@ function facebook_redirect_to_authorize($return = false) {
         FacebookSession::setDefaultApplication($app_id, $app_secret);
         $helper = new FacebookRedirectLoginHelper($redirect);
 
-        if($return) {
+        if ($return) {
             return $helper->getLoginUrl($scope);
         }
 
@@ -107,7 +107,7 @@ function facebook_get_user_token() {
         $helper  = new FacebookRedirectLoginHelper($redirect);
         $session = $helper->getSessionFromRedirect();
 
-        if($session) {
+        if ($session) {
             return $session->getToken();
         }
 
@@ -161,7 +161,7 @@ function facebook_signin() {
 
         $fbuser   = $facebook->getUser();
 
-        if($fbuser) {
+        if ($fbuser) {
             $fb_data          = $facebook->api('/me');
 
             //access token!
@@ -175,11 +175,11 @@ function facebook_signin() {
             ////check if facebook email has some matching account on one of the servers.
             //$user = sql_get("SELECT * FROM users WHERE fb_id = '".cfm($fb_data['id'])."'");
             //
-            //if($user['uid'] > 0) {
+            //if ($user['uid'] > 0) {
             //    //known fb user
             //    sql_query("update users set fb_token='".cfm($access_token)."' where uid='".cfm($user['uid'])."'");
             //
-            //    if($user['verified']==0) {
+            //    if ($user['verified']==0) {
             //        sql_query("update users set verified='".time()."' where uid='".cfm($user['uid'])."'");
             //    }
             //
@@ -194,7 +194,7 @@ function facebook_signin() {
             //    //find matching user by email
             //    $user = sql_get("select * from users where email='".cfm($fb_data['email'])."';");
             //
-            //    if($user['uid'] > 0) {
+            //    if ($user['uid'] > 0) {
             //        sql_query("update users set fb_id='".cfm($fb_data['id'])."',fb_token='".cfm($access_token)."',verified=1 where uid='".cfm($user['uid'])."'");
             //        add_stat('USER_FB_LINKED_TO_EXISITING_USER');
             //        user_login($user);
@@ -211,7 +211,7 @@ function facebook_signin() {
             //        while(!$found and !strlen($username) and !in_array($username,$_CONFIG['bl_usernames'])) {
             //            $test = sql_get("select uid from users where username='".cfm($username)."';");
             //
-            //            if($test['uid']>0) {
+            //            if ($test['uid']>0) {
             //                $username = strtolower(preg_replace("/[^A-Za-z0-9 ]/", '', $fb_data['name'])).$tel;
             //
             //            } else {
@@ -264,7 +264,7 @@ function facebook_signin() {
             //
             //        add_stat('USER_FB_NEW_USER');
             //
-            //        if($uid > 0) {
+            //        if ($uid > 0) {
             //            //delete email from pending verifcation requests
             //            sql_query("delete from email_verify_requests where email='".cfm($fb_data['email'])."';");
             //
@@ -272,9 +272,9 @@ function facebook_signin() {
             //            $tmp = '/tmp/tmpavatarfb-'.$uid.'.jpg';
             //            file_put_contents($tmp, file_get_contents('http://graph.facebook.com/'.$fb_data['id'].'/picture?type=large'));
             //
-            //            if(file_exists($tmp)) {
+            //            if (file_exists($tmp)) {
             //                //generate target file/location
-            //                if($newfile = get_upload_location('avatars',5,'')) {
+            //                if ($newfile = get_upload_location('avatars',5,'')) {
             //                    //create small avatar
             //                    convert_image($tmp,ROOT.'/'.$newfile.'_small.png',50,50,'thumb-circle');
             //
@@ -325,9 +325,9 @@ function facebook_get_avatar($user) {
     try{
         load_libs('file,image,user');
 
-        if(is_array($user)) {
-            if(empty($user['fb_id'])) {
-                if(empty($user['id'])) {
+        if (is_array($user)) {
+            if (empty($user['fb_id'])) {
+                if (empty($user['id'])) {
                     throw new CoreException('facebook_get_avatar: Specified user array contains no "id" or "fb_id"');
                 }
 
@@ -340,7 +340,7 @@ function facebook_get_avatar($user) {
             $user = $user['fb_id'];
         }
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException('facebook_get_avatar(): No facebook ID specified');
         }
 
@@ -383,7 +383,7 @@ function facebook_get_avatar($user) {
 //        sql_query("UPDATE users SET last_fb_friend_check = ".time()." WHERE uid=".cfi($uid).";");
 //        sleep(3);
 //
-//        if(is_array($friends['data'])) {
+//        if (is_array($friends['data'])) {
 //            //remove old fb_friends data (except the ones that have been notified)
 //            sql_query("DELETE FROM fb_friends WHERE uid=".cfi($uid)." AND notified IS NULL;");
 //
@@ -412,7 +412,7 @@ function facebook_get_avatar($user) {
 //    global $_CONFIG;
 //
 //    try{
-//        if(empty($username)) {
+//        if (empty($username)) {
 //            $user     = load_user_data($uid);
 //            $username = $user['username'];
 //        }

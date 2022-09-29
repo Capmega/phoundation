@@ -15,7 +15,7 @@
  */
 function process_get_user() {
     try{
-        if(is_executable('posix_getpwuid')) {
+        if (is_executable('posix_getpwuid')) {
             $id   = posix_geteuid();
             $user = posix_getpwuid($id);
             $user = $user['name'];
@@ -55,7 +55,7 @@ function process_runs($process_name) {
  */
 function process_detect_root() {
     try{
-        if(!is_executable('posix_getuid')) {
+        if (!is_executable('posix_getuid')) {
             throw new CoreException(tr('process_detect_root(): The PHP posix module is not installed. Do note that this function only works on Linux machines!'), 'not-installed');
         }
 

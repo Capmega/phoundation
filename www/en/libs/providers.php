@@ -61,12 +61,12 @@ function providers_validate($provider) {
         /*
          * Validate category
          */
-        if($provider['seocategory']) {
+        if ($provider['seocategory']) {
             load_libs('categories');
 
             $provider['categories_id'] = categories_get($provider['seocategory'], 'id');
 
-            if(!$provider['categories_id']) {
+            if (!$provider['categories_id']) {
                 $v->setError(tr('Specified category does not exist'));
             }
 
@@ -77,7 +77,7 @@ function providers_validate($provider) {
         /*
          * Validate basic data
          */
-        if($provider['description']) {
+        if ($provider['description']) {
             $v->hasMinChars($provider['description'],    8, tr('Please ensure the description has at least 8 characters'));
             $v->hasMaxChars($provider['description'], 2047, tr('Please ensure the description has less than 2047 characters'));
 
@@ -87,7 +87,7 @@ function providers_validate($provider) {
             $provider['description'] = null;
         }
 
-        if($provider['url']) {
+        if ($provider['url']) {
             $v->hasMaxChars($provider['url'], 255, tr('Please ensure the URL has less than 255 characters'));
             $v->isURL($provider['url'], tr('Please a valid URL'));
 
@@ -95,7 +95,7 @@ function providers_validate($provider) {
             $provider['url'] = null;
         }
 
-        if($provider['email']) {
+        if ($provider['email']) {
             $v->hasMaxChars($provider['email'], 64, tr('Please ensure the email has less than 96 characters'));
             $v->isEmail($provider['email'], tr('Please specify a valid emailaddress'));
 
@@ -103,7 +103,7 @@ function providers_validate($provider) {
             $provider['email'] = null;
         }
 
-        if($provider['phones']) {
+        if ($provider['phones']) {
             $v->hasMaxChars($provider['phones'], 36, tr('Please ensure the phones field has less than 36 characters'));
 
             foreach(Arrays::force($provider['phones']) as &$phone) {
@@ -116,7 +116,7 @@ function providers_validate($provider) {
             $provider['phones'] = null;
         }
 
-        if($provider['code']) {
+        if ($provider['code']) {
             $v->hasMinChars($provider['code'],  2, tr('Please ensure the provider\'s description has at least 2 characters'));
             $v->hasMaxChars($provider['code'], 64, tr('Please ensure the provider\'s description has less than 64 characters'));
             $v->isAlphaNumeric($provider['code'], tr('Please ensure the provider\'s description has less than 64 characters'), VALIDATE_IGNORE_SPACE|VALIDATE_IGNORE_DASH|VALIDATE_IGNORE_UNDERSCORE);
@@ -130,7 +130,7 @@ function providers_validate($provider) {
          */
         $exists = sql_get('SELECT `id` FROM `providers` WHERE `name` = :name AND `id` != :id', true, array(':name' => $provider['name'], ':id' => isset_get($provider['id'])));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The provider ":provider" already exists with id ":id"', array(':provider' => $provider['name'], ':id' => $exists)));
         }
 
@@ -294,17 +294,17 @@ function providers_select($params = null) {
         array_default($params, 'none'         , tr('Select a provider'));
         array_default($params, 'orderby'      , '`name`');
 
-        if($params['categories_id'] !== false) {
+        if ($params['categories_id'] !== false) {
             $where[] = ' `categories_id` '.sql_is($params['categories_id'], ':categories_id');
             $execute[':categories_id'] = $params['categories_id'];
         }
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {

@@ -56,30 +56,30 @@ function mailer_insert($params) {
         load_libs('seo');
 
         foreach(array('name', 'subject', 'users') as $key) {
-            if(empty($params[$key])) {
+            if (empty($params[$key])) {
                 throw new CoreException('mailer_insert(): No "'.str_log($key).'" specified');
             }
         }
 
-        if(mailer_get($params, 'id')) {
+        if (mailer_get($params, 'id')) {
             throw new CoreException('mailer_insert(): A mailer with the name "'.$params['name'].'" already exists', 'exists');
         }
 
-        if($params['starton'] and ($params['status'] != 'stopped')) {
+        if ($params['starton'] and ($params['status'] != 'stopped')) {
             throw new CoreException('mailer_insert(): Both starton and start were specified, please specify only one', 'invalid');
         }
 
-        if(empty($params['from_name'])) {
+        if (empty($params['from_name'])) {
             throw new CoreException('mailer_insert(): No from_name specified', 'not-specified');
         }
 
-        if(empty($params['from_email'])) {
+        if (empty($params['from_email'])) {
             throw new CoreException('mailer_insert(): No from_email specified', 'not-specified');
         }
 
         $params['seoname'] = seo_generate_unique_name($params['name'], 'mailer_mailings', null, 'seoname');
 
-        if(empty($params['content'])) {
+        if (empty($params['content'])) {
             $params['content'] = $params['seoname'];
         }
 
@@ -89,20 +89,20 @@ function mailer_insert($params) {
         $params['from'] = Arrays::force($params['from']);
         $params['to']   = Arrays::force($params['to']);
 
-        if(count($params['from']) != count($params['to'])) {
+        if (count($params['from']) != count($params['to'])) {
             throw new CoreException('mailer_insert(): The element count specified in "from" ('.count($params['from']).'), does not match the element count specified in "to" ('.count($params['to']).')', 'invalid');
         }
 
         /*
          * Validate content file
          */
-        if(!file_exists(ROOT.'data/content/'.LANGUAGE.'/mailer/template.html')) {
+        if (!file_exists(ROOT.'data/content/'.LANGUAGE.'/mailer/template.html')) {
             throw new CoreException('mailer_insert(): Template file "'.ROOT.'data/content/'.LANGUAGE.'/mailer/template.html" does not exist', 'not-exists');
         }
 
         $params['content'] = cfm($params['content']);
 
-        if(!file_exists($file = ROOT.'data/content/'.LANGUAGE.'/mailer/'.$params['content'].'.html')) {
+        if (!file_exists($file = ROOT.'data/content/'.LANGUAGE.'/mailer/'.$params['content'].'.html')) {
             throw new CoreException('mailer_insert(): Specified content file "'.$params['content'].'.html'.'" does not exist in email content path "'.ROOT.'data/content/'.LANGUAGE.'/mailer/'.'"', 'not-exists');
         }
 
@@ -110,7 +110,7 @@ function mailer_insert($params) {
          * Ensure that all markers have been specified
          * If not, load_content() will later exception during mailing
          */
-        if(preg_match_all('/(###.+?###)/imus', file_get_contents($file), $matches)) {
+        if (preg_match_all('/(###.+?###)/imus', file_get_contents($file), $matches)) {
             /*
              * Most codes are done automatically
              */
@@ -119,11 +119,11 @@ function mailer_insert($params) {
             $missing['arguments'] = array_diff($matches, $params['from']);
             $missing['content']   = array_diff($params['from'], $matches);
 
-            if(count($missing['content'])) {
+            if (count($missing['content'])) {
                 throw new CoreException('mailer_insert(): Content file contains markers "'.implode(',', $missing['content']).'" that have not been defined in arguments', 'missing');
             }
 
-            //if(count($missing['arguments'])) {
+            //if (count($missing['arguments'])) {
             //    throw new CoreException('mailer_insert(): Arguments contains markers "'.implode(',', $missing['arguments']).'" that have not been defined in content file ', 'missing');
             //}
         }
@@ -168,14 +168,14 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
         /*
          * Ensure that specified mailing exists.
          */
-        if($validate_mailing and is_numeric($mailing)) {
+        if ($validate_mailing and is_numeric($mailing)) {
             $mailings_id = $mailing;
 
         } else {
             $mailings_id = mailer_get($mailing, 'id');
         }
 
-        if($mailings_id < 1) {
+        if ($mailings_id < 1) {
             throw new CoreException('mailer_add_users(): Specified mailing "'.str_log($mailing).'" does not exist', 'not-exists');
         }
 
@@ -184,7 +184,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
         /*
          * Add all users to this mailing?
          */
-        if($users === 'all') {
+        if ($users === 'all') {
             $r = sql_query('SELECT `id` FROM `users`');
 
             while($users_id = sql_fetch($r, 'id')) {
@@ -213,12 +213,12 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
                                       ':email'    => $users_id,
                                       ':username' => $users_id));
 
-            if(!$users_id) {
+            if (!$users_id) {
                 log_console('mailer_add_users(): User "'.str_log($name).'" not found', 'yellow');
                 continue;
             }
 
-            if(!$users_id['mailings']) {
+            if (!$users_id['mailings']) {
                 log_console('mailer_add_users(): User "'.str_log($name).'" does not allow mailings', 'yellow');
                 continue;
             }
@@ -228,7 +228,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
             /*
              * Only add each user once to each mailing!
              */
-            if(!sql_get('SELECT `id` FROM `mailer_recipients` WHERE `mailings_id` = :mailings_id AND `users_id` = :users_id', array(':mailings_id' => $mailings_id, ':users_id' => $users_id), 'id')) {
+            if (!sql_get('SELECT `id` FROM `mailer_recipients` WHERE `mailings_id` = :mailings_id AND `users_id` = :users_id', array(':mailings_id' => $mailings_id, ':users_id' => $users_id), 'id')) {
 
                 sql_query('INSERT INTO `mailer_recipients` (`mailings_id`, `users_id`, `code`)
                            VALUES                          (:mailings_id , :users_id , :code )',
@@ -255,7 +255,7 @@ function mailer_add_users($users, $mailing, $validate_mailing = true) {
  */
 function mailer_unsubscribe($user, $validate_user = true) {
     try{
-        if($validate_user) {
+        if ($validate_user) {
             load_libs('user');
             $user = user_get($user, 'id');
         }
@@ -285,13 +285,13 @@ function mailer_get($params, $columns = false) {
         Arrays::ensure($params, 'name', 'id');
 
         foreach(array('id', 'name') as $key) {
-            if(isset_get($params[$key])) {
+            if (isset_get($params[$key])) {
                 $where[]           = '`'.$key.'` = :'.$key;
                 $execute[':'.$key] = $params[$key];
             }
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             throw new CoreException('mailer_get() No valid mailer columns specified (either id, and or name)', 'not-specified');
         }
 
@@ -327,17 +327,17 @@ function mailer_list($status = null, $columns = '`id`, `name`') {
                 throw new CoreException('mailer_list(): Unknown status "'.str_log($status).'" specified', 'unknown');
         }
 
-        if(empty($_SESSION['user']['admin'])) {
+        if (empty($_SESSION['user']['admin'])) {
             $where[]             = '`addedby` = :addedby';
             $execute[':addedby'] = $_SESSION['user']['id'];
         }
 
-        if($status) {
+        if ($status) {
             $where[]            = ':status = :status';
             $execute[':status'] = $status;
         }
 
-        if(!isset($where)) {
+        if (!isset($where)) {
             $where   = ' WHERE '.implode(',', $where);
 
         } else {
@@ -365,11 +365,11 @@ function mailer_send($count = null, $wait = null, $test = false) {
 
         $sent = 0;
 
-        if(!$count) {
+        if (!$count) {
             $count = $_CONFIG['mailer']['sender']['count'];
         }
 
-        if(!$wait) {
+        if (!$wait) {
             $wait = $_CONFIG['mailer']['sender']['wait'];
         }
 
@@ -412,7 +412,7 @@ $mailing['language'] = 'en';
                                              WHERE  `mailer_recipients`.`mailings_id` = '.$mailing['id'].'
                                              AND    `mailer_recipients`.`status`      IS NULL', 'count');
 
-                if($total_recipients <= 0) {
+                if ($total_recipients <= 0) {
                     /*
                      * This mailing has no (more) recipients. Mark it as finished
                      */
@@ -464,7 +464,7 @@ $mailing['language'] = 'en';
                                       'from_name'   => $mailing['from_name'],
                                       'from_email'  => $mailing['from_email']);
 
-                        if(!$test) {
+                        if (!$test) {
                             mail_send_templated_email($mail, $mailing['subject'], $body, $mailing['language'], 'mailer/template');
                         }
 
@@ -483,7 +483,7 @@ $mailing['language'] = 'en';
                                    array(':recipients_id' => $recipients_id,
                                          ':code'          => $mail['mailer_code']));
 
-                        if(--$total_recipients <= 0) {
+                        if (--$total_recipients <= 0) {
                             /*
                              * This mailing has no more recipients. Mark it as finished
                              */
@@ -494,14 +494,14 @@ $mailing['language'] = 'en';
                                        WHERE  `id`         = '.$mailing['id']);
                         }
 
-                        if($count and --$count <= 0) {
+                        if ($count and --$count <= 0) {
                             /*
                              * We've reached maximum amount of mails to send, stop now
                              */
                             break;
                         }
 
-                        if($wait) {
+                        if ($wait) {
                             /*
                              * Wait between sending each mail
                              */
@@ -509,7 +509,7 @@ $mailing['language'] = 'en';
                         }
 
                     }catch(Exception $e) {
-                        if($e->getCode() == 'missing-markers') {
+                        if ($e->getCode() == 'missing-markers') {
                             /*
                              * This mailing is missing markers, and should be canceled all together
                              */
@@ -561,7 +561,7 @@ $mailing['language'] = 'en';
  */
 function mailer_get_recipient($code, $status = null) {
     try{
-        if($status) {
+        if ($status) {
             $execute = array(':code' => $code, ':status' => $status);
 
         } else {
@@ -595,7 +595,7 @@ function mailer_viewed($code) {
     try{
         $recipient = mailer_get_recipient($code, 'sent');
 
-        if(!$recipient) {
+        if (!$recipient) {
             throw new CoreException('mailer_viewed(): Specified code "'.str_log($code).'" does not exist', 'not-exists');
         }
 
@@ -726,7 +726,7 @@ function mailer_status($mailers, $status) {
                  * "auto" mailers only works with starting mailers
                  * Automatically start all mailers that are programmed todo so.
                  */
-                if($status != 'started') {
+                if ($status != 'started') {
                     throw new CoreException('mailer_status(): "auto" mailers can only be used in combination with status "started"', 'invalid');
                 }
 
@@ -740,13 +740,13 @@ function mailer_status($mailers, $status) {
                 $count   = 0;
                 $mailers = Arrays::force($mailers);
 
-                if(empty($mailers)) {
+                if (empty($mailers)) {
                     throw new CoreException('mailer_status(): No mailer names specified');
                 }
 
                 foreach($mailers as $mailer) {
-                    if(empty($column)) {
-                        if(is_numeric($mailer)) {
+                    if (empty($column)) {
+                        if (is_numeric($mailer)) {
                             $column = 'id';
 
                         } else {
@@ -757,7 +757,7 @@ function mailer_status($mailers, $status) {
                     $execute[':mailer'.$count++] = $mailer;
                 }
 
-                if($status == 'deleted') {
+                if ($status == 'deleted') {
                     return sql_query('DELETE FROM `mailer_mailings` WHERE `'.$column.'` IN ('.implode(',', array_keys($execute)).')', $execute)->rowCount();
                 }
 

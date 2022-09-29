@@ -33,7 +33,7 @@ class Facebook extends BaseFacebook
    * @see BaseFacebook::__construct in facebook.php
    */
   public function __construct($config) {
-    if(!session_id()) {
+    if (!session_id()) {
       session_start();
     }
     parent::__construct($config);
@@ -49,7 +49,7 @@ class Facebook extends BaseFacebook
    * access tokens.
    */
   protected function setPersistentData($key, $value) {
-    if(!in_array($key, self::$kSupportedKeys)) {
+    if (!in_array($key, self::$kSupportedKeys)) {
       self::errorLog('Unsupported key passed to setPersistentData.');
       return;
     }
@@ -59,7 +59,7 @@ class Facebook extends BaseFacebook
   }
 
   protected function getPersistentData($key, $default = false) {
-    if(!in_array($key, self::$kSupportedKeys)) {
+    if (!in_array($key, self::$kSupportedKeys)) {
       self::errorLog('Unsupported key passed to getPersistentData.');
       return $default;
     }
@@ -70,7 +70,7 @@ class Facebook extends BaseFacebook
   }
 
   protected function clearPersistentData($key) {
-    if(!in_array($key, self::$kSupportedKeys)) {
+    if (!in_array($key, self::$kSupportedKeys)) {
       self::errorLog('Unsupported key passed to clearPersistentData.');
       return;
     }

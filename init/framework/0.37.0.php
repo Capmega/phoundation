@@ -78,7 +78,7 @@ sql_query('CREATE TABLE `twilio_numbers` (`id`          INT(11)      NOT NULL AU
 
                                          ) ENGINE=InnoDB AUTO_INCREMENT='.$_CONFIG['db']['core']['autoincrement'].' DEFAULT CHARSET="'.$_CONFIG['db']['core']['charset'].'" COLLATE="'.$_CONFIG['db']['core']['collate'].'";');
 
-if(!empty($_CONFIG['twilio']['accounts'])) {
+if (!empty($_CONFIG['twilio']['accounts'])) {
     load_config('twilio');
     log_console(tr('Copying twilio configuration...'), 'white');
 

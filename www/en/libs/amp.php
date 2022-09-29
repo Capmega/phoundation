@@ -24,7 +24,7 @@ function amp_component_carousel($params) {
         array_default($params, 'layout', 'fixed-height');
         array_default($params, 'images', array());
 
-        if(!is_array($params['images'])) {
+        if (!is_array($params['images'])) {
             throw new CoreException(tr('amp_component_carousel(): Expected array as parameters'), 'invalid');
         }
 
@@ -53,7 +53,7 @@ function amp_page_cache() {
 
         $data = cache_read($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'], 'amp');
 
-        if($data) {
+        if ($data) {
            echo $data;
            die();
         }
@@ -80,27 +80,27 @@ function amp_page($params) {
 
         load_libs('cache');
 
-        if(!$params['template']) {
+        if (!$params['template']) {
             throw new CoreException(tr('amp_page(): No template page specified'), 'not-specified');
         }
 
-        if(!$params['canonical']) {
+        if (!$params['canonical']) {
             throw new CoreException(tr('amp_page(): No canonical url specified'), 'not-specified');
         }
 
-        if(!$params['resource']) {
+        if (!$params['resource']) {
             throw new CoreException(tr('amp_page(): No resource specified'), 'not-specified');
         }
 
         $file = ROOT.'data/content/amp/'.$params['template'].'.amp';
 
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
             throw new CoreException(tr('amp_page(): Specified template ":template" does not exist', array(':template' => $params['template'])), 'not-exists');
         }
 
         $data = file_get_contents($file);
 
-        if(!$data) {
+        if (!$data) {
             throw new CoreException(tr('amp_page(): Specified template ":template" is empty', array(':template' => $params['template'])), 'not-exists');
         }
 
@@ -109,7 +109,7 @@ function amp_page($params) {
         /*
          * Lets replace resouces on our template
          */
-        if($params['resource']) {
+        if ($params['resource']) {
             foreach($params['resource'] as $key => $value) {
                 $data = str_replace(':'.$key, $value, $data);
             }
@@ -118,7 +118,7 @@ function amp_page($params) {
         /*
          * Lets add out components into the mix
          */
-        if($params['components']) {
+        if ($params['components']) {
             foreach($params['components'] as $key => $component_data) {
                 try{
                     $component      = str_replace(':', '', $key);
@@ -171,7 +171,7 @@ function amp_page($params) {
 function amp_img($params, $alt = null, $width = null, $height = null, $extra = 'layout="responsive"') {
     try{
 // :LEGACY: The following code block exists to support legacy apps that still use 5 arguments for html_img() instead of a params array
-        if(!is_array($params)) {
+        if (!is_array($params)) {
             /*
              * Ensure we have a params array
              */
@@ -198,7 +198,7 @@ function amp_img($params, $alt = null, $width = null, $height = null, $extra = '
  */
 function amp_youtube(array $attributes) {
     try{
-        if(empty($attributes['hashtag'])) return '';
+        if (empty($attributes['hashtag'])) return '';
 
         array_default($attributes, 'width' , '480');
         array_default($attributes, 'height', '385');
@@ -291,13 +291,13 @@ function amp_content($html) {
         /*
          * Turn video tags into amp-video tags
          */
-        if(strstr($html, '<video')) {
+        if (strstr($html, '<video')) {
             preg_match_all('/<video.+?>[ ?\n?\r?].*<\/video>/', $html, $video_match);
 
             $attributes = array('class', 'width', 'height', 'poster', 'src', 'type');
             $videos     = $video_match[0];
 
-            if(count($videos)) {
+            if (count($videos)) {
                 foreach($videos as $video ) {
                     $search[] = $video;
 
@@ -317,15 +317,15 @@ function amp_content($html) {
         /*
          * Turn iframes into their target components
          */
-        if(strstr($html, '<iframe')) {
+        if (strstr($html, '<iframe')) {
             preg_match_all('/<iframe.*>.*<\/iframe>/s', $html, $iframe_match);
 
             $attributes = array('class', 'width', 'height');
             $iframes    = $iframe_match[0];
 
-            if(count($iframes)) {
+            if (count($iframes)) {
                 foreach($iframes as $iframe ) {
-                    if(!strstr($iframe, 'youtube')) continue;
+                    if (!strstr($iframe, 'youtube')) continue;
 
                     $search[] = $iframe;
 
@@ -348,13 +348,13 @@ function amp_content($html) {
         /*
          * Turn img tags into amp-img tags
          */
-        if(strstr($html, '<img')) {
+        if (strstr($html, '<img')) {
             preg_match_all('/<img.+?>/', $html, $img_match);
 
             $attributes = array('src', 'alt', 'width', 'height', 'class');
             $images     = $img_match[0];
 
-            if(count($images)) {
+            if (count($images)) {
                 foreach($images as $image) {
                     $search[] = $image;
 
@@ -371,7 +371,7 @@ function amp_content($html) {
                      * Ej. base64, this is useful when sending blog post body into amp content
                      * function
                      */
-                    if(empty($values['src'])) {
+                    if (empty($values['src'])) {
 // :TODO: remove continue and implement, from this point on html_img will complain about the base64 String
 $replace[] = '';
 continue;
@@ -380,7 +380,7 @@ continue;
                         $string        = isset_get($base64_match[1]);
                         $values['src'] = trim($string, '"');
 
-                    } elseif(empty($values['src'])) {
+                    } elseif (empty($values['src'])) {
                         continue;
                     }
 

@@ -20,7 +20,7 @@ $skiplist = array('.',
 
 foreach(scandir($path) as $file) {
     try{
-        if(in_array($file, $skiplist)) continue;
+        if (in_array($file, $skiplist)) continue;
 
         /*
          * Create temporary test file that does not contain the shell hashbang header

@@ -93,19 +93,19 @@ try{
                          LEFT JOIN `users`
                          ON        `users`.`id` = `ssh_accounts`.`createdby`';
 
-            if(DELETED) {
+            if (DELETED) {
                 $where[] = ' `ssh_accounts`.`status` = "deleted" ';
 
-            } elseif(!ALL) {
+            } elseif (!ALL) {
                 $where[] = ' `ssh_accounts`.`status` IS NULL ';
             }
 
-            if(STATUS) {
+            if (STATUS) {
                 $execute = array_merge($execute, sql_in(ALL));
                 $where[] = ' `ssh_accounts`.`status` IN ('.implode(', ', array_keys(ALL)).') ';
             }
 
-            if(empty($where)) {
+            if (empty($where)) {
                 $where = '';
 
             } else {
@@ -115,7 +115,7 @@ try{
             $order    = ' ORDER BY `ssh_accounts`.`status` IS NOT NULL DESC ';
             $accounts = sql_query($query.$where.$order.sql_limit(), $execute);
 
-            if(!$accounts->rowCount()) {
+            if (!$accounts->rowCount()) {
                     log_console(tr('There are currently no accounts registered'), 'QUIET/yellow');
 
             } else {
@@ -132,7 +132,7 @@ try{
             $account      = cli_argument();
             $account_data = ssh_get_account($account);
 
-            if(!$account_data) {
+            if (!$account_data) {
                 throw new CoreException(tr('The specified SSH account ":account" does not exist', array(':account' => $account)), 'not-exists');
             }
 
@@ -141,7 +141,7 @@ try{
             ksort($account_data);
 
             foreach($account_data as $key => $value) {
-                if($key == 'password') continue;
+                if ($key == 'password') continue;
                 log_console(cli_color($key.':', 'white').' '.json_encode_custom($value));
             }
 
@@ -154,7 +154,7 @@ try{
 
             $count = ssh_add_known_host($domain, $port);
 
-            if($count) {
+            if ($count) {
                 log_console(tr('Added ":count" domains', array(':count' => $count)), 'green');
 
             } else {
@@ -170,7 +170,7 @@ try{
 
             $count = ssh_remove_known_host($domain, $port);
 
-            if($count) {
+            if ($count) {
                 log_console(tr('Removed ":count" domains', array(':count' => $count)), 'green');
 
             } else {
@@ -184,7 +184,7 @@ try{
 
             $count = ssh_rebuild_known_hosts(FORCE);
 
-            if($count) {
+            if ($count) {
                 log_console(tr('Added ":count" domains', array(':count' => $count)), 'green');
 
             } else {
@@ -214,17 +214,17 @@ $domain        = cli_method();
 $port          = cli_method(1);
 $commands      = cli_argument(1);
 
-if(empty($domain)) {
+if (empty($domain)) {
     throw new CoreException(tr('No domain specified'), 'warning/not-specified');
 }
 
-if(!empty($port)) {
-    if(!is_natural($port) or ($port > 65535)) {
+if (!empty($port)) {
+    if (!is_natural($port) or ($port > 65535)) {
         throw new CoreException(tr('Invalid port ":port" specified', array(':port' => $port)), 'warning/invalid');
     }
 }
 
-if(empty($commands)) {
+if (empty($commands)) {
     /*
      * Just run bash shell
      */

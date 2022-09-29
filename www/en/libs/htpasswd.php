@@ -20,7 +20,7 @@ function htpasswd_validate($file) {
     try{
         $basefile = basename($file);
 
-        if($basefile != '.htpasswd') {
+        if ($basefile != '.htpasswd') {
             throw new CoreException(tr('htpasswd_validate(): Specified file ":file" is not a .htpasswd file', array(':file' => $file)), 'invalid');
         }
 

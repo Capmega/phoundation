@@ -31,10 +31,10 @@
  */
 function geoip_get($ip = null, $columns = '*') {
     try{
-        if($ip === null) {
+        if ($ip === null) {
             $ip = isset_get($_SERVER['REMOTE_ADDR']);
 
-            if(!$ip) {
+            if (!$ip) {
                 throw new CoreException(tr('geoip_get_country(): No IP specified and no remote client IP found either'), 'not-available');
             }
         }
@@ -51,27 +51,27 @@ function geoip_get($ip = null, $columns = '*') {
 
                          array(':ip' => $ip));
 
-        if(!$data) {
+        if (!$data) {
             /*
              * No results? Do we actually have geo ip table contents?
              */
             $count = sql_get('SELECT COUNT(*) AS `count` FROM `geoip_locations`');
 
-            if(!$count) {
+            if (!$count) {
                 throw new CoreException(tr('geoip_get(): geoip_locations table is empty'), 'empty');
             }
 
             return null;
         }
 
-        if(count($data) == 1) {
+        if (count($data) == 1) {
             return array_shift($data);
         }
 
         return $data;
 
     }catch(Exception $e) {
-        if(!sql_get('SHOW TABLES LIKE "geoip_locations"')) {
+        if (!sql_get('SHOW TABLES LIKE "geoip_locations"')) {
             throw new CoreException('geoip_get(): `geoip_locations` table not found, please run the ./scripts/base/importers/geoip script to import the GEO IP data', $e);
         }
 

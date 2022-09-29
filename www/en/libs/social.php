@@ -47,28 +47,28 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
     try{
         $retval = array();
 
-        if(!$params) {
+        if (!$params) {
             $params = $_CONFIG['social']['links'];
         }
 
         foreach($params as $key => $value) {
             switch($key) {
                 case 'youtube';
-                    if($value) {
+                    if ($value) {
                         $retval[] = '<a href="http://www.youtube.com/user/'.$value.'" class="social youtube"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Youtube</a>';
                     }
 
                     break;
 
                 case 'facebook';
-                    if($value) {
+                    if ($value) {
                         $retval[] = '<a href="https://www.facebook.com/'.$value.'" class="social facebook"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Facebook</a>';
                     }
 
                     break;
 
                 case 'twitter';
-                    if($value) {
+                    if ($value) {
                         $retval[] = '<a href="https://twitter.com/'.$value.'" class="social twitter"'.(empty($params['target']) ? '' : ' target="'.$params['target'].'"').'>Twitter</a>';
                     }
 
@@ -76,7 +76,7 @@ function social_links($params = false, $returnas = 'string', $separator = ' | ')
             }
         }
 
-        if($retval) {
+        if ($retval) {
             html_load_css('social');
         }
 

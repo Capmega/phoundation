@@ -35,10 +35,10 @@ class Path
      */
     public static function ensure(string $path, ?string $mode = null, ?bool $clear = false, ?Restrictions $restrictions = null): string
     {
-        if($mode === null) {
+        if ($mode === null) {
             $mode = $_CONFIG['file']['dir_mode'];
 
-            if(!$mode) {
+            if (!$mode) {
                 /*
                  * Mode configuration is not available (yet?)
                  * Fall back to a default mode, 0770 for directories
@@ -47,7 +47,7 @@ class Path
             }
         }
 
-        if($clear) {
+        if ($clear) {
             /*
              * Delete the currently existing file so we can  be sure we have an
              * empty directory
@@ -55,7 +55,7 @@ class Path
             file_delete($path, $restrictions);
         }
 
-        if(!file_exists(Strings::unslash($path))) {
+        if (!file_exists(Strings::unslash($path))) {
             /*
              * The complete requested path doesn't exist. Try to create it, but
              * directory by directory so that we can correct issues as we run in
@@ -67,8 +67,8 @@ class Path
             foreach($dirs as $dir) {
                 $path .= '/'.$dir;
 
-                if(file_exists($path)) {
-                    if(!is_dir($path)) {
+                if (file_exists($path)) {
+                    if (!is_dir($path)) {
                         /*
                          * Some normal file is in the way. Delete the file, and
                          * retry
@@ -82,7 +82,7 @@ class Path
 
                     continue;
 
-                } elseif(is_link($path)) {
+                } elseif (is_link($path)) {
                     /*
                      * This is a dead symlink, delete it
                      */
@@ -105,13 +105,13 @@ class Path
                      * It sometimes happens that the specified path was created
                      * just in between the file_exists and mkdir
                      */
-                    if(!file_exists($path)) {
+                    if (!file_exists($path)) {
                         throw $e;
                     }
                 }
             }
 
-        } elseif(!is_dir($path)) {
+        } elseif (!is_dir($path)) {
             /*
              * Some other file is in the way. Delete the file, and retry.
              *
@@ -156,7 +156,7 @@ class Path
             // If PHP threw an error for the path not being a path at all, just return false
             $data = $e->getData(true);
 
-            if(str_contains($data, 'expects parameter 1 to be a valid path')) {
+            if (str_contains($data, 'expects parameter 1 to be a valid path')) {
                 return null;
             }
 

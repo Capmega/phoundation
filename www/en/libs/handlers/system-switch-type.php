@@ -13,8 +13,8 @@ try{
             throw new CoreException('switch_type(): Unknown type "'.$type.'" specified', 'unknown');
     }
 
-    if(!empty($redirect)) {
-        if(isset_get($_GET['redirect']) != $redirect) {
+    if (!empty($redirect)) {
+        if (isset_get($_GET['redirect']) != $redirect) {
             /*
              * Remember this one to avoid endless redirecting (Lookin at you there, google talk!)
              */
@@ -28,8 +28,8 @@ try{
         unset($_GET['redirect']);
     }
 
-    if(!empty($_SERVER['HTTP_REFERER'])) {
-        if(isset_get($_GET['redirect']) != $_SERVER['HTTP_REFERER']) {
+    if (!empty($_SERVER['HTTP_REFERER'])) {
+        if (isset_get($_GET['redirect']) != $_SERVER['HTTP_REFERER']) {
             /*
              * Remember this one to avoid endless redirecting (Lookin at you there, google talk!)
              */
@@ -43,7 +43,7 @@ try{
         unset($_GET['redirect']);
     }
 
-    if(!empty($_GET['redirect'])) {
+    if (!empty($_GET['redirect'])) {
         redirect($_GET['redirect']);
     }
 

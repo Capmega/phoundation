@@ -16,7 +16,7 @@ function locales_get_for_ip($ip) {
     try{
         load_libs('geoip,geo');
 
-        if(!$country = geoip_get_country($ip)) {
+        if (!$country = geoip_get_country($ip)) {
             /*
              * Fall back to basic US english
              */
@@ -31,7 +31,7 @@ function locales_get_for_ip($ip) {
 
                             array(':code' => strtolower($country)));
 
-        if(!$locales) {
+        if (!$locales) {
             throw new CoreException('locales_get_for_ip(): Country code "'.str_log($country).'" from the geoip table was not found in the  geo_countries table');
         }
 

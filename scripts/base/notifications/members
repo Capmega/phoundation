@@ -18,7 +18,7 @@ load_libs('notifications');
 /*
  *
  */
-if(!function_exists('s_get_user_class')) {
+if (!function_exists('s_get_user_class')) {
     function s_get_user_class($class, $user) {
         try{
             $retval['user']       = $user;
@@ -27,11 +27,11 @@ if(!function_exists('s_get_user_class')) {
             $retval['users_id']   = sql_get('SELECT `id` FROM `users`                 WHERE `id` = :id    OR `username` = :user' , 'id', array(':id' => $user , ':user'  => $user));
             $retval['classes_id'] = sql_get('SELECT `id` FROM `notifications_classes` WHERE `id` = :id    OR `name`     = :class', 'id', array(':id' => $class, ':class' => $class));
 
-            if(!$retval['classes_id']) {
+            if (!$retval['classes_id']) {
                 throw new CoreException(tr('s_get_user_class(): Specified class "%name%" does not exist', array('%name%' => $class)));
             }
 
-            if(!$retval['users_id']) {
+            if (!$retval['users_id']) {
                 throw new CoreException(tr('s_get_user_class(): Specified user "%name%" does not exist', array('%name%' => $user)));
             }
 
@@ -53,7 +53,7 @@ try{
             try{
                 $data = s_get_user_class(cli_argument(1), cli_argument(2));
 
-                if(sql_get('SELECT `id` FROM `notifications_members` WHERE `users_id` = :users_id AND `classes_id` = :classes_id', 'id', array(':users_id' => $data['users_id'], ':classes_id' => $data['classes_id']))) {
+                if (sql_get('SELECT `id` FROM `notifications_members` WHERE `users_id` = :users_id AND `classes_id` = :classes_id', 'id', array(':users_id' => $data['users_id'], ':classes_id' => $data['classes_id']))) {
                     throw new CoreException(tr('User "%user%" is already a member of the notifications class "%class%"', array('%user%' => $data['user'], '%class%' => $data['class'])), 'alreadyexists');
                 }
 
@@ -86,7 +86,7 @@ try{
                               LEFT JOIN `notifications_classes`
                               ON        `notifications_members`.`classes_id` = `notifications_classes`.`id`');
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 throw new CoreException(tr('No members found'), 'notfound');
             }
 

@@ -1,11 +1,11 @@
 <?php
 static $counter = 1;
 
-if(!$message) {
+if (!$message) {
     $message = tr('Terminated process because die counter reached "%count%"');
 }
 
-if($counter++ >= $count) {
+if ($counter++ >= $count) {
     /*
      * Ensure that the shutdown function doesn't try to show the 404 page
      */

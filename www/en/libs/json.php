@@ -19,19 +19,19 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
     global $core;
 
     try{
-        if(!$data) {
+        if (!$data) {
             $data = Arrays::force($data);
         }
 
         /*
          * Auto assume result = "OK" entry if not specified
          */
-        if(empty($data['data'])) {
+        if (empty($data['data'])) {
             $data = array('data' => $data);
         }
 
-        if($result) {
-            if(isset($data['result'])) {
+        if ($result) {
+            if (isset($data['result'])) {
                 throw new OutOfBoundsException(tr('json_reply(): Result was specifed both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
             }
 
@@ -44,7 +44,7 @@ function json_reply($data = null, $result = 'OK', $http_code = null, $after = 'd
         /*
          * Send a new CSRF code with this payload?
          */
-        if(!empty($core->register['csrf_ajax'])) {
+        if (!empty($core->register['csrf_ajax'])) {
             $data['csrf'] = $core->register['csrf_ajax'];
             unset($core->register['csrf_ajax']);
         }
@@ -114,13 +114,13 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
     global $_CONFIG;
 
     try{
-        if(!$message) {
+        if (!$message) {
             $message = '';
 
-        } elseif(is_scalar($message)) {
+        } elseif (is_scalar($message)) {
 
-        } elseif(is_array($message)) {
-            if(empty($message['default'])) {
+        } elseif (is_array($message)) {
+            if (empty($message['default'])) {
                 $default = tr('Something went wrong, please try again later');
 
             } else {
@@ -128,25 +128,25 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
                 unset($message['default']);
             }
 
-            if(empty($message['e'])) {
-                if($_CONFIG['production']) {
+            if (empty($message['e'])) {
+                if ($_CONFIG['production']) {
                     $message = $default;
                     log_console('json_error(): No exception object specified for following error', 'yellow');
                     log_console($message, 'yellow');
 
                 } else {
-                    if(count($message) == 1) {
+                    if (count($message) == 1) {
                         $message = array_pop($message);
                     }
                 }
 
             } else {
-                if($_CONFIG['production']) {
+                if ($_CONFIG['production']) {
                     log_console($message['e']);
 
                     $code = $message['e']->getCode();
 
-                    if(empty($message[$code])) {
+                    if (empty($message[$code])) {
                         $message = $default;
 
                     } else {
@@ -160,30 +160,30 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
 
             $message = trim(Strings::from($message, '():'));
 
-        } elseif(is_object($message)) {
+        } elseif (is_object($message)) {
             /*
-             * Assume this is an BException object
+             * Assume this is an CoreException object
              */
-            if(!($message instanceof BException)) {
-                if(!($message instanceof Exception)) {
+            if (!($message instanceof CoreException)) {
+                if (!($message instanceof Exception)) {
                     $type = gettype($message);
 
-                    if($type === 'object') {
+                    if ($type === 'object') {
                         $type .= '/'.get_class($message);
                     }
 
-                    throw new OutOfBoundsException(tr('json_error(): Specified message must either be a string or an BException ojbect, or PHP Exception ojbect, but is a ":type"', array(':type' => $type)), 'invalid');
+                    throw new OutOfBoundsException(tr('json_error(): Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', array(':type' => $type)), 'invalid');
                 }
 
                 $code = $message->getCode();
 
-                if(debug()) {
+                if (debug()) {
                     /*
                      * This is a user visible message
                      */
                     $message = $message->getMessage();
 
-                } elseif(!empty($default)) {
+                } elseif (!empty($default)) {
                     $message = $default;
                 }
 
@@ -203,11 +203,11 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
                         $http_code = '500';
                 }
 
-                if(Strings::until($result, '/') == 'warning') {
+                if (Strings::until($result, '/') == 'warning') {
                     $data = $message->getMessage();
 
                 } else {
-                    if(debug()) {
+                    if (debug()) {
                         /*
                          * This is a user visible message
                          */
@@ -216,7 +216,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
                         foreach($messages as $id => &$message) {
                             $message = trim(Strings::from($message, '():'));
 
-                            if($message == tr('Failed')) {
+                            if ($message == tr('Failed')) {
                                 unset($messages[$id]);
                             }
                         }
@@ -225,7 +225,7 @@ function json_error($message, $data = null, $result = null, $http_code = 500) {
 
                         $data = implode("\n", $messages);
 
-                    } elseif(!empty($default)) {
+                    } elseif (!empty($default)) {
                         $message = $default;
                     }
                 }
@@ -250,14 +250,14 @@ function json_message($code, $data = null) {
     global $_CONFIG;
 
     try{
-        if(is_object($code)) {
+        if (is_object($code)) {
             /*
              * This is (presumably) an exception
              */
             $code = $code->getRealCode();
         }
 
-        if(str_contains($code, '_')) {
+        if (str_contains($code, '_')) {
             /*
              * Codes should always use -, never _
              */
@@ -382,7 +382,7 @@ function json_message($code, $data = null) {
  */
 function json_encode_custom($source, $internal = true) {
     try{
-        if($internal) {
+        if ($internal) {
             $source = json_encode($source);
 
             switch(json_last_error()) {
@@ -431,21 +431,21 @@ function json_encode_custom($source, $internal = true) {
             return $source;
 
         } else {
-            if(is_null($source)) {
+            if (is_null($source)) {
                 return 'null';
             }
 
-            if($source === false) {
+            if ($source === false) {
                 return 'false';
             }
 
-            if($source === true) {
+            if ($source === true) {
                 return 'true';
             }
 
-            if(is_scalar($source)) {
-                if(is_numeric($source)) {
-                    if(is_float($source)) {
+            if (is_scalar($source)) {
+                if (is_numeric($source)) {
+                    if (is_float($source)) {
                         // Always use "." for floats.
                         $source = floatval(str_replace(',', '.', strval($source)));
                     }
@@ -454,7 +454,7 @@ function json_encode_custom($source, $internal = true) {
                     return '"'.strval($source).'"';
                 }
 
-                if(is_string($source)) {
+                if (is_string($source)) {
                     static $json_replaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
                     return '"'.str_replace($json_replaces[0], $json_replaces[1], $source).'"';
                 }
@@ -465,7 +465,7 @@ function json_encode_custom($source, $internal = true) {
             $is_list = true;
 
             for($i = 0, reset($source); $i < count($source); $i++, next($source)) {
-                if(key($source) !== $i) {
+                if (key($source) !== $i) {
                     $is_list = false;
                     break;
                 }
@@ -473,7 +473,7 @@ function json_encode_custom($source, $internal = true) {
 
             $result = array();
 
-            if($is_list) {
+            if ($is_list) {
                 foreach ($source as $v) {
                     $result[] = json_encode_custom($v);
                 }
@@ -501,7 +501,7 @@ function json_encode_custom($source, $internal = true) {
  */
 function json_decode_custom($json, $as_array = true) {
     try{
-        if($json === null) {
+        if ($json === null) {
             return null;
         }
 

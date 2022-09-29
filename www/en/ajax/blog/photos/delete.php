@@ -6,7 +6,7 @@ try{
 
     $user = rights_or_access_denied('admin', '/admin/signin.php', 'json');
 
-    if(empty($_POST['id'])) {
+    if (empty($_POST['id'])) {
         throw new CoreException('ajax/blog/photos/delete: No photo specified', 'notspecified');
     }
 
@@ -19,11 +19,11 @@ try{
 
                         WHERE  `blogs_photos`.`id`       = '.cfi($_POST['id']));
 
-    if(empty($photo['id'])) {
+    if (empty($photo['id'])) {
         throw new CoreException('ajax/blog/photos/delete: Unknown photo_id "'.str_log($_POST['id']).'" specified', 'unknown');
     }
 
-    if(($photo['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+    if (($photo['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
         throw new CoreException('ajax/blog/photos/delete: This photo does not belong to you.', 'accessdenied');
     }
 

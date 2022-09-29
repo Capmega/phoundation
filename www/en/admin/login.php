@@ -3,18 +3,18 @@ require_once(__DIR__.'/../libs/startup.php');
 
 redirect('/admin/signin.php');
 
-if(isset($_GET['logout'])) {
+if (isset($_GET['logout'])) {
 	log_database('Logout : "'.$_SESSION['admin']['name'].'"', 'ADMIN');
 	unset($_SESSION['admin']);
 	redirect('signin.php');
 }
 
-if(isset($_POST['dosubmit'])) {
-	if(empty($_POST['username']) or empty($_POST['password'])) {
+if (isset($_POST['dosubmit'])) {
+	if (empty($_POST['username']) or empty($_POST['password'])) {
 		log_database('Login failed : NO OR PARTIAL CREDENDIALS','ADMIN');
 		$flash = tr('Please specify a user and password');
 
-	} elseif(empty($_CONFIG['admins'][$_POST['username']]) or ($_CONFIG['admins'][$_POST['username']]['password'] != $_POST['password'])) {
+	} elseif (empty($_CONFIG['admins'][$_POST['username']]) or ($_CONFIG['admins'][$_POST['username']]['password'] != $_POST['password'])) {
 		log_database('Login failed : User "'.$_POST['username'].'"','ADMIN');
 		$flash = tr('Invalid credentials');
 

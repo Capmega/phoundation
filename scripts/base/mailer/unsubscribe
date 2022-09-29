@@ -20,7 +20,7 @@ try{
         $count++;
     }
 
-    if($count) {
+    if ($count) {
         log_console('Unsubscribed "'.$count.'" users from mailings', '', 'white');
 
     } else {

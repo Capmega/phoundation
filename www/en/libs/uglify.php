@@ -72,11 +72,11 @@ function uglify_css_find() {
         $result = safe_exec(array('ok_exitcodes' => 1,
                                   'commands'     => array($core->register['npm'], array('list', 'uglifycss'))));
 
-        if(empty($result[1])) {
+        if (empty($result[1])) {
             throw new CoreException(tr('uglify_css_find(): npm list uglifycss returned invalid results'), 'invalid');
         }
 
-        if(substr($result[1], -7, 7) == '(empty)') {
+        if (substr($result[1], -7, 7) == '(empty)') {
             /*
              * uglifycss is not available, install it now.
              */
@@ -104,18 +104,18 @@ function uglify_css($paths = null, $force = false) {
     static $check;
 
     try{
-        if(empty($check)) {
+        if (empty($check)) {
             $check = true;
 
             uglify_css_find();
             log_console(tr('uglify_css(): Minifying all CSS files using uglifycss'), 'VERBOSE');
         }
 
-        if(empty($paths)) {
+        if (empty($paths)) {
             /*
              * Start at the base css path
              */
-            if($_CONFIG['language']['supported']) {
+            if ($_CONFIG['language']['supported']) {
                 $languages = $_CONFIG['language']['supported'];
 
             } else {
@@ -131,17 +131,17 @@ function uglify_css($paths = null, $force = false) {
         }
 
         foreach(Arrays::force($paths) as $path) {
-            if(!file_exists($path)) continue;
+            if (!file_exists($path)) continue;
 
             log_console(tr('uglify_css(): Minifying all CSS files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
-            if(is_dir($path)) {
+            if (is_dir($path)) {
                 $path = Strings::slash($path);
 
                 log_console(tr('uglify_css(): Minifying all CSS files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
                 file_check_dir($path);
 
-            } elseif(is_file($path)) {
+            } elseif (is_file($path)) {
                 log_console(tr('uglify_css(): Minifying CSS file ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             } else {
@@ -154,20 +154,20 @@ function uglify_css($paths = null, $force = false) {
              * not, etc.
              */
             foreach(file_list_tree($path) as $file) {
-                if(substr(Strings::fromReverse($file, '/'), 0, 7) === 'bundle-') {
+                if (substr(Strings::fromReverse($file, '/'), 0, 7) === 'bundle-') {
                     continue;
                 }
 
-                if(is_link($file)) {
+                if (is_link($file)) {
                     file_execute_mode(dirname($file), 0770, function() use ($file) {
-                        if(substr($file, -7, 7) == '.min.js') {
+                        if (substr($file, -7, 7) == '.min.js') {
                             /*
                              * If is minified then we have to copy
                              * from no-minified to minified
                              */
                             copy(substr($file, 0, -7).'.js', $file);
 
-                        } elseif(substr($file, -3, 3) == '.js') {
+                        } elseif (substr($file, -3, 3) == '.js') {
                             /*
                              * If is no-minified then we have to copy
                              * from minified to no-minified
@@ -179,7 +179,7 @@ function uglify_css($paths = null, $force = false) {
             }
 
             foreach(file_list_tree($path) as $file) {
-                if(substr(Strings::fromReverse($file, '/'), 0, 7) === 'bundle-') {
+                if (substr(Strings::fromReverse($file, '/'), 0, 7) === 'bundle-') {
                     continue;
                 }
 
@@ -188,7 +188,7 @@ function uglify_css($paths = null, $force = false) {
                  */
                 $path = Strings::slash(dirname($file));
 
-                if(is_dir($file)) {
+                if (is_dir($file)) {
                     /*
                      * Recurse into sub directories
                      */
@@ -198,13 +198,13 @@ function uglify_css($paths = null, $force = false) {
                     continue;
                 }
 
-                //if(is_link($file)) {
+                //if (is_link($file)) {
                 //    /*
                 //     * The file is a symlink
                 //     */
                 //    $target = readlink($file);
                 //
-                //    if(substr($file, -8, 8) == '.min.css') {
+                //    if (substr($file, -8, 8) == '.min.css') {
                 //        /*
                 //         * Delete the minimized symlinks, we'll regenerate them for the normal files
                 //         */
@@ -213,12 +213,12 @@ function uglify_css($paths = null, $force = false) {
                 //        $processed[Strings::fromReverse($file, '/')] = true;
                 //        continue;
                 //
-                //    } elseif(substr($file, -4, 4) == '.css') {
+                //    } elseif (substr($file, -4, 4) == '.css') {
                 //        /*
                 //         * If the symlink target does not exist, we can just ignore it
                 //         */
-                //        if(!file_exists($path.$target)) {
-                //            if(VERBOSE) {
+                //        if (!file_exists($path.$target)) {
+                //            if (VERBOSE) {
                 //                log_console('uglify_css(): Ignorning symlink "'.str_log($file).'" with non existing target "'.str_log($path.$target).'"', 'yellow');
                 //            }
                 //
@@ -229,12 +229,12 @@ function uglify_css($paths = null, $force = false) {
                 //        /*
                 //         * If the symlink points to any path above or outside the current path, then only ensure there is a .min symlink for it
                 //         */
-                //        if(!strstr($path.$target, Strings::untilReverse($file, '/'))) {
-                //            if(VERBOSE) {
+                //        if (!strstr($path.$target, Strings::untilReverse($file, '/'))) {
+                //            if (VERBOSE) {
                 //                log_console('uglify_css(): Found symlink "'.str_log($file).'" with target "'.str_log($target).'" that points to location outside symlink path, ensuring minimized version pointing to the same file', 'yellow');
                 //            }
                 //
-                //            if(file_exists(substr($file, 0, -4).'.min.css')) {
+                //            if (file_exists(substr($file, 0, -4).'.min.css')) {
                 //                file_delete(substr($file, 0, -4).'.min.css');
                 //            }
                 //
@@ -244,12 +244,12 @@ function uglify_css($paths = null, $force = false) {
                 //            continue;
                 //        }
                 //
-                //        if(substr(basename($file), 0, -4) == substr($target, 0, -8)) {
+                //        if (substr(basename($file), 0, -4) == substr($target, 0, -8)) {
                 //            /*
                 //             * This non minimized version points towards a minimized version of the same file. Move the minimized version to the normal version,
                 //             * and make a minimized version
                 //             */
-                //            if(VERBOSE) {
+                //            if (VERBOSE) {
                 //                log_console('uglify_css(): Found symlink "'.str_log($file).'" pointing to its minimized version. Switching files', 'yellow');
                 //            }
                 //
@@ -264,14 +264,14 @@ function uglify_css($paths = null, $force = false) {
                 //        /*
                 //         * Create a symlink for the minimized file to the minimized version
                 //         */
-                //        if(substr($target, -8, 8) != '.min.css') {
+                //        if (substr($target, -8, 8) != '.min.css') {
                 //            /*
                 //             * Correct the targets file extension
                 //             */
                 //            $target = substr($target, 0, -4).'.min.css';
                 //        }
                 //
-                //        if(VERBOSE) {
+                //        if (VERBOSE) {
                 //            log_console('uglify_css(): Created minimized symlink for file "'.str_log($file).'"');
                 //        }
                 //        file_delete(substr($file, 0, -4).'.min.css');
@@ -281,7 +281,7 @@ function uglify_css($paths = null, $force = false) {
                 //        continue;
                 //
                 //    } else {
-                //        if(VERBOSE) {
+                //        if (VERBOSE) {
                 //            log_console('uglify_css(): Ignorning non css symlink "'.str_log($file).'"', 'yellow');
                 //        }
                 //
@@ -290,20 +290,20 @@ function uglify_css($paths = null, $force = false) {
                 //    }
                 //}
 
-                if(!is_file($file)) {
+                if (!is_file($file)) {
                     log_console(tr('uglify_css(): Ignorning unknown type file ":file"', array(':file' => $file)), 'VERBOSE/yellow');
                     $processed[Strings::fromReverse($file, '/')] = true;
                     continue;
                 }
 
-                if(substr($file, -8, 8) == '.min.css') {
+                if (substr($file, -8, 8) == '.min.css') {
                     /*
                      * This file is already minified. IF there is a source .css file, then remove it (it will be minified again later)
                      * If no source .css is availalbe, then make this the source now, and it will be minified later.
                      *
                      * Reason for this is that sometimes we only have minified versions available.
                      */
-                    if(file_exists(substr($file, 0, -8).'.css') and !is_link(substr($file, 0, -8).'.css')) {
+                    if (file_exists(substr($file, 0, -8).'.css') and !is_link(substr($file, 0, -8).'.css')) {
                         log_console(tr('uglify_css(): Ignoring minified file ":file" as a source is available', array(':file' => $file)), 'VERBOSE');
     //                    file_delete($file);
 
@@ -315,8 +315,8 @@ function uglify_css($paths = null, $force = false) {
                     $file = substr($file, 0, -8).'.css';
                 }
 
-                if(substr($file, -4, 4) != '.css') {
-                    if(substr($file, -3, 3) == '.js') {
+                if (substr($file, -4, 4) != '.css') {
+                    if (substr($file, -3, 3) == '.js') {
                         /*
                          * Found a js file in the CSS path
                          */
@@ -338,12 +338,12 @@ function uglify_css($paths = null, $force = false) {
                      */
                     $minfile = Strings::untilReverse($file, '.').'.min.css';
 
-                    if(file_exists($minfile)) {
+                    if (file_exists($minfile)) {
                         /*
                          * Compare filemtimes, if they match then we will assume that
                          * the file has not changed, so we can skip minifying
                          */
-                        if((filemtime($minfile) == filemtime($file)) and !$force) {
+                        if ((filemtime($minfile) == filemtime($file)) and !$force) {
                             /*
                              * Do not minify, just continue with next file
                              */
@@ -362,7 +362,7 @@ function uglify_css($paths = null, $force = false) {
                         file_delete(substr($file, 0, -4).'.min.css', dirname($file));
 
                         try{
-                            if(filesize($file)) {
+                            if (filesize($file)) {
                                 safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglifycss/uglifycss', $file, 'redirect' => '> '.substr($file, 0, -4).'.min.css'))));
 
                             } else {
@@ -384,7 +384,7 @@ function uglify_css($paths = null, $force = false) {
                      */
                     $time = time();
 
-                    if(empty($_CONFIG['deploy'][ENVIRONMENT]['sudo'])) {
+                    if (empty($_CONFIG['deploy'][ENVIRONMENT]['sudo'])) {
 // :TODO: Replace this with file_touch();
                         touch(Strings::untilReverse($file, '.').'.css'    , $time, $time);
                         touch(Strings::untilReverse($file, '.').'.min.css', $time, $time);
@@ -440,11 +440,11 @@ function uglify_js_find() {
         $result = safe_exec(array('ok_exitcodes' => 1,
                                   'commands'     => array($core->register['npm'], array('list', 'uglify-js'))));
 
-        if(empty($result[1])) {
+        if (empty($result[1])) {
             throw new CoreException(tr('uglify_js_find(): npm list uglify-js returned invalid results'), 'invalid_result');
         }
 
-        if(substr($result[1], -7, 7) == '(empty)') {
+        if (substr($result[1], -7, 7) == '(empty)') {
             /*
              * uglify-js is not available, install it now.
              */
@@ -472,14 +472,14 @@ function uglify_js($paths = null, $force = false) {
     static $check;
 
     try{
-        if(empty($check)) {
+        if (empty($check)) {
             $check = true;
 
             uglify_js_find();
             log_console(tr('uglify_js(): minifying all specified javascript files using uglifyjs'), 'VERBOSE');
         }
 
-        if(empty($paths)) {
+        if (empty($paths)) {
             /*
              * Start at the base js path
              */
@@ -487,17 +487,17 @@ function uglify_js($paths = null, $force = false) {
         }
 
         foreach(Arrays::force($paths) as $path) {
-            if(!file_exists($path)) continue;
+            if (!file_exists($path)) continue;
 
             log_console(tr('uglify_js(): Minifying all javascript files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
-            if(is_dir($path)) {
+            if (is_dir($path)) {
                 $path = Strings::slash($path);
 
                 log_console(tr('uglify_js(): Minifying all javascript files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
                 file_check_dir($path);
 
-            } elseif(is_file($path)) {
+            } elseif (is_file($path)) {
                 log_console(tr('uglify_js(): Minifying javascript file ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             } else {
@@ -510,16 +510,16 @@ function uglify_js($paths = null, $force = false) {
              * not, etc.
              */
             foreach(file_list_tree($path) as $file) {
-                if(is_link($file)) {
+                if (is_link($file)) {
                     file_execute_mode(dirname($file), 0770, function() use ($file) {
-                        if(substr($file, -7, 7) == '.min.js') {
+                        if (substr($file, -7, 7) == '.min.js') {
                             /*
                              * If is minified then we have to copy
                              * from no-minified to minified
                              */
                             copy(substr($file, 0, -7).'.js', $file);
 
-                        } elseif(substr($file, -3, 3) == '.js') {
+                        } elseif (substr($file, -3, 3) == '.js') {
                             /*
                              * If is no-minified then we have to copy
                              * from minified to no-minified
@@ -537,7 +537,7 @@ function uglify_js($paths = null, $force = false) {
                  */
                 $path = Strings::slash(dirname($file));
 
-                if(is_dir($file)) {
+                if (is_dir($file)) {
                     /*
                      * Recurse into sub directories
                      */
@@ -547,14 +547,14 @@ function uglify_js($paths = null, $force = false) {
                     continue;
                 }
 
-    //            if(is_link($file)) {
+    //            if (is_link($file)) {
     //                /*
     //                 * The file is a symlink
     //                 */
     //                $target = readlink($file);
     //
     //
-    //                if(substr($file, -7, 7) == '.min.js') {
+    //                if (substr($file, -7, 7) == '.min.js') {
     //                    /*
     //                     * Delete the minimized symlinks, we'll regenerate them for the normal files
     //                     */
@@ -562,12 +562,12 @@ function uglify_js($paths = null, $force = false) {
     //                    $processed[Strings::fromReverse($file, '/')] = true;
     //                    continue;
     //
-    //                } elseif(substr($file, -3, 3) == '.js') {
+    //                } elseif (substr($file, -3, 3) == '.js') {
     //                    /*
     //                     * If the symlink target does not exist, we can just ignore it
     //                     */
-    //                    if(!file_exists($path.$target)) {
-    //                        if(VERBOSE) {
+    //                    if (!file_exists($path.$target)) {
+    //                        if (VERBOSE) {
     //                            log_console('uglify_js(): Ignorning symlink "'.str_log($file).'" with non existing target "'.str_log($path.$target).'"', 'yellow');
     //                        }
     //
@@ -578,12 +578,12 @@ function uglify_js($paths = null, $force = false) {
     //                    /*
     //                     * If the symlink points to any path above or outside the current path, then only ensure there is a .min symlink for it
     //                     */
-    //                    if(!strstr($path.$target, Strings::untilReverse($file, '/'))) {
-    //                        if(VERBOSE) {
+    //                    if (!strstr($path.$target, Strings::untilReverse($file, '/'))) {
+    //                        if (VERBOSE) {
     //                            log_console('uglify_js(): Found symlink "'.str_log($file).'" with target "'.str_log($target).'" that points to location outside symlink path, ensuring minimized version pointing to the same file', 'yellow');
     //                        }
     //
-    //                        if(file_exists(substr($file, 0, -3).'.min.js')) {
+    //                        if (file_exists(substr($file, 0, -3).'.min.js')) {
     //                            file_delete(substr($file, 0, -3).'.min.js');
     //                        }
     //
@@ -593,12 +593,12 @@ function uglify_js($paths = null, $force = false) {
     //                        continue;
     //                    }
     //
-    //                    if(substr(basename($file), 0, -3) == substr($target, 0, -7)) {
+    //                    if (substr(basename($file), 0, -3) == substr($target, 0, -7)) {
     //                        /*
     //                         * This non minimized version points towards a minimized version of the same file. Move the minimized version to the normal version,
     //                         * and make a minimized version
     //                         */
-    //                        if(VERBOSE) {
+    //                        if (VERBOSE) {
     //                            log_console('uglify_js(): Found symlink "'.str_log($file).'" pointing to its minimized version. Switching files', 'yellow');
     //                        }
     //
@@ -613,14 +613,14 @@ function uglify_js($paths = null, $force = false) {
     //                    /*
     //                     * Create a symlink for the minimized file to the minimized version
     //                     */
-    //                    if(substr($target, -7, 7) != '.min.js') {
+    //                    if (substr($target, -7, 7) != '.min.js') {
     //                        /*
     //                         * Correct the targets file extension
     //                         */
     //                        $target = substr($target, 0, -3).'.min.js';
     //                    }
     //
-    //                    if(VERBOSE) {
+    //                    if (VERBOSE) {
     //                        log_console('uglify_js(): Created minimized symlink for file "'.str_log($file).'"');
     //                    }
     //                    file_delete(substr($file, 0, -3).'.min.js');
@@ -630,7 +630,7 @@ function uglify_js($paths = null, $force = false) {
     //                    continue;
     //
     //                } else {
-    //                    if(VERBOSE) {
+    //                    if (VERBOSE) {
     //                        log_console('uglify_js(): Ignorning non js symlink "'.str_log($file).'"', 'yellow');
     //                    }
     //
@@ -639,20 +639,20 @@ function uglify_js($paths = null, $force = false) {
     //                }
     //            }
 
-                if(!is_file($file)) {
+                if (!is_file($file)) {
                     log_console(tr('uglify_js(): Ignorning unknown type file ":file"', array(':file' => $file)), 'VERBOSE/yellow');
                     $processed[Strings::fromReverse($file, '/')] = true;
                     continue;
                 }
 
-                if(substr($file, -7, 7) == '.min.js') {
+                if (substr($file, -7, 7) == '.min.js') {
                     /*
                      * This file is already minified. IF there is a source .js file, then remove it (it will be minified again later)
                      * If no source .js is availalbe, then make this the source now, and it will be minified later.
                      *
                      * Reason for this is that sometimes we only have minified versions available.
                      */
-                    if(file_exists(substr($file, 0, -7).'.js') and !is_link(substr($file, 0, -7).'.js')) {
+                    if (file_exists(substr($file, 0, -7).'.js') and !is_link(substr($file, 0, -7).'.js')) {
                         log_console(tr('uglify_js(): Ignoring minified file ":file" as a source is available', array(':file' => $file)), 'VERBOSE');
     //                    file_delete($file);
 
@@ -664,8 +664,8 @@ function uglify_js($paths = null, $force = false) {
                     $file = substr($file, 0, -7).'.js';
                 }
 
-                if(substr($file, -3, 3) != '.js') {
-                    if(substr($file, -4, 4) == '.css') {
+                if (substr($file, -3, 3) != '.js') {
+                    if (substr($file, -4, 4) == '.css') {
                         /*
                          * Found a CSS file in the javascript path
                          */
@@ -687,12 +687,12 @@ function uglify_js($paths = null, $force = false) {
                      */
                     $minfile = Strings::untilReverse($file, '.').'.min.js';
 
-                    if(file_exists($minfile)) {
+                    if (file_exists($minfile)) {
                         /*
                          * Compare filemtimes, if they match then we will assume that
                          * the file has not changed, so we can skip minifying
                          */
-                        if((filemtime($minfile) == filemtime($file)) and !$force) {
+                        if ((filemtime($minfile) == filemtime($file)) and !$force) {
                             /*
                              * Do not minify, just continue with next file
                              */
@@ -711,7 +711,7 @@ function uglify_js($paths = null, $force = false) {
                         file_delete(substr($file, 0, -3).'.min.js', ROOT.'www/'.LANGUAGE.'/pub/js,'.ROOT.'www/'.LANGUAGE.'/pub/css,'.ROOT.'www/'.LANGUAGE.'/admin/pub/js,'.ROOT.'www/'.LANGUAGE.'/admin/pub/css');
 
                         try{
-                            if(filesize($file)) {
+                            if (filesize($file)) {
                                 safe_exec(array('commands' => array($core->register['node'], array($core->register['node_modules'].'uglify-js/bin/uglifyjs', '--output', substr($file, 0, -3).'.min.js', $file))));
 
                             } else {
@@ -733,7 +733,7 @@ function uglify_js($paths = null, $force = false) {
                      */
                     $time = time();
 
-                    if(empty($_CONFIG['deploy'][ENVIRONMENT]['sudo'])) {
+                    if (empty($_CONFIG['deploy'][ENVIRONMENT]['sudo'])) {
                         touch(Strings::untilReverse($file, '.').'.js'    , $time, $time);
                         touch(Strings::untilReverse($file, '.').'.min.js', $time, $time);
 

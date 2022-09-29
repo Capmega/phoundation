@@ -17,7 +17,7 @@ function postman_get_environment($environment) {
     global $_CONFIG;
 
     try{
-        if(empty($environment)) {
+        if (empty($environment)) {
             $environment = $_CONFIG['metrics']['environment'];
         }
 
@@ -37,11 +37,11 @@ function postman_get_config($environment) {
     global $_CONFIG;
 
     try{
-        if(empty($environment)) {
+        if (empty($environment)) {
             $environment = $_CONFIG['metrics']['environment'];
         }
 
-        if(empty($_CONFIG['metrics']['environments'][$environment])) {
+        if (empty($_CONFIG['metrics']['environments'][$environment])) {
             throw new CoreException(tr('postman_get_config(): Unknown metrics environment ":environment" specified', array(':environment' => $environment)), 'unknown');
         }
 
@@ -51,19 +51,19 @@ function postman_get_config($environment) {
         /*
          * Validate configuration
          */
-        if(empty($config['item'])) {
+        if (empty($config['item'])) {
             throw new CoreException(tr('postman_get_config(): Missing configuration section "item" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
         }
 
-        if(empty($config['item'][0])) {
+        if (empty($config['item'][0])) {
             throw new CoreException(tr('postman_get_config(): Missing configuration section "item 0" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
         }
 
-        if(empty($config['item'][0]['request'])) {
+        if (empty($config['item'][0]['request'])) {
             throw new CoreException(tr('postman_get_config(): Missing configuration section "item 0 request" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
         }
 
-        if(empty($config['item'][0]['request']['url'])) {
+        if (empty($config['item'][0]['request']['url'])) {
             throw new CoreException(tr('Missing configuration entry "url" in section "item 0 request" in environment ":environment" configuration', array(':environment' => $target)), 'unknown');
         }
 
@@ -95,7 +95,7 @@ function postman_parse_config($string) {
  */
 function postman_get_headers($headers) {
     try{
-        if(empty($headers)) {
+        if (empty($headers)) {
             return null;
 
         }

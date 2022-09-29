@@ -19,7 +19,7 @@
  */
 function openssl_library_init() {
     try{
-        if(!function_exists('openssl_encrypt')) {
+        if (!function_exists('openssl_encrypt')) {
             throw new CoreException(tr('openssl_library_init(): PHP module "openssl" appears not to be installed. Please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-openssl; sudo phpenmod openssl" to install and enable the module., on Redhat and alikes use "sudo yum -y install php-openssl" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'not-exists');
         }
 under_construction();
@@ -41,17 +41,17 @@ function openssl_simple_encrypt($data, $password, $seed = false) {
         /*
          * Default and test cipher
          */
-        if(!$cipher) {
+        if (!$cipher) {
             $cipher = $_CONFIG['openssl']['cipher'];
         }
 
         openssl_simple_test_cypher($cipher);
 
-        if($seed) {
+        if ($seed) {
             /*
              * Use a seed for the password hash
              */
-            if($seed === true) {
+            if ($seed === true) {
                 /*
                  * Use the sitewide configured seed
                  */
@@ -87,7 +87,7 @@ function openssl_simple_decrypt($data, $password, $cipher = null) {
         /*
          * Default and test cipher
          */
-        if(!$cipher) {
+        if (!$cipher) {
             $cipher = $_CONFIG['openssl']['cipher'];
         }
 
@@ -99,7 +99,7 @@ function openssl_simple_decrypt($data, $password, $cipher = null) {
         $password    = openssl_digest($_CONFIG['openssl']['seed'].$password, 'sha256');
         $init_vector = Strings::until($data, ':');
 
-        if(!$init_vector) {
+        if (!$init_vector) {
             throw new CoreException(tr('openssl_simple_decrypt(): Specified encrypted string has no init vector'), 'empty');
         }
 
@@ -117,7 +117,7 @@ function openssl_simple_decrypt($data, $password, $cipher = null) {
 
 function openssl_simple_test_cypher($cipher) {
     try{
-        if(!in_array($cipher, openssl_get_cipher_methods())) {
+        if (!in_array($cipher, openssl_get_cipher_methods())) {
             throw new CoreException(tr('openssl_simple_test_cypher(): Unknown cipher ":cipher" specifed', array(':cipher' => $cipher)), 'unknown');
         }
 

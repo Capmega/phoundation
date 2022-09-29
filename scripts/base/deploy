@@ -153,7 +153,7 @@ load_libs('init,deploy,git');
  */
 $root = realpath(ROOT.$_CONFIG['root']);
 
-if(strlen($root) > strlen(ROOT)) {
+if (strlen($root) > strlen(ROOT)) {
     $rootdiff = Strings::from($root, ROOT);
 
 } else {
@@ -168,7 +168,7 @@ $rootdiff = Strings::endsNotWith($rootdiff, '/');
  * Ensure we're not running on the production environment.
  * Deployment is always done to targets, and production is always a target, we cannot deploy from a target to a target
  */
-if(ENVIRONMENT == 'production') {
+if (ENVIRONMENT == 'production') {
     throw new CoreException('You are running the deploy script on production environment? Are you high?', 'warning/production');
 }
 
@@ -179,7 +179,7 @@ if(ENVIRONMENT == 'production') {
  */
 include(ROOT.'config/deploy.php');
 
-if(empty($_CONFIG['deploy'])) {
+if (empty($_CONFIG['deploy'])) {
     throw new CoreException(tr('No deploy configuration found'), 'warning/validation');
 }
 
@@ -188,11 +188,11 @@ if(empty($_CONFIG['deploy'])) {
 /*
  *
  */
-if(cli_argument('list')) {
+if (cli_argument('list')) {
     log_console(tr('Listing all deployment target environments'), 'QUIET/white');
     $list_targets = not_empty(cli_argument('--targets'), cli_argument('-t'));
 
-    if($list_targets) {
+    if ($list_targets) {
         /*
          * List deployment targets
          */
@@ -205,7 +205,7 @@ if(cli_argument('list')) {
          * List deployment categories
          */
         foreach($_CONFIG['deploy'] as $target => $config) {
-            if(empty($config['categories'])) continue;
+            if (empty($config['categories'])) continue;
             $categories = array();
 
             foreach(Arrays::force($config['categories']) as $category) {
@@ -274,7 +274,7 @@ $categories          =  cli_arguments();
 /*
  *
  */
-if(!$message and !$notag) {
+if (!$message and !$notag) {
     throw new CoreException(tr('No tag message specified! please use ./scripts/base/deploy ..... message "commit message"'), 'warning/not-specified');
 }
 
@@ -283,8 +283,8 @@ if(!$message and !$notag) {
 /*
  * Check target configuration availability
  */
-if(!$targets) {
-    if(!$categories) {
+if (!$targets) {
+    if (!$categories) {
         throw new CoreException(tr('No target environment or environment categories specified!'), 'warning/not-specified');
     }
 
@@ -293,12 +293,12 @@ if(!$targets) {
      * either are on master or production branch, since we won't deploy
      * from any other branch (for safety)
      */
-    if(in_array('production', $categories)) {
+    if (in_array('production', $categories)) {
         load_libs('git');
         $branch = git_branch();
 
-        if($branch != 'production') {
-            if(!FORCE) {
+        if ($branch != 'production') {
+            if (!FORCE) {
                 throw new CoreException(tr('Cannot deploy the current GIT branch ":branch" to production category. For safety, deployment to production environment is restricted to git "production" branch only', array(':branch' => $branch)), 'warning/validation');
             }
 
@@ -317,17 +317,17 @@ if(!$targets) {
      */
     foreach(Arrays::force($categories) as $category) {
         foreach($_CONFIG['deploy'] as $target => $deploy) {
-            if(empty($deploy['categories'])) continue;
+            if (empty($deploy['categories'])) continue;
 
             $deploy['categories'] = Arrays::force($deploy['categories']);
 
-            if(in_array($category, $deploy['categories'])) {
+            if (in_array($category, $deploy['categories'])) {
                 $targets[] = $target;
             }
         }
     }
 
-    if(empty($targets)) {
+    if (empty($targets)) {
         throw new CoreException(tr('The specified categories or targets ":categories" contain no configured deploy targets', array(':categories' => $categories)), 'warning/not-specified');
     }
 }
@@ -338,7 +338,7 @@ if(!$targets) {
  *
  */
 foreach($categories as $category) {
-    if(substr($category, 0, 1) == '-') {
+    if (substr($category, 0, 1) == '-') {
         throw new CoreException(tr('Invalid category ":category" specified', array(':category' => $category)), 'warning/invalid');
     }
 }
@@ -356,25 +356,25 @@ cli_no_arguments_left();
 /*
  *
  */
-if(count($targets) == 1) {
+if (count($targets) == 1) {
     $targets = array_pop($targets);
 }
 
-if($targets === true) {
+if ($targets === true) {
     /*
      * "./scripts/base/deploy all" was used
      */
     $targets = 'all';
 }
 
-if($targets == 'all') {
+if ($targets == 'all') {
     /*
      * Get all deployment targets
      */
     $targets = array_keys($_CONFIG['deploy']);
     log_console(tr('Deploying to ALL target environments ":targets"', array(':targets' => $targets)), 'yellow');
 
-} elseif(is_array($targets)) {
+} elseif (is_array($targets)) {
     log_console(tr('Deploying to specified target environments ":targets"', array(':targets' => str_force($targets, ', '))), 'yellow');
 
 } else {
@@ -382,7 +382,7 @@ if($targets == 'all') {
     $targets = array($targets);
 }
 
-if(!$targets) {
+if (!$targets) {
     throw new CoreException('No deployment targets specified', 'warning/not-specified');
 }
 
@@ -391,10 +391,10 @@ if(!$targets) {
 /*
  * Check if we dont have any changes that should be committed first
  */
-if(!$ignore_changes) {
-    if(git_status()) {
-        if(!FORCE) {
-            if(!$stash) {
+if (!$ignore_changes) {
+    if (git_status()) {
+        if (!FORCE) {
+            if (!$stash) {
                 throw new CoreException('Git commit pending', 'warning/validation');
             }
 
@@ -414,12 +414,12 @@ if(!$ignore_changes) {
  * either are on master or production branch, since we won't deploy
  * from any other branch (for safety)
  */
-if(in_array('production', $targets)) {
+if (in_array('production', $targets)) {
     load_libs('git');
     $branch = git_branch();
 
-    if($branch != 'production') {
-        if(!FORCE) {
+    if ($branch != 'production') {
+        if (!FORCE) {
             throw new CoreException(tr('Cannot deploy the current GIT branch ":branch" to production environment. For safety, deployment to production environment is restricted to git "production" branch only', array(':branch' => $branch)), 'warning/validation');
         }
 
@@ -438,7 +438,7 @@ if(in_array('production', $targets)) {
 /*
  * Do project BOM check
  */
-if($nobomcheck) {
+if ($nobomcheck) {
     log_console(tr('Skipping BOM check due to "--no-bom-check" option'), 'yellow');
 
 } else {
@@ -453,7 +453,7 @@ if($nobomcheck) {
 /*
  * Do a PHP syntax check on the entire project
  */
-if($nosyntax) {
+if ($nosyntax) {
     log_console(tr('Skipping PHP syntax check due to no "--do-syntax" command line parameter'), 'yellow');
 
 } else {
@@ -461,16 +461,16 @@ if($nosyntax) {
 
     exec('find . -type f -name "*.php"', $output);
 
-    if(!is_array($output)) {
+    if (!is_array($output)) {
         throw new CoreException('Syntax check failed', 'warning/validation');
     }
 
-    if(!$output) {
+    if (!$output) {
         throw new CoreException('No php files found.', 'warning/validation');
     }
 
     foreach($output as $file) {
-        if(substr($file, 0, 7) == './data/') {
+        if (substr($file, 0, 7) == './data/') {
             /*
              * Do not check PHP files in ROOT/data
              */
@@ -479,7 +479,7 @@ if($nosyntax) {
 
         exec('php -l '.ROOT.$file.' > /dev/null', $syntaxoutput, $return);
 
-        if($return) {
+        if ($return) {
             throw new CoreException(tr('Content scan failed on file ":file" with ":error"', array(':file' => $file, ':error' => $syntaxoutput)), 'warning/validation');
         }
 
@@ -496,7 +496,7 @@ if($nosyntax) {
 /*
  * Do a project version revision upgrade
  */
-if($noversion) {
+if ($noversion) {
     log_console(tr('Skipping PHP version update due to no "--do-version" command line parameter'), 'yellow');
 
 } else {
@@ -529,7 +529,7 @@ if($noversion) {
 /*
  * Do system tag with the new version
  */
-if($noversion or $notag) {
+if ($noversion or $notag) {
     log_console(tr('Skipping git version tagging due to either no "--do-version" or no "--do-tag" command line parameters'), 'yellow');
 
 } else {
@@ -537,7 +537,7 @@ if($noversion or $notag) {
 
     passthru('cd '.ROOT.'; git tag -am "['.PROJECT.' / '.$newversion.'] '.$message.'" '.$newversion.';', $exitcode);
 
-    if($exitcode) {
+    if ($exitcode) {
         throw new CoreException('Git tagging failed with exit code "'.str_log($exitcode).'"', 'warning/git');
     }
 
@@ -549,7 +549,7 @@ if($noversion or $notag) {
 /*
  * Do git push all changes and tags
  */
-if($nopush or $ignore_changes) {
+if ($nopush or $ignore_changes) {
     log_console(tr('Skipping git push for changes and tags due to no "--do-version" or "-i" or "--ignore" or  no "--do-tag" or no "--do-push" command line parameters'), 'yellow');
 
 } else {
@@ -562,7 +562,7 @@ if($nopush or $ignore_changes) {
 
     passthru('cd '.ROOT.'; git push origin '.$branch.' && git push origin '.$branch.' --tags', $exitcode);
 
-    if($exitcode) {
+    if ($exitcode) {
         throw new CoreException('Git push failed with exit code "'.str_log($exitcode).'"', 'warning/git');
     }
 
@@ -574,11 +574,11 @@ if($nopush or $ignore_changes) {
 /*
  * If version was upgraded, execute an init to avoid leaving the dev site inoperable
  */
-if(!$noversion) {
+if (!$noversion) {
     log_console(tr('Project version revision was updated, executing init script to update project database'), 'white');
     passthru(ROOT.'script/base/init --env '.$target_environment, $exitcode);
 
-    if($exitcode) {
+    if ($exitcode) {
         throw new CoreException(tr('System init failed with exit code ":code"', array(':code' => $exitcode)), 'warning/init');
     }
 }
@@ -588,7 +588,7 @@ if(!$noversion) {
 /*
  * Run compress script
  */
-if($nocompress) {
+if ($nocompress) {
     log_console(tr('Skipping file compress due to "--no-compress" command line parameter'), 'yellow');
 
 } else {
@@ -596,7 +596,7 @@ if($nocompress) {
 
     $option = '';
 
-    if($forcecompress) {
+    if ($forcecompress) {
         /*
          * Compress script should be run with -f option
          */
@@ -611,25 +611,25 @@ if($nocompress) {
      * Compress script generates files that aren't git commited
      * so we must do a git commit for those files.
      */
-    if(git_status()) {
-        if($ignore_changes) {
+    if (git_status()) {
+        if ($ignore_changes) {
             log_console(tr('Changes detected from the compression script script, but not committing due to --ignore-changes'), 'yellow');
 
         } else {
             log_console(tr('Changes detected from the compression script script, committing to git'), 'white');
             git_add(ROOT.'www/en/pub');
 
-            if(file_exists(ROOT.'www/en/admin/pub')) {
+            if (file_exists(ROOT.'www/en/admin/pub')) {
                 git_add(ROOT.'www/en/admin/pub');
             }
 
-            if(file_exists(ROOT.'data/cdn/pub')) {
+            if (file_exists(ROOT.'data/cdn/pub')) {
                 git_add(ROOT.'data/cdn/pub');
             }
 
             git_commit('Deploy commit: compressed files changed');
 
-            if(!$nopush) {
+            if (!$nopush) {
                 git_push();
             }
         }
@@ -641,21 +641,21 @@ if($nocompress) {
 /*
  * Do code translation
  */
-if($notranslate) {
+if ($notranslate) {
     log_console(tr('Skipping translations due to "--no-translate" option'), 'yellow');
 
 } else {
-    if($_CONFIG['language']['supported']) {
+    if ($_CONFIG['language']['supported']) {
         log_console(tr('Executing translations'), 'white');
 
         $options[]          = 'translate';
         $options['timeout'] = 300;
 
-        if($ignore_php) {
+        if ($ignore_php) {
             $options[] = '--ignore-php';
         }
 
-        if($ignore_html) {
+        if ($ignore_html) {
             $options[] = '--ignore-html';
         }
 
@@ -673,7 +673,7 @@ if($notranslate) {
 /*
  * Update the mtime of the entire project tree to ensure caching wont happen and the webserver will send out the new files
  */
-if($notouch) {
+if ($notouch) {
     log_console(tr('Skipping touch mtime update due to no "--no-touch" command line parameters'), 'yellow');
 
 } else {
@@ -681,7 +681,7 @@ if($notouch) {
 
     passthru('cd '.ROOT.'; find . ! -path "./data/content/*" -exec touch {} \;', $exitcode);
 
-    if($exitcode) {
+    if ($exitcode) {
         throw new CoreException('Touch failed with exit code ":code"', array(':code' => $exitcode), 'warning/git');
     }
 
@@ -691,18 +691,18 @@ if($notouch) {
 
 
 foreach($targets as $target_environment) {
-    if(!preg_match('/^[a-z0-9]+$/', $target_environment)) {
+    if (!preg_match('/^[a-z0-9]+$/', $target_environment)) {
         throw new CoreException('Invalid target environment name "'.str_log($target_environment).'" specified, can only contain alphanumeric characters', 'warning/invalid');
     }
 
-    if(empty($_CONFIG['deploy'][$target_environment])) {
+    if (empty($_CONFIG['deploy'][$target_environment])) {
         throw new CoreException('Unknown target environment "'.str_log($target_environment).'" specified', 'warning/unknown');
     }
 
     /*
      * Ensure that target environment configuration file is available.
      */
-    if(!file_exists(ROOT.'config/'.$target_environment.'.php')) {
+    if (!file_exists(ROOT.'config/'.$target_environment.'.php')) {
         throw new CoreException('Target environment "'.str_log($target_environment).'" has no configuration file', 'warning/validation');
     }
 
@@ -712,7 +712,7 @@ foreach($targets as $target_environment) {
 
     Arrays::ensure($deploy_config, 'target_user,target_server,target_port,target_dir,categories,modes,include_dirs,exclude_dirs,rsync_parrallel,sudo,user,group,dir_mode,file_mode,www_mode');
 
-    if($deploy_config['target_user']) {
+    if ($deploy_config['target_user']) {
         /*
          * Target user specified, ensure its user@ so we can prepend it to
          * domain names
@@ -743,12 +743,12 @@ foreach($targets as $target_environment) {
     $sudo_user   = '';
     $target_port = isset_get($deploy_config['target_port'], 22);
 
-    if($deploy_config['sudo']) {
-        if($deploy_config['sudo'] === true) {
+    if ($deploy_config['sudo']) {
+        if ($deploy_config['sudo'] === true) {
             $sudo      = 'export SHELL=/bin/bash; sudo -s ';
             $sudo_user = 'export SHELL=/bin/bash; sudo -s ';
 
-        } elseif(is_string($deploy_config['sudo'])) {
+        } elseif (is_string($deploy_config['sudo'])) {
             $sudo      = 'export SHELL=/bin/bash; sudo -s ';
             $sudo_user = 'export SHELL=/bin/bash; sudo -s -u '.$deploy_config['sudo'].' ';
 
@@ -762,7 +762,7 @@ foreach($targets as $target_environment) {
     /*
      * Do a content file check on the entire project
      */
-    if($nocontent) {
+    if ($nocontent) {
         log_console(tr('Skipping content file check due to "--no-content" command line parameter'), 'yellow');
 
     } else {
@@ -770,11 +770,11 @@ foreach($targets as $target_environment) {
 
         exec('grep load_content  www scripts -R', $output);
 
-        if(!is_array($output)) {
+        if (!is_array($output)) {
             throw new CoreException('Content scan failed', 'warning/failed');
         }
 
-        if(!$output) {
+        if (!$output) {
             throw new CoreException('No "load_content" found which is impossible, because the system library has it.', 'warning/validation');
         }
 
@@ -784,11 +784,11 @@ foreach($targets as $target_environment) {
         $files = array();
 
         foreach($output as $line) {
-            if(preg_match('/(.*?):.*?load_content\s*\(\s*\'(.*?)\'\s*,/i', $line, $matches)) {
+            if (preg_match('/(.*?):.*?load_content\s*\(\s*\'(.*?)\'\s*,/i', $line, $matches)) {
                 /*
                  * Skip function definitions, comments, etc.
                  */
-                if(empty($matches[2])) {
+                if (empty($matches[2])) {
                     /*
                      * Not a valid match, skip
                      */
@@ -803,17 +803,17 @@ foreach($targets as $target_environment) {
          * Ensure content file availability
          */
         foreach($files as $file => $definedin) {
-            if(substr($definedin, 0, 14) == 'scripts/tests/') {
+            if (substr($definedin, 0, 14) == 'scripts/tests/') {
                 continue;
             }
 
-            if($_CONFIG['language']['supported']) {
+            if ($_CONFIG['language']['supported']) {
                 foreach($_CONFIG['language']['supported'] as $code => $language) {
                     log_console(tr('Searching for file ":file" on ":target"', array(':file' => $file, ':target' => $deploy_config['target_server'])));
 
                     exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'ls '.($file = $deploy_config['target_dir'].'data/content/'.$code.'/'.$file.'.html').' 2>&1 /dev/null\'', $contentoutput, $return);
 
-                    if($return) {
+                    if ($return) {
                         throw new CoreException('Missing content file "'.str_log($file).'" for language "'.str_log($language).'", defined in "'.$definedin.'"', 'warning/validation');
                     }
                 }
@@ -840,7 +840,7 @@ foreach($targets as $target_environment) {
     /*
      * In case of rsync_parrallel option, copy the target dir and use the copy for the rsync and file permissions update
      */
-    if($noparrallel) {
+    if ($noparrallel) {
         log_console(tr('Deploying in non rsync parrallel mode due to "--no-parrallel" option'), 'yellow');
         $deploy_config['rsync_parrallel'] = false;
     }
@@ -849,8 +849,8 @@ foreach($targets as $target_environment) {
     /*
      * Continue rsyncing a previously stopped deploy?
      */
-    if($continuersync) {
-        if(!$deploy_config['rsync_parrallel']) {
+    if ($continuersync) {
+        if (!$deploy_config['rsync_parrallel']) {
             throw new CoreException(tr('The continuersync option was specified which makes no sense when either the project does not support rsync_parrallel, or when rsync_parrallel has been disabled because of the command line option "noparrallel"'), 'warning/invalid');
         }
 
@@ -858,7 +858,7 @@ foreach($targets as $target_environment) {
          * Validate $continuersync value
          */
         while(!preg_match('/^20\d{6}-\d{6}$/', $continuersync)) {
-            if(!preg_match('/^'.Strings::fromReverse($deploy_config['target_dir'], '/').'~20\d{6}-\d{6}\/?$/', $continuersync)) {
+            if (!preg_match('/^'.Strings::fromReverse($deploy_config['target_dir'], '/').'~20\d{6}-\d{6}\/?$/', $continuersync)) {
                 throw new CoreException(tr('The specified continuersync option "'.str_log($continuersync).'" is invalid, it should be in the Ymd-His format, or targetpath~Ymd-His'), 'warning/invalid');
             }
 
@@ -871,15 +871,15 @@ foreach($targets as $target_environment) {
     /*
      *
      */
-    if($nobackup and $dobackup) {
+    if ($nobackup and $dobackup) {
         throw new CoreException(tr('The options --do-backup and --no-backup cannot be used together'), 'warning/invalid');
     }
 
-    if(!isset($deploy_config['auto_backup'])) {
+    if (!isset($deploy_config['auto_backup'])) {
         $deploy_config['auto_backup'] = true;
     }
 
-    if((!$deploy_config['auto_backup'] and !$dobackup) or $nobackup) {
+    if ((!$deploy_config['auto_backup'] and !$dobackup) or $nobackup) {
         log_console(tr('Not executing auto site backup, due to either configuration or --no-backup option'), 'yellow');
 
     } else {
@@ -896,19 +896,19 @@ foreach($targets as $target_environment) {
          */
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' "'.$sudo.'mkdir -p /data/backups/'.date_convert(null, 'Ymd').' > /dev/null 2>&1; sudo chown www-data:www-data /data/ -R > /dev/null 2>&1; sudo chmod g+w,o-rwx /data/ -R"', $exitcode);
 
-        if($exitcode) {
+        if ($exitcode) {
             throw new CoreException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
         }
 
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' "'.$sudo.'mysqldump -p\''.str_replace('$', '\$', $config['db']['core']['pass']).'\' -K -R -n -e --dump-date --comments -B '.$config['db']['core']['db'].' | gzip > /data/backups/'.date_convert(null, 'Ymd').'/'.$config['db']['core']['db'].'.sql.gz"', $exitcode);
 
-        if($exitcode) {
+        if ($exitcode) {
             throw new CoreException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
         }
 
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' "'.$sudo.'tar -cjf /data/backups/'.date_convert(null, 'Ymd').'/'.basename($deploy_config['target_dir']).'.tgz '.$deploy_config['target_dir'].'"', $exitcode);
 
-        if($exitcode) {
+        if ($exitcode) {
             throw new CoreException(tr('rsync_parrallel copy failed with exit code ":code"', array(':code' => $exitcode)), 'warning/rsync');
         }
     }
@@ -918,20 +918,20 @@ foreach($targets as $target_environment) {
     /*
      *
      */
-    if(!empty($deploy_config['rsync_parrallel'])) {
+    if (!empty($deploy_config['rsync_parrallel'])) {
         /*
          * Make a copy on the server, rsync that copy, then move that copy in place of the current version. This will cause less down time due to version differences
          */
         log_console(tr('Deploying in rsync to parrallel mode'), 'white');
 
-        if($continuersync) {
+        if ($continuersync) {
             /*
              * Search for existing copies
              */
             $results = safe_exec(array('ok_exitcodes' => '2',
                                        'commands'     => array('ssh', array('-t', '-p', $target_port, $deploy_config['target_user'].$deploy_config['target_server'], $sudo.'ls '.($deploy_config['target_dir']).'~'.$continuersync))));
 
-            if(count($results) < 2) {
+            if (count($results) < 2) {
                 /*
                  * Does not exist
                  */
@@ -949,7 +949,7 @@ foreach($targets as $target_environment) {
              */
             passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'ls '.$deploy_config['target_dir'].'\'', $exitcode);
 
-            if($exitcode) {
+            if ($exitcode) {
                 /*
                  * Doesn't exist!
                  */
@@ -968,34 +968,34 @@ foreach($targets as $target_environment) {
     /*
      * Do the deploy
      */
-    if($nodeploy) {
+    if ($nodeploy) {
         log_console(tr('NOT deploying, due to "--no-deploy" or "--test" command line parameter'), 'yellow');
 
     } else {
         $exclude = ' --exclude="data/log"  --exclude="data/cookies" --exclude="data/ssh" --exclude=*~ --exclude="data/mocks" --exclude="data/templates" --exclude="tmp" --exclude="data/mock*" --exclude="data/uploads" --exclude="data/packages" --exclude=".git*" --exclude="/data/system"  --exclude="/data/tmp" --exclude="sitemaps" --exclude="sitemap.xml" ';
         $include = '';
 
-        if(!$send_content_photos) {
+        if (!$send_content_photos) {
             $exclude .= ' --exclude="data/content/photos" ';
         }
 
-        if($deploy_config['include_dirs']) {
+        if ($deploy_config['include_dirs']) {
             foreach($deploy_config['include_dirs'] as $key => $dir) {
                 $include .= ' --include="'.$dir.'" ';
             }
         }
 
-        if(!$send_content_texts) {
-            if($_CONFIG['language']['supported']) {
+        if (!$send_content_texts) {
+            if ($_CONFIG['language']['supported']) {
                 foreach($_CONFIG['language']['supported'] as $code => $language) {
                     $exclude .= ' --exclude="data/content/'.$code.'" ';
                 }
             }
         }
 
-        if($_CONFIG['language']['supported']) {
+        if ($_CONFIG['language']['supported']) {
             foreach($_CONFIG['language']['supported'] as $code => $language) {
-                if(!$send_sitemap) {
+                if (!$send_sitemap) {
                     $exclude .= ' --exclude="www/'.$code.'/sitemap*" ';
                 }
 
@@ -1003,7 +1003,7 @@ foreach($targets as $target_environment) {
             }
         }
 
-        if($deploy_config['exclude_dirs']) {
+        if ($deploy_config['exclude_dirs']) {
             foreach($deploy_config['exclude_dirs'] as $key => $dir) {
                 $exclude .= ' --exclude="'.$dir.'" ';
             }
@@ -1018,7 +1018,7 @@ foreach($targets as $target_environment) {
         log_console(tr('Setting ROOT/data/system/last-deploy'));
         exec('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mkdir -p '.$deploy_config['target_dir'].'/data/system 2> /dev/null; '.$sudo.'touch '.$deploy_config['target_dir'].'/data/system/last-deploy\'', $contentoutput, $return);
 
-        if($exitcode and !$ignore_rsync_errors) {
+        if ($exitcode and !$ignore_rsync_errors) {
             throw new CoreException('Rsync failed with exit code "'.str_log($exitcode).'"', 'warning/rsync');
         }
 
@@ -1033,20 +1033,20 @@ foreach($targets as $target_environment) {
     /*
      * Fix structure
      */
-    if($nofixstructure) {
+    if ($nofixstructure) {
         log_console(tr('Skipping structure fix due to "--no-fix-structure" command line parameter'), 'yellow');
 
     } else {
         log_console(tr('Executing structure fix'), 'white');
 
-        if(!empty($deploy_config['rsync_parrallel'])) {
+        if (!empty($deploy_config['rsync_parrallel'])) {
             passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/fix-structure --env '.$target_environment.' \'', $exitcode);
 
         } else {
             passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/fix-structure --env '.$target_environment.' \'', $exitcode);
         }
 
-        if($exitcode) {
+        if ($exitcode) {
             throw new CoreException('fix-structure failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
 
@@ -1061,24 +1061,24 @@ foreach($targets as $target_environment) {
     /*
      * Fix permissions
      */
-    if($nofixperms) {
+    if ($nofixperms) {
         log_console(tr('Skipping file permission fix due to "--no-fix-permissions" command line parameter'), 'yellow');
 
     } else {
-        if(!$deploy_config['preserve_owner_group']) {
+        if (!$deploy_config['preserve_owner_group']) {
             log_console(tr('Skipping permission fixing due to either --no-preserve-owner-group command line parameter, or "preserve_owner_group" set to false in deploy configuration for this target'), 'yellow');
 
         } else {
             log_console(tr('Executing file permission fix'), 'white');
 
-            if(!empty($deploy_config['rsync_parrallel'])) {
+            if (!empty($deploy_config['rsync_parrallel'])) {
                 passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
 
             } else {
                 passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/fix-permissions --env '.$target_environment.' \'', $exitcode);
             }
 
-            if($exitcode) {
+            if ($exitcode) {
                 throw new CoreException(tr('fix-permissions failed with exit code ":code" while executing command ":command"', array(':code' => $exitcode, ':command' => $command)), 'warning/failed');
             }
 
@@ -1101,18 +1101,18 @@ foreach($targets as $target_environment) {
     /*
      * In case of rsync_parrallel option, move the copy back in place, and remove the original
      */
-    if(!empty($deploy_config['rsync_parrallel'])) {
+    if (!empty($deploy_config['rsync_parrallel'])) {
         log_console(tr('Moving new version in place'), 'white');
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'mv '.$deploy_config['target_dir'].' '.$deploy_config['target_dir'].$tilde.'_old; '.$sudo.'mv '.$deploy_config['target_dir'].$tilde.' '.$deploy_config['target_dir'].'\'', $exitcode);
 
-        if($exitcode) {
+        if ($exitcode) {
             throw new CoreException('Moving new version in place failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
 
         log_console(tr('Deleting old version'), 'white');
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.'rm '.$deploy_config['target_dir'].$tilde.'_old -rf\'', $exitcode);
 
-        if($exitcode) {
+        if ($exitcode) {
             throw new CoreException('Deleting old version in place failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
     }
@@ -1122,14 +1122,14 @@ foreach($targets as $target_environment) {
     /*
      * Execute init on target
      */
-    if($noinit) {
+    if ($noinit) {
         log_console(tr('Skipping target init due to "--no-init" command line parameter'), 'yellow');
 
     } else {
         log_console(tr('Executing init on target server with environment ":env"', array(':env' => $target_environment)), 'white');
         passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/init --env '.$target_environment.' \'', $exitcode);
 
-        if($exitcode) {
+        if ($exitcode) {
             throw new CoreException('Target version init failed with exit code "'.str_log($exitcode).'"', 'warning/init');
         }
 
@@ -1144,7 +1144,7 @@ foreach($targets as $target_environment) {
     ///*
     // * Auto rebuild the sitemap?
     // */
-    //if($nositemap) {
+    //if ($nositemap) {
     //    log_console(tr('Skipping auto sitemap deploy due to "--no-sitemap" command line parameter'), 'yellow');
     //
     //} else {
@@ -1152,27 +1152,27 @@ foreach($targets as $target_environment) {
     //
     //    passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap scan --env '.$target_environment.' \'', $exitcode);
     //
-    //    if($exitcode) {
+    //    if ($exitcode) {
     //        throw new CoreException('Target sitemap scan failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_scan');
     //    }
     //
-    //    if($_CONFIG['language']['supported']) {
+    //    if ($_CONFIG['language']['supported']) {
     //        foreach($_CONFIG['language']['supported'] as $language) {
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy   html '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
-    //            if($exitcode) {
+    //            if ($exitcode) {
     //                throw new CoreException('Target sitemap HTML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_html');
     //            }
     //
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy    xml '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
-    //            if($exitcode) {
+    //            if ($exitcode) {
     //                throw new CoreException('Target sitemap XML build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_xml');
     //            }
     //
     //            passthru($command = 'ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo_user.$deploy_config['target_dir'].$rootdiff.'/scripts/base/sitemap deploy robots '.$language.' --env '.$target_environment.' \'', $exitcode);
     //
-    //            if($exitcode) {
+    //            if ($exitcode) {
     //                throw new CoreException('Target sitemap robots build failed with exit code "'.str_log($exitcode).'"', 'target_sitemap_robots');
     //            }
     //        }
@@ -1184,7 +1184,7 @@ foreach($targets as $target_environment) {
     /*
      * Send notifications
      */
-    if($nonotify) {
+    if ($nonotify) {
         log_console(tr('Skipping deploy notifications due to "--no-notify" command line parameter'), 'yellow');
 
     } else {
@@ -1204,7 +1204,7 @@ foreach($targets as $target_environment) {
     /*
      * Cache clear
      */
-    if($nocacheclear) {
+    if ($nocacheclear) {
         log_console(tr('Skipping cache clear due to "--no-cache-clear" command line parameter'), 'yellow');
 
     } else {
@@ -1212,12 +1212,12 @@ foreach($targets as $target_environment) {
 
         passthru('ssh -t -p '.$target_port.' '.$deploy_config['target_user'].$deploy_config['target_server'].' \''.$sudo.$deploy_config['target_dir'].$rootdiff.'/scripts/base/cache clear --env '.$target_environment.'\'', $exitcode);
 
-        if($exitcode) {
+        if ($exitcode) {
             throw new CoreException('Cache clear failed with exit code "'.str_log($exitcode).'"', 'warning/failed');
         }
     }
 
-    if($stash) {
+    if ($stash) {
         log_console(tr('Git stashed changes detected, unstashing'), 'yellow');
         git_stash_pop();
     }

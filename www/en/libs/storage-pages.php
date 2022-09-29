@@ -35,15 +35,15 @@ function storage_pages_get($section, $page = null, $auto_create = false) {
     try{
         $section = storage_ensure_section($section);
 
-        if(empty($section['id'])) {
+        if (empty($section['id'])) {
             throw new CoreException(tr('storage_pages_get(): No sections id specified'), 'not-specified');
         }
 
-        if(empty($page)) {
+        if (empty($page)) {
             /*
              * Get a _new record for the current user
              */
-            if(empty($_SESSION['user']['id'])) {
+            if (empty($_SESSION['user']['id'])) {
                 $where   = ' WHERE  `storage_pages`.`sections_id` = :sections_id
                              AND    `storage_documents`.`status`  = "_new"
                              AND    `storage_pages`.`createdby`   IS NULL LIMIT 1';
@@ -59,7 +59,7 @@ function storage_pages_get($section, $page = null, $auto_create = false) {
                                  ':createdby'   => $_SESSION['user']['id']);
             }
 
-        } elseif(is_numeric($page)) {
+        } elseif (is_numeric($page)) {
             /*
              * Assume this is pages id
              */
@@ -70,7 +70,7 @@ function storage_pages_get($section, $page = null, $auto_create = false) {
             $execute = array(':sections_id' => $section['id'],
                              ':id'          => $page);
 
-        } elseif(is_string($page)) {
+        } elseif (is_string($page)) {
             /*
              * Assume this is pages seoname
              */
@@ -136,7 +136,7 @@ function storage_pages_get($section, $page = null, $auto_create = false) {
 
                          $execute);
 
-        if(empty($page) and empty($page) and $auto_create) {
+        if (empty($page) and empty($page) and $auto_create) {
             $page = storage_pages_add(array('status'       => '_new',
                                             'sections_id'  => $section['id'],
                                             'documents_id' => $page['documents_id'],
@@ -159,17 +159,17 @@ function storage_pages_add($page, $section = null) {
     try{
         load_libs('storage-documents');
 
-        if(!$section) {
+        if (!$section) {
             $section = storage_sections_get($page['sections_id']);
         }
 
-        if($section['random_ids']) {
+        if ($section['random_ids']) {
             $page['id'] = sql_random_id('storage_pages');
         }
 
         $page = storage_pages_validate($page);
 
-        if(empty($page['documents_id'])) {
+        if (empty($page['documents_id'])) {
             /*
              * This page has no document
              * Generate a new document for this page
@@ -292,7 +292,7 @@ function storage_pages_validate($page, $params = false) {
         /*
          * Validate basics
          */
-        if(!$empty) {
+        if (!$empty) {
             $v->hasMinChars($page['name'], 1, $params['errors']['pagename_1'], VALIDATE_IGNORE_ALL);
         }
 
@@ -300,13 +300,13 @@ function storage_pages_validate($page, $params = false) {
         /*
          * Validate assigned_to_id
          */
-        if(empty($page['assigned_to_id'])) {
+        if (empty($page['assigned_to_id'])) {
             /*
              * assigned_to_id not set, ensure NULL
              */
             $page['assigned_to_id'] = null;
 
-            if(isset_get($params['entry']['assigned_to_id'])) {
+            if (isset_get($params['entry']['assigned_to_id'])) {
                 /*
                  * assigned_to_id is required!
                  */
@@ -314,7 +314,7 @@ function storage_pages_validate($page, $params = false) {
             }
 
         } else {
-            if(isset_get($params['entry']['assigned_to_id'])) {
+            if (isset_get($params['entry']['assigned_to_id'])) {
                 /*
                  * assigned_to_id is not used at all! Just ignore
                  */
@@ -328,7 +328,7 @@ function storage_pages_validate($page, $params = false) {
 
                 $exists = sql_get('SELECT `id` FROM `users` WHERE `id` = :id AND `status` IS NULL', array(':id' => $page['assigned_to_id']));
 
-                if(!$exists) {
+                if (!$exists) {
                     $v->setError($params['errors']['not_exist_assigned_to_id']);
                 }
             }
@@ -337,7 +337,7 @@ function storage_pages_validate($page, $params = false) {
         /*
          * Validate description
          */
-        if(empty($params['labels']['description']) or $empty) {
+        if (empty($params['labels']['description']) or $empty) {
             $page['description'] = null;
 
         } else {
@@ -350,7 +350,7 @@ function storage_pages_validate($page, $params = false) {
             $v->hasMinChars($page['description'], 16, $params['errors']['description_16'], VALIDATE_IGNORE_ALL);
         }
 
-        if(empty($params['show']['body']) or $empty) {
+        if (empty($params['show']['body']) or $empty) {
             $page['body'] = null;
 
         } else {
@@ -382,8 +382,8 @@ function storage_page_attach_file($pages_id, $file) {
     try{
         load_libs('files');
 
-        if(!is_array($file)) {
-            if(!is_numeric($file)) {
+        if (!is_array($file)) {
+            if (!is_numeric($file)) {
             }
 
             /*
@@ -405,7 +405,7 @@ function storage_page_attach_file($pages_id, $file) {
  */
 function storage_page_has_access($pages_id, $users_id = null) {
     try{
-        if(empty($users_id)) {
+        if (empty($users_id)) {
             $users_id = $_SESSION['user']['id'];
         }
 

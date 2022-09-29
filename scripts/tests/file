@@ -13,7 +13,7 @@ test('file_clear_path()', 'Function call should clear test path', function() {
     touch($file);
     file_clear_path($file, TESTPATH);
 
-    if(file_exists(dirname($file)) or file_exists(dirname(dirname($file)))) {
+    if (file_exists(dirname($file)) or file_exists(dirname(dirname($file)))) {
         throw new CoreException(tr('Function file_clear_path() did not clear test path ":path"', array(':path' => $file)), 'failed');
     }
 });

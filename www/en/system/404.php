@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__.'/libs/startup.php');
 
-if(substr(isset_get($_SERVER['REQUEST_URI']), 0, 7) == '/admin/') {
+if (substr(isset_get($_SERVER['REQUEST_URI']), 0, 7) == '/admin/') {
 /*
  * This 404 is for the admin page
  */

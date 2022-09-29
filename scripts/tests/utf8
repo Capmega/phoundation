@@ -35,7 +35,7 @@ $examples = array(
 
 test('emptyfunction()', 'Function call which should do blah blah', function() {
     try{
-        if(emptyfunction('lkjerlkfwejf', 127)) {
+        if (emptyfunction('lkjerlkfwejf', 127)) {
             throw new CoreException('Did not do blah blah');
         }
 

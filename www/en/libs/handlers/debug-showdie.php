@@ -1,7 +1,7 @@
 <?php
 try{
-    if($trace_offset === null) {
-        if(PLATFORM_HTTP) {
+    if ($trace_offset === null) {
+        if (PLATFORM_HTTP) {
             $trace_offset = 5;
 
         } else {
@@ -9,7 +9,7 @@ try{
         }
     }
 
-    if(!debug()) {
+    if (!debug()) {
         return $data;
     }
 

@@ -160,24 +160,24 @@ function editors_summernote($params = null) {
         html_load_js('plugins/summernote/summernote');
         html_load_js('plugins/summernote/summernote_custom');
 
-        if(!$params['tooltips']) {
+        if (!$params['tooltips']) {
             $params['on_init'] .= ' alert("YAY"); $(".note-editor [data-name=\"ul\"]").tooltip("disable");';
         }
 
-        if($params['height'])          $options['height']        = $params['height'];
-        if($params['focus'])           $options['focus']         = $params['focus'];
-        if($params['on_image_upload']) $options['onImageUpload'] = $params['on_image_upload'];
-        if($params['placeholder'])     $options['placeholder']   = $params['placeholder'];
+        if ($params['height'])          $options['height']        = $params['height'];
+        if ($params['focus'])           $options['focus']         = $params['focus'];
+        if ($params['on_image_upload']) $options['onImageUpload'] = $params['on_image_upload'];
+        if ($params['placeholder'])     $options['placeholder']   = $params['placeholder'];
 
-        if($params['on_init']) {
+        if ($params['on_init']) {
             $options['onInit'] = 'function() {'.$params['on_init'].'}';
         }
 
-        if($params['toolbar']) {
+        if ($params['toolbar']) {
             /*
              * Validate the toolbar
              */
-            if(!is_array($params['toolbar'])) {
+            if (!is_array($params['toolbar'])) {
                 throw new CoreException('editors_summernote(): Specified toolbar option is invalid, must be an array', 'invalid');
             }
 
@@ -210,16 +210,16 @@ function editors_summernote($params = null) {
             foreach($params['toolbar'] as $group => $buttons) {
                 $entry = array($group);
 
-                if(!is_array($buttons)) {
+                if (!is_array($buttons)) {
                     throw new CoreException(tr('editors_summernote(): Specified toolbar group ":group" is invalid, must be an array', array(':group' => $group)), 'invalid');
                 }
 
                 foreach($buttons as $button) {
-                    if(!is_scalar($button)) {
+                    if (!is_scalar($button)) {
                         throw new CoreException(tr('editors_summernote(): Specified toolbar group ":group" contains an invalid button. Button name should be scalar', array(':group' => $group)), 'invalid');
                     }
 
-                    if(!in_array($button, $available)) {
+                    if (!in_array($button, $available)) {
                         throw new CoreException(tr('editors_summernote(): Specified toolbar group ":group" contains unknown button ":button". Buttons should be one of ""', array(':group' => $group, ':button' => $button)), 'unknown');
                     }
                 }
@@ -236,11 +236,11 @@ function editors_summernote($params = null) {
          * Move all functions out of the way so we won't break them with json
          */
         foreach($options as $key => &$value) {
-            if(is_scalar($value)) {
+            if (is_scalar($value)) {
                 /*
                  * Look for values starting with 'function('
                  */
-                if((strpos($value, 'function(') === 0) or (strpos($value, '(function(') === 0)) {
+                if ((strpos($value, 'function(') === 0) or (strpos($value, '(function(') === 0)) {
                     /*
                      * Store function string.
                      */
@@ -260,7 +260,7 @@ function editors_summernote($params = null) {
         /*
          * Build JS options array
          */
-        if(!empty($options)) {
+        if (!empty($options)) {
             $options = json_encode($options);
             $options = str_replace($replace_keys, $value_arr, $options);
 

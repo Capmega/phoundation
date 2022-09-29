@@ -16,7 +16,7 @@ try{
 
     switch(cli_argument(0)) {
         case 'take':
-            if(!cli_argument(1)) {
+            if (!cli_argument(1)) {
                 throw new CoreException('No session ID to take specified', 'nosessionid');
             }
 

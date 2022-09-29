@@ -32,13 +32,13 @@ function upload_library_init() {
  */
 function upload_dropzone($selector = null, $url = '/ajax/upload.php', $params = array()) {
     try{
-        if(!file_exists(ROOT.'pub/js/dropzone.js')) {
+        if (!file_exists(ROOT.'pub/js/dropzone.js')) {
             file_copy_to_target('https://raw.github.com/enyo/dropzone/master/dist/dropzone.js', ROOT.'pub/js/', '.js', true, false);
         }
 
         html_load_js('dropzone');
 
-        if(!$selector) {
+        if (!$selector) {
             /*
              * Do dropzone from all elements that have the "dropzone" class
              */
@@ -67,8 +67,8 @@ function upload_ocupload($selector = 'input[name=upload]', $url = '/ajax/upload.
         load_libs('html');
         html_load_js('ocupload/jquery.ocupload');
 
-        if(!empty($params['params'])) {
-            if(!is_array($params['params'])) {
+        if (!empty($params['params'])) {
+            if (!is_array($params['params'])) {
                 throw new CoreException(tr('upload_ocupload(): Specified $params[params] is not an array'), 'invalid');
             }
         }
@@ -125,15 +125,15 @@ function upload_multi($params) {
         array_default($params, 'post'      , null);
         array_default($params, 'iframe'    , false);
 
-        if($params['post']) {
+        if ($params['post']) {
             /*
              * Validate post to be an array first to ensure clean exceptions
              */
-            if(!is_array($params['post'])) {
+            if (!is_array($params['post'])) {
                 throw new CoreException(tr('upload_multi(): Specified post parameter should be an array but is a ":type"', array(':type' => gettype($params['post']))), 'invalid');
             }
 
-            if($_CONFIG['security']['csrf']['enabled']) {
+            if ($_CONFIG['security']['csrf']['enabled']) {
                 /*
                  * CSRF required, auto add the current CSRF
                  */
@@ -141,23 +141,23 @@ function upload_multi($params) {
             }
         }
 
-        if(empty($params['selector'])) {
+        if (empty($params['selector'])) {
             throw new CoreException(tr('upload_multi(): No "selector" specified'), 'not-specified');
         }
 
-        if(empty($params['url'])) {
+        if (empty($params['url'])) {
             throw new CoreException(tr('upload_multi(): No "url" specified'), 'not-specified');
         }
 
         html_load_js('jquery-ui,base/base,base/strings');
 
-        if($params['iframe']) {
+        if ($params['iframe']) {
             html_load_js('jfu/jquery.iframe-transport');
         }
 
         html_load_js('jfu/jquery.fileupload');
 
-        if($params['processall'] === '' and $params['process'] === '') {
+        if ($params['processall'] === '' and $params['process'] === '') {
             /*
              * No upload processing specified, default to basic "processall"
              */
@@ -183,7 +183,7 @@ function upload_multi($params) {
                                                                             '.$params['processall'].'
                                                                         }
                                                                      });');
-        if($params['html']) {
+        if ($params['html']) {
             $html .= '<input id="'.$params['id'].'" class="'.$params['class'].'" type="file" name="'.$params['name'].'" accept="'.$params['accept'].'">';
         }
 
@@ -207,20 +207,20 @@ function upload_get_html($type, $target = null, $params = null) {
     load_libs('array');
 
     try{
-        if(is_array($type)) {
+        if (is_array($type)) {
             $params = $type;
             $type   = $params['type'];
 
-        } elseif(is_array($target)) {
+        } elseif (is_array($target)) {
             $params = $target;
             $target = array_value($params, 'target');
         }
 
-        if(!$target) {
+        if (!$target) {
             $target = $_SERVER['PHP_SELF'];
         }
 
-        if(empty($params)) {
+        if (empty($params)) {
             $params = array();
         }
 
@@ -249,12 +249,12 @@ function upload_get_html($type, $target = null, $params = null) {
          * Optional libraries
          */
         foreach($params['options'] as $key => $value) {
-            if(($key == 'iframe') and $value) {
+            if (($key == 'iframe') and $value) {
                 $js[] = 'jfu/jquery.iframe-transport';
                 continue;
             }
 
-            if($value) {
+            if ($value) {
                 $js[] = 'jfu/jquery.fileupload-'.$key;
             }
         }
@@ -269,7 +269,7 @@ function upload_get_html($type, $target = null, $params = null) {
         /*
          *Determine what uploader to use
          */
-        if(empty($type)) {
+        if (empty($type)) {
             throw new CoreException('upload_get_html(): No upload widget type specified');
         }
 
@@ -332,7 +332,7 @@ function upload_get_html($type, $target = null, $params = null) {
                 throw new CoreException('upload_get_html(): Unknown widget type "'.str_log($type).'" specified');
         }
 
-        if($params['lister']) {
+        if ($params['lister']) {
             $retval .= '<table role="presentation" class="table table-striped" id="'.$params['lister'].'"><tbody class="files"></tbody></table>';
         }
 
@@ -412,7 +412,7 @@ Array
  */
 function upload_check_files($max_uploads = null, $min_uploads = null) {
     try{
-        if(debug()) {
+        if (debug()) {
             $errors = array(UPLOAD_ERR_OK         => tr('ok'),
                             UPLOAD_ERR_INI_SIZE   => tr('The uploaded file exceeds the upload_max_filesize directive in php.ini'),
                             UPLOAD_ERR_FORM_SIZE  => tr('The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form'),
@@ -439,7 +439,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
         $files = array();
         $count = 0;
 
-        if(empty($_FILES)) {
+        if (empty($_FILES)) {
             /*
              * Apparently no files were uploaded?
              */
@@ -451,15 +451,15 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
          * Reorder the $_FILES array to make sense
          */
         foreach($_FILES as $formname => $filedata) {
-            if(is_array($filedata['name'])) {
+            if (is_array($filedata['name'])) {
                 foreach($filedata as $section => $data) {
-                    if($section === 'name') {
+                    if ($section === 'name') {
                         $count++;
                     }
 
                     foreach($data as $key => $value) {
 
-                        if(empty($files[$formname][$key])) {
+                        if (empty($files[$formname][$key])) {
                             $files[$formname][$key] = array();
                         }
 
@@ -479,16 +479,16 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
         /*
          * Basic validations
          */
-        if($max_uploads and ($count > $max_uploads)) {
-            if($max_uploads == 1) {
+        if ($max_uploads and ($count > $max_uploads)) {
+            if ($max_uploads == 1) {
                 throw new CoreException(tr('upload_check_files(): Multiple file uploads are not allowed'), 'multiple');
             }
 
             throw new CoreException(tr('upload_check_files(): $_FILES contains ":count" which is more than the maximum of ":max"', array(':count' => $count, ':max' => str_log($max_uploads))), 'toomany');
         }
 
-        if($min_uploads and ($count < $min_uploads)) {
-            if($min_uploads == 1) {
+        if ($min_uploads and ($count < $min_uploads)) {
+            if ($min_uploads == 1) {
                 throw new CoreException(tr('upload_check_files(): No files were uploaded'), 'none');
             }
 
@@ -509,7 +509,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                     case 7: // UPLOAD_ERR_CANT_WRITE
                         // FALLTHROUGH
                     case 8: // UPLOAD_ERR_EXTENSION
-                        if(!debug()) {
+                        if (!debug()) {
                             /*
                              * In debug mode we show the error, but in this case
                              * we can only notify
@@ -530,7 +530,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
                         /*
                          * Ensure this file is removed!
                          */
-                        if(file_exists($value['tmp_name'])) {
+                        if (file_exists($value['tmp_name'])) {
                             /*
                              * This filename comes directly from PHP. Not sure
                              * where these files are typically are located, but
@@ -545,7 +545,7 @@ function upload_check_files($max_uploads = null, $min_uploads = null) {
         unset($file);
         unset($value);
 
-        if(!empty($_FILES['files'][0]['error'])) {
+        if (!empty($_FILES['files'][0]['error'])) {
             throw new CoreException(isset_get($_FILES['files'][0]['error_message'], tr('PHP upload error code ":error"', array(':error' => $_FILES['files'][0]['error']))), $_FILES['files'][0]['error']);
         }
 

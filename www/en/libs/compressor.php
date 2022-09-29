@@ -227,19 +227,19 @@ function compressor_validate(&$params) {
     try{
         Arrays::ensure($params);
 
-        if(empty($params['source'])) {
+        if (empty($params['source'])) {
             throw new CoreException(tr('compressor_validate(): No source specified'), 'not-specified');
         }
 
-        if(empty($params['target'])) {
+        if (empty($params['target'])) {
             throw new CoreException(tr('compressor_validate(): No target specified'), 'not-specified');
         }
 
-        if(!file_exists($params['source'])) {
+        if (!file_exists($params['source'])) {
             throw new CoreException(tr('compressor_validate(): Specified source ":source" does not exist', array(':source' => $params['source'])), 'not-exists');
         }
 
-        if(!file_exists($params['source'])) {
+        if (!file_exists($params['source'])) {
             throw new CoreException(tr('compressor_validate(): Specified target ":target" already exist', array(':target' => $params['target'])), 'exists');
         }
 

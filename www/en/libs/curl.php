@@ -27,7 +27,7 @@
  */
 function curl_library_init() {
     try{
-        if(!extension_loaded('curl')) {
+        if (!extension_loaded('curl')) {
             throw new CoreException(tr('curl_library_init(): The PHP "curl" module is not available, please install it first. On ubuntu install the module with "apt -y install php-curl"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
 
@@ -47,19 +47,19 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
     global $_CONFIG;
 
     try{
-        if(!$serverurl) {
+        if (!$serverurl) {
             $serverurl = $_CONFIG['curl']['proxies'];
         }
 
-        if(is_array($serverurl)) {
+        if (is_array($serverurl)) {
             $serverurl = array_random_value($serverurl);
         }
 
-        if(is_array($url)) {
+        if (is_array($url)) {
             throw new CoreException(tr('curl_get_proxy(): No URL specified'), 'not-specified');
         }
 
-        if(!$serverurl) {
+        if (!$serverurl) {
             throw new CoreException(tr('curl_get_proxy(): No proxy server URL(s) specified'), 'not-specified');
         }
 
@@ -69,11 +69,11 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
                                'getheaders' => false,
                                'proxies'    => false));
 
-        if(!trim($data['data'])) {
+        if (!trim($data['data'])) {
             throw new CoreException(tr('curl_get_proxy(): Proxy returned no data. Is proxy correctly configured? Proxy domain resolves correctly?'), 'no-data');
         }
 
-        if(substr($data['data'], 0, 12) !== 'PROXY_RESULT') {
+        if (substr($data['data'], 0, 12) !== 'PROXY_RESULT') {
             throw new CoreException(tr('curl_get_proxy(): Proxy returned invalid data ":data" from proxy ":proxy". Is proxy correctly configured? Proxy domain resolves correctly?', array(':data' => str_log($data), ':proxy' => Strings::cut((str_log($serverurl), '://', '/'))), 'not-specified');
         }
 
@@ -81,7 +81,7 @@ function curl_get_proxy($url, $file = '', $serverurl = null) {
         $data         = json_decode_custom($data);
         $data['data'] = base64_decode($data['data']);
 
-        if($file) {
+        if ($file) {
             /*
              * Write the data to the specified file
              */
@@ -129,11 +129,11 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
             throw new CoreException(tr('curl_list_ips(): Failed to execute ifconfig, it probably is not installed. On Ubuntu install it by executing "sudo apt install net-toolks"'), $e);
         }
 
-        if(!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)) {
+        if (!preg_match_all('/(?:addr|inet)6?(?:\:| )(.+?) /', $results, $matches)) {
             throw new CoreException('curl_list_ips(): ifconfig returned no IPs', 'not-exists');
         }
 
-        if(!$matches or empty($matches[1])) {
+        if (!$matches or empty($matches[1])) {
             throw new CoreException('curl_list_ips(): No IP data found', 'not-exists');
         }
 
@@ -141,37 +141,37 @@ function curl_list_ips($ipv4 = true, $ipv6 = false, $localhost = true) {
         $options = null;
         $ips     = array();
 
-        if(!$ipv4) {
-            if(!$ipv6) {
+        if (!$ipv4) {
+            if (!$ipv6) {
                 throw new CoreException('curl_list_ips(): Both IPv4 and IPv6 IP\'s are specified to be disallowed', 'not-exists');
             }
 
             $options = $options | FILTER_FLAG_IPV6;
 
-        } elseif(!$ipv6) {
+        } elseif (!$ipv6) {
             $options = $options | FILTER_FLAG_IPV4;
         }
 
         foreach($matches[1] as $ip) {
-            if(!$ip) {
+            if (!$ip) {
                 continue;
             }
 
             $ip = str_replace(':', '', $ip);
             $ip = trim(Strings::from($ip, 'addr'));
 
-            if($ip == '127.0.0.1') {
-                if(!$localhost) {
+            if ($ip == '127.0.0.1') {
+                if (!$localhost) {
                     continue;
                 }
             }
 
-            if(filter_var($ip, $flags, $options)) {
+            if (filter_var($ip, $flags, $options)) {
                 $ips[] = $ip;
             }
         }
 
-        if(!$ips) {
+        if (!$ips) {
             throw new CoreException(tr('curl_list_ips(): Failed to find any IP addresses'), 'failed');
         }
 
@@ -228,7 +228,7 @@ function curl_get_random_ip($ipv4 = true, $ipv6 = false, $localhost = false) {
 //
 //        shuffle($ips);
 //
-//        if(!$ips) {
+//        if (!$ips) {
 //            return '';
 //        }
 //
@@ -280,33 +280,33 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
         array_default($params, 'connect_timeout', $_CONFIG['curl']['connect_timeout']); // # of seconds before connection try will fail
         array_default($params, 'log'            , $_CONFIG['curl']['log']);             // Log the output of cURL
 
-        if($params['simulation']) {
+        if ($params['simulation']) {
             log_console(tr('Simulating cURL request to URL ":url"', array(':url' => $params['url'])), 'VERBOSE/cyan');
 
         } else {
             log_console(tr('Making cURL request to URL ":url"', array(':url' => $params['url'])), 'VERBOSE/cyan');
         }
 
-        if($params['proxies']) {
+        if ($params['proxies']) {
             return curl_get_proxy($params['url'], $params['file']);
         }
 
-        if($params['httpheaders'] === true) {
+        if ($params['httpheaders'] === true) {
             /*
              * Send default headers
              *
              * Check if we're sending files. If so, use multipart
              */
-            if(is_array($params['post'])) {
+            if (is_array($params['post'])) {
                 foreach($params['post'] as $post) {
-                    if(is_object($post) and ($post instanceof CURLFile)) {
+                    if (is_object($post) and ($post instanceof CURLFile)) {
                         $multipart = true;
                         break;
                     }
                 }
             }
 
-            if(empty($multipart)) {
+            if (empty($multipart)) {
                 $params['httpheaders'] = array('Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5',
                                                'Cache-Control: max-age=0',
                                                'Connection: keep-alive',
@@ -327,18 +327,18 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                                                'Accept-Language: en-us,en;q=0.5');
             }
 
-        } elseif($params['httpheaders'] and !is_array($params['httpheaders'])) {
+        } elseif ($params['httpheaders'] and !is_array($params['httpheaders'])) {
             throw new CoreException('curl_get(): Invalid headers specified', 'not-specified');
         }
 
-        if(empty($params['url'])) {
+        if (empty($params['url'])) {
             throw new CoreException('curl_get(): No URL specified', 'not-specified');
         }
 
         /*
          * Use the already existing cURL data array
          */
-        if(empty($params['curl'])) {
+        if (empty($params['curl'])) {
             $retval = array('simulation' => $params['simulation']);
 
         } else {
@@ -348,14 +348,14 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             $params['close']      = false;
         }
 
-        if(is_array($params['useragent'])) {
+        if (is_array($params['useragent'])) {
             $params['useragent'] = array_get_random($params['useragent']);
         }
 
         /*
          * Use the already existing cURL connection?
          */
-        if($params['ch']) {
+        if ($params['ch']) {
             /*
              * Use an existing cURL connection
              */
@@ -377,19 +377,19 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, ($params['verify_ssl'] ? 2 : 0));
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, ($params['verify_ssl'] ? 1 : 0));
 
-            if($params['user_pwd']) {
+            if ($params['user_pwd']) {
                 curl_setopt($ch, CURLOPT_USERPWD,  $params['user_pwd']);
             }
 
-            if($params['log']) {
-                if($params['log'] === true) {
+            if ($params['log']) {
+                if ($params['log'] === true) {
                     $params['log'] = ROOT.'data/log/curl';
                 }
 
                 file_ensure_path(dirname($params['log']));
                 curl_setopt($ch, CURLOPT_STDERR, fopen($params['log'], 'a'));
 
-                if($params['post']) {
+                if ($params['post']) {
                     log_database(tr('curl_get(): POST ":url" with data ":data"', array(':url' => $params['url'], ':data' => $params['post'])), 'curl/debug');
 
                 } else {
@@ -397,7 +397,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                 }
             }
 
-            if($params['method']) {
+            if ($params['method']) {
                 $params['method'] = strtoupper($params['method']);
 
                 switch($params['method']) {
@@ -428,8 +428,8 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             /*
              * Use cookies?
              */
-            if(isset_get($params['cookies'])) {
-                if(!isset_get($params['cookie_file'])) {
+            if (isset_get($params['cookies'])) {
+                if (!isset_get($params['cookie_file'])) {
                     $params['cookie_file'] = file_temp();
                 }
 
@@ -453,23 +453,23 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
         curl_setopt($ch, CURLOPT_REFERER, not_empty($params['referer'], null));
         curl_setopt($ch, CURLOPT_HEADER , ($params['getcookies'] or $params['getheaders'] ?  1 : 0));
 
-        if($params['post'] !== false) {
+        if ($params['post'] !== false) {
             /*
              * Disable 301 302 location header following since this would cause the POST to go to GET
              */
             $params['followlocation'] = false;
 
-            if($params['content-type']) {
+            if ($params['content-type']) {
                 curl_setopt($ch, CURLINFO_CONTENT_TYPE, $params['content-type']);
             }
 
             curl_setopt($ch, CURLOPT_POST, 1);
 
-//            if($params['utf8']) {
+//            if ($params['utf8']) {
 //                /*
 //                 * Set UTF8 transfer header
 //                 */
-//                if(!$params['httpheaders']) {
+//                if (!$params['httpheaders']) {
 //                    $params['httpheaders'] = array();
 //                }
 //application/x-www-form-urlencoded
@@ -478,7 +478,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
 ////                $params['httpheaders'][] = 'Content-Type: text/html; charset='.strtolower($_CONFIG['encoding']['charset']).';';
 //            }
 
-            if($params['posturlencoded']) {
+            if ($params['posturlencoded']) {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params['post']));
 
             } else {
@@ -486,7 +486,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                     curl_setopt($ch, CURLOPT_POSTFIELDS , $params['post']);
 
                 }catch(Exception $e) {
-                    if(strstr($e->getMessage(), 'Array to string conversion')) {
+                    if (strstr($e->getMessage(), 'Array to string conversion')) {
                         throw new CoreException(tr('curl_get(): CURLOPT_POSTFIELDS failed with "Array to string conversion", this is very likely because the specified post array is a multi dimensional array, while CURLOPT_POSTFIELDS only accept one dimensional arrays. Please set $params[posturlencoded] = true to use http_build_query() to set CURLOPT_POSTFIELDS instead'), 'invalid');
                     }
                 }
@@ -499,7 +499,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, ($params['followlocation'] ?  1 : 0));
         curl_setopt($ch, CURLOPT_MAXREDIRS     , ($params['followlocation'] ? 50 : null));
 
-        if($params['httpheaders'] !== false) {
+        if ($params['httpheaders'] !== false) {
 //show($params['httpheaders']);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $params['httpheaders']);
         }
@@ -507,35 +507,35 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
         /*
          * Disable DNS cache?
          */
-        if(!$params['dns_cache']) {
+        if (!$params['dns_cache']) {
             $params['options'][CURLOPT_DNS_CACHE_TIMEOUT] = 0;
         }
 
         /*
          * Apply more cURL options
          */
-        if($params['options']) {
+        if ($params['options']) {
             foreach($params['options'] as $key => $value) {
                 curl_setopt($ch, $key, $value);
             }
         }
 
-        if($params['cache']) {
-            if($retval = sql_get('SELECT `data` FROM `curl_cache` WHERE `url` = :url', true, array(':url' => $params['url']))) {
+        if ($params['cache']) {
+            if ($retval = sql_get('SELECT `data` FROM `curl_cache` WHERE `url` = :url', true, array(':url' => $params['url']))) {
                 $retry = 0;
                 return json_decode_custom($retval);
             }
         }
 
-        if($params['getdata']) {
-            if($params['simulation'] === false) {
+        if ($params['getdata']) {
+            if ($params['simulation'] === false) {
                 $retval['data'] = curl_exec($ch);
 
-                if(curl_errno($ch)) {
+                if (curl_errno($ch)) {
                     throw new CoreException(tr('curl_get(): CURL failed with ":e"', array(':e' => curl_strerror(curl_errno($ch)))), 'CURL'.curl_errno($ch));
                 }
 
-            } elseif(($params['simulation'] === 'full') or ($params['simulation'] === 'partial')) {
+            } elseif (($params['simulation'] === 'full') or ($params['simulation'] === 'partial')) {
                 $retval['data'] = $params['simulation'];
 
             } else {
@@ -543,7 +543,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             }
         }
 
-        if(VERYVERBOSE) {
+        if (VERYVERBOSE) {
             log_console(tr('cURL result status:'));
 
             $retval['status'] = curl_getinfo($ch);
@@ -553,8 +553,8 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             }
         }
 
-        if($params['getstatus']) {
-            if($params['simulation']) {
+        if ($params['getstatus']) {
+            if ($params['simulation']) {
                 $retval['status'] = array('http_code'  => 200,
                                           'simulation' => true);
 
@@ -563,13 +563,13 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             }
         }
 
-        if($params['getcookies']) {
+        if ($params['getcookies']) {
             /*
              * get cookies
              */
             preg_match('/^Set-Cookie:\s*([^;]*)/mi', $retval['data'], $matches);
 
-            if(empty($matches[1])) {
+            if (empty($matches[1])) {
                 $retval['cookies'] = array();
 
             } else {
@@ -577,11 +577,11 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             }
         }
 
-        if($params['close']) {
+        if ($params['close']) {
             /*
              * Close this cURL session
              */
-            if(!empty($retval['cookie_file'])) {
+            if (!empty($retval['cookie_file'])) {
                 file_delete($retval['cookie_file']);
             }
 
@@ -593,7 +593,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
             $retval['url'] = $params['url'];
         }
 
-        if($params['cache']) {
+        if ($params['cache']) {
             unset($retval['ch']);
 
             sql_query('INSERT INTO `curl_cache` (`users_id`, `url`, `data`)
@@ -625,7 +625,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
                 throw new CoreException(tr('curl_get(): URL ":url" gave HTTP ":httpcode"', array(':url' => $params['url'], ':httpcode' => $retval['status']['http_code'])), 'HTTP'.$retval['status']['http_code'], $retval);
         }
 
-        if($params['file']) {
+        if ($params['file']) {
             file_put_contents($params['file'], $retval['data']);
         }
 
@@ -633,7 +633,7 @@ function curl_get($params, $referer = null, $post = false, $options = array()) {
         return $retval;
 
     }catch(Exception $e) {
-        if((($e->getCode() == 'HTTP0') or ($e->getCode() == 'CURL28')) and (++$retry <= $params['retries'])) {
+        if ((($e->getCode() == 'HTTP0') or ($e->getCode() == 'CURL28')) and (++$retry <= $params['retries'])) {
             /*
              * For whatever reason, connection gave HTTP code 0 which probably
              * means that the server died off completely. This again may mean

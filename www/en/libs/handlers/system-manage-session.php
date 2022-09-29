@@ -3,7 +3,7 @@ try{
     /*
      * Correctly detect the remote IP
      */
-    if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
 
@@ -12,7 +12,7 @@ try{
     /*
      * New session? Detect client type, language, and mobile device
      */
-    if(empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+    if (empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
         load_libs('detect');
         detect();
     }
@@ -22,8 +22,8 @@ try{
     /*
      * Add a powered-by header
      */
-    if($_CONFIG['security']['signature']) {
-        if($_CONFIG['security']['signature'] === 'limited') {
+    if ($_CONFIG['security']['signature']) {
+        if ($_CONFIG['security']['signature'] === 'limited') {
             header('Powered-By: Phoundation');
 
         } else {
@@ -39,7 +39,7 @@ try{
      */
     $domain = cfm($_SERVER['HTTP_HOST']);
 
-    if(!$domain) {
+    if (!$domain) {
         /*
          * No domain was requested at all, so probably instead of a domain
          * name, an IP was requested. Redirect to the domain name
@@ -53,7 +53,7 @@ try{
      * Check the detected domain against the configured domain.
      * If it doesnt match then check if its a registered whitelabel domain
      */
-    if($domain === $_CONFIG['domain']) {
+    if ($domain === $_CONFIG['domain']) {
         /*
          * This is the registered domain
          */
@@ -62,7 +62,7 @@ try{
         /*
          * This is not the registered domain!
          */
-        if($_CONFIG['whitelabels'] === false) {
+        if ($_CONFIG['whitelabels'] === false) {
             /*
              * white label domains are disabled, so the requested domain
              * MUST match the configured domain
@@ -70,37 +70,37 @@ try{
             log_file(tr('Whitelabels are disabled, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'yellow');
             redirect(PROTOCOL.$_CONFIG['domain']);
 
-        } elseif($_CONFIG['whitelabels'] === 'all') {
+        } elseif ($_CONFIG['whitelabels'] === 'all') {
             /*
              * All domains are allowed
              */
 
-        } elseif($_CONFIG['whitelabels'] === 'sub') {
+        } elseif ($_CONFIG['whitelabels'] === 'sub') {
             /*
              * White label domains are disabled, but sub domains from the
              * $_CONFIG[domain] are allowed
              */
-            if(Strings::from($domain, '.') !== $_CONFIG['domain']) {
+            if (Strings::from($domain, '.') !== $_CONFIG['domain']) {
                 log_file(tr('Whitelabels are set to sub domains only, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }
 
-        } elseif($_CONFIG['whitelabels'] === 'list') {
+        } elseif ($_CONFIG['whitelabels'] === 'list') {
             /*
              * This domain must be registered in the whitelabels list
              */
             $domain = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain AND `status` IS NULL', true, array(':domain' => $_SERVER['HTTP_HOST']));
 
-            if(empty($domain)) {
+            if (empty($domain)) {
                 log_file(tr('Whitelabel check failed because domain was not found in database, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }
 
-        } elseif(is_array($_CONFIG['whitelabels'])) {
+        } elseif (is_array($_CONFIG['whitelabels'])) {
             /*
              * Domain must be specified in one of the array entries
              */
-            if(!in_array($domain, $_CONFIG['whitelabels'])) {
+            if (!in_array($domain, $_CONFIG['whitelabels'])) {
                 log_file(tr('Whitelabel check failed because domain was not found in configured array, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }
@@ -110,7 +110,7 @@ try{
              * The domain must match either $_CONFIG[domain] or the domain
              * specified in $_CONFIG[whitelabels][enabled]
              */
-            if($domain !== $_CONFIG['whitelabels']) {
+            if ($domain !== $_CONFIG['whitelabels']) {
                 log_file(tr('Whitelabel check failed because domain did not match only configured alternative, redirecting domain ":source" to ":target"', array(':source' => $_SERVER['HTTP_HOST'], ':target' => $_CONFIG['domain'])), 'manage-session', 'VERBOSE/yellow');
                 redirect(PROTOCOL.$_CONFIG['domain']);
             }
@@ -150,14 +150,14 @@ try{
              * If the configured cookie domain is different from the current domain then all cookie will inexplicably fail without warning,
              * so this must be detected to avoid lots of hair pulling and throwing arturo off the balcony incidents :)
              */
-            if($_CONFIG['sessions']['domain'][0] == '.') {
+            if ($_CONFIG['sessions']['domain'][0] == '.') {
                 $test = substr($_CONFIG['sessions']['domain'], 1);
 
             } else {
                 $test = $_CONFIG['sessions']['domain'];
             }
 
-            if(!strstr($domain, $test)) {
+            if (!strstr($domain, $test)) {
                 notify(array('code'    => 'configuration',
                              'groups'  => 'developers',
                              'title'   => tr('Invalid cookie domain'),
@@ -177,7 +177,7 @@ try{
      * Set session and cookie parameters
      */
     try{
-        if($_CONFIG['sessions']['enabled']) {
+        if ($_CONFIG['sessions']['enabled']) {
             /*
              * Force session cookie configuration
              */
@@ -190,15 +190,15 @@ try{
             ini_set('session.cookie_samesite', $_CONFIG['sessions']['same_site']);
             ini_set('session.use_strict_mode', $_CONFIG['sessions']['strict']);
 
-            if($_CONFIG['sessions']['check_referrer']) {
+            if ($_CONFIG['sessions']['check_referrer']) {
                 ini_set('session.referer_check', $domain);
             }
 
-            if(debug() or !$_CONFIG['cache']['http']['enabled']) {
+            if (debug() or !$_CONFIG['cache']['http']['enabled']) {
                  ini_set('session.cache_limiter', 'nocache');
 
             } else {
-                if($_CONFIG['cache']['http']['enabled'] === 'auto') {
+                if ($_CONFIG['cache']['http']['enabled'] === 'auto') {
                     ini_set('session.cache_limiter', $_CONFIG['cache']['http']['php_cache_limiter']);
                     ini_set('session.cache_expire' , $_CONFIG['cache']['http']['php_cache_expire']);
                 }
@@ -209,7 +209,7 @@ try{
             /*
              * Do not send cookies to crawlers!
              */
-            if(isset_get($core->register['session']['client']['type']) === 'crawler') {
+            if (isset_get($core->register['session']['client']['type']) === 'crawler') {
                 log_file(tr('Crawler ":crawler" on URL ":url"', array(':crawler' => $core->register['session']['client'], ':url' => (empty($_SERVER['HTTPS']) ? 'http' : 'https').'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'])), 'manage-session', 'white');
 
             } else {
@@ -253,10 +253,10 @@ try{
                  * Set cookie, but only if page is not API and domain has
                  * cookie configured
                  */
-                if($_CONFIG['sessions']['euro_cookies'] and empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+                if ($_CONFIG['sessions']['euro_cookies'] and empty($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
                     load_libs('geo,geoip');
 
-                    if(geoip_is_european()) {
+                    if (geoip_is_european()) {
                         /*
                          * All first visits to european countries require cookie permissions given!
                          */
@@ -265,13 +265,13 @@ try{
                     }
                 }
 
-                if(!$core->callType('api')) {
+                if (!$core->callType('api')) {
                     /*
                      *
                      */
                     try{
-                        if(isset($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
-                            if(!is_string($_COOKIE[$_CONFIG['sessions']['cookie_name']]) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+                        if (isset($_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+                            if (!is_string($_COOKIE[$_CONFIG['sessions']['cookie_name']]) or !preg_match('/[a-z0-9]{22,128}/i', $_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
                                 log_file(tr('Received invalid cookie ":cookie", dropping', array(':cookie' => $_COOKIE[$_CONFIG['sessions']['cookie_name']])), 'manage-session', 'yellow');
                                 unset($_COOKIE[$_CONFIG['sessions']['cookie_name']]);
                                 $_POST = array();
@@ -282,7 +282,7 @@ try{
                                  */
                                 session_start();
 
-                            } elseif(!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
+                            } elseif (!file_exists(ROOT.'data/cookies/sess_'.$_COOKIE[$_CONFIG['sessions']['cookie_name']])) {
                                 /*
                                  * Cookie code is valid, but it doesn't exist.
                                  *
@@ -295,7 +295,7 @@ try{
 
                                 session_start();
 
-                                if($_CONFIG['sessions']['notify_expired']) {
+                                if ($_CONFIG['sessions']['notify_expired']) {
                                     html_flash_set(tr('Your browser cookie was expired, or does not exist. You may have to sign in again'), 'warning');
                                 }
 
@@ -336,7 +336,7 @@ try{
                         }
                     }
 
-                    if($_CONFIG['security']['url_cloaking']['enabled'] and $_CONFIG['security']['url_cloaking']['strict']) {
+                    if ($_CONFIG['security']['url_cloaking']['enabled'] and $_CONFIG['security']['url_cloaking']['strict']) {
                         /*
                          * URL cloaking was enabled and requires strict checking.
                          *
@@ -346,19 +346,19 @@ try{
                          * Only check cloaking rules if we are NOT displaying a
                          * system page
                          */
-                        if(!$core->callType('system')) {
-                            if(empty($core->register['url_cloak_users_id'])) {
+                        if (!$core->callType('system')) {
+                            if (empty($core->register['url_cloak_users_id'])) {
                                 throw new CoreException(tr('startup-webpage(): Failed cloaked URL strict checking, no cloaked URL users_id registered'), 403);
                             }
 
-                            if($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']) {
+                            if ($core->register['url_cloak_users_id'] !== $_SESSION['user']['id']) {
                                 throw new CoreException(tr('startup-webpage(): Failed cloaked URL strict checking, cloaked URL users_id ":cloak_users_id" did not match the users_id ":session_users_id" of this session', array(':session_users_id' => $_SESSION['user']['id'], ':cloak_users_id' => $core->register['url_cloak_users_id'])), 403);
                             }
                         }
                     }
 
-                    if($_CONFIG['sessions']['regenerate_id']) {
-                        if(isset($_SESSION['created']) and (time() - $_SESSION['created'] > $_CONFIG['sessions']['regenerate_id'])) {
+                    if ($_CONFIG['sessions']['regenerate_id']) {
+                        if (isset($_SESSION['created']) and (time() - $_SESSION['created'] > $_CONFIG['sessions']['regenerate_id'])) {
                             /*
                              * Use "created" to monitor session id age and
                              * refresh it periodically to mitigate attacks on
@@ -369,8 +369,8 @@ try{
                         }
                     }
 
-                    if($_CONFIG['sessions']['lifetime']) {
-                        if(isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > $_CONFIG['sessions']['lifetime'])) {
+                    if ($_CONFIG['sessions']['lifetime']) {
+                        if (isset($_SESSION['last_activity']) and (time() - $_SESSION['last_activity'] > $_CONFIG['sessions']['lifetime'])) {
                             /*
                              * Session expired!
                              */
@@ -388,8 +388,8 @@ try{
                      */
                     $_SESSION['last_activity'] = time();
 
-                    if(isset($_SESSION['first_visit'])) {
-                        if($_SESSION['first_visit']) {
+                    if (isset($_SESSION['first_visit'])) {
+                        if ($_SESSION['first_visit']) {
                             $_SESSION['first_visit']--;
                         }
 
@@ -409,7 +409,7 @@ try{
                     /*
                      * Set users timezone
                      */
-                    if(empty($_SESSION['user']['timezone'])) {
+                    if (empty($_SESSION['user']['timezone'])) {
                         $_SESSION['user']['timezone'] = $_CONFIG['timezone']['display'];
 
                     } else {
@@ -426,14 +426,14 @@ try{
                             load_libs('user');
                             user_update($_SESSION['user']);
 
-                            $e = new BException(tr('core::manage_session(): Reset timezone for user ":user" to ":timezone"', array(':user' => name($_SESSION['user']), ':timezone' => $_SESSION['user']['timezone'])), $e);
+                            $e = new CoreException(tr('core::manage_session(): Reset timezone for user ":user" to ":timezone"', array(':user' => name($_SESSION['user']), ':timezone' => $_SESSION['user']['timezone'])), $e);
                             $e->makeWarning(true);
                             notify($e, true, false);
                         }
                     }
                 }
 
-                if(empty($_SESSION['init'])) {
+                if (empty($_SESSION['init'])) {
                     /*
                      * Initialize the session
                      */
@@ -447,7 +447,7 @@ try{
                 }
             }
 
-            if(!isset($_SESSION['cache'])) {
+            if (!isset($_SESSION['cache'])) {
                 $_SESSION['cache'] = array();
             }
         }
@@ -455,12 +455,12 @@ try{
         $_SESSION['domain'] = $domain;
 
     }catch(Exception $e) {
-        if($e->getRealCode() == 403) {
+        if ($e->getRealCode() == 403) {
             log_file($e->getMessage(), 403, 'yellow');
             $core->register['page_show'] = 403;
 
         } else {
-            if(!is_writable(session_save_path())) {
+            if (!is_writable(session_save_path())) {
                 throw new CoreException('core::manage_session(): Session startup failed because the session path ":path" is not writable for platform ":platform"', array(':path' => session_save_path(), ':platform' => PLATFORM), $e);
             }
 

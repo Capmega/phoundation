@@ -51,7 +51,7 @@ $files       = not_empty(cli_argument('--file', true), cli_argument('--files', '
 $source      = cli_argument('--source'     , true);
 $destination = cli_argument('--destination', true);
 
-if(cli_argument('--default') or cli_argument('--defaults')) {
+if (cli_argument('--default') or cli_argument('--defaults')) {
     $params = array();
 
 } else {
@@ -81,7 +81,7 @@ cli_no_arguments_left();
  * Check destination path
  */
 
-if($destination) {
+if ($destination) {
     $destination = Strings::slash($destination);
     file_ensure_path($destination);
 }
@@ -93,10 +93,10 @@ if($destination) {
  */
 $path = $source;
 
-if($source) {
+if ($source) {
     $source = Strings::slash(realpath($source));
 
-    if(!file_exists($source)) {
+    if (!file_exists($source)) {
         throw new CoreException(tr('The specified source path ":path" does not exist', array(':path' => $path)), 'not-exists');
     }
 }
@@ -106,18 +106,18 @@ if($source) {
 /*
  * Get file list to process
  */
-if(!$files) {
+if (!$files) {
     throw new CoreException(tr('No files specified'), 'not-specified');
 }
 
-if((is_string($files) and $files == 'all') or (is_array($files) and (reset($files) == 'all'))) {
+if ((is_string($files) and $files == 'all') or (is_array($files) and (reset($files) == 'all'))) {
     /*
      * All files in the specified source path
      */
     $files = scandir($source);
 }
 
-if(is_string($files)) {
+if (is_string($files)) {
     $files = array($files);
 }
 
@@ -131,16 +131,16 @@ log_console(tr('Checking source files'));
 foreach($files as $key => &$file) {
     $file = trim($file);
 
-    if(($file == '.') or ($file == '..')) {
+    if (($file == '.') or ($file == '..')) {
         unset($files[$key]);
         continue;
     }
 
-    if(!file_exists($source.$file)) {
+    if (!file_exists($source.$file)) {
         throw new CoreException(tr('Specified file ":file" does not exist', array(':file' => $source.$file)));
     }
 
-    if(file_exists($destination.$file) and ($destination.$file != $source.$file)) {
+    if (file_exists($destination.$file) and ($destination.$file != $source.$file)) {
         throw new CoreException(tr('Specified file ":file" already exists in the destination', array(':file' => $destination.$file)));
     }
 }
@@ -154,7 +154,7 @@ log_console(tr('Converting ":count" images', array(':count' => count($files))), 
  *
  */
 foreach($files as &$file) {
-    if(VERBOSE) {
+    if (VERBOSE) {
         log_dot($file);
 
     } else {
@@ -167,7 +167,7 @@ foreach($files as &$file) {
 
 unset($file);
 
-if(!VERBOSE) {
+if (!VERBOSE) {
     log_dot(false);
 }
 ?>

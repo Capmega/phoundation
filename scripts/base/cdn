@@ -105,7 +105,7 @@ switch(cli_method()) {
          * have any listings
          */
         foreach($_CONFIG['cdn']['servers'] as $server) {
-            if(!isset($list[$server])) {
+            if (!isset($list[$server])) {
                 $list[$server] = 0;
             }
         }
@@ -115,7 +115,7 @@ switch(cli_method()) {
         log_console(tr('CDN#      LISTING COUNT      IMAGE COUNT     VIDEOS COUNT'), '', 'cyan');
 
         foreach($list as $cdn => $count) {
-           if(!in_array($cdn, $_CONFIG['cdn']['servers'])) {
+           if (!in_array($cdn, $_CONFIG['cdn']['servers'])) {
                log_console(str_size($cdn, 4).'   '.str_size($count, 16, ' ', true).' '.str_size(isset_get($images[$cdn], 0), 16, ' ', true).' '.str_size(isset_get($videos[$cdn], 0), 16, ' ', true).'     NOT CONFIGURED!', '', 'yellow');
 
            } else {
@@ -162,14 +162,14 @@ switch(cli_method()) {
         $listing = cli_argument(1);
         cli_no_arguments_left();
 
-        if($listing) {
-            if(!is_numeric($listing)) {
+        if ($listing) {
+            if (!is_numeric($listing)) {
                 throw new CoreException(tr('Invalid listing ":listing" specified', array(':listing' => $listing)), 'invalid');
             }
 
             $r = sql_query('SELECT `id`, `status`, `cdn` FROM `listings` WHERE `id` = :id', array(':id' => $listing));
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 throw new CoreException(tr('Listing ":listing" does not exist', array(':listing' => $listing)), 'not-exists');
             }
 
@@ -187,7 +187,7 @@ switch(cli_method()) {
 
             unset($result);
 
-            if($listing['status'] !== null) {
+            if ($listing['status'] !== null) {
                 $color  = 'yellow';
                 $result = 'NOT TESTED';
 
@@ -220,7 +220,7 @@ switch(cli_method()) {
                     }
                 }
 
-                if(empty($result)) {
+                if (empty($result)) {
                     $result[] = '200 OK';
                 }
 
@@ -241,33 +241,33 @@ switch(cli_method()) {
         $cdn         = cli_argument('cdn');
         cli_no_arguments_left();
 
-        if(!$cdn) {
+        if (!$cdn) {
             throw new CoreException(tr('No CDN specified'), 'not-specified');
         }
 
-        if(!is_numeric($cdn)) {
+        if (!is_numeric($cdn)) {
             throw new CoreException(tr('Invalid CDN ":cdn" specified, must be numeric', array(':cdn' => $cdn)), 'invalid');
         }
 
-        if(!in_array($cdn, $_CONFIG['cdn']['servers'])) {
+        if (!in_array($cdn, $_CONFIG['cdn']['servers'])) {
             throw new CoreException(tr('Non existing CDN ":cdn" specified, must be one of ":list"', array(':cdn' => $cdn, ':list' => implode(',', $_CONFIG['cdn']['servers']))), 'not-exists');
         }
 
-        if($cdn == $_CONFIG['cdn']['this']) {
+        if ($cdn == $_CONFIG['cdn']['this']) {
             throw new CoreException(tr('Cannot move files to CDN ":cdn", because that is the current CDN server', array(':cdn' => $cdn)), 'not-exists');
         }
 
-        if(!$listings_id) {
+        if (!$listings_id) {
             throw new CoreException(tr('No listing specified'), 'not-specified');
         }
 
         $listing = sql_get('SELECT `id`, `cdn` FROM `listings` WHERE `id` = :id', array(':id' => $listings_id));
 
-        if(!$listing) {
+        if (!$listing) {
             throw new CoreException(tr('Non existing listing ":listing" specified', array(':listing' => $listings_id)), 'not-exists');
         }
 
-        if($listing['cdn'] == $cdn) {
+        if ($listing['cdn'] == $cdn) {
             throw new CoreException(tr('Listing ":listing" already has its files on cdn ":cdn"', array(':listing' => $listings_id, ':cdn' => $cdn)), 'not-exists');
         }
 

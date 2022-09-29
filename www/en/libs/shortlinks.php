@@ -65,7 +65,7 @@ function shortlink_validate($link) {
         /*
          * Validate name
          */
-        if($link['name']) {
+        if ($link['name']) {
             $v->hasMinChars($link['name'],  2, tr('Please ensure the link name has at least 2 characters'));
 
         } else {
@@ -75,7 +75,7 @@ function shortlink_validate($link) {
         /*
          * Validate description
          */
-        if($link['description']) {
+        if ($link['description']) {
             $v->hasMinChars($link['description'], 16, tr('Please ensure the link description has at least 16 characters'));
             $v->hasMaxChars($link['description'], 2047, tr('Please ensure the link description has less than 2047 characters'));
 
@@ -214,7 +214,7 @@ function shortlink_get_code() {
             $code   = str_random(8);
             $exists = sql_get('SELECT `id` FROM `shortlinks` WHERE `code` = :code', true, array(':code' => $code));
 
-            if($exists) {
+            if ($exists) {
                 log_file(tr('Generated random code ":code" already exists for entry ":entry", trying a new code', array(':code' => $code, ':entry' => $exists)), 'shortlink', 'yellow');
                 continue;
             }
@@ -259,7 +259,7 @@ function shortlink_redirect($code) {
     try{
         $url = sql_get('SELECT `url` FROM `shortlinks` WHERE `code` = :code', true, array('code' => $code));
 
-        if(!$url) {
+        if (!$url) {
             /*
              * Specified shortlink code does not exist
              */
@@ -399,7 +399,7 @@ under_construction();
 
                 $result = json_decode_custom($result);
 
-                if(empty($result['link'])) {
+                if (empty($result['link'])) {
                     throw new CoreException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
                 }
 

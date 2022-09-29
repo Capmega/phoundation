@@ -16,7 +16,7 @@ $doubles = sql_query('SELECT   COUNT(`servers`.`id`) AS `count`,
 
                       GROUP BY `servers`.`hostname`');
 
-if($doubles->rowCount()) {
+if ($doubles->rowCount()) {
     while($double = sql_fetch($doubles)) {
         $servers = sql_query(' SELECT `id` FROM `servers` WHERE `hostname` = :hostname', array(':hostname' => $double['hostname']));
 
@@ -26,7 +26,7 @@ if($doubles->rowCount()) {
             sql_query(' DELETE FROM `servers_hostnames` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id));
             sql_query(' DELETE FROM `servers`           WHERE `id`         = :id'        , array(':id'         => $servers_id));
 
-            if(--$double['count'] >= 1) {
+            if (--$double['count'] >= 1) {
                 break;
             }
         }

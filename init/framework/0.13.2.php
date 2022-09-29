@@ -46,7 +46,7 @@ while($keyword = sql_fetch($r)) {
                array(':id'       => $keyword['id'],
                      ':blogs_id' => $keyword['blogs_id']));
 
-    if($count++ > 5) {
+    if ($count++ > 5) {
         log_console('.', '', 'green', false);
     }
 }

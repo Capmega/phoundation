@@ -37,12 +37,12 @@ switch($_CONFIG['crypto']['backend']) {
 function crypto_currencies_supported($currencies) {
     global $_CONFIG;
 
-    if(!$currencies) {
+    if (!$currencies) {
         return false;
     }
 
     foreach(Arrays::force($currencies) as $currency) {
-        if(!in_array($currency, $_CONFIG['crypto']['currencies'])) {
+        if (!in_array($currency, $_CONFIG['crypto']['currencies'])) {
             throw new CoreException(tr('crypto_currencies_supported(): Specified currency ":currency" is not supported', array(':currency' => $currency)), 'not-supported');
         }
     }
@@ -61,7 +61,7 @@ function crypto_validate_transaction($transaction, $provider) {
 //        $v = new ValidateForm($transaction, 'users_id,status,status_text,type,mode,currency,confirms,api_transactions_id,tx_id,address,amount,amounti,amount_usd,fee,feei,exchange_rate,merchant,description');
         $v = new ValidateForm($transaction, 'createdon,modifiedon,users_id,status,status_text,type,mode,currency,confirms,api_transactions_id,tx_id,merchant,address,amount,amounti,amount_btc,amount_usd,amount_usd_rounded,fee,feei,exchange_rate,description,data');
 
-        if($transaction['currency'] != 'internal') {
+        if ($transaction['currency'] != 'internal') {
             crypto_currencies_supported($transaction['currency']);
         }
 
@@ -132,7 +132,7 @@ function crypto_get_transaction($transactions_id) {
                                 array(':id' => $transactions_id));
 
 
-        if(empty($transaction)) {
+        if (empty($transaction)) {
             throw new CoreException(tr('crypto_get_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transactions_id)), 'not-exists');
         }
 
@@ -152,7 +152,7 @@ function crypto_write_transaction($transaction, $provider) {
     global $_CONFIG;
 
     try{
-        if(empty($transaction['id'])) {
+        if (empty($transaction['id'])) {
             /*
              *
              */
@@ -165,23 +165,23 @@ function crypto_write_transaction($transaction, $provider) {
              */
             $dbtransaction = crypto_get_transaction($transaction['id']);
 
-            if(empty($dbtransaction)) {
+            if (empty($dbtransaction)) {
                 throw new CoreException(tr('crypto_write_transaction(): Specified transaction ":transaction" does not exist', array(':transaction' => $transaction['id'])), 'not-exists');
             }
 
-            if(isset($transaction['data'])) {
+            if (isset($transaction['data'])) {
                 $data = $transaction['data'];
             }
 
             $transaction = sql_merge($dbtransaction, $transaction, 'id');
             $transaction = crypto_validate_transaction($transaction, $provider);
 
-            if(!empty($data)) {
+            if (!empty($data)) {
                 $transaction['data'] = json_encode_custom($data);
             }
         }
 
-        if($provider == 'internal') {
+        if ($provider == 'internal') {
             $transaction['currency']           = 'internal';
             $transaction['exchange_rate']      = 0;
 //            $transaction['amount_usd']         = 0;
@@ -195,12 +195,12 @@ function crypto_write_transaction($transaction, $provider) {
             $transaction['amount_usd_rounded'] = floor($transaction['amount_usd'] * 100) / 100;
         }
 
-        if($_CONFIG['production']) {
+        if ($_CONFIG['production']) {
             /*
              * Internal transactions will always have users_id specified
              */
-            if($provider == 'internal') {
-                if(empty($transaction['users_id'])) {
+            if ($provider == 'internal') {
+                if (empty($transaction['users_id'])) {
                     throw new CoreException('crypto_write_transaction(): No users_id specified', 'not-specified');
                 }
 
@@ -265,7 +265,7 @@ function crypto_write_transaction($transaction, $provider) {
                          ':mod_status_text'        =>  $transaction['status_text'],
                          ':mod_status'             =>  $transaction['status']));
 
-        if(!$transaction['id']) {
+        if (!$transaction['id']) {
             $transaction['id'] = sql_insert_id();
         }
 
@@ -320,7 +320,7 @@ function crypto_get_exchange_rate($currency) {
     static $update;
 
     try{
-        if(!$currency) {
+        if (!$currency) {
             throw new CoreException('crypto_get_exchange_rate(): No currency specified', 'not-specified');
         }
 
@@ -337,11 +337,11 @@ function crypto_get_exchange_rate($currency) {
 
                                   array(':currency' => $currency));
 
-        if($exchange_rate) {
+        if ($exchange_rate) {
             return $exchange_rate['rate_btc'] / 100000000;
         }
 
-        if($update) {
+        if ($update) {
             throw new CoreException('crypto_get_exchange_rate(): Exchange rates have already been updated in this process', 'failed');
         }
 
@@ -363,7 +363,7 @@ function crypto_get_btc($amount, $currency) {
     global $_CONFIG;
 
     try{
-        if(strtoupper($currency) == 'BTC') {
+        if (strtoupper($currency) == 'BTC') {
             return $amount;
         }
 
@@ -494,7 +494,7 @@ function crypto_get_deposit_address($currency, $callback_url = null, $force = fa
                           array(':users_id' => $_SESSION['user']['id'],
                                 ':currency' => $currency));
 
-        if($exist and !$force) {
+        if ($exist and !$force) {
             /*
              * The user already has a wallet for this currency
              */
@@ -530,19 +530,19 @@ function crypto_get_deposit_address($currency, $callback_url = null, $force = fa
  */
 function crypto_display($amount, $currency) {
     try{
-        if($currency == 'internal') {
+        if ($currency == 'internal') {
             return $amount.tr(' Credits');
         }
 
-        if(!$amount) {
+        if (!$amount) {
             return '0 '.strtoupper($currency);
         }
 
-        if(($amount * 10000) < 1) {
+        if (($amount * 10000) < 1) {
             return ($amount * 1000000).' u'.strtoupper($currency);
         }
 
-        if(($amount * 10) < 1) {
+        if (($amount * 10) < 1) {
             return ($amount * 1000).' m'.strtoupper($currency);
         }
 

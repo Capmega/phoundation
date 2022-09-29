@@ -106,7 +106,7 @@ function decrypt($data, $key, $method = null) {
     global $core;
 
     try{
-        if($data === false) {
+        if ($data === false) {
             throw new CoreException(tr('decrypt(): base64_decode() asppears to have failed to decode data, probably invalid base64 string'), 'invalid');
         }
 
@@ -157,7 +157,7 @@ function crypt_pad_key($key, $character = '*') {
     global $_CONFIG;
 
     try{
-        if($_CONFIG['crypt']['min_key_size'] and (strlen($key) < $_CONFIG['crypt']['min_key_size'])) {
+        if ($_CONFIG['crypt']['min_key_size'] and (strlen($key) < $_CONFIG['crypt']['min_key_size'])) {
             $key = $key.str_repeat($character, $_CONFIG['crypt']['min_key_size'] - strlen($key));
         }
 

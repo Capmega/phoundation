@@ -32,7 +32,7 @@ function validate_library_init() {
         /*
          * Ensure all required PHP modules are available
          */
-        if(!extension_loaded('intl')) {
+        if (!extension_loaded('intl')) {
             try{
                 load_libs('linux');
                 linux_install_package(null, 'php-intl');
@@ -107,15 +107,15 @@ function verify_js($params) {
 
         $script = '';
 
-        if(debug()) {
+        if (debug()) {
             $script .= "$.verify.debug = true;\n";
             }
 
-        if($params['submit']) {
+        if ($params['submit']) {
             $script .= '$.verify.beforeSubmit = '.$params['submit'].";\n";
         }
 
-        if($params['rules']) {
+        if ($params['rules']) {
             foreach($params['rules'] as $name => $rule) {
                 $script .= '$.verify.addRules({
                                 '.$name.' : '.$rule.'
@@ -123,7 +123,7 @@ function verify_js($params) {
             }
         }
 
-        if($params['group_rules']) {
+        if ($params['group_rules']) {
             foreach($params['group_rules'] as $rule) {
                 $script .= '$.verify.addGroupRules({
                                '.$rule.'
@@ -206,17 +206,17 @@ class ValidateJquery {
             load_libs('array');
             html_load_js('base/jquery.validate');
 
-            if(!is_string($params)) {
-                if(!is_array($params)) {
+            if (!is_string($params)) {
+                if (!is_array($params)) {
                     throw new CoreException('ValidateJquery->outputValidation(): Invalid $params specified. Must be either string, or assoc array containing at least "id"');
                 }
 
-                if(empty($params['id'])) {
+                if (empty($params['id'])) {
                     throw new CoreException('ValidateJquery->outputValidation(): Invalid $params specified. Must be either string, or assoc array containing at least "id"');
                 }
 
             } else {
-                if(!$params) {
+                if (!$params) {
                     throw new CoreException('ValidateJquery->outputValidation(): Empty $params specified');
                 }
 
@@ -235,10 +235,10 @@ class ValidateJquery {
                     $kom2  = '';
 
                     foreach($validations as $val) {
-                        if(($val['value'] != 'true') and ($val['value'] != 'false')) {
+                        if (($val['value'] != 'true') and ($val['value'] != 'false')) {
                             $val['value'] = '"'.$val['value'].'"';
 
-                            if($val['rule'] == 'regex') {
+                            if ($val['rule'] == 'regex') {
                                 /*
                                  * Don't forget to add the regular expression extension!
                                  */
@@ -274,15 +274,15 @@ class ValidateJquery {
 
                 $html .= '}';
 
-                if(!empty($params['submithandler'])) {
-                    if(!empty($params['quickhandler'])) {
+                if (!empty($params['submithandler'])) {
+                    if (!empty($params['quickhandler'])) {
                         throw new CoreException('ValidateJquery::outputValidation(): Both submithandler and quickhandler are specified, these handlers are mutually exclusive');
                     }
 
                     $html .= ",\n".'submitHandler : function(form) {'.$params['submithandler'].'}';
 
-                } elseif(!empty($params['quickhandler'])) {
-                    if(!is_array($params['quickhandler'])) {
+                } elseif (!empty($params['quickhandler'])) {
+                    if (!is_array($params['quickhandler'])) {
                         throw new CoreException('ValidateJquery::outputValidation(): Invalid quickhandler specified, it should be an assoc array');
                     }
 
@@ -290,7 +290,7 @@ class ValidateJquery {
 
 // :DELETE: These checks are no longer necesary since now we have default values
                     //foreach(array('target', 'fail') as $key) {
-                    //    if(empty($handler[$key])) {
+                    //    if (empty($handler[$key])) {
                     //        throw new CoreException('ValidateJquery::outputValidation(): No quickhandler key "'.$key.'" specified');
                     //    }
                     //}
@@ -309,32 +309,32 @@ class ValidateJquery {
                 //return false;';
                 }
 
-                if(!empty($params['onsubmit'])) {
+                if (!empty($params['onsubmit'])) {
                     $html .= ",\nonsubmit : ".$params['onsubmit']."\n";
                 }
 
-                if(!empty($params['invalidhandler'])) {
+                if (!empty($params['invalidhandler'])) {
                     $html .= ",\ninvalidHandler: function(error, validator) {".$params['invalidhandler']."}\n";
                 }
 
-                if(!empty($params['errorplacement'])) {
+                if (!empty($params['errorplacement'])) {
                     $html .= ",\nerrorPlacement : function(error, element) {".$params['errorplacement']."}\n";
                 }
 
                 $html .= "});\n";
 
-                if(!empty($params['quickhandler'])) {
+                if (!empty($params['quickhandler'])) {
                     $html .= "var cbe = function(e) {".$handler['fail']."};\n";
                 }
 
             $html .= "\n";
 
 
-            if($script) {
+            if ($script) {
                 $html .= $script."\n";
             }
 
-            if(!empty($addregex)) {
+            if (!empty($addregex)) {
                 $html .= '$.validator.addMethod(
                             "regex",
                             function(value, element, regexp) {
@@ -379,8 +379,8 @@ class ValidateForm {
      */
     function __construct(&$source = null, $columns = null, $invalidate_more_columns = false, $default_value = null) {
         try{
-            if(!is_array($source)) {
-                if($source !== null) {
+            if (!is_array($source)) {
+                if ($source !== null) {
                     /*
                      * Specified source has an invalid data source!
                      */
@@ -392,8 +392,8 @@ class ValidateForm {
 
             Arrays::ensure($source, $columns, $default_value, true);
 
-            if($invalidate_more_columns) {
-                if(!is_bool($invalidate_more_columns)) {
+            if ($invalidate_more_columns) {
+                if (!is_bool($invalidate_more_columns)) {
                     /*
                      * Also automatically limit REQUEST_METHOD
                      */
@@ -409,12 +409,12 @@ class ValidateForm {
                 $columns['limit'] = true;
 
                 foreach($source as $key => $value) {
-                    if(!array_key_exists($key, $columns)) {
+                    if (!array_key_exists($key, $columns)) {
                         $unknown[] = $key;
                    }
                 }
 
-                if(isset($unknown)) {
+                if (isset($unknown)) {
                     throw new CoreException(tr('ValidateForm::__construct(): Specified source ":source" contains unknown columns ":unknown"', array(':source' => $source, ':unknown' => $unknown)), 'validation');
                 }
             }
@@ -435,64 +435,64 @@ class ValidateForm {
             $this->not        = false;
             $this->scalar     = is_scalar($value);
 
-            if(!$flags) {
+            if (!$flags) {
                 $this->testValue = $value;
 
             } else {
-                if(!is_natural($flags)) {
+                if (!is_natural($flags)) {
                     throw new CoreException(tr('ValidateForm::parseFlags(): Invalid flags ":flags" specified, it should be a natural number value', array(':flags' => $flags)), 'invalid');
                 }
 
-                if($flags & VALIDATE_NOT) {
+                if ($flags & VALIDATE_NOT) {
                     $this->not = true;
                 }
 
-                if($flags & VALIDATE_ALLOW_EMPTY_NULL) {
+                if ($flags & VALIDATE_ALLOW_EMPTY_NULL) {
                     $this->allowEmpty = null;
 
-                } elseif($flags & VALIDATE_ALLOW_EMPTY_INTEGER) {
+                } elseif ($flags & VALIDATE_ALLOW_EMPTY_INTEGER) {
                     $this->allowEmpty = 0;
 
-                } elseif($flags & VALIDATE_ALLOW_EMPTY_BOOLEAN) {
+                } elseif ($flags & VALIDATE_ALLOW_EMPTY_BOOLEAN) {
                     $this->allowEmpty = false;
 
-                } elseif($flags & VALIDATE_ALLOW_EMPTY_STRING) {
+                } elseif ($flags & VALIDATE_ALLOW_EMPTY_STRING) {
                     $this->allowEmpty = '';
                 }
 
-                if($value) {
+                if ($value) {
                     /*
                      * Ignore special characters?
                      */
-                    if($flags & VALIDATE_IGNORE_DOT) {
+                    if ($flags & VALIDATE_IGNORE_DOT) {
                         /*
                          * . characters are allowed, remove them from the test value
                          */
                         $replace[] = '.';
                     }
 
-                    if($flags & VALIDATE_IGNORE_COMMA) {
+                    if ($flags & VALIDATE_IGNORE_COMMA) {
                         /*
                          * , characters are allowed, remove them from the test value
                          */
                         $replace[] = ',';
                     }
 
-                    if($flags & VALIDATE_IGNORE_DASH) {
+                    if ($flags & VALIDATE_IGNORE_DASH) {
                         /*
                          * - characters are allowed, remove them from the test value
                          */
                         $replace[] = '-';
                     }
 
-                    if($flags & VALIDATE_IGNORE_UNDERSCORE) {
+                    if ($flags & VALIDATE_IGNORE_UNDERSCORE) {
                         /*
                          * - characters are allowed, remove them from the test value
                          */
                         $replace[] = '_';
                     }
 
-                    if($flags & VALIDATE_IGNORE_SLASH) {
+                    if ($flags & VALIDATE_IGNORE_SLASH) {
                         /*
                          * / or \ characters are allowed, remove them from the test value
                          */
@@ -500,112 +500,112 @@ class ValidateForm {
                         $replace[] = '\\';
                     }
 
-                    if($flags & VALIDATE_IGNORE_CARET) {
+                    if ($flags & VALIDATE_IGNORE_CARET) {
                         /*
                          * \t characters are allowed, remove them from the test value
                          */
                         $replace[] = '^';
                     }
 
-                    if($flags & VALIDATE_IGNORE_COLON) {
+                    if ($flags & VALIDATE_IGNORE_COLON) {
                         /*
                          * : characters are allowed, remove them from the test value
                          */
                         $replace[] = ':';
                     }
 
-                    if($flags & VALIDATE_IGNORE_SEMICOLON) {
+                    if ($flags & VALIDATE_IGNORE_SEMICOLON) {
                         /*
                          * ; characters are allowed, remove them from the test value
                          */
                         $replace[] = ';';
                     }
 
-                    if($flags & VALIDATE_IGNORE_QUESTIONMARK) {
+                    if ($flags & VALIDATE_IGNORE_QUESTIONMARK) {
                         /*
                          * ? characters are allowed, remove them from the test value
                          */
                         $replace[] = '?';
                     }
 
-                    if($flags & VALIDATE_IGNORE_EXCLAMATIONMARK) {
+                    if ($flags & VALIDATE_IGNORE_EXCLAMATIONMARK) {
                         /*
                          * ! characters are allowed, remove them from the test value
                          */
                         $replace[] = '!';
                     }
 
-                    if($flags & VALIDATE_IGNORE_AT) {
+                    if ($flags & VALIDATE_IGNORE_AT) {
                         /*
                          * @ characters are allowed, remove them from the test value
                          */
                         $replace[] = '@';
                     }
 
-                    if($flags & VALIDATE_IGNORE_POUND) {
+                    if ($flags & VALIDATE_IGNORE_POUND) {
                         /*
                          * # characters are allowed, remove them from the test value
                          */
                         $replace[] = '#';
                     }
 
-                    if($flags & VALIDATE_IGNORE_PERCENT) {
+                    if ($flags & VALIDATE_IGNORE_PERCENT) {
                         /*
                          * % characters are allowed, remove them from the test value
                          */
                         $replace[] = '%';
                     }
 
-                    if($flags & VALIDATE_IGNORE_DOLLAR) {
+                    if ($flags & VALIDATE_IGNORE_DOLLAR) {
                         /*
                          * $ characters are allowed, remove them from the test value
                          */
                         $replace[] = '$';
                     }
 
-                    if($flags & VALIDATE_IGNORE_AMPERSANT) {
+                    if ($flags & VALIDATE_IGNORE_AMPERSANT) {
                         /*
                          * & characters are allowed, remove them from the test value
                          */
                         $replace[] = '&';
                     }
 
-                    if($flags & VALIDATE_IGNORE_ASTERISK) {
+                    if ($flags & VALIDATE_IGNORE_ASTERISK) {
                         /*
                          * * characters are allowed, remove them from the test value
                          */
                         $replace[] = '*';
                     }
 
-                    if($flags & VALIDATE_IGNORE_PLUS) {
+                    if ($flags & VALIDATE_IGNORE_PLUS) {
                         /*
                          * + characters are allowed, remove them from the test value
                          */
                         $replace[] = '+';
                     }
 
-                    if($flags & VALIDATE_IGNORE_EQUALSIGN) {
+                    if ($flags & VALIDATE_IGNORE_EQUALSIGN) {
                         /*
                          * = characters are allowed, remove them from the test value
                          */
                         $replace[] = '=';
                     }
 
-                    if($flags & VALIDATE_IGNORE_PIPE) {
+                    if ($flags & VALIDATE_IGNORE_PIPE) {
                         /*
                          * | characters are allowed, remove them from the test value
                          */
                         $replace[] = '|';
                     }
 
-                    if($flags & VALIDATE_IGNORE_TILDE) {
+                    if ($flags & VALIDATE_IGNORE_TILDE) {
                         /*
                          * ~ characters are allowed, remove them from the test value
                          */
                         $replace[] = '~';
                     }
 
-                    if($flags & VALIDATE_IGNORE_SQUAREBRACKETS) {
+                    if ($flags & VALIDATE_IGNORE_SQUAREBRACKETS) {
                         /*
                          * [] characters are allowed, remove them from the test value
                          */
@@ -613,7 +613,7 @@ class ValidateForm {
                         $replace[] = ']';
                     }
 
-                    if($flags & VALIDATE_IGNORE_CURLYBRACKETS) {
+                    if ($flags & VALIDATE_IGNORE_CURLYBRACKETS) {
                         /*
                          * {} characters are allowed, remove them from the test value
                          */
@@ -621,7 +621,7 @@ class ValidateForm {
                         $replace[] = '}';
                     }
 
-                    if($flags & VALIDATE_IGNORE_PARENTHESES) {
+                    if ($flags & VALIDATE_IGNORE_PARENTHESES) {
                         /*
                          * () characters are allowed, remove them from the test value
                          */
@@ -629,21 +629,21 @@ class ValidateForm {
                         $replace[] = ')';
                     }
 
-                    if($flags & VALIDATE_IGNORE_SINGLEQUOTES) {
+                    if ($flags & VALIDATE_IGNORE_SINGLEQUOTES) {
                         /*
                          * ' characters are allowed, remove them from the test value
                          */
                         $replace[] = "'";
                     }
 
-                    if($flags & VALIDATE_IGNORE_DOUBLEQUOTES) {
+                    if ($flags & VALIDATE_IGNORE_DOUBLEQUOTES) {
                         /*
                          * " characters are allowed, remove them from the test value
                          */
                         $replace[] = '"';
                     }
 
-                    if($flags & VALIDATE_IGNORE_SPACE) {
+                    if ($flags & VALIDATE_IGNORE_SPACE) {
                         /*
                          *   characters are allowed, remove them from the test value
                          */
@@ -654,11 +654,11 @@ class ValidateForm {
                 /*
                  * Ignore certain characters?
                  */
-                if(empty($replace)) {
+                if (empty($replace)) {
                     $this->testValue = $value;
 
                 } else {
-                    if(!$this->scalar) {
+                    if (!$this->scalar) {
                         $this->setError($message);
                         $this->testValue = $value;
 
@@ -667,7 +667,7 @@ class ValidateForm {
                     }
                 }
 
-                if($flags & VALIDATE_IGNORE_HTML) {
+                if ($flags & VALIDATE_IGNORE_HTML) {
                     /*
                      * Ignore HTML
                      */
@@ -677,7 +677,7 @@ class ValidateForm {
 
             }
 
-            if(!$allowEmpty and ($this->allowEmpty !== 'no')) {
+            if (!$allowEmpty and ($this->allowEmpty !== 'no')) {
                 /*
                  * The function executing this validation says its okay for a
                  * variable to be empty, even though this variable can never
@@ -702,11 +702,11 @@ class ValidateForm {
      */
     private function allowEmpty(&$value, $message = null) {
         try{
-            if(!empty($value)) {
+            if (!empty($value)) {
                 return true;
             }
 
-            if($this->allowEmpty) {
+            if ($this->allowEmpty) {
                 /*
                  * This is contradictory, but being here it means that $value
                  * is empty, but $empty is not, so $value is NOT allowed to
@@ -735,18 +735,18 @@ class ValidateForm {
         global $_CONFIG;
 
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if($this->not xor !is_scalar($value)) {
+            if ($this->not xor !is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(is_string($value)) {
+            if (is_string($value)) {
                 $value = normalizer_normalize($value, isset_get($_CONFIG['locale']['normalize'], Normalizer::FORM_C));
 
-            } elseif(is_bool($value)) {
+            } elseif (is_bool($value)) {
                 /*
                  * A rather unpleasant PHP bug may make PDO inserts fail
                  * silently when using PDO::ATTR_EMULATE_PREPARES and inserting
@@ -775,15 +775,15 @@ class ValidateForm {
      */
     function isNotEmpty(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags, false)) {
+            if (!$this->parseFlags($value, $message, $flags, false)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor !$value) {
+            if ($this->not xor !$value) {
                 return $this->setError($message);
             }
 
@@ -802,15 +802,15 @@ class ValidateForm {
      */
     function isStatus(&$value, $message = null, $flags = VALIDATE_ALLOW_EMPTY_NULL) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor (($value !== '_new') and !$this->isRegex($value, '/[a-z-]{1,16}/', $message))) {
+            if ($this->not xor (($value !== '_new') and !$this->isRegex($value, '/[a-z-]{1,16}/', $message))) {
                 return $this->setError($message);
             }
 
@@ -890,11 +890,11 @@ class ValidateForm {
      */
     function isFilter(&$value, $filter_flags, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if($this->not xor !filter_var($this->testValue, $filter_flags)) {
+            if ($this->not xor !filter_var($this->testValue, $filter_flags)) {
                 return $this->setError($message);
             }
 
@@ -912,15 +912,15 @@ class ValidateForm {
      */
     function isNumeric(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!$value) {
+            if (!$value) {
                 $value = 0;
             }
 
-            if($this->not xor !is_numeric($this->testValue)) {
+            if ($this->not xor !is_numeric($this->testValue)) {
                 return $this->setError($message);
             }
 
@@ -938,22 +938,22 @@ class ValidateForm {
      */
     function isNatural(&$value, $start, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_numeric($start)) {
+            if (!is_numeric($start)) {
                 /*
                  * Assume the developer messed up and forgot to specify the $start value
                  */
-                notify(new BException(tr('ValidateForm::isNatural(): Invalid $start ":start" specified for test ":message", it should be an integer number (and probably) 0 or higher', array(':start' => $start, ':message' => $message)), 'warning/invalid'));
+                notify(new CoreException(tr('ValidateForm::isNatural(): Invalid $start ":start" specified for test ":message", it should be an integer number (and probably) 0 or higher', array(':start' => $start, ':message' => $message)), 'warning/invalid'));
 
                 $flags   = $message;
                 $message = $start;
                 $start   = 1;
             }
 
-            if($this->not xor !is_natural($this->testValue, $start)) {
+            if ($this->not xor !is_natural($this->testValue, $start)) {
                 return $this->setError($message);
             }
 
@@ -971,15 +971,15 @@ class ValidateForm {
      */
     function isAlpha(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor !ctype_alpha($this->testValue)) {
+            if ($this->not xor !ctype_alpha($this->testValue)) {
                 return $this->setError($message);
             }
 
@@ -997,15 +997,15 @@ class ValidateForm {
      */
     function isAlphaNumeric(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor !ctype_alnum($this->testValue)) {
+            if ($this->not xor !ctype_alnum($this->testValue)) {
                 return $this->setError($message);
             }
 
@@ -1023,19 +1023,19 @@ class ValidateForm {
      */
     function isHexadecimal(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(substr($this->testValue, 0, 2) == '0x') {
+            if (substr($this->testValue, 0, 2) == '0x') {
                 $this->testValue = substr($this->testValue, 2);
             }
 
-            if($this->not xor !preg_match('/[0-9a-f]+/i', $this->testValue)) {
+            if ($this->not xor !preg_match('/[0-9a-f]+/i', $this->testValue)) {
                return $this->setError($message);
             }
 
@@ -1053,11 +1053,11 @@ class ValidateForm {
      */
     function isPhonenumber(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
@@ -1066,7 +1066,7 @@ class ValidateForm {
             $ext   = Strings::from($phone, 'x');
             $phone = Strings::until($phone, 'x');
 
-            if($ext == $phone) {
+            if ($ext == $phone) {
                 /*
                  * Strings::from() found no 'x'
                  */
@@ -1075,14 +1075,14 @@ class ValidateForm {
 
             $this->testValue = $phone;
 
-            if($this->not xor (!is_numeric($phone) or ( strlen($phone) > 13))) {
+            if ($this->not xor (!is_numeric($phone) or ( strlen($phone) > 13))) {
                 return $this->setError($message);
             }
 
-            if($ext) {
+            if ($ext) {
                 $this->testValue = $phone.($ext ? 'x'.$ext : '');
 
-                if($this->not xor (!is_numeric($ext) or ( strlen($ext) > 6))) {
+                if ($this->not xor (!is_numeric($ext) or ( strlen($ext) > 6))) {
                     return $this->setError($message);
                 }
             }
@@ -1101,22 +1101,22 @@ class ValidateForm {
      */
     function isEqual(&$value, $value2, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags, false)) {
+            if (!$this->parseFlags($value, $message, $flags, false)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(!is_scalar($value2)) {
+            if (!is_scalar($value2)) {
                 return $this->setError($message);
             }
 
             $value  = trim($value);
             $value2 = trim($value2);
 
-            if($this->not xor $value != $value2) {
+            if ($this->not xor $value != $value2) {
                 return $this->setError($message);
             }
 
@@ -1134,22 +1134,22 @@ class ValidateForm {
     // */
     //function isNotEqual(&$value, $value2, $message = null, $flags = null) {
     //    try{
-    //        if(!$this->parseFlags($value, $message, $flags, false)) {
+    //        if (!$this->parseFlags($value, $message, $flags, false)) {
     //            return true;
     //        }
     //
-    //        if(!is_scalar($value)) {
+    //        if (!is_scalar($value)) {
     //            return $this->setError($message);
     //        }
     //
-    //        if(!is_scalar($value2)) {
+    //        if (!is_scalar($value2)) {
     //            return $this->setError($message);
     //        }
     //
     //        $value  = trim($value);
     //        $value2 = trim($value2);
     //
-    //        if($this->not xor $value == $value2) {
+    //        if ($this->not xor $value == $value2) {
     //            return $this->setError($message);
     //        }
     //
@@ -1167,19 +1167,19 @@ class ValidateForm {
      */
     function isBetween(&$value, $min, $max, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor (($this->testValue <= $min) and ($this->testValue >= $max))) {
+            if ($this->not xor (($this->testValue <= $min) and ($this->testValue >= $max))) {
                 return $this->setError($message);
             }
 
@@ -1197,15 +1197,15 @@ class ValidateForm {
      */
     function isEnabled(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags, false)) {
+            if (!$this->parseFlags($value, $message, $flags, false)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor !$value) {
+            if ($this->not xor !$value) {
                 return $this->setError($message);
             }
 
@@ -1223,16 +1223,16 @@ class ValidateForm {
      */
     function hasChars(&$value, $chars, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
             foreach(Arrays::force($chars) as $char) {
-                if($this->not xor !strpos($this->testValue, $char)) {
+                if ($this->not xor !strpos($this->testValue, $char)) {
                     return $this->setError($message);
                 }
             }
@@ -1254,16 +1254,16 @@ class ValidateForm {
      */
     function hasNoChars(&$value, $chars, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
             foreach(Arrays::force($chars) as $char) {
-                if($this->not xor strpos($this->testValue, $char)) {
+                if ($this->not xor strpos($this->testValue, $char)) {
                     return $this->setError($message);
                 }
             }
@@ -1282,15 +1282,15 @@ class ValidateForm {
      */
     function hasMinChars(&$value, $limit, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor (strlen($value) < $limit)) {
+            if ($this->not xor (strlen($value) < $limit)) {
                 return $this->setError($message);
             }
 
@@ -1308,15 +1308,15 @@ class ValidateForm {
      */
     function hasMaxChars(&$value, $limit, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor (strlen($value) > $limit)) {
+            if ($this->not xor (strlen($value) > $limit)) {
                 return $this->setError($message);
             }
 
@@ -1334,19 +1334,19 @@ class ValidateForm {
      */
     function isFacebookUserpage(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(!$this->isUrl($value, $message, $empty)) {
+            if (!$this->isUrl($value, $message, $empty)) {
                 return false;
             }
 
-            if($this->not xor !preg_match('/^(?:https?:\/\/)(?:www\.)?facebook\.com\/(.+)$/', $this->testValue)) {
+            if ($this->not xor !preg_match('/^(?:https?:\/\/)(?:www\.)?facebook\.com\/(.+)$/', $this->testValue)) {
                 return $this->setError($message);
             }
 
@@ -1364,19 +1364,19 @@ class ValidateForm {
      */
     function isTwitterUserpage(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(!$this->isUrl($value, $message, $empty)) {
+            if (!$this->isUrl($value, $message, $empty)) {
                 return false;
             }
 
-            if($this->not xor !preg_match('/^(?:https?:\/\/)(?:www\.)?twitter\.com\/(.+)$/', $this->testValue)) {
+            if ($this->not xor !preg_match('/^(?:https?:\/\/)(?:www\.)?twitter\.com\/(.+)$/', $this->testValue)) {
                 return $this->setError($message);
             }
 
@@ -1394,19 +1394,19 @@ class ValidateForm {
      */
     function isGoogleplusUserpage(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(!$this->isUrl($value, $message, $empty)) {
+            if (!$this->isUrl($value, $message, $empty)) {
                 return false;
             }
 
-            if($this->not xor !preg_match('/^(?:(?:https?:\/\/)?plus\.google\.com\/)(\d{21,})(?:\/posts)?$/', $this->testValue, $matches)) {
+            if ($this->not xor !preg_match('/^(?:(?:https?:\/\/)?plus\.google\.com\/)(\d{21,})(?:\/posts)?$/', $this->testValue, $matches)) {
                 return $this->setError($message);
             }
 
@@ -1424,19 +1424,19 @@ class ValidateForm {
      */
     function isYoutubeUserpage(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(!$this->isUrl($value, $message, $empty)) {
+            if (!$this->isUrl($value, $message, $empty)) {
                 return false;
             }
 
-            if($this->not xor preg_match('/^(?:https?:\/\/)(?:www\.)?youtube\.com\/user\/(.+)$/', $this->testValue)) {
+            if ($this->not xor preg_match('/^(?:https?:\/\/)(?:www\.)?youtube\.com\/user\/(.+)$/', $this->testValue)) {
                 return $this->setError($message);
             }
 
@@ -1454,19 +1454,19 @@ class ValidateForm {
      */
     function isLinkedinUserpage(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(!$this->isUrl($value, $message, $empty)) {
+            if (!$this->isUrl($value, $message, $empty)) {
                 return false;
             }
 
-            if($this->not xor !preg_match('/^(?:https?:\/\/)(?:www\.)?linkedin\.com\/(.+)$/', $this->testValue)) {
+            if ($this->not xor !preg_match('/^(?:https?:\/\/)(?:www\.)?linkedin\.com\/(.+)$/', $this->testValue)) {
                 return $this->setError($message);
             }
 
@@ -1484,11 +1484,11 @@ class ValidateForm {
      */
     function isChecked(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags, false)) {
+            if (!$this->parseFlags($value, $message, $flags, false)) {
                 return true;
             }
 
-            if($this->not xor !$value) {
+            if ($this->not xor !$value) {
                 return $this->setError($message);
             }
 
@@ -1506,15 +1506,15 @@ class ValidateForm {
      */
     function isRegex(&$value, $regex, $message = null, $flags = null) {
          try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor !preg_match($regex, $this->testValue)) {
+            if ($this->not xor !preg_match($regex, $this->testValue)) {
                return $this->setError($message);
             }
 
@@ -1532,15 +1532,15 @@ class ValidateForm {
      */
     function isText(&$value, $message = null, $flags = null) {
          try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor !preg_match('/[a-z0-9,.:;"\'!?@#$%^&*\(\)\[\]\{\}\|\/+=_-]/i', $this->testValue)) {
+            if ($this->not xor !preg_match('/[a-z0-9,.:;"\'!?@#$%^&*\(\)\[\]\{\}\|\/+=_-]/i', $this->testValue)) {
                return $this->setError($message);
             }
 
@@ -1597,11 +1597,11 @@ class ValidateForm {
      */
     function isTime(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
@@ -1611,21 +1611,21 @@ class ValidateForm {
                 time_validate($this->testValue);
 
             }catch(Exception $e) {
-                if($this->not) {
+                if ($this->not) {
                     return true;
                 }
 
                 return $this->setError($message);
             }
 
-            if($this->not) {
+            if ($this->not) {
                 return $this->setError($message);
             }
 
             return true;
 
         }catch(Exception $e) {
-            if($e->getCode() == 'invalid') {
+            if ($e->getCode() == 'invalid') {
                 throw new CoreException(tr('ValidateForm->isTime(): Specified time ":value" is invalid', array(':value' => $value)), $e);
             }
 
@@ -1640,22 +1640,22 @@ class ValidateForm {
      */
     function isLatitude(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!$this->isNumeric($value, $message)) {
+            if (!$this->isNumeric($value, $message)) {
                 return false;
             }
 
-            if($this->not xor (($this->testValue < -90) or ($this->testValue > 90))) {
+            if ($this->not xor (($this->testValue < -90) or ($this->testValue > 90))) {
                 return $this->setError($message);
             }
 
             return true;
 
         }catch(Exception $e) {
-            if($e->getCode() == 'invalid') {
+            if ($e->getCode() == 'invalid') {
                 throw new CoreException(tr('ValidateForm->isLatitude(): Specified latitude ":value" is invalid', array(':value' => $value)), $e);
             }
 
@@ -1670,22 +1670,22 @@ class ValidateForm {
      */
     function isLongitude(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!$this->isNumeric($value, $message)) {
+            if (!$this->isNumeric($value, $message)) {
                 return false;
             }
 
-            if($this->not xor (($this->testValue < -180) or ($this->testValue > 180))) {
+            if ($this->not xor (($this->testValue < -180) or ($this->testValue > 180))) {
                 return $this->setError($message);
             }
 
             return true;
 
         }catch(Exception $e) {
-            if($e->getCode() == 'invalid') {
+            if ($e->getCode() == 'invalid') {
                 throw new CoreException(tr('ValidateForm->isLongitude(): Specified longitude ":value" is invalid', array(':value' => $value)), $e);
             }
 
@@ -1700,17 +1700,17 @@ class ValidateForm {
      */
     function isTimezone(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
             load_libs('date');
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor !date_timezones_exists($this->testValue)) {
+            if ($this->not xor !date_timezones_exists($this->testValue)) {
                 return $this->setError($message);
             }
 
@@ -1728,17 +1728,17 @@ class ValidateForm {
      */
     function isPassword(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
             load_libs('user');
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if(user_password_strength($value)) {
+            if (user_password_strength($value)) {
                 return true;
             }
 
@@ -1756,17 +1756,17 @@ class ValidateForm {
      */
     function hasNoHTML(&$value, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
             $clean = strip_tags($value);
 
-            if($clean === $value) {
+            if ($clean === $value) {
                 return true;
             }
 
@@ -1785,15 +1785,15 @@ class ValidateForm {
      */
     function inArray(&$value, $array, $message = null, $flags = null) {
         try{
-            if(!$this->parseFlags($value, $message, $flags)) {
+            if (!$this->parseFlags($value, $message, $flags)) {
                 return true;
             }
 
-            if(!is_scalar($value)) {
+            if (!is_scalar($value)) {
                 return $this->setError($message);
             }
 
-            if($this->not xor !in_array($this->testValue, Arrays::force($array))) {
+            if ($this->not xor !in_array($this->testValue, Arrays::force($array))) {
                 return $this->setError($message);
             }
 
@@ -1835,11 +1835,11 @@ class ValidateForm {
      */
     function setError($message) {
         try{
-            if(!$message) {
+            if (!$message) {
                 return false;
             }
 
-            if(is_object($message) and $message instanceof BException) {
+            if (is_object($message) and $message instanceof CoreException) {
                 $message = Strings::from($message->getMessage(), '():');
             }
 
@@ -1858,7 +1858,7 @@ class ValidateForm {
      */
     function isValid($throw_exception = true) {
         try{
-            if($this->errors and $throw_exception) {
+            if ($this->errors and $throw_exception) {
                 throw new CoreException($this->errors, 'warning/validation');
             }
 
@@ -1876,13 +1876,13 @@ class ValidateForm {
      */
     function listErrors($separator = null) {
         try{
-            if(!count($this->errors)) {
+            if (!count($this->errors)) {
                 return null;
             }
 
-            if($separator) {
-                if($separator === true) {
-                    if(PLATFORM_HTTP) {
+            if ($separator) {
+                if ($separator === true) {
+                    if (PLATFORM_HTTP) {
                         $separator = '<br />';
 
                     } else {

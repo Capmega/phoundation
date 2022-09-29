@@ -20,22 +20,22 @@ try{
             /*
              * Erase the specified users
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot erase groups, no groups selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot erase groups, invalid data specified', 'invalid');
             }
 
-            if(in_array($_SESSION['user']['id'], $_POST['id'])) {
+            if (in_array($_SESSION['user']['id'], $_POST['id'])) {
                 throw new CoreException('You cannot delete yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('UPDATE `groups` SET `status` = "deleted" WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No groups have been deleted', 'warning');
 
             } else {
@@ -48,22 +48,22 @@ try{
             /*
              * Erase the specified groups
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot undelete groups, no groups selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot undelete groups, invalid data specified', 'invalid');
             }
 
-            if(in_array($_SESSION['user']['id'], $_POST['id'])) {
+            if (in_array($_SESSION['user']['id'], $_POST['id'])) {
                 throw new CoreException('You cannot undelete yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('UPDATE `groups` SET `status` = NULL WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No user groups have been undeleted', 'warning');
 
             } else {
@@ -76,22 +76,22 @@ try{
             /*
              * Erase the specified groups
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot erase groups, no groups selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot erase groups, invalid data specified', 'invalid');
             }
 
-            if(in_array($_SESSION['user']['id'], $_POST['id'])) {
+            if (in_array($_SESSION['user']['id'], $_POST['id'])) {
                 throw new CoreException('You cannot erase yourself', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('DELETE FROM `groups` WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No user groups have been erased', 'warning');
 
             } else {
@@ -142,8 +142,8 @@ $paging  = 'SELECT COUNT(`id`) AS `count`
 /*
  * Consider only groups with a specific type as real groups?
  */
-////if($_CONFIG['groups']['type_filter'] !== false) {
-////    if($_CONFIG['groups']['type_filter'] === null) {
+////if ($_CONFIG['groups']['type_filter'] !== false) {
+////    if ($_CONFIG['groups']['type_filter'] === null) {
 //        //$where[]          = ' `groups`.`type` IS NULL';
 //
 //    } else {
@@ -218,8 +218,8 @@ switch(isset_get($_GET['view'])) {
 /*
  * Apply role filter
  */
-if(isset_get($_GET['role'])) {
-    if($_GET['role'] == 'none') {
+if (isset_get($_GET['role'])) {
+    if ($_GET['role'] == 'none') {
         //$where[]          = ' `groups`.`role` IS NULL';
 
     } else {
@@ -232,7 +232,7 @@ if(isset_get($_GET['role'])) {
 /*
  * Apply generic filter
  */
-if(!empty($_GET['filter'])) {
+if (!empty($_GET['filter'])) {
     //$where[]              = ' (`groups`.`name` LIKE :name OR `groups`.`email` LIKE :email OR `groups`.`username` LIKE :username)';
     $execute[':name']     = '%'.$_GET['filter'].'%';
     $execute[':email']    = '%'.$_GET['filter'].'%';
@@ -243,7 +243,7 @@ if(!empty($_GET['filter'])) {
 /*
  * Execute query
  */
-if(!empty($where)) {
+if (!empty($where)) {
     $query  .= ' WHERE '.implode(' AND ', $where);
     $paging .= ' WHERE '.implode(' AND ', $where);
 }
@@ -297,7 +297,7 @@ $html = '   <div class="row">
                             <div class="panel-body">
                                 <div class="dataTables_wrapper no-footer">';
 
-if(!$r->rowCount()) {
+if (!$r->rowCount()) {
     $html .= '<p>'.tr('No groups were found with the current filter').'</p>';
 
 } else {

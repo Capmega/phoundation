@@ -64,7 +64,7 @@ function sitemap_generate() {
         $files = sitemap_list_files();
 
         foreach($files as &$file) {
-            if(!file_exists(ROOT.'www/'.$file['language'])) {
+            if (!file_exists(ROOT.'www/'.$file['language'])) {
                 log_console(tr('Skipped sitemap generation for language ":language1", the "www/:language2" directory does not exist. Check the $_CONFIG[language][supported] configuration', array(':language1' => $file['language'], ':language2' => $file['language'])), 'yellow');
                 continue;
             }
@@ -82,10 +82,10 @@ function sitemap_generate() {
         /*
          * Remove temporary files
          */
-        if(!empty($files)) {
+        if (!empty($files)) {
             try{
                 foreach($files as $file) {
-                    if(empty($file['tmp'])) {
+                    if (empty($file['tmp'])) {
                         continue;
                     }
 
@@ -129,12 +129,12 @@ function sitemap_install_files($files) {
         $insert = sql_prepare('INSERT INTO `sitemaps_generated` (`language`)
                                VALUES                           (:language )');
 
-        if(count($files) !== 1) {
+        if (count($files) !== 1) {
             /*
              * Install the sub sitemap files
              */
             foreach($files as $file) {
-                if(empty($file['tmp'])) {
+                if (empty($file['tmp'])) {
                     continue;
                 }
 
@@ -143,8 +143,8 @@ function sitemap_install_files($files) {
                         /*
                          * Move sub sitemap files in place
                          */
-                        if(empty($file['file'])) {
-                            if($file['language']) {
+                        if (empty($file['file'])) {
+                            if ($file['language']) {
                                 $filename = $file['language'].'/sitemap.xml';
 
                             } else {
@@ -152,7 +152,7 @@ function sitemap_install_files($files) {
                             }
 
                         } else {
-                            if($file['language']) {
+                            if ($file['language']) {
                                 file_ensure_path(ROOT.'www/'.$file['language'].'/sitemaps/');
                                 $filename = $file['language'].'/sitemaps/'.$file['file'].'.xml';
 
@@ -205,7 +205,7 @@ function sitemap_generate_index_file($files) {
 
         log_console(tr('Generating sitemap index file'), 'cyan');
 
-        if(count($files) === 1) {
+        if (count($files) === 1) {
             /*
              * There is only one sitemap file, no requirement for an index file.
              * Just use the single sitemap file, move it to the location of the
@@ -213,7 +213,7 @@ function sitemap_generate_index_file($files) {
              */
             $file = array_pop($files);
 
-            if($file['file']) {
+            if ($file['file']) {
                 rename(TMP.'sitemaps/'.$file['language'].'/sitemaps/'.$file['file'].'.xml', TMP.'sitemaps/sitemaps/'.$file['file'].'.xml');
 
             } else {
@@ -280,7 +280,7 @@ function sitemap_generate_xml_file($language = null, $file = null) {
                     WHERE  `status` IS NULL
                     AND    `language` = :language ';
 
-        if($file) {
+        if ($file) {
             $query   .= ' AND `file` = :file ';
             $execute[':file'] = $file;
 
@@ -360,7 +360,7 @@ function sitemap_generate_xml_file($language = null, $file = null) {
  */
 function sitemap_get_entry_xml($entry) {
     try{
-        if(empty($entry['url'])) {
+        if (empty($entry['url'])) {
             throw new CoreException(tr('sitemap_get_entry_xml(): No URL specified'), 'not-specified');
         }
 
@@ -370,7 +370,7 @@ function sitemap_get_entry_xml($entry) {
                       'priority');
 
         foreach($keys as $key) {
-            if(!empty($entry[$key])) {
+            if (!empty($entry[$key])) {
                 switch($key) {
                     case 'url':
                         $retval[] = "    <loc>".$entry[$key]."</loc>\n";
@@ -417,15 +417,15 @@ function sitemap_get_entry_xml($entry) {
  */
 function sitemap_get_index_xml($file, $lastmod = null) {
     try{
-        if(empty($file)) {
+        if (empty($file)) {
             throw new CoreException(tr('sitemap_get_index_xml(): No file specified'), 'not-specified');
         }
 
-        if(empty($lastmod)) {
+        if (empty($lastmod)) {
             $lastmod = date('c');
         }
 
-        if($file['file']) {
+        if ($file['file']) {
             $url = domain('/sitemaps/'.$file['file'].'.xml', null, null, null, $file['language']);
 
         } else {
@@ -462,13 +462,13 @@ function sitemap_list_files() {
     global $_CONFIG;
 
     try{
-        if($retval) {
+        if ($retval) {
             return $retval;
         }
 
         $retval = array();
 
-        if(empty($_CONFIG['language']['supported'])) {
+        if (empty($_CONFIG['language']['supported'])) {
             /*
              * No multiple languages supported. Only use the default
              */
@@ -484,13 +484,13 @@ function sitemap_list_files() {
 
                                  GROUP BY `file`');
 
-            if(!$files->rowCount()) {
+            if (!$files->rowCount()) {
                 throw new CoreException(tr('sitemap_list_files(): No sitemap data available to generate sitemap files from'), 'not-available');
 
             }
 
             while($file = sql_fetch($files)) {
-                if($file['file']) {
+                if ($file['file']) {
                     file_ensure_path(ROOT.'www/'.$code.'/sitemaps');
                     $file['path'] = ROOT.'www/'.$code.'/sitemaps/'.$file['file'].'.xml';
 
@@ -528,7 +528,7 @@ function sitemap_list_files() {
  */
 function sitemap_clear($groups = null) {
     try{
-        if($groups) {
+        if ($groups) {
             $in = sql_in($groups);
             $r  = sql_query('DELETE FROM `sitemaps_data` WHERE `group` IN ('.sql_in_columns($in).')', $in);
 
@@ -562,7 +562,7 @@ function sitemap_clear($groups = null) {
  */
 function sitemap_delete_entry($list) {
     try{
-        if(is_array($list) or is_numeric($list) or (is_string($list) and strstr($list, ','))) {
+        if (is_array($list) or is_numeric($list) or (is_string($list) and strstr($list, ','))) {
             /*
              * Delete by one or multiple id's
              */
@@ -616,7 +616,7 @@ function sitemap_insert_entry($entry) {
 
         $entry = sitemap_validate_entry($entry);
 
-        if($entry['page_modifiedon']) {
+        if ($entry['page_modifiedon']) {
             sql_query('INSERT INTO `sitemaps_data` (`createdby`, `url`, `priority`, `page_modifiedon`, `change_frequency`, `language`, `group`, `file`)
                        VALUES                      (:createdby , :url , :priority , :page_modifiedon , :change_frequency , :language , :group , :file )
 
@@ -677,7 +677,7 @@ function sitemap_insert_entry($entry) {
                              ':group_update'            => $entry['group']));
         }
 
-        if(empty($entry['id'])) {
+        if (empty($entry['id'])) {
             $entry['id'] = sql_insert_id();
         }
 
@@ -714,7 +714,7 @@ function sitemap_make_backup() {
         file_ensure_path($target);
         log_console(tr('Making backup of current sitemape files in ":path"', array(':path' => $target)), 'cyan');
 
-        if(file_exists(ROOT.'www/sitemap.xml')) {
+        if (file_exists(ROOT.'www/sitemap.xml')) {
             copy(ROOT.'www/sitemap.xml', $target.'sitemap.xml');
             $count++;
         }
@@ -726,7 +726,7 @@ function sitemap_make_backup() {
             foreach(scandir($source) as $file) {
                 $filename = basename($file);
 
-                if(preg_match('/sitemap(?:-.*?)?\.xml/', $filename)) {
+                if (preg_match('/sitemap(?:-.*?)?\.xml/', $filename)) {
                     /*
                      * This is a sitemap file
                      */
@@ -736,7 +736,7 @@ function sitemap_make_backup() {
             }
         }
 
-        if(!$count) {
+        if (!$count) {
             /*
              * No backup was made, cleanup
              */
@@ -784,7 +784,7 @@ function sitemap_validate_entry($entry) {
         $entry['page_modifiedon'] = date_convert($entry['page_modifiedon'], 'mysql');
         $entry['file']            = get_null($entry['file']);
 
-        if($_CONFIG['language']['supported']) {
+        if ($_CONFIG['language']['supported']) {
             $v->inArray($entry['language'], $_CONFIG['language']['supported'], tr('Please ensure that the specified language is supported'));
 
         } else {

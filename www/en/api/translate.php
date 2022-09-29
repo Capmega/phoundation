@@ -6,7 +6,7 @@ include_once (dirname(__FILE__) . '/../libs/startup.php');
 load_libs('crypt,json,validate');
 load_config('translate');
 
-if(empty($_POST['data'])) {
+if (empty($_POST['data'])) {
     header('HTTP/1.0 400 Bad Request', true, 400);
     die(tr('Missing data'));
 }
@@ -27,7 +27,7 @@ try {
      */
     switch($data['method']) {
         case 'get':
-            if(empty($data['target_language']) or !preg_match('/^[a-zA-Z]{2}$/', $data['target_language'])) {
+            if (empty($data['target_language']) or !preg_match('/^[a-zA-Z]{2}$/', $data['target_language'])) {
                 $v->setError(tr('No or invalid language ":language" specified', array(':language' => $data['target_language'])));
             }
             // FALLTHROUGH
@@ -38,22 +38,22 @@ try {
             $v->setError(tr('Missing or invalid method ":method"', array(':method' => $data['method'])));
     }
 
-    if(empty($data['project']) or !is_string($data['project'])) {
+    if (empty($data['project']) or !is_string($data['project'])) {
         $v->setError(tr('Missing or invalid project name'));
     }
 
-    if(!is_array($data['translations'])) {
+    if (!is_array($data['translations'])) {
         $v->setError(tr('No valid strings list to translate specified.'));
     }
 
-    if(empty($data['api_key']) or !is_string($data['api_key'])) {
+    if (empty($data['api_key']) or !is_string($data['api_key'])) {
         $v->setError(tr('No valid auth key specified.'));
     }
 
-    if(empty($data['options']['mode'])) {
+    if (empty($data['options']['mode'])) {
         $v->setError(tr('Translation mode is misssing. :array', array(':array' => print_r($data['options'], true))));
 
-    } elseif(!in_array($data['options']['mode'], array('strict', 'full', 'most', 'none'))) {
+    } elseif (!in_array($data['options']['mode'], array('strict', 'full', 'most', 'none'))) {
         $v->setError(tr('Unknown mode ":mode"', array(':mode' => $data['options']['mode'])));
     }
 
@@ -75,7 +75,7 @@ try {
 
                         array(':name' => cfm($data['project'])));
 
-    if(empty($project['id']) or $project['api_key'] != $data['api_key']) {
+    if (empty($project['id']) or $project['api_key'] != $data['api_key']) {
         header('HTTP/1.0 401 Unauthorized', true, 401);
         die(tr('Access denied'));
     }
@@ -99,12 +99,12 @@ try {
     /*
      * Get and store translations from the database
      */
-    if(!is_array($data['translations'])) {
+    if (!is_array($data['translations'])) {
         throw new CoreException(tr('Specified translation list is invalid'), 'invalid');
     }
 
     foreach($data['translations'] as $file => $list) {
-        if(!is_array($list)) {
+        if (!is_array($list)) {
             throw new CoreException(tr('Specified translation list for file ":file" is invalid', array(':file' => $file)), 'invalid');
         }
 
@@ -124,7 +124,7 @@ try {
                                           ':project_id'  => cfi($project['id']),
                                           ':file'        => $file));
 
-            if(empty($translation)) {
+            if (empty($translation)) {
                 sql_query('INSERT INTO `dictionary` (`projects_id`, `language`, `string`, `file`, `code`)
                            VALUES                   (:projects_id , :language , :string , :file , :code )',
 
@@ -139,16 +139,16 @@ try {
                                      'status'      => '');
             }
 
-            if($data['method'] == 'post') {
+            if ($data['method'] == 'post') {
                 unset($translation);
                 continue;
             }
 
-            if(!empty($translation['translation']) and $data['options']['mode'] != 'none') {
+            if (!empty($translation['translation']) and $data['options']['mode'] != 'none') {
                 $translations[$file][$string] = $translation['translation'];
                 $stats['translations_done']++;
 
-            } elseif($data['options']['mode'] == 'full' or $data['options']['mode'] == 'most') {
+            } elseif ($data['options']['mode'] == 'full' or $data['options']['mode'] == 'most') {
                 //no translation found
                 //check for translation on another site
                 $alt_project_trans = sql_get('SELECT `translation`
@@ -161,7 +161,7 @@ try {
 
                                               array(':code' => $code));
 
-                if(!empty($alt_project_trans['translation'])) {
+                if (!empty($alt_project_trans['translation'])) {
                     sql_query('UPDATE `dictionary`
 
                                SET    `translation` = :translation,
@@ -179,7 +179,7 @@ try {
                     /*
                      * No translation available
                      */
-                    if($data['options']['mode'] == 'full') {
+                    if ($data['options']['mode'] == 'full') {
                         $error = 406;
                     }
 
@@ -187,13 +187,13 @@ try {
                     $stats['translations_missing']++;
                 }
 
-            } elseif($data['options']['mode'] == 'strict') {
+            } elseif ($data['options']['mode'] == 'strict') {
                 $error = 406;
             }
         }
     }
 
-    if($data['method'] == 'post') {
+    if ($data['method'] == 'post') {
         /*
          * We also return the translations that were made
          * since last login

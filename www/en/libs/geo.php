@@ -57,7 +57,7 @@ function geo_countries_select($params) {
 
         $cache_key = sha1(json_encode_custom($params));
 
-        if($retval = cache_read($cache_key)) {
+        if ($retval = cache_read($cache_key)) {
             return $retval;
         }
 
@@ -102,14 +102,14 @@ function geo_states_select($params) {
 
         $cache_key = sha1(json_encode_custom($params));
 
-        if($retval = cache_read($cache_key)) {
+        if ($retval = cache_read($cache_key)) {
             return $retval;
         }
 
         /*
          * Only show cities if a state has been selected
          */
-        if(empty($params[$params['countries_column']])) {
+        if (empty($params[$params['countries_column']])) {
             /*
              * Don't show any cities at all
              */
@@ -158,14 +158,14 @@ function geo_cities_select($params) {
 
         $cache_key = sha1(json_encode_custom($params));
 
-        if($retval = cache_read($cache_key)) {
+        if ($retval = cache_read($cache_key)) {
             return $retval;
         }
 
         /*
          * Only show cities if a state has been selected
          */
-        if(empty($params[$params['states_column']])) {
+        if (empty($params[$params['states_column']])) {
             /*
              * Don't show any cities at all
              */
@@ -198,7 +198,7 @@ function geo_cities_select($params) {
  */
 function geo_get_country($country, $single_column = false) {
     try{
-        if(is_numeric($country)) {
+        if (is_numeric($country)) {
             $where   = ' WHERE `id` = :id AND `status` IS NULL';
             $execute = array(':id' => $country);
 
@@ -207,8 +207,8 @@ function geo_get_country($country, $single_column = false) {
             $execute = array(':seoname' => $country);
         }
 
-        if($single_column) {
-            if($single_column === true) {
+        if ($single_column) {
+            if ($single_column === true) {
                 $single_column = 'id';
             }
 
@@ -275,7 +275,7 @@ function geo_get_country($country, $single_column = false) {
  */
 function geo_get_state($state, $country = null, $single_column = false) {
     try{
-        if(is_numeric($state)) {
+        if (is_numeric($state)) {
             $where   = ' WHERE `id` = :id AND `status` IS NULL';
             $execute = array(':id' => $state);
 
@@ -284,12 +284,12 @@ function geo_get_state($state, $country = null, $single_column = false) {
             $execute = array(':seoname' => $state);
         }
 
-        if($country) {
-            if(is_numeric($country)) {
+        if ($country) {
+            if (is_numeric($country)) {
                 $country = geo_get_country($country, 'code');
 
-            } elseif(is_string($country)) {
-                if(strlen($country) != 2) {
+            } elseif (is_string($country)) {
+                if (strlen($country) != 2) {
                     $country = geo_get_country($country, 'code');
                 }
 
@@ -301,8 +301,8 @@ function geo_get_state($state, $country = null, $single_column = false) {
             $execute[':country_code'] = $country;
         }
 
-        if($single_column) {
-            if($single_column === true) {
+        if ($single_column) {
+            if ($single_column === true) {
                 $single_column = 'id';
             }
 
@@ -358,13 +358,13 @@ function geo_get_state($state, $country = null, $single_column = false) {
  */
 function geo_get_city($city, $state = null, $country = null, $single_column = false) {
     try{
-        if(is_numeric($city)) {
+        if (is_numeric($city)) {
             $where   = ' WHERE `id` = :id AND `status` IS NULL';
             $execute = array(':id' => $city);
 
         } else {
-            if($state) {
-                if(!is_numeric($state)) {
+            if ($state) {
+                if (!is_numeric($state)) {
                     $state = geo_get_state($state, $country, 'id');
                 }
 
@@ -382,12 +382,12 @@ function geo_get_city($city, $state = null, $country = null, $single_column = fa
                 $execute = array(':seoname' => $city);
             }
 
-            if($country) {
-                if(is_numeric($country)) {
+            if ($country) {
+                if (is_numeric($country)) {
                     $country = geo_get_country($country, 'code');
 
-                } elseif(is_string($country)) {
-                    if(strlen($country) != 2) {
+                } elseif (is_string($country)) {
+                    if (strlen($country) != 2) {
                         $country = geo_get_country($country, 'code');
                     }
 
@@ -400,8 +400,8 @@ function geo_get_city($city, $state = null, $country = null, $single_column = fa
             }
         }
 
-        if($single_column) {
-            if($single_column === true) {
+        if ($single_column) {
+            if ($single_column === true) {
                 $single_column = 'id';
             }
 
@@ -469,7 +469,7 @@ function geo_get_city_from_ip($ip = null, $filters = null, $single_column = fals
     global $_CONFIG;
 
     try{
-        if(!$ip) {
+        if (!$ip) {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -477,7 +477,7 @@ function geo_get_city_from_ip($ip = null, $filters = null, $single_column = fals
 
         $geo = geoip_get($ip);
 
-        if($geo) {
+        if ($geo) {
             return geo_get_city_from_location($geo['latitude'], $geo['longitude'], $filters, $single_column);
         }
 
@@ -510,7 +510,7 @@ function geo_get_country_from_location($latitude, $longitude, $single_column = f
     global $_CONFIG;
 
     try{
-        if($single_column) {
+        if ($single_column) {
             $country = sql_get('SELECT   `'.$single_column.'`,
                                          BASE_DISTANCE(`latitude`, `longitude`, :latitude, :longitude) AS `distance`
 
@@ -573,7 +573,7 @@ function geo_get_country_from_location($latitude, $longitude, $single_column = f
 
         return $country;
 
-    }catch(BException $e) {
+    }catch(CoreException $e) {
         throw new CoreException('geo_get_country_from_location() Failed', $e);
     }
 }
@@ -596,7 +596,7 @@ function geo_get_state_from_location($latitude, $longitude, $single_column = fal
     global $_CONFIG;
 
     try{
-        if($single_column) {
+        if ($single_column) {
             $state = sql_get('SELECT     `'.$single_column.'`,
                                          BASE_DISTANCE(`latitude`, `longitude`, :latitude, :longitude) AS `distance`
 
@@ -648,7 +648,7 @@ function geo_get_state_from_location($latitude, $longitude, $single_column = fal
 
         return $state;
 
-    }catch(BException $e) {
+    }catch(CoreException $e) {
         throw new CoreException('geo_get_state_from_location() Failed', $e);
     }
 }
@@ -675,11 +675,11 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
         $execute = array(':latitude'  => $latitude,
                          ':longitude' => $longitude);
 
-        if(!$filters) {
+        if (!$filters) {
             $filters = $_CONFIG['geo']['cities']['filters'];
         }
 
-        if($filters) {
+        if ($filters) {
             foreach($filters as $key => $value) {
                 switch($key) {
                     case 'status':
@@ -708,14 +708,14 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
             }
         }
 
-        if(!empty($where)) {
+        if (!empty($where)) {
             $where = ' WHERE ('.implode($_CONFIG['geo']['cities']['filter_type'], $where).')';
 
         } else {
             $where = '';
         }
 
-        if($single_column) {
+        if ($single_column) {
             $city = sql_get('SELECT   `'.$single_column.'`,
                                       BASE_DISTANCE(`latitude`, `longitude`, :latitude, :longitude) AS `distance`
 
@@ -779,7 +779,7 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
         //$country_code = geo_get_country_from_location($latitude, $longitude, 'code');
         //$states_id    = geo_get_state_from_location($latitude, $longitude, 'id');
         //
-        //if($city['country_code'] != $country_code) {
+        //if ($city['country_code'] != $country_code) {
         //    /*
         //     * The located city is in the wrong country
         //     */
@@ -787,7 +787,7 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
         //    return geo_get_city($_CONFIG['geo']['detect']['default']['city'], $_CONFIG['geo']['detect']['default']['state'], $_CONFIG['geo']['detect']['default']['country']);
         //}
         //
-        //if($city['states_id'] != $states_id) {
+        //if ($city['states_id'] != $states_id) {
         //    /*
         //     * The located city is in the wrong state
         //     */
@@ -798,7 +798,7 @@ function geo_get_city_from_location($latitude, $longitude, $filters = null, $sin
         //log_file(tr('Location ":latitude,:longitude" detection gave city ":city" in country ":country"', array(':latitude' => $latitude, ':longitude' => $longitude, ':city' => $city['name'], ':country' => $city['country_code'])));
         //return $city;
 
-    }catch(BException $e) {
+    }catch(CoreException $e) {
         throw new CoreException('geo_get_city_from_location() Failed', $e);
     }
 }
@@ -886,7 +886,7 @@ function geo_detect_client_location($params = null) {
 
         return $html;
 
-    }catch(BException $e) {
+    }catch(CoreException $e) {
         throw new CoreException('geo_detect_client_location() Failed', $e);
     }
 }
@@ -910,7 +910,7 @@ function geo_validate($geo) {
     try{
         load_libs('validate');
 
-        if(isset($geo['coords'])) {
+        if (isset($geo['coords'])) {
             $geo = $geo['coords'];
         }
 
@@ -925,7 +925,7 @@ function geo_validate($geo) {
         /*
          * Validate zoom
          */
-        if($geo['zoom']) {
+        if ($geo['zoom']) {
             $v->isNumeric($geo['zoom'], tr('Invalid zoom ":zoom" specified', array(':zoom' => $geo['zoom'])));
             $v->isBetween($geo['zoom'], 1, 20, tr('Invalid zoom":zoom" specified', array(':zoom' => $geo['zoom'])));
 
@@ -936,7 +936,7 @@ function geo_validate($geo) {
         /*
          * Validate accuracy
          */
-        if($geo['accuracy']) {
+        if ($geo['accuracy']) {
             $v->isNumeric($geo['accuracy'], tr('Invalid accuracy ":accuracy" specified', array(':accuracy' => $geo['accuracy'])));
             $v->isBetween($geo['accuracy'], 0, 100000, tr('Invalid accuracy ":accuracy" specified', array(':accuracy' => $geo['accuracy'])));
 
@@ -949,10 +949,10 @@ function geo_validate($geo) {
         /*
          * Validate the countries_id
          */
-        if($geo['countries_id']) {
+        if ($geo['countries_id']) {
             $exist = sql_query('SELECT `id` FROM `geo_countries` WHERE `id` = :id AND `status` IS NULL', array(':id' => $geo['countries_id']));
 
-            if(!$exist) {
+            if (!$exist) {
                 $v->setError(tr('The countries_id ":id" does not exist', array(':id' => $geo['countries_id'])));
             }
 
@@ -965,13 +965,13 @@ function geo_validate($geo) {
         /*
          * Validate the states_id
          */
-        if($geo['states_id']) {
+        if ($geo['states_id']) {
             $exist = sql_get('SELECT `id` FROM `geo_states` WHERE `id` = :id AND `status` IS NULL', array(':id' => $geo['states_id']));
 
-            if(!$exist) {
+            if (!$exist) {
                 $v->setError(tr('The specified states_id ":id" does not exist', array(':id' => $geo['states_id'])));
 
-            } elseif($exist['id'] !== $geo['states_id']) {
+            } elseif ($exist['id'] !== $geo['states_id']) {
                 $v->setError(tr('The specified states_id ":id" does not exist in the specified countries_id ":countries_id"', array(':id' => $geo['states_id'], ':countries_id' => $geo['countries_id'])));
             }
 
@@ -984,16 +984,16 @@ function geo_validate($geo) {
         /*
          * Validate the cities_id
          */
-        if($geo['cities_id']) {
+        if ($geo['cities_id']) {
             $exist = sql_query('SELECT `id` FROM `geo_cities` WHERE `id` = :id AND `status` IS NULL', array(':id' => $geo['cities_id']));
 
-            if(!$exist) {
+            if (!$exist) {
                 $v->setError(tr('The cities_id ":id" does not exist', array(':id' => $geo['cities_id'])));
 
-            } elseif($exist['countries_id'] !== $geo['countries_id']) {
+            } elseif ($exist['countries_id'] !== $geo['countries_id']) {
                 $v->setError(tr('The specified cities_id ":id" does not exist in the specified countries_id ":countries_id"', array(':id' => $geo['states_id'], ':countries_id' => $geo['countries_id'])));
 
-            } elseif($exist['states_id'] !== $geo['states_id']) {
+            } elseif ($exist['states_id'] !== $geo['states_id']) {
                 $v->setError(tr('The specified cities_id ":id" does not exist in the specified states_id ":states_id"', array(':id' => $geo['states_id'], ':states_id' => $geo['states_id'])));
             }
 
@@ -1005,7 +1005,7 @@ function geo_validate($geo) {
 
         return $geo;
 
-    }catch(BException $e) {
+    }catch(CoreException $e) {
         throw new CoreException('geo_validate() Failed', $e);
     }
 }
@@ -1029,7 +1029,7 @@ function geo_set_session($geo, $expand_location = true) {
     try{
         $geo = geo_validate($geo);
 
-        if($expand_location) {
+        if ($expand_location) {
             /*
              * Add city, state and country data
              */
@@ -1052,7 +1052,7 @@ function geo_set_session($geo, $expand_location = true) {
 
         return $_SESSION['location'];
 
-    }catch(BException $e) {
+    }catch(CoreException $e) {
         throw new CoreException('geo_set_session() Failed', $e);
     }
 }
@@ -1075,7 +1075,7 @@ function geo_loaded() {
         $count = sql_get('SELECT COUNT(`id`) AS `count` FROM `geo_cities`', true);
         return (boolean) $count;
 
-    }catch(BException $e) {
+    }catch(CoreException $e) {
         throw new CoreException('geo_loaded() Failed', $e);
     }
 }
@@ -1115,7 +1115,7 @@ function geo_get_nearest_city($latitude, $longitude, $filters = null, $single_co
     try{
         return geo_get_city_from_location($latitude, $longitude, $filters, $single_column);
 
-    }catch(BException $e) {
+    }catch(CoreException $e) {
         throw new CoreException('geo_get_nearest_city() Failed', $e);
     }
 }

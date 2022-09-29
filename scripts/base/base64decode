@@ -13,7 +13,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 $string = cli_argument(0);
 cli_no_arguments_left();
 
-if(!$string) {
+if (!$string) {
     throw new CoreException(tr('No base64 string specified'), 'not-specified');
 }
 

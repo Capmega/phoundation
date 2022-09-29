@@ -54,7 +54,7 @@ function crmtext_send_message($message, $phone) {
     global $_CONFIG;
 
     try{
-        if(is_array($message)) {
+        if (is_array($message)) {
             throw new CoreException(tr('crmtext_send_message(): Specified message is an array which probably indicates an MMS message, which currently is not supported for crmtext SMS'), 'not-supported');
         }
 
@@ -97,7 +97,7 @@ function crmtext_set_callback($url = null) {
     try{
         $config = $_CONFIG['crmtext'];
 
-        if(!$url) {
+        if (!$url) {
             $url = $config['callback_url'];
         }
 
@@ -209,15 +209,15 @@ function crmtext_execute($ch, $call) {
     try{
         $xml = curl_exec($ch);
 
-        if($error = curl_error($ch)) {
+        if ($error = curl_error($ch)) {
             throw new CoreException(tr('crmtext_execute(): curl_exec() failed with "%error%"', array('%error%' => $error)), 'CURL'.curl_errno($ch));
         }
 
-        if(Strings::cut(($xml, 'op="', '"') != $call) {
+        if (Strings::cut(($xml, 'op="', '"') != $call) {
             throw new CoreException(tr('crmtext_execute(): Failed to find requested function call in crmtext results "%results%"', array('%results%' => $xml)), 'call_not_found');
         }
 
-        if(($http_code = Strings::cut(($xml, 'status="', '"')) != 200) {
+        if (($http_code = Strings::cut(($xml, 'status="', '"')) != 200) {
             throw new CoreException(tr('crmtext_execute(): Got status "%status%" from crmtext with result "%results%"', array('%status%' => $http_code, '%results%' => $xml)), 'HTTP'.$http_code);
         }
 

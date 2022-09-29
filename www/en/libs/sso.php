@@ -131,7 +131,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
                 include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Auth.php');
                 include_once(ROOT.'libs/vendor/hybridauth/Hybrid/Endpoint.php');
 
-                if(isset($_REQUEST['hauth_start']) or isset($_REQUEST['hauth_done'])) {
+                if (isset($_REQUEST['hauth_start']) or isset($_REQUEST['hauth_done'])) {
                     Hybrid_Endpoint::process();
 
                 } else {
@@ -181,7 +181,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
 
                                  array(':email'  => $profile['email']));
 
-                if(!$user) {
+                if (!$user) {
                     /*
                      * Account doesn't exist yet, create it first
                      */
@@ -304,11 +304,11 @@ function sso($provider, $method, $redirect, $role = 'user') {
                 throw new CoreException(tr('sso(): Unknown or disabled provider'), $e);
 
             case 4:
-                $e = new BException(tr('sso(): Missing provider application credentials'), $e);
+                $e = new CoreException(tr('sso(): Missing provider application credentials'), $e);
                 throw $e->setCode(400);
 
             case 5:
-                $e = new BException(tr('sso(): Authentication failed The user has canceled the authentication or the provider refused the connection'), $e);
+                $e = new CoreException(tr('sso(): Authentication failed The user has canceled the authentication or the provider refused the connection'), $e);
                 throw $e->setCode(400);
 
             case 6:
@@ -320,7 +320,7 @@ function sso($provider, $method, $redirect, $role = 'user') {
                 throw new CoreException(tr('sso(): User not connected to the provider'), $e);
 
             case 8:
-                $e = new BException(tr('sso(): Provider does not support this feature'), $e);
+                $e = new CoreException(tr('sso(): Provider does not support this feature'), $e);
                 throw $e->setCode(400);
 
             default:
@@ -338,7 +338,7 @@ function sso_config($provider) {
     global $_CONFIG;
 
     try{
-        if(empty($_CONFIG['sso'][$provider]['appid'])) {
+        if (empty($_CONFIG['sso'][$provider]['appid'])) {
             throw new CoreException(tr('sso_config(): The specified provider ":provider" is not configured'), 'not-exist');
         }
 
@@ -348,13 +348,13 @@ function sso_config($provider) {
         /*
          * Check if a cached config file exists.
          */
-        if(file_exists($file) and ($_CONFIG['sso']['cache_config'] and ((time() - filemtime($file)) > $_CONFIG['sso']['cache_config']))) {
+        if (file_exists($file) and ($_CONFIG['sso']['cache_config'] and ((time() - filemtime($file)) > $_CONFIG['sso']['cache_config']))) {
             chmod($path, 0700);
             chmod($file, 0660);
             file_delete($file, ROOT.'data/cache/sso');
         }
 
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
 
 // :DELETE: Delete this crap
             //switch($provider) {
@@ -443,7 +443,7 @@ function sso_fail($message, $redirect = null) {
         load_libs('html');
         html_flash_set($message, 'error');
 
-        if(empty($redirect)) {
+        if (empty($redirect)) {
             page_show(500);
         }
 

@@ -36,7 +36,7 @@ function base_footer() {
  *
  */
 function base_main($content) {
-    if(!empty($_SESSION['flash'])) {
+    if (!empty($_SESSION['flash'])) {
 showdie($_SESSION['flash']);
     }
 

@@ -6,10 +6,10 @@ load_libs('user');
 
 $selected = isset_get($_GET['blog']);
 
-if($selected) {
+if ($selected) {
     $selected_blog = sql_get('SELECT * FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $selected));
 
-    if($selected_blog) {
+    if ($selected_blog) {
         /*
          *
          */
@@ -43,7 +43,7 @@ switch(isset_get($_POST['doaction'])) {
             /*
              * Delete the specified blogs
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No blogs selected to delete', 'notspecified');
             }
 
@@ -55,7 +55,7 @@ switch(isset_get($_POST['doaction'])) {
 
                        $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Deleted %count% blogs', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -73,7 +73,7 @@ switch(isset_get($_POST['doaction'])) {
             /*
              * Delete the specified blogs
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No blogs selected to undelete', 'notspecified');
             }
 
@@ -85,7 +85,7 @@ switch(isset_get($_POST['doaction'])) {
 
                        $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Undeleted %count% blogs', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -103,7 +103,7 @@ switch(isset_get($_POST['doaction'])) {
             /*
              * Delete the specified blogs
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No blogs selected to erase', 'notspecified');
             }
 
@@ -111,7 +111,7 @@ switch(isset_get($_POST['doaction'])) {
 
             $r = sql_query('DELETE FROM `blogs` WHERE `status` = "deleted" AND `id` IN ('.implode(', ', array_keys($list)).')', $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Erased %count% blogs', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -211,7 +211,7 @@ $query = 'SELECT    `blogs`.`id`           AS blog_id,
 /*
  * Do we have a generic filter?
  */
-if(!empty($_GET['filter'])) {
+if (!empty($_GET['filter'])) {
     $filters[] = ' (`users`.`name` LIKE :name OR `leaders`.`name` LIKE :leader OR `users`.`code` LIKE :code OR `users`.`phones` LIKE :phone) ';
 
     $execute[':name']   = '%'.$_GET['filter'].'%';
@@ -224,7 +224,7 @@ if(!empty($_GET['filter'])) {
 /*
  * Add filters to the query
  */
-if(!empty($filters)) {
+if (!empty($filters)) {
     $query .= ' WHERE '.implode(' AND ', $filters);
 }
 
@@ -269,7 +269,7 @@ $html = '   <div class="row">
                         <form action="'.domain(true).'" method="post">
                             <div class="panel-body">';
 
-if(!$r->rowCount()) {
+if (!$r->rowCount()) {
     $html .= '<p>'.tr('No blogs found with this filter').'</p>';
 
 } else {
@@ -311,8 +311,8 @@ $html .=                    (empty($actions) ? '' : html_select($actions)).'
 /*
  * If a blog was selected, show it here
  */
-if($selected) {
-    if(!$selected_blog) {
+if ($selected) {
+    if (!$selected_blog) {
         /*
          * Specified blog does not exist
          */

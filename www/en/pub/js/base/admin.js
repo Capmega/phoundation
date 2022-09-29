@@ -11,12 +11,12 @@ $(document).ready(function() {
 
 	$('.fixall').live('click', function(event) {
 		$(".fix").each(function() {
-			if($(this).hasClass('fix_sCase'))
+			if ($(this).hasClass('fix_sCase'))
 			{
 				var obj=$(this).prev();
 				sCase(obj,obj.val());
 			}
-			if($(this).hasClass('fix_ucfirst'))
+			if ($(this).hasClass('fix_ucfirst'))
 			{
 				var obj=$(this).prev();
 				obj.val(ucwords(obj.val()));
@@ -33,14 +33,14 @@ function ucwords (str) {
 }
 
 function sCase(obj,val) {
-    if(val!=undefined) {
+    if (val!=undefined) {
         var result      = new Array();
             result2     = '';
             count       = 0;
             endSentence = new Array();
 
         for (var i = 1; i < val.length; i++) {
-            if(val.charAt(i) == '.' || val.charAt(i) == '!' || val.charAt(i) == '?') {
+            if (val.charAt(i) == '.' || val.charAt(i) == '!' || val.charAt(i) == '?') {
                 endSentence[count] = val.charAt(i);
                 count++
             }
@@ -48,19 +48,19 @@ function sCase(obj,val) {
 
         var val2 = val.split(/[.|?|!]/);
 
-        if(val2[val2.length-1]=='')val2.length=val2.length-1;
+        if (val2[val2.length-1]=='')val2.length=val2.length-1;
 
         for (var j = 0; j < val2.length; j++) {
             val3 = val2[j];
 
-            if(val3.substring(0,1) != ' ') {
+            if (val3.substring(0,1) != ' ') {
                 val2[j] = ' ' + val2[j];
             }
 
             var temp = val2[j].split(' '),
                 incr = 0;
 
-            if(temp[0] == '') {
+            if (temp[0] == '') {
                 incr = 1;
             }
 
@@ -78,12 +78,12 @@ function sCase(obj,val) {
                 temp[i] = temp2+temp3;
             }
 
-            if(endSentence[j] == undefined) {
+            if (endSentence[j] == undefined) {
                 endSentence[j] = '';
                 result2 += temp.join(' ') + endSentence[j];
             }
 
-            if(result2.substring(0, 1) == ' ') {
+            if (result2.substring(0, 1) == ' ') {
                 result2 = result2.substring(1, result2.length);
                 obj.val(result2);
             }

@@ -29,8 +29,8 @@ $seconds = cli_argument('-s,--seconds', true, 2);
 $delay   = cli_argument('-d,--delay'  , true, 1);
 cli_no_arguments_left();
 
-if($seconds) {
-    if(!is_numeric($seconds) or ($seconds < 0)) {
+if ($seconds) {
+    if (!is_numeric($seconds) or ($seconds < 0)) {
         throw new CoreException(tr('Please specify a valid amount of seconds, like 1, 0.5, .4, 3.9, 7, etc.'), 'invalid');
     }
 

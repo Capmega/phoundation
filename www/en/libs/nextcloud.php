@@ -200,7 +200,7 @@ function nextcloud_list_servers($server = null, $force = false) {
     static $servers;
 
     try{
-        if(empty($servers) and !$force) {
+        if (empty($servers) and !$force) {
             $servers = services_list_servers('nextcloud', $server);
         }
 
@@ -262,7 +262,7 @@ function nextcloud_exec($server, $params) {
         $nextcloud = nextcloud_select_server($server);
 
         foreach($params['commands'] as $key => &$value) {
-            if(!($key % 2)) {
+            if (!($key % 2)) {
                 /*
                  * This is a command
                  */

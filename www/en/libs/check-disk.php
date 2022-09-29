@@ -53,7 +53,7 @@ function check_disk($params = null) {
         array_default($params, 'bytes'     , $_CONFIG['check_disk']['bytes']);
         array_default($params, 'percentage', $_CONFIG['check_disk']['percentage']);
 
-        if(empty($params['callback'])) {
+        if (empty($params['callback'])) {
             /*
              * Perform default recovery actions
              */
@@ -76,11 +76,11 @@ function check_disk($params = null) {
             };
         }
 
-        if(empty($params['path'])) {
+        if (empty($params['path'])) {
             $params['path'] = ROOT;
         }
 
-        if(!file_exists($params['path'])) {
+        if (!file_exists($params['path'])) {
             throw new CoreException(tr('check_disk(): The specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
         }
 
@@ -89,15 +89,15 @@ function check_disk($params = null) {
         $bytes      = $total - $available;
         $percentage = (($available / $total) * 100);
 
-        if($percentage < $params['percentage']) {
+        if ($percentage < $params['percentage']) {
             $execute = true;
         }
 
-        if($bytes < $params['bytes']) {
+        if ($bytes < $params['bytes']) {
             $execute = true;
         }
 
-        if(isset($execute)) {
+        if (isset($execute)) {
             notify(array('code'    => 'low-disk',
                          'groups'  => 'developers',
                          'title'   => tr('Low disk event encountered'),

@@ -19,9 +19,9 @@ function google_get_avatar($user) {
     try{
         load_libs('image,user');
 
-        if(is_array($user)) {
-            if(empty($user['gp_id'])) {
-                if(empty($user['id'])) {
+        if (is_array($user)) {
+            if (empty($user['gp_id'])) {
+                if (empty($user['id'])) {
                     throw new CoreException('google_get_avatar: Specified user array contains no "id" or "gp_id"');
                 }
 
@@ -34,7 +34,7 @@ function google_get_avatar($user) {
             $user = $user['gp_id'];
         }
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException('google_get_avatar(): No google ID specified');
         }
 

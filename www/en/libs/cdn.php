@@ -45,7 +45,7 @@ function cdn_delete_files($list, $column = 'file') {
     try{
         load_libs('api');
 
-        if(!$list) {
+        if (!$list) {
             throw new CoreException(tr('cdn_delete_files(): No files specified'), 'not-specified');
         }
 
@@ -80,7 +80,7 @@ function cdn_delete_files($list, $column = 'file') {
                         $in);
 
         while($row = sql_fetch($r)) {
-            if(empty($servers[$row['server']])) {
+            if (empty($servers[$row['server']])) {
                 $servers[$row['server']] = array();
             }
 
@@ -185,20 +185,20 @@ function cdn_pick_server($cdns) {
     static $key = null;
 
     try{
-        if(!$cdns) {
+        if (!$cdns) {
             throw new CoreException(tr('cdn_pick_server(): No CDNs specified'), 'not-specified');
         }
 
-        if(!is_array($cdns)) {
+        if (!is_array($cdns)) {
             throw new CoreException(tr('cdn_pick_server(): Invalid CDN ":cdns" specified, must be array', array(':cdns' => $cdns)), 'invalid');
         }
 
-        if(!array_diff($_CONFIG['cdn']['servers'], $cdns)) {
+        if (!array_diff($_CONFIG['cdn']['servers'], $cdns)) {
             throw new CoreException(tr('cdn_pick_server(): Specified CDN ":cdns" does not exist, check "$_CONFIG[cdn][servers]" configuration', array(':cdns' => $cdns)), 'invalid');
         }
 
-        if($key === null) {
-            if(empty($_SESSION['cdn']['first_id'])) {
+        if ($key === null) {
+            if (empty($_SESSION['cdn']['first_id'])) {
                 /*
                  * Get $_SESSION['cdn'] data first!
                  */
@@ -208,7 +208,7 @@ function cdn_pick_server($cdns) {
             $key = $_SESSION['cdn']['first_id'];
         }
 
-        if(++$key > count($cdns) - 1) {
+        if (++$key > count($cdns) - 1) {
             $key = 0;
         }
 
@@ -304,13 +304,13 @@ function cdn_validate_server($server) {
 
         $server['api_accounts_id'] = sql_get('SELECT `id` FROM `api_accounts` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server['api_account']));
 
-        if(!$server['api_accounts_id']) {
+        if (!$server['api_accounts_id']) {
             $v->setError(tr('Specified API account ":account" does not exist', array(':account' => $server['api_account'])));
         }
 
         $exists = sql_exists('cdn_servers', 'name', $server['name'], $server['id']);
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The domain ":name" already exists', array(':name' => $server['name'])));
         }
 
@@ -341,7 +341,7 @@ function cdn_validate_project($project, $insert = true) {
         $v->hasMinChars($project['name'],  2, tr('Please ensure the path has at least 2 characters'));
         $v->hasMaxChars($project['name'], 32, tr('Please ensure the path has less than 32 characters'));
 
-        if(empty($project['desdription'])) {
+        if (empty($project['desdription'])) {
             $project['desdription'] = '';
 
         } else {
@@ -384,7 +384,7 @@ function cdn_get_api_account($server) {
                                 true, array(':seoname'     => $server,
                                             ':environment' => ENVIRONMENT));
 
-        if(!$api_account) {
+        if (!$api_account) {
             throw new CoreException(tr('cdn_validate_project(): Specified server ":server" does not exist or is not available', array(':server' => $server)), 'warning/not-exists');
         }
 
@@ -449,7 +449,7 @@ function cdn_register_project($server) {
         $api_account = cdn_get_api_account($server);
         $result      = api_call_base($api_account, '/cdn/project-exists', array('project' => PROJECT));
 
-        if(empty($result['exists'])) {
+        if (empty($result['exists'])) {
             sql_query('UPDATE `cdn_servers` SET `status` = "registering" WHERE `seoname` = :seoname', array(':seoname' => $server));
             $result = api_call_base($api_account, '/cdn/create-project', array('name' => PROJECT));
 
@@ -479,7 +479,7 @@ function cdn_unregister_project($server) {
         $api_account = cdn_get_api_account($server);
         $result      = api_call_base($api_account, '/cdn/project-exists', array('project' => PROJECT));
 
-        if(!empty($result['exists'])) {
+        if (!empty($result['exists'])) {
             /*
              * Project does not exist on specified serv
              */

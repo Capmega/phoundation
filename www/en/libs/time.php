@@ -65,42 +65,42 @@ function time_difference($start, $stop, $precision = 'auto', $decimals = 2) {
                 return str_plural($time, tr(':time year', array(':time' => $time)), tr(':time years', array(':time' => $time)));
 
             case 'auto':
-                if($time < 60) {
+                if ($time < 60) {
                     /*
                      * Seconds
                      */
                     return time_difference($start, $stop, 'seconds', $decimals);
                 }
 
-                if($time / 60 < 60) {
+                if ($time / 60 < 60) {
                     /*
                      * Minutes
                      */
                     return time_difference($start, $stop, 'minutes', $decimals);
                 }
 
-                if($time / 3600 < 24) {
+                if ($time / 3600 < 24) {
                     /*
                      * Hours
                      */
                     return time_difference($start, $stop, 'hours', $decimals);
                 }
 
-                if($time / 86400 < 7) {
+                if ($time / 86400 < 7) {
                     /*
                      * Days
                      */
                     return time_difference($start, $stop, 'days', $decimals);
                 }
 
-                if($time / 604800 < 52) {
+                if ($time / 604800 < 52) {
                     /*
                      * Weeks
                      */
                     return time_difference($start, $stop, 'weeks', $decimals);
                 }
 
-                if($time / 2592000 < 12) {
+                if ($time / 2592000 < 12) {
                     /*
                      * Months
                      */
@@ -188,8 +188,8 @@ function time_validate($time, $format = false, $separator = ':') {
         /*
          * Check for 12 hours format
          */
-        if(!$format or ($format = '12')) {
-            if(preg_match('/^(0?\d|(?:1(?:0|1)))\s?'.$separator.'\s?((?:0?|[1-5])\d)(?:\s?'.$separator.'\s?((?:0?|[1-5])\d)|)\s*(am|pm)$/i', $time, $matches)) {
+        if (!$format or ($format = '12')) {
+            if (preg_match('/^(0?\d|(?:1(?:0|1)))\s?'.$separator.'\s?((?:0?|[1-5])\d)(?:\s?'.$separator.'\s?((?:0?|[1-5])\d)|)\s*(am|pm)$/i', $time, $matches)) {
                 return array('time'    => $matches[1].$separator.$matches[2].($matches[3] ? $separator.$matches[3] : '').' '.strtoupper($matches[4]),
                              'format'  => '12',
                              'hours'   => $matches[1],
@@ -202,8 +202,8 @@ function time_validate($time, $format = false, $separator = ':') {
         /*
          * Check for 24 hours format
          */
-        if(!$format or ($format = '24')) {
-            if(preg_match('/^((?:0?|1)\d|(?:2[0-3]))\s?'.$separator.'\s?((?:0?|[1-5])\d)(?:\s?'.$separator.'\s?((?:0?|[1-5])\d)|)$/', $time, $matches)) {
+        if (!$format or ($format = '24')) {
+            if (preg_match('/^((?:0?|1)\d|(?:2[0-3]))\s?'.$separator.'\s?((?:0?|[1-5])\d)(?:\s?'.$separator.'\s?((?:0?|[1-5])\d)|)$/', $time, $matches)) {
                 return array('time'    => $matches[1].$separator.$matches[2].(isset_get($matches[3]) ? $separator.$matches[3] : ''),
                              'format'  => '24',
                              'hours'   => $matches[1],
@@ -212,7 +212,7 @@ function time_validate($time, $format = false, $separator = ':') {
             }
         }
 
-        if($format) {
+        if ($format) {
             /*
              * The time format is either not valid at all, or not valid for the specifed 12H or 24H format
              */
@@ -242,11 +242,11 @@ function time_format($time, $format = 24, $separator = ':') {
             /*
              * Go for 12H format
              */
-            if($time['format'] == '12') {
+            if ($time['format'] == '12') {
                 return $time['time'];
             }
 
-            if($time['hours'] > 11) {
+            if ($time['hours'] > 11) {
                 $time['hours']  -= 12;
                 $time['period']  = 'PM';
 
@@ -254,7 +254,7 @@ function time_format($time, $format = 24, $separator = ':') {
                 $time['period']  = 'AM';
             }
 
-            if($time['seconds'] === null) {
+            if ($time['seconds'] === null) {
                 return $time['hours'].$separator.$time['minutes'].' '.$time['period'];
             }
 
@@ -264,22 +264,22 @@ function time_format($time, $format = 24, $separator = ':') {
             /*
              * Go for 24H format
              */
-            if($time['format'] == '24') {
+            if ($time['format'] == '24') {
                 return $time['time'];
             }
 
-            if($time['period'] == 'PM') {
+            if ($time['period'] == 'PM') {
                 $time['hours'] += 12;
             }
 
-            if($time['seconds'] === null) {
+            if ($time['seconds'] === null) {
                 return $time['hours'].$separator.$time['minutes'];
             }
 
             return $time['hours'].$separator.$time['minutes'].$separator.$time['seconds'];
 
         default:
-            throw BException(tr('time_format(): Unknown format ":format" specified', array(':format' => $format)), 'unknown');
+            throw CoreException(tr('time_format(): Unknown format ":format" specified', array(':format' => $format)), 'unknown');
     }
 }
 ?>

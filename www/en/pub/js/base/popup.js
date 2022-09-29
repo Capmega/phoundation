@@ -10,7 +10,7 @@
                 $("body").append(data);
                 $.popup.center(data);
 
-                if(typeof cb == "function") {
+                if (typeof cb == "function") {
                     cb(url);
                 }
                 //disable scrolling
@@ -48,6 +48,6 @@
 
 //close on background and closebutton
 $(document).on("click", ".popup.close", function(e) {
-	if(e.target != this) return; // only continue if the target itself has been clicked
+	if (e.target != this) return; // only continue if the target itself has been clicked
 	base_popup_destroy($(this));
 });

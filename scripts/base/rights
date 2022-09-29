@@ -26,7 +26,7 @@ switch(cli_method()) {
                              WHERE  `status` IS NULL
                              OR     `status` != "_new" '.sql_limit());
 
-        if(!$rights->rowCount()) {
+        if (!$rights->rowCount()) {
             log_console(tr('There are currently no rights available'), 'QUIET/yellow');
 
         } else {
@@ -44,7 +44,7 @@ switch(cli_method()) {
         $requested = cli_argument(1);
         cli_no_arguments_left();
 
-        if(!$requested) {
+        if (!$requested) {
             throw new CoreException(tr('No user specified'), 'warning/not-specified');
         }
 
@@ -65,7 +65,7 @@ switch(cli_method()) {
                                ':email'    => $requested,
                                ':username' => $requested));
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $requested)), 'warning/not-exist');
         }
 
@@ -82,7 +82,7 @@ switch(cli_method()) {
 
                              array(':users_id' => $user['id']));
 
-        if(!$rights->rowCount()) {
+        if (!$rights->rowCount()) {
             log_console(tr('This user has no rights assigned'), 'QUIET/yellow');
 
         } else {
@@ -123,7 +123,7 @@ switch(cli_method()) {
         try{
             $old_right = cli_argument(1);
 
-            if(!$old_right) {
+            if (!$old_right) {
                 throw new CoreException(tr('No right specified'), 'warning/not-specified');
             }
 
@@ -141,7 +141,7 @@ switch(cli_method()) {
                                   OR     `name` = :name', array(':id'   => $old_right,
                                                                 ':name' => $old_right));
 
-            if(!$old_right) {
+            if (!$old_right) {
                 throw new CoreException(tr('Specified right ":right" does not exist', array(':right' => $old_right)), 'warning/not-specified');
             }
 
@@ -185,14 +185,14 @@ switch(cli_method()) {
     case 'delete':
         $rights = arguments();
 
-        if(empty($rights)) {
+        if (empty($rights)) {
             throw new CoreException(tr('No rights specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($rights, 'name');
         $in_id   = sql_in($rights, 'id');
 
-        if(FORCE) {
+        if (FORCE) {
             $status = '';
 
         } else {
@@ -226,14 +226,14 @@ switch(cli_method()) {
     case 'undelete':
         $rights = arguments();
 
-        if(empty($rights)) {
+        if (empty($rights)) {
             throw new CoreException(tr('No rights specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($rights, 'name');
         $in_id   = sql_in($rights, 'id');
 
-        if(FORCE) {
+        if (FORCE) {
             $status = '';
 
         } else {
@@ -267,14 +267,14 @@ switch(cli_method()) {
     case 'erase':
         $rights = arguments();
 
-        if(empty($rights)) {
+        if (empty($rights)) {
             throw new CoreException(tr('No rights specified'), 'warning/not-specified');
         }
 
         $in_name = sql_in($rights, 'name');
         $in_id   = sql_in($rights, 'id');
 
-        if(FORCE) {
+        if (FORCE) {
             $status = '';
 
         } else {
@@ -305,7 +305,7 @@ switch(cli_method()) {
 
                          $in);
 
-        if(!$r->rowCount()) {
+        if (!$r->rowCount()) {
             log_console(tr('Not erased any rights'), 'error');
 
         } else {

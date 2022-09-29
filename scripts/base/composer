@@ -49,7 +49,7 @@ switch(cli_method()) {
     case 'search':
         $query = cli_arguments();
 
-        if(!$query) {
+        if (!$query) {
             throw new CoreException(tr('No query specified'), 'not-specified');
         }
 
@@ -64,7 +64,7 @@ switch(cli_method()) {
     case 'show':
         $query = cli_arguments();
 
-        if(!$query) {
+        if (!$query) {
             throw new CoreException(tr('No query specified'), 'not-specified');
         }
 

@@ -344,7 +344,7 @@ class socialmedia_oauth_connect
 
       public function Authorize() {
 
-          if($this->oauth_version == "2.0") {
+          if ($this->oauth_version == "2.0") {
               $dialog_url = $this->dialogUrl
                   ."client_id=".$this->client_id
             ."&response_type=".$this->responseType
@@ -388,12 +388,12 @@ class socialmedia_oauth_connect
           $getAccessToken_value = $this->getAccessToken();
           $getatoken = json_decode( stripslashes($getAccessToken_value) );
 
-        if( $getatoken === NULL ) {
+        if ( $getatoken === NULL ) {
             $atoken=$getAccessToken_value;
 
            } else {
-            if(!empty($getatoken->error)) {
-                if(is_object($getatoken->error)) {
+            if (!empty($getatoken->error)) {
+                if (is_object($getatoken->error)) {
                     throw new Exception('socialmedia_oauth_connect->getUserProfile(): Provider "'.$this->provider.'" returned error "'.$getatoken->error->code.'" with message "'.$getatoken->error->message.'"');
                 }
 
@@ -403,7 +403,7 @@ class socialmedia_oauth_connect
                $atoken = $getatoken->access_token;
            }
 
-           if(strtolower($this->provider) == 'yammer') {
+           if (strtolower($this->provider) == 'yammer') {
                $atoken = $getatoken->access_token->token;
            }
 
@@ -455,7 +455,7 @@ class socialmedia_oauth_connect
 
     }
     curl_setopt_array( $ch, $options );
-    if($this->header) {
+    if ($this->header) {
 
         curl_setopt( $ch, CURLOPT_HTTPHEADER, array( $this->header . $postvals) );
     }

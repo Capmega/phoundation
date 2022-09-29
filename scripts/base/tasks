@@ -102,32 +102,32 @@ under_construction('add');
         $id = cli_argument();
         cli_no_arguments_left();
 
-        if(empty($id)) {
+        if (empty($id)) {
             throw new CoreException(tr('No task specified'), 'warning/not-specified');
         }
 
-        if(!is_natural($id)) {
+        if (!is_natural($id)) {
             throw new CoreException(tr('The specified task ":id" is invalid', array(':id' => $id)), 'warning/invalid');
         }
 
         $task = sql_get('SELECT `id`, `status` FROM `tasks` WHERE `id` = :id', array(':id' => $id));
 
-        if(!$task) {
+        if (!$task) {
             throw new CoreException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
-        if($task['status'] === 'processing') {
+        if ($task['status'] === 'processing') {
             /*
              * This task is running!
              */
-            if(!FORCE) {
+            if (!FORCE) {
                 throw new CoreException(tr('Task ":id" is currently in process! Use FORCE to delete it', array(':id' => $id)), 'warning/not-authorized');
             }
         }
 
         $r = sql_query('DELETE FROM `tasks` WHERE `id` = :id', array(':id' => $id));
 
-        if(!$r->rowCount()) {
+        if (!$r->rowCount()) {
             log_console(tr('No tasks were deleted'), 'yellow');
 
         } else {
@@ -145,16 +145,16 @@ under_construction('add');
 
         cli_no_arguments_left();
 
-        if($core->register['all']) {
-            if($status) {
+        if ($core->register['all']) {
+            if ($status) {
                 throw new CoreException(tr('--status cannot be used with --all'), 'warning/invalid');
             }
 
-            if(!FORCE) {
+            if (!FORCE) {
                 throw new CoreException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
             }
 
-            if($only_data) {
+            if ($only_data) {
                 /*
                  * Only clear data and results fields
                  */
@@ -167,7 +167,7 @@ under_construction('add');
             }
 
         } else {
-            if(!$status) {
+            if (!$status) {
                 $status = array('completed', 'failed', 'timeout');
 
             } else {
@@ -187,14 +187,14 @@ under_construction('add');
                             break;
 
                         default:
-                            if(!FORCE) {
+                            if (!FORCE) {
                                 throw new CoreException(tr('In order to clear non "completed" tasks, use the FORCE option'), 'warning/not-authorized');
                             }
                     }
                 }
             }
 
-            if($only_data) {
+            if ($only_data) {
                 /*
                  * Only clear data and results fields
                  */
@@ -212,7 +212,7 @@ under_construction('add');
             }
         }
 
-        if(!$r->rowCount()) {
+        if (!$r->rowCount()) {
             log_console(tr('No tasks were cleared'), 'yellow');
 
         } else {
@@ -226,32 +226,32 @@ under_construction('add');
 
         cli_no_arguments_left();
 
-        if($core->register['all']) {
-            if($status) {
+        if ($core->register['all']) {
+            if ($status) {
                 throw new CoreException(tr('--status cannot be used with --all'), 'warning/invalid');
             }
 
-            if(!QUIET) {
+            if (!QUIET) {
                 log_console(tr('Showing all tasks (parent task id with * means this task executes in parrallel)'), 'white');
             }
 
         } else {
-            if(!$status) {
+            if (!$status) {
                 $status = 'new,processing';
             }
 
-            if(!QUIET) {
+            if (!QUIET) {
                 log_console(tr('Showing tasks with status ":status" (parent task id with * means this task executes in parrallel)', array(':status' => $status)), 'white');
             }
         }
 
         $tasks = tasks_list($status);
 
-        if(!$tasks->rowCount()) {
+        if (!$tasks->rowCount()) {
             log_console(tr('There are no tasks available with the specified filters'), 'yellow');
 
         } else {
-            if(!QUIET) {
+            if (!QUIET) {
                 log_console(str_size('#id', 6).' '.str_size('Meta id', 7).' '.str_size('User', 22).' '.str_size('Parent task id', 14).' '.str_size('Command', 32).' '.str_size('Status', 16).' '.str_size('Description', 48).' '.str_size('Execution method', 20).' '.str_size('Timeout', 4).' '.str_size('Time spent', 10), 'cyan');
             }
 
@@ -282,13 +282,13 @@ under_construction('add');
         $id = cli_argument();
         cli_no_arguments_left();
 
-        if(!is_natural($id)) {
+        if (!is_natural($id)) {
             throw new CoreException(tr('The specified task ":id" is not valid', array(':id' => $id)), 'warning/invalid');
         }
 
         $task = tasks_get($id);
 
-        if(!$task) {
+        if (!$task) {
             throw new CoreException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
@@ -326,7 +326,7 @@ under_construction('add');
         log_console(cli_color('Description:', 'white').' '.$description);
         log_console(cli_color('Data:', 'white'));
 
-        if(empty($data)) {
+        if (empty($data)) {
             log_console(tr('This task has no data'), 'yellow');
 
         } else {
@@ -345,7 +345,7 @@ under_construction('add');
                 log_console();
                 log_console(cli_color('Results:', 'white'));
 
-                if(empty($results)) {
+                if (empty($results)) {
                     log_console(tr('This task has no results'), 'yellow');
 
                 } else {
@@ -361,17 +361,17 @@ under_construction('add');
         $id = cli_argument();
         cli_no_arguments_left();
 
-        if(!is_natural($id)) {
+        if (!is_natural($id)) {
             throw new CoreException(tr('The specified task ":id" is not valid', array(':id' => $id)), 'warning/invalid');
         }
 
         $task = tasks_get($id);
 
-        if(!$task) {
+        if (!$task) {
             throw new CoreException(tr('The specified task ":id" does not exist', array(':id' => $id)), 'warning/not-exist');
         }
 
-        if(($task['status'] !== 'failed') and ($task['status'] !== 'timeout') and !FORCE) {
+        if (($task['status'] !== 'failed') and ($task['status'] !== 'timeout') and !FORCE) {
             throw new CoreException(tr('Cannot reset task ":id", it has status ":status" instead of "failed" or "timeout". Use FORCE to reset the task anyway', array(':id' => $task['id'], ':status' => $task['status'])), 'warning/invalid');
         }
 
@@ -385,7 +385,7 @@ under_construction('add');
         cli_no_arguments_left();
         load_libs('date,time');
 
-        if(!$restarts and ($restarts !== '0')) {
+        if (!$restarts and ($restarts !== '0')) {
             $restarts = $_CONFIG['tasks']['restart']['amount'];
         }
 
@@ -395,8 +395,8 @@ under_construction('add');
         log_console(tr('Started tasks execution...'), 'white');
 
         while(true) {
-            if($count > 50) {
-                if(--$restarts <= 0) {
+            if ($count > 50) {
+                if (--$restarts <= 0) {
                     log_console(tr('Passed the maximum amount of restart cycles, quitting'));
                     die();
                 }
@@ -408,12 +408,12 @@ under_construction('add');
 
             $task = tasks_get('new,waiting_parent', 'processing', $previous);
 
-            if(!$task) {
+            if (!$task) {
                 log_console(tr('No new tasks found, quitting'), 'yellow');
                 break;
             }
 
-            if($task['id'] == $previous) {
+            if ($task['id'] == $previous) {
                 /*
                  * This task passed just now, meaning there are no new tasks
                  */
@@ -428,18 +428,18 @@ under_construction('add');
                 /*
                  * Task depends on parent?
                  */
-                if($task['parents_id']) {
+                if ($task['parents_id']) {
                     /*
                      * Check if its parent task has already been executed
                      */
                     $parent = sql_get('SELECT `id`, `status` FROM `tasks` WHERE `id` = :id', array(':id' => $task['parents_id']));
 
-                    if(!$parent) {
+                    if (!$parent) {
                         throw new CoreException(tr('Task ":task" has parents_id ":parent" but this parent does not exist', array(':task' => $task['id'], ':parent' => $task['parents_id'])), 'warning/not-exists');
                     }
 
-                    if($task['parrallel']) {
-                        if(($parent['status'] !== 'completed') and ($parent['status'] !== 'processing')) {
+                    if ($task['parrallel']) {
+                        if (($parent['status'] !== 'completed') and ($parent['status'] !== 'processing')) {
                             /*
                              * Cannot execute this task, the parent task hasn't started yet!
                              */
@@ -451,7 +451,7 @@ under_construction('add');
                         }
 
                     } else {
-                        if($parent['status'] !== 'completed') {
+                        if ($parent['status'] !== 'completed') {
                             /*
                              * Cannot execute this task, the parent task hasn't been completed yet!
                              */
@@ -467,7 +467,7 @@ under_construction('add');
                 /*
                  * Task executes after DATE?
                  */
-                if($task['after']) {
+                if ($task['after']) {
                     $interval = date_convert($task['after'], 'object')->diff(new DateTime());
                 }
 
@@ -477,7 +477,7 @@ under_construction('add');
                 $task['data']    = json_decode_custom($task['data']);
                 $task['data'][]  = '--no-color';
 
-                if($task['timeout']) {
+                if ($task['timeout']) {
                     set_time_limit($task['timeout']);
                 }
 
@@ -486,7 +486,7 @@ under_construction('add');
                 $options   = '';
                 $arguments = array();
 
-                if(!empty($task['data']['method'])) {
+                if (!empty($task['data']['method'])) {
                     $options .= ' '.$task['data']['method'];
                     unset($task['data']['method']);
                 }
@@ -495,8 +495,8 @@ under_construction('add');
                 ///*
                 // * Run the task in verbose mode?
                 // */
-                //if(VERBOSE) {
-                //    if(VERYVERBOSE) {
+                //if (VERBOSE) {
+                //    if (VERYVERBOSE) {
                 //        $task['data'][] = '--very-verbose';
                 //
                 //    } else {
@@ -505,9 +505,9 @@ under_construction('add');
                 //}
 
                 foreach($task['data'] as $key => $value) {
-                    if(empty($value)) continue;
+                    if (empty($value)) continue;
 
-                    if(is_integer($key)) {
+                    if (is_integer($key)) {
                         $options    .= ' "'.$value.'"';
                         $arguments[] = $value;
 
@@ -549,7 +549,7 @@ under_construction('add');
                         /*
                          * Execute this task as an internal function
                          */
-                        if(isset($task['load_libs'])) {
+                        if (isset($task['load_libs'])) {
                             load_libs($task['load_libs']);
                             unset($task['load_libs']);
                         }
@@ -584,7 +584,7 @@ under_construction('add');
                 $end  = microtime(true);
                 $data = $e->getData();
 
-                if($e->isWarning()) {
+                if ($e->isWarning()) {
                     $color = 'yellow';
 
                 } else {
@@ -596,7 +596,7 @@ under_construction('add');
                 try{
                     log_console(tr('Task ":task" failed with ":e" in ":time"', array(':task' => $task['id'], ':e' => $e, ':time' => time_difference($start, $end, 'auto', 5))), $color);
 
-                    if($data) {
+                    if ($data) {
                         log_console(tr('Failed task ":task" exitcode: :code', array(':code' => $e->getRealCode())), $color);
                         log_console(tr('Failed task ":task" output:', array(':task' => $task['id'])), $color);
                         log_console($data, 'red');
@@ -606,7 +606,7 @@ under_construction('add');
                         $task['results'] = array_merge($e->getMessages(), array(' '), Arrays::force($e->getData()));
                     }
 
-                    if($e->getRealCode() == '124') {
+                    if ($e->getRealCode() == '124') {
                         $task['status'] = 'timeout';
 
                     } else {
@@ -627,7 +627,7 @@ under_construction('add');
             }
         }
 
-        if($count) {
+        if ($count) {
             log_console(tr('Executed ":count" tasks', array(':count' => $count)), 'green');
         }
 

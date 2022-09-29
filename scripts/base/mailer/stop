@@ -13,7 +13,7 @@ try{
 
     load_libs('mailer');
 
-    if($count = mailer_stop($argv)) {
+    if ($count = mailer_stop($argv)) {
         log_console('Stopped "'.$count.'" mailers', '', 'white');
 
     } else {

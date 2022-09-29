@@ -17,10 +17,10 @@ function formats_phone($phone) {
     try{
         $phone = trim(str_replace(array(' ', '-', '.', '(', ')'), '', $phone));
 
-        if($phone[0] == '+') {
+        if ($phone[0] == '+') {
             return substr($phone, 0, -10).' ('.substr($phone, -10, 3).') '.substr($phone, -7, 3).' '.substr($phone, -4, 4);
 
-        } elseif(strlen($phone[0]) > 10) {
+        } elseif (strlen($phone[0]) > 10) {
             return '+'.substr($phone, 0, -10).' ('.substr($phone, -10, 3).') '.substr($phone, -7, 3).' '.substr($phone, -4, 4);
 
         } else {

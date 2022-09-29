@@ -47,21 +47,21 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
         array_default($params, 'sentence' , true);
         array_default($params, 'paragraph', true);
 
-        if(empty($params['text'])) {
+        if (empty($params['text'])) {
             throw new CoreException('wordai(): No text specified');
         }
 
-        if(!is_numeric($params['quality']) or ($params['quality'] < 0) or ($params['quality'] > 100)) {
+        if (!is_numeric($params['quality']) or ($params['quality'] < 0) or ($params['quality'] > 100)) {
             throw new CoreException('wordai(): Invalid quality specified, ensure it is a number between 0 and 100');
         }
 
         $params['quality'] = floor($params['quality']);
 
-        if(empty($params['email'])) {
+        if (empty($params['email'])) {
             throw new CoreException('wordai(): No email specified');
         }
 
-        if(empty($params['password'])) {
+        if (empty($params['password'])) {
             throw new CoreException('wordai(): No password specified');
         }
 
@@ -78,35 +78,35 @@ function wordai($params, $email, $password, $quality = 50, $json = true) {
         /*
          * Other options
          */
-        if(isset_get($params['nonested'])) {
+        if (isset_get($params['nonested'])) {
             $post['nonested'] = 'on';
         }
 
-        if(isset_get($params['sentence'])) {
+        if (isset_get($params['sentence'])) {
             $post['sentence'] = 'on';
         }
 
-        if(isset_get($params['paragraph'])) {
+        if (isset_get($params['paragraph'])) {
             $post['paragraph'] = 'on';
         }
 
-        if(isset_get($params['paragraph'])) {
+        if (isset_get($params['paragraph'])) {
             $post['paragraph'] = 'on';
         }
 
-        if(isset_get($params['returnspin'])) {
+        if (isset_get($params['returnspin'])) {
             $post['returnspin'] = 'true';
         }
 
-        if(isset_get($params['nooriginal'])) {
+        if (isset_get($params['nooriginal'])) {
             $post['nooriginal'] = 'on';
         }
 
-        if(isset_get($params['protected'])) {
+        if (isset_get($params['protected'])) {
             $post['protected'] = str_force($params['protected'], ',');
         }
 
-        if(isset_get($params['synonyms'])) {
+        if (isset_get($params['synonyms'])) {
 // :TEST: Not 100% sure if this will produce the correct syntax, test first!
 throw new CoreException('wordai(): Test the "synonymns" option befure using it, since the formatter for this option has not been tested yet!');
 
@@ -125,7 +125,7 @@ throw new CoreException('wordai(): Test the "synonymns" option befure using it, 
 
         $curl['data'] = json_decode_custom($curl['data']);
 
-        if(strtolower(trim($curl['data']['status'])) != 'success') {
+        if (strtolower(trim($curl['data']['status'])) != 'success') {
             throw new CoreException('wordai(): wordai API returned status "'.str_log($curl['data']['status']).'" with error "'.str_log(isset_get($curl['data']['error'])).'"', 'failed', $curl['data']);
         }
 

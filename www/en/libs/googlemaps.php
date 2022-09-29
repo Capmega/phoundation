@@ -50,7 +50,7 @@ function googlemaps_basic($latitude = null, $longitude = null, $zoom = 8, $api_k
     global $_CONFIG;
 
     try{
-        if(!$api_key) {
+        if (!$api_key) {
             $api_key = $_CONFIG['google']['maps']['api_key'];
         }
 
@@ -145,11 +145,11 @@ function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
         /*
          * Validate sizes
          */
-        if(($x > 640) or ($x < 0)) {
+        if (($x > 640) or ($x < 0)) {
             $x = 640;
         }
 
-        if(($y > 640) or ($y < 0)) {
+        if (($y > 640) or ($y < 0)) {
             $y = 640;
         }
 
@@ -157,8 +157,8 @@ function googlemaps_get_streetview_image($lat, $long, $x = 640, $y = 480) {
 
         $data = curl_get('http://maps.googleapis.com/maps/api/streetview?size='.$x.'x'.$y.'&location='.$lat.',%20'.$long.'&sensor=true&key='.$_CONFIG['google_maps']['api_key'],'http://'.$_SESSION['domain']);
 
-        if(isset($data['status']['http_code']) and ($data['status']['http_code'] == 200)) {
-            if(strlen($data['data'])<10000) {
+        if (isset($data['status']['http_code']) and ($data['status']['http_code'] == 200)) {
+            if (strlen($data['data'])<10000) {
                 return false;
 
             } else {
@@ -185,10 +185,10 @@ function googlemaps_cache_streetmaps($lat, $long, $x = 640, $y = 480) {
         $cache_dir  = ROOT.'www/streetview_cache/';
         $cache_file = str_interleave($cache_md5, '/', 4).'.jpg';
 
-        if(!file_exists($cache_dir.$cache_file)) {
+        if (!file_exists($cache_dir.$cache_file)) {
             $filedata = googlemaps_get_streetview_image($lat, $long, $x, $y);
 
-            if(empty($filedata)) {
+            if (empty($filedata)) {
                 return false;
 
             } else {
@@ -232,28 +232,28 @@ function googlemaps_map_with_markers($markers = array(), $divid = 'map-canvas') 
 
                 var locations = [';
 
-            if(empty($markers)) {
+            if (empty($markers)) {
                 throw new CoreException('googlemaps_map_with_markers(): Failed to place any markers', isset_get($e, 'markerfailed'));
             }
             foreach($markers as $key => $data) {
                 try{
-                    if(empty($data['lat'])) {
+                    if (empty($data['lat'])) {
                         throw new CoreException('googlemaps_map_with_markers(): No latitute specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
                     }
 
-                    if(empty($data['lng'])) {
+                    if (empty($data['lng'])) {
                         throw new CoreException('googlemaps_map_with_markers(): No longitude specified for marker "'.$key.'"', isset_get($e, 'markerfailed'));
                     }
 
-                    if(!isset($first)) {
+                    if (!isset($first)) {
                         $first=$data;
                     }
 
-                    if(empty($data['icon'])) {
+                    if (empty($data['icon'])) {
                         $data['icon']='/pub/img/googlemaps/a.png';
                     }
 
-                    if(empty($data['draggable'])) {
+                    if (empty($data['draggable'])) {
                         $data['draggable'] = 'false';
                     }
 
@@ -375,7 +375,7 @@ function googlemaps_geocoding($street, $city, $state, $country) {
         $raw  = curl_get('http://maps.googleapis.com/maps/api/geocode/json?address='.urlencode($street).','.urlencode($city).','.urlencode($state).','.urlencode($country).'&sensor=false','http://'.$_SESSION['domain']);
         $data = json_decode_custom($raw['data'], true);
 
-        if(!empty($data['results'][0]['geometry']['location']['lat'])) {
+        if (!empty($data['results'][0]['geometry']['location']['lat'])) {
             return $data['results'][0]['geometry']['location'];
         }
 
@@ -395,11 +395,11 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
     global $_CONFIG;
 
     try{
-        if(empty($latitude) or empty($longitude)) {
+        if (empty($latitude) or empty($longitude)) {
             throw new CoreException('googlemaps_reverse_geocoding(): Latitude or Longitude empty', 'invalid');
         }
 
-        if($sensor === null) {
+        if ($sensor === null) {
             /*
              * Guess if the customer has a sensor or not
              */
@@ -413,7 +413,7 @@ function googlemaps_reverse_geocoding($latitude, $longitude, $sensor = null) {
 
         $data = json_decode_custom($raw['data'], true);
 
-        if(!empty($data['results'])) {
+        if (!empty($data['results'])) {
             return $data['results'];
         }
 
@@ -435,7 +435,7 @@ function googlemaps_markers($locations, $longitude = null) {
     try{
         load_config('googlemaps');
 
-        if(!is_array($locations)) {
+        if (!is_array($locations)) {
             $locations = array(array('latitude'  => $locations,
                                      'longitude' => $longitude));
         }

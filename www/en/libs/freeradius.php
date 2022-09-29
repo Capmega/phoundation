@@ -55,7 +55,7 @@ function freeradius_library_init() {
  */
 function freeradius_install($params) {
     try{
-        if(!file_which('freeradius')) {
+        if (!file_which('freeradius')) {
             /*
              * Install freeradius
              */
@@ -94,13 +94,13 @@ function freeradius_sync_server($devices_local) {
         $devices_remote = sql_list('SELECT `username` FROM `radcheck`', null, false, 'radius');
 
         foreach($devices_local as $device) {
-            if(in_array($device['mac_address'], $devices_remote)) {
-                if($device['status'] == 'deleted') {
+            if (in_array($device['mac_address'], $devices_remote)) {
+                if ($device['status'] == 'deleted') {
                     radius_delete_device_server($device);
                 }
 
             } else {
-                if($device['status'] === null) {
+                if ($device['status'] === null) {
                     radius_insert_device_server($device);
                 }
             }
@@ -109,7 +109,7 @@ function freeradius_sync_server($devices_local) {
         $devices_local_mac  = sql_list('SELECT `mac_address` FROM `radius_devices`');
 
         foreach($devices_remote as $device) {
-            if(!in_array($device, $devices_local_mac)) {
+            if (!in_array($device, $devices_local_mac)) {
                 radius_delete_device_server(array('mac_address' => $device, 'status' => 'DELETED'));
             }
         }
@@ -273,7 +273,7 @@ function freeradius_test_device($device) {
     }catch(Exception $e) {
         load_libs('linux');
 
-        if(!linux_which($_CONFIG['radius']['server'], 'radtest')) {
+        if (!linux_which($_CONFIG['radius']['server'], 'radtest')) {
             throw new CoreException(tr('freeradius_test_device(): The program "radtest" is not installed on server""', array(':server' => $_CONFIG['radius']['server'])), $e);
         };
 

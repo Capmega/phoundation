@@ -72,20 +72,20 @@ function stream($params) {
 
         $mimetype = mime_content_type($params['file']);
 
-        if($params['mimetype']) {
+        if ($params['mimetype']) {
             /*
              * Ensure the specified file maches the mimetype
              */
-            if($params['strict']) {
+            if ($params['strict']) {
                 /*
                  * Match the entire mimetype
                  */
-                if($mimetype !== $params['mimetype']) {
+                if ($mimetype !== $params['mimetype']) {
                     throw new CoreException(tr('stream(): Specified file ":file" failed strict mimetype check. If has mimetype ":has" while ":requested" was requested', array(':has' => $mimetype, ':mimetype' => $params['mimetype'])), 'not-authorized');
                 }
 
             } else {
-                if(Strings::until($mimetype, '/') !== Strings::until($params['mimetype'], '/')) {
+                if (Strings::until($mimetype, '/') !== Strings::until($params['mimetype'], '/')) {
                     throw new CoreException(tr('stream(): Specified file ":file" failed lax mimetype check. If has mimetype ":has" while ":requested" was requested', array(':has' => Strings::until($mimetype, '/'), ':mimetype' => Strings::until($params['mimetype'], '/'))), 'not-authorized');
                 }
             }
@@ -129,21 +129,21 @@ function stream($params) {
  */
 function stream_open(&$params) {
     try{
-        if(empty($params['file'])) {
+        if (empty($params['file'])) {
             throw new CoreException(tr('stream_open(): No file specified'), 'not-specified');
         }
 
-        if(!file_exists($params['file'])) {
+        if (!file_exists($params['file'])) {
             throw new CoreException(tr('stream_open(): Specified file ":file" does not exist', array(':file' => $params['file'])), 'not-exist');
         }
 
-        if(!is_readable($params['file'])) {
+        if (!is_readable($params['file'])) {
             throw new CoreException(tr('stream_open(): Specified file ":file" is not readable', array(':file' => $params['file'])), 'not-readable');
         }
 
         $params['resource'] = fopen($this->path, 'rb');
 
-        if(!$params['resource']) {
+        if (!$params['resource']) {
             throw new CoreException(tr('stream_open(): Failed to open file ":file" for streaming', array(':file' => $params['file'])), $e);
         }
 
@@ -180,13 +180,13 @@ function stream_close($params) {
 
         array_default($params, 'die', true);
 
-        if(empty($params['resource'])) {
+        if (empty($params['resource'])) {
             throw new CoreException(tr('stream_close(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
         }
 
         fclose($params['resource']);
 
-        if(empty($params['die'])) {
+        if (empty($params['die'])) {
             die();
         }
 
@@ -272,11 +272,11 @@ function stream_video_data_headers($params) {
     try{
         Arrays::ensure($params, 'mimetype,cache_max_age,start,end,size');
 
-        if(empty($params['resource'])) {
+        if (empty($params['resource'])) {
             throw new CoreException(tr('stream_video_data_headers(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
         }
 
-        if(empty($params['file'])) {
+        if (empty($params['file'])) {
             throw new CoreException(tr('stream_video_data_headers(): No video file specified'), 'not-specified');
         }
 
@@ -292,7 +292,7 @@ function stream_video_data_headers($params) {
 
         header('Accept-Ranges: 0-'.$params['end']);
 
-        if(empty($_SERVER['HTTP_RANGE'])) {
+        if (empty($_SERVER['HTTP_RANGE'])) {
             header('Content-Length: '.$params['size']);
             return;
         }
@@ -302,13 +302,13 @@ function stream_video_data_headers($params) {
 
         list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
 
-        if(strpos($range, ',') !== false) {
+        if (strpos($range, ',') !== false) {
             header('HTTP/1.1 416 Requested Range Not Satisfiable');
             header('Content-Range: bytes '.$params['start'].'-'.$params['end'].'/'.$params['size']);
             die();
         }
 
-        if($range == '-') {
+        if ($range == '-') {
             $c_start = $params['size'] - substr($range, 1);
 
         } else {
@@ -319,7 +319,7 @@ function stream_video_data_headers($params) {
 
         $c_end = (($c_end > $params['end']) ? $params['end'] : $c_end);
 
-        if(($c_start > $c_end) || ($c_start > $params['size'] - 1) || ($c_end >= $params['size'])) {
+        if (($c_start > $c_end) || ($c_start > $params['size'] - 1) || ($c_end >= $params['size'])) {
             header('HTTP/1.1 416 Requested Range Not Satisfiable');
             header('Content-Range: bytes '.$params['start'].'-'.$params['end'].'/'.$params['size']);
             die();
@@ -365,11 +365,11 @@ function stream_video_data($params) {
         array_default($params, 'buffer', $_CONFIG['stream']['buffer']);
 
 
-        if(empty($params['resource'])) {
+        if (empty($params['resource'])) {
             throw new CoreException(tr('stream_video_data_headers(): No video file resource opened. Please open one first using stream_open(), or just use stream()'), 'not-specified');
         }
 
-        if(empty($params['file'])) {
+        if (empty($params['file'])) {
             throw new CoreException(tr('stream_video_data_headers(): No video file specified'), 'not-specified');
         }
 
@@ -382,7 +382,7 @@ function stream_video_data($params) {
         while(!feof($params['resource']) && $i <= $params['end']) {
             $bytesToRead = $params['buffer'];
 
-            if(($i + $bytesToRead) > $params['end']) {
+            if (($i + $bytesToRead) > $params['end']) {
                 $bytesToRead = $params['end'] - $i + 1;
             }
 

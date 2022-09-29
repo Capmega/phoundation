@@ -12,7 +12,7 @@ try{
     /*
      * Update password
      */
-    if(isset_get($_POST['doupdate'])) {
+    if (isset_get($_POST['doupdate'])) {
         /*
          * Validate data
          */
@@ -26,7 +26,7 @@ try{
         html_flash_set(log_database('Updated password for user "'.str_log(user_name($_SESSION['user'])).'"', 'update-password'), 'success');
         redirect(domain('/admin/profile.php'));
 
-    } elseif(isset_get($_POST['doupdate2'])) {
+    } elseif (isset_get($_POST['doupdate2'])) {
         /*
          * Update pin
          * Validate data

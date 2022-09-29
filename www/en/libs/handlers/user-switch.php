@@ -11,14 +11,14 @@ try{
     /*
      * Does the specified user exist?
      */
-    if(!$user = sql_get('SELECT *, `email` FROM `users` WHERE `id` = :id', array(':id' => $users_id))) {
+    if (!$user = sql_get('SELECT *, `email` FROM `users` WHERE `id` = :id', array(':id' => $users_id))) {
         throw new CoreException(tr('user_switch(): The specified user ":id" does not exist', array(':id' => $users_id)), 'not-exists');
     }
 
     /*
      * Only god users may perform user switching
      */
-    if(has_rights('god')) {
+    if (has_rights('god')) {
         /*
          * Switch the current session to the new user
          * Store last login
@@ -33,8 +33,8 @@ try{
         $user['employee'] = companies_get_employee(array('filters' => array('users_id' => $user['id'],
                                                                             'status'   => null)));
 
-        if($user['employee']) {
-            if($user['employee']['customers_id']) {
+        if ($user['employee']) {
+            if ($user['employee']['customers_id']) {
                 /*
                  * Load customers data
                  */
@@ -43,7 +43,7 @@ try{
                                                         'columns' => 'name,seoname'));
             }
 
-            if($user['employee']['providers_id']) {
+            if ($user['employee']['providers_id']) {
                 /*
                  * Load providers data
                  */
@@ -80,13 +80,13 @@ try{
     /*
      * If all is okay, then swith user!
      */
-    if(empty($status)) {
+    if (empty($status)) {
         log_database(tr('Executing user switch from ":from" to ":to"', array(':from' => name($from), ':to' => name($_SESSION['user']))), 'user/switch');
 
         html_flash_set(tr('You are now the user ":user"', array(':user' => name($user))), 'success');
         html_flash_set(tr('You will now be limited to the access level of user ":user"', array(':user' => name($user))), 'warning');
 
-        if($redirect) {
+        if ($redirect) {
             redirect($redirect);
         }
     }

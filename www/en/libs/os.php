@@ -52,7 +52,7 @@ function os_library_init() {
  */
 function os_execute_command($hostname, $command = null) {
     try{
-        if(is_array($hostname)) {
+        if (is_array($hostname)) {
             /*
              * Server data has been specified by calling function
              */
@@ -64,7 +64,7 @@ function os_execute_command($hostname, $command = null) {
              */
             $server = servers_get($hostname);
 
-            if(!$server) {
+            if (!$server) {
                 throw new CoreException(tr('os_execute_command(): Specified hostname ":hostname" does not exist', array(':hostname' => $hostname)), 'not-exists');
             }
         }
@@ -72,7 +72,7 @@ function os_execute_command($hostname, $command = null) {
         /*
          * Ensure we know what function to exexute
          */
-        if($command === null) {
+        if ($command === null) {
             $command = current_function(-1);
 showdie($command);
         }

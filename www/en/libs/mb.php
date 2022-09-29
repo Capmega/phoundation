@@ -33,11 +33,11 @@
  */
 function mb_library_init() {
     try{
-        if(!extension_loaded('mbstring')) {
+        if (!extension_loaded('mbstring')) {
             throw new CoreException(tr('mb_library_init: php module "mbstring" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-mbstring; sudo php5enmod mbstring" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-mbstring" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
         }
 
-        if(!utf8_decode('xml')) {
+        if (!utf8_decode('xml')) {
             throw new CoreException(tr('mb_library_init: php module "xml" appears not to be installed. Please install the modules first. On Ubuntu and alikes, use "sudo apt-get -y install php-xml; sudo php5enmod xml" to install and enable the module., on Redhat and alikes use ""sudo yum -y install php-xml" to install the module. After this, a restart of your webserver or php-fpm server might be needed'), 'missing-module', 'mb');
         }
 
@@ -66,7 +66,7 @@ if (! function_exists ('mb_init'))
        */
       setlocale(LC_CTYPE, $locale.'.UTF-8');
 
-      if(version_compare(phpversion(), '5.6.0') == -1) {
+      if (version_compare(phpversion(), '5.6.0') == -1) {
          /*
           * New PHP 5.6.0 no longer supports iconv_set_encoding() "output_encoding", and by default uses UTF8 for its default_charset
           */
@@ -115,7 +115,7 @@ if (! function_exists ('mb_strtr'))
 {
    function mb_strtr ($str, $from, $to = null)
    {
-      if(is_array($from))
+      if (is_array($from))
       {
          foreach($from as $k => $v)
          {
@@ -131,19 +131,19 @@ if (! function_exists('mb_preg_replace'))
 {
    function mb_preg_replace($pattern, $replacement, $subject, $limit = -1, &$count = null)
    {
-      if(is_array($pattern))
+      if (is_array($pattern))
          foreach($pattern as $k => $v)
             $utf8_pattern[utf8_decode($k)]=utf8_decode($v);
       else
          $utf8_pattern=utf8_decode($pattern);
 
-      if(is_array($replacement))
+      if (is_array($replacement))
          foreach($replacement as $k => $v)
             $utf8_replacement[utf8_decode($k)]=utf8_decode($v);
       else
          $utf8_replacement=utf8_decode($replacement);
 
-      if(is_array($subject))
+      if (is_array($subject))
          foreach($subject as $k => $v)
             $utf8_subject[utf8_decode($k)]=utf8_decode($v);
       else
@@ -151,7 +151,7 @@ if (! function_exists('mb_preg_replace'))
 
       $r = preg_replace ($utf8_pattern,$utf8_replacement,$utf8_subject,$limit,$count);
 
-      if(is_array($r))
+      if (is_array($r))
          foreach($r as $k => $v)
             $return[utf8_encode($k)]=utf8_encode($v);
       else
@@ -172,7 +172,7 @@ if (! function_exists ('mb_str_word_count'))
        * 2 - returns an associative array, where the key is the numeric position of the word inside the string and the value is the actual word itself
        */
       $r = str_word_count(utf8_decode($string),$format,$charlist);
-      if($format == 1 || $format == 2)
+      if ($format == 1 || $format == 2)
       {
          foreach($r as $k => $v)
          {
@@ -204,7 +204,7 @@ if (! function_exists ('mb_htmlentities'))
 //{
 //   function mb_trim ($string, $charlist = null)
 //   {
-//      if($charlist == null)
+//      if ($charlist == null)
 //      {
 //         return utf8_encode(trim (utf8_decode($string)));
 //      }
@@ -250,7 +250,7 @@ if (! function_exists('mb_strip_urls'))
 }
 
 // parse strings as identifiers
-if(!function_exists('mb_string_url'))
+if (!function_exists('mb_string_url'))
 {
    function mb_string_url($string, $to_lower = true)
    {
@@ -285,7 +285,7 @@ function mb_strip_invalid($string, $replace = false) {
 | ( [\xC0-\xFF] )                 # invalid byte in range 11000000 - 11111111
 /x
 END;
-        if($replace) {
+        if ($replace) {
             return preg_replace_callback($regex, 'mb_utf8replacer', $string);
         }
 
@@ -341,12 +341,12 @@ function mb_utf8replacer($captures) {
  */
 function mb_utf8ize($source) {
     try{
-        if(is_array($source)) {
+        if (is_array($source)) {
             foreach ($source as $key => $value) {
                 $source[$key] = mb_utf8ize($value);
             }
 
-        } elseif(is_string($source)) {
+        } elseif (is_string($source)) {
             return utf8_encode($source);
         }
 

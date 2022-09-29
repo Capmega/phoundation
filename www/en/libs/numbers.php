@@ -17,14 +17,14 @@
  *
  */
 function range_limit($number, $max, $min = null) {
-    if(is_numeric($max)) {
-        if($number > $max) {
+    if (is_numeric($max)) {
+        if ($number > $max) {
             return $max;
         }
     }
 
-    if(is_numeric($min)) {
-        if($number < $min) {
+    if (is_numeric($min)) {
+        if ($number < $min) {
             return $min;
         }
     }
@@ -51,22 +51,22 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
         /*
          * Possibly shift parameters
          */
-        if(is_bool($precision)) {
+        if (is_bool($precision)) {
             $precision  = 0;
             $add_suffix = $precision;
         }
 
-        if(!$amount) {
+        if (!$amount) {
             $amount = 0;
         }
 
         $amount = str_replace(',', '', $amount);
 
-        if(!is_numeric($amount)) {
+        if (!is_numeric($amount)) {
             /*
              * Calculate back to bytes
              */
-            if(!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches))  {
+            if (!preg_match('/(\d+(?:\.\d+)?)(\w{1,3})/', $amount, $matches))  {
                 throw new CoreException('bytes_convert(): Specified amount "'.$amount.'" is not a valid byte amount. Format should be either n, or nKB, nKiB, etc');
             }
 
@@ -144,13 +144,13 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
          */
         $amount = ceil($amount);
 
-        if(strtolower($unit) == 'auto') {
+        if (strtolower($unit) == 'auto') {
             /*
              * Auto determine what unit to use
              */
-            if($amount > 1048576) {
-                if($amount > (1048576 * 1024)) {
-                    if($amount > (1048576 * 1048576)) {
+            if ($amount > 1048576) {
+                if ($amount > (1048576 * 1024)) {
+                    if ($amount > (1048576 * 1048576)) {
                         $unit = 'tb';
 
                     } else {
@@ -238,7 +238,7 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
 
         $amount = number_format(round($amount, $precision), $precision);
 
-        if(!$add_suffix) {
+        if (!$add_suffix) {
             return $amount;
         }
 
@@ -268,23 +268,23 @@ function bytes_convert($amount, $unit = 'auto', $precision = 2, $add_suffix = fa
  */
 function human_readable($number, $thousand = 1000, $decimals = 0) {
     try{
-        if($number > pow($thousand, 5)) {
+        if ($number > pow($thousand, 5)) {
             return number_format($number / pow($thousand, 5), $decimals).'P';
         }
 
-        if($number > pow($thousand, 4)) {
+        if ($number > pow($thousand, 4)) {
             return number_format($number / pow($thousand, 4), $decimals).'T';
         }
 
-        if($number > pow($thousand, 3)) {
+        if ($number > pow($thousand, 3)) {
             return number_format($number / pow($thousand, 3), $decimals).'G';
         }
 
-        if($number > pow($thousand, 2)) {
+        if ($number > pow($thousand, 2)) {
             return number_format($number / pow($thousand, 2), $decimals).'M';
         }
 
-        if($number > pow($thousand, 1)) {
+        if ($number > pow($thousand, 1)) {
             return number_format($number / pow($thousand, 1), $decimals).'K';
         }
 
@@ -333,8 +333,8 @@ function numbers_get_step() {
             /*
              * Validate we have numeric values
              */
-            if(!is_numeric($value)) {
-                if(!is_scalar($value)) {
+            if (!is_numeric($value)) {
+                if (!is_scalar($value)) {
                     throw new CoreException(tr('numbers_get_step(): Variable ":key" is not a numeric scalar value, it is an ":type"', array(':key' => $key, ':type' => gettype($value))), 'invalid');
                 }
 
@@ -344,7 +344,7 @@ function numbers_get_step() {
             /*
              * Cleanup the number
              */
-            if($value) {
+            if ($value) {
                 $value = str_replace(',', '.', $value);
                 $value = number_format($value, 10, '.', '');
                 $value = abs($value);
@@ -363,7 +363,7 @@ function numbers_get_step() {
             /*
              * Remember the highest amount of decimals
              */
-            if($decimals > $retval) {
+            if ($decimals > $retval) {
                 $retval = $decimals;
             }
         }
@@ -371,7 +371,7 @@ function numbers_get_step() {
         /*
          * Return the found step
          */
-        if($retval) {
+        if ($retval) {
             return '0.'.str_repeat('0', $retval - 1).'1';
         }
 

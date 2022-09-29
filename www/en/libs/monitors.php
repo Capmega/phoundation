@@ -145,11 +145,11 @@ function monitors_update_host($host) {
  */
 function monitors_get_host($host) {
     try{
-        if(is_numeric($host)) {
+        if (is_numeric($host)) {
             $where   = ' WHERE  `id` = :id ';
             $execute = array(':id' => $host);
 
-        } elseif(is_string($host)) {
+        } elseif (is_string($host)) {
             $where   = ' WHERE  `ip`       = :ip
                         OR      `hostname` = :hostname';
             $execute = array(':id'       => $host,
@@ -193,7 +193,7 @@ function monitors_get_host($host) {
  */
 function monitors_update_interfaces($host, $interfaces) {
     try{
-        if(!is_array($host)) {
+        if (!is_array($host)) {
             $host = monitors_get_host($host);
         }
 

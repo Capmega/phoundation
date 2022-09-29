@@ -10,7 +10,7 @@ try{
                       '');
 
     foreach($commands as $command) {
-        if(!$command or(substr($command, 0, 1) == '#')) continue;
+        if (!$command or(substr($command, 0, 1) == '#')) continue;
 
         script_exec($command);
     }

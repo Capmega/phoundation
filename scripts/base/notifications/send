@@ -21,15 +21,15 @@ try{
 
     $message = implode(' ', cli_argument(null));
 
-    if(empty($class)) {
+    if (empty($class)) {
         throw new CoreException(tr('No class name or id specified'), 'not-specified');
     }
 
-    if(empty($class)) {
+    if (empty($class)) {
         throw new CoreException(tr('No event name specified'), 'not-specified');
     }
 
-    if(empty($class)) {
+    if (empty($class)) {
         throw new CoreException(tr('No message specified'), 'not-specified');
     }
 

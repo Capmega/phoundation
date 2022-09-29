@@ -84,7 +84,7 @@ $skip = array('phoundation' => array(),
  * Test if we're on phoundation or toolkit. This script cannot be used on
  * phoundation, and if we're on toolkit, only check for phoundation changes
  */
-if(!PROJECT) {
+if (!PROJECT) {
     throw new CoreException(tr('This project has no project name, perhaps you are trying to run this on the phoundation project?'), 'warning/invalid');
 }
 
@@ -110,7 +110,7 @@ switch(cli_method()) {
             return file_put_contents($file, $data);
         };
 
-        if(!is_dir($path)) {
+        if (!is_dir($path)) {
             /*
              * This is a specific file, ignore filter, if specified
              */
@@ -124,7 +124,7 @@ switch(cli_method()) {
                                          'follow_symlinks' => $follow_symlinks,
                                          'callback'        => $function));
 
-        if($count) {
+        if ($count) {
             cli_dot(false);
             log_console(tr('Processed ":count" files', array(':count' => $count)), 'green');
 
@@ -149,7 +149,7 @@ switch(cli_method()) {
         $branches             = code_get_phoundation_branch_lines();
         $current_version_line = code_get_version_line(FRAMEWORKCODEVERSION);
 
-        if(!in_array($current_version_line, $branches)) {
+        if (!in_array($current_version_line, $branches)) {
             throw new CoreException(tr('The current version line ":line" is not available in your phoundation project', array(':line' => $current_version_line)), 'warning/not-exists');
         }
 
@@ -225,11 +225,11 @@ switch(cli_method()) {
         /*
          * Determine what type of project this is
          */
-        if(file_exists(ROOT.'www/en/role.php') and file_exists(ROOT.'www/en/roles.php')) {
+        if (file_exists(ROOT.'www/en/role.php') and file_exists(ROOT.'www/en/roles.php')) {
             $type = 'intranet';
             log_console(tr('Detected that this website is intranet site...'), 'VERBOSE');
 
-        } elseif(file_exists(ROOT.'www/en/admin/role.php') and file_exists(ROOT.'www/en/admin/roles.php')) {
+        } elseif (file_exists(ROOT.'www/en/admin/role.php') and file_exists(ROOT.'www/en/admin/roles.php')) {
             $type = 'normal';
             log_console(tr('Detected that this website is a normal site...'), 'VERBOSE');
 
@@ -246,13 +246,13 @@ switch(cli_method()) {
         /*
          * Ensure that phoundation and toolkit have no pending changes
          */
-        if((cli_method() == 'patch') and !FORCE and !$reverse) {
-            if(git_status($paths['phoundation'])) {
+        if ((cli_method() == 'patch') and !FORCE and !$reverse) {
+            if (git_status($paths['phoundation'])) {
                 throw new CoreException(tr('The phoundation project has pending git changes'), 'warning/has-changes');
             }
 
-            if(empty($phoundation_only)) {
-                if(git_status($paths['toolkit'])) {
+            if (empty($phoundation_only)) {
+                if (git_status($paths['toolkit'])) {
                     throw new CoreException(tr('The toolkit project has pending git changes'), 'warning/has-changes');
                 }
             }
@@ -274,7 +274,7 @@ switch(cli_method()) {
                 break;
 
             case 'patch':
-                if($reverse) {
+                if ($reverse) {
                     under_construction();
                 }
 
@@ -293,7 +293,7 @@ switch(cli_method()) {
                 //       continue 2;
                 //}
 
-                if(preg_match('/sitemap.*?.xml/', $file)) {
+                if (preg_match('/sitemap.*?.xml/', $file)) {
                     /*
                      * Skip sitemap files
                      */
@@ -301,7 +301,7 @@ switch(cli_method()) {
                     continue;
                 }
 
-                if(preg_match('/sitemaps\//', $file)) {
+                if (preg_match('/sitemaps\//', $file)) {
                     /*
                      * Skip sitemap directories
                      */
@@ -311,49 +311,49 @@ switch(cli_method()) {
 
                 log_console(tr('Checking file ":file"', array(':file' => $file)), 'VERBOSE/cyan');
 
-                if(preg_match_all('/www\/[a-z]{2}\/admin\/[a-z0-9-_]+\.php/', $file)) {
+                if (preg_match_all('/www\/[a-z]{2}\/admin\/[a-z0-9-_]+\.php/', $file)) {
                     /*
                      * This is an admin UI file
                      */
-                    if(!$phoundation_only) {
-                        if(code_file_exists_in_toolkit(str_replace('admin/', '', $file))) {
+                    if (!$phoundation_only) {
+                        if (code_file_exists_in_toolkit(str_replace('admin/', '', $file))) {
                             log_console(tr('Identified file as toolkit'), 'VERBOSE');
                             $sections['toolkit'][$file] = $status;
                             $marked = true;
                         }
                     }
 
-                } elseif(preg_match_all('/www\/[a-z]{2}\/ajax\/blog\/.+?\.php/', $file)) {
+                } elseif (preg_match_all('/www\/[a-z]{2}\/ajax\/blog\/.+?\.php/', $file)) {
                     /*
                      * This is a blog management system file, managedd by toolkit
                      */
-                    if(!$phoundation_only) {
-                        if(code_file_exists_in_toolkit($file)) {
+                    if (!$phoundation_only) {
+                        if (code_file_exists_in_toolkit($file)) {
                             log_console(tr('Identified file as toolkit'), 'VERBOSE');
                             $sections['toolkit'][$file] = $status;
                             $marked = true;
                         }
                     }
 
-                } elseif(preg_match_all('/www\/[a-z]{2}\/ajax\/storage\/.+?\.php/', $file)) {
+                } elseif (preg_match_all('/www\/[a-z]{2}\/ajax\/storage\/.+?\.php/', $file)) {
                     /*
                      * This is a storage system file, managedd by toolkit
                      */
-                    if(!$phoundation_only) {
-                        if(code_file_exists_in_toolkit($file)) {
+                    if (!$phoundation_only) {
+                        if (code_file_exists_in_toolkit($file)) {
                             log_console(tr('Identified file as toolkit'), 'VERBOSE');
                             $sections['toolkit'][$file] = $status;
                             $marked = true;
                         }
                     }
 
-                } elseif(preg_match_all('/www\/[a-z]{2}\/[a-z0-9-_]+\.php/', $file)) {
+                } elseif (preg_match_all('/www\/[a-z]{2}\/[a-z0-9-_]+\.php/', $file)) {
                     /*
                      * This is an admin UI file
                      */
-                    if(!$phoundation_only) {
-                        if($type == 'intranet') {
-                            if(code_file_exists_in_toolkit(str_replace('admin/', '', $file))) {
+                    if (!$phoundation_only) {
+                        if ($type == 'intranet') {
+                            if (code_file_exists_in_toolkit(str_replace('admin/', '', $file))) {
                                 log_console(tr('Identified file as toolkit'), 'VERBOSE');
                                 $sections['toolkit'][$file] = $status;
                                 $marked = true;
@@ -361,29 +361,29 @@ switch(cli_method()) {
                         }
                     }
 
-                } elseif(preg_match_all('/www\/[a-z]{2}\/(admin\/)?pub\/js\/base\/.+/', $file, $matches)) {
+                } elseif (preg_match_all('/www\/[a-z]{2}\/(admin\/)?pub\/js\/base\/.+/', $file, $matches)) {
                     /*
                      * This is a phoundation javascript file
                      */
-                    if(code_file_exists_in_phoundation(str_replace('admin/', '', $file))) {
+                    if (code_file_exists_in_phoundation(str_replace('admin/', '', $file))) {
                         log_console(tr('Identified file as phoundation'), 'VERBOSE');
                         $sections['phoundation'][$file] = $status;
                         $marked = true;
                     }
 
-                } elseif(preg_match_all('/www\/[a-z]{2}\/pub\/.+/', $file, $matches)) {
+                } elseif (preg_match_all('/www\/[a-z]{2}\/pub\/.+/', $file, $matches)) {
                     /*
                      * This is an admin UI pub file for an intranet site
                      */
-                    if($type == 'intranet') {
-                        if(!$phoundation_only) {
-                            if(substr($file, -10, 10) == 'style.css') {
+                    if ($type == 'intranet') {
+                        if (!$phoundation_only) {
+                            if (substr($file, -10, 10) == 'style.css') {
                                 /*
                                  * This is the custom style.css which is unique to each
                                  * project. Do NOT patch this!
                                  */
                             } else {
-                                if(code_file_exists_in_toolkit(str_replace('admin/', '', $file))) {
+                                if (code_file_exists_in_toolkit(str_replace('admin/', '', $file))) {
                                     log_console(tr('Identified file as toolkit'), 'VERBOSE');
                                     $sections['toolkit'][$file] = $status;
                                     $marked = true;
@@ -392,19 +392,19 @@ switch(cli_method()) {
                         }
                     }
 
-                } elseif(preg_match_all('/www\/[a-z]{2}\/admin\/pub\/.+/', $file, $matches)) {
+                } elseif (preg_match_all('/www\/[a-z]{2}\/admin\/pub\/.+/', $file, $matches)) {
                     /*
                      * These are admin pub files (very likely toolkit)
                      */
-                    if(!$phoundation_only) {
-                        if(substr($file, -9, 10) == 'style.css') {
+                    if (!$phoundation_only) {
+                        if (substr($file, -9, 10) == 'style.css') {
                             /*
                              * This is the custom style.css which is unique to each
                              * project. Do NOT patch this!
                              */
 
                         } else {
-                            if(code_file_exists_in_toolkit(str_replace('admin/', '', $file))) {
+                            if (code_file_exists_in_toolkit(str_replace('admin/', '', $file))) {
                                 log_console(tr('Identified file as toolkit'), 'VERBOSE');
                                 $sections['toolkit'][$file] = $status;
                                 $marked = true;
@@ -412,12 +412,12 @@ switch(cli_method()) {
                         }
                     }
 
-                } elseif(preg_match('/libs\/[a-z0-9-_]+\.php/', $file)) {
+                } elseif (preg_match('/libs\/[a-z0-9-_]+\.php/', $file)) {
                     /*
                      * These are library files, most likely phoundation,
                      * possibly toolkit
                      */
-                    if(substr($file, -10, 10) == 'custom.php') {
+                    if (substr($file, -10, 10) == 'custom.php') {
                         /*
                          * This is the custom library. Do NOT copy this library
                          * since its unique to every project!
@@ -428,7 +428,7 @@ switch(cli_method()) {
                          * These are library files, might be project, toolkit,
                          * or phoundation library files. Do not copy project library files!
                          */
-                        if(code_file_exists_in_phoundation($file)) {
+                        if (code_file_exists_in_phoundation($file)) {
                             /*
                              * These are phoundation library files
                              */
@@ -436,7 +436,7 @@ switch(cli_method()) {
                             $sections['phoundation'][$file] = $status;
                             $marked = true;
 
-                        } elseif(code_file_exists_in_toolkit($file)) {
+                        } elseif (code_file_exists_in_toolkit($file)) {
                             /*
                              * These are toolkit library files
                              */
@@ -446,12 +446,12 @@ switch(cli_method()) {
                         }
                     }
 
-                } elseif(preg_match('/libs\/handlers\/[a-z0-9-_]+\.php/', $file)) {
+                } elseif (preg_match('/libs\/handlers\/[a-z0-9-_]+\.php/', $file)) {
                     /*
                      * Library handler files, possibly project, toolkit,
                      * phoundation, or new
                      */
-                    if(code_file_exists_in_phoundation($file)) {
+                    if (code_file_exists_in_phoundation($file)) {
                         /*
                          * phoundation existing library handler files
                          */
@@ -459,7 +459,7 @@ switch(cli_method()) {
                         $sections['phoundation'][$file] = $status;
                         $marked = true;
 
-                    } elseif(code_file_exists_in_toolkit($file)) {
+                    } elseif (code_file_exists_in_toolkit($file)) {
                         /*
                          * Toolkit existing library handler files
                          */
@@ -468,7 +468,7 @@ switch(cli_method()) {
                         $marked = true;
                     }
 
-                } elseif(preg_match('/init\/framework\/[0-9.]+\.php/', $file)) {
+                } elseif (preg_match('/init\/framework\/[0-9.]+\.php/', $file)) {
                     /*
                      * phoundation existing init files
                      */
@@ -476,7 +476,7 @@ switch(cli_method()) {
                     $sections['phoundation'][$file] = $status;
                     $marked = true;
 
-                } elseif(preg_match('/scripts\/base\/[a-z0-9-]+/', $file)) {
+                } elseif (preg_match('/scripts\/base\/[a-z0-9-]+/', $file)) {
                     /*
                      * phoundation existing script files
                      */
@@ -484,8 +484,8 @@ switch(cli_method()) {
                     $sections['phoundation'][$file] = $status;
                     $marked = true;
 
-                } elseif(preg_match('/scripts\/tests\/[a-z0-9-]+/', $file)) {
-                    if(code_file_exists_in_phoundation($file)) {
+                } elseif (preg_match('/scripts\/tests\/[a-z0-9-]+/', $file)) {
+                    if (code_file_exists_in_phoundation($file)) {
                         /*
                          * phoundation existing test script files
                          */
@@ -494,7 +494,7 @@ switch(cli_method()) {
                         $marked = true;
                     }
 
-                } elseif(preg_match('/config\/base\/.+/', $file)) {
+                } elseif (preg_match('/config\/base\/.+/', $file)) {
                     /*
                      * phoundation existing configuration files
                      */
@@ -503,7 +503,7 @@ switch(cli_method()) {
                     $marked = true;
                 }
 
-                if($marked) {
+                if ($marked) {
                     cli_dot(1, 'green', '.', true);
 
                 } else {
@@ -521,11 +521,11 @@ switch(cli_method()) {
         /*
          * Get the file changes in this project and pass over each file
          */
-        if(!$sections) {
+        if (!$sections) {
             log_console(tr('No phoundation or toolkit files with changes were found!'), 'QUIET/green');
         }
 
-        if(empty($sections['phoundation'])) {
+        if (empty($sections['phoundation'])) {
             /*
              * No phoundation updates, no auto code bump
              */
@@ -551,15 +551,15 @@ switch(cli_method()) {
                     $changed   = false;
                     $skip_file = false;
 
-                    if($skip[$section]) {
+                    if ($skip[$section]) {
                         foreach($skip[$section] as $regex) {
-                            if(preg_match($regex, $file)) {
+                            if (preg_match($regex, $file)) {
                                 $skip_file = true;
                             }
                         }
                     }
 
-                    if($skip_file) {
+                    if ($skip_file) {
                         continue;
                     }
 
@@ -572,18 +572,18 @@ switch(cli_method()) {
                             log_console(tr('Showing diff for file ":file"', array(':file' => $file)), 'QUIET/white');
                     }
 
-                    if($skip_file) {
+                    if ($skip_file) {
                         continue;
                     }
 
                     /*
                      * Patch or show diff
                      */
-                    if($status === 'not tracked') {
+                    if ($status === 'not tracked') {
                         log_console(tr('Ignoring not tracked file ":file", it is unknown where this file has to go', array(':file' => $file)), 'VERBOSEDOT/yellow');
 
                     } else {
-                        if($section == 'phoundation') {
+                        if ($section == 'phoundation') {
                             $status = code_patch(array('file'          => $file,
                                                        'source_path'   => ROOT,
                                                        'target_path'   => $paths[$section],
@@ -591,7 +591,7 @@ switch(cli_method()) {
                                                        'clean'         => $no_clean,
                                                        'restrictions'  => array(ROOT, $paths[$section])));
 
-                        } elseif(!$phoundation_only) {
+                        } elseif (!$phoundation_only) {
                             /*
                              * Patch toolkit as well
                              */
@@ -604,18 +604,18 @@ switch(cli_method()) {
                                                        'restrictions'  => array(ROOT, $paths[$section])));
                         }
 
-                        if(cli_method() == 'patch') {
+                        if (cli_method() == 'patch') {
                             cli_dot(1, 'green', '.', true);
                         }
                     }
 
                 }catch(Exception $e) {
-                    if(!$no_clean) {
-                        if($e->getData()) {
+                    if (!$no_clean) {
+                        if ($e->getData()) {
                             $files      = $e->getData();
                             $patch_file = isset_get($files['patch_file']);
 
-                            if($patch_file) {
+                            if ($patch_file) {
                                 file_delete($patch_file, array($paths['phoundation'], $paths['toolkit']));
                             }
                         }
@@ -634,8 +634,8 @@ switch(cli_method()) {
                             $patch_file = $e->getData();
                             $patch_file = array_shift($patch_file);
 
-                            if($section == 'phoundation') {
-                                if(code_diff(ROOT.$file, $paths[$section].$file)) {
+                            if ($section == 'phoundation') {
+                                if (code_diff(ROOT.$file, $paths[$section].$file)) {
                                     throw $e;
                                 }
 
@@ -644,7 +644,7 @@ switch(cli_method()) {
                                 break;
 
                             } else {
-                                if(code_diff(ROOT.$file, $paths[$section].str_replace('admin/', '', $file))) {
+                                if (code_diff(ROOT.$file, $paths[$section].str_replace('admin/', '', $file))) {
                                     throw $e;
                                 }
 
@@ -653,7 +653,7 @@ switch(cli_method()) {
                                 break;
                             }
 
-                            if(!$no_clean) {
+                            if (!$no_clean) {
                                 /*
                                  * git patching failed. Cleanup phoundation and toolkit paths
                                  */
@@ -661,7 +661,7 @@ switch(cli_method()) {
                                     git_clean($paths['phoundation'], true, true);
                                     git_checkout(null, $paths['phoundation']);
 
-                                    if(!$phoundation_only) {
+                                    if (!$phoundation_only) {
                                         git_clean($paths['toolkit'], true, true);
                                         git_checkout(null, $paths['toolkit']);
                                     }
@@ -676,7 +676,7 @@ switch(cli_method()) {
                                 }
                             }
 
-                            $e = new bException(tr('Patching failed for section ":section" file ":file", halting process, cleaned phoundation and toolkit projects! Apply this file manually!', array(':section' => $section, ':file' => $file)), $e);
+                            $e = new CoreException(tr('Patching failed for section ":section" file ":file", halting process, cleaned phoundation and toolkit projects! Apply this file manually!', array(':section' => $section, ':file' => $file)), $e);
                             $e->setCode('no-trace');
                             throw $e;
 
@@ -696,14 +696,14 @@ switch(cli_method()) {
          * Patching was applied correctly! Delete changes for phoundation and
          * toolkit that have been sent
          */
-        if(cli_method() == 'patch') {
-            if($no_clean or $create_only) {
+        if (cli_method() == 'patch') {
+            if ($no_clean or $create_only) {
                 log_console(tr('Not cleaning local changes due to --no-clean or --create-only option'), 'yellow');
 
             } else {
                 log_console(tr('All files patched successfully, cleaning up'), 'white', false);
 
-                if(VERBOSE) {
+                if (VERBOSE) {
                     log_console('');
                 }
 
@@ -745,7 +745,7 @@ switch(cli_method()) {
         /*
          * Bump the Phoundation framework version
          */
-        if($code_bump) {
+        if ($code_bump) {
             $version = code_bump_phoundation_framework_version();
             log_console(tr('Bumped phoundation framework version to ":version"', array(':version' => $version)), 'green');
         }

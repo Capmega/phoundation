@@ -92,7 +92,7 @@ function devices_insert($device, $server = null) {
          */
         $exists = devices_get($device['seostring'], $device['servers_id']);
 
-        if($exists) {
+        if ($exists) {
             /*
              * Device already exists
              */
@@ -272,11 +272,11 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Validate server
          */
-        if(!$update) {
-            if($server) {
+        if (!$update) {
+            if ($server) {
                 $dbserver = servers_get($server);
 
-                if(!$dbserver) {
+                if (!$dbserver) {
                     $v->setError(tr('Specified server ":server" does not exist', array(':server' => $server)));
                 }
 
@@ -284,10 +284,10 @@ function devices_validate($device, $server = null, $update = true) {
                 $device['domain']     = $dbserver['domain'];
                 $device['seodomain']  = $dbserver['seodomain'];
 
-            } elseif($device['server']) {
+            } elseif ($device['server']) {
                 $server = servers_get($device['server']);
 
-                if(!$device['servers_id']) {
+                if (!$device['servers_id']) {
                     $v->setError(tr('Specified server ":server" does not exist', array(':server' => $device['server'])));
                 }
 
@@ -305,7 +305,7 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Name
          */
-        if(empty($device['name'])) {
+        if (empty($device['name'])) {
             $device['name'] = null;
 
         } else {
@@ -318,7 +318,7 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Description
          */
-        if(empty($device['description'])) {
+        if (empty($device['description'])) {
             $device['description'] = '';
 
         } else {
@@ -330,10 +330,10 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Validate category
          */
-        if($device['category']) {
+        if ($device['category']) {
            $category = categories_get($device['category'], 'id');
 
-            if(!$category) {
+            if (!$category) {
                 $v->setError(tr('Specified category ":category" does not exist', array(':category' => $device['category'])));
             }
 
@@ -350,11 +350,11 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Validate customer
          */
-        if($device['customer']) {
+        if ($device['customer']) {
             $customer = customers_get(array('columns' => 'id,name,seoname',
                                             'filters' => array('seoname' => $device['customer'])));
 
-            if(!$customer) {
+            if (!$customer) {
                 $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $device['customer'])));
             }
 
@@ -371,10 +371,10 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Validate provider
          */
-        if($device['provider']) {
+        if ($device['provider']) {
            $provider = providers_get($device['provider'], 'id,name,seoname');
 
-            if(!$provider) {
+            if (!$provider) {
                 $v->setError(tr('Specified provider ":provider" does not exist', array(':provider' => $device['provider'])));
             }
 
@@ -391,10 +391,10 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Validate inventory
          */
-        if($device['inventory']) {
+        if ($device['inventory']) {
            $inventory = inventories_get($device['inventory'], 'id,name,seoname');
 
-            if(!$inventory) {
+            if (!$inventory) {
                 $v->setError(tr('Specified inventory key ":inventory" does not exist', array(':inventory' => $device['inventory'])));
             }
 
@@ -411,10 +411,10 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Validate company / branch / department / employee
          */
-        if($device['company']) {
+        if ($device['company']) {
             $company = companies_get($device['company'], 'id,name,seoname');
 
-            if(!$company) {
+            if (!$company) {
                 $v->setError(tr('Specified company ":company" does not exist', array(':company' => $device['company'])));
 
                 $device['companies_id']   = null;
@@ -431,10 +431,10 @@ function devices_validate($device, $server = null, $update = true) {
                 /*
                  * Validate branch
                  */
-                if($device['branch']) {
+                if ($device['branch']) {
                     $branch = companies_get_branch($device['companies_id'], $device['branch'], 'id,name,seoname');
 
-                    if(!$branch) {
+                    if (!$branch) {
                         $v->setError(tr('Specified branch ":branch" does not exist in company ":company"', array(':company' => $device['company'], ':branch' => $device['branch'])));
 
                         $device['branches_id']    = null;
@@ -451,10 +451,10 @@ function devices_validate($device, $server = null, $update = true) {
                         /*
                          * Validate department
                          */
-                        if($device['department']) {
+                        if ($device['department']) {
                             $department = companies_get_department($device['companies_id'], $device['branches_id'], $device['department'], 'id,name,seoname');
 
-                            if(!$department) {
+                            if (!$department) {
                                 $v->setError(tr('Specified department ":department" does not exist in company ":company"', array(':company' => $device['company'], ':department' => $device['department'])));
 
                                 $device['departments_id'] = null;
@@ -470,14 +470,14 @@ function devices_validate($device, $server = null, $update = true) {
                                 /*
                                  * Validate employee
                                  */
-                                if($device['employee']) {
+                                if ($device['employee']) {
                                     $employee = companies_get_employee(array('columns' => 'id,name,seoname',
                                                                              'filters' => array('employees.companies_id'   => $device['companies_id'],
                                                                                                 'employees.branches_id'    => $device['branches_id'],
                                                                                                 'employees.departments_id' => $device['departments_id'],
                                                                                                 'employees.seoname'        => $device['employee'])));
 
-                                    if(!$employee) {
+                                    if (!$employee) {
                                         $v->setError(tr('Specified employee ":employee" does not exist in company ":company"', array(':company' => $device['company'], ':employee' => $device['employee'])));
 
                                         $device['employees_id'] = null;
@@ -523,15 +523,15 @@ function devices_validate($device, $server = null, $update = true) {
             /*
              * None of it!
              */
-            if($device['branch']) {
+            if ($device['branch']) {
                 $v->setError(tr('No company specified for branch ":branch"', array(':branch' => $device['branch'])));
             }
 
-            if($device['department']) {
+            if ($device['department']) {
                 $v->setError(tr('No company specified for department ":department"', array(':department' => $device['department'])));
             }
 
-            if($device['employee']) {
+            if ($device['employee']) {
                 $v->setError(tr('No company specified for employee ":employee"', array(':employee' => $device['employee'])));
             }
 
@@ -562,20 +562,20 @@ function devices_validate($device, $server = null, $update = true) {
         /*
          * Ensure no double default
          */
-        if($device['default']) {
+        if ($device['default']) {
             /*
              * Ensure that there is not another device already the default
              */
             $exists = sql_get('SELECT `string` FROM `devices` WHERE `seo_product_string` = :seo_product_string AND `default` IS NOT NULL AND `id` != :id', array(':seo_product_string' => $device['seo_product_string'], ':id' => $device['id']));
 
-            if($exists) {
+            if ($exists) {
                 $v->setError(tr('Device ":device" already is the default for ":seo_product_string" devices', array(':device' => $exists, ':seo_product_string' => $device['seo_product_string'])));
             }
 
         } else {
             $device['default'] = !sql_get('SELECT COUNT(`id`) AS `count` FROM `devices` WHERE `seo_product_string` = :seo_product_string', true, array(':seo_product_string' => $device['seo_product_string']));
 
-            if(!$device['default']) {
+            if (!$device['default']) {
                 $device['default'] = null;
             }
         }
@@ -609,13 +609,13 @@ function devices_validate($device, $server = null, $update = true) {
  */
 function devices_set_status($status, $device = null) {
     try{
-        if(!$device) {
+        if (!$device) {
             /*
              * Update all devices
              */
             $update = sql_query('UPDATE `devices` SET `status` = :status', array(':status' => $status));
 
-        } elseif(is_numeric($device)) {
+        } elseif (is_numeric($device)) {
             /*
              * Update device by id
              */
@@ -654,7 +654,7 @@ function devices_set_status($status, $device = null) {
  */
 function devices_insert_options($devices_id, $options) {
     try{
-        if(!$options) {
+        if (!$options) {
             /*
              * This device has no options
              */
@@ -672,7 +672,7 @@ function devices_insert_options($devices_id, $options) {
             foreach($values['data'] as $value) {
                 $count++;
 
-                if(strstr($value, '..')) {
+                if (strstr($value, '..')) {
                     /*
                      * This is a single range entry
                      */
@@ -744,7 +744,7 @@ function devices_validate_options($option) {
  */
 function devices_list_options($devices_id, $inactive = false) {
     try{
-        if($inactive) {
+        if ($inactive) {
             $retval  = array();
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
 
@@ -753,18 +753,18 @@ function devices_list_options($devices_id, $inactive = false) {
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
         }
 
-        if(!$options) {
+        if (!$options) {
             throw new CoreException(tr('devices_list_options(): Speficied drivers id ":id" does not exist', array(':id' => $devices_id)), 'not-exists');
         }
 
         foreach($options as $option) {
-            if(empty($retval[$option['key']])) {
+            if (empty($retval[$option['key']])) {
                 $retval[$option['key']] = array();
             }
 
             $retval[$option['key']][$option['value']] = $option['value'];
 
-            if($option['default']) {
+            if ($option['default']) {
                 $retval[$option['key']]['default'] = $option['default'];
             }
         }
@@ -794,7 +794,7 @@ function devices_list_options($devices_id, $inactive = false) {
  */
 function devices_list_option_keys($devices_id, $inactive = false) {
     try{
-        if($inactive) {
+        if ($inactive) {
             $retval  = array();
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id', array(':devices_id' => $devices_id));
 
@@ -803,15 +803,15 @@ function devices_list_option_keys($devices_id, $inactive = false) {
             $options = sql_query('SELECT `key`, `value`, `default` FROM `drivers_options` WHERE `devices_id` = :devices_id AND `status` IS NULL', array(':devices_id' => $devices_id));
         }
 
-        if(!$options) {
-            if($inactive) {
+        if (!$options) {
+            if ($inactive) {
                 $exists = sql_get('SELECT `id` FROM `devices` WHERE `id` = :id', true, array(':id' => $devices_id));
 
             } else {
                 $exists = sql_get('SELECT `id` FROM `devices` WHERE `id` = :id AND `status` IS NULL', true, array(':id' => $devices_id));
             }
 
-            if($exists) {
+            if ($exists) {
                 throw new CoreException(tr('devices_list_options(): Speficied devices id ":id" does not have any device options', array(':id' => $devices_id)), 'not-exists');
             }
 
@@ -819,13 +819,13 @@ function devices_list_option_keys($devices_id, $inactive = false) {
         }
 
         foreach($options as $option) {
-            if(empty($retval[$option['key']])) {
+            if (empty($retval[$option['key']])) {
                 $retval[$option['key']] = array();
             }
 
             $retval[$option['key']][$option['value']] = $option['value'];
 
-            if($option['default']) {
+            if ($option['default']) {
                 $retval[$option['key']]['default'] = $option['default'];
             }
         }
@@ -856,11 +856,11 @@ function devices_list_option_values($devices_id, $key) {
     try{
         Arrays::ensure($params, '');
 
-        if(empty($devices_id)) {
+        if (empty($devices_id)) {
             throw new CoreException(tr('devices_list_options(): No devices_id specified'), 'not-specified');
         }
 
-        if(empty($key)) {
+        if (empty($key)) {
             throw new CoreException(tr('devices_list_options(): No key specified for devices id ":id"', array(':id' => $devices_id)), 'not-specified');
         }
 
@@ -966,21 +966,21 @@ function devices_list($type, $all = false, $default_only = false) {
     try{
         $execute = array();
 
-        if($type) {
+        if ($type) {
             $type = devices_validate_types($type);
             $where[] = ' `devices`.`type` = :type ';
             $execute[':type'] = $type;
         }
 
-        if($default_only) {
+        if ($default_only) {
             $where[] = ' `devices`.`default` = 1 ';
         }
 
-        if(!$all) {
+        if (!$all) {
             $where[] = ' `devices`.`status` IS NULL ';
         }
 
-        if($where) {
+        if ($where) {
             $where = ' WHERE '.implode(' AND ', $where);
         }
 
@@ -1042,15 +1042,15 @@ function devices_list($type, $all = false, $default_only = false) {
  */
 function devices_get($device, $server = null) {
     try{
-        if(is_numeric($device)) {
-            if(!is_natural($device)) {
+        if (is_numeric($device)) {
+            if (!is_natural($device)) {
                 throw new CoreException(tr('devices_get(): Invalid device ":device" specified', array(':device' => $device)), 'invalid');
             }
 
             $where = ' WHERE `devices`.`id` = :id ';
             $execute[':id'] = $device;
 
-        } elseif(is_string($device)) {
+        } elseif (is_string($device)) {
             load_libs('servers');
 
             $server = servers_get($server);
@@ -1060,7 +1060,7 @@ function devices_get($device, $server = null) {
             $execute[':servers_id'] = $server['id'];
 
         } else {
-            if(!$device) {
+            if (!$device) {
                 throw new CoreException(tr('devices_get(): No device specified'), 'not-specified');
             }
 
@@ -1169,26 +1169,26 @@ function devices_select($product, $category = null) {
         array_default($params, 'none'       , tr('Select a device'));
         array_default($params, 'orderby'    , '`name`');
 
-        if($params['seocategory']) {
+        if ($params['seocategory']) {
             load_libs('categories');
             $params['categories_id'] = categories_get($params['seocategory'], 'id');
 
-            if(!$params['categories_id']) {
+            if (!$params['categories_id']) {
                 throw new CoreException(tr('devices_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
             }
         }
 
-        if($params['type'] !== false) {
+        if ($params['type'] !== false) {
             $where[] = ' `type` '.sql_is($params['type'], ':type');
             $execute[':type'] = $params['type'];
         }
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {
@@ -1225,7 +1225,7 @@ function devices_select($product, $category = null) {
  */
 function devices_clear($type = null) {
     try{
-        if($type) {
+        if ($type) {
             $erase = sql_query('DELETE FROM `devices` WHERE `type` = :type', array(':type' => $type));
 
         } else {
@@ -1265,7 +1265,7 @@ function devices_scan($types, $server = null, $sudo = false) {
 
         $sudo = ($sudo or $_CONFIG['devices']['sudo']);
 
-        if($server === null) {
+        if ($server === null) {
             /*
              * Scan all registered servers
              */
@@ -1277,7 +1277,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                     log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
                     $devices = devices_scan($types, $server['id'], $sudo);
 
-                    if($devices) {
+                    if ($devices) {
                         $retval[$server['id']] = $devices[$server['id']];
                     }
 
@@ -1289,7 +1289,7 @@ function devices_scan($types, $server = null, $sudo = false) {
             return $retval;
         }
 
-        if(str_contains($server, ',')) {
+        if (str_contains($server, ',')) {
             /*
              * A specific list of servers was specified
              */
@@ -1300,7 +1300,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                 log_console(tr('Scanning server ":server" for devices', array(':server' => $server['domain'])), 'VERBOSE/cyan');
                 $devices = devices_scan($types, $server['id'], $sudo);
 
-                if($devices) {
+                if ($devices) {
                     $retval[$server['id']] = $devices[$server['id']];
                 }
             }
@@ -1338,7 +1338,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                     foreach($devices as $device) {
                         $found = preg_match_all('/Bus (\d+) Device (.+?): ID ([0-9a-f]{4}:[0-9a-f]{4}) (.+)/i', $device, $matches);
 
-                        if(!$found) {
+                        if (!$found) {
                             continue;
                         }
 
@@ -1359,19 +1359,19 @@ function devices_scan($types, $server = null, $sudo = false) {
                         $data = servers_exec($server, array('commands' => array('lsusb', array('sudo' => $sudo, '-vs', $entry['bus'].':'.$entry['device']))));
 
                         foreach($data as $line) {
-                            if(stristr($line, 'idProduct')) {
+                            if (stristr($line, 'idProduct')) {
                                 $entry['product']        = Strings::from($line             , '0x');
                                 $entry['product_string'] = Strings::from($entry['product'] , ' ');
                                 $entry['product']        = Strings::until($entry['product'], ' ');
                             }
 
-                            if(stristr($line, 'idVendor')) {
+                            if (stristr($line, 'idVendor')) {
                                 $entry['vendor']        = Strings::from($line            , '0x');
                                 $entry['vendor_string'] = Strings::from($entry['vendor'] , ' ');
                                 $entry['vendor']        = Strings::until($entry['vendor'], ' ');
                             }
 
-                            if(stristr($line, 'idManufacturer')) {
+                            if (stristr($line, 'idManufacturer')) {
                                 $entry['manufacturer'] = Strings::from($line, 'idManufacturer');
                             }
                         }
@@ -1379,7 +1379,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                         $entries[] = $entry;
                     }
 
-                    if($entries) {
+                    if ($entries) {
                         $retval[$servers_id] = array_merge(isset_get($retval[$servers_id], array()), $entries);
                     }
 
@@ -1392,7 +1392,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                      * Only scan for scanners if scanimage has been installed on
                      * the taget server
                      */
-                    if(linux_which($server, 'scanimage')) {
+                    if (linux_which($server, 'scanimage')) {
                         $devices = scanimage_detect_devices($server, $sudo);
                         $entries = array();
 
@@ -1400,7 +1400,7 @@ function devices_scan($types, $server = null, $sudo = false) {
                             log_console(tr('Found document-scanner device ":device" on server ":server"', array(':device' => $device['raw'], ':server' => $server['domain'])), 'green');
                         }
 
-                        if($devices) {
+                        if ($devices) {
                             $retval[$servers_id] = array_merge(isset_get($retval[$servers_id], array()), $devices);
                         }
                     }
@@ -1458,13 +1458,13 @@ function devices_validate_types($types = null, $return_filters = false) {
                               'webcam'             => 'webcam');
 
     try{
-        if($types) {
+        if ($types) {
             /*
              * Device types list specified. Compare them all to the supported types
              */
-            if(is_array($types)) {
+            if (is_array($types)) {
                 foreach($types as $key => &$type) {
-                    if(!is_string($type)) {
+                    if (!is_string($type)) {
                         throw new CoreException(tr('devices_validate_types(): Specified device type list is invalid. Key ":key" should be a string but is an ":type" instead', array(':key' => $key, ':type' => gettype($type))), 'invalid');
                     }
 
@@ -1478,14 +1478,14 @@ function devices_validate_types($types = null, $return_filters = false) {
             /*
              * Single type specified. Compare to the supported types.
              */
-            if(is_string($types)) {
+            if (is_string($types)) {
                 foreach($supported as $support => $filter) {
-                    if(str_contains($support, $types)) {
-                        if(isset($match)) {
+                    if (str_contains($support, $types)) {
+                        if (isset($match)) {
                             throw new CoreException(tr('devices_validate_types(): Specified device type ":type" matches multiple supported devices', array(':type' => $types)), 'multiple');
                         }
 
-                        if($return_filters) {
+                        if ($return_filters) {
                             $match = $filter;
 
                         } else {
@@ -1494,7 +1494,7 @@ function devices_validate_types($types = null, $return_filters = false) {
                     }
                 }
 
-                if(!isset($match)) {
+                if (!isset($match)) {
                     throw new CoreException(tr('devices_validate_types(): Specified device type ":type" does not match any of the supported devices', array(':type' => $types)), 'not-exists');
                 }
 

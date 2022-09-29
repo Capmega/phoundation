@@ -19,18 +19,18 @@ switch(cli_method()) {
     case 'send':
         $to = cli_argument('to');
 
-        if(!$to) {
+        if (!$to) {
             /*
              * Use sms phone message
              */
             $phone   = cli_argument(0);
             $message = str_force(cli_argument($phone, 'all'), ' ');
 
-            if(!is_numeric(str_replace('+', '', $phone))) {
+            if (!is_numeric(str_replace('+', '', $phone))) {
                 throw new CoreException(tr('Invalid arguments supplied. Please check script usage'), 'invalid');
             }
 
-        } elseif(!$message = cli_argument('message')) {
+        } elseif (!$message = cli_argument('message')) {
             throw new CoreException(tr('No message specified'), 'invalid');
         }
 

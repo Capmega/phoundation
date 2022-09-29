@@ -31,18 +31,18 @@ $all   = cli_argument('--all,-a');
 $css   = cli_argument('--css');
 $force = cli_argument('--force-compress,-f');
 
-if(TEST) {
+if (TEST) {
     $path = arguments();
 }
 
 cli_no_arguments_left();
 
-if(!$js and !$css) {
+if (!$js and !$css) {
     $all = true;
 }
 
-if(TEST) {
-    if(!$path) {
+if (TEST) {
+    if (!$path) {
         throw new CoreException('No test path specified.', 'not-specified');
     }
 
@@ -51,13 +51,13 @@ if(TEST) {
     log_console(tr('Finished compression test'), 'green');
 
 } else {
-    if($css or $all) {
+    if ($css or $all) {
         log_console(tr('Compressing CSS files'), 'white');
         uglify_css(null, $force);
         log_console(tr('Finished compressing CSS files'), 'green');
     }
 
-    if($js or $all) {
+    if ($js or $all) {
         log_console(tr('Compressing javascript files'), 'white');
         uglify_js(null, $force);
         log_console(tr('Finished compressing javascript files'), 'green');

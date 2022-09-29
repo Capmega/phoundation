@@ -1,6 +1,6 @@
 <?php
 try{
-    if(!debug()) {
+    if (!debug()) {
         return array();
     }
 
@@ -8,7 +8,7 @@ try{
     $trace   = array();
 
     foreach(debug_backtrace() as $key => $value) {
-        if($skip_own and ($key <= 1)) {
+        if ($skip_own and ($key <= 1)) {
             continue;
         }
 

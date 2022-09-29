@@ -12,8 +12,8 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only();
 load_libs('git,config');
 
-if(SEED) {
-    if(!FORCE) {
+if (SEED) {
+    if (!FORCE) {
         throw new CoreException(tr('This project has already been setup, and to avoid overwriting your previous setup, this script will be blocked unless you run it in FORCE mode using -F'), 'warning');
     }
 
@@ -44,8 +44,8 @@ while($fail) {
 
     $match = preg_match('/[a-z-]{2,32}/', $config['project']['name']);
 
-    if(!$match) {
-        if(!$config['project']['name'] and $name) {
+    if (!$match) {
+        if (!$config['project']['name'] and $name) {
             $config['project']['name'] = $name;
 
         } else {
@@ -65,13 +65,13 @@ while($fail) {
 while($fail) {
     $config['project']['version'] = cli_readline(tr('What is the version of your project [:default] ?', array(':default' => $version)), false, 'cyan');
 
-    if(!$config['project']['version']) {
+    if (!$config['project']['version']) {
         $config['project']['version'] = $version;
     }
 
     $match = preg_match('/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/i', $config['project']['version']);
 
-    if(!$match) {
+    if (!$match) {
         log_console(tr('Please specify a valid project version. Valid project versions must have the form of number.number.number, like for example "0.1.0"'), 'warning');
         continue;
     }
@@ -87,13 +87,13 @@ while($fail) {
 while($fail) {
     $config['production']['']['domain']['__value__'] = cli_readline(tr('What is the production FQDN (Fully Qualified Domain Name, without http://, or https://) [:fqdn] ?', array(':fqdn' => $config['project']['name'].'.com')), false, 'cyan');
 
-    if(!$config['production']['']['domain']['__value__']) {
+    if (!$config['production']['']['domain']['__value__']) {
         $config['production']['']['domain']['__value__'] = $config['project']['name'].'.com';
     }
 
     $match = preg_match('/^(?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.) {1,126}(?!\d+)[a-zA-Z\d]{1,63}$/', $config['production']['']['domain']['__value__']);
 
-    if(!$match) {
+    if (!$match) {
         log_console(tr('Please specify a valid domain name. It cannot surpass 255 characters, .'), 'warning');
         continue;
     }
@@ -122,17 +122,17 @@ while($fail) {
 /*
  * Get project production domain
  */
-if($multiple_sub_domains) {
+if ($multiple_sub_domains) {
 
 } else {
     while($fail) {
         $single_sub_domain = cli_readline(tr('Will your project domain use single sub domain? If no, just press enter, if yes, please specify the sub domain here: '), false, 'cyan');
 
-        if(!$single_sub_domain) {
+        if (!$single_sub_domain) {
             $single_sub_domain = '';
 
         } else {
-            if(!preg_match('/[a-z-]{1,63}/i', $single_sub_domain)) {
+            if (!preg_match('/[a-z-]{1,63}/i', $single_sub_domain)) {
                 log_console(tr('Please specify a valid domain sections. Valid domain sections can only contain "a-z-" and must be between 1 and 63 characters'), 'warning');
                 continue;
             }
@@ -147,7 +147,7 @@ if($multiple_sub_domains) {
 /*
  * Get cookie domain configuration
  */
-if($multiple_sub_domains or $single_sub_domain) {
+if ($multiple_sub_domains or $single_sub_domain) {
     $config['production']['']['whitelabels']['__value__'] = 'sub';
 
     while($fail) {
@@ -155,7 +155,7 @@ if($multiple_sub_domains or $single_sub_domain) {
             $sub_domain_cookies = cli_readline(tr('Will cookie scope include all sub domains [Y]?'), false, 'cyan');
             $sub_domain_cookies = get_true_false($sub_domain_cookies, true);
 
-            if($sub_domain_cookies) {
+            if ($sub_domain_cookies) {
                 $config['production']['']['cookie']['domain']['__value__'] = '.'.$config['production']['']['domain']['__value__'];
 
             } else {
@@ -181,11 +181,11 @@ if($multiple_sub_domains or $single_sub_domain) {
 while($fail) {
     $config['production']['']['db']['core']['db']['__value__'] = cli_readline(tr('What is the production database name [:default] ?', array(':default' => Strings::until($config['production']['']['domain']['__value__'], '.'))), false, 'cyan');
 
-    if(!$config['production']['']['db']['core']['db']['__value__']) {
+    if (!$config['production']['']['db']['core']['db']['__value__']) {
         $config['production']['']['db']['core']['db']['__value__'] = Strings::until($config['production']['']['domain']['__value__'], '.');
     }
 
-    if(!preg_match('/[0-9,a-z,A-Z$_]{2,16}/', $config['production']['']['db']['core']['db']['__value__'])) {
+    if (!preg_match('/[0-9,a-z,A-Z$_]{2,16}/', $config['production']['']['db']['core']['db']['__value__'])) {
         log_console(tr('Please specify a valid database name. Valid database names can only contain "0-9,a-z,_" and must be between 2 and 16 characters'), 'warning');
         continue;
     }
@@ -201,11 +201,11 @@ while($fail) {
 while($fail) {
     $config['production']['']['db']['core']['user']['__value__'] = cli_readline(tr('What is the production database username [:default] ?', array(':default' => Strings::until($config['production']['']['domain']['__value__'], '.'))), false, 'cyan');
 
-    if(!$config['production']['']['db']['core']['user']['__value__']) {
+    if (!$config['production']['']['db']['core']['user']['__value__']) {
         $config['production']['']['db']['core']['user']['__value__'] = Strings::until($config['production']['']['domain']['__value__'], '.');
     }
 
-    if(!preg_match('/[0-9,a-z,A-Z$_]{2,16}/', $config['production']['']['db']['core']['user']['__value__'])) {
+    if (!preg_match('/[0-9,a-z,A-Z$_]{2,16}/', $config['production']['']['db']['core']['user']['__value__'])) {
         log_console(tr('Please specify a valid database name. Valid database usernames can only contain "a-z-" and must be between 2 and 16 characters'), 'warning');
         continue;
     }
@@ -223,7 +223,7 @@ while($fail) {
 
     $config['production']['']['db']['core']['pass']['__value__'] = cli_readline(tr('What is the production database user password to access your main database [:password] ?', array(':password' => $password)), false, 'cyan');
 
-    if(!$config['production']['']['db']['core']['pass']['__value__']) {
+    if (!$config['production']['']['db']['core']['pass']['__value__']) {
         $config['production']['']['db']['core']['pass']['__value__'] = $password;
     }
     break;
@@ -239,7 +239,7 @@ while($fail) {
 
     $config['production']['']['db']['core']['timezone']['__value__'] = cli_readline(tr('What is the production database user password to access your main database [:default] ?', array(':default' => $timezone)), false, 'cyan');
 
-    if(!$config['production']['']['db']['core']['timezone']['__value__']) {
+    if (!$config['production']['']['db']['core']['timezone']['__value__']) {
         $config['production']['']['db']['core']['timezone']['__value__'] = $timezone;
     }
 

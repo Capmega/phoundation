@@ -16,7 +16,7 @@
  */
 function led() {
     try{
-        if(!debug()) {
+        if (!debug()) {
             return '';
         }
 

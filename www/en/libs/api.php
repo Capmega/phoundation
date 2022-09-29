@@ -65,7 +65,7 @@ function api_validate_account($account) {
 
         $v->isNotEmpty ($account['apikey'], tr('Please specify an API key'));
 
-        if(strlen($account['apikey']) != 64) {
+        if (strlen($account['apikey']) != 64) {
             $v->setError(tr('Please ensure the API key has exactly 64 characters'));
         }
 
@@ -74,7 +74,7 @@ function api_validate_account($account) {
         $v->hasMaxChars($account['environment'], 32, tr('Please ensure the API account environment has less than 32 characters'));
         $v->isRegex($account['environment'], '/^[a-z0-9-]+$/', tr('Please ensure the API account environment is valid, must be lower case, can only contain a-z, 0-9, - and no spaces'));
 
-        if($account['description']) {
+        if ($account['description']) {
             $v->hasMinChars($account['description'],   16, tr('Please ensure the API account description has at least 16 characters, or empty'));
             $v->hasMaxChars($account['description'], 2047, tr('Please ensure the API account description has less than 2047 characters'));
 
@@ -91,25 +91,25 @@ function api_validate_account($account) {
         $account['servers_id']   = sql_get('SELECT `id` FROM `servers`   WHERE `seodomain` = :seodomain AND `status` IS NULL', true, array(':seodomain' => $account['server']));
         $account['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname`   = :seoname   AND `status` IS NULL', true, array(':seoname'   => $account['customer']));
 
-        if(!$account['servers_id']) {
+        if (!$account['servers_id']) {
             $v->setError(tr('Specified server ":server" does not exist', array(':server' => $account['server'])));
         }
 
-        if(!$account['customers_id']) {
+        if (!$account['customers_id']) {
             $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $account['customer'])));
         }
 
         $exists = sql_exists('api_accounts', 'name', $account['name'], $account['id']);
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The API account ":account" already exists', array(':account' => $account['name'])));
         }
 
         $account['seoname']    = seo_unique($account['name'], 'api_accounts', $account['id']);
         $account['verify_ssl'] = (boolean) $account['verify_ssl'];
 
-        if($account['verify_ssl']) {
-            if(!strstr($account['baseurl'], 'https://')) {
+        if ($account['verify_ssl']) {
+            if (!strstr($account['baseurl'], 'https://')) {
                 $v->setError(tr('The "Verify SSL" option can only be used for base URLs using the HTTPS protocol'));
             }
         }
@@ -151,19 +151,19 @@ function api_whitelist() {
     global $_CONFIG;
 
     try{
-        if(empty($_CONFIG['api']['whitelist'])) {
-            if(!in_array($_SERVER['REMOTE_ADDR'], $_CONFIG['api']['whitelist'])) {
+        if (empty($_CONFIG['api']['whitelist'])) {
+            if (!in_array($_SERVER['REMOTE_ADDR'], $_CONFIG['api']['whitelist'])) {
                 $block = true;
             }
         }
 
-        if(empty($block) and !empty($_CONFIG['api']['blacklist'])) {
-            if(in_array($_SERVER['REMOTE_ADDR'], $_CONFIG['api']['blacklist'])) {
+        if (empty($block) and !empty($_CONFIG['api']['blacklist'])) {
+            if (in_array($_SERVER['REMOTE_ADDR'], $_CONFIG['api']['blacklist'])) {
                 $block = true;
             }
         }
 
-        if(isset($block)) {
+        if (isset($block)) {
             throw new CoreException(tr('api_whitelist(): The IP ":ip" is not allowed access', array(':ip' => $_SERVER['REMOTE_ADDR'])), 'access-denied');
         }
 
@@ -181,10 +181,10 @@ function api_whitelist() {
  */
 function api_encode($data) {
     try{
-        if(is_array($data)) {
+        if (is_array($data)) {
             $data = str_replace('@', '\@', $data);
 
-        } elseif(is_string($data)) {
+        } elseif (is_string($data)) {
             foreach($listing as &$value) {
                 $value = str_replace('@', '\@', $value);
             }
@@ -211,22 +211,22 @@ function api_authenticate($api_key = null) {
     global $_CONFIG;
 
     try{
-        if($_CONFIG['production']) {
+        if ($_CONFIG['production']) {
             /*
              * This is a production platform, only allow JSON API key
              * authentications over a secure connection
              */
-            if((PROTOCOL !== 'https://') and !empty($_CONFIG['production'])) {
+            if ((PROTOCOL !== 'https://') and !empty($_CONFIG['production'])) {
                 throw new CoreException(tr('api_authenticate(): No API key authentication allowed on unsecure connections over non HTTPS connections'), 'ssl-required');
             }
         }
 
-        if(empty($api_key)) {
+        if (empty($api_key)) {
             /*
              * Search for the API key
              */
-            if(!isset($_POST['api_key'])) {
-                if(!isset($_POST['apikey'])) {
+            if (!isset($_POST['api_key'])) {
+                if (!isset($_POST['apikey'])) {
                     throw new CoreException(tr('api_authenticate(): No api key specified'), 'not-specified');
                 }
 
@@ -240,13 +240,13 @@ function api_authenticate($api_key = null) {
         /*
          * Authenticate using the supplied key
          */
-        if(empty($_CONFIG['api']['apikey'])) {
+        if (empty($_CONFIG['api']['apikey'])) {
             /*
              * Check in database if the authorization key exists
              */
             $user = sql_get('SELECT * FROM `users` WHERE `apikey` = :apikey', array(':apikey' => $api_key));
 
-            if(!$user) {
+            if (!$user) {
                 throw new CoreException(tr('api_authenticate(): Specified apikey does not exist'), 'access-denied');
             }
 
@@ -254,7 +254,7 @@ function api_authenticate($api_key = null) {
             /*
              * Use one system wide API key
              */
-            if($api_key !== $_CONFIG['api']['apikey']) {
+            if ($api_key !== $_CONFIG['api']['apikey']) {
                 throw new CoreException(tr('api_authenticate(): Specified auth key does not match configured api key'), 'access-denied');
             }
         }
@@ -283,7 +283,7 @@ function api_start_session($session_id) {
     try{
         load_libs('validate,user');
 
-        if(!$session_id) {
+        if (!$session_id) {
             switch($_SERVER['REQUEST_METHOD']) {
                 case 'GET':
                     $session_id = isset_get($_GET['sessions_id']);
@@ -303,7 +303,7 @@ function api_start_session($session_id) {
         /*
          * Check session token
          */
-        if(empty($session_id)) {
+        if (empty($session_id)) {
             throw new CoreException(tr('api_start_session(): No session key specified'), 'not-specified');
         }
 
@@ -312,11 +312,11 @@ function api_start_session($session_id) {
          */
         $_SESSION = api_get_session($session_id);
 
-        if(!$_SESSION) {
+        if (!$_SESSION) {
             throw new CoreException(tr('api_start_session(): The specified session_id key ":session_id" does not exist', array(':session_id' => $session_id)), 'access-denied');
         }
 
-        if($_SESSION['closedon']) {
+        if ($_SESSION['closedon']) {
             throw new CoreException(tr('api_start_session(): The session for the session_id key ":session_id" has already been closed', array(':session_id' => $session_id)), 'sign-in');
         }
 
@@ -327,7 +327,7 @@ function api_start_session($session_id) {
 
         $_SESSION['user'] = user_get($_SESSION['createdby']);
 
-        if(!$_SESSION['user']) {
+        if (!$_SESSION['user']) {
             throw new CoreException(tr('api_start_session(): Session ":sessions_id" was created by users_id ":users_id" but that apparently does not exist', array(':sessions_id' => $session_id, ':users_id' => $_SESSION['createdby'])), 'not-exists');
         }
 
@@ -361,7 +361,7 @@ function api_stop_session() {
     global $_CONFIG, $core;
 
     try{
-        if(!isset($core->register['session'])) {
+        if (!isset($core->register['session'])) {
             throw new CoreException(tr('api_stop_session(): Currently there is no open session'), 'sign-in');
         }
 
@@ -391,7 +391,7 @@ function api_call($call, $result = null) {
     static $time, $id;
 
     try{
-        if($result) {
+        if ($result) {
             sql_query('UPDATE `api_calls`
 
                        SET    `time`   = :time,
@@ -427,10 +427,10 @@ function api_call($call, $result = null) {
  */
 function api_decode($data) {
     try{
-        if(is_array($data)) {
+        if (is_array($data)) {
             $data = str_replace('\@', '@', $data);
 
-        } elseif(is_string($data)) {
+        } elseif (is_string($data)) {
             foreach($listing as &$value) {
                 $value = str_replace('\@', '@', $value);
             }
@@ -459,7 +459,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
     try{
         load_libs('curl');
 
-        if(empty($account)) {
+        if (empty($account)) {
             throw new CoreException(tr('api_call_base(): No API specified'), 'not-specified');
         }
 
@@ -468,14 +468,14 @@ function api_call_base($account, $call, $data = array(), $files = null) {
          */
         $account_data = sql_get('SELECT `id`, `baseurl`, `apikey`, `verify_ssl` FROM `api_accounts` WHERE `seoname` = :seoname', array(':seoname' => $account));
 
-        if(!$account_data) {
+        if (!$account_data) {
             throw new CoreException(tr('api_call_base(): Specified API account ":account" does not exist', array(':account' => $account)), 'not-exists');
         }
 
         /*
          * Check if we have cached session key
          */
-        if(empty($_SESSION['api']['session_keys'][$account])) {
+        if (empty($_SESSION['api']['session_keys'][$account])) {
             /*
              * Auto authenticate
              */
@@ -486,21 +486,21 @@ function api_call_base($account, $call, $data = array(), $files = null) {
                                        'getheaders'     => false,
                                        'post'           => array('api_key' => $account_data['apikey'])));
 
-                if(!$json) {
+                if (!$json) {
                     throw new CoreException(tr('api_call_base(): Authentication on API account ":account" returned no response', array(':account' => $account)), 'empty');
                 }
 
-                if(!$json['data']) {
+                if (!$json['data']) {
                     throw new CoreException(tr('api_call_base(): Authentication on API account ":account" returned no data in response', array(':account' => $account)), 'empty');
                 }
 
                 $result = json_decode_custom($json['data']);
 
-                if(isset_get($result['result']) !== 'OK') {
+                if (isset_get($result['result']) !== 'OK') {
                     throw new CoreException(tr('api_call_base(): Authentication on API account ":account" returned result ":result"', array('":account' => $account, ':result' => $result['result'])), 'failed', $result);
                 }
 
-                if(empty($result['data']['token'])) {
+                if (empty($result['data']['token'])) {
                     throw new CoreException(tr('api_call_base(): Authentication on API account ":account" returned ok result but no token', array('":account' => $account)), 'failed');
                 }
 
@@ -531,7 +531,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
 
         $data['sessions_id'] = $_SESSION['api']['session_keys'][$account];
 
-        if($files) {
+        if ($files) {
             /*
              * Add the specified files
              */
@@ -551,11 +551,11 @@ function api_call_base($account, $call, $data = array(), $files = null) {
                                    'getheaders' => false,
                                    'post'       => $data));
 
-            if(!$json) {
+            if (!$json) {
                 throw new CoreException(tr('api_call_base(): API call ":call" on account ":account" returned no response', array(':account' => $account, ':call' => $call)), 'empty');
             }
 
-            if(!$json['data']) {
+            if (!$json['data']) {
                 throw new CoreException(tr('api_call_base(): API call ":call" on account ":account" returned no data in response', array(':account' => $account, ':call' => $call)), 'empty');
             }
 
@@ -575,7 +575,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
                      * Session key is not valid
                      * Remove session key, signin, and try again
                      */
-                    if(isset($signin)) {
+                    if (isset($signin)) {
                         /*
                          * Oops, we already tried to signin, and that signin failed
                          * with a signin request which, in this case, would cause
@@ -616,7 +616,7 @@ function api_call_base($account, $call, $data = array(), $files = null) {
 //show(isset_get($json));
 //showdie($e);
 
-        if($account_data) {
+        if ($account_data) {
             sql_query('UPDATE `api_accounts` SET `last_error` = :last_error WHERE `id` = :id', array(':id' => $account_data['id'], ':last_error' => print_r($e, true)));
         }
 

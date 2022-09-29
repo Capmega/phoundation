@@ -30,11 +30,11 @@
  */
 function storage_sections_get($section = null, $auto_create = false) {
     try{
-        if(empty($section)) {
+        if (empty($section)) {
             /*
              * Get a _new record for the current user
              */
-            if(empty($_SESSION['user']['id'])) {
+            if (empty($_SESSION['user']['id'])) {
                 $where   = ' WHERE  `status` = "_new"
                              AND    `createdby` IS NULL LIMIT 1';
                 $execute = null;
@@ -45,7 +45,7 @@ function storage_sections_get($section = null, $auto_create = false) {
                 $execute = array(':createdby' => $_SESSION['user']['id']);
             }
 
-        } elseif(is_numeric($section)) {
+        } elseif (is_numeric($section)) {
             $where   = ' WHERE  `id` = :id
                          AND    `status` IS NULL';
             $execute = array(':id' => $section);
@@ -71,7 +71,7 @@ function storage_sections_get($section = null, $auto_create = false) {
 
                               $execute);
 
-        if(empty($dbsection) and empty($section) and $auto_create) {
+        if (empty($dbsection) and empty($section) and $auto_create) {
             return storage_sections_add(array('status'              => '_new',
                                               'random_ids'          => true,
                                               'restrict_file_types' => true), true);
@@ -200,7 +200,7 @@ function storage_sections_validate($section, $new = false) {
     try{
         load_libs('validate,seo');
 
-        if($new) {
+        if ($new) {
             $section = array('id'                  => null,
                              'status'              => '_new',
                              'name'                => '',
@@ -213,7 +213,7 @@ function storage_sections_validate($section, $new = false) {
 
         } else {
             $v = new ValidateForm($section, 'id,name,seoname,random_ids,restrict_file_types,slogan,description');
-            if(!$v->isNotEmpty($section['name'], tr('Please specify a section name'))) {
+            if (!$v->isNotEmpty($section['name'], tr('Please specify a section name'))) {
                 $v->isAlphaNumeric($section['name'], tr('Please specify a valid alpha numeric section name (spaces, dashes and parentheses are allowed)'), VALIDATE_IGNORE_PARENTHESES|VALIDATE_IGNORE_SPACE|VALIDATE_IGNORE_DASH);
             }
 

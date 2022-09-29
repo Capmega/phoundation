@@ -82,11 +82,11 @@ $databases = cli_argument('--databases', 'all');
 /*
  * Check required connector, load connector data
  */
-if(!$connector) {
+if (!$connector) {
     $connector = 'core';
 }
 
-if(empty($_CONFIG['db'][$connector])) {
+if (empty($_CONFIG['db'][$connector])) {
     throw new CoreException(tr('Specified connector ":connector" does not exist. Please check the configuration $_CONFIG[db][CONNECTORNAME]', array(':connector' => $connector)), 'not-exists');
 }
 
@@ -95,8 +95,8 @@ $connector_data = $_CONFIG['db'][$connector];
 /*
  * Check required database
  */
-if($all) {
-    if($databases) {
+if ($all) {
+    if ($databases) {
         throw new CoreException(tr('Both --databases and --all have been specified. Use either one or the other.'), 'invalid');
     }
 
@@ -106,7 +106,7 @@ if($all) {
     $databases = sql_query('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` GROUP BY `TABLE_SCHEMA`', null, null, $connector);
 
 } else {
-    if(!$databases) {
+    if (!$databases) {
         /*
          * Use the default database for the specified connector
          * If not, use the list of specified databases
@@ -120,7 +120,7 @@ if($all) {
     foreach($databases as $database) {
         $exist = sql_get('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` = :TABLE_SCHEMA GROUP BY `TABLE_SCHEMA` LIMIT 1', 'TABLE_SCHEMA', array(':TABLE_SCHEMA' => $database), $connector);
 
-        if(!$exist) {
+        if (!$exist) {
             throw new CoreException(tr('Specified database ":database" does not exist', array(':database' => $database)), 'not-exists');
         }
     }
@@ -141,7 +141,7 @@ switch(cli_method()) {
                     safe_exec(array('commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
                                                         'mysql'              , array('-p', '-u', 'root', 'mysql'))));
 
-                }catch(BException $e) {
+                }catch(CoreException $e) {
                     /*
                      * Something went wrong during import Get MySQL error
                      */
@@ -150,7 +150,7 @@ switch(cli_method()) {
                     $message = json_decode_custom($message);
                     $message = array_shift($message);
 
-                    if(strstr($message, 'ERROR 1045')) {
+                    if (strstr($message, 'ERROR 1045')) {
                         throw new CoreException(tr('Incorrect MySQL root password supplied'), 'warning/passwordicorrect');
                     }
 
@@ -176,7 +176,7 @@ switch(cli_method()) {
             case 'timezone':
                 // FALLTHROUGH
             case 'timezones':
-                if(!$count = sql_get('SELECT COUNT(*) AS `count` FROM mysql.time_zone_name;')) {
+                if (!$count = sql_get('SELECT COUNT(*) AS `count` FROM mysql.time_zone_name;')) {
                     throw new CoreException('MySQL timezone tables are empty');
                 }
 
@@ -205,13 +205,13 @@ switch(cli_method()) {
 
                 cli_no_arguments_left();
 
-                if($tables and $all_tables) {
+                if ($tables and $all_tables) {
                     throw new CoreException(tr('Both --all-tables and --tables have been specified. --all-tables is not needed, if --tables is not specified, all tables will be displayed'), 'invalid');
                 }
 
                 $tables = s_get_tables($tables, $databases);
 
-                if($all) {
+                if ($all) {
                     log_console(tr('Changing default charset for tables (:count) for connector/host/database ":connector/:host/all databases"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':count' => $tables->rowCount())), 'white');
 
                 } else {
@@ -241,7 +241,7 @@ switch(cli_method()) {
             case 'databases':
                 cli_no_arguments_left();
 
-                if(VERBOSE) {
+                if (VERBOSE) {
                     log_console(tr('Databases (:count) for connector/host ":connector/:host"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':count' => $databases->rowCount())), 'white');
                 }
 
@@ -259,14 +259,14 @@ switch(cli_method()) {
 
                 cli_no_arguments_left();
 
-                if($tables and $all_tables) {
+                if ($tables and $all_tables) {
                     throw new CoreException(tr('Both --all-tables and --tables have been specified. --all-tables is not needed, if --tables is not specified, all tables will be displayed'), 'invalid');
                 }
 
                 $tables = s_get_tables($tables, $databases);
 
-                if(VERBOSE) {
-                    if($all) {
+                if (VERBOSE) {
+                    if ($all) {
                         log_console(tr('Tables (:count) for connector/host/database ":connector/:host/all databases"', array(':connector' => $connector, ':host' => $_CONFIG['db'][$connector]['host'], ':count' => $tables->rowCount())), 'white');
 
                     } else {
@@ -298,22 +298,22 @@ switch(cli_method()) {
                 $where       = ' WHERE `referenced_table_name` IS NOT NULL ';
                 $execute     = array();
 
-                if($foreign_key) {
+                if ($foreign_key) {
                     $having[] = ' `foreign_key` LIKE :foreign_key ';
                     $execute[':foreign_key'] = '%'.$foreign_key.'%';
                 }
 
-                if($database) {
+                if ($database) {
                     $having[] = ' `database` LIKE :database ';
                     $execute[':database'] = '%'.$database.'%';
                 }
 
-                if($constraint) {
+                if ($constraint) {
                     $having[] = ' `constraint` LIKE :constraint ';
                     $execute[':constraint'] = '%'.$constraint.'%';
                 }
 
-                if($reference) {
+                if ($reference) {
                     $having[] = ' `references` LIKE :reference ';
                     $execute[':reference'] = '%'.$reference.'%';
                 }
@@ -325,14 +325,14 @@ switch(cli_method()) {
 
                                 FROM   `information_schema`.`key_column_usage` '.$where.(empty($having) ? '' : ' HAVING '.implode(' AND ', $having)), $execute);
 
-                if($r->rowCount()) {
+                if ($r->rowCount()) {
                     log_console(tr('Listing ":count" foreign key references', array(':count' => $r->rowCount())), 'white');
                     log_console(tr('Database           Constraint name                          Foreign key                              References'), 'cyan');
 
                     while($row = sql_fetch($r)) {
                         $row = str_size($row['database'], 18, ' ').' '.str_size($row['constraint'], 40, ' ').' '.str_size($row['foreign_key'], 40, ' ').' '.$row['references'];
 
-                        if(!$filter or strstr($row, $filter)) {
+                        if (!$filter or strstr($row, $filter)) {
                             log_console($row);
                         }
                     }
@@ -526,11 +526,11 @@ function s_get_tables($tables, $databases) {
     global $all, $all_tables, $connector;
 
     try{
-        if($all) {
+        if ($all) {
             /*
              * Show from all databases
              */
-            if($tables) {
+            if ($tables) {
                 /*
                  * Show specified tables from all databases
                  */
@@ -552,7 +552,7 @@ function s_get_tables($tables, $databases) {
             $databases = sql_list('SELECT `TABLE_SCHEMA` FROM `information_schema`.`TABLES` WHERE `TABLE_SCHEMA` IN ('.implode(',', array_keys($databases)).') GROUP BY `TABLE_SCHEMA` ORDER BY `TABLE_SCHEMA` ASC', $databases, null, $connector);
             $databases = sql_in($databases);
 
-            if($tables) {
+            if ($tables) {
                 /*
                  * Show specified tables from specified databases
                  */

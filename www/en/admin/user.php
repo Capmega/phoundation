@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__.'/../libs/startup.php');
 
-if(empty($profile)) {
+if (empty($profile)) {
     rights_or_access_denied('admin,users,modify');
 }
 
@@ -15,7 +15,7 @@ $user = array();
  * Are we editing a user?
  * If so then get the user data from the DB
  */
-if(!empty($_GET['user'])) {
+if (!empty($_GET['user'])) {
     $db = sql_get('SELECT    `users`.`id`,
                              `users`.`createdon`,
                              `users`.`modifiedon`,
@@ -40,7 +40,7 @@ if(!empty($_GET['user'])) {
 
                    array(':user' => $_GET['user']));
 
-    if(!$db) {
+    if (!$db) {
         html_flash_set(log_database(tr('Specified user "'.str_log($_GET['user']).'" does not exist'), 'user_not_exist'), 'error');
         redirect(domain('/admin/users.php'));
     }
@@ -50,12 +50,12 @@ if(!empty($_GET['user'])) {
     $user = array_merge($db, $user);
     unset($db);
 
-    if($user['createdon']) {
+    if ($user['createdon']) {
         $user['createdon']  = new DateTime($user['createdon']);
         $user['createdon']  = $user['createdon']->format($_CONFIG['formats']['human_datetime']);
     }
 
-    if($user['modifiedon']) {
+    if ($user['modifiedon']) {
         $user['modifiedon'] = new DateTime($user['modifiedon']);
         $user['modifiedon'] = $user['modifiedon']->format($_CONFIG['formats']['human_datetime']);
     }
@@ -78,7 +78,7 @@ if(!empty($_GET['user'])) {
 /*
  * Was user data submitted?
  */
-if(!empty($_POST['dosubmit'])) {
+if (!empty($_POST['dosubmit'])) {
     $user = array_merge($user, $_POST);
 }
 
@@ -87,8 +87,8 @@ if(!empty($_POST['dosubmit'])) {
  * Process user actions
  */
 try{
-    if(isset_get($_POST['docreate'])) {
-        if(!empty($profile)) {
+    if (isset_get($_POST['docreate'])) {
+        if (!empty($profile)) {
             throw new CoreException('Unknown option "docreate" specified', 'unknown');
         }
 
@@ -110,9 +110,9 @@ try{
         unset($user['password2']);
     }
 
-    if(isset_get($_POST['doupdate'])) {
-        if(empty($profile)) {
-            if(empty($user['id'])) {
+    if (isset_get($_POST['doupdate'])) {
+        if (empty($profile)) {
+            if (empty($user['id'])) {
                 throw new CoreException('Cannot update, no user specified', 'notspecified');
             }
 
@@ -184,7 +184,7 @@ try{
                                   ':yh_token'                => $user['yh_token'],
                                   ':country'                 => $user['country']));
 
-            if(!empty($user['password'])) {
+            if (!empty($user['password'])) {
                 user_update_password($user);
             }
 
@@ -193,7 +193,7 @@ try{
             /*
              * This update might have been done because of a create user action
              */
-            if(!isset_get($_POST['docreate'])) {
+            if (!isset_get($_POST['docreate'])) {
                 html_flash_set(log_database('Updated user "'.str_log(isset_get($_POST['username'])).'"', 'user_update'), 'success');
                 redirect(domain('/admin/user.php?user='.$user['username']));
             }
@@ -201,7 +201,7 @@ try{
             $user = array();
 
         } else {
-            if(empty($user['id'])) {
+            if (empty($user['id'])) {
                 throw new CoreException('Cannot update, no user specified', 'notspecified');
             }
 
@@ -267,7 +267,7 @@ try{
                                   ':yh_token'                => $user['yh_token'],
                                   ':country'                 => $user['country']));
 
-            if(!empty($user['password'])) {
+            if (!empty($user['password'])) {
                 user_update_password($user);
             }
 
@@ -278,12 +278,12 @@ try{
             redirect(true);
         }
 
-    } elseif(isset_get($_POST['dobecome'])) {
-        if(!empty($profile)) {
+    } elseif (isset_get($_POST['dobecome'])) {
+        if (!empty($profile)) {
             throw new CoreException('Unknown option "dobecome" specified', 'unknown');
         }
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException('Cannot become user, no user available', 'nouseravailable');
         }
 
@@ -327,7 +327,7 @@ $html = '   <form name="user" id="user" action="'.domain(true).'" method="post">
                             </header>
                             <div class="panel-body">';
 
-if(!empty($user['id'])) {
+if (!empty($user['id'])) {
     $html .= '                  <div class="form-group">
                                     <label class="col-md-3 control-label" for="createdon">'.tr('Created on').'</label>
                                     <div class="col-md-6">
@@ -379,7 +379,7 @@ $html .= '                      <div class="form-group">
                                     </div>
                                 </div>';
 
-if(empty($profile)) {
+if (empty($profile)) {
     $html .= '                  <div class="form-group">
                                     <label class="col-md-3 control-label" for="commentary">'.tr('Commentary').'</label>
                                     <div class="col-md-6">
@@ -403,7 +403,7 @@ $html .= '                      <div class="form-group">
                                     </div>
                                 </div>';
 
-if(!empty($user['roles_id'])) {
+if (!empty($user['roles_id'])) {
     $html .= '                  <div class="form-group">
                                     <label class="col-md-3 control-label" for="rights"> </label>
                                     <div class="col-md-6">
@@ -428,7 +428,7 @@ if(!empty($user['roles_id'])) {
                     array(':users_id' => $user['id']));
 
     while($user_right = sql_fetch($r)) {
-        if(empty($profile)) {
+        if (empty($profile)) {
             $a     = '<a href="'.domain('/admin/right.php?right='.$user_right['id']).'">';
             $html .= '<tr><td>'.$a.$user_right['name'].'</a></td><td>'.$a.$user_right['description'].'</a></td></tr>';
 
@@ -477,11 +477,11 @@ $vj->validate('email'    , 'required' , 'true'     , '<span class="FcbErrorTail"
 $vj->validate('email'    , 'email'    , 'true'     , '<span class="FcbErrorTail"></span>'.tr('Please provide a valid email address'));
 $vj->validate('password2', 'equalTo'  , '#password', '<span class="FcbErrorTail"></span>'.tr('The password fields need to be equal'));
 
-if(empty($profile)) {
+if (empty($profile)) {
     $vj->validate('roles_id' , 'required' , 'true'     , '<span class="FcbErrorTail"></span>'.tr('Please provide a role'));
 }
 
-if(empty($user['id'])) {
+if (empty($user['id'])) {
     /*
      * While adding a user, we ALWAYS must specify a password, while editing, its optional
      */
@@ -520,12 +520,12 @@ function s_validate_user(&$user, $id = null) {
         $v->isNotEmpty  ($user['name']       , tr('Please provide a real name'));
         $v->hasMinChars ($user['name']    , 2, tr('Please ensure that the real name has a minimum of 2 characters'));
 
-        if(empty($profile)) {
+        if (empty($profile)) {
             $v->isNotEmpty  ($user['roles_id']   , tr('Please provide a role'));
         }
 
-        if($user['roles_id']) {
-            if(!$role = sql_get('SELECT `id`, `name` FROM `roles` WHERE `id` = :id AND `status` IS NULL', array(':id' => $user['roles_id']))) {
+        if ($user['roles_id']) {
+            if (!$role = sql_get('SELECT `id`, `name` FROM `roles` WHERE `id` = :id AND `status` IS NULL', array(':id' => $user['roles_id']))) {
                 $v->setError(tr('The specified role does not exist'));
                 $user['role'] = null;
 
@@ -535,7 +535,7 @@ function s_validate_user(&$user, $id = null) {
             }
         }
 
-        if(!empty($user['password'])) {
+        if (!empty($user['password'])) {
             $v->hasMinChars ($user['password'],                  8, tr('Please ensure that the password has a minimum of 8 characters'));
             $v->isEqual     ($user['password'], $user['password2'], tr('Please ensure that the password and validation password match'));
         }
@@ -548,7 +548,7 @@ function s_validate_user(&$user, $id = null) {
 
                   FROM   `users`';
 
-        if(empty($user['id'])) {
+        if (empty($user['id'])) {
             $where   = ' WHERE (`email`    = :email
                          OR     `username` = :username )';
 
@@ -567,8 +567,8 @@ function s_validate_user(&$user, $id = null) {
 
         $exists = sql_get($query.$where, $execute);
 
-        if($exists) {
-            if($exists['username'] == $user['username']) {
+        if ($exists) {
+            if ($exists['username'] == $user['username']) {
                 $v->setError(tr('The username "%username%" is already in use by another user', array('%username%' => str_log($user['username']))));
 
             } else {
@@ -579,7 +579,7 @@ function s_validate_user(&$user, $id = null) {
         /*
          * Ensure that the phones are not in use
          */
-        if(!empty($user['phones'])) {
+        if (!empty($user['phones'])) {
             $user['phones'] = explode(',', $user['phones']);
 
             foreach($user['phones'] as &$phone) {
@@ -592,7 +592,7 @@ function s_validate_user(&$user, $id = null) {
             $execute        = sql_in($user['phones'], ':phone');
 
             foreach($execute as &$phone) {
-                if($v->isValidPhonenumber($phone, tr('The phone number "%phone%" is not valid', array('%phone%' => $phone)))) {
+                if ($v->isValidPhonenumber($phone, tr('The phone number "%phone%" is not valid', array('%phone%' => $phone)))) {
                     $phone = '%'.$phone.'%';
                 }
             }
@@ -613,14 +613,14 @@ function s_validate_user(&$user, $id = null) {
 
             $query .= ' ('.implode(' OR ', $where).')';
 
-            if(!empty($user['id'])) {
+            if (!empty($user['id'])) {
                 $query         .= ' AND `users`.`id` != :id';
                 $execute[':id'] = $user['id'];
             }
 
             $exists = sql_list($query, $execute);
 
-            if($exists) {
+            if ($exists) {
                 /*
                  * One or more phone numbers already exist with one or multiple users. Cross check and
                  * create a list of where the number was found
@@ -629,7 +629,7 @@ function s_validate_user(&$user, $id = null) {
                     foreach($exists as $exist) {
                         $key = array_search($value, Arrays::force($exist['phones']));
 
-                        if($key !== false) {
+                        if ($key !== false) {
                             /*
                              * The current phone number is already in use by another user
                              */
@@ -640,7 +640,7 @@ function s_validate_user(&$user, $id = null) {
             }
         }
 
-        if(!$v->isValid()) {
+        if (!$v->isValid()) {
             throw new CoreException($v->getErrors(), 'error');
         }
 

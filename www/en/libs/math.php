@@ -29,7 +29,7 @@
  */
 function math_average(...$items) {
     try{
-        if(count($items)) {
+        if (count($items)) {
             return array_sum($items) / count($items);
         }
 

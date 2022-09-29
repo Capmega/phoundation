@@ -35,7 +35,7 @@ function forwards_apply_server($server) {
     try{
         $forwards = forwards_list($server);
 
-        if($forwards) {
+        if ($forwards) {
             foreach($forwards as $forward) {
                 forwards_apply_rule($forward);
             }
@@ -58,7 +58,7 @@ function forwards_remove_server($server) {
     try{
         $forwards = forwards_list($server);
 
-        if($forwards) {
+        if ($forwards) {
             foreach($forwards as $forward) {
                 forwards_delete($forward);
             }
@@ -79,13 +79,13 @@ function forwards_remove_server($server) {
  */
 function forwards_apply_rule($forward, $flush = true) {
     try{
-        if($forward['protocol'] != 'ssh') {
+        if ($forward['protocol'] != 'ssh') {
             iptables_set_forward(IPTABLES_BUFFER);
             iptables_set_prerouting(IPTABLES_BUFFER,                                      'tcp', $forward['source_port'], $forward['target_port'], $forward['target_ip']);
             iptables_set_postrouting(($flush ? $forward['servers_id'] : IPTABLES_BUFFER), 'tcp', $forward['target_port'], $forward['source_ip'],   $forward['target_ip']);
         }
 
-        if($forward['target_id']) {
+        if ($forward['target_id']) {
             /*
              * Set rules on target server to start acceting the request from source server
              */
@@ -113,7 +113,7 @@ function forwards_exists($forward) {
          */
         $result = servers_exec($forward['servers_id'], 'if sudo iptables -t nat -L -n -v|grep "DNAT.*tcp[[:space:]]dpt:'.$forward['source_port'].'[[:space:]]to:"; then echo 1; else echo 0; fi');
 
-        if($result[0]) {
+        if ($result[0]) {
             return true;
         }
 
@@ -156,7 +156,7 @@ function forwards_insert($forward, $createdby = null) {
 
         $forward_id = sql_insert_id();
 
-        if($forward_id and $forward['apply']) {
+        if ($forward_id and $forward['apply']) {
             forwards_apply_rule($forward);
         }
 
@@ -188,7 +188,7 @@ function forwards_delete($forward) {
 
         sql_query('DELETE FROM `forwardings` WHERE `id` = :id', array(':id' => $forward['id']));
 
-        if($forward['apply']) {
+        if ($forward['apply']) {
             forwards_delete_apply($forward);
         }
 
@@ -213,20 +213,20 @@ function forwards_delete($forward) {
  */
 function forwards_delete_apply($forward) {
     try{
-        if($forward['protocol'] != 'ssh') {
+        if ($forward['protocol'] != 'ssh') {
             /*
              * Removing forwarding
              */
             $exists = iptables_prerouting_exists($forward['servers_id'], $forward['source_port'], $forward['target_port'], $forward['target_ip']);
 
-            if($exists) {
+            if ($exists) {
                 iptables_set_prerouting (IPTABLES_BUFFER,        'tcp', $forward['source_port'], $forward['target_port'], $forward['target_ip'], 'removed');
                 iptables_set_postrouting($forward['servers_id'], 'tcp', $forward['target_port'], $forward['source_ip'],   $forward['target_ip'], 'removed');
 
             }
         }
 
-        if($forward['target_id']) {
+        if ($forward['target_id']) {
             /*
              * Stop accepting traffic
              */
@@ -298,7 +298,7 @@ function forwards_update($forward, $modifiedby = null) {
                          ':protocol'    => $forward['protocol'],
                          ':description' => $forward['description']));
 
-        if($forward['apply']) {
+        if ($forward['apply']) {
             forwards_update_apply($forward, $old_forward);
         }
 
@@ -349,22 +349,22 @@ function forwards_validate($forward) {
         $v->isNotEmpty($forward['source_ip'], tr('Please specifiy a source ip'));
         $v->isNotEmpty($forward['source_port'], tr('Please specifiy a source port'));
 
-        if(!is_natural($forward['source_port']) or ($forward['source_port'] > 65535)) {
+        if (!is_natural($forward['source_port']) or ($forward['source_port'] > 65535)) {
             $v->setError(tr('Please specify a valid port for source port field'));
         }
 
         $v->isFilter($forward['source_ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address for source IP field'));
 
-        if($forward['servers_id']) {
+        if ($forward['servers_id']) {
 
-            if(is_natural($forward['servers_id'])) {
+            if (is_natural($forward['servers_id'])) {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `id` = :id', array(':id' => $forward['servers_id']), true);
 
             } else {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `seohostname` = :seohostname', array(':seohostname' => $forward['servers_id']), true);
             }
 
-            if(!$exists) {
+            if (!$exists) {
                 $v->setError(tr('Specified proxy ":source" does not exist', array(':source' => $forward['servers_id'])));
 
             } else {
@@ -373,15 +373,15 @@ function forwards_validate($forward) {
             }
         }
 
-        if($forward['source_id']) {
-            if(is_natural($forward['source_id'])) {
+        if ($forward['source_id']) {
+            if (is_natural($forward['source_id'])) {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `id` = :id', array(':id' => $forward['source_id']), true);
 
             } else {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `seohostname` = :seohostname', array(':seohostname' => $forward['source_id']), true);
             }
 
-            if(!$exists) {
+            if (!$exists) {
                 $v->setError(tr('Specified proxy ":source" does not exist', array(':source' => $forward['source_id'])));
 
             } else {
@@ -390,15 +390,15 @@ function forwards_validate($forward) {
             }
         }
 
-        if($forward['target_id']) {
-            if(is_natural($forward['target_id'])) {
+        if ($forward['target_id']) {
+            if (is_natural($forward['target_id'])) {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `id` = :id', array(':id' => $forward['target_id']), true);
 
             } else {
                 $exists = sql_get('SELECT `id` FROM `servers` WHERE `seohostname` = :seohostname', array(':seohostname' => $forward['target_id']), true);
             }
 
-            if(!$exists) {
+            if (!$exists) {
                 $v->setError(tr('Specified proxy ":source" does not exist', array(':source' => $forward['target_id'])));
 
             } else {
@@ -407,13 +407,13 @@ function forwards_validate($forward) {
         }
 
 
-        if(!empty($forward['target_port']) and (!is_natural($forward['target_port']) or ($forward['target_port'] > 65535))) {
+        if (!empty($forward['target_port']) and (!is_natural($forward['target_port']) or ($forward['target_port'] > 65535))) {
             $v->setError(tr('Please specify a valid port for target port field'));
         }
 
         $v->isFilter($forward['target_ip'], FILTER_VALIDATE_IP, tr('Please specify a valid IP address for target IP field'));
 
-        if($forward['protocol']) {
+        if ($forward['protocol']) {
             switch($forward['protocol']) {
                 case 'ssh':
                     // FALLTHROUGH
@@ -454,7 +454,7 @@ function forwards_validate($forward) {
  */
 function forwards_get($forwards_id) {
     try{
-        if(empty($forwards_id)) {
+        if (empty($forwards_id)) {
             throw new CoreException(tr('forwards_get(): No forwarding specified'), 'not-specified');
         }
 
@@ -505,8 +505,8 @@ function forwards_get($forwards_id) {
  */
 function forwards_list($server) {
     try{
-        if(!is_numeric($server)) {
-            if(!is_string($server)) {
+        if (!is_numeric($server)) {
+            if (!is_string($server)) {
                 throw new CoreException(tr('forwards_list(): Server ":server" is not valid. Must be an id or a hostname.'), 'invalid');
             }
 
@@ -575,7 +575,7 @@ function forwards_only_accept_traffic($forward) {
  */
 function forwards_delete_list($forwards, $apply = true) {
     try{
-        if(empty($forwards)) {
+        if (empty($forwards)) {
             throw new CoreException(tr('forwards_delete_list(): No forwards specified'), 'not-specified');
         }
 

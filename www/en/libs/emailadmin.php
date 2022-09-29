@@ -47,7 +47,7 @@ function emailadmin_query() {
     global $emailsql;
 
     try{
-        if(empty($emailsql)) {
+        if (empty($emailsql)) {
             $emailsql = sql_connect($_CONFIG['email']['db']);
         }
 
@@ -65,7 +65,7 @@ function emailadmin_query() {
  */
 function emailadmin_get($query, $column = null, $execute = null, $sql = 'sql') {
     try{
-        if(is_array($column)) {
+        if (is_array($column)) {
             /*
              * Argument shift, no columns were specified.
              */
@@ -78,7 +78,7 @@ function emailadmin_get($query, $column = null, $execute = null, $sql = 'sql') {
         return sql_fetch(emailadmin_query($query, $execute, true, $sql), $column);
 
     }catch(Exception $e) {
-        if(strtolower(substr(trim($query), 0, 6)) != 'select') {
+        if (strtolower(substr(trim($query), 0, 6)) != 'select') {
             throw new CoreException('emailadmin_get(): Query "'.str_log($query, 4096).'" is not a select query and as such cannot return results', $e);
         }
 
@@ -93,7 +93,7 @@ function emailadmin_get($query, $column = null, $execute = null, $sql = 'sql') {
  */
 function emailadmin_list($query, $column = null, $execute = null, $sql = 'sql') {
     try{
-        if(is_array($column)) {
+        if (is_array($column)) {
             /*
              * Argument shift, no columns were specified.
              */
@@ -107,7 +107,7 @@ function emailadmin_list($query, $column = null, $execute = null, $sql = 'sql') 
         $retval = array();
 
         while($row = sql_fetch($r, $column)) {
-            if(is_scalar($row)) {
+            if (is_scalar($row)) {
                 $retval[] = $row;
 
             } else {
@@ -129,7 +129,7 @@ function emailadmin_list($query, $column = null, $execute = null, $sql = 'sql') 
         return $retval;
 
     }catch(Exception $e) {
-        if(strtolower(substr(trim($query), 0, 6)) != 'select') {
+        if (strtolower(substr(trim($query), 0, 6)) != 'select') {
             throw new CoreException('emailadmin_list(): Query "'.str_log($query, 4096).'" is not a select query and as such cannot return results', $e);
         }
 
@@ -144,10 +144,10 @@ function emailadmin_list($query, $column = null, $execute = null, $sql = 'sql') 
  */
 function emailadmin_get_domain($domain) {
     try{
-        if(is_numeric($domain)) {
+        if (is_numeric($domain)) {
             return emailadmin_get('SELECT `name` FROM `virtual_domains` WHERE `id`   = :id'  , 'name', array(':id'   => $domain));
 
-        } elseif(is_string($domain)) {
+        } elseif (is_string($domain)) {
             return emailadmin_get('SELECT `id`   FROM `virtual_domains` WHERE `name` = :name', 'id'  , array(':name' => $domain));
 
         } else {
@@ -180,12 +180,12 @@ function emailadmin_list_domains() {
  */
 function emailadmin_add_domain($domain) {
     try{
-        if(!$domain) {
+        if (!$domain) {
             throw new CoreException(tr('emailadmin_add_domain(): No domain name specified'), 'not-specified');
         }
 
 // :TODO: Add check for valid domain
-        //if(!$domain) {
+        //if (!$domain) {
         //    throw new CoreException(tr('emailadmin_add_domain(): No domain name specified'), 'not-specified');
         //}
 
@@ -208,19 +208,19 @@ function emailadmin_add_domain($domain) {
  */
 function emailadmin_remove_domains($domain) {
     try{
-        if(is_numeric($domain)) {
+        if (is_numeric($domain)) {
             emailadmin_query('DELETE FROM `virtual_domains`
                               WHERE       `id` = :id',
 
                               array(':id' => $domain));
 
-        } elseif(is_string($domain)) {
+        } elseif (is_string($domain)) {
             emailadmin_query('DELETE FROM `virtual_domains`
                               WHERE       `name` = :name',
 
                               array(':name' => $domain));
 
-        } elseif(is_array($domain)) {
+        } elseif (is_array($domain)) {
             $in = sql_in($domain);
 
             emailadmin_query('DELETE FROM `virtual_domains`
@@ -249,10 +249,10 @@ function emailadmin_remove_domains($domain) {
  */
 function emailadmin_get_user($user) {
     try{
-        if(is_numeric($user)) {
+        if (is_numeric($user)) {
             return emailadmin_get('SELECT `email` FROM `virtual_users` WHERE `id`    = :id'   , 'name', array(':id'    => $user));
 
-        } elseif(is_string($user)) {
+        } elseif (is_string($user)) {
             return emailadmin_get('SELECT `id`    FROM `virtual_users` WHERE `email` = :email', 'id'  , array(':email' => $user));
 
         } else {
@@ -271,11 +271,11 @@ function emailadmin_get_user($user) {
  */
 function emailadmin_list_users($domain) {
     try{
-        if(!$domain) {
+        if (!$domain) {
             return emailadmin_list('SELECT `id`, `email`, `domains_id` FROM `virtual_users` ORDER BY `domains_id` DESC, `id` DESC');
         }
 
-        if(!is_numeric($domain)) {
+        if (!is_numeric($domain)) {
             $domain = emailadmin_get_domain($domain);
         }
 
@@ -305,16 +305,16 @@ function emailadmin_list_users($domain) {
  */
 function emailadmin_add_user($email, $password) {
     try{
-        if(!$email) {
+        if (!$email) {
             throw new CoreException(tr('emailadmin_add_user(): No email specified'), 'not-specified');
         }
 
 // :TODO: Add check for valid user
-        //if(!$user) {
+        //if (!$user) {
         //    throw new CoreException(tr('emailadmin_add_user(): No user name specified'), 'not-specified');
         //}
 
-        if(!$domains_id = emailadmin_get_domain(Strings::from($email, '@'))) {
+        if (!$domains_id = emailadmin_get_domain(Strings::from($email, '@'))) {
             throw new CoreException(tr('emailadmin_add_user(): Specified domain "%domain%" is not managed', array('%domain%' => Strings::from($email, '@'))), 'not-exists');
         }
 
@@ -339,19 +339,19 @@ function emailadmin_add_user($email, $password) {
  */
 function emailadmin_remove_users($user) {
     try{
-        if(is_numeric($user)) {
+        if (is_numeric($user)) {
             emailadmin_query('DELETE FROM `virtual_users`
                               WHERE       `id` = :id',
 
                               array(':id' => $user));
 
-        } elseif(is_string($user)) {
+        } elseif (is_string($user)) {
             emailadmin_query('DELETE FROM `virtual_users`
                               WHERE       `email` = :email',
 
                               array(':name' => $user));
 
-        } elseif(is_array($domain)) {
+        } elseif (is_array($domain)) {
             $in = sql_in($domain);
 
             emailadmin_query('DELETE FROM `virtual_users`
@@ -380,10 +380,10 @@ function emailadmin_remove_users($user) {
  */
 function emailadmin_get_alias($alias) {
     try{
-        if(is_numeric($alias)) {
+        if (is_numeric($alias)) {
             return emailadmin_get('SELECT `email` FROM `virtual_aliases` WHERE `id`    = :id'   , 'name', array(':id'    => $alias));
 
-        } elseif(is_string($alias)) {
+        } elseif (is_string($alias)) {
             return emailadmin_get('SELECT `id`    FROM `virtual_aliases` WHERE `email` = :email', 'id'  , array(':email' => $alias));
 
         } else {
@@ -402,11 +402,11 @@ function emailadmin_get_alias($alias) {
  */
 function emailadmin_list_aliases($domain) {
     try{
-        if(!$domain) {
+        if (!$domain) {
             return emailadmin_list('SELECT `id`, `email`, `domains_id` FROM `virtual_aliases` ORDER BY `domains_id` DESC, `id` DESC');
         }
 
-        if(!is_numeric($domain)) {
+        if (!is_numeric($domain)) {
             $domain = emailadmin_get_domain($domain);
         }
 
@@ -434,16 +434,16 @@ function emailadmin_list_aliases($domain) {
  */
 function emailadmin_add_alias($source, $destination) {
     try{
-        if(!$email) {
+        if (!$email) {
             throw new CoreException(tr('emailadmin_add_alias(): No email specified'), 'not-specified');
         }
 
 // :TODO: Add check for valid alias
-        //if(!$alias) {
+        //if (!$alias) {
         //    throw new CoreException(tr('emailadmin_add_alias(): No alias name specified'), 'not-specified');
         //}
 
-        if(!$domains_id = emailadmin_get_domain(Strings::from($email, '@'))) {
+        if (!$domains_id = emailadmin_get_domain(Strings::from($email, '@'))) {
             throw new CoreException(tr('emailadmin_add_alias(): Specified domain "%domain%" is not managed', array('%domain%' => Strings::from($email, '@'))), 'not-exists');
         }
 
@@ -468,13 +468,13 @@ function emailadmin_add_alias($source, $destination) {
  */
 function emailadmin_remove_aliases($alias) {
     try{
-        if(is_numeric($alias)) {
+        if (is_numeric($alias)) {
             emailadmin_query('DELETE FROM `virtual_aliases`
                               WHERE       `id` = :id',
 
                               array(':id' => $alias));
 
-        } elseif(is_string($alias)) {
+        } elseif (is_string($alias)) {
             emailadmin_query('DELETE FROM `virtual_aliases`
 
                               WHERE       `source`      = :email
@@ -482,7 +482,7 @@ function emailadmin_remove_aliases($alias) {
 
                               array(':name' => $alias));
 
-        } elseif(is_array($domain)) {
+        } elseif (is_array($domain)) {
             $in = sql_in($domain);
 
             emailadmin_query('DELETE FROM `virtual_aliases`

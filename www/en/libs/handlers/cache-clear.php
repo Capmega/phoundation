@@ -13,12 +13,12 @@ try{
 
     switch($_CONFIG['cache']['method']) {
         case 'file':
-            if($key) {
+            if ($key) {
                 $key = cache_key_hash($key);
             }
 
-            if($namespace) {
-                if($key) {
+            if ($namespace) {
+                if ($key) {
                     /*
                      * Delete only one cache file, and attempt to clear empty directories as possible
                      */
@@ -35,7 +35,7 @@ try{
                                       'clean_path'   => false));
                 }
 
-            } elseif($key) {
+            } elseif ($key) {
                 /*
                  * Delete only one cache file, and attempt to clear empty directories as possible
                  */
@@ -58,10 +58,10 @@ try{
             /*
              * Clear all keys from memcached
              */
-            if($namespace) {
+            if ($namespace) {
                 memcached_delete(null, $namespace);
 
-            } elseif($key) {
+            } elseif ($key) {
                 memcached_delete($key, $namespace);
 
             } else {
@@ -94,7 +94,7 @@ try{
     /*
      * Clear CDN and CDN bundler caches
      */
-    if(empty($_CONFIG['language']['supported'])) {
+    if (empty($_CONFIG['language']['supported'])) {
         $languages = array('en' => tr('English'));
 
     } else {
@@ -110,7 +110,7 @@ try{
          * Delete all bundle files
          * Delete all purged bundle files
          */
-        if(!file_exists(ROOT.'www/'.$code)) {
+        if (!file_exists(ROOT.'www/'.$code)) {
             /*
              * This language doesn't have a web directory, ignore it
              */
@@ -118,7 +118,7 @@ try{
             continue;
         }
 
-        if(file_exists(ROOT.'www/'.$code.'/pub/js/')) {
+        if (file_exists(ROOT.'www/'.$code.'/pub/js/')) {
             file_execute_mode(ROOT.'www/'.$code.'/pub/js/', 0770, function() use ($code) {
                 file_delete(array('patterns'       => ROOT.'www/'.$code.'/pub/js/cached-*,'.ROOT.'www/'.$code.'/pub/js/bundle-*' ,
                                   'restrictions'   => ROOT.'www/'.$code.'/pub/js/',
@@ -131,7 +131,7 @@ try{
             log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => ROOT.'www/'.$code.'/pub/js/')), 'yellow');
         }
 
-        if(file_exists(ROOT.'www/'.$code.'/pub/css/')) {
+        if (file_exists(ROOT.'www/'.$code.'/pub/css/')) {
             file_execute_mode(ROOT.'www/'.$code.'/pub/css/', 0770, function() use ($code) {
                 file_delete(array('patterns'       => ROOT.'www/'.$code.'/pub/css/bundle-*,'.ROOT.'www/'.$code.'/pub/css/p-bundle-*',
                                   'restrictions'   => ROOT.'www/'.$code.'/pub/css/',
@@ -144,7 +144,7 @@ try{
             log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => ROOT.'www/'.$code.'/pub/css/')), 'yellow');
         }
 
-        if(file_exists(ROOT.'www/'.$code.'/admin/pub/js/')) {
+        if (file_exists(ROOT.'www/'.$code.'/admin/pub/js/')) {
             file_execute_mode(ROOT.'www/'.$code.'/admin/pub/js/', 0770, function() use ($code) {
                 file_delete(array('patterns'       => ROOT.'www/'.$code.'/admin/pub/js/cached-*,'.ROOT.'www/'.$code.'/admin/pub/js/bundle-*',
                                   'restrictions'   => ROOT.'www/'.$code.'/admin/pub/js/',
@@ -157,7 +157,7 @@ try{
             log_console(tr('Skipping cache clearing path ":path", it does not exists or is not accessible', array(':path' => ROOT.'www/'.$code.'/admin/pub/js/')), 'yellow');
         }
 
-        if(file_exists(ROOT.'www/'.$code.'/admin/pub/css/')) {
+        if (file_exists(ROOT.'www/'.$code.'/admin/pub/css/')) {
             file_execute_mode(ROOT.'www/'.$code.'/admin/pub/css/', 0770, function() use ($code) {
                 file_delete(array('patterns'       => ROOT.'www/'.$code.'/admin/pub/css/bundle-*,'.ROOT.'www/'.$code.'/admin/pub/css/p-bundle-*',
                                   'restrictions'   => ROOT.'www/'.$code.'/admin/pub/css/',
@@ -175,7 +175,7 @@ try{
      * Delete all auto converted webp images
      */
     foreach(array(ROOT.'data/content/', ROOT.'www/') as $path) {
-        if(!file_exists(ROOT.'data/content/')) {
+        if (!file_exists(ROOT.'data/content/')) {
             continue;
         }
 
@@ -214,8 +214,8 @@ try{
     /*
      * Delete external / vendor libraries too
      */
-    if(FORCE) {
-        if(file_exists(ROOT.'node_modules/')) {
+    if (FORCE) {
+        if (file_exists(ROOT.'node_modules/')) {
             file_execute_mode('*'.ROOT.'node_modules/', 0770, function() use ($code) {
                 file_delete(ROOT.'node_modules/', ROOT);
             });

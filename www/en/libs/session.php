@@ -19,7 +19,7 @@ function session_list() {
         $retval = array();
 
         foreach(scandir($path) as $file) {
-            if(($file == '.') or ($file == '..') or ($file == 'modules')) {
+            if (($file == '.') or ($file == '..') or ($file == 'modules')) {
                 continue;
             }
 
@@ -42,7 +42,7 @@ function session_take($session_id) {
     try{
         $path = ini_get( 'session.save_path');
 
-        if(!file_exists(Strings::slash($path).'sess_'.$session_id)) {
+        if (!file_exists(Strings::slash($path).'sess_'.$session_id)) {
             throw new CoreException('Specified session "'.str_log($session_id).'" does not exist', 'not-exists');
         }
 

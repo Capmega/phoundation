@@ -52,7 +52,7 @@ function services_library_init() {
  */
 function services_scan($server = null) {
     try{
-        if(!$server) {
+        if (!$server) {
             /*
              * Scan ALL servers
              */
@@ -170,7 +170,7 @@ function services_validate($service) {
         /*
          * Description
          */
-        if(empty($service['description'])) {
+        if (empty($service['description'])) {
             $service['description'] = '';
 
         } else {
@@ -309,7 +309,7 @@ function services_update_server($service) {
  */
 function services_get($service, $column = null, $status = null) {
     try{
-        if(is_numeric($service)) {
+        if (is_numeric($service)) {
             $where[] = ' `services`.`id` = :id ';
             $execute[':id'] = $service;
 
@@ -318,14 +318,14 @@ function services_get($service, $column = null, $status = null) {
             $execute[':seoname'] = $service;
         }
 
-        if($status !== false) {
+        if ($status !== false) {
             $execute[':status'] = $status;
             $where[] = ' `services`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
-        if($column) {
+        if ($column) {
             $retval = sql_get('SELECT `'.$column.'` FROM `services` '.$where, true, $execute, 'core');
 
         } else {
@@ -370,7 +370,7 @@ function services_get($service, $column = null, $status = null) {
  */
 function services_clear($server) {
     try{
-        if($server) {
+        if ($server) {
             $server = servers_get($server);
             $r      = sql_query('DELETE FROM `services_servers`
                                  WHERE       `servers_id` = :servers_id',
@@ -424,12 +424,12 @@ function services_select($params = null) {
         array_default($params, 'none'    , tr('Select a service'));
         array_default($params, 'orderby' , '`name`');
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {
@@ -466,7 +466,7 @@ function services_select($params = null) {
  */
 function services_list_servers($service, $domain = null, $return_array = false) {
     try{
-        if($domain) {
+        if ($domain) {
             $where   = ' WHERE `services`.`seoname` = :seoname';
             $execute = array(':seoname' => $service);
 
@@ -495,7 +495,7 @@ function services_list_servers($service, $domain = null, $return_array = false) 
 
                              $execute);
 
-        if($return_array) {
+        if ($return_array) {
             return sql_list($retval);
         }
 

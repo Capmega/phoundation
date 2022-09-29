@@ -20,13 +20,13 @@ function fontawesome_select($params) {
         array_default($params, 'none', tr('Select a fontawesome icon'));
 
         $html = cache_read('select'.isset_get($params['selected']), 'fontawesome');
-        if($html) return $html;
+        if ($html) return $html;
 
         load_libs('html');
 
         $params['resource'] = fontawesome_array();
 
-        if($params['sort']) {
+        if ($params['sort']) {
             ksort($params['resource']);
         }
 

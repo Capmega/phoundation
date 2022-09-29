@@ -39,32 +39,32 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
     try{
         Arrays::ensure($params);
 
-        if(empty($params['to_email'])) {
+        if (empty($params['to_email'])) {
             throw new CoreException('mail_send_templated_email(): No to_email specified', 'notpsecified');
         }
 
-        if(!$language) {
+        if (!$language) {
             $language = LANGUAGE;
         }
 
         /*
          * On development servers do not send out mails to clients
          */
-        if(!$_CONFIG['production']) {
-            //if(!$_CONFIG['notifications']['force']) {
+        if (!$_CONFIG['production']) {
+            //if (!$_CONFIG['notifications']['force']) {
             //    return false;
             //}
 
 // :DELETE: The following lines were for when notifications were still configured by means of config files.
             //foreach($_CONFIG['notifications']['users'] as $user) {
-            //    if($params['to_email'] == $user['email']) {
+            //    if ($params['to_email'] == $user['email']) {
             //        $dev = true;
             //        break;
             //    }
             //}
             //
-            //if(empty($dev)) {
-            //    if(!$_CONFIG['mail']['developer']) {
+            //if (empty($dev)) {
+            //    if (!$_CONFIG['mail']['developer']) {
             //        throw new CoreException('No developer email specified on environment "'.ENVIRONMENT.'"');
             //    }
             //
@@ -108,7 +108,7 @@ function mail_send_templated_email($params, $subject, $body, $language = false, 
 
         $body     = load_content($template, $from, $to, $language);
 
-        if(!mail($params['to_email'], $subject, $body, mail_headers($headers))) {
+        if (!mail($params['to_email'], $subject, $body, mail_headers($headers))) {
             throw new CoreException('mail_send_templated_email(): The PHP mail() command failed', 'mailfail');
         }
 
@@ -172,7 +172,7 @@ function mail_feedback($subject, $message) {
 
     try{
         foreach($_CONFIG['feedback']['emails'] as $name => $email) {
-            if(!mail($email, $subject, $message)) {
+            if (!mail($email, $subject, $message)) {
                 throw new CoreException('mail_feedback(): The PHP mail() command failed (is package "sendmail" installed?)', 'mailfail');
             }
         }

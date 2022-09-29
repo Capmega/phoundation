@@ -42,10 +42,10 @@ try{
      */
     $environment = cli_argument('-E,--env,--environment', true);
 
-    if(empty($environment)) {
+    if (empty($environment)) {
         $env = getenv(PROJECT.'_ENVIRONMENT');
 
-        if(empty($env)) {
+        if (empty($env)) {
             echo "\033[0;31mstartup: No required environment specified for project \"".PROJECT."\"\033[0m\n";
             $core->register['exit_code'] = 2;
             die(2);
@@ -55,7 +55,7 @@ try{
         $env = $environment;
     }
 
-    if(strstr($env, '_')) {
+    if (strstr($env, '_')) {
         echo "\033[0;31mstartup: Specified environment \"$env\" is invalid, environment names cannot contain the underscore character\033[0m\n";
         $core->register['exit_code'] = 4;
         die(4);
@@ -64,7 +64,7 @@ try{
     define('ENVIRONMENT', $env);
     load_config(' ');
 
-    if(!file_exists(ROOT.'config/'.$env.'.php')) {
+    if (!file_exists(ROOT.'config/'.$env.'.php')) {
         echo "\033[0;31mstartup: Configuration file \"ROOT/config/".$env.".php\" for specified environment\"".$env."\" not found\033[0m\n";
         $core->register['exit_code'] = 5;
         die(5);
@@ -79,12 +79,12 @@ try{
     /*
      * Process basic shell arguments
      */
-    if(empty($e)) {
+    if (empty($e)) {
         /*
          * Correct $_SERVER['PHP_SELF'], sometimes seems empty
          */
-        if(empty($_SERVER['PHP_SELF'])) {
-            if(!isset($_SERVER['_'])) {
+        if (empty($_SERVER['PHP_SELF'])) {
+            if (!isset($_SERVER['_'])) {
                 $e = new Exception('No $_SERVER[PHP_SELF] or $_SERVER[_] found', 'not-exists');
             }
 
@@ -95,7 +95,7 @@ try{
             /*
              * (Usually first) argument may contain the startup of this script, which we may ignore
              */
-            if($arg == $_SERVER['PHP_SELF']) {
+            if ($arg == $_SERVER['PHP_SELF']) {
                 continue;
             }
 
@@ -122,18 +122,18 @@ try{
                 case '--help':
                     // FALLTHROUGH
                 case 'help':
-                    if(isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
+                    if (isset_get($GLOBALS['argv'][$argid + 1]) == 'system') {
                         load_libs('help');
                         help('system');
 
                     } else {
-                        if(empty($GLOBALS['help'])) {
-                            $e = new BException(tr('core::startup(): Sorry, this script has no help text defined'), 'warning');
+                        if (empty($GLOBALS['help'])) {
+                            $e = new CoreException(tr('core::startup(): Sorry, this script has no help text defined'), 'warning');
                         }
 
                         $GLOBALS['help'] = Arrays::force($GLOBALS['help'], "\n");
 
-                        if(count($GLOBALS['help']) == 1) {
+                        if (count($GLOBALS['help']) == 1) {
                             log_console(array_shift($GLOBALS['help']), 'white');
 
                         } else {
@@ -154,12 +154,12 @@ try{
                     /*
                      * Set language to be used
                      */
-                    if(isset($language)) {
-                        $e = new BException(tr('core::startup(): Language has been specified twice'), 'exists');
+                    if (isset($language)) {
+                        $e = new CoreException(tr('core::startup(): Language has been specified twice'), 'exists');
                     }
 
-                    if(!isset($GLOBALS['argv'][$argid + 1])) {
-                        $e = new BException(tr('core::startup(): The "language" argument requires a two letter language core right after it'), 'invalid');
+                    if (!isset($GLOBALS['argv'][$argid + 1])) {
+                        $e = new CoreException(tr('core::startup(): The "language" argument requires a two letter language core right after it'), 'invalid');
                     }
 
                     $language = $GLOBALS['argv'][$argid + 1];
@@ -174,12 +174,12 @@ try{
                 //    /*
                 //     * Set environment and reset next
                 //     */
-                //    if(isset($environment)) {
-                //        $e = new BException(tr('core::startup(): Environment has been specified twice'), 'exists');
+                //    if (isset($environment)) {
+                //        $e = new CoreException(tr('core::startup(): Environment has been specified twice'), 'exists');
                 //    }
                 //
-                //    if(!isset($GLOBALS['argv'][$argid + 1])) {
-                //        $e = new BException(tr('core::startup(): The "environment" argument requires an existing environment name right after it'), 'invalid');
+                //    if (!isset($GLOBALS['argv'][$argid + 1])) {
+                //        $e = new CoreException(tr('core::startup(): The "environment" argument requires an existing environment name right after it'), 'invalid');
                 //    }
                 //
                 //    $environment = $GLOBALS['argv'][$argid + 1];
@@ -195,11 +195,11 @@ try{
 
                     $valid = preg_match('/^ ORDER BY `[a-z0-9_]+`(?:\s+(?:DESC|ASC))? $/', ORDERBY);
 
-                    if(!$valid) {
+                    if (!$valid) {
                         /*
                          * The specified column ordering is NOT valid
                          */
-                        $e = new BException(tr('core::startup(): The specified orderby argument ":argument" is invalid', array(':argument' => ORDERBY)), 'invalid');
+                        $e = new CoreException(tr('core::startup(): The specified orderby argument ":argument" is invalid', array(':argument' => ORDERBY)), 'invalid');
                     }
 
                     unset($GLOBALS['argv'][$argid]);
@@ -210,12 +210,12 @@ try{
                     /*
                      * Set timezone
                      */
-                    if(isset($timezone)) {
-                        $e = new BException(tr('core::startup(): Timezone has been specified twice'), 'exists');
+                    if (isset($timezone)) {
+                        $e = new CoreException(tr('core::startup(): Timezone has been specified twice'), 'exists');
                     }
 
-                    if(!isset($GLOBALS['argv'][$argid + 1])) {
-                        $e = new BException(tr('core::startup(): The "timezone" argument requires a valid and existing timezone name right after it'), 'invalid');
+                    if (!isset($GLOBALS['argv'][$argid + 1])) {
+                        $e = new CoreException(tr('core::startup(): The "timezone" argument requires a valid and existing timezone name right after it'), 'invalid');
 
                     }
 
@@ -245,7 +245,7 @@ try{
         unset($arg);
         unset($argid);
 
-        if(!defined('ORDERBY')) {
+        if (!defined('ORDERBY')) {
             define('ORDERBY', '');
         }
     }
@@ -272,13 +272,13 @@ try{
     /*
      * Something failed?
      */
-    if(isset($e)) {
+    if (isset($e)) {
         echo "startup-cli: Command line parser failed with \"".$e->getMessage()."\"\n";
         $core->register['exit_code'] = 1;
         die(1);
     }
 
-    if(isset($die)) {
+    if (isset($die)) {
         $core->register['ready']     = true;
         $core->register['exit_code'] = $die;
         die($die);
@@ -291,17 +291,17 @@ try{
      */
     $core->register['cli'] = array('term' => cli_get_term());
 
-    if($core->register['cli']['term']) {
+    if ($core->register['cli']['term']) {
         $core->register['cli']['columns'] = cli_get_columns();
         $core->register['cli']['lines']   = cli_get_lines();
 
-        if(!$core->register['cli']['columns']) {
+        if (!$core->register['cli']['columns']) {
             $core->register['cli']['size'] = 'unknown';
 
-        } elseif($core->register['cli']['columns'] <= 80) {
+        } elseif ($core->register['cli']['columns'] <= 80) {
             $core->register['cli']['size'] = 'small';
 
-        } elseif($core->register['cli']['columns'] <= 160) {
+        } elseif ($core->register['cli']['columns'] <= 160) {
             $core->register['cli']['size'] = 'medium';
 
         } else {
@@ -332,7 +332,7 @@ try{
     try{
         $language = not_empty(cli_argument('--language'), cli_argument('L'), $_CONFIG['language']['default']);
 
-        if($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])) {
+        if ($_CONFIG['language']['supported'] and !isset($_CONFIG['language']['supported'][$language])) {
             throw new CoreException(tr('core::startup(): Unknown language ":language" specified', array(':language' => $language)), 'unknown');
         }
 
@@ -345,11 +345,11 @@ try{
         /*
          * Language selection failed
          */
-        if(!defined('LANGUAGE')) {
+        if (!defined('LANGUAGE')) {
             define('LANGUAGE', 'en');
         }
 
-        $e = new BException('core::startup(): Language selection failed', $e);
+        $e = new CoreException('core::startup(): Language selection failed', $e);
     }
 
     define('LIBS', ROOT.'www/'.LANGUAGE.'/libs/');
@@ -367,10 +367,10 @@ try{
     /*
      * Prepare for unicode usage
      */
-    if($_CONFIG['encoding']['charset'] == 'UTF-8') {
+    if ($_CONFIG['encoding']['charset'] == 'UTF-8') {
         mb_init(not_empty($_CONFIG['locale'][LC_CTYPE], $_CONFIG['locale'][LC_ALL]));
 
-        if(function_exists('mb_internal_encoding')) {
+        if (function_exists('mb_internal_encoding')) {
             mb_internal_encoding('UTF-8');
         }
     }
@@ -401,7 +401,7 @@ try{
      */
     $core->register['ready'] = true;
 
-    if(cli_argument('-D,--debug')) {
+    if (cli_argument('-D,--debug')) {
         debug();
     }
 
@@ -421,12 +421,12 @@ try{
      * Validate parameters
      * Give some startup messages, if needed
      */
-    if(VERBOSE) {
-        if(QUIET) {
+    if (VERBOSE) {
+        if (QUIET) {
             throw new CoreException(tr('core::startup(): Both QUIET and VERBOSE have been specified but these options are mutually exclusive. Please specify either one or the other'), 'warning/invalid');
         }
 
-        if(VERYVERBOSE) {
+        if (VERYVERBOSE) {
             log_console(tr('Running in VERYVERBOSE mode, started @ ":datetime"', array(':datetime' => date_convert(STARTTIME, 'human_datetime'))), 'white');
 
         } else {
@@ -436,39 +436,39 @@ try{
         log_console(tr('Detected ":size" terminal with ":columns" columns and ":lines" lines', array(':size' => $core->register['cli']['size'], ':columns' => $core->register['cli']['columns'], ':lines' => $core->register['cli']['lines'])));
     }
 
-    if(FORCE) {
-        if(TEST) {
+    if (FORCE) {
+        if (TEST) {
             throw new CoreException(tr('core::startup(): Both FORCE and TEST modes where specified, these modes are mutually exclusive'), 'invalid');
         }
 
         log_console(tr('Running in FORCE mode'), 'yellow');
 
-    } elseif(TEST) {
+    } elseif (TEST) {
         log_console(tr('Running in TEST mode'), 'yellow');
     }
 
-    if(debug()) {
+    if (debug()) {
         log_console(tr('Running in DEBUG mode'), 'VERBOSE/yellow');
     }
 
-    if(!is_natural($core->register['page'])) {
+    if (!is_natural($core->register['page'])) {
         throw new CoreException(tr('paging_library_init(): Specified -P or --page ":page" is not a natural number', array(':page' => $core->register['page'])), 'invalid');
     }
 
-    if(!is_natural($core->register['limit'])) {
+    if (!is_natural($core->register['limit'])) {
         throw new CoreException(tr('paging_library_init(): Specified --limit":limit" is not a natural number', array(':limit' => $core->register['limit'])), 'invalid');
     }
 
-    if($core->register['all']) {
-        if($core->register['page'] > 1) {
+    if ($core->register['all']) {
+        if ($core->register['page'] > 1) {
             throw new CoreException(tr('paging_library_init(): Both -A or --all and -P or --page have been specified, these options are mutually exclusive'), 'invalid');
         }
 
-        if(DELETED) {
+        if (DELETED) {
             throw new CoreException(tr('paging_library_init(): Both -A or --all and -D or --deleted have been specified, these options are mutually exclusive'), 'invalid');
         }
 
-        if(STATUS) {
+        if (STATUS) {
             throw new CoreException(tr('paging_library_init(): Both -A or --all and -S or --status have been specified, these options are mutually exclusive'), 'invalid');
         }
 
@@ -487,7 +487,7 @@ try{
      * Did the startup sequence encounter reasons for us to actually show another
      * page?
      */
-    if(isset($core->register['page_show'])) {
+    if (isset($core->register['page_show'])) {
         page_show($core->register['page_show']);
     }
 

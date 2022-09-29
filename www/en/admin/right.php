@@ -12,7 +12,7 @@ $right = array();
  * Are we editing a right?
  * If so then get the right data from the DB
  */
-if(!empty($_GET['right'])) {
+if (!empty($_GET['right'])) {
     $db = sql_get('SELECT    `rights`.`id`,
                              `rights`.`createdon`,
                              `rights`.`modifiedon`,
@@ -33,7 +33,7 @@ if(!empty($_GET['right'])) {
 
                    array(':right' => $_GET['right']));
 
-    if(!$db) {
+    if (!$db) {
         html_flash_set(log_database(tr('Specified right "'.str_log($_GET['right']).'" does not exist'), 'right_not_exist'), 'error');
         redirect(domain('/admin/rights.php'));
     }
@@ -43,12 +43,12 @@ if(!empty($_GET['right'])) {
     $right = array_merge($db, $right);
     unset($db);
 
-    if($right['createdon']) {
+    if ($right['createdon']) {
         $right['createdon']  = new DateTime($right['createdon']);
         $right['createdon']  = $right['createdon']->format($_CONFIG['formats']['human_datetime']);
     }
 
-    if($right['modifiedon']) {
+    if ($right['modifiedon']) {
         $right['modifiedon'] = new DateTime($right['modifiedon']);
         $right['modifiedon'] = $right['modifiedon']->format($_CONFIG['formats']['human_datetime']);
     }
@@ -58,10 +58,10 @@ if(!empty($_GET['right'])) {
 /*
  * Was right data submitted?
  */
-if(!empty($_POST['dosubmit'])) {
+if (!empty($_POST['dosubmit'])) {
     $right = array_merge($right, $_POST);
 
-    if(!empty($right['id'])) {
+    if (!empty($right['id'])) {
         /*
          * Auto update
          */
@@ -71,7 +71,7 @@ if(!empty($_POST['dosubmit'])) {
 
 
 try{
-    if(isset_get($_POST['docreate'])) {
+    if (isset_get($_POST['docreate'])) {
         /*
          * Validate data
          */
@@ -80,7 +80,7 @@ try{
         /*
          * This right does not exist yet?
          */
-        if(sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', 'id', array(':name' => $right['name']))) {
+        if (sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', 'id', array(':name' => $right['name']))) {
             throw new CoreException(tr('The right "%name%" already exists', '%name%', str_log($right['name'])), 'exists');
         }
 
@@ -95,8 +95,8 @@ try{
 
         $right = array();
 
-    } elseif(isset_get($_POST['doupdate'])) {
-        if(empty($right['id'])) {
+    } elseif (isset_get($_POST['doupdate'])) {
+        if (empty($right['id'])) {
             throw new CoreException('Cannot update, no right specified', 'notspecified');
         }
 
@@ -108,7 +108,7 @@ try{
         /*
          * This right does not exist yet?
          */
-        if(sql_get('SELECT `name` FROM `rights` WHERE `name` = :name AND `id` != :id', 'id', array(':name' => $right['name'], ':id' => $right['id']))) {
+        if (sql_get('SELECT `name` FROM `rights` WHERE `name` = :name AND `id` != :id', 'id', array(':name' => $right['name'], ':id' => $right['id']))) {
             throw new CoreException(tr('The right "%name%" already exists', '%name%', str_log($right['name'])), 'exists');
         }
 
@@ -150,7 +150,7 @@ $html   = ' <form id="right" name="right" action="'.domain(true).'" method="post
                             </header>
                             <div class="panel-body">';
 
-if(!empty($right['id'])) {
+if (!empty($right['id'])) {
     $html .= '                  <div class="form-group">
                                     <label class="col-md-3 control-label" for="createdon">'.tr('Created on').'</label>
                                     <div class="col-md-6">
@@ -232,7 +232,7 @@ function s_validate_right(&$right) {
         $v->hasMinChars ($right['name'],   4, tr('Please ensure that the name has a minimum of 4 characters'));
         $v->hasMaxChars ($right['name'],  16, tr('Please ensure that the name has a maximum of 16 characters'));
 
-        if(strpos($right['name'], ' ') !== false) {
+        if (strpos($right['name'], ' ') !== false) {
             $v->setError(tr('Please ensure that the rights name contains no spaces'));
         }
 
@@ -240,8 +240,8 @@ function s_validate_right(&$right) {
         $v->hasMinChars ($right['description'],  16, tr('Please ensure that the description has a minimum of 16 characters'));
         $v->hasMaxChars ($right['description'], 255, tr('Please ensure that the description has a maximum of 255 characters'));
 
-        if(!is_array(isset_get($right['rights']))) {
-            if(!empty($right['rights'])) {
+        if (!is_array(isset_get($right['rights']))) {
+            if (!empty($right['rights'])) {
                 $v->setError(tr('Specified rights list is invalid'));
             }
 
@@ -254,7 +254,7 @@ function s_validate_right(&$right) {
         $right['rights'] = array_unique($right['rights']);
         sort($right['rights']);
 
-        if(!$v->isValid()) {
+        if (!$v->isValid()) {
             throw new CoreException($v->getErrors(), 'invalid');
         }
 

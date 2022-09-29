@@ -18,7 +18,7 @@ console.log("selector " + selector);
                 type = "information";
                 // FALLTHROUGH
             case "error":
-                if(type == "exception") {
+                if (type == "exception") {
                     type = "error";
                 }
                 // FALLTHROUGH
@@ -41,7 +41,7 @@ console.log(type);
 
         $selector = $(selector);
 
-        if(!$selector.length) {
+        if (!$selector.length) {
             /*
              * There is no flash message element with the specified selector. Use alert() as alternative
              */
@@ -49,12 +49,12 @@ console.log(type);
             console.log(message);
             console.log("****************************************************************");
 
-            if(!isFunction("swal")) {
+            if (!isFunction("swal")) {
                 $.getScript(cdnprefix+"js/sweetalert/sweetalert.js")
                     .complete(function() {
                         $.getCSS(cdnprefix+"css/sweetalert/sweetalert.css");
 
-                        if((typeof swal) != 'undefined') {
+                        if ((typeof swal) != 'undefined') {
                             swal({title: "Notice",
                                   type: type,
                                   html: message});

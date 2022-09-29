@@ -18,7 +18,7 @@ function sms_send_message($message, $to, $from = null) {
     global $_CONFIG;
 
     try{
-        if($from === 'crmtext') {
+        if ($from === 'crmtext') {
             $provider = $from;
 
         } else {
@@ -70,8 +70,8 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
         /*
          * Determine the local and remote phones
          */
-        if(twilio_get_number($phone_remote)) {
-            if(twilio_get_number($phone_local)) {
+        if (twilio_get_number($phone_remote)) {
+            if (twilio_get_number($phone_local)) {
                 /*
                  * The remote number and local numbers are both locally known
                  * numbers. We can onlyh assume the order is correct, so don't
@@ -105,7 +105,7 @@ function sms_get_conversation($phone_local, $phone_remote, $type, $createdon = n
                                        ':phone_local'  => $phone_local,
                                        ':phone_remote' => $phone_remote));
 
-        if(!$conversation) {
+        if (!$conversation) {
             /*
              * This phone combo has no conversation yet, create it now.
              */
@@ -142,22 +142,22 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
     global $_CONFIG;
 
     try{
-        if(empty($conversation['id'])) {
+        if (empty($conversation['id'])) {
             throw new CoreException('sms_update_conversation(): No conversation id specified', 'not-specified');
         }
 
-        if(empty($direction)) {
+        if (empty($direction)) {
             throw new CoreException('sms_update_conversation(): No conversation direction specified', 'not-specified');
         }
 
-        if(empty($message)) {
+        if (empty($message)) {
             throw new CoreException('sms_update_conversation(): No conversation message specified', 'not-specified');
         }
 
         /*
          * Decode the current last_messages
          */
-        if($conversation['last_messages']) {
+        if ($conversation['last_messages']) {
             try{
                 $conversation['last_messages'] = json_decode_custom($conversation['last_messages']);
 
@@ -173,7 +173,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
             /*
              * Ensure the conversation does not pass the max size
              */
-            if(count($conversation['last_messages']) >= $_CONFIG['twilio']['conversations']['size']) {
+            if (count($conversation['last_messages']) >= $_CONFIG['twilio']['conversations']['size']) {
                 array_pop($conversation['last_messages']);
             }
 
@@ -184,7 +184,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
         /*
          * Add message timestamp to each message?
          */
-        if($_CONFIG['twilio']['conversations']['message_dates']) {
+        if ($_CONFIG['twilio']['conversations']['message_dates']) {
             $message = str_replace('%datetime%', date_convert($datetime), $_CONFIG['twilio']['conversations']['message_dates']).$message;
         }
 
@@ -193,7 +193,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
          */
         $images = sql_list('SELECT `id`, `file`, `url` FROM `sms_images` WHERE `sms_messages_id` = :sms_messages_id', array(':sms_messages_id' => $messages_id));
 
-        if($images) {
+        if ($images) {
             foreach($images as $image) {
 
                 $message = html_img(($image['file'] ? $image['file'] : $image['url']), tr('MMS image'), 28, 28, 'class="mms"').$message;
@@ -219,7 +219,7 @@ function sms_update_conversation($conversation, $messages_id, $direction, $messa
             $message_length = strlen($last_messages);
         }
 
-        if($replied) {
+        if ($replied) {
             sql_query('UPDATE `sms_conversations`
 
                        SET    `last_messages` = :last_messages,
@@ -265,7 +265,7 @@ function sms_full_phones($phones) {
         foreach($phones as &$phone) {
             $phone = trim($phone);
 
-            if(substr($phone, 0, 1) == '+') {
+            if (substr($phone, 0, 1) == '+') {
                 /*
                  * Phone has a country code
                  */
@@ -275,7 +275,7 @@ function sms_full_phones($phones) {
             /*
              * Assume this is a US phone, return with +1
              */
-            if(is_numeric($phone)) {
+            if (is_numeric($phone)) {
                 $phone = '+'.$_CONFIG['twilio']['defaults']['country_code'].$phone;
             }
         }
@@ -302,7 +302,7 @@ function sms_no_country_phones($phones) {
         foreach($phones as &$phone) {
             $phone = trim($phone);
 
-            if(substr($phone, 0, 1) != '+') {
+            if (substr($phone, 0, 1) != '+') {
                 /*
                  * Phone has no country code
                  */
@@ -312,7 +312,7 @@ function sms_no_country_phones($phones) {
             /*
              * Assume this is a US phone, return with +1
              */
-            if(substr($phone, 1, 1) == '1') {
+            if (substr($phone, 1, 1) == '1') {
                 $phone = substr($phone, 2);
             }
         }
@@ -347,7 +347,7 @@ function sms_select_source($name, $selected, $provider, $class) {
                          'selected' => $selected,
                          'resource' => $resource);
 
-        if(isset_get($provider) == 'crmtext') {
+        if (isset_get($provider) == 'crmtext') {
             $sources['resource']['crmtext']  = tr('Shortcode');
             $sources['selected']             = 'crmtext';
         }

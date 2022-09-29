@@ -25,11 +25,11 @@ function pushover_send_msg($user, $params) {
         /*
          * Validations
          */
-        if(empty($user)) {
+        if (empty($user)) {
             throw new CoreException(tr('pushover_send_msg(): not user specified'));
         }
 
-        if($user = 'all') {
+        if ($user = 'all') {
             foreach($_CONFIG['pushover']['users'] as $user => $preferences) {
                 /*
                  * Prepare the message

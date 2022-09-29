@@ -24,7 +24,7 @@
 		//	self.val($(this).prop('title'));
 		//	lists.hide();
 		//
-		//	if(options.autoSubmit) {
+		//	if (options.autoSubmit) {
 		//		self.closest('form').submit();
 		//	}
 		// });
@@ -65,7 +65,7 @@
 		$(this).on("focus", "div.autosuggest input", function(e) {
 			$ul = $(this).siblings("ul");
 
-			if($(this).siblings("ul").children().length) {
+			if ($(this).siblings("ul").children().length) {
 				$ul.addClass("active");
 			}
 		});
@@ -118,7 +118,7 @@
 				case 39:
 					// FALLTHROUGH
 				case 13:
-					if(!$this.siblings("ul").hasClass("active")) {
+					if (!$this.siblings("ul").hasClass("active")) {
 						/*
 						 * Autosuggest dropdown is not visible, treat enter like normal
 						 */
@@ -164,8 +164,8 @@
 						value  = $this.val(),
 						target = $this.siblings("ul");
 
-					if(value.length >= options.minLength) {
-						if(loading == false) {
+					if (value.length >= options.minLength) {
+						if (loading == false) {
 							loading = true;
 							$this.siblings("img").addClass("active");
 
@@ -179,14 +179,14 @@
 								.success(function(data) {
 									$this.siblings("img").removeClass("active");
 
-									if(typeof data == "string") {
+									if (typeof data == "string") {
 										// Auto parse json
 										data = $.parseJSON(data);
 									}
 
 									loading = false;
 
-									if((data.result) == "OK" && data.data.html) {
+									if ((data.result) == "OK" && data.data.html) {
 										target
 											.html(data.data.html)
 											.addClass("active");

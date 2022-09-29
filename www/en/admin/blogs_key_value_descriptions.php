@@ -7,17 +7,17 @@ load_libs('validate');
 /*
  * Ensure we have an existing blog with access!
  */
-if(empty($_GET['blog'])) {
+if (empty($_GET['blog'])) {
     html_flash_set(tr('Please select %object%', array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs']);
 }
 
-if(!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
+if (!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr($params['noblog'], array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs']);
 }
 
-if(($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+if (($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
     html_flash_set(tr('You do not have access to the %object% "'.$blog['name'].'"', array('%object%' => $params['object'])), 'error');
     redirect($params['redirects']['blogs_posts']);
 }
@@ -123,7 +123,7 @@ $r = sql_query('SELECT `key`,
 
                 array(':blogs_id' => $blog['id']));
 
-if($r->rowCount()) {
+if ($r->rowCount()) {
 
     while($row = sql_fetch($r)) {
         $html .= '  <hr>
@@ -212,21 +212,21 @@ function s_validate_data(&$data) {
         // Validate input
         $v = new validate_form($data);
 
-        if(!is_array($data)) {
+        if (!is_array($data)) {
             throw new CoreException('Specified data is invalid', 'invalid');
         }
 
         foreach($data as $key => $value) {
-            if($key === 'id') {
+            if ($key === 'id') {
                 unset($data[$key]);
                 continue;
             }
 
-            if(!is_array($value)) {
+            if (!is_array($value)) {
                 $v->setError('Specified data value is invalid');
             }
 
-            if(empty($value['key']) and empty($value['value']) and empty($value['description1']) and empty($value['description2'])) {
+            if (empty($value['key']) and empty($value['value']) and empty($value['description1']) and empty($value['description2'])) {
                 /*
                  * This set is completely empty, drop it
                  */
@@ -234,20 +234,20 @@ function s_validate_data(&$data) {
                 continue;
             }
 
-            if(empty($value['key'])) {
+            if (empty($value['key'])) {
                 $v->setError('Specified data is missing a key');
             }
 
-            if(empty($value['value'])) {
+            if (empty($value['value'])) {
                 $v->setError('Specified data is missing a value');
             }
 
-            if(empty($value['description1']) and empty($value['description2'])) {
+            if (empty($value['description1']) and empty($value['description2'])) {
                 $v->setError($params['validation_description']);
             }
         }
 
-        if(!$v->isValid()) {
+        if (!$v->isValid()) {
            throw new CoreException($v->getErrors(), 'validation');
         }
 

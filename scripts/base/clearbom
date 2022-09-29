@@ -36,7 +36,7 @@ cli_no_arguments_left();
 
 
 
-if($setdate) {
+if ($setdate) {
     $setdate = new DateTime($setdate);
     $setdate = $setdate->getTimestamp();
 }
@@ -48,11 +48,11 @@ if($setdate) {
 $cachefile  = ROOT.'data/cache/system/clearbom';
 $cachemtime = null;
 
-if($nomtime) {
+if ($nomtime) {
     $mtime = null;
 
 } else {
-    if(!$mtime and file_exists($cachefile)) {
+    if (!$mtime and file_exists($cachefile)) {
         $mtime = filemtime($cachefile);
     }
 }
@@ -62,47 +62,47 @@ if($nomtime) {
 /*
  *
  */
-if(!function_exists('clear_files')) {
+if (!function_exists('clear_files')) {
     function clear_files($path) {
         global $mtime;
 
         try{
-            if(VERBOSE) {
+            if (VERBOSE) {
                 log_console(tr('Checking path ":path"', array(':path' => $path)));
             }
 
             $count = 0;
 
             foreach(scandir($path) as $file) {
-                if(($file == '.') or ($file == '..') or ($file == '.git')) continue;
+                if (($file == '.') or ($file == '..') or ($file == '.git')) continue;
 
                 $file = Strings::slash($path).$file;
 
-                if($file === ROOT.'cdn') {
+                if ($file === ROOT.'cdn') {
                     /*
                      * Skip CDN
                      */
                     continue;
                 }
 
-                if(is_dir($file)) {
+                if (is_dir($file)) {
                     $count += clear_files($file);
 
                 } else {
                     /*
                      * Only PHP files
                      */
-                    if(substr($file, -4, 4) != '.php') continue;
+                    if (substr($file, -4, 4) != '.php') continue;
 
                     /*
                      * Only newer files
                      */
-                    if($mtime and (filemtime($file) <= $mtime)) continue;
+                    if ($mtime and (filemtime($file) <= $mtime)) continue;
 
 // :TODO: Why the hell are we reading the entire file contents? Just read the first 4 bytes and we're done!
                     $data = file_get_contents($file);
 
-                    if(substr($data, 0, 3) == chr(0xEF).chr(0xBB).chr(0xBF)) {
+                    if (substr($data, 0, 3) == chr(0xEF).chr(0xBB).chr(0xBF)) {
                         /*
                          * Found a twitcher! Gotta shootem in the head!
                          */
@@ -132,13 +132,13 @@ $path = cli_argument('path', true, ROOT);
 
 log_console(tr('Searching ":path" for PHP files with BOM signatures', array(':path' => $path)), 'white');
 
-if(!file_exists($path)) {
+if (!file_exists($path)) {
     throw new CoreException(tr('The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
 }
 
 $count = clear_files($path);
 
-if($setdate) {
+if ($setdate) {
     /*
      * Set the cache file
      */

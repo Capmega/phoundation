@@ -8,56 +8,56 @@ try{
 
     load_libs('process');
 
-    if(!is_numeric($wait)) {
-        if($wait) {
+    if (!is_numeric($wait)) {
+        if ($wait) {
             throw new CoreException(tr('run_background(): Invalid wait ":wait" specified, must be a positive number', array(':wait' => $wait)), 'invalid');
         }
 
         $wait = 0;
 
-    } elseif($wait < 0) {
+    } elseif ($wait < 0) {
         throw new CoreException(tr('run_background(): Invalid wait ":wait" specified, must be a positive number', array(':wait' => $wait)), 'invalid');
     }
 
-    if($path == './') {
+    if ($path == './') {
         $path = ROOT.'scripts/';
 
-    } elseif(Strings::startsNotWith($path, '/') == 'base/') {
+    } elseif (Strings::startsNotWith($path, '/') == 'base/') {
         $path = ROOT.'scripts/base/';
     }
 
-    if($single and process_runs($cmd)) {
+    if ($single and process_runs($cmd)) {
         log_file(tr('Specified command ":cmd" is already running and has "single" option specified, not running again', array(':cmd' => str_replace(ROOT, '', $path).$cmd)), 'run_background', 'warning');
         return false;
     }
 
-    if(!file_exists($path.$cmd)) {
+    if (!file_exists($path.$cmd)) {
         throw new CoreException(tr('run_background(): Specified command ":cmd" does not exists', array(':cmd' => $path.$cmd)), 'not-exists');
     }
 
-    if(!is_file($path.$cmd)) {
+    if (!is_file($path.$cmd)) {
         throw new CoreException(tr('run_background(): Specified command ":cmd" is not a file', array(':cmd' => $path.$cmd)), 'notfile');
     }
 
-    if(!is_executable($path.$cmd)) {
+    if (!is_executable($path.$cmd)) {
         throw new CoreException(tr('run_background(): Specified command ":cmd" is not executable', array(':cmd' => $path.$cmd)), 'notexecutable');
     }
 
-    if($log === true) {
+    if ($log === true) {
         $log = str_replace('/', '-', $cmd);
     }
 
     file_ensure_path(ROOT.'data/run-background');
 
-    if(!strstr($args, '--env') and !strstr($args, '-E')) {
+    if (!strstr($args, '--env') and !strstr($args, '-E')) {
         /*
          * Command doesn't have environment specified. Specify it using the current environment
          */
         $args .= ' --env '.ENVIRONMENT;
     }
 
-    if($log) {
-        if(substr($log, 0, 3) === 'tmp') {
+    if ($log) {
+        if (substr($log, 0, 3) === 'tmp') {
             /*
              * Log output to the TMP directory instead of the normal log output
              */
@@ -69,7 +69,7 @@ try{
 
         file_ensure_path(dirname($log));
 
-        if(file_exists($log) and is_dir($log)) {
+        if (file_exists($log) and is_dir($log)) {
             /*
              * Oops, the log file already exists, but as a directory! That is a
              * problem, get rid of it or it will stop background execution all

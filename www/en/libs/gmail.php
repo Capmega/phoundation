@@ -23,11 +23,11 @@ function gmail_get_forward_code($email) {
         preg_match_all('/'.regex_email(true).'/i', $email['text']   , $matches_from);
         preg_match_all('/\d{9}/'                 , $email['subject'], $matches_code);
 
-        if(!$matches_from[0]) {
+        if (!$matches_from[0]) {
             throw new CoreException(tr('gmail_get_forward_code(): Could not find gmail forwarder address in specified email text'), 'not-exists');
         }
 
-        if(!$matches_code[0]) {
+        if (!$matches_code[0]) {
             throw new CoreException(tr('gmail_get_forward_code(): Could not find gmail forwarding code in specified email text'), 'not-exists');
         }
 

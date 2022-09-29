@@ -2,7 +2,7 @@
     require_once(__DIR__.'/../../libs/startup.php');
 
     try{
-        if(empty($_GET['code'])) {
+        if (empty($_GET['code'])) {
             throw new CoreException('ajax/base/mailer_access: No code specified');
         }
 

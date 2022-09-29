@@ -95,7 +95,7 @@ function backup_library_init() {
 //        /*
 //         * Set database
 //         */
-//        if(!$params['database']) {
+//        if (!$params['database']) {
 //            /*
 //             * Backup the core database of this project
 //             */
@@ -107,7 +107,7 @@ function backup_library_init() {
 //
 //            return $params['target'];
 //
-//        } elseif($params['database'] === true) {
+//        } elseif ($params['database'] === true) {
 //            /*
 //             * Backup all databases
 //             * First get a list of all available databases, then back them up one by one
@@ -116,7 +116,7 @@ function backup_library_init() {
 //
 //            foreach(sql_list('SHOW DATABASES', null, null, 'backup') as $database) {
 //                try{
-//                    //if($database == 'information_schema') {
+//                    //if ($database == 'information_schema') {
 //                    //    continue;
 //                    //}
 //
@@ -135,7 +135,7 @@ function backup_library_init() {
 //
 //            return $params['target'];
 //
-//        } elseif(strpos($params['database'], ',') !== false) {
+//        } elseif (strpos($params['database'], ',') !== false) {
 //            /*
 //             * Backup multiple databases
 //             */
@@ -152,7 +152,7 @@ function backup_library_init() {
 //        /*
 //         * Set table
 //         */
-//        if(!$params['table']) {
+//        if (!$params['table']) {
 //            log_console('Starting backup of database "'.str_log($params['database']).'"', 'white');
 //
 //            /*
@@ -183,7 +183,7 @@ function backup_library_init() {
 //         * Set backup date
 //         * Make sure target exists
 //         */
-//        if($params['date'] === null) {
+//        if ($params['date'] === null) {
 //            /*
 //             * No backup date specified yet. Specify now, and build target
 //             */
@@ -196,38 +196,38 @@ function backup_library_init() {
 //        $target    = $params['target'].$params['table'].'.sql';
 //        $command   = 'mysqldump -p"'.$params['pass'].'" -u '.$params['user'].' --single-transaction';
 //
-//        if($params['create_options']) {
+//        if ($params['create_options']) {
 //            $command .=  ' --create-options';
 //        }
 //
-//        if($params['complete_insert']) {
+//        if ($params['complete_insert']) {
 //            $command .= ' --complete-insert';
 //        }
 //
-//        if($params['comments']) {
+//        if ($params['comments']) {
 //            $command .= ' --comments';
 //
 //        } else {
 //            $command .= ' --no-comments';
 //        }
 //
-//        if($params['dump_date']) {
+//        if ($params['dump_date']) {
 //            $command .= ' --dump-date';
 //        }
 //
-//        if($params['routines']) {
+//        if ($params['routines']) {
 //            $command .= ' --routines';
 //        }
 //
-//        if($params['disable_keys']) {
+//        if ($params['disable_keys']) {
 //            $command .= ' --disable-keys';
 //        }
 //
-//        if($params['extended_insert']) {
+//        if ($params['extended_insert']) {
 //            $command .= ' --extended-insert';
 //        }
 //
-//        if($params['no_create_db']) {
+//        if ($params['no_create_db']) {
 //            $command .= ' --no-create-db';
 //        }
 //

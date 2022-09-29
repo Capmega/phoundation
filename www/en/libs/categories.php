@@ -54,17 +54,17 @@ function categories_validate($category) {
         /*
          * Validate parents_id
          */
-        if(empty($category['seoparent'])) {
+        if (empty($category['seoparent'])) {
             $category['parents_id'] = null;
 
         } else {
             $category['parents_id'] = sql_get('SELECT `id` FROM `categories` WHERE `seoname` = :seoname', true, array(':seoname' => $category['seoparent']));
 
-            if(!$category['parents_id']) {
+            if (!$category['parents_id']) {
                 $v->setError(tr('The specified parent category does not exist'));
             }
 
-            if($category['parents_id'] == isset_get($category['id'])) {
+            if ($category['parents_id'] == isset_get($category['id'])) {
                 $v->setError(tr('The specified parent category is the category itself.'));
             }
         }
@@ -76,7 +76,7 @@ function categories_validate($category) {
         $v->hasMinChars($category['name'],  2, tr('Please ensure the category name has at least 2 characters'));
         $v->hasMaxChars($category['name'], 64, tr('Please ensure the category name has less than 64 characters'));
 
-        if(is_numeric(substr($category['name'], 0, 1))) {
+        if (is_numeric(substr($category['name'], 0, 1))) {
             $v->setError(tr('Please ensure that the category name does not start with a number'));
         }
 
@@ -89,8 +89,8 @@ function categories_validate($category) {
          */
         $exists = sql_get('SELECT `id` FROM `categories` WHERE `parents_id` '.sql_is(isset_get($category['parents_id']), ':parents_id').' AND `name` = :name AND `id` '.sql_is(isset_get($category['id']), ':id', true), true, array(':name' => $category['name'], ':id' => isset_get($category['id']), ':parents_id' => isset_get($category['parents_id'])));
 
-        if($exists) {
-            if($category['parents_id']) {
+        if ($exists) {
+            if ($category['parents_id']) {
                 $v->setError(tr('The category name ":category" already exists in the parent category ":parent"', array(':parent' => not_empty($category['seoparent'], $category['parents_id']), ':category' => $category['name'])));
 
             } else {
@@ -101,7 +101,7 @@ function categories_validate($category) {
         /*
          * Validate description
          */
-        if(empty($category['description'])) {
+        if (empty($category['description'])) {
             $category['description'] = null;
 
         } else {
@@ -169,20 +169,20 @@ function categories_select($params = null) {
         array_default($params, 'none'      , tr('Select a category'));
         array_default($params, 'orderby'   , '`name`');
 
-        if($params['seoparent']) {
+        if ($params['seoparent']) {
             /*
              * This is a child category
              */
             $params['parents_id'] = sql_get('SELECT `id` FROM `categories` WHERE `seoname` = :seoname AND `parents_id` IS NULL AND `status` IS NULL', true, array(':seoname' => $params['seoparent']));
 
-            if(!$params['parents_id']) {
+            if (!$params['parents_id']) {
                 /*
                  * The category apparently does not exist, auto create it
                  */
                 $parent = sql_get('SELECT `id`, `parents_id`, `status` FROM `categories` WHERE `seoname` = :seoname', array(':seoname' => $params['seoparent']));
 
-                if($parent) {
-                    if($parent['status']) {
+                if ($parent) {
+                    if ($parent['status']) {
                         /*
                          * The category exists, but has non NULL status, we cannot continue!
                          */
@@ -215,8 +215,8 @@ function categories_select($params = null) {
 
         $execute = array();
 
-        if($params['remove']) {
-            if(count(Arrays::force($params['remove'])) == 1) {
+        if ($params['remove']) {
+            if (count(Arrays::force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
@@ -233,7 +233,7 @@ function categories_select($params = null) {
             }
         }
 
-        if($params['parents_id']) {
+        if ($params['parents_id']) {
             $where[] = ' `parents_id` = :parents_id ';
             $execute[':parents_id'] = $params['parents_id'];
 
@@ -241,12 +241,12 @@ function categories_select($params = null) {
             $where[] = ' `parents_id` IS NULL ';
         }
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {
@@ -285,7 +285,7 @@ function categories_select($params = null) {
  */
 function categories_get($category, $column = null, $status = null, $parent = false) {
     try{
-        if(is_numeric($category)) {
+        if (is_numeric($category)) {
             $where[] = ' `categories`.`id` = :id ';
             $execute[':id'] = $category;
 
@@ -294,22 +294,22 @@ function categories_get($category, $column = null, $status = null, $parent = fal
             $execute[':seoname'] = $category;
         }
 
-        if($status !== false) {
+        if ($status !== false) {
             $execute[':status'] = $status;
             $where[] = ' `categories`.`status` '.sql_is($status, ':status');
         }
 
-        if($parent) {
+        if ($parent) {
             /*
              * Explicitly must be a child category
              */
-            if($parent === true) {
+            if ($parent === true) {
                 $where[] = ' `categories`.`parents_id` IS NOT NULL ';
 
             } else {
                 $parents_id = categories_get($parent, 'id', null, null);
 
-                if(!$parents_id) {
+                if (!$parents_id) {
                     throw new CoreException(tr('categories_get(): Specified parent ":parent" does not exist', array(':parent' => $parent)), 'not-exist');
                 }
 
@@ -317,7 +317,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
                 $execute[':parents_id'] = $parents_id;
             }
 
-        } elseif($parent === false) {
+        } elseif ($parent === false) {
             /*
              * Explicitly must be a parent category, so have no parents itself
              */
@@ -331,7 +331,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
 
         $where = ' WHERE '.implode(' AND ', $where).' ';
 
-        if($column) {
+        if ($column) {
             $retval = sql_get('SELECT `'.$column.'` FROM `categories` '.$where, true, $execute);
 
         } else {
@@ -381,7 +381,7 @@ function categories_get($category, $column = null, $status = null, $parent = fal
  */
 function categories_get_children($category) {
     try{
-        if(!is_numeric($category)) {
+        if (!is_numeric($category)) {
             $categories_id = categories_get($category, 'id');
 
         } else {

@@ -4,7 +4,7 @@ include_once(dirname(__FILE__).'/../../../libs/startup.php');
 try{
     load_libs('admin,json,blogs');
 
-    if(empty($_POST['id'])) {
+    if (empty($_POST['id'])) {
         throw new CoreException(tr('No photo specified'));
     }
 

@@ -30,11 +30,11 @@
  */
 function sodium_library_init() {
     try{
-        if(!defined('SODIUM_LIBRARY_MAJOR_VERSION')) {
+        if (!defined('SODIUM_LIBRARY_MAJOR_VERSION')) {
             throw new CoreException(tr('sodium_library_init(): PHP module "sodium" appears is not available, please install the module first. On Ubuntu and alikes, use "sudo apt-get -y install php-libsodium" to install and enable the module. After this, a restart of your webserver or php-fpm server may be needed'), 'not-exists');
         }
 
-        if(!function_exists('sodium_crypto_secretbox')) {
+        if (!function_exists('sodium_crypto_secretbox')) {
             sodium_install();
         }
 
@@ -182,7 +182,7 @@ function sodium_decrypt($cipher_data, $key) {
         $nonce = Strings::until($cipher_data, '$');
         $nonce = base64_decode($nonce);
 
-        if(!$nonce) {
+        if (!$nonce) {
             throw new CoreException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
@@ -190,7 +190,7 @@ function sodium_decrypt($cipher_data, $key) {
         $cipher_data = base64_decode($cipher_data);
         $data        = sodium_crypto_secretbox_open($cipher_data, $nonce, $key);
 
-        if($data === false) {
+        if ($data === false) {
             throw new CoreException(tr('sodium_decrypt(): Specified ciphertext does not contain a nonce prefix'), 'not-exists');
         }
 
@@ -257,14 +257,14 @@ function sodium_verify_mac($data, $key) {
         $key = sodium_pad_key($key);
         $mac = Strings::from($data, '$');
 
-        if(!$mac) {
+        if (!$mac) {
             throw new CoreException(tr('sodium_verify_mac(): Specified string does not contain a mac prefix'), 'not-exists');
         }
 
         $data = Strings::from($data, '$');
         $data = sodium_crypto_auth_verify($mac, $data, $key);
 
-        if($data === false) {
+        if ($data === false) {
             throw new CoreException(tr('sodium_verify_mac(): Specified text signature contains an invalid MAC'), 'invalid');
         }
 
@@ -298,10 +298,10 @@ function sodium_pad_key($key, $character = '*') {
     global $_CONFIG;
 
     try{
-        if(strlen($key) < SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
+        if (strlen($key) < SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
             $key = $key.str_repeat($character, SODIUM_CRYPTO_SECRETBOX_KEYBYTES - strlen($key));
 
-        } elseif(strlen($key) > SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
+        } elseif (strlen($key) > SODIUM_CRYPTO_SECRETBOX_KEYBYTES) {
             $key = substr($key, 0, SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
         }
 

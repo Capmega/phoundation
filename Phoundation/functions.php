@@ -254,15 +254,15 @@ function is_version(string $version): bool
  */
 function is_new(array|object $entry): bool
 {
-    if(!is_array($entry)){
+    if (!is_array($entry)){
         throw new CoreException(tr('is_new(): Specified entry is not an array'), 'invalid');
     }
 
-    if(isset_get($entry['status']) === '_new'){
+    if (isset_get($entry['status']) === '_new'){
         return true;
     }
 
-    if(isset_get($entry['id']) === null){
+    if (isset_get($entry['id']) === null){
         return true;
     }
 

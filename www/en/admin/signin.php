@@ -3,7 +3,7 @@ include_once(dirname(__FILE__).'/../libs/startup.php');
 
 load_libs('validate');
 
-if(isset($_POST['dosignin'])) {
+if (isset($_POST['dosignin'])) {
     try{
         $_POST = user_process_signin_fields($_POST);
 
@@ -16,13 +16,13 @@ if(isset($_POST['dosignin'])) {
         $v->hasMinChars($_POST['username'], 4, tr('Please ensure that your username or email address has a minimum of 4 characters'));
         $v->hasMinChars($_POST['password'], 8, tr('Please ensure that the password has a minimum of 8 characters'));
 
-        if(!$v->isValid()) {
+        if (!$v->isValid()) {
             throw new CoreException('Signin failed with "'.$v->getErrors(', ').'"', 'validation');
         }
 
         $user = user_authenticate($_POST['username'], $_POST['password']);
 
-        if(!has_rights('admin', $user)) {
+        if (!has_rights('admin', $user)) {
             throw new CoreException('signin: User "'.user_name($user).'" is not an administrator', 'accessdenied');
         }
 
@@ -50,7 +50,7 @@ if(isset($_POST['dosignin'])) {
 /*
  * Get the form name for the password field in case save password option is not allowed
  */
-if(empty($_CONFIG['security']['signin']['save_password'])) {
+if (empty($_CONFIG['security']['signin']['save_password'])) {
     $username = 'username'.str_random(8);
     $password = 'password'.str_random(8);
 

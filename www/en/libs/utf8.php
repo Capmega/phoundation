@@ -587,12 +587,12 @@ class Zend_Utf8
 
 		$str	= utf8_strtolower( $str );
 
-		if( $trns && iconv_loaded( ) )
+		if ( $trns && iconv_loaded( ) )
 		{
 			$str = iconv( 'UTF-8' , 'US-ASCII//TRANSLIT//IGNORE' , $str );
 		}
 
-		if( pcre_utf8_support( ) )
+		if ( pcre_utf8_support( ) )
 		{
 			$str	= preg_replace( '/[^\\p{L}\\p{Nd}\-_]+/u' , '-' , $str );
 		}
@@ -601,7 +601,7 @@ class Zend_Utf8
 			$str	= preg_replace( '/[\>\<\+\?\&\"\'\/\\\:\s\-\#\%\=]+/' , '-' , $str );
 		}
 
-		if( $maxl > 0 )
+		if ( $maxl > 0 )
 		{
 			$maxl	= ( int ) $maxl;
 
@@ -610,7 +610,7 @@ class Zend_Utf8
 
 		$str	= trim( $str , '_-' );
 
-		if( !strlen( $str ) )
+		if ( !strlen( $str ) )
 		{
 			$str	= substr( md5( microtime( true ) ) , 0 , ( $maxl == -1 ? 32 : $maxl ) );
 		}
@@ -632,12 +632,12 @@ class Zend_Utf8
 
     function is_utf8( $str )
     {
-        if( pcre_utf8_support( ) )
+        if ( pcre_utf8_support( ) )
         {
             return ( bool ) preg_match( '//u', $str );
         }
 
-		if( mbstring_loaded( ) )
+		if ( mbstring_loaded( ) )
 		{
 			return mb_check_encoding( $str , 'UTF-8' );
 		}
@@ -649,13 +649,13 @@ class Zend_Utf8
 
         for( $i = 0 ; $i < $len ; $i++ )
         {
-            if( ( $str[$i] & "\x80" ) === "\x00" )
+            if ( ( $str[$i] & "\x80" ) === "\x00" )
             {
                 continue;
             }
-            else if( ( ( $str[$i] & "\xE0" ) === "\xC0" ) && ( isset( $str[$i+1] ) ) )
+            else if ( ( ( $str[$i] & "\xE0" ) === "\xC0" ) && ( isset( $str[$i+1] ) ) )
             {
-                if( ( $str[$i+1] & "\xC0" ) === "\x80" )
+                if ( ( $str[$i+1] & "\xC0" ) === "\x80" )
                 {
                     $i++;
                     continue;
@@ -663,9 +663,9 @@ class Zend_Utf8
 
                 return false;
             }
-            else if( ( ( $str[$i] & "\xF0" ) === "\xE0" ) && ( isset( $str[$i+2] ) ) )
+            else if ( ( ( $str[$i] & "\xF0" ) === "\xE0" ) && ( isset( $str[$i+2] ) ) )
             {
-                if( ( ( $str[$i+1] & "\xC0" ) === "\x80" ) && ( ( $str[$i+2] & "\xC0" ) === "\x80" ) )
+                if ( ( ( $str[$i+1] & "\xC0" ) === "\x80" ) && ( ( $str[$i+2] & "\xC0" ) === "\x80" ) )
                 {
                     $i    = $i + 2;
                     continue;
@@ -673,9 +673,9 @@ class Zend_Utf8
 
                 return false;
             }
-            else if( ( ( $str[$i] & "\xF8" ) === "\xF0" ) && ( isset( $str[$i+3] ) ) )
+            else if ( ( ( $str[$i] & "\xF8" ) === "\xF0" ) && ( isset( $str[$i+3] ) ) )
             {
-                if( ( ( $str[$i+1] & "\xC0" ) === "\x80" ) && ( ( $str[$i+2] & "\xC0" ) === "\x80" ) && ( ( $str[$i+3] & "\xC0" ) === "\x80" ) )
+                if ( ( ( $str[$i+1] & "\xC0" ) === "\x80" ) && ( ( $str[$i+2] & "\xC0" ) === "\x80" ) && ( ( $str[$i+3] & "\xC0" ) === "\x80" ) )
                 {
                     $i    = $i + 3;
                     continue;
@@ -748,14 +748,14 @@ class Zend_Utf8
 
     function utf8_strlen( $str )
 	{
-		if( mbstring_loaded( ) )
+		if ( mbstring_loaded( ) )
 		{
 			$str	= utf8_clean( $str );
 
 			return mb_strlen( $str , 'UTF-8' );
 		}
 
-		if( iconv_loaded( ) )
+		if ( iconv_loaded( ) )
 		{
 			$str	= utf8_clean( $str );
 
@@ -765,7 +765,7 @@ class Zend_Utf8
 		//PCRE \X is buggy in many recent versions of PHP
 		//See the original post.
 
-		//if( pcre_utf8_support( ) )
+		//if ( pcre_utf8_support( ) )
 		//{
 		//	$str	= utf8_clean( $str );
 		//
@@ -791,11 +791,11 @@ class Zend_Utf8
 
     function utf8_chr( $code_point )
 	{
-		if( ( $i = ( int ) $code_point ) !== $code_point )
+		if ( ( $i = ( int ) $code_point ) !== $code_point )
 		{
 			//$code_point is a string, lets extract int code point from it
 
-			if( !( $i = ( int ) utf8_hex_to_int( $code_point ) ) )
+			if ( !( $i = ( int ) utf8_hex_to_int( $code_point ) ) )
 			{
 				return '';
 			}
@@ -804,7 +804,7 @@ class Zend_Utf8
 		//json not working properly for larger code points
 		//See the original post.
 
-		//if( extension_loaded( 'json' ) )
+		//if ( extension_loaded( 'json' ) )
 		//{
 		//	$hex	= dechex( $i );
 		//
@@ -812,11 +812,11 @@ class Zend_Utf8
 		//}
 		//else
 
-		if( mbstring_loaded( ) /*extension_loaded( 'mbstring' )*/ )
+		if ( mbstring_loaded( ) /*extension_loaded( 'mbstring' )*/ )
 		{
 			return mb_convert_encoding( "&#$i;" , 'UTF-8' , 'HTML-ENTITIES' );
 		}
-		else if( version_compare( phpversion( ) , '5.0.0' ) === 1 )
+		else if ( version_compare( phpversion( ) , '5.0.0' ) === 1 )
 		{
 			//html_entity_decode did not support Multi-Byte before PHP 5.0.0
 			return html_entity_decode( "&#{$i};" , ENT_QUOTES, 'UTF-8' );
@@ -827,19 +827,19 @@ class Zend_Utf8
 
 		$bits	= ( int ) ( log( $i , 2 ) + 1 );
 
-		if( $bits <= 7 )				//Single Byte
+		if ( $bits <= 7 )				//Single Byte
 		{
 			return chr( $i );
 		}
-		else if( $bits <= 11 )			//Two Bytes
+		else if ( $bits <= 11 )			//Two Bytes
 		{
 			return chr( ( ( $i >> 6 ) & 0x1F ) | 0xC0 ) . chr( ( $i & 0x3F ) | 0x80 );
 		}
-		else if( $bits <= 16 )			//Three Bytes
+		else if ( $bits <= 16 )			//Three Bytes
 		{
 			return chr( ( ( $i >> 12 ) & 0x0F ) | 0xE0 ) . chr( ( ( $i >> 6 ) & 0x3F ) | 0x80 ) . chr( ( $i & 0x3F ) | 0x80 );
 		}
-		else if( $bits <=21 )			//Four Bytes
+		else if ( $bits <=21 )			//Four Bytes
 		{
 			return chr( ( ( $i >> 18 ) & 0x07 ) | 0xF0 ) . chr( ( ( $i >> 12 ) & 0x3F ) | 0x80 ) . chr( ( ( $i >> 6 ) & 0x3F ) | 0x80 ) . chr( ( $i & 0x3F ) | 0x80 );
 		}
@@ -863,7 +863,7 @@ class Zend_Utf8
     {
         static $support;
 
-        if( !isset( $support ) )
+        if ( !isset( $support ) )
         {
             $support = @preg_match( '//u', '' );
             //Cached the response
@@ -893,7 +893,7 @@ class Zend_Utf8
 
 		$str	= preg_replace( $regx , '$1' , $str );
 
-		if( $remove_bom )
+		if ( $remove_bom )
 		{
 			$str	= utf8_str_replace( utf8_bom( ) , '' , $str );
 		}
@@ -919,7 +919,7 @@ class Zend_Utf8
 
 		$ret	= array( );
 
-		if( pcre_utf8_support( ) )
+		if ( pcre_utf8_support( ) )
 		{
 			$str	= utf8_clean( $str );
 
@@ -938,31 +938,31 @@ class Zend_Utf8
 
 			for( $i = 0 ; $i < $len ; $i++ )
 			{
-				if( ( $str[$i] & "\x80" ) === "\x00" )
+				if ( ( $str[$i] & "\x80" ) === "\x00" )
 				{
 					$ret[]	= $str[$i];
 				}
-				else if( ( ( $str[$i] & "\xE0" ) === "\xC0" ) && ( isset( $str[$i+1] ) ) )
+				else if ( ( ( $str[$i] & "\xE0" ) === "\xC0" ) && ( isset( $str[$i+1] ) ) )
 				{
-					if( ( $str[$i+1] & "\xC0" ) === "\x80" )
+					if ( ( $str[$i+1] & "\xC0" ) === "\x80" )
 					{
 						$ret[]	= $str[$i] . $str[$i+1];
 
 						$i++;
 					}
 				}
-				else if( ( ( $str[$i] & "\xF0" ) === "\xE0" ) && ( isset( $str[$i+2] ) ) )
+				else if ( ( ( $str[$i] & "\xF0" ) === "\xE0" ) && ( isset( $str[$i+2] ) ) )
 				{
-					if( ( ( $str[$i+1] & "\xC0" ) === "\x80" ) && ( ( $str[$i+2] & "\xC0" ) === "\x80" ) )
+					if ( ( ( $str[$i+1] & "\xC0" ) === "\x80" ) && ( ( $str[$i+2] & "\xC0" ) === "\x80" ) )
 					{
 						$ret[]	= $str[$i] . $str[$i+1] . $str[$i+2];
 
 						$i	= $i + 2;
 					}
 				}
-				else if( ( ( $str[$i] & "\xF8" ) === "\xF0" ) && ( isset( $str[$i+3] ) ) )
+				else if ( ( ( $str[$i] & "\xF8" ) === "\xF0" ) && ( isset( $str[$i+3] ) ) )
 				{
-					if( ( ( $str[$i+1] & "\xC0" ) === "\x80" ) && ( ( $str[$i+2] & "\xC0" ) === "\x80" ) && ( ( $str[$i+3] & "\xC0" ) === "\x80" ) )
+					if ( ( ( $str[$i+1] & "\xC0" ) === "\x80" ) && ( ( $str[$i+2] & "\xC0" ) === "\x80" ) && ( ( $str[$i+3] & "\xC0" ) === "\x80" ) )
 					{
 						$ret[]	= $str[$i] . $str[$i+1] . $str[$i+2] . $str[$i+3];
 
@@ -973,14 +973,14 @@ class Zend_Utf8
 		}
 
 
-		if( $split_length > 1 )
+		if ( $split_length > 1 )
 		{
 			$ret = array_chunk( $ret , $split_length );
 
 			$ret	= array_map( 'implode' , $ret );
 		}
 
-		if( $ret[0] === '' )
+		if ( $ret[0] === '' )
 		{
 			return array( );
 		}
@@ -1111,11 +1111,11 @@ class Zend_Utf8
         //iconv and mbstring are not tolerant to invalid encoding
 		//further, their behaviour is inconsistant with that of PHP's substr
 
-		if( iconv_loaded( ) )
+		if ( iconv_loaded( ) )
 		{
 			$str	= utf8_clean( $str );
 
-			if( $length === NULL )
+			if ( $length === NULL )
 			{
 				$length = PHP_INT_MAX;
 			}
@@ -1123,11 +1123,11 @@ class Zend_Utf8
 			return iconv_substr( $str , $start , $length , 'UTF-8' );
 		}
 
-		if( mbstring_loaded( ) )
+		if ( mbstring_loaded( ) )
 		{
 			$str	= utf8_clean( $str );
 
-			if( $length === NULL )
+			if ( $length === NULL )
 			{
 				$length = PHP_INT_MAX;
 			}
@@ -1160,7 +1160,7 @@ class Zend_Utf8
 
         //static $bom = 0;
 
-        //if( !$bom )
+        //if ( !$bom )
         //{
         //    $bom = pack( 'CCC' , 0xEF , 0xBB , 0xBF );
         //}
@@ -1230,7 +1230,7 @@ class Zend_Utf8
 
     function utf8_add_bom_to_string( $str )
     {
-        if( !is_bom( substr( $str , 0 , 3 ) ) )
+        if ( !is_bom( substr( $str , 0 , 3 ) ) )
         {
             $str    = utf8_bom( ) . $str;
         }
@@ -1313,7 +1313,7 @@ class Zend_Utf8
 	{
 		//iconv and mbstring do not support integer $needle
 
-		if( ( ( int ) $needle ) === $needle && ( $needle >= 0 ) )
+		if ( ( ( int ) $needle ) === $needle && ( $needle >= 0 ) )
 		{
 			$needle	= utf8_chr( $needle );
 		}
@@ -1327,24 +1327,24 @@ class Zend_Utf8
 
 		$haystack	= utf8_clean( $haystack );
 
-		if( mbstring_loaded( ) )
+		if ( mbstring_loaded( ) )
 		{
 			return mb_strpos( $haystack , $needle , $offset , 'UTF-8' );
 		}
 
-		if( iconv_loaded( ) )
+		if ( iconv_loaded( ) )
 		{
 			return iconv_strpos( $haystack , $needle , $offset , 'UTF-8' );
 		}
 
-		if( $offset > 0 )
+		if ( $offset > 0 )
 		{
 			$haystack	= utf8_substr( $haystack , $offset );
 		}
 
 		//Negative Offset not supported in PHP strpos(), ignoring
 
-		if( ( $pos = strpos( $haystack , $needle ) ) !== false )
+		if ( ( $pos = strpos( $haystack , $needle ) ) !== false )
 		{
 			$left	= substr( $haystack , 0 , $pos );
 
@@ -1367,7 +1367,7 @@ class Zend_Utf8
 
     function utf8_max( $arg )
     {
-        if( is_array( $arg ) )
+        if ( is_array( $arg ) )
         {
             $arg    = implode( $arg );
         }
@@ -1388,7 +1388,7 @@ class Zend_Utf8
 
     function utf8_min( $arg )
     {
-        if( is_array( $arg ) )
+        if ( is_array( $arg ) )
         {
             $arg    = implode( $arg );
         }
@@ -1411,14 +1411,14 @@ class Zend_Utf8
 
     function utf8_codepoints( $arg , $u_style = false )
     {
-        if( is_string( $arg ) )
+        if ( is_string( $arg ) )
         {
             $arg    = utf8_split( $arg );
         }
 
         $arg    = array_map( 'utf8_ord' , $arg );
 
-        if( $u_style )
+        if ( $u_style )
         {
             $arg    = array_map( 'utf8_int_to_hex' , $arg );
         }
@@ -1439,7 +1439,7 @@ class Zend_Utf8
 
     function utf8_int_to_hex( $int , $pfix = 'U+' )
 	{
-		if( ctype_digit( ( string ) $int ) )
+		if ( ctype_digit( ( string ) $int ) )
 		{
 			$hex	= dechex( ( int ) $int );
 
@@ -1465,7 +1465,7 @@ class Zend_Utf8
 
     function utf8_hex_to_int( $str )
 	{
-		if( preg_match( '/^(?:\\\u|U\+|)([a-z0-9]{4,6})$/i' , $str , $match ) )
+		if ( preg_match( '/^(?:\\\u|U\+|)([a-z0-9]{4,6})$/i' , $str , $match ) )
 		{
 			return ( int ) hexdec( $match[1] );
 		}
@@ -1545,7 +1545,7 @@ class Zend_Utf8
 
     function utf8_substr_count( $haystack , $needle , $offset = 0 , $length = NULL )
     {
-        if( $offset || $length )
+        if ( $offset || $length )
         {
             $haystack    = utf8_substr( $haystack , $offset , $length );
         }
@@ -1583,15 +1583,15 @@ class Zend_Utf8
 
     function utf8_range( $var1 , $var2 )
     {
-        if( ctype_digit( ( string ) $var1 ) )
+        if ( ctype_digit( ( string ) $var1 ) )
         {
             $start    = ( int ) $var1;
         }
-        else if( !( $start = ( int ) utf8_hex_to_int( $var1 ) ) )
+        else if ( !( $start = ( int ) utf8_hex_to_int( $var1 ) ) )
         {
             //if not u+0000 style codepoint
 
-            if( !( $start    = utf8_ord( $var1 ) ) )
+            if ( !( $start    = utf8_ord( $var1 ) ) )
             {
                 //if not a valid utf8 character
 
@@ -1599,15 +1599,15 @@ class Zend_Utf8
             }
         }
 
-        if( ctype_digit( ( string ) $var2 ) )
+        if ( ctype_digit( ( string ) $var2 ) )
         {
             $end    = ( int ) $var2;
         }
-        else if( !( $end = ( int ) utf8_hex_to_int( $var2 ) ) )
+        else if ( !( $end = ( int ) utf8_hex_to_int( $var2 ) ) )
         {
             //if not u+0000 style codepoint
 
-            if( !( $end    = utf8_ord( $var1 ) ) )
+            if ( !( $end    = utf8_ord( $var1 ) ) )
             {
                 //if not a valid utf8 character
 
@@ -1634,9 +1634,9 @@ class Zend_Utf8
         Static $chrs        = array( );
         Static $chrs_len    = null;
 
-        if( !$chrs )
+        if ( !$chrs )
         {
-            if( pcre_utf8_support( ) )
+            if ( pcre_utf8_support( ) )
             {
                 $chrs    = array_map( 'utf8_chr' , range( 48 , 0xffff ) );
 
@@ -1730,12 +1730,12 @@ class Zend_Utf8
     {
         $array    = utf8_codepoints( $str );
 
-        if( $unique )
+        if ( $unique )
         {
             $array    = array_flip( array_flip( $array ) );
         }
 
-        if( $desc )
+        if ( $desc )
         {
             arsort( $array );
         }
@@ -1831,7 +1831,7 @@ class Zend_Utf8
     {
         $input_length    = utf8_strlen( $input );
 
-        if( is_int( $pad_length ) && ( $pad_length > 0 ) && ( $pad_length >= $input_length ) )
+        if ( is_int( $pad_length ) && ( $pad_length > 0 ) && ( $pad_length >= $input_length ) )
         {
             $ps_length    = utf8_strlen( $pad_string );
 
@@ -1882,7 +1882,7 @@ class Zend_Utf8
 
     function utf8_strrpos( $haystack , $needle , $offset = 0 )
     {
-        if( ( ( int ) $needle ) === $needle && ( $needle >= 0 ) )
+        if ( ( ( int ) $needle ) === $needle && ( $needle >= 0 ) )
         {
             $needle    = utf8_chr( $needle );
         }
@@ -1893,14 +1893,14 @@ class Zend_Utf8
 
         $haystack    = utf8_clean( $haystack );
 
-        if( mbstring_loaded( ) )
+        if ( mbstring_loaded( ) )
         {
             //mb_strrpos returns wrong position if invalid characters are found in $haystack before $needle
 
             return mb_strrpos( $haystack , $needle , $offset , 'UTF-8' );
         }
 
-        if( iconv_loaded( ) && $offset === 0 )
+        if ( iconv_loaded( ) && $offset === 0 )
         {
             //iconv_strrpos is not tolerant to invalid characters
             //iconv_strrpos does not accept $offset
@@ -1908,16 +1908,16 @@ class Zend_Utf8
             return iconv_strrpos( $haystack , $needle , 'UTF-8' );
         }
 
-        if( $offset > 0 )
+        if ( $offset > 0 )
         {
             $haystack    = utf8_substr( $haystack , $offset );
         }
-        else if( $offset < 0 )
+        else if ( $offset < 0 )
         {
             $haystack    = utf8_substr( $haystack , 0 , $offset );
         }
 
-        if( ( $pos = strrpos( $haystack , $needle ) ) !== false )
+        if ( ( $pos = strrpos( $haystack , $needle ) ) !== false )
         {
             $left    = substr( $haystack , 0 , $pos );
 
@@ -1941,12 +1941,12 @@ class Zend_Utf8
 
     function utf8_remove_duplicates( $str , $what = ' ' )
     {
-        if( is_string( $what ) )
+        if ( is_string( $what ) )
         {
             $what    = array( $what );
         }
 
-        if( is_array( $what ) )
+        if ( is_array( $what ) )
         {
             foreach( $what as $item )
             {
@@ -2016,11 +2016,11 @@ class Zend_Utf8
 
     function utf8_trim_util( &$string , &$chrs )
     {
-        if( empty( $chrs ) )
+        if ( empty( $chrs ) )
         {
             $chrs    = utf8_ws( );
         }
-        else if( is_string( $chrs ) )
+        else if ( is_string( $chrs ) )
         {
             $chrs   = utf8_split( $chrs );
         }
@@ -2120,7 +2120,7 @@ class Zend_Utf8
     {
         static $table = null;
 
-        if( mbstring_loaded( ) )
+        if ( mbstring_loaded( ) )
         {
             //Auto Removes Invalid UTF-8 Byte Sequances
 
@@ -2129,7 +2129,7 @@ class Zend_Utf8
 
         //Fallback
 
-        if( empty( $table ) )
+        if ( empty( $table ) )
         {
             $table    = array_flip( utf8_case_table( ) );
         }
@@ -2154,7 +2154,7 @@ class Zend_Utf8
     {
         static $table = null;
 
-        if( mbstring_loaded( ) )
+        if ( mbstring_loaded( ) )
         {
             //Auto Removes Invalid UTF-8 Byte Sequances
 
@@ -2163,7 +2163,7 @@ class Zend_Utf8
 
         //Fallback
 
-        if( empty( $table ) )
+        if ( empty( $table ) )
         {
             $table    = utf8_case_table( );
         }
@@ -2460,7 +2460,7 @@ class Zend_Utf8
     {
         static $flag = null;
 
-        if( $flag === null )
+        if ( $flag === null )
         {
             $flag    = extension_loaded( 'mbstring' );
         }
@@ -2482,7 +2482,7 @@ class Zend_Utf8
     {
         static $flag = null;
 
-        if( $flag === null )
+        if ( $flag === null )
         {
             $flag    = extension_loaded( 'iconv' );
         }
@@ -2541,7 +2541,7 @@ class Zend_Utf8
 
             while( true )
             {
-                if( ( $pos = utf8_strpos( $str , $ws , $pos + 1 ) ) === false )
+                if ( ( $pos = utf8_strpos( $str , $ws , $pos + 1 ) ) === false )
                 {
                     break;
                 }

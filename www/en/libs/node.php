@@ -141,11 +141,11 @@ function node_find() {
         log_console(tr('Using node ":result"', array(':result' => $core->register['node'])), 'green');
 
     }catch(Exception $e) {
-        if($e->getCode() == 1) {
+        if ($e->getCode() == 1) {
             throw new CoreException('node_find(): Failed to find a node installation on this computer for this user. On Ubuntu, install node with "sudo apt-get install nodejs"', 'node_not_installed');
         }
 
-        if($e->getCode() == 'node_modules_path_not_found') {
+        if ($e->getCode() == 'node_modules_path_not_found') {
             throw $e;
         }
 
@@ -167,7 +167,7 @@ function node_find_modules() {
         /*
          * Find node_modules path
          */
-        if(!$home = getenv('HOME')) {
+        if (!$home = getenv('HOME')) {
             throw new CoreException('node_find_modules(): Environment variable "HOME" not found, failed to locate users home directory', 'environment_variable_not_found');
         }
 
@@ -178,19 +178,19 @@ function node_find_modules() {
          * Search for node_modules path
          */
         foreach(array(ROOT, getcwd(), $home) as $path) {
-            if($found) {
+            if ($found) {
                 break;
             }
 
             foreach(array('node_modules', '.node_modules') as $subpath) {
-                if(file_exists(Strings::slash($path).$subpath)) {
+                if (file_exists(Strings::slash($path).$subpath)) {
                     $found = Strings::slash($path).$subpath;
                     break;
                 }
             }
         }
 
-        if(!$found) {
+        if (!$found) {
             /*
              * Initialize the node_modules path
              */
@@ -209,7 +209,7 @@ function node_find_modules() {
          * Delete the package-lock file if there
          */
 // :TODO: Improve this part. If the package-lock file exists, that means that a node install at least WAS busy, or still is busy in perhaps a parrallel process? Check if node is active, if not THEN delete and continue
-        if(file_exists(Strings::slash(dirname($found)).'package-lock.json')) {
+        if (file_exists(Strings::slash(dirname($found)).'package-lock.json')) {
             file_execute_mode(Strings::slash(dirname($found)), 0770, function() use ($found) {
                 /*
                  * Delete the package-lock.json file. It's okay to use the
@@ -226,11 +226,11 @@ function node_find_modules() {
         }
 
     }catch(Exception $e) {
-        if($e->getCode() == 1) {
+        if ($e->getCode() == 1) {
             throw new CoreException('node_find_modules(): Failed to find a node installation on this computer for this user', 'not_installed');
         }
 
-        if($e->getCode() == 'path_not_found') {
+        if ($e->getCode() == 'path_not_found') {
             throw $e;
         }
 
@@ -251,7 +251,7 @@ function node_find_npm() {
         log_console(tr('Using npm ":result"', array(':result' => $core->register['npm'])), 'green');
 
     }catch(Exception $e) {
-        if($e->getCode() == 1) {
+        if ($e->getCode() == 1) {
             throw new CoreException('node_find_npm(): Failed to find an npm installation on this computer for this user. On Ubuntu, install with "sudo apt-get install npm"', 'npm_not_installed');
         }
 

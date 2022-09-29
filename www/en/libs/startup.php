@@ -47,7 +47,7 @@
  *
  * All call type handlers are located in ROOT/libs/handlers/system-CALLTYPE.php
  *
- * This library also defines the BException class which is the default exception
+ * This library also defines the CoreException class which is the default exception
  * thrown by BASE functions.
  *
  * @author Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
@@ -66,7 +66,7 @@
  * Set LIBS here because the system library MAY be loaded  by the router
  * library, in which case they will both be loaded from /en/.
  */
-if(!class_exists('core')) {
+if (!class_exists('core')) {
     require_once(__DIR__.'/system.php');
 }
 

@@ -32,7 +32,7 @@ class SqlExists
         try{
             $retval = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
-            if(substr($query, 0, 1) == '!') {
+            if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
 
@@ -40,11 +40,11 @@ class SqlExists
                 $not = false;
             }
 
-            if(empty($retval) xor $not) {
+            if (empty($retval) xor $not) {
                 return false;
             }
 
-            if($query) {
+            if ($query) {
                 sql_query($query, null, $connector);
             }
 
@@ -81,7 +81,7 @@ class SqlExists
         try{
             $retval = sql_list('SHOW TABLES LIKE "'.cfm($table).'"', null, null, $connector);
 
-            if(substr($query, 0, 1) == '!') {
+            if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
 
@@ -89,11 +89,11 @@ class SqlExists
                 $not = false;
             }
 
-            if(empty($retval) xor $not) {
+            if (empty($retval) xor $not) {
                 return false;
             }
 
-            if($query) {
+            if ($query) {
                 sql_query($query, null, $connector);
             }
 
@@ -130,7 +130,7 @@ class SqlExists
         try{
             $retval = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
 
-            if(substr($query, 0, 1) == '!') {
+            if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
 
@@ -138,11 +138,11 @@ class SqlExists
                 $not = false;
             }
 
-            if(empty($retval) xor $not) {
+            if (empty($retval) xor $not) {
                 return false;
             }
 
-            if($query) {
+            if ($query) {
                 sql_query($query, null, $connector);
             }
 
@@ -179,7 +179,7 @@ class SqlExists
         try{
             $retval = sql_get('SHOW COLUMNS FROM `'.cfm($table).'` WHERE `Field` = "'.cfm($column).'"', null, null, $connector);
 
-            if(substr($query, 0, 1) == '!') {
+            if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
 
@@ -187,11 +187,11 @@ class SqlExists
                 $not = false;
             }
 
-            if(empty($retval) xor $not) {
+            if (empty($retval) xor $not) {
                 return false;
             }
 
-            if($query) {
+            if ($query) {
                 sql_query($query, null, $connector);
             }
 
@@ -238,7 +238,7 @@ class SqlExists
                               AND    `TABLE_NAME`        = "'.cfm($table).'"
                               AND    `CONSTRAINT_NAME`   = "'.cfm($foreign_key).'"', null, null, $connector);
 
-            if(substr($query, 0, 1) == '!') {
+            if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
 
@@ -246,11 +246,11 @@ class SqlExists
                 $not = false;
             }
 
-            if(empty($retval) xor $not) {
+            if (empty($retval) xor $not) {
                 return false;
             }
 
-            if($query) {
+            if ($query) {
                 sql_query($query, null, $connector);
             }
 
@@ -287,7 +287,7 @@ class SqlExists
         try{
             $connector = sql_connector_name($connector);
 
-            if(!$database) {
+            if (!$database) {
                 $database = $_CONFIG['db'][$connector]['db'];
             }
 
@@ -299,7 +299,7 @@ class SqlExists
                            AND    `ROUTINE_TYPE`   = "FUNCTION"
                            AND    `ROUTINE_NAME`   = "'.cfm($name).'"', null, null, $connector);
 
-            if(substr($query, 0, 1) == '!') {
+            if (substr($query, 0, 1) == '!') {
                 $not   = true;
                 $query = substr($query, 1);
 
@@ -307,11 +307,11 @@ class SqlExists
                 $not = false;
             }
 
-            if(empty($retval) xor $not) {
+            if (empty($retval) xor $not) {
                 return false;
             }
 
-            if($query) {
+            if ($query) {
                 sql_query($query, null, $connector);
             }
 

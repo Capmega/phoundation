@@ -6,12 +6,12 @@
             console.log("Failed to parse json for url \"" + settings.url + "\", assuming plain text");
 
         } else {
-            if(typeof jqXHR.responseJSON.result == 'undefined') {
+            if (typeof jqXHR.responseJSON.result == 'undefined') {
                 throw "json contained no result text for url \"" + settings.url + "\"";
 
             }
 
-            if(typeof jqXHR.responseJSON.data == 'undefined') {
+            if (typeof jqXHR.responseJSON.data == 'undefined') {
                 throw "json contained no data object for url \"" + settings.url + "\"";
             }
 
@@ -30,7 +30,7 @@
                     throw "invalid json status \"" + jqXHR.responseJSON.result + "\" for url \"" + settings.url + "\"";
             }
 
-            if(jqXHR.responseJSON.csrf) {
+            if (jqXHR.responseJSON.csrf) {
                 // Server sent updated CSRF code, update local value for next request
                 $('#ajax_csrf').val(jqXHR.responseJSON.csrf);
             }
@@ -43,10 +43,10 @@
         if (typeof jqXHR.responseJSON != 'object') {
             console.error("ERROR: Failed to parse result JSON for url \"" + settings.url + "\"");
 
-        } else if(typeof jqXHR.responseJSON.result == 'undefined') {
+        } else if (typeof jqXHR.responseJSON.result == 'undefined') {
             console.error("ERROR: Result JSON did not have a result text for url \"" + settings.url + "\"");
 
-        } else if(typeof jqXHR.responseJSON.data == 'undefined') {
+        } else if (typeof jqXHR.responseJSON.data == 'undefined') {
             console.error("ERROR: Result JSON did not have a data object for url \"" + settings.url + "\"");
 
         } else {
@@ -93,8 +93,8 @@
         /*
          * By default, try to show the js flash message
          */
-        if(jqXHR.status == 404) {
-            if(settings.url.indexOf('/sweetalert.')) {
+        if (jqXHR.status == 404) {
+            if (settings.url.indexOf('/sweetalert.')) {
                 console.error('Failed to load sweetalert');
                 return false;
             }
@@ -238,7 +238,7 @@
 
     $.geoLocation = function(cb, cbe) {
         try {
-            if(!cbe) {
+            if (!cbe) {
                 cbe = function() {
                     console.info("User denied current position, or missing browser support, trying geoplugin.net");
 
@@ -294,7 +294,7 @@ $(document).ready(function() {
             var $target = $(e.target);
             var steps   = $target.data("steps");
 
-            if(steps) {
+            if (steps) {
                 steps = -steps;
 
             } else {
@@ -357,7 +357,7 @@ $(document).ready(function() {
 
 //
 function isFunction(variable) {
-    if(typeof variable === "function") {
+    if (typeof variable === "function") {
         return true;
     }
 

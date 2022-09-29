@@ -171,7 +171,7 @@ class Pushover
      * @return bool
      */
     public function validateUser() {
-        if(!Empty($this->_token)&&!Empty($this->_user)) {
+        if (!Empty($this->_token)&&!Empty($this->_user)) {
             $c = curl_init();
             curl_setopt($c,CURLOPT_URL,self::VALIDATION_URL);
             curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
@@ -464,7 +464,7 @@ class Pushover
      * @return array
      */
     public function getSoundsList() {
-        if(!empty($this->_token)) {
+        if (!empty($this->_token)) {
             $c = curl_init();
             curl_setopt($c, CURLOPT_URL, sprintf(self::SOUNDS_URL,$this->_token));
             curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
@@ -481,8 +481,8 @@ class Pushover
      * @return bool
      */
     public function send() {
-        if(!Empty($this->_token) && !Empty($this->_user) && !Empty($this->_message)) {
-            if(!isset($this->_timestamp)) $this->setTimestamp(time());
+        if (!Empty($this->_token) && !Empty($this->_user) && !Empty($this->_message)) {
+            if (!isset($this->_timestamp)) $this->setTimestamp(time());
 
             $c = curl_init();
             curl_setopt($c, CURLOPT_URL, self::API_URL);
@@ -512,7 +512,7 @@ class Pushover
             $response = curl_exec($c);
             $xml = simplexml_load_string($response);
 
-            if($this->getDebug()) {
+            if ($this->getDebug()) {
                 return array('output' => $xml, 'input' => $this);
             }
             else {

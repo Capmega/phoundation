@@ -17,7 +17,7 @@ try{
         $image = false;
     }
 
-    if(!$image) {
+    if (!$image) {
         $image = array(tr('Invalid image'), tr('Invalid image'));
     }
 

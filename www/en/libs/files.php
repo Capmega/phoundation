@@ -56,11 +56,11 @@ function files_insert($file, $require_unique = false) {
     global $_CONFIG;
 
     try{
-        if(is_string($file)) {
+        if (is_string($file)) {
             $file = array('filename' => $file,
                           'original' => basename($file));
 
-        } elseif(isset($file['name']) and isset($file['tmp_name'])) {
+        } elseif (isset($file['name']) and isset($file['tmp_name'])) {
             /*
              * This is a PHP uploaded file array. Correct file names
              */
@@ -79,7 +79,7 @@ function files_insert($file, $require_unique = false) {
         $base_path = Strings::slash($base_path);
         $target    = file_assign_target($base_path, $extension);
 
-        if(isset($file['name']) and isset($file['tmp_name'])) {
+        if (isset($file['name']) and isset($file['tmp_name'])) {
             /*
              * Move uploaded file to its final position
              */
@@ -104,10 +104,10 @@ function files_insert($file, $require_unique = false) {
         /*
          * File must be unique?
          */
-        if($require_unique) {
+        if ($require_unique) {
             $exists = sql_get('SELECT `id` FROM `files` WHERE `hash` = :hash', array($file['hash']));
 
-            if($exists) {
+            if ($exists) {
                 throw new CoreException(tr('files_insert(): Specified file ":filename" already exists with id ":id"', array(':filename' => $base_path.$target, ':id' => $exists)), 'exists');
             }
         }
@@ -147,7 +147,7 @@ function files_delete($file, $base_path = ROOT.'data/files/') {
     try{
         $dbfile = files_get($file);
 
-        if(!$dbfile) {
+        if (!$dbfile) {
             throw new CoreException(tr('files_delete(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
@@ -172,7 +172,7 @@ function files_get_history($file) {
     try{
         $meta_id = sql_get('SELECT `meta_id` FROM `files` WHERE `name` = :name, `hash` = :hash', true, array(':name' => $file, ':hash' => $file));
 
-        if(!$meta_id) {
+        if (!$meta_id) {
             throw new CoreException(rt('files_get_history(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
@@ -281,7 +281,7 @@ function files_search_orphans() {
         file_ensure_path($quarantine);
 
         foreach($files as $file) {
-            if(!file_exists($root.$file['file'])) {
+            if (!file_exists($root.$file['file'])) {
                 $update->execute(array(':hash' => $file['file']));
                 log_file('Files entry `:file` has the file missing, set the entry to status "orphaned"', array(':file' => $file['hash']), 'yellow');
             }
@@ -291,7 +291,7 @@ function files_search_orphans() {
                                 'function' => function($entry) use ($update, $root, $quarantine, &$count) {
                                     $exists = file_exists($entry);
 
-                                    if(!$exists) {
+                                    if (!$exists) {
                                         $count++;
                                         $file = file_from($entry, $root);
 
@@ -337,10 +337,10 @@ function files_clear_quarantine($section = null) {
     try{
         $path = ROOT.'data/files';
 
-        if($section) {
+        if ($section) {
             log_console(tr('Clearing all quarantined files in the ":section" section', array(':section' => $section)), 'yellow');
 
-            if(!is_string($section)) {
+            if (!is_string($section)) {
                 throw new CoreException(tr('files_clear_quarantine(): Invalid section ":section" specified', array(':section' => $section)), $e);
             }
 

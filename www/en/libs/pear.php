@@ -76,7 +76,7 @@ function pear_install($params) {
  *
  * @param string $channel The PEAR channel to be discovered
  * @return array the output from the command
- * @throws A BException will be thrown if
+ * @throws A CoreException will be thrown if
  */
 function pear_channel_discover($channel) {
     try{
@@ -100,7 +100,7 @@ function pear_channel_discover($channel) {
  *
  * @param string $channel The PEAR channel to be discovered
  * @return array the output from the "pear install $package" command
- * @throws A BException will be thrown if the PEAR command fails. This exception will contain the output of the failed PEAR command
+ * @throws A CoreException will be thrown if the PEAR command fails. This exception will contain the output of the failed PEAR command
  */
 function pear_install_package($package) {
     try{

@@ -17,11 +17,11 @@ function page_get($seoname) {
     try{
         $page = sql_get('SELECT `data`, `status` FROM `pages` WHERE `seoname` = :seoname', array(':seoname' => $seoname));
 
-        if(!$page) {
+        if (!$page) {
             throw new CoreException('page_get(): Page with seoname "'.str_log($seoname).'" does not exist', 'not-exists');
         }
 
-        if($page['status'] !== null) {
+        if ($page['status'] !== null) {
             throw new CoreException('page_get(): Page with seoname "'.str_log($seoname).'" has status "'.str_log($page['status']).'" and cannot be displayed', 'status');
         }
 

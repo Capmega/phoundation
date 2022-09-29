@@ -31,11 +31,11 @@ Class Init
             /*
              * Are we allowed to init?
              */
-            if(!$_CONFIG['init'][PLATFORM]) {
+            if (!$_CONFIG['init'][PLATFORM]) {
                 throw new CoreException('init(): This platform is not authorized to do init()', 'denied');
             }
 
-            if(version_compare(PHP_VERSION, PHP_MINIMUM_VERSION) < 1) {
+            if (version_compare(PHP_VERSION, PHP_MINIMUM_VERSION) < 1) {
                 throw new CoreException(tr('init(): This version of base requires at minimum PHP version ":required", anything below is not supported. The current version of PHP installed is ":installed" If you wish to force to run this version of base on this version of PHP, lower the required version defined with the constant PHP_MINIMUM_VERSION in the top of ROOT/libs/startup.php', array(':required' => PHP_MINIMUM_VERSION, ':installed' => PHP_VERSION)), 'denied');
             }
 
@@ -53,11 +53,11 @@ Class Init
              */
             Sql::init();
 
-            if(empty($_CONFIG['db']['core']['init'])) {
+            if (empty($_CONFIG['db']['core']['init'])) {
                 throw new CoreException(tr('init(): Core database init system has been disabled in $_CONFIG[db][core][init]'), 'no-init');
             }
 
-            if(!empty($core->register['time_zone_fail'])) {
+            if (!empty($core->register['time_zone_fail'])) {
                 /*
                  * MySQL has no time_zone data, first initialize that, then reconnect
                  */
@@ -70,7 +70,7 @@ Class Init
             $codeversions = array('PROJECT'   => PROJECTDBVERSION,
                 'FRAMEWORK' => FRAMEWORKDBVERSION);
 
-            if($framework_from) {
+            if ($framework_from) {
                 /*
                  * We're (probably) redoing earlier versions, so remove registrations from earlier versions
                  */
@@ -81,7 +81,7 @@ Class Init
             /*
              * Determine project DB version (either from DB, or from command line)
              */
-            if($project_from) {
+            if ($project_from) {
                 /*
                  * We're (probably) doing earlier versions, so remove registrations from earlier versions
                  */
@@ -89,7 +89,7 @@ Class Init
                 $codeversions['PROJECT'] = Sql::get('SELECT `project` FROM `versions` ORDER BY `id` DESC LIMIT 1;', 'project');
             }
 
-            if(!$codeversions['FRAMEWORK'] or FORCE) {
+            if (!$codeversions['FRAMEWORK'] or FORCE) {
                 /*
                  * We're at 0, we must init everything!
                  *
@@ -97,7 +97,7 @@ Class Init
                  *
                  * Create a fake user session in case some init parts require some username
                  */
-                if(empty($_SESSION['user'])) {
+                if (empty($_SESSION['user'])) {
                     $_SESSION['user'] = array('id'       => null,
                         'name'     => 'System Init',
                         'username' => 'init',
@@ -105,7 +105,7 @@ Class Init
                         'rights'   => array('admin', 'users', 'rights'));
                 }
 
-            } elseif(!FORCE and (FRAMEWORKCODEVERSION == $codeversions['FRAMEWORK']) and (PROJECTCODEVERSION == $codeversions['PROJECT'])) {
+            } elseif (!FORCE and (FRAMEWORKCODEVERSION == $codeversions['FRAMEWORK']) and (PROJECTCODEVERSION == $codeversions['PROJECT'])) {
                 /*
                  * Fetch me a pizza, all is just fine!
                  */
@@ -113,16 +113,16 @@ Class Init
                 $noinit = true;
             }
 
-            if(version_compare(FRAMEWORKCODEVERSION, $codeversions['FRAMEWORK']) < 0) {
-                if(!Strings::isVersion(FRAMEWORKCODEVERSION)) {
+            if (version_compare(FRAMEWORKCODEVERSION, $codeversions['FRAMEWORK']) < 0) {
+                if (!Strings::isVersion(FRAMEWORKCODEVERSION)) {
                     throw new CoreException('init(): Cannot continue, the FRAMEWORK code version "'.Strings::log(FRAMEWORKCODEVERSION).'" (Defined at the top of '.ROOT.'/libs/system.php) is invalid', 'invalid-framework-code');
                 }
 
                 throw new CoreException(tr('init(): Cannot continue, the FRAMEWORK code version ":code" is OLDER (LOWER) than the database version ":db", the project is running with either old code or a too new database!', array(':code' => FRAMEWORKCODEVERSION, ':db' => FRAMEWORKDBVERSION)), 'old-framework-code');
             }
 
-            if(version_compare(PROJECTCODEVERSION, $codeversions['PROJECT']) < 0) {
-                if(!Strings::isVersion(PROJECTCODEVERSION)) {
+            if (version_compare(PROJECTCODEVERSION, $codeversions['PROJECT']) < 0) {
+                if (!Strings::isVersion(PROJECTCODEVERSION)) {
                     throw new CoreException(tr('init(): Cannot continue, the PROJECT code version ":version" (Defined in ":file") is invalid', array(':version' => PROJECTCODEVERSION, ':file' => ROOT.'/config/project.php')), 'invalid-project-code');
                 }
 
@@ -139,8 +139,8 @@ Class Init
             /*
              * From this point on, we are doing an init
              */
-            if(FORCE) {
-                if(!is_bool(FORCE) and !Strings::isVersion(FORCE)) {
+            if (FORCE) {
+                if (!is_bool(FORCE) and !Strings::isVersion(FORCE)) {
                     throw new CoreException('init(): Invalid "force" sub parameter "'.Strings::log(FORCE).'" specified. "force" can only be followed by a valid init version number', 'invalidforce');
                 }
 
@@ -150,8 +150,8 @@ Class Init
                 $init = 'init';
             }
 
-            if(empty($noinit)) {
-                if(FORCE) {
+            if (empty($noinit)) {
+                if (FORCE) {
                     log_console('Starting '.$init.' FORCED from version "'.FORCE.'" for "'.$_CONFIG['name'].'" using PHP "'.phpversion().'"', 'white');
 
                 } else {
@@ -161,7 +161,7 @@ Class Init
                 /*
                  * Check MySQL timezone availability
                  */
-                if(!Sql::get('SELECT CONVERT_TZ("2012-06-07 12:00:00", "GMT", "America/New_York") AS `time`', 'time')) {
+                if (!Sql::get('SELECT CONVERT_TZ("2012-06-07 12:00:00", "GMT", "America/New_York") AS `time`', 'time')) {
                     log_console('No timezone data found in MySQL, importing timezone data files now', 'yellow');
                     log_console('Please fill in MySQL root password in the following "Enter password:" request', 'white');
                     log_console('You may ignore any "Warning: Unable to load \'/usr/share/zoneinfo/........\' as time zone. Skipping it." messages', 'yellow');
@@ -198,12 +198,12 @@ Class Init
                         /*
                          * Skip garbage
                          */
-                        if(($file == '.') or ($file == '..')) {
+                        if (($file == '.') or ($file == '..')) {
                             unset($files[$key]);
                             continue;
                         }
 
-                        if((file_extension($file) != 'php') or !Strings::isVersion(Strings::until($file, '.php'))) {
+                        if ((file_extension($file) != 'php') or !Strings::isVersion(Strings::until($file, '.php'))) {
                             log_console(tr('Skipping unknown file ":file"', array(':file' => $file)), 'yellow');
                             unset($files[$key]);
                             continue;
@@ -221,19 +221,19 @@ Class Init
                         $version = $file;
                         $file    = $file.'.php';
 
-                        if(version_compare($version, constant($utype.'CODEVERSION')) >= 1) {
+                        if (version_compare($version, constant($utype.'CODEVERSION')) >= 1) {
                             /*
                              * This init file has a higher version number than the current code, so it should not yet be executed (until a later time that is)
                              */
                             log_console(tr('Skipped future init file ":version"', array(':version' => $version)), 'VERBOSE/warning');
 
                         } else {
-                            if(($dbversion === 0) or (version_compare($version, $dbversion) >= 1)) {
+                            if (($dbversion === 0) or (version_compare($version, $dbversion) >= 1)) {
                                 /*
                                  * This init file is higher than the DB version, but lower than the code version, so it must be executed
                                  */
                                 try{
-                                    if(file_exists($hook = $initpath.'hooks/pre_'.$file)) {
+                                    if (file_exists($hook = $initpath.'hooks/pre_'.$file)) {
                                         log_console(tr('Executing newer init "pre" hook file with version ":version"', array(':version' => $version)), 'cyan');
                                         include_once($hook);
                                     }
@@ -257,7 +257,7 @@ Class Init
                                 }
 
                                 try{
-                                    if(file_exists($hook = $initpath.'hooks/post_'.$file)) {
+                                    if (file_exists($hook = $initpath.'hooks/post_'.$file)) {
                                         log_console(tr('Executing newer init "post" hook file with version ":version"', array(':version' => $version)), 'VERBOSE/cyan');
                                         include_once($hook);
                                     }
@@ -291,7 +291,7 @@ Class Init
                      *
                      * This way, the code version can be upped without having to add empty init files.
                      */
-                    if(version_compare(constant($utype.'CODEVERSION'), $versions[$type]) > 0) {
+                    if (version_compare(constant($utype.'CODEVERSION'), $versions[$type]) > 0) {
                         log_console('Last init file was "'.$versions[$type].'" while code version is still higher at "'.constant($utype.'CODEVERSION').'"', 'yellow');
                         log_console('Updating database version to code version manually'                                                                  , 'yellow');
 
@@ -307,10 +307,10 @@ Class Init
                 }
             }
 
-            if($_CONFIG['production']) {
+            if ($_CONFIG['production']) {
                 log_console('Removing data symlink or files in all languages', 'cyan');
 
-                if($_CONFIG['language']['supported']) {
+                if ($_CONFIG['language']['supported']) {
                     foreach($_CONFIG['language']['supported'] as $language => $name) {
                         file_delete(ROOT.'www/'.substr($language, 0, 2).'/data', ROOT.'www/'.substr($language, 0, 2));
                     }
@@ -377,27 +377,27 @@ Class Init
             $compare_project   = version_compare(PROJECTCODEVERSION  , PROJECTDBVERSION);
             $compare_framework = version_compare(FRAMEWORKCODEVERSION, FRAMEWORKDBVERSION);
 
-            if(PROJECTDBVERSION === 0) {
+            if (PROJECTDBVERSION === 0) {
                 $versionerror     = 'Database is empty';
                 $core->register['no-db'] = true;
 
             } else {
-                if($compare_framework > 0) {
+                if ($compare_framework > 0) {
                     $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
 
-                } elseif($compare_framework < 0) {
+                } elseif ($compare_framework < 0) {
                     $versionerror = (empty($versionerror) ? "" : "\n").tr('Framework core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => FRAMEWORKDBVERSION, ':codeversion' => FRAMEWORKCODEVERSION));
                 }
 
-                if($compare_project > 0) {
+                if ($compare_project > 0) {
                     $versionerror = (empty($versionerror) ? "" : "\n").tr('Project core database ":db" version ":dbversion" is older than code version ":codeversion"', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => PROJECTDBVERSION, ':codeversion' => PROJECTCODEVERSION));
 
-                } elseif($compare_project < 0) {
+                } elseif ($compare_project < 0) {
                     $versionerror = (empty($versionerror) ? "" : "\n").tr('Project core database ":db" version ":dbversion" is newer than code version ":codeversion"!', array(':db' => Strings::log($_CONFIG['db']['core']['db']), ':dbversion' => PROJECTDBVERSION, ':codeversion' => PROJECTCODEVERSION));
                 }
             }
 
-            if(PLATFORM_HTTP or !cli_argument('--no-version-check')) {
+            if (PLATFORM_HTTP or !cli_argument('--no-version-check')) {
                 throw new CoreException(tr('init_process_version_diff(): Please run script ROOT/scripts/base/init because ":error"', array(':error' => $versionerror)), 'warning/do-init');
             }
 
@@ -423,7 +423,7 @@ Class Init
         try{
             $r = $core->sql['core']->query('SHOW TABLES WHERE `Tables_in_'.$_CONFIG['db']['core']['db'].'` = "versions";');
 
-            if($r->rowCount($r)) {
+            if ($r->rowCount($r)) {
                 throw new CoreException('init_process_version_fail(): Failed version detection', $e);
             }
 
@@ -432,7 +432,7 @@ Class Init
 
             $core->register['no-db'] = true;
 
-            if(PLATFORM_CLI) {
+            if (PLATFORM_CLI) {
                 log_console('init_process_version_fail(): No versions table found, assumed empty database', 'yellow');
             }
 
@@ -489,7 +489,7 @@ Class Init
     public static function versionUpgrade(string $version, string $part): string
     {
         try{
-            if(!Strings::isVersion($version)) {
+            if (!Strings::isVersion($version)) {
                 throw new CoreException('init_version_upgrade(): Specified version is not a valid n.n.n version format');
             }
 
@@ -563,13 +563,13 @@ Class Init
 
             $path = ROOT.'init/'.$section.'/';
 
-            if(!file_exists($path)) {
+            if (!file_exists($path)) {
                 throw new CoreException(tr('init_section(): Specified section ":section" path ":path" does not exist', array(':section' => $section, ':path' => $path)), 'not-exists');
             }
 
             $connector = Sql::getConnector($section);
 
-            if(!$connector) {
+            if (!$connector) {
                 throw new CoreException(tr('init_section(): Specified section ":section" does not have a connector configuration. Please check $_CONFIG[db] or the `Sql::connectors` table', array(':section' => $section)), 'not-exists');
             }
 
@@ -579,8 +579,8 @@ Class Init
             $core->register('Sql::connector', $section);
             $exists = sql_get('SHOW TABLES LIKE "versions"', true);
 
-            if($exists) {
-                if($version) {
+            if ($exists) {
+                if ($version) {
                     /*
                      * Reset the versions table to the specified version
                      */
@@ -589,7 +589,7 @@ Class Init
 
                 $dbversion = Sql::get('SELECT `version` FROM `versions` ORDER BY `id` DESC LIMIT 1', true);
 
-                if($dbversion === null) {
+                if ($dbversion === null) {
                     /*
                      * No version data found, we're at 0.0.0
                      */
@@ -614,12 +614,12 @@ Class Init
                 /*
                  * Skip garbage
                  */
-                if(($file == '.') or ($file == '..')) {
+                if (($file == '.') or ($file == '..')) {
                     unset($files[$key]);
                     continue;
                 }
 
-                if((file_extension($file) != 'php') or !Strings::isVersion(Strings::until($file, '.php'))) {
+                if ((file_extension($file) != 'php') or !Strings::isVersion(Strings::until($file, '.php'))) {
                     log_console(tr('Skipping unknown file ":file"', array(':file' => $file)), 'yellow');
                     unset($files[$key]);
                     continue;
@@ -637,19 +637,19 @@ Class Init
                 $version = $file;
                 $file    = $file.'.php';
 
-                if(version_compare($version, $connector['version']) >= 1) {
+                if (version_compare($version, $connector['version']) >= 1) {
                     /*
                      * This init file has a higher version number than the current code, so it should not yet be executed (until a later time that is)
                      */
                     log_console(tr('Skipped future section ":section" init file ":version"', array(':version' => $version, ':section' => $section)), 'VERBOSE');
 
                 } else {
-                    if(($dbversion === 0) or (version_compare($version, $dbversion) >= 1)) {
+                    if (($dbversion === 0) or (version_compare($version, $dbversion) >= 1)) {
                         /*
                          * This init file is higher than the DB version, but lower than the code version, so it must be executed
                          */
                         try{
-                            if(file_exists($hook = $path.'hooks/pre_'.$file)) {
+                            if (file_exists($hook = $path.'hooks/pre_'.$file)) {
                                 log_console('Executing newer init "pre" hook file with version "'.$version.'"', 'cyan');
                                 include_once($hook);
                             }
@@ -673,7 +673,7 @@ Class Init
                         }
 
                         try{
-                            if(file_exists($hook = $path.'hooks/post_'.$file)) {
+                            if (file_exists($hook = $path.'hooks/post_'.$file)) {
                                 log_console('Executing newer init "post" hook file with version "'.$version.'"', 'VERBOSE/cyan');
                                 include_once($hook);
                             }
@@ -692,7 +692,7 @@ Class Init
                         /*
                          * This init file has already been executed so we can skip it.
                          */
-                        if(VERBOSE) {
+                        if (VERBOSE) {
                             log_console('Skipped older init file "'.$version.'"', 'yellow');
                         }
                     }
@@ -706,7 +706,7 @@ Class Init
              *
              * This way, the code version can be upped without having to add empty init files.
              */
-            if(version_compare($dbversion, $version) > 0) {
+            if (version_compare($dbversion, $version) > 0) {
                 log_console('Last init file was "'.$version.'" while code version is still higher at "'.$connector['version'].'"', 'yellow');
                 log_console('Updating database version to code version manually'                                                 , 'yellow');
 
@@ -752,13 +752,13 @@ Class Init
             $changed  = 0;
 
             while($version = Sql::fetch($versions)) {
-                if(version_compare($version['framework'], FRAMEWORKCODEVERSION) > 0) {
+                if (version_compare($version['framework'], FRAMEWORKCODEVERSION) > 0) {
                     $erase->execute(array(':id' => $version['id']));
                     $changed++;
                     continue;
                 }
 
-                if(version_compare($version['project'], PROJECTCODEVERSION) > 0) {
+                if (version_compare($version['project'], PROJECTCODEVERSION) > 0) {
                     $erase->execute(array(':id' => $version['id']));
                     $changed++;
                     continue;
@@ -802,7 +802,7 @@ Class Init
                     /*
                      * Custom section, check if it exists
                      */
-                    if(!file_exists(ROOT.'init/'.$section)) {
+                    if (!file_exists(ROOT.'init/'.$section)) {
                         throw new CoreException(tr('init_get_highest_file_version(): The specified custom init section ":section" does not exist', array(':section' => $section)), 'not-exist');
                     }
             }
@@ -811,13 +811,13 @@ Class Init
             $files   = scandir(ROOT.'init/'.$section);
 
             foreach($files as $file) {
-                if(($file === '.') or ($file === '..')) {
+                if (($file === '.') or ($file === '..')) {
                     continue;
                 }
 
                 $file = Strings::untilReverse($file, '.php');
 
-                if(version_compare($file, $version) === 1) {
+                if (version_compare($file, $version) === 1) {
                     $version = $file;
                 }
             }

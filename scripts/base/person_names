@@ -6,11 +6,11 @@
 require_once(__DIR__.'/../../libs/startup.php');
 
 try{
-    if(!$language = cli_argument(0)) {
+    if (!$language = cli_argument(0)) {
         throw new CoreException('No language specified, please specify one of "en"');
     }
 
-    if($language == 'clear') {
+    if ($language == 'clear') {
         /*
          * Don't import, just clear the persons_names table.
          */
@@ -19,12 +19,12 @@ try{
         exit(0);
     }
 
-    if(!in_array($language, array('en'))) {
+    if (!in_array($language, array('en'))) {
         throw new CoreException('No valid language specified, please specify one of "en"');
     }
 
-    if($count = sql_get('SELECT COUNT(`id`) AS count FROM `persons_names`;', 'count')) {
-        if(!cli_argument('force')) {
+    if ($count = sql_get('SELECT COUNT(`id`) AS count FROM `persons_names`;', 'count')) {
+        if (!cli_argument('force')) {
             return cli_die(0, 'Persons_names table already contains data', 'yellow');
         }
 
@@ -35,10 +35,10 @@ try{
     /*
      * Find the persons names data project location
      */
-    if(file_exists($path = realpath(ROOT.'../data/persons/'.$language))) {
+    if (file_exists($path = realpath(ROOT.'../data/persons/'.$language))) {
        $import_path = Strings::slash($path);
 
-    } elseif(file_exists($path = realpath(ROOT.'../../data/persons/'.$language))) {
+    } elseif (file_exists($path = realpath(ROOT.'../../data/persons/'.$language))) {
        $import_path = Strings::slash($path);
 
     } else {
@@ -83,37 +83,37 @@ try{
         /*
          * Get a male, female and last entry
          */
-        if($m) {
+        if ($m) {
             $male   = fgets($m);
         }
 
-        if($f) {
+        if ($f) {
             $female = fgets($f);
         }
 
-        if($l) {
+        if ($l) {
             $last   = fgets($l);
         }
 
         /*
          * See of any of the files has EOF
          */
-        if(is_resource($m) and feof($m)) {
+        if (is_resource($m) and feof($m)) {
             $m    = false;
             $male = null;
         }
 
-        if(is_resource($f) and feof($f)) {
+        if (is_resource($f) and feof($f)) {
             $f      = false;
             $female = null;
         }
 
-        if(is_resource($l) and feof($l)) {
+        if (is_resource($l) and feof($l)) {
             $l    = false;
             $last = null;
         }
 
-        if(!$m and !$f and !$l) {
+        if (!$m and !$f and !$l) {
             /*
              * All datafiles are EOF
              */
@@ -132,10 +132,10 @@ try{
         /*
          * Show a marker to show progress. On every 1000 names, commit
          */
-        if(!fmod(++$count, 200)) {
+        if (!fmod(++$count, 200)) {
             log_console('.', '', 'green', false);
 
-            if(!fmod($count, 1000)) {
+            if (!fmod($count, 1000)) {
                 sql_query('COMMIT;');
             }
         }

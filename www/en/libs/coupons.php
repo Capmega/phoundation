@@ -67,7 +67,7 @@ function coupons_validate($coupon) {
         /*
          * Validate the description
          */
-        if($coupon['description']) {
+        if ($coupon['description']) {
             $v->hasMinChars($coupon['description'],   16, tr('Please specifiy a minimum of 16 characters for the description'));
             $v->hasMaxChars($coupon['description'], 2047, tr('Please specifiy a maximum of 2047 characters for the description'));
 
@@ -80,10 +80,10 @@ function coupons_validate($coupon) {
         /*
          * Validate the category
          */
-        if($coupon['categories_id']) {
+        if ($coupon['categories_id']) {
             $exist = sql_get('SELECT `id` FROM list_categories WHERE `id` = :id', array('id' => $coupon['categories_id']));
 
-            if(!$exist) {
+            if (!$exist) {
                 $v->setError(tr('The category ":category" does not exist', array(':category' => $coupon['category'])));
             }
 
@@ -261,7 +261,7 @@ function coupons_update($coupon) {
  */
 function coupons_get($coupon, $column = null, $status = null, $categories_id = false, $available = false) {
     try{
-        if(is_numeric($coupon)) {
+        if (is_numeric($coupon)) {
             $where[] = ' `coupons`.`id` = :id ';
             $execute[':id'] = $coupon;
 
@@ -270,17 +270,17 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
             $execute[':seocode'] = $coupon;
         }
 
-        if($status !== false) {
+        if ($status !== false) {
             $where[] = ' `coupons`.`status` '.sql_is($status, ':status');
             $execute[':status'] = $status;
         }
 
-        if($categories_id !== false) {
+        if ($categories_id !== false) {
             $where[] = ' `coupons`.`categories_id` '.sql_is($categories_id, ':categories_id');
             $execute[':categories_id'] = $categories_id;
         }
 
-        if($available) {
+        if ($available) {
             $where[] = '  `status`  IS NULL ';
             $where[] = ' (`count`   IS NULL OR `count`   > 0) ';
             $where[] = ' (`expires` IS NULL OR `expires` = "0000-00-00 00:00:00" OR `expires` > UTC_TIMESTAMP) ';
@@ -291,7 +291,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         /*
          *
          */
-        if($column) {
+        if ($column) {
             $retval = sql_get('SELECT `'.$column.'` FROM `coupons` '.$where, true, $execute);
 
         } else {
@@ -314,7 +314,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         /*
          *
          */
-        if(!$retval) {
+        if (!$retval) {
             return array('status' => '_new');
         }
 
@@ -333,7 +333,7 @@ function coupons_get($coupon, $column = null, $status = null, $categories_id = f
         /*
          *
          */
-        if($used) {
+        if ($used) {
             return array('status' => 'used');
         }
 
@@ -368,7 +368,7 @@ function coupons_use($code) {
     try{
         $coupon = coupons_get($code, null, null, false, true);
 
-        if(!$coupon) {
+        if (!$coupon) {
             throw new CoreException(tr('coupon_use(): Specified coupon code ":code" is not available or does not exist', array(':code' => $code)), 'not-exists');
         }
 
@@ -425,12 +425,12 @@ function coupons_use($code) {
  */
 function coupons_add_coupon($code, $new_amount = 0) {
     try{
-        if($code) {
+        if ($code) {
             $coupon = coupons_get((is_array($code)?$code['code']:$code), null, null, false, true);
 
-            if($coupon['status'] === null) {
-                if(is_numeric($coupon['reward'])) {
-                    if($new_amount < 0) {
+            if ($coupon['status'] === null) {
+                if (is_numeric($coupon['reward'])) {
+                    if ($new_amount < 0) {
                         coupons_add_to_wallet($new_amount*-1);
 
                     } else {

@@ -15,7 +15,7 @@ try{
     $test  = not_empty(cli_argument('test', true), cli_argument('debug', true));
 
     load_libs('mailer');
-    if($count = mailer_send($count, $wait, $test)) {
+    if ($count = mailer_send($count, $wait, $test)) {
         log_console('Sent "'.$count.'" mails', '', 'white');
 
     } else {

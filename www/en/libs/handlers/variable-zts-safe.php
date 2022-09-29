@@ -1,22 +1,22 @@
 <?php
-if(!defined('PHP_ZTS')) {
+if (!defined('PHP_ZTS')) {
     return $variable;
 }
 
-if(++$level > 20) {
+if (++$level > 20) {
     /*
      * Recursion level reached, until here, no further!
      */
     return '***  Resource limit reached! ***';
 }
 
-if(is_resource($variable)) {
+if (is_resource($variable)) {
     $variable = print_r($variable, true);
 }
 
-if(is_array($variable) or (is_object($variable) and (($variable instanceof Exception) or ($variable instanceof Error)))) {
+if (is_array($variable) or (is_object($variable) and (($variable instanceof Exception) or ($variable instanceof Error)))) {
     foreach($variable as $key => &$value) {
-        if($key === 'object') {
+        if ($key === 'object') {
             $value = print_r($value, true);
 
         } else {
@@ -24,7 +24,7 @@ if(is_array($variable) or (is_object($variable) and (($variable instanceof Excep
         }
     }
 
-} elseif(is_object($variable)) {
+} elseif (is_object($variable)) {
     $variable = print_r($variable, true);
 }
 

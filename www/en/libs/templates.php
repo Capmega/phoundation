@@ -95,7 +95,7 @@ function templates_validate($template) {
         /*
          * Validate description
          */
-        if(empty($template['description'])) {
+        if (empty($template['description'])) {
             $template['description'] = null;
 
         } else {
@@ -366,8 +366,8 @@ function templates_select($params = null) {
 
         $execute = array();
 
-        if($params['remove']) {
-            if(count(Arrays::force($params['remove'])) == 1) {
+        if ($params['remove']) {
+            if (count(Arrays::force($params['remove'])) == 1) {
                 /*
                  * Filter out only one entry
                  */
@@ -384,7 +384,7 @@ function templates_select($params = null) {
             }
         }
 
-        if($params['parents_id']) {
+        if ($params['parents_id']) {
             $where[] = ' `parents_id` = :parents_id ';
             $execute[':parents_id'] = $params['parents_id'];
 
@@ -392,12 +392,12 @@ function templates_select($params = null) {
             $where[] = ' `parents_id` IS NULL ';
         }
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {

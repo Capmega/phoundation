@@ -1,25 +1,25 @@
 <?php
 try{
-    if($type === null) {
+    if ($type === null) {
         $type = gettype($value);
     }
 
-    if($key === null) {
+    if ($key === null) {
         $key = tr('Unknown');
     }
 
     switch($type) {
         case 'string':
-            if(is_numeric($value)) {
+            if (is_numeric($value)) {
                 $type = tr('numeric');
 
-                if(is_integer($value)) {
+                if (is_integer($value)) {
                     $type .= tr(' (integer)');
 
-                } elseif(is_float($value)) {
+                } elseif (is_float($value)) {
                     $type .= tr(' (float)');
 
-                } elseif(is_string($value)) {
+                } elseif (is_string($value)) {
                     $type .= tr(' (string)');
 
                 } else {

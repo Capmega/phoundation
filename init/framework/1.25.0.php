@@ -5,12 +5,12 @@
  * Add support for devices registered by company, branch and or department
  * Add support for fingerprint devices
  */
-if(sql_table_exists('drivers_options')) {
+if (sql_table_exists('drivers_options')) {
     sql_foreignkey_exists('drivers_options', 'fk_drivers_options_id'        , 'ALTER TABLE `drivers_options` DROP FOREIGN KEY `fk_drivers_options_id`');
     sql_foreignkey_exists('drivers_options', 'fk_drivers_options_devices_id', 'ALTER TABLE `drivers_options` DROP FOREIGN KEY `fk_drivers_options_devices_id`');
 }
 
-if(sql_table_exists('drivers_devices')) {
+if (sql_table_exists('drivers_devices')) {
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_createdby'     , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_createdby`');
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_meta_id'       , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_meta_id`');
     sql_foreignkey_exists('drivers_devices', 'fk_drivers_devices_servers_id'    , 'ALTER TABLE `drivers_devices` DROP FOREIGN KEY `fk_drivers_devices_servers_id`');
@@ -25,7 +25,7 @@ if(sql_table_exists('drivers_devices')) {
 /*
  * Clean up some garbage from a specific project
  */
-if(sql_table_exists('push_devices')) {
+if (sql_table_exists('push_devices')) {
     sql_foreignkey_exists('push_devices', 'fk_devices_createdby'     ,  'ALTER TABLE `push_devices` DROP FOREIGN KEY `fk_devices_createdby`');
     sql_foreignkey_exists('push_devices', 'fk_devices_meta_id'       ,  'ALTER TABLE `push_devices` DROP FOREIGN KEY `fk_devices_meta_id`');
     sql_foreignkey_exists('push_devices', 'fk_push_devices_createdby', '!ALTER TABLE `push_devices` ADD CONSTRAINT `fk_push_devices_createdby` FOREIGN KEY (`createdby`) REFERENCES `users` (`id`) ON DELETE RESTRICT');

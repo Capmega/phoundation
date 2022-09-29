@@ -294,7 +294,7 @@ switch(cli_method()) {
         $output = cli_argument(2);
         cli_no_arguments_left();
 
-        if(!$output) {
+        if (!$output) {
             throw new CoreException(tr('No output file specified'), 'not-specified');
         }
 
@@ -308,12 +308,12 @@ switch(cli_method()) {
 
         cli_no_arguments_left();
 
-        if($all) {
+        if ($all) {
             foreach(array('jpg', 'png') as $extension) {
                 $files = safe_exec(array('commands' => array('find', array(ROOT, '-iname', '"*.'.$extension.'"'))));
 
                 foreach($files as $file) {
-                    if(strtolower(substr($file, -7, 7)) == '@2x.'.$extension) {
+                    if (strtolower(substr($file, -7, 7)) == '@2x.'.$extension) {
                         /*
                          * This is a retina file, skip
                          */
@@ -322,8 +322,8 @@ switch(cli_method()) {
 
                     $link = str_replace('.'.$extension, '@2x.'.$extension, $file);
 
-                    if(file_exists($link)) {
-                        if(!is_link($link)) {
+                    if (file_exists($link)) {
+                        if (!is_link($link)) {
                             /*
                              * Existing file is a real file, so probably has
                              * unique contents. Leave it alone
@@ -341,7 +341,7 @@ switch(cli_method()) {
                     /*
                      * Create the target link
                      */
-                    if(VERBOSE) {
+                    if (VERBOSE) {
                         log_console(tr('Creating symlink for file ":file"', array(':file' => $file)));
                     }
 
@@ -356,17 +356,17 @@ switch(cli_method()) {
             /*
              * This must be a single file specification
              */
-            if(!file_exists($file)) {
+            if (!file_exists($file)) {
                 throw new CoreException(tr('Specified file ":file" does not exist', array(':file' => cli_argument(1))), 'warning/not-exist');
             }
 
             $link = str_replace('.'.$extension, '@2x.'.$extension, $file);
 
-            if(!file_exists($link)) {
+            if (!file_exists($link)) {
                 /*
                  *
                  */
-                if(VERBOSE) {
+                if (VERBOSE) {
                     log_console(tr('Creating symlink for file ":file"', array(':file' => $file)));
                 }
 
@@ -386,15 +386,15 @@ switch(cli_method()) {
         ksort($params);
 
         foreach($params as $key => $value) {
-            if(is_array($value)) {
+            if (is_array($value)) {
                 foreach($value as $subkey => $subvalue) {
                     log_console(str_size($key   , 20), 'cyan', false);
 
-                    if(!is_numeric($subkey)) {
+                    if (!is_numeric($subkey)) {
                         log_console(str_size($subkey, 20), 'cyan', false);
                     }
 
-                    if(($key === 'blur') and (!$value)) {
+                    if (($key === 'blur') and (!$value)) {
                         $value = tr('No');
                     }
 
@@ -404,8 +404,8 @@ switch(cli_method()) {
                 continue;
             }
 
-            if($key === 'format') {
-                if($value) {
+            if ($key === 'format') {
+                if ($value) {
                     $value = tr('Force :format', array(':format' => $value));
 
                 } else {
@@ -428,7 +428,7 @@ switch(cli_method()) {
         $no_exif   = not_empty(cli_argument('--no-exif')  , cli_argument('-e'));
         $source    = cli_argument();
 
-        if(not_empty(cli_argument('--default'), cli_argument('--defaults'))) {
+        if (not_empty(cli_argument('--default'), cli_argument('--defaults'))) {
             $params = array();
         }
 
@@ -438,8 +438,8 @@ switch(cli_method()) {
         /*
          * Check source path
          */
-        if($all) {
-            if($recursive) {
+        if ($all) {
+            if ($recursive) {
                 throw new CoreException(tr('Both --all and --recursive have been specified. These options are mutually exclusive, please specify one or the other'), 'warning/invalid');
             }
 
@@ -452,7 +452,7 @@ switch(cli_method()) {
             $source = file_absolute($source);
         }
 
-        if(!$source) {
+        if (!$source) {
             throw new CoreException(tr('No path specified'), 'warning/not-specified');
         }
 
@@ -462,8 +462,8 @@ switch(cli_method()) {
         file_tree_execute(array('path'      => $source,
                                 'recursive' => $recursive,
                                 'callback'  => function($file) use ($params, $no_exif) {
-                                                    if(!is_image($file)) {
-                                                        if(VERBOSE) {
+                                                    if (!is_image($file)) {
+                                                        if (VERBOSE) {
                                                             log_console(tr('Skipping file ":image", it is not an image', array(':image' => $file)), 'yellow');
                                                         }
 
@@ -494,14 +494,14 @@ switch(cli_method()) {
 
         array_default($params, 'format', 'webp');
 
-        if(not_empty(cli_argument('--default'), cli_argument('--defaults'))) {
+        if (not_empty(cli_argument('--default'), cli_argument('--defaults'))) {
             $params = array();
         }
 
-        if(TEST) {
+        if (TEST) {
             $no_delete = not_empty(cli_argument('--no-delete'), cli_argument('-n'));
 
-            if($params['backup']) {
+            if ($params['backup']) {
                 $params['backup'] = false;
                 log_console(tr('Both backup and test options were specified, disabled "backup" since test will not change the original file'), 'yellow');
             }
@@ -509,22 +509,22 @@ switch(cli_method()) {
             $display_diff = true;
         }
 
-        if($display_diff) {
+        if ($display_diff) {
             $no_exif = not_empty(cli_argument('--no-exif'), cli_argument('-e'));
         }
 
-        if($show_images) {
-            if($recursive) {
+        if ($show_images) {
+            if ($recursive) {
                 throw new CoreException(tr('Both --show-images and --recursive have been specified. These options are mutually exclusive, please specify one or the other'), 'warning/invalid');
             }
 
-            if(TEST) {
+            if (TEST) {
                 /*
                  * Okay, we can see both in TEST mode
                  */
                 $no_delete = true;
 
-            } elseif($params['backup']) {
+            } elseif ($params['backup']) {
                 /*
                  * Okay, we can see both in backup mode
                  */
@@ -544,8 +544,8 @@ switch(cli_method()) {
         /*
          * Check source path
          */
-        if($all) {
-            if($recursive) {
+        if ($all) {
+            if ($recursive) {
                 throw new CoreException(tr('Both --all and --recursive have been specified. These options are mutually exclusive (--all implies --recursive), please specify one or the other'), 'warning/invalid');
             }
 
@@ -559,7 +559,7 @@ switch(cli_method()) {
             $source = file_absolute($source);
         }
 
-        if(!$source) {
+        if (!$source) {
             throw new CoreException(tr('No path specified'), 'warning/not-specified');
         }
 
@@ -573,13 +573,13 @@ switch(cli_method()) {
                                          'callback'  => function($file) use ($params, $display_diff, $no_exif, $no_delete, $show_images, $now) {
                                                             global $_CONFIG;
 
-                                                            if(!is_image($file)) {
+                                                            if (!is_image($file)) {
                                                                 log_console(tr('Skipping file ":image", it is not an image', array(':image' => $file)), 'VERBOSE/yellow');
                                                                 return;
                                                             }
 
                                                             try{
-                                                                if($params['backup']) {
+                                                                if ($params['backup']) {
                                                                     /*
                                                                      * Make a backup of
                                                                      * the original file
@@ -587,7 +587,7 @@ switch(cli_method()) {
                                                                     copy($file, $file.'~'.$now);
                                                                 }
 
-                                                                if(!empty($params['copy_to_temp'])) {
+                                                                if (!empty($params['copy_to_temp'])) {
                                                                     /*
                                                                      * Make a copy of the original file in the
                                                                      * temp directory so we can show it later
@@ -597,24 +597,24 @@ switch(cli_method()) {
                                                                     copy($file, $params['copy_to_temp']);
                                                                 }
 
-                                                                if(TEST) {
+                                                                if (TEST) {
                                                                     $target = file_temp(false);
 
                                                                 } else {
                                                                     $target = $file;
                                                                 }
 
-                                                                if($display_diff) {
+                                                                if ($display_diff) {
                                                                     $before = image_info($file, $no_exif);
                                                                 }
 
                                                                 $params['source'] = $file;
                                                                 $params['target'] = $target;
 
-                                                                if($params['format']) {
+                                                                if ($params['format']) {
                                                                     $format = Strings::fromReverse($params['source'], '.');
 
-                                                                    if($format !== $params['format']) {
+                                                                    if ($format !== $params['format']) {
                                                                         /*
                                                                          * Target file is different from source file, ensure that it doesn't exist
                                                                          */
@@ -629,7 +629,7 @@ switch(cli_method()) {
                                                                     });
                                                                 });
 
-                                                                if($display_diff) {
+                                                                if ($display_diff) {
                                                                     log_console(tr('Before:'), 'white');
                                                                     s_display_info($before);
 
@@ -641,10 +641,10 @@ switch(cli_method()) {
                                                                 log_console(tr('Skipping file ":image", failed with ":error"', array(':image' => $file, ':error' => $e->getMessage())), 'yellow');
                                                             }
 
-                                                            if($show_images) {
+                                                            if ($show_images) {
                                                                 try{
-                                                                    if(empty($params['copy_to_temp'])) {
-                                                                        if(TEST) {
+                                                                    if (empty($params['copy_to_temp'])) {
+                                                                        if (TEST) {
                                                                             /*
                                                                              * Original image was not modified, target is in tmp dir
                                                                              */
@@ -679,7 +679,7 @@ switch(cli_method()) {
                                                              *
                                                              */
                                                             try{
-                                                                if(TEST and !$no_delete) {
+                                                                if (TEST and !$no_delete) {
                                                                     file_delete($target, ROOT);
                                                                 }
 
@@ -688,7 +688,7 @@ switch(cli_method()) {
                                                             }
                                                         }));
 
-        if(!VERBOSE) {
+        if (!VERBOSE) {
             cli_dot(false);
         }
 
@@ -709,7 +709,7 @@ switch(cli_method()) {
         break;
 
     case 'clear-cache':
-        if(TEST) {
+        if (TEST) {
             break;
         }
 
@@ -748,24 +748,24 @@ function s_display_info($info) {
         log_console(str_size(tr('Bits'), 20), 'cyan', false);
         log_console($info['bits'], 'white');
 
-        if(!empty($info['compression'])) {
+        if (!empty($info['compression'])) {
             log_console(str_size(tr('Compression'), 20), 'cyan', false);
             log_console(str_force($info['compression']) , 'white');
         }
 
-        if(!empty($info['exif'])) {
+        if (!empty($info['exif'])) {
             log_console(str_size(tr('EXIF INFORMATION:'), 20), 'cyan');
 
             foreach($info['exif'] as $key => $value) {
-                if(is_array($value)) {
+                if (is_array($value)) {
                     foreach($value as $subkey => $subvalue) {
                         log_console(str_size($key   , 30), 'cyan', false);
 
-                        if(!is_numeric($subkey)) {
+                        if (!is_numeric($subkey)) {
                             log_console(str_size($subkey, 30), 'cyan', false);
                         }
 
-                        if($key === 'THUMBNAIL') {
+                        if ($key === 'THUMBNAIL') {
                             $subvalue = tr('YES');
                         }
 

@@ -17,7 +17,7 @@ function redirect_from_code($code) {
     try{
         $url = sql_get('SELECT `url` FROM `redirects` WHERE `code` = :code', 'url', array(':code' => $code));
 
-        if(!$url) {
+        if (!$url) {
             throw new CoreException(tr('redirect_from_code(): Specified code ":code" does not exist', array(':code' => $code)), 'not-exists');
         }
 
@@ -35,7 +35,7 @@ function redirect_from_code($code) {
  */
 function redirect_add_code($url, $code = null) {
     try{
-        if(!$code) {
+        if (!$code) {
             $code = uniqid('', true);
         }
 

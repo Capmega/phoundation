@@ -312,7 +312,7 @@ while($line = fgets($h, 8192)) {
      */
     $line = explode("\t", $line);
 
-    if(count($line) != 3) {
+    if (count($line) != 3) {
         /*
          * Skip lines that do not have 3 items
          */
@@ -342,7 +342,7 @@ while($line = fgets($h, 16384)) {
      * Skip first line, it contains the definitions
      * TSV file, CC*	Coordinates*	TZ*	Comments*	UTC offset	UTC DST offset	Notes
      */
-    if(!$count++) continue;
+    if (!$count++) continue;
 
     $line = explode("\t", $line);
 
@@ -351,7 +351,7 @@ while($line = fgets($h, 16384)) {
     }
 
     foreach($line as $key => &$item) {
-        if(!$item) {
+        if (!$item) {
             $item = 'NULL';
 
         } else {
@@ -394,22 +394,22 @@ log_console('Done', '');
 //     *
 //     * TSV file, CC_FIPS CC_ISO  TLD     COUNTRY_NAME
 //     */
-//    if(!$count++) continue;
+//    if (!$count++) continue;
 //
 //    $line = explode("\t", $line);
 //
-//    if($line[1] == '-') {
+//    if ($line[1] == '-') {
 //        $line[1] = '';
 //    }
 //
 //    $line[2] = substr($line[2], 1, 2);
 //
 //    foreach($line as $key => &$item) {
-//        if(!$item) {
+//        if (!$item) {
 //            $item = 'NULL';
 //
 //        } else {
-//            if($key == 3) {
+//            if ($key == 3) {
 //                $seoname = '"'.seo_generate_unique_name(cfm($item), 'geo_countries').'"';
 //            }
 //

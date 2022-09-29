@@ -51,7 +51,7 @@ function mbox_import_file($domain, $user, $file, $box = 'Archives', $mail_path =
 
         file_ensure_path($path);
 
-        if(file_exists($path.$box)) {
+        if (file_exists($path.$box)) {
             /*
              * We need to concat these files together
              */
@@ -114,17 +114,17 @@ function mbox_test_access($path) {
     global $_CONFIG;
 
     try{
-        if(!$path) {
+        if (!$path) {
             $path = $_CONFIG['mbox']['path'];
         }
 
         $path = Strings::slash($path);
 
-        if(!file_exists($path)) {
+        if (!file_exists($path)) {
             throw new CoreException(tr('mbox_test_access(): The configured (or specified) mail directory ":path" does not exist. Please check the configuration option $_CONFIG[mbox][path]', array(':path' => $path)), 'not-exists');
         }
 
-        if(file_exists($path.'base-test')) {
+        if (file_exists($path.'base-test')) {
             file_delete($path.'base-test', false);
         }
 

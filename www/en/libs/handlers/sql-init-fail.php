@@ -4,11 +4,11 @@
      */
     switch($e->getCode()) {
         case 1049:
-            if(empty($connector)) {
+            if (empty($connector)) {
                 throw new CoreException(tr('sql_init(): Database reported that database does not exist, but no connector data is available'), 'not-exist');
             }
 
-            if(!empty($retry)) {
+            if (!empty($retry)) {
                 static $retry = true;
                 global $_CONFIG;
 
@@ -34,13 +34,13 @@
     /*
      * From here it is probably connector issues
      */
-    $e = new BException('sql_init(): Failed', $e);
+    $e = new CoreException('sql_init(): Failed', $e);
 
-    if(!is_string($connector_name)) {
+    if (!is_string($connector_name)) {
         throw new CoreException(tr('sql_init(): Specified database connector ":connector" is invalid, must be a string', array(':connector' => $connector_name)), 'invalid');
     }
 
-    if(empty($_CONFIG['db'][$connector_name])) {
+    if (empty($_CONFIG['db'][$connector_name])) {
         throw new CoreException(tr('sql_init(): Specified database connector ":connector" has not been configured', array(':connector' => $connector_name)), 'not-exists');
     }
 

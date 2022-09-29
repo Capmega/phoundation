@@ -11,23 +11,23 @@ require_once(__DIR__.'/../../libs/startup.php');
 
 log_console('Initializing global data path', '', 'white');
 
-if(empty($_CONFIG['data']['global'])) {
-    if(!$path = cli_argument(0)) {
+if (empty($_CONFIG['data']['global'])) {
+    if (!$path = cli_argument(0)) {
         log_console(TR('Please type the absolute path of the data directory [<enter> for ":path"]:', array(':path' => $_CONFIG['data']['global'])), false);
         $path = readline('');
     }
 
-} elseif($_CONFIG['data']['global'] === true) {
+} elseif ($_CONFIG['data']['global'] === true) {
     /*
      * Auto detect best location.
      *
      * For root user: /var/lib/data
      * For other users: USER_HOME_DIR/data
      */
-    if(cli_is_root()) {
+    if (cli_is_root()) {
         $path = '/var/lib/data/';
 
-    } elseif(!empty($_SERVER['HOME'])) {
+    } elseif (!empty($_SERVER['HOME'])) {
         $path = Strings::slash($_SERVER['HOME']).'data/';
 
     } else {
@@ -38,7 +38,7 @@ if(empty($_CONFIG['data']['global'])) {
     }
 }
 
-if(substr($path, 0, 1) != '/') {
+if (substr($path, 0, 1) != '/') {
     throw new CoreException(tr('The specified path ":path" is invalid. An absolute path (starting with a forward slash /) is required', array(':path' => $path)), 'invalid');
 }
 
@@ -47,7 +47,7 @@ $path = Strings::slash($path);
 log_console(tr('Trying to use location ":path" for global data directory', array(':path' => $path)), 'white');
 
 try{
-    if(file_exists($path)) {
+    if (file_exists($path)) {
         /*
          * Wut? Requested path already exists, we're done here!
          */

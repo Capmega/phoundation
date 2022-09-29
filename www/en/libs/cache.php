@@ -79,7 +79,7 @@ function cache_read($key, $namespace = null) {
     global $_CONFIG, $core;
 
     try{
-        if(!$key) {
+        if (!$key) {
             throw new CoreException(tr('cache_read(): No cache key specified'), 'not-specified');
         }
 
@@ -90,7 +90,7 @@ function cache_read($key, $namespace = null) {
                 break;
 
             case 'memcached':
-                if($namespace) {
+                if ($namespace) {
                     $namespace = Strings::unslash($namespace);
                 }
 
@@ -107,7 +107,7 @@ function cache_read($key, $namespace = null) {
                 throw new CoreException(tr('cache_read(): Unknown cache method ":method" specified', array(':method' => $_CONFIG['cache']['method'])), 'unknown');
         }
 
-        if($data) {
+        if ($data) {
             log_console(tr('Found cache blob for key ":namespace-:key"', array(':namespace' => $namespace, ':key' => $key)), 'VERBOSE/green');
         }
 
@@ -140,17 +140,17 @@ function cache_read_file($key, $namespace = null) {
     global $_CONFIG;
 
     try{
-        if($namespace) {
+        if ($namespace) {
             $namespace = Strings::slash($namespace);
         }
 
-        if(!file_exists($file = ROOT.'data/cache/'.$namespace.$key)) {
+        if (!file_exists($file = ROOT.'data/cache/'.$namespace.$key)) {
             return false;
         }
 
 //show((filemtime($file) + $_CONFIG['cache']['max_age']));
 //showdie(date('u'));
-        if((filemtime($file) + $_CONFIG['cache']['max_age']) < date('u')) {
+        if ((filemtime($file) + $_CONFIG['cache']['max_age']) < date('u')) {
             return false;
         }
 
@@ -184,11 +184,11 @@ function cache_write($value, $key, $namespace = null, $max_age = null) {
     global $_CONFIG, $core;
 
     try{
-        if(!$max_age) {
+        if (!$max_age) {
             $max_age = $_CONFIG['cache']['max_age'];
         }
 
-        if(!$key) {
+        if (!$key) {
             throw new CoreException(tr('cache_write(): No cache key specified'), 'warning/not-specified');
         }
 
@@ -247,7 +247,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null) {
  */
 function cache_write_file($value, $key, $namespace = null) {
     try{
-        if($namespace) {
+        if ($namespace) {
             $namespace = Strings::slash($namespace);
         }
 
@@ -292,7 +292,7 @@ function cache_key_hash($key) {
             throw new CoreException(tr('Unknown key hash algorithm ":algorithm" configured in $_CONFIG[hash][key_hash]', array(':algorithm' => $_CONFIG['cache']['key_hash'])), $e);
         }
 
-        if($_CONFIG['cache']['key_interlace']) {
+        if ($_CONFIG['cache']['key_interlace']) {
             $interlace = substr($key, 0, $_CONFIG['cache']['key_interlace']);
             $key       = substr($key, $_CONFIG['cache']['key_interlace']);
 
@@ -315,15 +315,15 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null) {
     global $_CONFIG, $core;
 
     try{
-        if($_CONFIG['cache']['method']) {
+        if ($_CONFIG['cache']['method']) {
             /*
              * Default values
              */
-            if(!$key) {
+            if (!$key) {
                 $key = $core->register['script'];
             }
 
-            if(!$etag) {
+            if (!$etag) {
                 $etag = isset_get($core->register['etag']);
             }
 
@@ -334,7 +334,7 @@ function cache_showpage($key = null, $namespace = 'htmlpage', $etag = null) {
              */
             http_cache_test($etag);
 
-            if($value = cache_read($key, $namespace)) {
+            if ($value = cache_read($key, $namespace)) {
                 http_headers(null, strlen($value));
 
                 echo $value;

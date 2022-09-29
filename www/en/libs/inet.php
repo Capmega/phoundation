@@ -29,7 +29,7 @@ function ip_v6_v4($ipv6) {
         $addr     = $_SERVER['REMOTE_ADDR'];
         $addr_bin = inet_pton($addr);
 
-        if($addr_bin === false) {
+        if ($addr_bin === false) {
             /*
              * IP Unparsable? How did they connect?
              */
@@ -39,7 +39,7 @@ function ip_v6_v4($ipv6) {
         /*
          * Check prefix
          */
-        if(substr($addr_bin, 0, strlen($v4mapped_prefix_bin)) == $v4mapped_prefix_bin) {
+        if (substr($addr_bin, 0, strlen($v4mapped_prefix_bin)) == $v4mapped_prefix_bin) {
             /*
              * Strip prefix
              */
@@ -65,7 +65,7 @@ function ip_v6_v4($ipv6) {
  */
 function detect_ip_version($version = null) {
     try{
-        if(!$version) {
+        if (!$version) {
             $version = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -119,7 +119,7 @@ function inet_test_host_port($params) {
         inet_validate_port($params['port']);
         inet_validate_host($params['host']);
 
-        if(!is_natural($params['timeout']) or ($params['timeout'] > 600)) {
+        if (!is_natural($params['timeout']) or ($params['timeout'] > 600)) {
             throw new OutOfBoundsException(tr('inet_test_host_port(): Specified timeout ":timeout"is invalid. It must be a natural number smaller than or equal to 600', array(':timeout' => $params['timeout'])), 'invalid');
         }
 
@@ -129,15 +129,15 @@ function inet_test_host_port($params) {
         $results = array_shift($results);
         $results = strtolower($results);
 
-        if(str_contains($results, 'connection refused')) {
-            if($params['exception']) {
+        if (str_contains($results, 'connection refused')) {
+            if ($params['exception']) {
                 throw new OutOfBoundsException(tr('inet_test_host_port(): Failed to connect to specified host:port ":host:%port"', array(':host' => $params['host'], '%port' => $params['port'])), 'warning/failed');
             }
 
             return false;
         }
 
-        if(str_contains($results, 'succeeded!')) {
+        if (str_contains($results, 'succeeded!')) {
             /*
              * Yei!
              */
@@ -196,7 +196,7 @@ function inet_telnet($params) {
  */
 function inet_get_domain($strip = array('www', 'dev', 'm')) {
     try{
-        if(in_array(Strings::until($_SERVER['HTTP_HOST'], '.'), Arrays::force($strip))) {
+        if (in_array(Strings::until($_SERVER['HTTP_HOST'], '.'), Arrays::force($strip))) {
             return Strings::from($_SERVER['HTTP_HOST']);
         }
 
@@ -228,28 +228,28 @@ function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,a
     global $_CONFIG;
 
     try{
-        if(!$domain) {
+        if (!$domain) {
             $domain = $_SERVER['HTTP_HOST'];
         }
 
-        if(!$root) {
+        if (!$root) {
             $root = $_CONFIG['domain'];
         }
 
         $len = mb_strlen($root);
 
-        if(substr($domain, -$len, $len) !== $root) {
+        if (substr($domain, -$len, $len) !== $root) {
             throw new OutOfBoundsException(tr('inet_get_subdomain(): Specified $domain (Fully Qualified Domain Name) ":domain" does not end with the root domain ":root"', array(':domain' => $domain, ':root' => $root)), 'not-exists');
         }
 
         $subdomain = urldecode(Strings::until($domain, '.'.$root, 0, 0, true));
 
-        if($subdomain) {
-            if($ignore_start) {
+        if ($subdomain) {
+            if ($ignore_start) {
                 $ignore_start = Arrays::force($ignore_start);
 
                 foreach($ignore_start as $value) {
-                    if(substr($subdomain, 0, strlen($value)) == $value) {
+                    if (substr($subdomain, 0, strlen($value)) == $value) {
                         return false;
                     }
                 }
@@ -276,11 +276,11 @@ function inet_get_subdomain($domain = null, $root = null, $ignore_start = 'cdn,a
  * Ensure that the specified URL has a (or the specified) protocol
  */
 function ensure_protocol($url, $protocol = 'http', $force = false) {
-    if(preg_match('/^(\w{2,6}):\/\//i', $url, $matches)) {
+    if (preg_match('/^(\w{2,6}):\/\//i', $url, $matches)) {
         /*
          * The URL has a protocol
          */
-        if($force and ($matches[1] != $protocol)) {
+        if ($force and ($matches[1] != $protocol)) {
             /*
              * It has not the protocol it should have, force protocol
              */
@@ -293,7 +293,7 @@ function ensure_protocol($url, $protocol = 'http', $force = false) {
     /*
      * The URL does not have a protocol. Add one now.
      */
-    if(substr($url, 0, 2) == '//') {
+    if (substr($url, 0, 2) == '//') {
         return $protocol.':'.$url;
 
     } else {
@@ -311,20 +311,20 @@ function inet_add_query($url) {
         $queries = func_get_args();
         unset($queries[0]);
 
-        if(!$queries) {
+        if (!$queries) {
             throw new OutOfBoundsException(tr('inet_add_query(): No queries specified'), 'not-specified');
         }
 
         foreach($queries as $query) {
-            if(!$query) continue;
+            if (!$query) continue;
 
-            if(is_string($query) and strstr($query, '&')) {
+            if (is_string($query) and strstr($query, '&')) {
                 $query = explode('&', $query);
             }
 
-            if(is_array($query)) {
+            if (is_array($query)) {
                 foreach($query as $key => $value) {
-                    if(is_numeric($key)) {
+                    if (is_numeric($key)) {
                         /*
                          * $value should contain key=value
                          */
@@ -338,11 +338,11 @@ function inet_add_query($url) {
                 continue;
             }
 
-            if($query === true) {
+            if ($query === true) {
                 $query = $_SERVER['QUERY_STRING'];
             }
 
-            if($query[0] === '-') {
+            if ($query[0] === '-') {
                 /*
                  * Remove this query instead of adding it
                  */
@@ -355,19 +355,19 @@ function inet_add_query($url) {
 
             $url = Strings::endsNotWith($url, '?');
 
-            if(!preg_match('/.+?=.*?/', $query)) {
+            if (!preg_match('/.+?=.*?/', $query)) {
                 throw new OutOfBoundsException(tr('inet_add_query(): Invalid query ":query" specified. Please ensure it has the "key=value" format', array(':query' => $query)), 'invalid');
             }
 
             $key = Strings::until($query, '=');
 
-            if(strpos($url, '?') === false) {
+            if (strpos($url, '?') === false) {
                 /*
                  * This URL has no query yet, begin one
                  */
                 $url .= '?'.$query;
 
-            } elseif(strpos($url, $key.'=') !== false) {
+            } elseif (strpos($url, $key.'=') !== false) {
                 /*
                  * The query already exists in the specified URL, replace it.
                  */
@@ -402,7 +402,7 @@ function url_remove_keys($url, $keys) {
 
         foreach($query as $id => $kv) {
             foreach(Arrays::force($keys) as $key) {
-                if(Strings::until($kv, '=') == $key) {
+                if (Strings::until($kv, '=') == $key) {
                     unset($query[$id]);
 
                     /*
@@ -412,7 +412,7 @@ function url_remove_keys($url, $keys) {
             }
         }
 
-        if($query) {
+        if ($query) {
             return $url.'?'.implode('&', $query);
         }
 
@@ -437,14 +437,14 @@ function inet_dig($domain, $section = false) {
         $data = implode("\n", $data);
         $data = Strings::from($data, 'ANSWER: ');
 
-        if(Strings::until($data, ',') == '0') {
+        if (Strings::until($data, ',') == '0') {
             throw new OutOfBoundsException(tr('inet_dig(): Specified domain ":domain" was not found', array(':domain' => $domain)), 'not-exists');
         }
 
         $data   = Strings::cut(($data, "ANSWER SECTION:\n", "\n;;");
         $retval = array();
 
-        if($section) {
+        if ($section) {
             /*
              * If specific sections were requested,
              * then store those lowercased in an array for easy lookup
@@ -456,9 +456,9 @@ function inet_dig($domain, $section = false) {
         /*
          * Get A record
          */
-        if(!$section or isset($section['a'])) {
+        if (!$section or isset($section['a'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+A\s+(\d+\.\d+\.\d+\.\d+)/imsu', $data, $matches);
-            if(!empty($matches[1])) {
+            if (!empty($matches[1])) {
                 $retval['A'] = $matches[1];
             }
         }
@@ -466,9 +466,9 @@ function inet_dig($domain, $section = false) {
         /*
          * Get MX record
          */
-        if(!$section or isset($section['mx'])) {
+        if (!$section or isset($section['mx'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+MX\s+(.+?)\n/imsu', $data, $matches);
-            if(!empty($matches[1])) {
+            if (!empty($matches[1])) {
                 $retval['MX'] = $matches[1];
             }
         }
@@ -476,9 +476,9 @@ function inet_dig($domain, $section = false) {
         /*
          * Get TXT record
          */
-        if(!$section or isset($section['txt'])) {
+        if (!$section or isset($section['txt'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+TXT\s+(.+?)\n/imsu', $data, $matches);
-            if(!empty($matches[1])) {
+            if (!empty($matches[1])) {
                 $retval['TXT'] = $matches[1];
             }
         }
@@ -486,9 +486,9 @@ function inet_dig($domain, $section = false) {
         /*
          * Get SOA record
          */
-        if(!$section or isset($section['soa'])) {
+        if (!$section or isset($section['soa'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+SOA\s+(.+?)\n/imsu', $data, $matches);
-            if(!empty($matches[1])) {
+            if (!empty($matches[1])) {
                 $retval['SOA'] = $matches[1];
             }
         }
@@ -496,9 +496,9 @@ function inet_dig($domain, $section = false) {
         /*
          * Get CNAME record
          */
-        if(!$section or isset($section['cname'])) {
+        if (!$section or isset($section['cname'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+CNAME\s+(\d+\.\d+\.\d+\.\d+)\n/imsu', $data, $matches);
-            if(!empty($matches[1])) {
+            if (!empty($matches[1])) {
                 $retval['CNAME'] = $matches[1];
             }
         }
@@ -506,9 +506,9 @@ function inet_dig($domain, $section = false) {
         /*
          * Get NS record
          */
-        if(!$section or isset($section['ns'])) {
+        if (!$section or isset($section['ns'])) {
             preg_match_all('/'.cfm($domain).'.\s+\d+\s+IN\s+NS\s+(.+?)\n/imsu', $data, $matches);
-            if(!empty($matches[1])) {
+            if (!empty($matches[1])) {
                 $retval['NS'] = $matches[1];
             }
         }
@@ -544,7 +544,7 @@ function inet_get_client_data() {
         $client['latitude']  = isset_get($geodata['latitude']);
         $client['longitude'] = isset_get($geodata['longitude']);
 
-        //if(empty($client['email']) and $_CONFIG['production']) {
+        //if (empty($client['email']) and $_CONFIG['production']) {
         //    header("HTTP/1.0 404 Not Found");
         //    die('404 - Not Found');
         //}
@@ -560,7 +560,7 @@ function inet_get_client_data() {
                       'iphone'  => 'mobile',
                       'windows' => 'desktop');
 
-        if(empty($_SESSION['client'])) {
+        if (empty($_SESSION['client'])) {
             $user_agent = strtolower($client['user_agent']);
             $browsers   = array('chrome',
                                 'firefox',
@@ -571,13 +571,13 @@ function inet_get_client_data() {
                                 'opera');
 
             foreach($browsers as $browser) {
-                if(strstr($user_agent, $browser)) {
+                if (strstr($user_agent, $browser)) {
                     $client['browser'] = $browser;
                     break;
                 }
             }
 
-            if(empty($client['browser'])) {
+            if (empty($client['browser'])) {
                 $client['browser'] = 'unknown';
             }
 
@@ -587,7 +587,7 @@ function inet_get_client_data() {
             $user_agent = strtolower($client['user_agent']);
 
             foreach($oses as $os => $platform) {
-                if(strstr($user_agent, $os)) {
+                if (strstr($user_agent, $os)) {
                     $client['os']       = $os;
                     $client['platform'] = $platform;
                     break;
@@ -603,7 +603,7 @@ function inet_get_client_data() {
             $client['platform'] = (empty($_SESSION['client']['info']['ismobiledevice']) ? 'desktop' : 'mobile');
         }
 
-        if(empty($client['os'])) {
+        if (empty($client['os'])) {
             $client['os']       = 'unknown';
             $client['platform'] = 'unknown';
         }
@@ -625,14 +625,14 @@ function inet_get_client_data() {
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
- * @exception BException If the specified port is not valid
+ * @exception CoreException If the specified port is not valid
  *
  * @param natural $port
  * @return The specified port, if valid
  */
 function inet_validate_port($port, $lowest = 1025) {
     try{
-        if(!is_natural($port, $lowest) or ($port > 65535)) {
+        if (!is_natural($port, $lowest) or ($port > 65535)) {
             throw new OutOfBoundsException(tr('inet_validate_port(): Specified port ":port" is invalid', array(':port' => $port)), 'validation');
         }
 
@@ -653,7 +653,7 @@ function inet_validate_port($port, $lowest = 1025) {
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
- * @exception BException If the specified ip is not valid
+ * @exception CoreException If the specified ip is not valid
  *
  * @param natural $ip
  * @param boolean $allow_empty
@@ -666,11 +666,11 @@ function inet_validate_host($host, $allow_all = true, $exception = true) {
          */
         $valid = inet_validate_ip($host, $allow_all, false);
 
-        if(!$valid) {
+        if (!$valid) {
             return $valid;
         }
 
-        if(!filter_var($host, FILTER_VALIDATE_DOMAIN)) {
+        if (!filter_var($host, FILTER_VALIDATE_DOMAIN)) {
             throw new OutOfBoundsException(tr('inet_validate_host(): Specified host ":host" is invalid', array(':host' => $host)), 'validation');
         }
 
@@ -691,7 +691,7 @@ function inet_validate_host($host, $allow_all = true, $exception = true) {
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
- * @exception BException If the specified ip is not valid
+ * @exception CoreException If the specified ip is not valid
  *
  * @param natural $ip
  * @param boolean $allow_empty
@@ -699,22 +699,22 @@ function inet_validate_host($host, $allow_all = true, $exception = true) {
  */
 function inet_validate_ip($ip, $allow_all = true, $exception = true) {
     try{
-        if(!$ip) {
+        if (!$ip) {
             throw new OutOfBoundsException(tr('inet_validate_ip(): No ip specified'), 'validation');
         }
 
-        if(($ip === '0.0.0.0') and !$allow_all) {
+        if (($ip === '0.0.0.0') and !$allow_all) {
             throw new OutOfBoundsException(tr('inet_validate_ip(): IP "0.0.0.0" is not allowed'), 'validation');
         }
 
-        if(!filter_var($ip, FILTER_VALIDATE_IP)) {
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
             throw new OutOfBoundsException(tr('inet_validate_ip(): Specified ip ":ip" is invalid', array(':ip' => $ip)), 'validation');
         }
 
         return $ip;
 
     }catch(Exception $e) {
-        if($exception) {
+        if ($exception) {
             throw new OutOfBoundsException('inet_validate_ip(): Failed', $e);
         }
 
@@ -753,8 +753,8 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null) {
             $found_ip   = $matches[1][0];
             $found_port = $matches[2][0];
 
-            if($found_port == $port) {
-                if(!$ip or ($ip == $found_ip) or ($found_ip == '0.0.0.0')) {
+            if ($found_port == $port) {
+                if (!$ip or ($ip == $found_ip) or ($found_ip == '0.0.0.0')) {
                     /*
                      * The port / IP or the port globally is already being listened on
                      */
@@ -782,7 +782,7 @@ function inet_port_available($port, $ip = '0.0.0.0', $server = null) {
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package inet
- * @exception BException if no available port could be found in $retries amount of retries
+ * @exception CoreException if no available port could be found in $retries amount of retries
  * @see inet_port_available()
  *
  * @param string $ip
@@ -793,11 +793,11 @@ function inet_get_available_port($ip = '0.0.0.0', $server = null, $lowest = 1025
         $count = 1;
 
         while($port = rand($lowest, 65535)) {
-            if(++$count > $retries) {
+            if (++$count > $retries) {
                 throw new OutOfBoundsException(tr('inet_get_available_port(): Failed to find an available port in ":retries" retries', array(':retries' => $retries)), 'failed');
             }
 
-            if(inet_port_available($port, $ip, $server)) {
+            if (inet_port_available($port, $ip, $server)) {
                 return $port;
             }
         }

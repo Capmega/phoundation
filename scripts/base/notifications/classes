@@ -19,19 +19,19 @@ load_libs('notifications');
 /*
  *
  */
-if(!function_exists('s_set_status')) {
+if (!function_exists('s_set_status')) {
     function s_set_status($list, $status) {
         try{
             $in    = sql_in($list);
             $found = sql_list('SELECT `id` FROM `notifications_classes` WHERE `id` IN ('.implode(',', array_keys($in)).') OR `name` IN ('.implode(',', array_keys($in)).')', 'id', $in);
 
-            if(!$found) {
+            if (!$found) {
                 throw new CoreException(tr('s_set_status(): Specified notifications classes not found'));
             }
 
             $in            = sql_in($found);
 
-            if($status == 'erased') {
+            if ($status == 'erased') {
                 /*
                  * Erase instead of setting status
                  */
@@ -87,7 +87,7 @@ try{
                 $class     = cli_argument(1);
                 $old_class = sql_get('SELECT `id`, `name`, `methods`, `description` FROM `notifications_classes` WHERE `id` = :class OR `name` = :class', array(':class' => $class));
 
-                if(!$old_class) {
+                if (!$old_class) {
                     throw new CoreException(tr('The specified class "%class%" does not exist', array('%class%' => $class)), 'not-exists');
                 }
 
@@ -135,7 +135,7 @@ try{
 
                               GROUP BY  `notifications_classes`.`id`');
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 throw new CoreException(tr('No classes found'), 'notfound');
             }
 

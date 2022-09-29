@@ -4,7 +4,7 @@
  */
 sql_column_exists('servers', 'ssh_port', '!ALTER TABLE `servers` ADD COLUMN `ssh_port` VARCHAR(7) NULL DEFAULT NULL AFTER `os_name`');
 
-if(sql_column_exists('servers', 'replication_status')) {
+if (sql_column_exists('servers', 'replication_status')) {
     sql_query('ALTER TABLE `servers` MODIFY COLUMN `replication_status` ENUM("enabled", "enabling", "pausing", "resuming", "preparing", "paused", "disabled", "error") NULL DEFAULT "disabled"');
 
 } else {

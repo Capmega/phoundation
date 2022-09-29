@@ -111,8 +111,8 @@ function fonts_providers($provider = null) {
                               'fontviewer'        => false);
 
     try{
-        if($provider) {
-            if(empty($providers[$provider])) {
+        if ($provider) {
+            if (empty($providers[$provider])) {
                 throw new CoreException(tr('fonts_providers(): Unknown provider ":provider" specified'), 'unknown');
             }
 
@@ -141,7 +141,7 @@ under_construction();
         /*
          * If multiple fonts have been specified, handle them one by one
          */
-        if(is_array($params['font'])) {
+        if (is_array($params['font'])) {
             foreach($params['font'] as $font) {
                 $params['font'] = $font;
                 fonts_convert_ufpdf($params);
@@ -153,8 +153,8 @@ under_construction();
         /*
          * If no font was specified we can't continue.
          */
-        if(!$params['font']) {
-            throw(BException(zxc('fonts_convert_ufpdf(): No font specified'), 'fonts'));
+        if (!$params['font']) {
+            throw(CoreException(zxc('fonts_convert_ufpdf(): No font specified'), 'fonts'));
         }
 
         /*
@@ -162,20 +162,20 @@ under_construction();
          */
         lib_load('shell', 'fork,mv,cp');
 
-        if($params['unicode'])	lib_load_ext('ufpdf', 'tools/makefontuni');
+        if ($params['unicode'])	lib_load_ext('ufpdf', 'tools/makefontuni');
         else					lib_load_ext('fpdf' , 'tools/makefontuni');
 
         /*
          * If a font file was specified, then remove file data
          */
-        if(strpos($params['font'], '.ttf')) {
+        if (strpos($params['font'], '.ttf')) {
             $params['font'] = basename($params['font'], '.ttf');
         }
 
         /*
          * Create the font file with unicode extension
          */
-        if($params['unicode']) sh_cp($kernel->config('paths', 'var').'fonts/'.$params['font'].'.ttf', $kernel->config('paths', 'var').'fonts/'.$params['font'].'_uni.ttf');
+        if ($params['unicode']) sh_cp($kernel->config('paths', 'var').'fonts/'.$params['font'].'.ttf', $kernel->config('paths', 'var').'fonts/'.$params['font'].'_uni.ttf');
 
         /*
          * Convert ttf font file

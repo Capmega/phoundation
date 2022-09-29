@@ -33,7 +33,7 @@ function proxies_library_init() {
  */
 function proxies_insert_create($prev, $insert, $protocols, $apply) {
     try{
-        if(empty($protocols)) {
+        if (empty($protocols)) {
             throw new CoreException(tr('proxies_insert_create(): No protocols specified', array(':insert_hostname' => $insert['hostname'])), 'not-specified');
         }
 
@@ -42,11 +42,11 @@ function proxies_insert_create($prev, $insert, $protocols, $apply) {
         foreach($protocols as $protocol) {
             $data_protocol = explode(':', $protocol);
 
-            if(!isset($data_protocol[1])) {
+            if (!isset($data_protocol[1])) {
                 throw new CoreException(tr('proxies_insert_create(): Port not specified for protocol ":protocol"', array(':protocol' => $data_protocol[0])), 'invalid');
             }
 
-            if(!is_natural($data_protocol[1]) or (isset($data_protocol[1]) and $data_protocol[1] > 65535)) {
+            if (!is_natural($data_protocol[1]) or (isset($data_protocol[1]) and $data_protocol[1] > 65535)) {
                 throw new CoreException(tr('proxies_insert_create(): Invalid port ":port" specified for protocol ":protocol"', array(':port' => $data_protocol[1], ':protocol' => $data_protocol[0])), 'invalid');
             }
 
@@ -122,13 +122,13 @@ function proxies_insert_front($prev, $insert, $protocols, $apply) {
         /*
          * If there are not proxies, protocols must be specified otherwise throw exception
          */
-        if(empty($protocols)) {
+        if (empty($protocols)) {
             throw new CoreException(tr('proxies_insert_front(): No protocols specified', array(':insert_hostname' => $insert['hostname'])), 'not-specified');
         }
 
         $prev_forwardings = forwardings_list($prev['id']);
 
-        if($prev_forwardings) {
+        if ($prev_forwardings) {
             log_console(tr('Inserting at the front with forwardings for previous server'));
 
             foreach($prev_forwardings as $forwarding) {
@@ -155,7 +155,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply) {
                 /*
                  * If source port is already in use throw exception
                  */
-                if($exists) {
+                if ($exists) {
                    throw new CoreException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $default_source_port, ':host' => $insert['hostname'])), 'invalid');
                 }
 
@@ -168,7 +168,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply) {
 
                 $exists = forwardings_exists($prev_forwarding);
 
-                if($exists) {
+                if ($exists) {
                    throw new CoreException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $prev['source_port'], ':host' => $prev['hostname'])), 'invalid');
                 }
 
@@ -218,7 +218,7 @@ function proxies_insert_front($prev, $insert, $protocols, $apply) {
                 /*
                  * If source port is already in use throw exception
                  */
-                if($exists) {
+                if ($exists) {
                     throw new CoreException(tr('proxies_insert_front(): Port ":source_port" on host ":host" for protocol ":protocol" is already in use', array(':source_port' => $forwarding['source_port'], ':host' => $insert['hostname'], ':protocol' => $protocol)), 'invalid');
                 }
                 forwardings_insert($forwarding);
@@ -273,7 +273,7 @@ function proxies_insert_middle($prev, $next, $insert, $apply) {
         log_console(tr('Getting forwarding rules for next server'));
         $next_forwardings = forwardings_list($next['id']);
 
-        if(empty($next_forwardings)) {
+        if (empty($next_forwardings)) {
             throw new CoreException(tr('proxies_insert_middle(): There are not configured rule forwardings for next server, nothing to map from ":insert" server to ":next"', array(':insert' => $insert['hostname'], ':next' => $next['hostname'])), 'invalid');
         }
 
@@ -402,11 +402,11 @@ function proxies_insert($root_hostname, $insert_hostname, $target_hostname, $loc
         $next      = array();
         $prev      = array();
 
-        if($on_chain) {
+        if ($on_chain) {
             throw new CoreException(tr('proxies_insert(): Host ":insert_hostname" is already on the proxies chain', array(':insert_hostname' => $insert_hostname)), 'exists');
         }
 
-        if($root['proxies'] and $protocols) {
+        if ($root['proxies'] and $protocols) {
             throw new CoreException(tr('proxies_insert(): Protocols specified, but specified root server ":server" already has a proxy chain with its own protocols. Please do NOT specify protocols for this root server', array(':server' => $root_hostname)), 'invalid');
         }
 
@@ -414,17 +414,17 @@ function proxies_insert($root_hostname, $insert_hostname, $target_hostname, $loc
          * If there are not proxies, server must go at the front, it can no be inserted
          * before main server
          */
-        if(empty($root['proxies']) and $location == 'before') {
+        if (empty($root['proxies']) and $location == 'before') {
             throw new CoreException(tr('proxies_insert(): New host ":insert_hostname" can not be inserted before main server ":root_hostname"', array(':insert_hostname' => $insert_hostname, ':root_hostname' => $root_hostname)), 'invalid');
         }
 
         list($prev, $next) = proxies_get_prev_next_insert($root_hostname, $target_hostname, $root['proxies'], $location);
 
-        if(!empty($prev) and empty($next)) {
+        if (!empty($prev) and empty($next)) {
             /*
              * If there is not next server, inserted server goes at the front
              */
-            if(empty($root['proxies'])) {
+            if (empty($root['proxies'])) {
                 proxies_insert_create($prev, $insert, $protocols, $apply);
 
             } else {
@@ -462,14 +462,14 @@ function proxies_remove_front($prev, $remove, $apply) {
     try{
         $prev_forwardings = forwardings_list($prev['id']);
 
-        if($prev_forwardings) {
+        if ($prev_forwardings) {
             /*
              * Updating source port
              */
             foreach($prev_forwardings as $forwarding) {
                 $new_forwarding = $forwarding;
 
-                if($forwarding['protocol'] != 'ssh') {
+                if ($forwarding['protocol'] != 'ssh') {
                     $default_port = proxies_get_default_port($forwarding['protocol']);
 
                     $new_forwarding['apply']       = $apply;
@@ -497,7 +497,7 @@ function proxies_remove_front($prev, $remove, $apply) {
         log_console(tr('Removing all rules for removed server'));
         $remove_forwardings = forwardings_list($remove['id']);
 
-        if($remove_forwardings) {
+        if ($remove_forwardings) {
             forwardings_delete_list($remove_forwardings, $apply);
         }
 
@@ -528,11 +528,11 @@ function proxies_remove_middle($prev, $next, $remove, $apply) {
         $next_forwardings   = forwardings_list($next['id']);
         $remove_forwardings = forwardings_list($remove['id']);
 
-        if(empty($next_forwardings)) {
+        if (empty($next_forwardings)) {
             throw new CoreException(tr('proxies_remove_middle(): There are not forwardings rules on next server'), 'invalid');
         }
 
-        if(empty($remove_forwardings)) {
+        if (empty($remove_forwardings)) {
             throw new CoreException(tr('proxies_remove_middle(): There are not forwardings rules on remove server'), 'invalid');
         }
 
@@ -543,7 +543,7 @@ function proxies_remove_middle($prev, $next, $remove, $apply) {
             $new_forwarding = $forwarding;
 
             foreach($remove_forwardings as $index => $remove_forwarding) {
-                if($remove_forwarding['protocol'] == $forwarding['protocol']) {
+                if ($remove_forwarding['protocol'] == $forwarding['protocol']) {
                     $new_forwarding['apply']       = $apply;
                     $new_forwarding['target_id']   = $prev['id'];
                     $new_forwarding['target_ip']   = $prev['ipv4'];
@@ -594,13 +594,13 @@ function proxies_remove_middle($prev, $next, $remove, $apply) {
  */
 function proxies_remove($root_host, $remove_host, $apply = true) {
     try{
-        if(strcasecmp($root_host, $remove_host) == 0) {
+        if (strcasecmp($root_host, $remove_host) == 0) {
             throw new CoreException(tr('proxies_remove(): You can not remove host ":remove_host", it is the main host on the proxies chain', array(':remove_host' => $remove_host)), 'invalid');
         }
 
         $root = proxies_get_server($root_host, true);
 
-        if($remove_host === 'all') {
+        if ($remove_host === 'all') {
             /*
              * Flush all rules on iptables
              */
@@ -611,13 +611,13 @@ function proxies_remove($root_host, $remove_host, $apply = true) {
 
         $remove = proxies_get_server($remove_host);
 
-        if(empty($root['proxies'])) {
+        if (empty($root['proxies'])) {
             throw new CoreException(tr('proxies_remove(): Root host ":root_host" does not have proxies chain', array(':root_host' => $root_host)), 'not-exists');
         }
 
         $host_on_chain = proxies_validate_on_chain($root['proxies'], $remove_host);
 
-        if(!$host_on_chain) {
+        if (!$host_on_chain) {
             throw new CoreException(tr('proxies_remove(): Host ":remove_host" is not on the proxies chain', array(':remove_host' => $remove_host)), 'not-exists');
         }
 
@@ -626,7 +626,7 @@ function proxies_remove($root_host, $remove_host, $apply = true) {
          */
         list($prev, $next) = proxies_get_prev_next_remove($root, $remove, $root['proxies']);
 
-        if(!empty($prev) and empty($next)) {
+        if (!empty($prev) and empty($next)) {
             proxies_remove_front($prev, $remove, $apply);
 
         } else {
@@ -653,11 +653,11 @@ function proxies_get_prev_next_remove($root_server, $remove_server, $proxies) {
         $next = array();
 
         foreach($proxies as $position => $proxy) {
-            if($proxy['hostname'] == $remove_server['hostname']) {
+            if ($proxy['hostname'] == $remove_server['hostname']) {
                 /*
                  * Getting prev server
                  */
-                if(isset($proxies[$position - 1])) {
+                if (isset($proxies[$position - 1])) {
                     $prev = proxies_get_server($proxies[$position - 1]['id']);
 
                 } else {
@@ -667,7 +667,7 @@ function proxies_get_prev_next_remove($root_server, $remove_server, $proxies) {
                 /*
                  * Getting next server
                  */
-                if(isset($proxies[$position + 1])) {
+                if (isset($proxies[$position + 1])) {
                     $next = proxies_get_server($proxies[$position + 1]['id']);
                 }
 
@@ -699,7 +699,7 @@ function proxies_get_prev_next_insert($root_hostname, $target_hostname, $proxies
 
         switch($location) {
             case 'before':
-                if($root_hostname == $target_hostname) {
+                if ($root_hostname == $target_hostname) {
                     throw new CoreException(tr('proxies_get_prev_next_insert(): Server can not be inserted before main host', array(':location' => $location)), 'unkown');
                 }
 
@@ -707,8 +707,8 @@ function proxies_get_prev_next_insert($root_hostname, $target_hostname, $proxies
                 $proxies = array_reverse($proxies);
 
                 foreach($proxies as $position => $proxy) {
-                    if($proxy['hostname'] == $target_hostname) {
-                        if(isset($proxies[$position + 1 ])) {
+                    if ($proxy['hostname'] == $target_hostname) {
+                        if (isset($proxies[$position + 1 ])) {
                             $prev = proxies_get_server($proxies[$position + 1 ]['id']);
 
                         } else {
@@ -724,13 +724,13 @@ function proxies_get_prev_next_insert($root_hostname, $target_hostname, $proxies
             case 'after':
                 $prev = proxies_get_server($target_hostname);
 
-                if(($root_hostname == $target_hostname) and !empty($proxies)) {
+                if (($root_hostname == $target_hostname) and !empty($proxies)) {
                     $next = $proxies[0];
 
                 } else {
                     foreach($proxies as $position => $proxy) {
-                        if($target_hostname == $proxy['hostname']) {
-                            if(isset($root['proxies'][$position + 1])) {
+                        if ($target_hostname == $proxy['hostname']) {
+                            if (isset($root['proxies'][$position + 1])) {
                                 $next = $root['proxies'][$position + 1];
                             }
 
@@ -765,7 +765,7 @@ function proxies_get_server($host, $return_proxies = false) {
     try{
         $server = servers_get($host, false, $return_proxies);
 
-        if(empty($server)) {
+        if (empty($server)) {
             throw new CoreException(tr('proxies_get_server(): No server found for host ":host"', array(':host' => $host)), 'not-exists');
         }
 
@@ -788,7 +788,7 @@ function proxies_get_server($host, $return_proxies = false) {
 function proxies_validate_on_chain($proxies, $search_hostname) {
     try{
         foreach($proxies as $proxy) {
-            if($proxy['hostname'] == $search_hostname) {
+            if ($proxy['hostname'] == $search_hostname) {
                 return true;
             }
         }
@@ -811,7 +811,7 @@ function proxies_validate_on_chain($proxies, $search_hostname) {
  */
 function proxies_validate_location($location) {
     try{
-        if(empty($location)) {
+        if (empty($location)) {
             throw new CoreException(tr('proxies_validate_location(): Location not specified'), 'not-specified');
         }
 
@@ -843,7 +843,7 @@ function proxies_validate_location($location) {
  */
 function proxies_get_default_port($protocol) {
     try{
-        if(empty($protocol)) {
+        if (empty($protocol)) {
             throw new CoreException(tr('proxies_get_default_port(): Protocol not specified'), 'not-specified');
         }
 
@@ -877,7 +877,7 @@ function proxies_get_default_port($protocol) {
  */
 function proxies_validate_protocol($protocol) {
     try{
-        if(empty($protocol)) {
+        if (empty($protocol)) {
             throw new CoreException(tr('proxies_validate_protocol(): No protocol specified'), 'not-specified');
         }
 

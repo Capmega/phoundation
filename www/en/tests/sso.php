@@ -4,14 +4,14 @@
  */
 require_once(__DIR__.'/../libs/startup.php');
 
-if(ENVIRONMENT == 'production') {
+if (ENVIRONMENT == 'production') {
 	page_show(404);
 }
 
 /*
  * FROM HERE BE TESTS!
  */
-if(empty($_GET['provider'])) {
+if (empty($_GET['provider'])) {
 ?>
 <ul>
 	<li>
@@ -48,7 +48,7 @@ if(empty($_GET['provider'])) {
 
 		echo '<h1>Successful loging with provider "'.$_GET['provider'].'"</h1><ul>';
 
-		if($_GET['provider'] == 'paypal') {
+		if ($_GET['provider'] == 'paypal') {
 			echo 'NOTE: paypal does not seem to return a token';
 		}
 

@@ -180,13 +180,13 @@ function chat_update_user($user) {
 
                             'chat');
 
-        if(!$r->rowCount()) {
+        if (!$r->rowCount()) {
             /*
              * This means either no data has been changed, or the specified ID doesn't exist.
              * The former is okay, the latter should never happen.
              */
-            if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']), 'chat')) {
-                if($fail) {
+            if (!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']), 'chat')) {
+                if ($fail) {
                     /*
                      * > first failure, notify of failure
                      */
@@ -239,7 +239,7 @@ function chat_validate_user($user) {
         /*
          * Validate alt_name
          */
-        if(empty($user['alt_name'])) {
+        if (empty($user['alt_name'])) {
             $user['alt_name'] = '';
 
         } else {
@@ -252,7 +252,7 @@ function chat_validate_user($user) {
         /*
          * Validate user_name
          */
-        if(empty($user['user_name'])) {
+        if (empty($user['user_name'])) {
             $user['user_name'] = '';
 
         } else {
@@ -265,7 +265,7 @@ function chat_validate_user($user) {
         /*
          * Validate user_email
          */
-        if(empty($user['user_email'])) {
+        if (empty($user['user_email'])) {
             $user['user_email'] = '';
 
         } else {
@@ -280,10 +280,10 @@ function chat_validate_user($user) {
         /*
          * Set rank
          */
-        if(has_rights('admin', $user)) {
+        if (has_rights('admin', $user)) {
             $user['rank'] = 5;
 
-        } elseif(has_rights('moderator', $user)) {
+        } elseif (has_rights('moderator', $user)) {
             $user['rank'] = 3;
 
         } else {
@@ -320,7 +320,7 @@ function chat_start($user) {
     global $_CONFIG;
 
     try{
-        if(!$user) {
+        if (!$user) {
             /*
              * This user doesnt exist yet
              */
@@ -367,10 +367,10 @@ function chat_end($userid) {
  */
 function chat_update_rank($user) {
     try{
-        if(has_rights('god', $user)) {
+        if (has_rights('god', $user)) {
             $rank = 5;
 
-        } elseif(has_rights('moderator', $user)) {
+        } elseif (has_rights('moderator', $user)) {
             $rank = 3;
 
         } else {
@@ -386,12 +386,12 @@ function chat_update_rank($user) {
                         array(':user_id'   => $user['id'],
                               ':user_rank' => $rank), null, 'chat');
 
-        if(!$r->rowCount()) {
+        if (!$r->rowCount()) {
             /*
              * This means either no data has been changed, or the specified ID doesn't exist.
              * The former is okay, the latter should never happen.
              */
-            if(!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']))) {
+            if (!sql_get('SELECT `user_id` FROM `users` WHERE `user_id` = :user_id', 'user_id', array(':user_id' => $user['id']))) {
                 load_libs('user');
                 throw new CoreException(tr('chat_update_rank(): Specified user ":user" does not exist', array(':user' => name($user))), 'not-exists');
             }
@@ -420,7 +420,7 @@ function chat_sync_users($user, $log_console = false) {
 
         while($user = sql_fetch($r)) {
             try{
-                if(!$chat_user = $s->execute(array(':user_id' => $user['id']))) {
+                if (!$chat_user = $s->execute(array(':user_id' => $user['id']))) {
                     chat_add_user($user);
 
                 } else {

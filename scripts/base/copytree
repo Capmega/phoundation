@@ -40,33 +40,33 @@ foreach($argv as $id => $arg) {
     }
 }
 
-if(empty($source)) {
+if (empty($source)) {
     log_console('No source specified', 'red');
     $error = 2;
 }
 
-if(empty($destination)) {
+if (empty($destination)) {
     log_console('No destination specified', 'red');
     $error = 3;
 }
 
-if(empty($search)) {
+if (empty($search)) {
     $search = '';
 }
 
-if(empty($replace)) {
+if (empty($replace)) {
     $replace = '';
 }
 
-if(empty($extensions)) {
+if (empty($extensions)) {
     $extensions = '';
 }
 
-if(empty($filemode)) {
+if (empty($filemode)) {
     $filemode = false;
 }
 
-if(isset($error)) {
+if (isset($error)) {
     cli_die('Example: copytree /etc/apache2 apache2 192.167 192.168', $error);
 }
 

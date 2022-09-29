@@ -79,7 +79,7 @@ function paypal_change_subscription_status($profile_id, $action='Cancel') {
                 .  '&NOTE=' . urlencode(tr('Profile cancelled on website'));
 
         $ch = curl_init();
-        if(paypal_version()=='sandbox') {
+        if (paypal_version()=='sandbox') {
             curl_setopt( $ch, CURLOPT_URL, 'https://api-3t.sandbox.paypal.com/nvp' );
         } else {
             curl_setopt( $ch, CURLOPT_URL, 'https://api-3t.paypal.com/nvp' );
@@ -99,7 +99,7 @@ function paypal_change_subscription_status($profile_id, $action='Cancel') {
         $response = curl_exec( $ch );
 
         // If no response was received from PayPal there is no point parsing the response
-        if( ! $response ) {
+        if ( ! $response ) {
             throw new CoreException('paypal_change_subscription_status(): Failed ' . curl_error( $ch ) . '(' . curl_errno( $ch ) . ')', '');
         }
 
@@ -178,11 +178,11 @@ function paypal_ipn_log() {
 
     try{
         //they can submit with post and get
-        if(empty($_POST)) {
+        if (empty($_POST)) {
             $_POST=$_GET;
         }
 
-        if(!empty($_POST['txn_type']) && paypal_check_ipn_request()) {
+        if (!empty($_POST['txn_type']) && paypal_check_ipn_request()) {
             sql_query("insert into paypal_payments (custom,item_number,subscr_id,buyer_email,txn_type,currency_code,amount,logdate,raw_paypal_data,payment_status) values ('".cfm(isset_get($_POST['custom']))."','".cfm(isset_get($_POST['item_number']))."','".cfm(isset_get($_POST['subscr_id']))."','".cfm(isset_get($_POST['payer_email']))."','".cfm(isset_get($_POST['txn_type']))."','".cfm(isset_get($_POST['memcached_currency']))."','".cfm(isset_get($_POST['memcached_gross']))."',".time().",'".cfm(json_encode_custom($_POST))."','".cfm(isset_get($_POST['payment_status']))."');");
             return $_POST;
         } else {
@@ -212,7 +212,7 @@ function paypal_check_ipn_request() {
         $header = "POST /cgi-bin/webscr HTTP/1.1\r\n";
         $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
 
-        if(paypal_version()=='sandbox') {
+        if (paypal_version()=='sandbox') {
             $header .= "Host: www.sandbox.paypal.com\r\n";
         } else {
             $header .= "Host: www.paypal.com\r\n";
@@ -222,7 +222,7 @@ function paypal_check_ipn_request() {
         $header .= "Connection: close\r\n\r\n";
 
         //Open a socket for the acknowledgement request
-        if(paypal_version()=='sandbox') {
+        if (paypal_version()=='sandbox') {
             $fp = fsockopen ('ssl://www.sandbox.paypal.com', 443, $errno, $errstr, 30);
         } else {
             $fp = fsockopen ('ssl://www.paypal.com', 443, $errno, $errstr, 30);
@@ -232,9 +232,9 @@ function paypal_check_ipn_request() {
         while (!feof($fp)) {                     // While not EOF
             $res = trim(fgets ($fp, 1024));
 
-            if($res=='VERIFIED') {
+            if ($res=='VERIFIED') {
                 return true;
-            } elseif($res=='INVALID') {
+            } elseif ($res=='INVALID') {
                 throw new CoreException('paypal_check_ipn_request(): Returned FALSE', '');
             }
         }

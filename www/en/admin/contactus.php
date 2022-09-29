@@ -16,7 +16,7 @@ switch(isset_get($_POST['doaction'])) {
             /*
              * Delete the specified contact messages
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No contact messages selected to delete', 'notspecified');
             }
 
@@ -28,7 +28,7 @@ switch(isset_get($_POST['doaction'])) {
 
                        $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Deleted %count% contact messages', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -46,7 +46,7 @@ switch(isset_get($_POST['doaction'])) {
             /*
              * Delete the specified contact messages
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No contact messages selected to undelete', 'notspecified');
             }
 
@@ -58,7 +58,7 @@ switch(isset_get($_POST['doaction'])) {
 
                        $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Undeleted %count% contact messages', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -76,7 +76,7 @@ switch(isset_get($_POST['doaction'])) {
             /*
              * Delete the specified contact messages
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No contact messages selected to erase', 'notspecified');
             }
 
@@ -84,7 +84,7 @@ switch(isset_get($_POST['doaction'])) {
 
             $r = sql_query('DELETE FROM `contactus` WHERE `status` = "deleted" AND `id` IN ('.implode(', ', array_keys($list)).')', $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Erased %count% contact messages', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -110,7 +110,7 @@ $r = sql_query('SELECT `contactus`.`id`,
 
                 FROM   `contactus`');
 
-if(!$r->rowCount()) {
+if (!$r->rowCount()) {
     $html .= '<tr><td>'.tr('There are no contact messages yet').'</td></tr>';
 
 } else {
@@ -130,7 +130,7 @@ if(!$r->rowCount()) {
 
 $html .= '</table>';
 
-if($r->rowCount()) {
+if ($r->rowCount()) {
     $html .= '<input type="submit" name="doaction" value="'.tr('Delete').'">
               <input type="submit" name="doaction" value="'.tr('Undelete').'">
               <input type="submit" name="doaction" value="'.tr('Erase').'">';

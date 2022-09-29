@@ -42,7 +42,7 @@ function audio_library_init() {
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package audio
- * @BException not-exists Thrown when the specified audio class does not exist
+ * @CoreException not-exists Thrown when the specified audio class does not exist
  *
  * @param string $class
  * @return boolean True if the audio file was played, false if the audio file was not played
@@ -51,7 +51,7 @@ function audio_play($class = null) {
     global $_CONFIG;
 
     try{
-        if($_CONFIG['audio']['quiet']) {
+        if ($_CONFIG['audio']['quiet']) {
             /*
              * We're running quiet mode, do not play any audio!
              */
@@ -61,14 +61,14 @@ function audio_play($class = null) {
         /*
          * Check if there is no given class
          */
-        if(!$class) {
+        if (!$class) {
             $class = $_CONFIG['audio']['default'];
         }
 
         /*
          * Check if given class is in CONFIG[audio]
          */
-        if(empty($_CONFIG['audio']['classes'][$class])) {
+        if (empty($_CONFIG['audio']['classes'][$class])) {
             throw new CoreException(tr('audio_play(): This audio class does not exist ":class"', array(':class' => $class)), 'not-exists');
         }
 
@@ -77,14 +77,14 @@ function audio_play($class = null) {
         /*
          * Check if audio file exists
          */
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
             throw new CoreException(tr('audio_play(): This audio file does not exist ":file"', array(':file' => $file)), 'audio');
         }
 
         /*
          * Detect if the audio is gonna be played local or remote
          */
-        if(!getenv('SSH_CLIENT')) {
+        if (!getenv('SSH_CLIENT')) {
             /*
              * Play the audio local
              */

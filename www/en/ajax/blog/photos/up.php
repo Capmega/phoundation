@@ -9,7 +9,7 @@ try{
      */
     $user = rights_or_access_denied('admin', '/admin/signin.php', 'json');
 
-    if(empty($_POST['id'])) {
+    if (empty($_POST['id'])) {
         throw new CoreException('ajax/blog/photos/delete: No photo specified', 'notspecified');
     }
 
@@ -22,11 +22,11 @@ try{
 
                         WHERE  `blogs_photos`.`id` = '.cfi($_POST['id']));
 
-    if(empty($photo['id'])) {
+    if (empty($photo['id'])) {
         throw new CoreException('ajax/blog/photos/delete: Unknown photo_id "'.str_log($_POST['id']).'" specified', 'unknown');
     }
 
-    if(($photo['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+    if (($photo['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
         throw new CoreException('ajax/blog/photos/delete: This photo does not belong to you.', 'accessdenied');
     }
 
@@ -34,7 +34,7 @@ try{
     /*
      * Switch priorities of this entry and the entry with prio -1
      */
-    if($photo['priority'] > 0) {
+    if ($photo['priority'] > 0) {
         sql_query('START TRANSACTION');
             sql_query('UPDATE `blogs_photos` SET `priority` = (`priority` + 1) WHERE `blogs_posts_id` = :blogs_posts_id AND `priority` = :priority', array(':blogs_posts_id' => $photo['blogs_posts_id'], ':priority' => $photo['priority'] - 1));
             sql_query('UPDATE `blogs_photos` SET `priority` = (`priority` - 1) WHERE `id`             = :id'                                       , array(':id'             => $photo['id']));

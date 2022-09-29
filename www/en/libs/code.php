@@ -59,23 +59,23 @@ function code_locate_phoundation() {
     static $found;
 
     try{
-        if(!$found) {
+        if (!$found) {
             $paths = array(ROOT.'../phoundation/',
                            ROOT.'../../phoundation/',
                            '/var/www/html/phoundation/');
 
             $home = getenv('HOME');
 
-            if($home) {
+            if ($home) {
                 $paths[] = Strings::slash($home).'projects/phoundation/';
             }
 
             foreach($paths as $path) {
-                if(file_exists($path)) {
+                if (file_exists($path)) {
                     /*
                      * Found something with the correct name!
                      */
-                    if(git_is_repository($path)) {
+                    if (git_is_repository($path)) {
                         /*
                          * Its a git repository too!
                          * Check if its really the Phoundation repository by
@@ -87,7 +87,7 @@ function code_locate_phoundation() {
                             $found  = Strings::slash(realpath($path));
 
                         }catch(Exception $e) {
-                            if($e->getCode() == 128) {
+                            if ($e->getCode() == 128) {
                                 /*
                                  * The Phoundation initial commit does not
                                  * exist, this is not the Phoundation project!
@@ -105,7 +105,7 @@ function code_locate_phoundation() {
 
         }
 
-        if(!$found) {
+        if (!$found) {
             throw new CoreException(tr('code_locate_phoundation(): Failed to find the Phoundation project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
         }
 
@@ -135,23 +135,23 @@ function code_locate_toolkit() {
     static $found;
 
     try{
-        if(!$found) {
+        if (!$found) {
             $paths = array(ROOT.'../toolkit.capmega.com/',
                            ROOT.'../../capmega/toolkit.capmega.com/',
                            '/var/www/html/capmega/toolkit.capmega.com/');
 
             $home = getenv('HOME');
 
-            if($home) {
+            if ($home) {
                 $paths[] = Strings::slash($home).'projects/toolkit.capmega.com/';
             }
 
             foreach($paths as $path) {
-                if(file_exists($path)) {
+                if (file_exists($path)) {
                     /*
                      * Found something with the correct name!
                      */
-                    if(git_is_repository($path)) {
+                    if (git_is_repository($path)) {
                         /*
                          * Its a git repository too!
                          * Check if its really the Toolkit repository by
@@ -162,7 +162,7 @@ function code_locate_toolkit() {
                             $found  = Strings::slash(realpath($path));
 
                         }catch(Exception $e) {
-                            if($e->getCode() == 128) {
+                            if ($e->getCode() == 128) {
                                 /*
                                  * The Toolkit initial commit does not
                                  * exist, this is not the Toolkit project!
@@ -180,7 +180,7 @@ function code_locate_toolkit() {
 
         }
 
-        if(!$found) {
+        if (!$found) {
             throw new CoreException(tr('code_locate_toolkit(): Failed to find the Toolkit project in any of the search paths ":paths"', array(':paths' => $paths)), 'warning/not-exists');
         }
 
@@ -276,11 +276,11 @@ function code_phoundation_pull($remote = 'origin', $branch = null) {
     }catch(Exception $e) {
         $data = $e->getData();
 
-        if($data) {
+        if ($data) {
             $data  = implode(' ', $data);
             $match = preg_match('/You asked to pull from the remote \'[a-z0-9-_]+\', but did not specify a branch\. Because this is not the default configured remote for your current branch, you must specify a branch on the command line\./', $data);
 
-            if($match) {
+            if ($match) {
                 throw new CoreException(tr('code_phoundation_pull(): No Phoundation remote branch was specified and the current branch ":branch" has no upstream / default remote branch specified', array(':branch' => git_branch())), 'not-specified');
             }
         }
@@ -602,7 +602,7 @@ function code_get_branch_lines($path = ROOT) {
         $branches = git_list_branches($path, true);
 
         foreach($branches as $id => $branch) {
-            if(!str_is_version($branch.'.0')) {
+            if (!str_is_version($branch.'.0')) {
                 unset($branches[$id]);
             }
         }
@@ -640,7 +640,7 @@ function code_get_available_lines($path = ROOT) {
         foreach($tags as $tag) {
             $version = Strings::from($tag, 'v');
 
-            if(str_is_version($version)) {
+            if (str_is_version($version)) {
                 $version  = code_get_version_line($version);
                 $retval[] = $version;
             }
@@ -676,7 +676,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null) {
         $tags   = git_list_tags($path);
         $retval = array();
 
-        if($version_lines) {
+        if ($version_lines) {
             $version_lines = Arrays::force($version_lines);
         }
 
@@ -684,10 +684,10 @@ function code_get_available_versions($path = ROOT, $version_lines = null) {
             $tag     = strtolower($tag);
             $version = Strings::from($tag, 'v');
 
-            if(str_is_version($version)) {
+            if (str_is_version($version)) {
                 $line = code_get_version_line($version);
 
-                if(empty($version_lines) or in_array($line, $version_lines)) {
+                if (empty($version_lines) or in_array($line, $version_lines)) {
                     $retval[] = $version;
                 }
             }
@@ -719,14 +719,14 @@ function code_get_framework_version($path = ROOT) {
     try{
         $file = Strings::slash($path).'libs/system.php';
 
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
             throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data   = file_get_contents($file);
         $exists = preg_match_all('/define\(\'FRAMEWORKCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
 
-        if(!$exists) {
+        if (!$exists) {
             throw new CoreException(tr('code_get_framework_version(): Failed to extract project framework version from system library file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
         }
 
@@ -756,7 +756,7 @@ function code_update_framework_version($version, $path = ROOT) {
     try{
         $file = Strings::slash($path).'libs/system.php';
 
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
             throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
@@ -789,14 +789,14 @@ function code_get_project_version($path = ROOT) {
     try{
         $file = Strings::slash($path).'config/project.php';
 
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
             throw new CoreException(tr('code_get_project_version(): No project configuration file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
         }
 
         $data   = file_get_contents($file);
         $exists = preg_match_all('/define\(\'PROJECTCODEVERSION\',\s+\'(\d+\.\d+\.\d+)\'\);/', $data, $matches);
 
-        if(!$exists) {
+        if (!$exists) {
             throw new CoreException(tr('code_get_project_version(): Failed to extract project code version from project file of Phoundation project in specified path ":path"', array(':path' => $path)), 'failed');
         }
 
@@ -978,15 +978,15 @@ function code_patch($params) {
 
         Restrict::restrict($params);
 
-        if(!$params['target_path']) {
+        if (!$params['target_path']) {
             throw new CoreException(tr('code_patch(): No target path specified'), 'empty');
         }
 
-        if(!file_exists($params['source_path'])) {
+        if (!file_exists($params['source_path'])) {
             throw new CoreException(tr('code_patch(): Specified source path ":source" does not exist', array(':source' => $params['source_path'])), 'not-exist');
         }
 
-        if(!file_exists($params['target_path'])) {
+        if (!file_exists($params['target_path'])) {
             throw new CoreException(tr('code_patch(): Specified target path ":target" does not exist', array(':target' => $params['target_path'])), 'not-exist');
         }
 
@@ -1006,18 +1006,18 @@ function code_patch($params) {
             case 'patch':
                 log_console(tr('Trying to patch ":file"', array(':file' => $params['file'])), 'VERBOSE/cyan');
 
-                if(file_exists($params['target_path'].$params['file'])) {
+                if (file_exists($params['target_path'].$params['file'])) {
                     /*
                      * The target file exists. Send the changed by patch
                      */
                     $patch      = git_diff($params['source_path'].$params['file']);
                     $patch_file = Strings::slash($params['target_path']).sha1($params['file']).'.patch';
 
-                    if(empty($patch)) {
+                    if (empty($patch)) {
                         throw new CoreException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $params['file'])), 'empty');
                     }
 
-                    if($params['replaces']) {
+                    if ($params['replaces']) {
                         /*
                          * Perform a search / replace on the patch data
                          */
@@ -1028,7 +1028,7 @@ function code_patch($params) {
 
                     file_put_contents($patch_file, implode("\n", $patch)."\n");
 
-                    if($params['method'] == 'create') {
+                    if ($params['method'] == 'create') {
                         /*
                          * Don't actually apply the patch
                          */
@@ -1036,7 +1036,7 @@ function code_patch($params) {
                     } else {
                         git_apply($patch_file);
 
-                        if($params['clean']) {
+                        if ($params['clean']) {
                             file_delete($patch_file, $params['restrictions']);
                         }
                     }

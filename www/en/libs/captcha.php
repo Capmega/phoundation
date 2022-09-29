@@ -55,18 +55,18 @@ function captcha_html($class = null) {
     global $_CONFIG;
 
     try{
-        if($_CONFIG['captcha']['enabled']) {
+        if ($_CONFIG['captcha']['enabled']) {
             return '';
         }
 
-        if((empty($_CONFIG['captcha']['public']) or empty($_CONFIG['captcha']['private']))) {
+        if ((empty($_CONFIG['captcha']['public']) or empty($_CONFIG['captcha']['private']))) {
             throw new CoreException(tr('captcha_html(): No captcha public apikey specified'), 'not-specified');
         }
 
         /*
          * Ensure we have a locally hosted copy of this file
          */
-        if(!file_exists(ROOT.'pub/js/recaptcha/api.js')) {
+        if (!file_exists(ROOT.'pub/js/recaptcha/api.js')) {
             $file = download('https://www.google.com/recaptcha/api.js');
 
             file_execute_mode(ROOT.'pub/js/', 0770, function() use ($file) {
@@ -108,25 +108,25 @@ function captcha_verify_response($captcha) {
     global $_CONFIG;
 
     try{
-        if(!$_CONFIG['captcha']['enabled']) {
+        if (!$_CONFIG['captcha']['enabled']) {
             /*
              * Use no captcha
              */
             return false;
         }
 
-        if((empty($_CONFIG['captcha']['public']) or empty($_CONFIG['captcha']['private']))) {
+        if ((empty($_CONFIG['captcha']['public']) or empty($_CONFIG['captcha']['private']))) {
             throw new CoreException(tr('captcha_verify_response(): No captcha public apikey specified'), 'not-specified');
         }
 
-        if(empty($captcha)) {
+        if (empty($captcha)) {
             throw new CoreException('Please verify the captcha', 'captcha');
         }
 
         $response = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$_CONFIG['captcha']['private'].'&response='.$captcha.'&remoteip='.$_SERVER['REMOTE_ADDR']);
         $response = json_decode($response, true);
 
-        if(!$response['success']) {
+        if (!$response['success']) {
             throw new CoreException('captcha_verify_response(): Recaptcha is not valid', 'captcha');
         }
 

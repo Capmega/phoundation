@@ -14,7 +14,7 @@ load_libs('test');
 //    $results = script_exec('tests/echo');
 //    $results = array_shift($results);
 //
-//    if($results !== '1') {
+//    if ($results !== '1') {
 //        throw new CoreException(tr('script_exec() returned unexpected results. Expected "1" but received ":results" instead', array(':results' => $results)), 'unexpected');
 //    }
 //});

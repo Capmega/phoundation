@@ -44,7 +44,7 @@ function themify_select($params) {
         array_params($params);
 
         $html = cache_read('select'.isset_get($params['selected']), 'themify');
-        if($html) return $html;
+        if ($html) return $html;
 
         load_libs('html');
 

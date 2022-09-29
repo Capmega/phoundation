@@ -20,7 +20,7 @@
     $application_line = __LINE__;
     $client->client_secret = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
 
-    if(strlen($client->client_id) == 0
+    if (strlen($client->client_id) == 0
     || strlen($client->client_secret) == 0)
         die('invalid client id or secret key');
 
@@ -28,16 +28,16 @@
      */
 
     $client->scope = '';
-    if(($success = $client->Initialize()))
+    if (($success = $client->Initialize()))
     {
-        if(($success = $client->Process()))
+        if (($success = $client->Process()))
         {
-            if(strlen($client->authorization_error))
+            if (strlen($client->authorization_error))
             {
                 $client->error = $client->authorization_error;
                 $success = false;
             }
-            elseif(strlen($client->access_token))
+            elseif (strlen($client->access_token))
             {
                 $success = $client->CallAPI(
                     'https://api.bitbucket.org/1.0/user/',
@@ -49,9 +49,9 @@
         }
         $success = $client->Finalize($success);
     }
-    if($client->exit)
+    if ($client->exit)
         exit;
-    if($success)
+    if ($success)
     {
         session_start();
         $_SESSION['userdata']=$user;

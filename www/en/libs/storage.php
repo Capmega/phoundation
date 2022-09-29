@@ -32,20 +32,20 @@
  */
 function storage_url($url, $section = null, $page = null, $language = null) {
     try{
-        if(!$language) {
+        if (!$language) {
             $language = LANGUAGE;
         }
 
         $url = str_replace(':language', $language, $url);
 
-        if($section) {
+        if ($section) {
             $url = str_replace(':seosection', $section['seoname'], $url);
 
         } else {
             $url = str_replace(':seosection', '', $url);
         }
 
-        if($page and !empty($page['seoname'])) {
+        if ($page and !empty($page['seoname'])) {
             $url = str_replace(':seodocument', $page['seoname'], $url);
 
         } else {
@@ -67,7 +67,7 @@ function storage_url($url, $section = null, $page = null, $language = null) {
  */
 function storage_ensure_section($section) {
     try{
-        if(is_array($section)) {
+        if (is_array($section)) {
             return $section;
         }
 

@@ -61,7 +61,7 @@ function go_exists($file, $server = null) {
     try{
         $exists = linux_file_exists($server, ROOT.'data/go/'.$file, $server);
 
-        if(!$exists) {
+        if (!$exists) {
             linux_ensure_path($server, ROOT.'data/go/');
         }
 
@@ -104,15 +104,15 @@ function go_exec($params) {
          * Validate the requested commands, ensure that go_exec() is only used
          * when the system is ready to go
          */
-        if(!$core->register['ready']) {
+        if (!$core->register['ready']) {
             throw new CoreException(tr('go_exec(): Startup has not yet finished and base is not ready to start working properly. go_exec() may not be called until configuration is fully loaded and available'), 'not-ready');
         }
 
-        if(!$params['commands']) {
+        if (!$params['commands']) {
             throw new CoreException(tr('go_exec(): No commands specified'), 'not-specified');
         }
 
-        if(!is_array($params['commands'])) {
+        if (!is_array($params['commands'])) {
             throw new CoreException(tr('go_exec(): Invalid commands specified'), 'invalid');
         }
 
@@ -126,11 +126,11 @@ function go_exec($params) {
         $count = 0;
 
         foreach($params['commands'] as $id => &$item) {
-            if(fmod(++$count, 2)) {
+            if (fmod(++$count, 2)) {
                 /*
                  * This must be a go command
                  */
-                if(!is_string($item)) {
+                if (!is_string($item)) {
                     throw new CoreException(tr('go_exec(): Invalid commands structure specified, entry ":id" is an ":datatype" while it should be a string. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
                 }
 
@@ -141,7 +141,7 @@ function go_exec($params) {
                 /*
                  * These must be arguments
                  */
-                if(!is_array($item)) {
+                if (!is_array($item)) {
                     throw new CoreException(tr('go_exec(): Invalid commands structure specified, entry ":id" is a ":datatype" while it should be an array. Please ensure that $params[commands] is an array containing values with datatype string, array, string, array, etc', array(':id' => $id, ':datatype' => gettype($item))), 'invalid');
                 }
             }
@@ -183,7 +183,7 @@ function go_build($path, $server) {
     try{
         $server = servers_get($server);
 
-        if(!linux_file_exists($server, $path)) {
+        if (!linux_file_exists($server, $path)) {
             throw new CoreException(tr('go_build(): Specified build path ":path" does not exist on server ":server"', array(':path' => $path, ':server' => $server)), 'not-exist');
         }
 

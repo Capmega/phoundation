@@ -68,11 +68,11 @@ function projects_validate($project, $reload_only = false) {
         /*
          * Validate category
          */
-        if($project['seocategory']) {
+        if ($project['seocategory']) {
             load_libs('categories');
             $project['categories_id'] = categories_get($project['seocategory'], 'id', null, $_CONFIG['projects']['categories_parent']);
 
-            if(!$project['categories_id']) {
+            if (!$project['categories_id']) {
                 $v->setError(tr('Specified category does not exist'));
             }
 
@@ -83,19 +83,19 @@ function projects_validate($project, $reload_only = false) {
         /*
          * Validate customer
          */
-        if($project['seocustomer']) {
+        if ($project['seocustomer']) {
             load_libs('customers');
             $project['customers_id'] = customers_get(array('columns' => 'id',
                                                            'filters' => array('seoname' => $project['seocustomer'])));
 
-            if(!$project['customers_id']) {
+            if (!$project['customers_id']) {
                 $v->setError(tr('Specified customer does not exist'));
             }
 
         } else {
             $project['customers_id'] = null;
 
-            if(!$reload_only) {
+            if (!$reload_only) {
                 $v->setError(tr('No customer specified'));
             }
         }
@@ -103,17 +103,17 @@ function projects_validate($project, $reload_only = false) {
         /*
          * Validate process
          */
-        if($project['seoprocess']) {
+        if ($project['seoprocess']) {
             $project['processes_id'] = progress_get_process($project['seoprocess'], 'id');
 
-            if(!$project['processes_id']) {
+            if (!$project['processes_id']) {
                 $v->setError(tr('The specified process does not exist'));
             }
 
-            if($project['seostep']) {
+            if ($project['seostep']) {
                 $project['steps_id'] = progress_get_step($project['processes_id'], $project['seostep'], 'id');
 
-                if(!$project['steps_id']) {
+                if (!$project['steps_id']) {
                     $v->setError(tr('The specified step does not exist for this process'));
                 }
 
@@ -131,14 +131,14 @@ function projects_validate($project, $reload_only = false) {
 
         $v->isValid();
 
-        if($reload_only) {
+        if ($reload_only) {
             return $project;
         }
 
         /*
          * Validate name
          */
-        if(!$v->isNotEmpty ($project['name'], tr('No projects name specified'))) {
+        if (!$v->isNotEmpty ($project['name'], tr('No projects name specified'))) {
             $v->hasMinChars($project['name'], 2, tr('Please ensure the project\'s name has at least 2 characters'));
             $v->hasMaxChars($project['name'], 64, tr('Please ensure the project\'s name has less than 64 characters'));
             $v->isAlphaNumeric($project['name'], tr('Please specify a valid project name'), VALIDATE_IGNORE_ALL);
@@ -146,7 +146,7 @@ function projects_validate($project, $reload_only = false) {
 
         $project['name'] = str_clean($project['name']);
 
-        if($project['code']) {
+        if ($project['code']) {
             $v->hasMinChars($project['code'], 2, tr('Please ensure the project\'s code has at least 2 characters'));
             $v->hasMaxChars($project['code'], 32, tr('Please ensure the project\'s code has less than 32 characters'));
             $v->isAlphaNumeric($project['code'], tr('Please ensure the project\'s code contains no spaces'), VALIDATE_IGNORE_UNDERSCORE);
@@ -158,7 +158,7 @@ function projects_validate($project, $reload_only = false) {
             $project['code'] = null;
         }
 
-        if($project['api_key']) {
+        if ($project['api_key']) {
             $v->hasMinChars($project['api_key'], 32, tr('Please ensure the project\'s api_key has at least 32 characters'));
             $v->hasMaxChars($project['api_key'], 64, tr('Please ensure the project\'s api_key has less than 64 characters'));
             $v->isAlphaNumeric($project['api_key'], tr('Please ensure the project\'s api_key contains no spaces'));
@@ -167,7 +167,7 @@ function projects_validate($project, $reload_only = false) {
             $project['api_key'] = null;
         }
 
-        if($project['fcm_api_key']) {
+        if ($project['fcm_api_key']) {
             $v->hasMinChars($project['fcm_api_key'], 11, tr('Please ensure the project\'s fcm_api_key has at least 11 characters'));
             $v->hasMaxChars($project['fcm_api_key'], 511, tr('Please ensure the project\'s fcm_api_key has less than 511 characters'));
             $v->isAlphaNumeric($project['fcm_api_key'], tr('Please ensure the project\'s fcm_api_key is alpha numeric with only dashes'), VALIDATE_IGNORE_DASH);
@@ -179,7 +179,7 @@ function projects_validate($project, $reload_only = false) {
         $v->hasMaxChars($project['description'], 2047, tr('Please ensure the project\'s description has less than 2047 characters'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->isText($project['description'], tr('Please ensure the project\'s description is valid'), VALIDATE_ALLOW_EMPTY_NULL);
 
-        if($project['documents_id']) {
+        if ($project['documents_id']) {
             $v->isNatural($project['documents_id'], 1, tr('Please ensure the project\'s linked documents_id is a valid number'));
 
         } else {
@@ -196,7 +196,7 @@ function projects_validate($project, $reload_only = false) {
          */
         $exists = sql_get('SELECT `id` FROM `storage_documents` WHERE `id` = :id', true, array(':id' => $project['documents_id']));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The linked document does not exist'));
         }
 
@@ -205,7 +205,7 @@ function projects_validate($project, $reload_only = false) {
          */
         $exists = sql_get('SELECT `id` FROM `projects` WHERE `name` = :name AND `id` != :id', true, array(':name' => $project['name'], ':id' => isset_get($project['id'], 0)));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The name ":name" already exists for project id ":id"', array(':name' => $project['name'], ':id' => $exists)));
         }
 
@@ -214,7 +214,7 @@ function projects_validate($project, $reload_only = false) {
          */
         $exists = sql_get('SELECT `id` FROM `projects` WHERE `code` = :code AND `id` != :id', true, array(':code' => $project['code'], ':id' => isset_get($project['id'], 0)));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The project code ":code" already exists for project id ":id"', array(':code' => $project['code'], ':id' => $exists)));
         }
 
@@ -381,27 +381,27 @@ function projects_select($params = null) {
         array_default($params, 'none'        , tr('Select a project'));
         array_default($params, 'orderby'     , '`name`');
 
-        if($params['seocustomer']) {
+        if ($params['seocustomer']) {
             load_libs('customers');
             $params['customers_id'] = customers_get(array('columns' => 'id',
                                                           'filters' => array('seoname' => $params['seocustomer'])));
 
-            if(!$params['customers_id']) {
+            if (!$params['customers_id']) {
                 throw new CoreException(tr('projects_select(): The reqested customer ":customer" is not available', array(':customer' => $params['seocustomer'])), 'not-available');
             }
         }
 
-        if($params['customers_id'] !== false) {
+        if ($params['customers_id'] !== false) {
             $where[] = ' `customers_id` '.sql_is($params['customers_id'], ':customers_id');
             $execute[':customers_id'] = $params['customers_id'];
         }
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {

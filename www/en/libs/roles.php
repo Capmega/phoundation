@@ -32,8 +32,8 @@ function roles_get($role = null) {
                   LEFT JOIN `users` as `createdby`
                   ON        `roles`.`createdby`     = `createdby`.`id`';
 
-        if($role) {
-            if(!is_string($role)) {
+        if ($role) {
+            if (!is_string($role)) {
                 throw new CoreException(tr('roles_get(): Specified role name ":name" is not a string', array(':name' => $role)), 'invalid');
             }
 
@@ -56,7 +56,7 @@ function roles_get($role = null) {
 
                               array(':createdby' => $_SESSION['user']['id']));
 
-            if(!$retval) {
+            if (!$retval) {
                 sql_query('INSERT INTO `roles` (`createdby`, `meta_id`, `status`, `name`)
                            VALUES              (:createdby , :meta_id , :status , :name )',
 
@@ -95,7 +95,7 @@ function roles_validate($role) {
         $v->hasMinChars($role['description'],    2, tr('Please ensure the role\'s description has at least 2 characters'));
         $v->hasMaxChars($role['description'], 2047, tr('Please ensure the role\'s description has less than 2047 characters'));
 
-        if(is_numeric(substr($role['name'], 0, 1))) {
+        if (is_numeric(substr($role['name'], 0, 1))) {
             $v->setError(tr('Please ensure that the role\'s name does not start with a number'));
         }
 
@@ -105,7 +105,7 @@ function roles_validate($role) {
          */
         $name = sql_get('SELECT `name` FROM `roles` WHERE `id` = :id', 'name', array(':id' => $role['id']));
 
-        if($name === 'god') {
+        if ($name === 'god') {
             $v->setError(tr('The role "god" cannot be modified'));
         }
 
@@ -114,7 +114,7 @@ function roles_validate($role) {
          */
         $exists = sql_get('SELECT `name` FROM `roles` WHERE `name` = :name AND `id` != :id', 'name', array(':name' => $role['name'], ':id' => isset_get($role['id'], 0)));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The role ":role" already exists', array(':role' => $role['name'])));
         }
 
@@ -135,11 +135,11 @@ function roles_validate($role) {
  */
 function roles_update_rights($role, $rights) {
     try{
-        if(empty($role['id'])) {
+        if (empty($role['id'])) {
             throw new CoreException('roles_update_rights(): Cannot update rights, no role specified', 'not_specified');
         }
 
-        if(isset_get($rights) and !is_array($rights)) {
+        if (isset_get($rights) and !is_array($rights)) {
             throw new CoreException('roles_update_rights(): The specified rights list is invalid', 'invalid');
         }
 
@@ -149,14 +149,14 @@ function roles_update_rights($role, $rights) {
         $rights_list = array();
 
         foreach($rights as $key => $right) {
-            if(!$right) {
+            if (!$right) {
                 continue;
             }
 
-            if(is_numeric($right)) {
+            if (is_numeric($right)) {
                 $rights_name = sql_get('SELECT `name` FROM `rights` WHERE `id` = :id', 'name', array(':id' => cfi($right)));
 
-                if($rights_name) {
+                if ($rights_name) {
                     $rights_list[$right] = $rights_name;
                     continue;
                 }
@@ -165,7 +165,7 @@ function roles_update_rights($role, $rights) {
             } else {
                 $rights_id = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', 'id', array(':name' => cfm($right)));
 
-                if($rights_id) {
+                if ($rights_id) {
                     $rights_list[$rights_id] = $right;
                     continue;
                 }

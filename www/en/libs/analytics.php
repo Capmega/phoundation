@@ -63,7 +63,7 @@ function analytics($sites_id, $provider = null) {
     global $_CONFIG;
 
     try{
-        if(!$provider) {
+        if (!$provider) {
             $provider = $_CONFIG['analytics']['provider'];
         }
 
@@ -107,15 +107,15 @@ function analytics_matomo($sites_id) {
     global $_CONFIG;
 
     try{
-        if(!$sites_id) {
+        if (!$sites_id) {
             throw new CoreException(tr('analytics_matomo(): No sites_id specified'), 'not-specified');
         }
 
-        if(!is_natural($sites_id)) {
+        if (!is_natural($sites_id)) {
             throw new CoreException(tr('analytics_matomo(): Invalid sites_id ":sites_id" specified', array(':sites_id' => $sites_id)), 'not-specified');
         }
 
-        if(empty($_CONFIG['analytics']['matomo_domain'])) {
+        if (empty($_CONFIG['analytics']['matomo_domain'])) {
             throw new CoreException(tr('analytics_matomo(): No matomo domain configured'), 'not-specified');
         }
 
@@ -123,7 +123,7 @@ function analytics_matomo($sites_id) {
          * Ensure we have the analytics file available on our CDN system
          */
 // :TODO: Right now we're only testing this locally, we should test this on the CDN network system! This lookup may be heavy though, so maybe we should do that once every 100 page views or something
-        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/matomo/piwik.js')) {
+        if (!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/matomo/piwik.js')) {
             /*
              * Download the file from google analytics and install it in our
              * local CDN
@@ -184,14 +184,14 @@ function analytics_matomo($sites_id) {
  */
 function analytics_google($sites_id) {
     try{
-        if(!$sites_id) {
+        if (!$sites_id) {
             throw new CoreException(tr('analytics_google(): No sites_id specified'), 'not-specified');
         }
 
         /*
          * Ensure we have the analytics file available on our CDN system
          */
-        if(!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')) {
+        if (!file_exists(ROOT.'www/'.LANGUAGE.'/pub/js/google/analytics.js')) {
             /*
              * Download the file from google analytics and install it in our
              * local CDN

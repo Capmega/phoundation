@@ -2,11 +2,11 @@
 static $style;
 
 try{
-    if($key === null) {
+    if ($key === null) {
         $key = tr('Unknown');
     }
 
-    if(empty($style)) {
+    if (empty($style)) {
         $style  = true;
 
         $retval = '<style type="text/css">

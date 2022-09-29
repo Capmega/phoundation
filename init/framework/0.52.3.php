@@ -21,7 +21,7 @@ sql_query('CREATE TABLE `users_reference_codes` (`id`        INT(11)     NOT NUL
 /*
  * Now, move all current users reference numbers to the new users_reference_codes table
  */
-if(sql_column_exists('users', 'reference_numbers')) {
+if (sql_column_exists('users', 'reference_numbers')) {
     load_libs('user');
     sql_query('TRUNCATE `users_reference_codes`');
 

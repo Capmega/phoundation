@@ -4,20 +4,20 @@ global $_CONFIG, $core;
 try{
     load_libs('numbers');
 
-    if(!debug()) return '';
+    if (!debug()) return '';
 
-    if($_CONFIG['debug']['bar'] === false) {
+    if ($_CONFIG['debug']['bar'] === false) {
         return '';
 
-    } elseif($_CONFIG['debug']['bar'] === 'limited') {
-        if(empty($_SESSION['user']['id']) or !has_rights("debug")) {
+    } elseif ($_CONFIG['debug']['bar'] === 'limited') {
+        if (empty($_SESSION['user']['id']) or !has_rights("debug")) {
             /*
              * Only show debug bar to authenticated users with "debug" right
              */
             return false;
         }
 
-    } elseif($_CONFIG['debug']['bar'] === true) {
+    } elseif ($_CONFIG['debug']['bar'] === true) {
         /*
          * Show debug bar!
          */

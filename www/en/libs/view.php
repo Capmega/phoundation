@@ -57,22 +57,22 @@ function view($file) {
         /*
          * Validate argument
          */
-        if(!$file) {
+        if (!$file) {
             /*
              * A directory was specified instead of a file.
              */
             throw new CoreException(tr('view(): No file specified'), 'invalid');
         }
 
-        if(!file_exists($file)) {
+        if (!file_exists($file)) {
             /*
              * A directory was specified instead of a file.
              */
             throw new CoreException(tr('view(): The specified file ":file" does not exist', array(':file' => $file)), 'invalid');
         }
 
-        if(!is_file($file)) {
-            if(is_dir($file)) {
+        if (!is_file($file)) {
+            if (is_dir($file)) {
                 /*
                  * A directory was specified instead of a file.
                  */
@@ -155,7 +155,7 @@ function view_image($file) {
  */
 function view_image_feh($file) {
     try{
-        if(!file_which('feh')) {
+        if (!file_which('feh')) {
             /*
              * feh isn't installed yet, try to install it
              */

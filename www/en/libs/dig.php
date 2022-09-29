@@ -25,7 +25,7 @@
  */
 function dig_library_init() {
     try{
-        if(!file_which('dig')) {
+        if (!file_which('dig')) {
             throw new CoreException(tr('dig_library_init(): The "dig" command was not found. To install "dig" on ubuntu, please execute "sudo apt-get install dnsutils"'), 'not-exists');
         }
 
@@ -110,16 +110,16 @@ function dig($hostname, $command, $dns_server = null) {
         $retval  = array();
 
         foreach($results as $result) {
-            if(strstr($result, 'ANSWER SECTION:')) {
+            if (strstr($result, 'ANSWER SECTION:')) {
                 $start = true;
                 continue;
             }
 
-            if(!$start) {
+            if (!$start) {
                 continue;
             }
 
-            if(!$result) {
+            if (!$result) {
                 break;
             }
 

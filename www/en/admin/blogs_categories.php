@@ -7,17 +7,17 @@ load_libs('admin,user,blogs,validate');
 /*
  * Ensure we have an existing blog with access!
  */
-if(empty($_GET['blog'])) {
+if (empty($_GET['blog'])) {
     html_flash_set(tr('Please select a blog'), 'error');
     redirect('/admin/blogs.php');
 }
 
-if(!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
+if (!$blog = sql_get('SELECT `id`, `name`, `createdby`, `seoname` FROM `blogs` WHERE `seoname` = :seoname', array(':seoname' => $_GET['blog']))) {
     html_flash_set(tr('The specified blog "'.$_GET['blog'].'" does not exist'), 'error');
     redirect('/admin/blogs.php');
 }
 
-if(($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
+if (($blog['createdby'] != $_SESSION['user']['id']) and !has_rights('god')) {
     html_flash_set(tr('You do not have access to the blog "'.$blog['name'].'"'), 'error');
     redirect('/admin/blogs_posts.php?blog='.$blog['seoname']);
 }
@@ -28,14 +28,14 @@ $selected = isset_get($_GET['category']);
 /*
  * Are we going to have to display a category
  */
-if($action == 'add') {
+if ($action == 'add') {
     /*
      * We're going to add a new category
      */
     $category = array();
 
-} elseif($selected) {
-    if(!$category = sql_get('SELECT * FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $selected))) {
+} elseif ($selected) {
+    if (!$category = sql_get('SELECT * FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $selected))) {
         html_flash_set(tr('The specified category "'.str_log($selected).'" does not exist in this blog'), 'error');
         $selected = null;
     }
@@ -71,21 +71,21 @@ switch(strtolower(isset_get($_POST['doaction']))) {
             $v->hasMinChars($category['description'],  32, tr('Please ensure that the description has a minimum of 32 characters'));
             $v->hasMaxChars($category['description'], 160, tr('Please ensure that the description has a maximum of 160 characters'));
 
-            if(empty($category['parent'])) {
+            if (empty($category['parent'])) {
                 $category['parents_id'] = null;
 
             } else {
                 /*
                  * Make sure the parent category is inside this blog
                  */
-                if(!$parent = sql_get('SELECT `id`, `blogs_id` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $category['parent']))) {
+                if (!$parent = sql_get('SELECT `id`, `blogs_id` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $category['parent']))) {
                     /*
                      * Specified parent does not exist at all
                      */
                     throw new CoreException('The specified parent category does not exist', 'notexist');
                 }
 
-                if($parent['blogs_id'] != $blog['id']) {
+                if ($parent['blogs_id'] != $blog['id']) {
                     /*
                      * Specified parent does not exist inside this blog
                      */
@@ -95,12 +95,12 @@ switch(strtolower(isset_get($_POST['doaction']))) {
                 $category['parents_id'] = $parent['id'];
             }
 
-            if(!$v->isValid()) {
+            if (!$v->isValid()) {
                throw new CoreException(str_force($v->getErrors(), ', '), 'errors');
 
             }
 
-            if(sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name', array(':blogs_id' => $blog['id'], ':name' => $category['name']), 'id')) {
+            if (sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name', array(':blogs_id' => $blog['id'], ':name' => $category['name']), 'id')) {
                 /*
                  * A category with this name already exists
                  */
@@ -108,7 +108,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
 
             }
 
-            if(sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name', 'id', array(':blogs_id' => $blog['id'], ':name' => $category['name']))) {
+            if (sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name', 'id', array(':blogs_id' => $blog['id'], ':name' => $category['name']))) {
                 throw new CoreException('A category with the name "'.str_log($category['name']).'" already exists', 'exists');
             }
 
@@ -157,21 +157,21 @@ switch(strtolower(isset_get($_POST['doaction']))) {
             $v->hasMinChars($category['keywords']   ,  8, tr('Please ensure that the keywords have a minimum of 8 characters'));
             $v->hasMinChars($category['description'], 32, tr('Please ensure that the descriptiin has a minimum of 32 characters'));
 
-            if(empty($category['parent'])) {
+            if (empty($category['parent'])) {
                 $category['parents_id'] = null;
 
             } else {
                 /*
                  * Make sure the parent category is inside this blog
                  */
-                if(!$parent = sql_get('SELECT `id`, `blogs_id` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $category['parent']))) {
+                if (!$parent = sql_get('SELECT `id`, `blogs_id` FROM `blogs_categories` WHERE `seoname` = :seoname', array(':seoname' => $category['parent']))) {
                     /*
                      * Specified parent does not exist at all
                      */
                     throw new CoreException('The specified parent category does not exist', 'notexist');
                 }
 
-                if($parent['blogs_id'] != $blog['id']) {
+                if ($parent['blogs_id'] != $blog['id']) {
                     /*
                      * Specified parent does not exist inside this blog
                      */
@@ -181,25 +181,25 @@ switch(strtolower(isset_get($_POST['doaction']))) {
                 $category['parents_id'] = $parent['id'];
             }
 
-            if(!$v->isValid()) {
+            if (!$v->isValid()) {
                throw new CoreException(str_force($v->getErrors(), ', '), 'errors');
             }
 
-            if(!$dbcategory = sql_get('SELECT * FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `id` = :id', array(':blogs_id' => $blog['id'], ':id' => $category['id']))) {
+            if (!$dbcategory = sql_get('SELECT * FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `id` = :id', array(':blogs_id' => $blog['id'], ':id' => $category['id']))) {
                 /*
                  * Cannot update this category, it does not exist in this blog!
                  */
                 throw new CoreException(tr('The specified categories id does not exist in the blog "'.$blog['name'].'"'), 'notexists');
             }
 
-            if(($dbcategory['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')) {
+            if (($dbcategory['createdby'] != $_SESSION['user']['id']) and !has_rights('admin')) {
                 /*
                  * This category is not from this user and this user is also not an admin!
                  */
                 throw new CoreException(tr('This category is not yours, and you are not an admin'), 'accessdenied');
             }
 
-            if(sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name AND `id` != :id', array(':blogs_id' => $blog['id'], ':id' => $category['id'], ':name' => $category['name']), 'id')) {
+            if (sql_get('SELECT `id` FROM `blogs_categories` WHERE `blogs_id` = :blogs_id AND `name` = :name AND `id` != :id', array(':blogs_id' => $blog['id'], ':id' => $category['id'], ':name' => $category['name']), 'id')) {
                 /*
                  * Another category with this name already exists in this blog
                  */
@@ -277,7 +277,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
             /*
              * Delete the specified categories
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No categories selected to delete', 'notspecified');
             }
 
@@ -289,7 +289,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
 
                                $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Deleted %count% categories', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -307,7 +307,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
             /*
              * Delete the specified categories
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No categories selected to undelete', 'notspecified');
             }
 
@@ -319,7 +319,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
 
                        $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Undeleted %count% categories', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -337,7 +337,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
             /*
              * Delete the specified categories
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('No categories selected to erase', 'notspecified');
             }
 
@@ -345,7 +345,7 @@ switch(strtolower(isset_get($_POST['doaction']))) {
 
             $r = sql_query('DELETE FROM `blogs_categories` WHERE `status` = "deleted" AND `id` IN ('.implode(', ', array_keys($list)).')', $list);
 
-            if($r->rowCount()) {
+            if ($r->rowCount()) {
                 html_flash_set(tr('Erased %count% categories', '%count%', $r->rowCount()), 'success');
 
             } else {
@@ -433,7 +433,7 @@ $query      = 'SELECT    `blogs_categories`.`id`,
 /*
  * Add filters to the query
  */
-if(!empty($filters)) {
+if (!empty($filters)) {
     $query .= ' AND '.implode(' AND ', $filters);
 }
 
@@ -485,7 +485,7 @@ $html = '   <form action="'.domain(true).'" method="post">
 /*
  *
  */
-if(!$categories) {
+if (!$categories) {
     $html .= '<p>'.tr('No blogs found with this filter').'</p>';
 
 } else {
@@ -528,8 +528,8 @@ $html .=                    html_select($actions).'
 /*
  *
  */
-if($selected or $action == 'add') {
-    if(isset_get($flash)) {
+if ($selected or $action == 'add') {
+    if (isset_get($flash)) {
         html_flash_set($flash, $flash_type);
     }
 

@@ -31,16 +31,16 @@ function paging_library_init() {
     global $core, $_CONFIG;
 
     try{
-        if(PLATFORM_HTTP) {
+        if (PLATFORM_HTTP) {
             $core->register['limit'] = isset_get($_GET['limit']);
             $core->register['page']  = isset_get($_GET['page']);
         }
 
-        if($core->register['limit'] >= 10000) {
+        if ($core->register['limit'] >= 10000) {
             $core->register['limit'] = 10000;
         }
 
-        if($core->register['page'] >= 100000) {
+        if ($core->register['page'] >= 100000) {
             $core->register['page'] = 100000;
         }
 
@@ -97,30 +97,30 @@ function paging_generate($params) {
         $current           = $params['current'];
         $list              = '';
 
-        if(!$params['hide_ends']) {
+        if (!$params['hide_ends']) {
             $params['disabled'] = '';
         }
 
-        if(($page_count <= 1) and $params['hide_single']) {
+        if (($page_count <= 1) and $params['hide_single']) {
             /*
              * There is only one page and we don't want to see a single page pager
              */
             return '';
         }
 
-        if(!fmod($params['show_pages'], 2)) {
+        if (!fmod($params['show_pages'], 2)) {
             throw new CoreException('paging_generate(): show_pages should always be an odd number (1, 3, 5, etc)', 'invalid');
         }
 
-        if($page_count < $params['show_pages']) {
+        if ($page_count < $params['show_pages']) {
             $params['show_pages'] = $page_count;
         }
 
         /*
          * Add the first button
          */
-        if($params['first_last']) {
-            if($current > 1) {
+        if ($params['first_last']) {
+            if ($current > 1) {
                 $disabled = '';
 
             } else {
@@ -134,8 +134,8 @@ function paging_generate($params) {
         /*
          * Add the previous button
          */
-        if($params['prev_next']) {
-            if($current > 1) {
+        if ($params['prev_next']) {
+            if ($current > 1) {
                 $disabled = '';
 
             } else {
@@ -154,18 +154,18 @@ function paging_generate($params) {
         /*
          * Unless we fall over the <1 limit
          */
-        if($current < 1) {
+        if ($current < 1) {
             $current = 1;
         }
 
         /*
          * Unless we fall over the max_pages limit
          */
-        if($current > $page_count) {
+        if ($current > $page_count) {
             $current = $page_count;
         }
 
-        if($current > ($page_count - $params['show_pages'])) {
+        if ($current > ($page_count - $params['show_pages'])) {
             $current = $page_count - $params['show_pages'] + 1;
         }
 
@@ -175,7 +175,7 @@ function paging_generate($params) {
             $line_url = str_replace('%page%', ((($current == 1) and $params['hide_ends']) ? '' : $current), paging_get_url($url, $current));
             $line     = str_replace('%page%', $current, str_replace('%url%', $line_url, $params['page']));
 
-            if($current == $params['current']) {
+            if ($current == $params['current']) {
                 $line = str_replace('%active%', ' '.$params['active'].' ', $line);
 
             } else {
@@ -189,8 +189,8 @@ function paging_generate($params) {
         /*
          * Add the next button
          */
-        if($params['prev_next']) {
-            if($params['current'] < $page_count) {
+        if ($params['prev_next']) {
+            if ($params['current'] < $page_count) {
                 $disabled = '';
 
             } else {
@@ -203,8 +203,8 @@ function paging_generate($params) {
         /*
          * Add the last button
          */
-        if($params['first_last']) {
-            if($params['current'] < $page_count) {
+        if ($params['first_last']) {
+            if ($params['current'] < $page_count) {
                 $disabled = '';
 
             } else {
@@ -239,8 +239,8 @@ function paging_check_page($page, $page_max) {
     try{
         $checked_page = force_natural($page, 1);
 
-        if(($page and ($checked_page != $page)) or ($page > $page_max)) {
-            if($page_max) {
+        if (($page and ($checked_page != $page)) or ($page > $page_max)) {
+            if ($page_max) {
                 throw new CoreException(tr('paging_check_page(): Specified page "%page%" appears out of range with page_max "%max%"', array('%page%' => $page, '%max%' => $page_max)), 'range');
             }
 
@@ -274,14 +274,14 @@ function paging_data($page, $limit, $rows) {
         $retval['start']         = (force_natural($retval['page']) - 1) * $retval['limit'] + 1;
         $retval['stop']          = $retval['start'] + $retval['limit'] - 1;
 
-        if($retval['stop'] > $retval['count']) {
+        if ($retval['stop'] > $retval['count']) {
             /*
              * The stop value overpassed the count by a bit, so we might show "showing entry 305 of 301 entries".. Fix this here
              */
             $retval['stop'] = $retval['count'];
         }
 
-        if($retval['limit']) {
+        if ($retval['limit']) {
             $retval['query'] = ' LIMIT '.($retval['start'] - 1).', '.$retval['limit'];
 
         } else {
@@ -291,7 +291,7 @@ function paging_data($page, $limit, $rows) {
         return $retval;
 
     }catch(Exception $e) {
-        if($e->getCode() == 'range') {
+        if ($e->getCode() == 'range') {
             /*
              * Specified page is out of range
              */
@@ -309,23 +309,23 @@ function paging_data($page, $limit, $rows) {
  */
 function paging_get_url($url, $page = null, $disabled = false) {
     try{
-        if($disabled) {
+        if ($disabled) {
             return '#';
         }
 
-        if(is_string($url)) {
+        if (is_string($url)) {
             return $url;
         }
 
-        if(!is_array($url)) {
+        if (!is_array($url)) {
             throw new CoreException(tr('paging_get_url(): Invalid url specified, should be either string, or array, but is "%type%"', array('%type%' => gettype($url))), 'invalid');
         }
 
-        if(isset($url[$page])) {
+        if (isset($url[$page])) {
             return $url[$page];
         }
 
-        if(!isset($url['default'])) {
+        if (!isset($url['default'])) {
             throw new CoreException(tr('paging_get_url(): URL was specified as array, but no "default" key was specified'), 'invalid');
         }
 
@@ -357,18 +357,18 @@ function paging_limit($limit = null, $default_limit = null) {
     global $_CONFIG, $core;
 
     try{
-        if($limit === 0) {
+        if ($limit === 0) {
             return 0;
         }
 
-        if(isset($core->register['all'])) {
+        if (isset($core->register['all'])) {
             return 0;
         }
 
         $limit = not_empty($limit, $default_limit, $core->register['limit'], $_CONFIG['paging']['limit']);
         $limit = sql_valid_limit($limit);
 
-        if(!is_natural($limit)) {
+        if (!is_natural($limit)) {
             throw new CoreException(tr('paging_limit(): Specified limit ":limit" is not a natural number', array(':limit' => $limit)), 'invalid');
         }
 
@@ -400,12 +400,12 @@ function paging_page($page = null) {
     global $core;
 
     try{
-        if(!$page) {
+        if (!$page) {
             $page = $core->register('page');
         }
 
-        if($page) {
-            if(!is_natural($page)) {
+        if ($page) {
+            if (!is_natural($page)) {
                 throw new CoreException(tr('paging_page(): $core::register[page] ":page" is not a natural number', array(':page' => $page)), 'invalid');
             }
 

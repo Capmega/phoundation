@@ -55,7 +55,7 @@ function doc_parse_this() {
         $count   = doc_parse_path($project, ROOT, ROOT);
         $errors  = doc_errors();
 
-        if($errors) {
+        if ($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
             foreach($errors as $error) {
@@ -90,7 +90,7 @@ function doc_parse_project($project) {
     try{
         $path = ROOT.'../'.$project;
 
-        if(!file_exists($path, $path)) {
+        if (!file_exists($path, $path)) {
             throw new CoreException(tr('doc_parse_project(): Specified project ":project" does not exist', array(':project' => $project)), 'not-exists');
         }
 
@@ -101,7 +101,7 @@ function doc_parse_project($project) {
         $count   = doc_parse_path($project, $path, $path);
         $errors  = doc_errors();
 
-        if($errors) {
+        if ($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
             foreach($errors as $error) {
@@ -134,7 +134,7 @@ function doc_parse_project($project) {
  */
 function doc_parse_path($project, $path, $root, $recursive = true) {
     try{
-        if(!file_exists($path)) {
+        if (!file_exists($path)) {
             throw new CoreException(tr('doc_parse_path(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
         }
 
@@ -144,12 +144,12 @@ function doc_parse_path($project, $path, $root, $recursive = true) {
         $files = scandir($path);
 
         foreach($files as $file) {
-            if(substr($file, 0, 1) == '.') {
+            if (substr($file, 0, 1) == '.') {
                 continue;
             }
 
-            if(!file_exists($path.$file)) {
-                if(is_link($path.$file)) {
+            if (!file_exists($path.$file)) {
+                if (is_link($path.$file)) {
                     log_console(tr('Ignoring broken symlink ":file"', array(':file' => $file)), 'VERYVERBOSEDOT/yellow');
                     continue;
                 }
@@ -157,21 +157,21 @@ function doc_parse_path($project, $path, $root, $recursive = true) {
                 throw new CoreException(tr('doc_parse_path(): Found non existing file ":file"', array(':file' => $path.$file)), 'not-exists');
             }
 
-            if(is_dir($path.$file)) {
-                if(is_link($path.$file)) {
+            if (is_dir($path.$file)) {
+                if (is_link($path.$file)) {
                     log_console(tr('Ignoring symlink directory ":path"', array(':path' => $path)), 'VERYVERBOSE/yellow');
                     continue;
                 }
 
-                if($recursive) {
+                if ($recursive) {
                     $count += doc_parse_path($project, $path.$file.'/', $root, $recursive);
                 }
 
                 continue;
             }
 
-            if(is_file($path.$file)) {
-                if(is_link($path.$file)) {
+            if (is_file($path.$file)) {
+                if (is_link($path.$file)) {
                     log_console(tr('Ignoring symlink file ":file"', array(':file' => $file)), 'VERYVERBOSE/yellow');
                     continue;
                 }
@@ -217,37 +217,37 @@ function doc_parse_file($project, $file, $root) {
                 /*
                  * Detect file type
                  */
-                if(preg_match('/^config$/', $path)) {
+                if (preg_match('/^config$/', $path)) {
                     $type = 'configuration';
 
-                } elseif(preg_match('/^config\/base$/', $path)) {
+                } elseif (preg_match('/^config\/base$/', $path)) {
                     $type = 'configuration';
 
-                } elseif(preg_match('/^scripts$/', $path)) {
+                } elseif (preg_match('/^scripts$/', $path)) {
                     $type = 'script';
 
-                } elseif(preg_match('/^scripts\/base$/', $path)) {
+                } elseif (preg_match('/^scripts\/base$/', $path)) {
                     $type = 'script';
 
-                } elseif(preg_match('/^www\/en\/libs$/', $path)) {
+                } elseif (preg_match('/^www\/en\/libs$/', $path)) {
                     $type = 'library';
 
-                } elseif(preg_match('/^www\/[a-z]{2}\/libs$/', $path)) {
+                } elseif (preg_match('/^www\/[a-z]{2}\/libs$/', $path)) {
                     $type = 'ignore';
 
-                } elseif(preg_match('/^www\/en$/', $path)) {
+                } elseif (preg_match('/^www\/en$/', $path)) {
                     $type = 'webpage';
 
-                } elseif(preg_match('/^www\/api$/', $path)) {
+                } elseif (preg_match('/^www\/api$/', $path)) {
                     $type = 'api';
 
-                } elseif(preg_match('/^www\/en\/ajax$/', $path)) {
+                } elseif (preg_match('/^www\/en\/ajax$/', $path)) {
                     $type = 'ajax';
 
-                } elseif(preg_match('/^www\/[a-z]{2}$/', $path)) {
+                } elseif (preg_match('/^www\/[a-z]{2}$/', $path)) {
                     $type = 'ignore';
 
-                } elseif(preg_match('/^init\/[a-z-]+$/', $path)) {
+                } elseif (preg_match('/^init\/[a-z-]+$/', $path)) {
                     $type = 'init';
 
                 }
@@ -267,7 +267,7 @@ function doc_parse_file($project, $file, $root) {
                     default:
                         $contents = file_get_contents($file);
 
-                        if(!preg_match('/^<\?php/', $contents)) {
+                        if (!preg_match('/^<\?php/', $contents)) {
                             doc_errors(tr('File ":file" is a PHP file but is missing a valid PHP open tag', array(':file' => $file)));
                             return false;
                         }
@@ -390,7 +390,7 @@ function doc_parse_js_file($project, $file, $content) {
  */
 function doc_parse_file_header($page, $file, $contents) {
     try{
-        if(!preg_match_all('/^<\?php\s\/\*(.+?)\*\//imus', $contents, $matches)) {
+        if (!preg_match_all('/^<\?php\s\/\*(.+?)\*\//imus', $contents, $matches)) {
             doc_errors(tr('File ":file" does not have a valid file header'));
             return false;
         }
@@ -404,11 +404,11 @@ function doc_parse_file_header($page, $file, $contents) {
                 $header = Strings::from($header, '*');
                 $header = trim($header);
 
-                if(!$header) {
+                if (!$header) {
                     continue;
                 }
 
-                if(substr($header, 0, 1) === '@') {
+                if (substr($header, 0, 1) === '@') {
                     $value             = doc_parse_value($header);
                     $value['pages_id'] = $page['id'];
                     doc_insert_value($value);
@@ -585,7 +585,7 @@ function doc_parse_library($project, $file, $content) {
          */
         $functions = preg_split('/\*\/\sfunction /imus', $content);
 
-        if(count($functions) < 2) {
+        if (count($functions) < 2) {
             doc_errors(tr('File ":file" does not contain any function headers', array(':file' => $file)));
 
         } else {
@@ -702,11 +702,11 @@ function doc_parse_function_header($page, $parent, $file, $content) {
                 $header = Strings::from($header, '*');
                 $header = trim($header);
 
-                if(!$header) {
+                if (!$header) {
                     continue;
                 }
 
-                if(substr($header, 0, 1) === '@') {
+                if (substr($header, 0, 1) === '@') {
                     switch($current) {
                         case 'example':
                             /*
@@ -814,7 +814,7 @@ function doc_insert_project($project, $language = null) {
  */
 function doc_validate_project($project, $language = null) {
     try{
-        if(is_string($project)) {
+        if (is_string($project)) {
             $project = array('name' => $project);
         }
 
@@ -909,14 +909,14 @@ function doc_validate_page($page) {
 
         $exists = sql_get('SELECT `id` FROM `doc_projects` WHERE `id` = :id', true, array(':id' => $page['projects_id']));
 
-        if(!$exists) {
+        if (!$exists) {
             $v->setError(tr('The specified projects_id ":projects_id" does not exist', array(':projects_id' => $page['projects_id'])));
         }
 
         /*
          * Validate the package
          */
-        if($page['package']) {
+        if ($page['package']) {
             $v->hasMinChars($page['package'],  2, tr('Please specifiy a page package with at least 2 characters'));
             $v->hasMaxChars($page['package'], 64, tr('Please specifiy a page package with less than 64 characters'));
 
@@ -927,10 +927,10 @@ function doc_validate_page($page) {
         /*
          * Validate the parent
          */
-        if($page['parents_id']) {
+        if ($page['parents_id']) {
             $exists = sql_get('SELECT `id` FROM `doc_pages` WHERE `id` = :id', true, array(':id' => $page['parents_id']));
 
-            if(!$exists) {
+            if (!$exists) {
                 $v->setError(tr('The specified parents page ":parent" does not exist', array(':parent' => $page['seoparent'])));
                 $page['parents_id'] = null;
             }
@@ -967,7 +967,7 @@ function doc_validate_page($page) {
  */
 function doc_parse_value(string $line) {
     try{
-        if(!preg_match_all('/^@\s?([a-z-]+)\s?:?\s?(.+)/', $line, $matches)) {
+        if (!preg_match_all('/^@\s?([a-z-]+)\s?:?\s?(.+)/', $line, $matches)) {
             throw new CoreException(tr('doc_parse_value(): Specified line ":line" is of an incorrect format', array(':line' => $line)), 'invalid');
         }
 
@@ -1042,7 +1042,7 @@ function doc_validate_value($value) {
 
         $exists = sql_get('SELECT `id` FROM `doc_pages` WHERE `id` = :id', true, array(':id' => $value['pages_id']));
 
-        if(!$exists) {
+        if (!$exists) {
             $v->setError(tr('The specified page with id ":pages_id" does not exist', array(':pages_id' => $value['pages_id'])));
         }
 
@@ -1069,7 +1069,7 @@ function doc_validate_value($value) {
  */
 function doc_generate($project = null) {
     try{
-        if(!$project) {
+        if (!$project) {
             $project = PROJECT;
         }
 
@@ -1077,7 +1077,7 @@ function doc_generate($project = null) {
         $formats     = array('txt', 'html', 'include', 'pdf');
         $formats     = array('txt', 'html');
 
-        if(!$projects_id) {
+        if (!$projects_id) {
             throw new CoreException(tr('Failed to generate documentation for project ":project", it does not exist', array(':project' => $project)), 'not-exists');
         }
 
@@ -1107,7 +1107,7 @@ function doc_generate($project = null) {
 
         $errors  = doc_errors();
 
-        if($errors) {
+        if ($errors) {
             log_console(tr('Finished documentation parsing with the following issues:'));
 
             foreach($errors as $error) {
@@ -1169,13 +1169,13 @@ function doc_generate_page($format, $page) {
              * only one key in the template, but multiple values in the database
              */
             foreach($page['values'] as $key => $value) {
-                if($value['key'] == $multi) {
+                if ($value['key'] == $multi) {
                     $replace .= $value['value']."\n";
                     unset($page['values'][$key]);
                 }
             }
 
-            if($replace) {
+            if ($replace) {
                 $data = str_replace(':'.$multi."\n", $replace, $data);
             }
         }
@@ -1185,7 +1185,7 @@ function doc_generate_page($format, $page) {
              * Replace all the single values
              */
             foreach($page['values'] as $value) {
-                if($value['key'] == $key) {
+                if ($value['key'] == $key) {
                     $data = str_replace(':'.$key, $value['value'], $data);
                     break;
                 }
@@ -1215,7 +1215,7 @@ function doc_errors($error = null) {
     static $errors = array();
 
     try{
-        if($error) {
+        if ($error) {
             $errors[] = $error;
             return $error;
         }
@@ -1243,7 +1243,7 @@ function doc_clear($project) {
     try{
         $id = sql_get('SELECT `id` FROM `doc_projects` WHERE `name` = :name OR `seoname` = :seoname', true, array(':name' => $project, ':seoname' => $project));
 
-        if(!$project) {
+        if (!$project) {
             log_console(tr('Not deleting project ":project", it does not exist', array(':project' => $project)), 'yellow');
             return false;
         }

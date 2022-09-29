@@ -32,7 +32,7 @@ function composer_library_init() {
                                'callback' => 'composer_setup',
                                'checks'   => array(ROOT.'www/en/libs/composer.phar')));
 
-        if(!file_exists(ROOT.'/libs/composer.json')) {
+        if (!file_exists(ROOT.'/libs/composer.json')) {
             composer_init_file();
         }
 
@@ -69,7 +69,7 @@ function composer_setup($params) {
         $required_hash = download('https://composer.github.io/installer.sig', true);
         $required_hash = trim($required_hash);
 
-        if($file_hash !== $required_hash) {
+        if ($file_hash !== $required_hash) {
             throw new CoreException(tr('composer_setup(): File hash check failed for composer-setup.php'), 'hash-fail');
         }
 
@@ -91,8 +91,8 @@ function composer_setup($params) {
  */
 function composer_init_file() {
     try{
-        if(file_exists(ROOT.'composer.json')) {
-            if(!FORCE) {
+        if (file_exists(ROOT.'composer.json')) {
+            if (!FORCE) {
                 throw new CoreException('Composer has already been initialized for this project', 'already-initialized');
             }
         }
@@ -131,12 +131,12 @@ function composer_init_file() {
  */
 function composer_exec($commands, $path = null) {
     try{
-        if(!$commands) {
+        if (!$commands) {
             throw new CoreException(tr('composer_exec(): No commands specified'), 'not-specified');
         }
 
         file_execute_mode(ROOT, 0770, function() use ($commands, $path) {
-            if($path) {
+            if ($path) {
                 file_execute_mode($path, 0770, function() use ($commands, $path) {
                     safe_exec(array('function' => (PLATFORM_CLI ? 'passthru' : 'exec'),
                                     'timeout'  => 30,
@@ -196,7 +196,7 @@ function composer_exec($commands, $path = null) {
  */
 function composer_require($packages) {
     try{
-        if(!$packages) {
+        if (!$packages) {
             throw new CoreException(tr('composer_require(): No package specified'), 'not-specified');
         }
 
@@ -232,7 +232,7 @@ function composer_require($packages) {
  */
 function composer_install($path) {
     try{
-        if(!$path) {
+        if (!$path) {
             throw new CoreException(tr('composer_install(): No path specified'), 'not-specified');
         }
 

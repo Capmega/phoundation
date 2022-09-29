@@ -29,7 +29,7 @@ sql_query('CREATE TABLE `servers_ssh_proxies` (`id`         INT(11)     NOT NULL
 /*
  * Inserting proxy relation on new table
  */
-if(sql_column_exists('servers', 'ssh_proxies_id')) {
+if (sql_column_exists('servers', 'ssh_proxies_id')) {
     $servers = sql_query('SELECT `id`, `ssh_proxies_id` FROM `servers` WHERE ssh_proxies_id IS NOT NULL');
 
     while($server = sql_fetch($servers)) {

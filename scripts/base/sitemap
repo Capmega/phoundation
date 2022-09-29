@@ -51,7 +51,7 @@ require_once(__DIR__.'/../../libs/startup.php');
 cli_only(true);
 load_libs('sitemap');
 
-if(empty($_CONFIG['sitemap']['enabled'])) {
+if (empty($_CONFIG['sitemap']['enabled'])) {
     log_console(tr('Sitemap has been disabled in the configuration'), 'yellow');
     die(1);
 }
@@ -61,7 +61,7 @@ switch(cli_method()) {
         /*
          * Clear sitemap database.
          */
-        if(cli_method(1)) {
+        if (cli_method(1)) {
             log_console(tr('Clearing sitemap data for group ":group"', array(':group' => cli_method(1))), 'white');
 
         } else {
@@ -78,7 +78,7 @@ switch(cli_method()) {
     case 'info':
         log_console(tr('Multi language: '), 'white', false);
 
-        if($_CONFIG['language']['supported']) {
+        if ($_CONFIG['language']['supported']) {
             log_console(tr('Yes'));
 
         } else {
@@ -89,13 +89,13 @@ switch(cli_method()) {
 
         $files = sitemap_list_files();
 
-        if(!count($files)) {
+        if (!count($files)) {
             log_console(tr('Unknown, sitemap table empty'));
 
-        } elseif(count($files) == 1) {
+        } elseif (count($files) == 1) {
             log_console(tr('No'));
 
-        } elseif(count($files) <= count($_CONFIG['language']['supported'])) {
+        } elseif (count($files) <= count($_CONFIG['language']['supported'])) {
             log_console(tr('No'));
 
         } else {
@@ -118,7 +118,7 @@ switch(cli_method()) {
                                             'file'     => 'sitemap (index)',
                                             'path'     => ROOT.'www/sitemap.xml'));
 
-                if(!count($files)) {
+                if (!count($files)) {
                     log_console(tr('There are currently no sitemap entries registered'), 'QUIET/yellow');
 
                 } else {
@@ -150,7 +150,7 @@ switch(cli_method()) {
 
                                       WHERE  `status` IS NULL');
 
-                if(!$entries->rowCount()) {
+                if (!$entries->rowCount()) {
                     log_console(tr('There are currently no sitemap entries registered'), 'QUIET/yellow');
 
                 } else {
@@ -175,11 +175,11 @@ switch(cli_method()) {
     case 'update':
         $generated = sql_get('SELECT COUNT(*) AS `count` FROM `sitemaps_generated`', 'count');
 
-        if(!$generated) {
+        if (!$generated) {
             log_console(tr('No sitemap data has been generated ever before. Generating all sitemap files now'), 'yellow');
 
         } else {
-            if($_CONFIG['language']['supported']) {
+            if ($_CONFIG['language']['supported']) {
                 $languages = $_CONFIG['language']['supported'];
 
             } else {
@@ -204,11 +204,11 @@ switch(cli_method()) {
 
                                      true, array(':language' => $language_code));
 
-                if($modified) {
+                if ($modified) {
                     log_console(tr('Sitemap data for language ":language" has been modified, regenerating all sitemap files', array(':language' => $language_name)), 'green');
 
                 } else {
-                    if(file_exists(ROOT.'www/en/sitemap.xml')) {
+                    if (file_exists(ROOT.'www/en/sitemap.xml')) {
                         log_console(tr('Sitemap files for language ":language" exists and sitemap data has not been modified, not regenerating sitemap files', array(':language' => $language_name)), 'green');
                         continue;
                     }

@@ -90,7 +90,7 @@ function btrfs_defragment($params) {
     try{
         Arrays::ensure($params, 'verbose,path,server');
 
-        if($params['verbose'] or VERBOSE) {
+        if ($params['verbose'] or VERBOSE) {
             $verbose = '-v';
 
         } else {

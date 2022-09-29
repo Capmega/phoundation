@@ -69,7 +69,7 @@ function shortlink_get_provider($provider = null) {
                 // FALLTHROUGH
 
             default:
-                if(empty($_CONFIG['shortlink'][$provider])) {
+                if (empty($_CONFIG['shortlink'][$provider])) {
                     throw new CoreException(tr('shortlink_get_provider(): Unknown provider ":provider" specified', array(':provider' => $provider)), 'unknown');
                 }
         }
@@ -161,7 +161,7 @@ under_construction();
 
                     $result = json_decode_custom($result);
 
-                    if(empty($result['link'])) {
+                    if (empty($result['link'])) {
                         throw new CoreException(tr('shortlink_create(): Invalid response received from provider "bitly" for the specified URL ":url"', array(':url' => $url)), 'invalid');
                     }
 
@@ -172,8 +172,8 @@ under_construction();
                      * The bitly provider regularly fails. If failure is detected, simply
                      * retry a few times
                      */
-                    if($e->getRealCode() === 'CURL7') {
-                        if(--$count >= 0) {
+                    if ($e->getRealCode() === 'CURL7') {
+                        if (--$count >= 0) {
                             log_console(tr('Failed to connect to bitly provider to create shortlink. Retrying ":count" more times', array(':count' => $count)), 'warning');
                             usleep(mt_rand(1000, 1000000));
 

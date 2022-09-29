@@ -140,7 +140,7 @@ function css_purge($html, $css) {
         /*
          * Add list of selectors that should be whitelisted
          */
-        if(!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {
+        if (!empty($_CONFIG['css']['whitelist'][$core->register['script']])) {
             /*
              * Use the whitelist specifically for this page
              */
@@ -153,11 +153,11 @@ function css_purge($html, $css) {
             $whitelist = &$_CONFIG['css']['whitelist']['default'];
         }
 
-        if($whitelist) {
+        if ($whitelist) {
             $arguments[] = '--whitelist';
 
             foreach(Arrays::force($whitelist) as $selector) {
-                if($selector) {
+                if ($selector) {
                     $arguments[] = $selector;
                 }
             }

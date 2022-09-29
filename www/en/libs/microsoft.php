@@ -18,9 +18,9 @@ function microsoft_get_avatar($user) {
     try{
         load_libs('image,user');
 
-        if(is_array($user)) {
-            if(empty($user['ms_id'])) {
-                if(empty($user['id'])) {
+        if (is_array($user)) {
+            if (empty($user['ms_id'])) {
+                if (empty($user['id'])) {
                     throw new CoreException('microsoft_get_avatar: Specified user array contains no "id" or "ms_id"');
                 }
 
@@ -33,7 +33,7 @@ function microsoft_get_avatar($user) {
             $user = $user['ms_id'];
         }
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException('microsoft_get_avatar(): No microsoft ID specified');
         }
 

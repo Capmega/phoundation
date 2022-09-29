@@ -54,7 +54,7 @@ function qr_install() {
 
         file_delete($path);
 
-        if(!is_callable('gd_info')) {
+        if (!is_callable('gd_info')) {
             load_libs('php');
             php_enmod('gd');
         }

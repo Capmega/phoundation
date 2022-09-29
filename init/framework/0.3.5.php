@@ -18,7 +18,7 @@ foreach($providers as $provider) {
 	foreach($columns as $column) {
 		$column = $provider.'_'.$column;
 
-		if(sql_column_exists('users', $column)) {
+		if (sql_column_exists('users', $column)) {
 			sql_query('ALTER TABLE `users` DROP COLUMN `'.$column.'`;');
 		}
 	}

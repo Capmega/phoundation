@@ -2165,7 +2165,7 @@ class Sql
      * @param string|null $first_suffix
      * @param $connector_name
      * @return array|mixed|string|null
-     * @throws \BException
+     * @throws \CoreException
      */
     // :TODO: Update to use bound variable queries
     public static function getUniqueSeo(string $source, string $table, ?int $ownid = null, string $column = 'seoname', string $replace = '-', ?string $first_suffix = null, $connector_name )

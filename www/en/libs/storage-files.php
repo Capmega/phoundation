@@ -34,15 +34,15 @@ function storage_files_insert($params) {
         $params = storage_files_validate($params);
         $file   = $params['file'];
 
-        if(!is_array($file)) {
+        if (!is_array($file)) {
             $file = array('filename' => $file);
         }
 
-        if($params['update_owner']) {
+        if ($params['update_owner']) {
             file_chown($file['filename']);
         }
 
-        if($params['convert']) {
+        if ($params['convert']) {
             load_libs('image');
 
             switch($params['convert']) {
@@ -122,7 +122,7 @@ function storage_files_delete($params) {
 
         $file = storage_files_get($params['file'], $params['documents_id'], $params['pages_id']);
 
-        if(!$file) {
+        if (!$file) {
             throw new CoreException(tr('storage_files_delete(): Specified file ":file" does not exist for S/D/P ":section/:document/:page"', array(':file' => $params['file'], ':section' => $params['sections_id'], ':document' => $params['documents_id'], ':page' => $params['pages_id'])), 'not-exists');
         }
 
@@ -145,7 +145,7 @@ function storage_files_delete($params) {
  */
 function storage_files_query($documents_id, $pages_id = null) {
     try{
-        if($pages_id) {
+        if ($pages_id) {
             /*
              * Get files linked to this page only
              */
@@ -197,7 +197,7 @@ function storage_files_query($documents_id, $pages_id = null) {
  */
 function storage_files_get($file, $documents_id, $pages_id = null) {
     try{
-        if($pages_id) {
+        if ($pages_id) {
             /*
              * Get files linked to this page only
              */
@@ -216,7 +216,7 @@ function storage_files_get($file, $documents_id, $pages_id = null) {
                              ':pages_id'     => $pages_id);
         }
 
-        if(is_numeric($file)) {
+        if (is_numeric($file)) {
             $where .= ' AND `storage_files`.`id` = :id ';
             $execute[':id'] = $file;
 
@@ -254,7 +254,7 @@ function storage_files_get($file, $documents_id, $pages_id = null) {
  */
 function storage_file_url($file, $type = null) {
     try{
-        if($type) {
+        if ($type) {
             return cdn_domain(Strings::untilReverse($file, '.').'-'.$type.'.'.Strings::fromReverse($file, '.'), 'files');
         }
 

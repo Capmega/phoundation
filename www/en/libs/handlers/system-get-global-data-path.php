@@ -12,7 +12,7 @@ try{
                    ROOT.'../../data/'
                    );
 
-    if(!empty($_SERVER['HOME'])) {
+    if (!empty($_SERVER['HOME'])) {
         /*
          * Also check the users home directory
          */
@@ -23,23 +23,23 @@ try{
     $found = false;
 
     foreach($paths as $path) {
-        if(file_exists($path)) {
+        if (file_exists($path)) {
             $found = $path;
             break;
         }
     }
 
-    if($found) {
+    if ($found) {
         /*
          * Cleanup path. If realpath fails, we know something is amiss
          */
-        if(!$found = realpath($found)) {
+        if (!$found = realpath($found)) {
             throw new CoreException('get_global_data_path(): Found path "'.$path.'" failed realpath() check', 'path-failed');
         }
     }
 
-    if(!$found) {
-        if(!PLATFORM_CLI) {
+    if (!$found) {
+        if (!PLATFORM_CLI) {
             throw new CoreException('get_global_data_path(): Global data path not found', 'not-exists');
         }
 
@@ -49,7 +49,7 @@ try{
 
             $path = script_exec(array('commands' => array('base/init_global_data_path')));
 
-            if(!file_exists($path)) {
+            if (!file_exists($path)) {
                 /*
                  * Something went wrong and it was not created anyway
                  */
@@ -70,15 +70,15 @@ try{
     /*
      * Now check if the specified section exists
      */
-    if($section and !file_exists($path.$section)) {
+    if ($section and !file_exists($path.$section)) {
         file_ensure_path($path.$section);
     }
 
-    if($writable and !is_writable($path.$section)) {
+    if ($writable and !is_writable($path.$section)) {
         throw new CoreException(tr('The global path ":path" is not writable', array(':path' => $path.$section)), 'not-writable');
     }
 
-    if(!$global_path = realpath($path.$section)) {
+    if (!$global_path = realpath($path.$section)) {
         /*
          * Curious, the path exists, but realpath failed and returned false..
          * This should never happen since we ensured the path above! This is just an extra check in case of.. weird problems :)
@@ -88,7 +88,7 @@ try{
 
     return Strings::slash($global_path);
 
-}catch(BException $e) {
+}catch(CoreException $e) {
     throw new CoreException('get_global_data_path(): Failed', $e);
 }
 ?>

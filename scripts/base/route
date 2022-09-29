@@ -29,7 +29,7 @@ switch(cli_method()) {
                  */
                 $routes = sql_query('SELECT `id`, `applied`, `status`, `createdon`, `expiredon`, `ip`, `uri`, `target`, `regex`, `flags` FROM `routes_static` ORDER BY `createdon`');
 
-                if(!$routes->rowCount()) {
+                if (!$routes->rowCount()) {
                         log_console(tr('There are currently no static routes registered'), 'QUIET/yellow');
 
                 } else {
@@ -63,7 +63,7 @@ switch(cli_method()) {
                 $resource = sql_query('UPDATE `routes_static` SET `status` = "reset" WHERE `ip` IN ('.sql_in_columns($argv).') AND `status` IS NULL', $argv);
                 $count    = $resource->rowCount();
 
-                if($count) {
+                if ($count) {
                     log_console(tr('Reset a total of ":count" routes', array(':count' => $count)), 'green');
 
                 } else {

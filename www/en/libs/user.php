@@ -44,7 +44,7 @@ function user_data($id) {
         $key  = 'USER-'.$id;
         $user = memcached_get($key);
 
-        if(empty($user)) {
+        if (empty($user)) {
             $user = sql_get('SELECT * FROM users WHERE id = :id', array(':id' => cfi($id)));
             memcached_put($key, $user);
 
@@ -66,11 +66,11 @@ function user_avatar($avatar, $type = null) {
     global $_CONFIG;
 
     try{
-        if(!$type) {
+        if (!$type) {
             $type = '';
         }
 
-        if(empty($avatar)) {
+        if (empty($avatar)) {
             return 'img/default-user.png';
         }
 
@@ -90,8 +90,8 @@ function user_update_avatar($user, $avatar) {
     global $_CONFIG;
 
     try{
-        if(!is_numeric($user)) {
-            if(!is_array($user) or empty($user['id'])) {
+        if (!is_numeric($user)) {
+            if (!is_array($user) or empty($user['id'])) {
                 throw new CoreException('user_update_avatar(): Invalid user specified');
             }
 
@@ -116,8 +116,8 @@ function user_find_avatar($user) {
     global $_CONFIG;
 
     try{
-        if(!is_array($user)) {
-            if(!is_numeric($user)) {
+        if (!is_array($user)) {
+            if (!is_numeric($user)) {
                 throw new CoreException('user_find_avatar(): Invalid user specified');
             }
 
@@ -127,20 +127,20 @@ function user_find_avatar($user) {
         /*
          * Try getting an avatar from Facebook, Google, Microsoft (or Gravatar maybe?)
          */
-        if(!empty($user['fb_id'])) {
+        if (!empty($user['fb_id'])) {
             load_libs('facebook');
             return facebook_get_avatar($user);
 
-        } elseif(!empty($user['gp_id'])) {
+        } elseif (!empty($user['gp_id'])) {
             load_libs('google');
             return google_get_avatar($user);
 
-        } elseif(!empty($user['ms_id'])) {
+        } elseif (!empty($user['ms_id'])) {
             load_libs('microsoft');
             return microsoft_get_avatar($user);
 
 // :TODO: Implement one day in the future
-//        } elseif($_CONFIG['gravatar']) {
+//        } elseif ($_CONFIG['gravatar']) {
 //            load_libs('gravatar');
 //            return gravatar_get_avatar($user);
 
@@ -161,24 +161,24 @@ function user_find_avatar($user) {
  */
 function user_update_groups($user, $groups, $validate = false) {
     try{
-        if(!$validate) {
+        if (!$validate) {
             $users_id = $user;
 
         } else {
             /*
              * Validate user
              */
-            if(!$user) {
+            if (!$user) {
                 throw new CoreException(tr('user_add_to_group(): No user specified'), 'not-specified');
             }
 
-            if(is_numeric($user)) {
+            if (is_numeric($user)) {
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE `id` = :id', true, array(':id' => $user));
 
             } else {
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
-                if(!$users_id) {
+                if (!$users_id) {
                     throw new CoreException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
                 }
             }
@@ -186,7 +186,7 @@ function user_update_groups($user, $groups, $validate = false) {
 
         sql_query('DELETE FROM `users_groups` WHERE `users_id` = :users_id', array(':users_id' => $users_id));
 
-        if($groups) {
+        if ($groups) {
             return user_add_to_group($user, $groups, false);
         }
 
@@ -206,12 +206,12 @@ function user_update_groups($user, $groups, $validate = false) {
  */
 function user_load_groups($user = null) {
     try{
-        if(!$user) {
-            if(empty($_SESSION['user']['id'])) {
+        if (!$user) {
+            if (empty($_SESSION['user']['id'])) {
                 return null;
             }
 
-            if(empty($_SESSION['user']['groups'])) {
+            if (empty($_SESSION['user']['groups'])) {
                 $_SESSION['user']['groups'] = sql_list('SELECT    `groups`.`seoname`,
                                                                   `groups`.`name`
 
@@ -228,8 +228,8 @@ function user_load_groups($user = null) {
             return $_SESSION['user']['groups'];
         }
 
-        if(is_array($user)) {
-            if(empty($user['id'])) {
+        if (is_array($user)) {
+            if (empty($user['id'])) {
                 throw new CoreException(tr('user_load_groups(): Specified user array does not contain required "id" field'), 'invalid');
             }
 
@@ -262,7 +262,7 @@ function user_load_groups($user = null) {
  */
 function user_is_group_member($group_list, $user = null) {
     try{
-        if(empty($user['groups'])) {
+        if (empty($user['groups'])) {
             $groups = user_load_groups($user);
 
         } else {
@@ -270,7 +270,7 @@ function user_is_group_member($group_list, $user = null) {
         }
 
         foreach(Arrays::force($group_list) as $group) {
-            if(!in_array($group, $groups)) {
+            if (!in_array($group, $groups)) {
                 return false;
             }
         }
@@ -289,24 +289,24 @@ function user_is_group_member($group_list, $user = null) {
  */
 function user_add_to_group($user, $groups, $validate = true) {
     try{
-        if(!$validate) {
+        if (!$validate) {
             $users_id = $user;
 
         } else {
             /*
              * Validate user
              */
-            if(!$user) {
+            if (!$user) {
                 throw new CoreException(tr('user_add_to_group(): No user specified'), 'not-specified');
             }
 
-            if(is_numeric($user)) {
+            if (is_numeric($user)) {
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE `id` = :id', 'id', array(':id' => $user));
 
             } else {
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
-                if(!$users_id) {
+                if (!$users_id) {
                     throw new CoreException(tr('user_add_to_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
                 }
             }
@@ -315,15 +315,15 @@ function user_add_to_group($user, $groups, $validate = true) {
         /*
          * Validate group
          */
-        if(!$groups) {
+        if (!$groups) {
             throw new CoreException(tr('user_add_to_group(): No groups specified'), 'not-specified');
         }
 
-        if(is_numeric($groups)) {
+        if (is_numeric($groups)) {
             $groups_id = sql_get('SELECT `id` FROM `groups` WHERE `id` = :id', 'id', array(':id' => $groups));
 
         } else {
-            if(is_string($groups) and strstr($groups, ',')) {
+            if (is_string($groups) and strstr($groups, ',')) {
                 /*
                  * Groups specified as CSV list
                  */
@@ -333,13 +333,13 @@ function user_add_to_group($user, $groups, $validate = true) {
             /*
              * Add user to multiple groups?
              */
-            if(is_array($groups)) {
+            if (is_array($groups)) {
                 $count = 0;
 
                 foreach($groups as $group) {
-                    if(!$group) continue;
+                    if (!$group) continue;
 
-                    if(user_add_to_group($user, $group, false)) {
+                    if (user_add_to_group($user, $group, false)) {
                         $count++;
                     }
                 }
@@ -349,7 +349,7 @@ function user_add_to_group($user, $groups, $validate = true) {
 
             $groups_id = sql_get('SELECT `id` FROM `groups` WHERE `seoname` = :seoname', 'id', array(':seoname' => $groups));
 
-            if(!$groups_id) {
+            if (!$groups_id) {
                 throw new CoreException(tr('user_add_to_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exists');
             }
         }
@@ -359,7 +359,7 @@ function user_add_to_group($user, $groups, $validate = true) {
          */
         $exists = sql_get('SELECT `users_id` FROM `users_groups` WHERE `users_id` = :users_id AND `groups_id` = :groups_id', 'users_id', array(':users_id'  => $users_id, ':groups_id' => $groups_id));
 
-        if($exists) {
+        if ($exists) {
             return 0;
         }
 
@@ -386,24 +386,24 @@ function user_add_to_group($user, $groups, $validate = true) {
  */
 function user_remove_from_group($user, $groups, $validate = true) {
     try{
-        if(!$validate) {
+        if (!$validate) {
             $users_id = $user;
 
         } else {
             /*
              * Validate user
              */
-            if(!$user) {
+            if (!$user) {
                 throw new CoreException(tr('user_remove_from_group(): No user specified'), 'not-specified');
             }
 
-            if(is_numeric($user)) {
+            if (is_numeric($user)) {
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE `id` = :id', 'id', array(':id' => $user));
 
             } else {
                 $users_id = sql_get('SELECT `id` FROM `users` WHERE (`username` = :username OR `email` = :email)', 'id', array(':username' => $user, ':email' => $user));
 
-                if(!$users_id) {
+                if (!$users_id) {
                     throw new CoreException(tr('user_remove_from_group(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
                 }
             }
@@ -412,15 +412,15 @@ function user_remove_from_group($user, $groups, $validate = true) {
         /*
          * Validate group
          */
-        if(!$groups) {
+        if (!$groups) {
             throw new CoreException(tr('user_remove_from_group(): No groups specified'), 'not-specified');
         }
 
-        if(is_numeric($groups)) {
+        if (is_numeric($groups)) {
             $groups_id = sql_get('SELECT `id` FROM `groups` WHERE `id` = :id', 'id', array(':id' => $groups));
 
         } else {
-            if(is_string($groups) and strstr($groups, ',')) {
+            if (is_string($groups) and strstr($groups, ',')) {
                 /*
                  * Groups specified as CSV list
                  */
@@ -430,11 +430,11 @@ function user_remove_from_group($user, $groups, $validate = true) {
             /*
              * Add user to multiple groups?
              */
-            if(is_array($groups)) {
+            if (is_array($groups)) {
                 $count = 0;
 
                 foreach($groups as $group) {
-                    if(user_remove_from_group($user, $group, false)) {
+                    if (user_remove_from_group($user, $group, false)) {
                         $count++;
                     }
                 }
@@ -444,7 +444,7 @@ function user_remove_from_group($user, $groups, $validate = true) {
 
             $groups_id = sql_get('SELECT `id` FROM `groups` WHERE `seoname` = :seoname', 'id', array(':seoname' => $groups));
 
-            if(!$groups_id) {
+            if (!$groups_id) {
                 throw new CoreException(tr('user_remove_from_group(): Specified group ":group" does not exist', array(':group' => $groups)), 'not-exists');
             }
         }
@@ -485,11 +485,11 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * Data validation and get user data
          */
-        if(!is_scalar($username)) {
+        if (!is_scalar($username)) {
             throw new CoreException('user_authenticate(): Specified username is not valid', 'invalid');
         }
 
-        if($status) {
+        if ($status) {
             /*
              * If specified, status will be treated as a list or array of
              * allowed statuses. If NULL is still authorized, then it can be
@@ -501,7 +501,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
 
 
             foreach($in as $key => $status_value) {
-                if(($status_value === 'null') or ($status_value === null)) {
+                if (($status_value === 'null') or ($status_value === null)) {
                     $null = true;
                     unset($in[$key]);
                     break;
@@ -515,7 +515,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             $execute[':email']    = $username;
             $execute[':username'] = $username;
 
-        } elseif($status === null) {
+        } elseif ($status === null) {
             $where = ' WHERE  `status`   IS NULL
                        AND   (`email`    = :email
                        OR     `username` = :username)';
@@ -523,7 +523,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             $execute = array(':email'    => $username,
                              ':username' => $username);
 
-        } elseif($status === false) {
+        } elseif ($status === false) {
             $where = ' WHERE (`email`    = :email
                        OR     `username` = :username)';
 
@@ -540,7 +540,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
 
                          FROM   `users` '.$where, $execute);
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException(tr('user_authenticate(): Specified user account ":username" with status ":status" not found', array(':username' => $username, ':status' => $status)), 'not-exists');
         }
 
@@ -549,11 +549,11 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * Check authentication failures and account locking
          */
-        if($user['locked_left'] > 0) {
+        if ($user['locked_left'] > 0) {
             /*
              * Only lock if configured to do so
              */
-            if($_CONFIG['security']['authentication']['auto_lock_fails'] and $_CONFIG['security']['authentication']['auto_lock_time']) {
+            if ($_CONFIG['security']['authentication']['auto_lock_fails'] and $_CONFIG['security']['authentication']['auto_lock_time']) {
                 throw new CoreException(tr('user_authenticate(): Specified user account is locked'), 'warning/locked', array('locked' => $user['locked_left']));
             }
         }
@@ -561,11 +561,11 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * If we have too many auth_fails then lock the account temporarily
          */
-        if(!$user['locked_until'] and ($user['auth_fails'] >= $_CONFIG['security']['authentication']['auto_lock_fails'])) {
+        if (!$user['locked_until'] and ($user['auth_fails'] >= $_CONFIG['security']['authentication']['auto_lock_fails'])) {
             /*
              * Only lock if configured to do so
              */
-            if($_CONFIG['security']['authentication']['auto_lock_fails'] and $_CONFIG['security']['authentication']['auto_lock_time']) {
+            if ($_CONFIG['security']['authentication']['auto_lock_fails'] and $_CONFIG['security']['authentication']['auto_lock_time']) {
                 $user['locked_left'] = $_CONFIG['security']['authentication']['auto_lock_time'];
 
                 sql_query('UPDATE `users`
@@ -580,7 +580,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             }
         }
 
-        if($user['locked_until']) {
+        if ($user['locked_until']) {
             /*
              * This account was locked but the timout expired. Set the
              * locked_until date back to NULL. We haven't authenticated yet, but
@@ -601,7 +601,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * User with "type" not null are special users that are not allowed to sign in
          */
-        if(!empty($user['type'])) {
+        if (!empty($user['type'])) {
             /*
              * This check will only do anything if the users table contains the "type" column. If it doesn't, nothing will ever happen here, really
              */
@@ -616,14 +616,14 @@ function user_authenticate($username, $password, $captcha = null, $status = null
          */
         $failures = $_CONFIG['security']['authentication']['captcha_failures'] - 1;
 
-        if($failures < 0) {
+        if ($failures < 0) {
             $failures = 0;
         }
 
         $captcha_required = false;
         // $captcha_required = ($captcha or user_authentication_requires_captcha($failures));
 
-        if($captcha_required) {
+        if ($captcha_required) {
 // :TODO: There might be a configuration issue where $_CONFIG['captcha']['type'] is disabled, but $captcha_required does require captcha..
             load_libs('captcha');
 
@@ -640,7 +640,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * Compare user password
          */
-        if(substr($user['password'], 0, 1) != '*') {
+        if (substr($user['password'], 0, 1) != '*') {
             /*
              * No encryption method specified, assume SHA1
              */
@@ -650,7 +650,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             $algorithm = Strings::cut(($user['password'], '*', '*');
         }
 
-        if(strlen($password) > 256) {
+        if (strlen($password) > 256) {
             throw new CoreException(tr('user_authenticate(): Specified password too long, should be less than 256 characters'), 'invalid');
         }
 
@@ -667,7 +667,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
             }
         }
 
-        if($password != Strings::fromReverse($user['password'], '*')) {
+        if ($password != Strings::fromReverse($user['password'], '*')) {
             log_file(tr('user_authenticate(): Specified password does not match stored password for user ":username"', array(':username' => $username)), 'authentication-failed');
             throw new CoreException(tr('user_authenticate(): Specified password does not match stored password'), 'access-denied');
         }
@@ -677,7 +677,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * Apply IP locking system
          */
-        if($_CONFIG['security']['signin']['ip_lock'] and (PLATFORM_HTTP)) {
+        if ($_CONFIG['security']['signin']['ip_lock'] and (PLATFORM_HTTP)) {
             include(__DIR__.'/handlers/user-ip-lock.php');
         }
 
@@ -686,8 +686,8 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * Check if authentication for this user is limited to a specific domain
          */
-        if(($_CONFIG['whitelabels']) and $user['domain']) {
-            if($user['domain'] !== $_SERVER['HTTP_HOST']) {
+        if (($_CONFIG['whitelabels']) and $user['domain']) {
+            if ($user['domain'] !== $_SERVER['HTTP_HOST']) {
                 throw new CoreException(tr('user_autohenticate(): User account ":name" is limited to authenticate only in domain ":domain"', array(':name' => name($user), ':domain' => $user['domain'])), 'domain-limit');
             }
         }
@@ -697,8 +697,8 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * Use two factor authentication, the user has to authenticate by SMS as well
          */
-        if($_CONFIG['security']['signin']['two_factor']) {
-            if(empty($user['phone'])) {
+        if ($_CONFIG['security']['signin']['two_factor']) {
+            if (empty($user['phone'])) {
                 throw new CoreException('user_autohenticate(): Two factor authentication impossible for user account "'.$user['id'].' / '.$user['name'].'" because no phone is registered', 'two-factor-no-phone');
             }
 
@@ -727,7 +727,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * Set users timezone
          */
-        if(empty($user['timezone'])) {
+        if (empty($user['timezone'])) {
             $user['timezone'] = $_CONFIG['timezone']['display'];
         }
 
@@ -742,8 +742,8 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         /*
          * If a certain account is being attacked, then lock it temporarily
          */
-        if(!empty($user['id'])) {
-            if(!$user['locked_left'] and (($user['auth_fails'] + 1) >= $_CONFIG['security']['authentication']['auto_lock_fails'])) {
+        if (!empty($user['id'])) {
+            if (!$user['locked_left'] and (($user['auth_fails'] + 1) >= $_CONFIG['security']['authentication']['auto_lock_fails'])) {
                 sql_query('UPDATE `users`
 
                            SET    `locked_until` = UTC_TIMESTAMP() + INTERVAL '.$_CONFIG['security']['authentication']['auto_lock_time'].' SECOND,
@@ -776,12 +776,12 @@ function user_authenticate($username, $password, $captcha = null, $status = null
         user_log_authentication($username, isset_get($user['id']), isset_get($captcha_required), $e);
         usleep(mt_rand(1000, 2000000));
 
-        if($e->getCode() == 'password') {
+        if ($e->getCode() == 'password') {
             /*
              * Password match failed. Check old passwords table to see if
              * perhaps the user used an old password
              */
-            if($date = sql_get('SELECT `createdon` FROM `passwords` WHERE `users_id` = :users_id AND `password` = :password', 'id', array(':users_id' => isset_get($user['id']), ':password' => isset_get($password)))) {
+            if ($date = sql_get('SELECT `createdon` FROM `passwords` WHERE `users_id` = :users_id AND `password` = :password', 'id', array(':users_id' => isset_get($user['id']), ':password' => isset_get($password)))) {
                 $date = new DateTime($date);
                 throw new CoreException('user_authenticate(): Your password was updated on "'.str_log($date->format($_CONFIG['formats']['human_date'])).'"', 'oldpassword');
             }
@@ -798,7 +798,7 @@ function user_authenticate($username, $password, $captcha = null, $status = null
  */
 function user_log_authentication($username, $users_id, $captcha_required, $e = null) {
     try{
-        if($e) {
+        if ($e) {
             $failed_reason = $e->getMessage();
             $status        = $e->getCode();
 
@@ -832,16 +832,16 @@ function user_authentication_requires_captcha($failures = null) {
     static $result = null;
 
     try{
-        if(is_bool($result)) {
+        if (is_bool($result)) {
             return $result;
         }
 
-        if(!$failures) {
+        if (!$failures) {
             $failures = $_CONFIG['security']['authentication']['captcha_failures'];
         }
 
-        if(!$failures) {
-            if($failures === false) {
+        if (!$failures) {
+            if ($failures === false) {
                 /*
                  * Never use CAPTCHA!
                  */
@@ -870,12 +870,12 @@ function user_authentication_requires_captcha($failures = null) {
 
                            array(':ip' => isset_get($_SERVER['REMOTE_ADDR'])));
 
-        if($list->rowCount() < $failures) {
+        if ($list->rowCount() < $failures) {
             return false;
         }
 
         while(($fail = sql_fetch($list, true)) !== null) {
-            if(!$fail) {
+            if (!$fail) {
                 /*
                  * We had a non failure in between, so we're okay
                  */
@@ -913,16 +913,16 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
     global $_CONFIG;
 
     try{
-        if($redirect === null) {
-            if(isset_get($_GET['redirect'])) {
+        if ($redirect === null) {
+            if (isset_get($_GET['redirect'])) {
                 $redirect = $_GET['redirect'];
 
-            } elseif(isset_get($_GET['redirect'])) {
+            } elseif (isset_get($_GET['redirect'])) {
                 $redirect = $_GET['redirect'];
             }
         }
 
-        if(!is_array($user)) {
+        if (!is_array($user)) {
             throw new CoreException('user_signin(): Specified user variable is not an array', 'invalid');
         }
 
@@ -930,15 +930,15 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
          * HTTP signin requires cookie support and an already active session!
          * Shell signin requires neither
          */
-        if((PLATFORM_HTTP) and (empty($_COOKIE) or !session_id())) {
+        if ((PLATFORM_HTTP) and (empty($_COOKIE) or !session_id())) {
             throw new CoreException('user_signin(): This user has no active session or no session id, so probably has no cookies', 'cookies-required');
         }
 
-        if(session_status() == PHP_SESSION_ACTIVE) {
+        if (session_status() == PHP_SESSION_ACTIVE) {
             /*
              * Reset session data
              */
-            if($_CONFIG['security']['signin']['destroy_session']) {
+            if ($_CONFIG['security']['signin']['destroy_session']) {
                 session_destroy();
                 session_start();
                 session_regenerate_id();
@@ -950,11 +950,11 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
          */
         sql_query('UPDATE `users` SET `last_signin` = UTC_TIMESTAMP(), `signin_count` = `signin_count` + 1 WHERE `id` = :id', array(':id' => cfi($user['id'])));
 
-        if($extended) {
+        if ($extended) {
             user_create_extended_session($user['id']);
         }
 
-        if(empty($user['avatar'])) {
+        if (empty($user['avatar'])) {
             try{
                 $user['avatar'] = user_find_avatar($user);
 
@@ -971,8 +971,8 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
         $user['employee'] = companies_get_employee(array('filters' => array('users_id' => $user['id'],
                                                                             'status'   => null)));
 
-        if($user['employee']) {
-            if($user['employee']['customers_id']) {
+        if ($user['employee']) {
+            if ($user['employee']['customers_id']) {
                 /*
                  * Load customers data
                  */
@@ -981,7 +981,7 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
                                                         'columns' => 'name,seoname'));
             }
 
-            if($user['employee']['providers_id']) {
+            if ($user['employee']['providers_id']) {
                 /*
                  * Load providers data
                  */
@@ -993,31 +993,31 @@ function user_signin($user, $extended = false, $redirect = null, $html_flash = n
 
         $_SESSION['user'] = $user;
 
-        if($coupon) {
+        if ($coupon) {
             load_libs('coupons');
             coupons_add_coupon($coupon);
         }
 
-        if(empty($_SESSION['user']['roles_id'])) {
+        if (empty($_SESSION['user']['roles_id'])) {
             $_SESSION['user']['role'] = null;
 
         } else {
             $_SESSION['user']['role'] = sql_get('SELECT `roles`.`name` FROM `roles` WHERE `id` = :id', 'name', array(':id' => $_SESSION['user']['roles_id']));
         }
 
-        if($html_flash) {
+        if ($html_flash) {
             html_flash_set(isset_get($html_flash['text']), isset_get($html_flash['type']), isset_get($html_flash['class']));
         }
 
-        if(empty($_SESSION['user']['language'])) {
+        if (empty($_SESSION['user']['language'])) {
             $_SESSION['user']['language'] = $_CONFIG['language']['default'];
         }
 
-        if($redirect and (PLATFORM_HTTP)) {
+        if ($redirect and (PLATFORM_HTTP)) {
             /*
              * Do not redirect to signin page
              */
-            if($redirect == $_CONFIG['redirects']['signin']) {
+            if ($redirect == $_CONFIG['redirects']['signin']) {
                 $redirect = $_CONFIG['redirects']['index'];
             }
 
@@ -1045,13 +1045,13 @@ function user_signout() {
     try{
         $cookie = isset_get($_COOKIE['base']);
 
-        if(isset($_COOKIE['extsession'])) {
+        if (isset($_COOKIE['extsession'])) {
             /*
              * Remove cookie
              */
             setcookie('extsession', 'stub', 1);
 
-            if(isset($_SESSION['user'])) {
+            if (isset($_SESSION['user'])) {
                 sql_query('DELETE FROM `extended_sessions` WHERE `users_id` = :users_id', array('users_id' => cfi($_SESSION['user']['id'])));
             }
         }
@@ -1064,7 +1064,7 @@ function user_signout() {
         session_destroy();
         setcookie('base', 'stub', 1, '/');
 
-        if($cookie) {
+        if ($cookie) {
             file_delete(ROOT.'data/cookies/sess_'.$cookie, ROOT.'data/cookies');
         }
 
@@ -1082,7 +1082,7 @@ function user_create_extended_session($users_id) {
     global $_CONFIG;
 
     try{
-        if(!$_CONFIG['sessions']['extended']) {
+        if (!$_CONFIG['sessions']['extended']) {
             return false;
         }
 
@@ -1092,7 +1092,7 @@ function user_create_extended_session($users_id) {
         $code = sha1($users_id.'-'.uniqid($_SESSION['domain'], true).'-'.time());
 
         //remove old entries
-        if($_CONFIG['sessions']['extended']['clear'] != false) {
+        if ($_CONFIG['sessions']['extended']['clear'] != false) {
             sql_query('DELETE FROM `extended_sessions` WHERE `users_id` = :users_id', array('users_id' => cfi($users_id)));
         }
 
@@ -1125,13 +1125,13 @@ function user_set_verify_code($user, $email_type = false, $email = null) {
     try{
         load_libs('email');
 
-        if(!is_array($user)) {
+        if (!is_array($user)) {
             throw new CoreException('user_set_verify_code(): Invalid user specified', 'invalid');
         }
 
         $code = sql_get('SELECT `verify_code` FROM `users` WHERE `id` = :id', true, array(':id' => cfi($user['id'])));
 
-        if(!$code) {
+        if (!$code) {
             /*
              * Create a unique code.
              */
@@ -1150,7 +1150,7 @@ function user_set_verify_code($user, $email_type = false, $email = null) {
                             array(':id'          => cfi($user['id']),
                                   ':verify_code' => cfm($code)));
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 throw new CoreException(tr('user_set_verify_code(): Specified user ":user" does not exist', array(':user' => $user['id'])), 'not-exists');
             }
         }
@@ -1201,7 +1201,7 @@ function user_verify($code) {
     try{
         $user = sql_get('SELECT * FROM `users` WHERE `verify_code` = :verify_code', array(':verify_code' => cfm($code)));
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException(tr('user_verify(): The specified verify code ":code" does not exist', array(':code' => $code)), 'not-exists');
         }
 
@@ -1215,7 +1215,7 @@ function user_verify($code) {
 
                    WHERE  `id`          = :id', array(':id' => cfi($user['id'])));
 
-        if(isset_get($_SESSION['user']['id']) == $user['id']) {
+        if (isset_get($_SESSION['user']['id']) == $user['id']) {
             /*
              * Hey, the currently logged in user is the user being verified!
              */
@@ -1269,14 +1269,14 @@ function user_signup($user, $options = null) {
     try{
         Arrays::ensure($options, 'no_password,role');
 
-        if($options['role']) {
+        if ($options['role']) {
             /*
              * This option forces the user to be the specified role
              */
             $user['role'] = $options['role'];
         }
 
-        if(empty($user['password']) and (isset_get($user['status']) !== '_new') and !$options['no_password']) {
+        if (empty($user['password']) and (isset_get($user['status']) !== '_new') and !$options['no_password']) {
             throw new CoreException(tr('user_signup(): Please specify a password'), 'not-specified');
         }
 
@@ -1435,45 +1435,45 @@ function user_update_password($params, $current = true) {
         array_default($params, 'validated'             , false);
         array_default($params, 'check_banned_passwords', true);
 
-        if(!is_array($params)) {
+        if (!is_array($params)) {
             throw new CoreException(tr('user_update_password(): Invalid params specified'), 'invalid');
         }
 
-        if(empty($params['id'])) {
+        if (empty($params['id'])) {
             throw new CoreException(tr('user_update_password(): No users id specified'), 'not-specified');
         }
 
-        if(empty($params['password'])) {
+        if (empty($params['password'])) {
             throw new CoreException(tr('user_update_password(): Please specify a password'), 'warning/not-specified');
         }
 
-        if(empty($params['password2'])) {
+        if (empty($params['password2'])) {
             throw new CoreException(tr('user_update_password(): No validation password specified'), 'not-specified');
         }
 
         /*
          * Check if password is equal to password2
          */
-        if($params['password'] != $params['password2']) {
+        if ($params['password'] != $params['password2']) {
             throw new CoreException(tr('user_update_password(): Specified password does not match the validation password'), 'warning/mismatch');
         }
 
         /*
          * Check if password is NOT equal to cpassword
          */
-        if($current and ($params['password'] == $params['cpassword'])) {
+        if ($current and ($params['password'] == $params['cpassword'])) {
             throw new CoreException(tr('user_update_password(): Specified new password is the same as the current password'), 'warning/same');
         }
 
-        if($current) {
-            if(empty($params['cpassword'])) {
+        if ($current) {
+            if (empty($params['cpassword'])) {
                 throw new CoreException(tr('user_update_password(): Please specify the current password'), 'warning/not-specified');
             }
 
             user_authenticate($_SESSION['user']['email'], $params['cpassword']);
         }
 
-        if(!$params['validated']) {
+        if (!$params['validated']) {
             /*
              * Check password strength
              */
@@ -1489,7 +1489,7 @@ function user_update_password($params, $current = true) {
          * Ensure that this new password is not the same as one of the N
          * previous passwords in N previous days
          */
-        if($_CONFIG['security']['passwords']['unique_days']) {
+        if ($_CONFIG['security']['passwords']['unique_days']) {
             $list = sql_query('SELECT   `password`
 
                                FROM     `passwords`
@@ -1505,7 +1505,7 @@ function user_update_password($params, $current = true) {
                                      ':day'      => $_CONFIG['security']['passwords']['unique_days']));
 
             while($previous = sql_fetch($list)) {
-                if($previous == $password) {
+                if ($previous == $password) {
                     /*
                      * This password has been used before
                      */
@@ -1529,12 +1529,12 @@ function user_update_password($params, $current = true) {
                               ':modifiedby' => isset_get($_SESSION['user']['id']),
                               ':password'   => $password));
 
-        if(!$r->rowCount()) {
+        if (!$r->rowCount()) {
             /*
              * Nothing was updated. This may be because the password remained the same, OR
              * because the user does not exist. check for this!
              */
-            if(!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', 'id', array(':id' => $params['id']))) {
+            if (!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', 'id', array(':id' => $params['id']))) {
                 throw new CoreException(tr('user_update_password(): The specified users_id "'.str_log($params['id']).'" does not exist'), 'not-exists');
             }
 
@@ -1569,16 +1569,16 @@ function user_get($user = null, $status = null) {
     global $_CONFIG;
 
     try{
-        if($user) {
-            if(!is_scalar($user)) {
-                if(!is_array($user)) {
+        if ($user) {
+            if (!is_scalar($user)) {
+                if (!is_array($user)) {
                     throw new CoreException(tr('user_get(): Specified user data ":data" is not scalar or array', array(':data' => $user)), 'invalid');
                 }
 
                 $user = $user['id'];
             }
 
-            if(is_numeric($user)) {
+            if (is_numeric($user)) {
                 $retval = sql_get('SELECT    `users`.*,
                                              `users`.`password`      AS `password2`,
 
@@ -1659,7 +1659,7 @@ function user_get($user = null, $status = null) {
 
                                array(':createdby' => $_SESSION['user']['id']));
 
-            if(!$retval) {
+            if (!$retval) {
                 $id = user_signup(array('status' => '_new'), array('no_validation' => true));
                 return user_get(null);
             }
@@ -1679,8 +1679,8 @@ function user_get($user = null, $status = null) {
  */
 function user_load_rights($user) {
     try{
-        if(!is_numeric($user)) {
-            if(!is_array($user)) {
+        if (!is_numeric($user)) {
+            if (!is_array($user)) {
                 throw new CoreException('user_load_rights(): Invalid user, please specify either users_id or user array with id', 'invalid');
             }
 
@@ -1720,7 +1720,7 @@ function user_switch($users_id, $redirect = '/') {
 //    global $_CONFIG;
 //
 //    try{
-//        if(empty($_CONFIG['security']['signin']['save_password'])) {
+//        if (empty($_CONFIG['security']['signin']['save_password'])) {
 //            /*
 //             * Clear username and password fields, to ensure they are not being used
 //             */
@@ -1731,14 +1731,14 @@ function user_switch($users_id, $redirect = '/') {
 //             * Password field is password********
 //             */
 //            foreach(array_max($post) as $key => $value) {
-//                if((substr($key, 0, 8) == 'password') and (strlen($key) == 16)) {
+//                if ((substr($key, 0, 8) == 'password') and (strlen($key) == 16)) {
 //                    /*
 //                     * This is the password field, set it.
 //                     */
 //                    $post['password'] = $post[$key];
 //                    unset($post[$key]);
 //
-//                } elseif((substr($key, 0, 8) == 'username') and (strlen($key) == 16)) {
+//                } elseif ((substr($key, 0, 8) == 'username') and (strlen($key) == 16)) {
 //                    /*
 //                     * This is the username field, set it.
 //                     */
@@ -1747,7 +1747,7 @@ function user_switch($users_id, $redirect = '/') {
 //                    continue;
 //                }
 //
-//                if(isset($post['username']) and isset($post['password'])) {
+//                if (isset($post['username']) and isset($post['password'])) {
 //                    break;
 //                }
 //            }
@@ -1768,11 +1768,11 @@ function user_switch($users_id, $redirect = '/') {
  */
 function user_update_rights($user) {
     try{
-        if(empty($user['id'])) {
+        if (empty($user['id'])) {
             throw new CoreException('user_update_rights(): Cannot update rights, no user specified', 'not-specified');
         }
 
-        if(empty($user['roles_id'])) {
+        if (empty($user['roles_id'])) {
             throw new CoreException('user_update_rights(): Cannot update rights, no role specified', 'not-specified');
         }
 
@@ -1829,8 +1829,8 @@ function user_password_strength($password, $check_banned = true, $exception = tr
         $strength = 10;
         $length   = strlen($password);
 
-        if($length < 8) {
-            if(!$length) {
+        if ($length < 8) {
+            if (!$length) {
                 throw new CoreException(tr('user_password_strength(): No password specified'), 'not-specified');
             }
 
@@ -1840,21 +1840,21 @@ function user_password_strength($password, $check_banned = true, $exception = tr
         /*
          * Check for banned passwords
          */
-        if($check_banned) {
+        if ($check_banned) {
             user_password_banned($password);
         }
 
         /*
          * Check if password is not all lower case
          */
-        if(strtolower($password) != $password) {
+        if (strtolower($password) != $password) {
             $strength += 5;
         }
 
         /*
          * Check if password is not all upper case
          */
-        if(strtoupper($password) != $password) {
+        if (strtoupper($password) != $password) {
             $strength += 5;
         }
 
@@ -1901,7 +1901,7 @@ function user_password_strength($password, $check_banned = true, $exception = tr
         $counts = array();
 
         for($i = 0; $i < $length; $i++) {
-            if(empty($counts[$password[$i]])) {
+            if (empty($counts[$password[$i]])) {
                 $counts[$password[$i]] = substr_count($password, $password[$i]);
             }
         }
@@ -1910,7 +1910,7 @@ function user_password_strength($password, $check_banned = true, $exception = tr
 
         $count = (array_pop($counts) + array_pop($counts) + array_pop($counts));
 
-        if(($count / ($length + 3) * 10) >= 3) {
+        if (($count / ($length + 3) * 10) >= 3) {
             $strength = $strength - ($strength * ($count / $length));
 
         } else {
@@ -1925,8 +1925,8 @@ function user_password_strength($password, $check_banned = true, $exception = tr
 
         log_console(tr('Password strength is ":strength"', array(':strength' => number_format($strength, 2))), 'VERBOSE');
 
-        if($_CONFIG['users']['password_minumum_strength'] and ($strength < $_CONFIG['users']['password_minumum_strength'])) {
-            if($exception) {
+        if ($_CONFIG['users']['password_minumum_strength'] and ($strength < $_CONFIG['users']['password_minumum_strength'])) {
+            if ($exception) {
                 throw new CoreException(tr('user_password_strength(): The specified password is too weak, please use a better password. Use more characters, add numbers, special characters, caps characters, etc. On a scale of 1-10, current strength is ":strength"', array(':strength' => $strength)), 'validation');
             }
 
@@ -1949,7 +1949,7 @@ function user_password_banned($password) {
     global $_CONFIG;
 
     try{
-        if(($password == $_CONFIG['domain']) or ($password == Strings::until($_CONFIG['domain'], '.'))) {
+        if (($password == $_CONFIG['domain']) or ($password == Strings::until($_CONFIG['domain'], '.'))) {
             throw new CoreException(tr('user_password_banned(): The default password is not allowed to be used'), 'banned');
         }
 
@@ -1982,23 +1982,23 @@ function user_validate($user, $options = array()) {
         $user['email2'] = $user['email'];
         $user['terms']  = true;
 
-        if($options['no_validation']) {
+        if ($options['no_validation']) {
             return $user;
         }
 
         /*
          * Validate domain
          */
-        if($user['domain']) {
+        if ($user['domain']) {
             $user['domain'] = trim(strtolower($user['domain']));
-            if($v->isRegex($user['domain'], '/[a-z.]/', tr('Please provide a valid domain name')));
+            if ($v->isRegex($user['domain'], '/[a-z.]/', tr('Please provide a valid domain name')));
 
             /*
              * Does the domain exist in the whitelabel system?
              */
             $exist = sql_get('SELECT `domain` FROM `whitelabels` WHERE `domain` = :domain', array(':domain' => $user['domain']));
 
-            if(!$exist) {
+            if (!$exist) {
                 $v->setError(tr('The specified domain ":domain" does not exist', array(':domain' => $user['domain'])));
             }
         }
@@ -2006,29 +2006,29 @@ function user_validate($user, $options = array()) {
         /*
          * Validate username
          */
-        if($user['username']) {
+        if ($user['username']) {
             $v->isAlphaNumeric($user['username'], tr('Please provide a valid username, it can only contain letters and numbers'), VALIDATE_IGNORE_DOT|VALIDATE_IGNORE_DASH);
 
-            if($v->isNumeric($user['username'])) {
+            if ($v->isNumeric($user['username'])) {
                 $v->setError(tr('Please provide a non numeric username'));
             }
 
             $username = substr($user['username'], 0, 1);
 
-            if($v->isNumeric($username)) {
+            if ($v->isNumeric($username)) {
                 $v->setError(tr('Please provide a username that does not start with a number'));
             }
 
             $exists = sql_query('SELECT `id` FROM `users` WHERE `username` = :username AND `id` != :id', array(':id' => isset_get($user['id']), ':username' => $user['username']));
 
-            if($exists->rowCount()) {
+            if ($exists->rowCount()) {
                 $v->setError(tr('The username ":username" is already taken', array(':username' => $user['username'])));
             }
 
         } else {
             $user['username'] = null;
 
-            if(!$user['email']) {
+            if (!$user['email']) {
                 $v->setError(tr('Please provide at least an email or username'));
             }
         }
@@ -2036,7 +2036,7 @@ function user_validate($user, $options = array()) {
         /*
          * Validate email address
          */
-        if($user['email']) {
+        if ($user['email']) {
             $v->isEmail($user['email'], tr('Please ensure that the specified email is valid'));
 
             /*
@@ -2044,7 +2044,7 @@ function user_validate($user, $options = array()) {
              */
             $exists = sql_get('SELECT `id` FROM `users` WHERE `email` = :email AND `id` != :id', true, array(':email' => $user['email'], ':id' => isset_get($user['id'], 0)));
 
-            if($exists) {
+            if ($exists) {
                 $v->setError(tr('The email address ":email" is already taken', array(':email' => $user['email'])));
             }
         } else {
@@ -2054,54 +2054,54 @@ function user_validate($user, $options = array()) {
         /*
          * Validate nickname
          */
-        if($user['nickname']) {
+        if ($user['nickname']) {
             $v->hasMinChars($user['nickname'], 2, tr('Please ensure that the users nick name has a minimum of 2 characters'));
 
-            if($_CONFIG['users']['unique_nicknames']) {
+            if ($_CONFIG['users']['unique_nicknames']) {
                 /*
                  * Double nicknames are NOT allowed
                  */
                 $exists = sql_get('SELECT `id` FROM `users` WHERE `nickname` = :nickname AND `id` != :id', true, array(':id' => $user['id'], ':nickname' => $user['nickname']));
 
-                if($exists) {
+                if ($exists) {
                     $v->setError(tr('The nickname ":nickname" is already taken', array(':nickname' => $user['nickname'])));
                 }
             }
         }
 
-        if($user['name']) {
+        if ($user['name']) {
             $v->hasMinChars($user['name'], 2, tr('Please ensure that the users name has a minimum of 2 characters'));
         }
 
-        if($user['title']) {
+        if ($user['title']) {
             $v->hasMinChars($user['title'],  2, tr('Please ensure that the users title has a minimum of 2 characters'));
             $v->hasMaxChars($user['title'], 24, tr('Please ensure that the users title has a minimum of 24 characters'));
         }
 
-        if($user['priority']) {
+        if ($user['priority']) {
             $v->isNumeric($user['priority'],  tr('Please ensure that the users priority is numeric'));
         }
 
-        if(!empty($user['reference_codes'])) {
-            if(!is_scalar($user['reference_codes'])) {
+        if (!empty($user['reference_codes'])) {
+            if (!is_scalar($user['reference_codes'])) {
                 $v->setError(tr('Please ensure that the reference number is a scalar value'));
             }
         }
 
-        if(!$user['timezone']) {
+        if (!$user['timezone']) {
             $user['timezone'] = $_CONFIG['timezone']['display'];
         }
 
         $v->isTimezone($user['timezone'], tr('Please specify a valid timezone'), VALIDATE_ALLOW_EMPTY_NULL);
 
-        if($options['role']) {
-            if(!empty($user['role'])) {
+        if ($options['role']) {
+            if (!empty($user['role'])) {
                 /*
                  * Role was specified by name
                  */
                 $user['roles_id'] = sql_get('SELECT `id` FROM `roles` WHERE `name` = :name', 'id', array(':name' => $user['role']));
 
-                if(!$user['roles_id']) {
+                if (!$user['roles_id']) {
                     $v->setError(tr('Specified role ":role" does not exist', array(':role' => $user['role'])));
                 }
 
@@ -2110,8 +2110,8 @@ function user_validate($user, $options = array()) {
             }
         }
 
-        if($user['roles_id']) {
-            if(!$role = sql_get('SELECT `id`, `name` FROM `roles` WHERE `id` = :id AND `status` IS NULL', array(':id' => $user['roles_id']))) {
+        if ($user['roles_id']) {
+            if (!$role = sql_get('SELECT `id`, `name` FROM `roles` WHERE `id` = :id AND `status` IS NULL', array(':id' => $user['roles_id']))) {
                 $v->setError(tr('The specified role does not exist'));
                 $user['role'] = null;
 
@@ -2123,17 +2123,17 @@ function user_validate($user, $options = array()) {
                  * God role? god role can only be managed by god users or
                  * command line users!
                  */
-                if($role['name'] === 'god') {
-                    if((PLATFORM_HTTP) and !has_rights('god')) {
+                if ($role['name'] === 'god') {
+                    if ((PLATFORM_HTTP) and !has_rights('god')) {
                         $v->setError(tr('The god role can only be assigned or changed by users with god role themselves'));
                     }
                 }
             }
         }
 
-        if($options['password']) {
-            if(empty($user['password'])) {
-                if(!$options['no_password']) {
+        if ($options['password']) {
+            if (empty($user['password'])) {
+                if (!$options['no_password']) {
                     $v->setError(tr('Please specify a password'));
                 }
 
@@ -2141,13 +2141,13 @@ function user_validate($user, $options = array()) {
                 /*
                  * Check password strength
                  */
-                if($options['validation_password']) {
-                    if($user['password'] === $user['password2']) {
+                if ($options['validation_password']) {
+                    if ($user['password'] === $user['password2']) {
                         try{
                             $strength = user_password_strength($user['password']);
 
                         }catch(Exception $e) {
-                            if($e->getCode() !== 'weak') {
+                            if ($e->getCode() !== 'weak') {
                                 /*
                                  * Erw, something went really wrong!
                                  */
@@ -2169,14 +2169,14 @@ function user_validate($user, $options = array()) {
          */
         $v->isValid();
 
-        if(!$user['type']) {
+        if (!$user['type']) {
             $user['type'] = null;
         }
 
         /*
          * Ensure that the phones are not in use
          */
-        if(!empty($user['phones'])) {
+        if (!empty($user['phones'])) {
             $user['phones'] = explode(',', $user['phones']);
 
             foreach($user['phones'] as &$phone) {
@@ -2189,7 +2189,7 @@ function user_validate($user, $options = array()) {
             $execute        = sql_in($user['phones'], ':phone');
 
             foreach($execute as &$phone) {
-                if($v->isPhonenumber($phone, tr('The phone number ":phone" is not valid', array(':phone' => $phone)))) {
+                if ($v->isPhonenumber($phone, tr('The phone number ":phone" is not valid', array(':phone' => $phone)))) {
                     $phone = '%'.$phone.'%';
                 }
             }
@@ -2212,14 +2212,14 @@ function user_validate($user, $options = array()) {
 
             $query .= ' ('.implode(' OR ', $where).')';
 
-            if(!empty($user['id'])) {
+            if (!empty($user['id'])) {
                 $query         .= ' AND `users`.`id` != :id';
                 $execute[':id'] = $user['id'];
             }
 
             $exists = sql_list($query, $execute);
 
-            if($exists) {
+            if ($exists) {
                 /*
                  * One or more phone numbers already exist with one or multiple users. Cross check and
                  * create a list of where the number was found
@@ -2228,7 +2228,7 @@ function user_validate($user, $options = array()) {
                     foreach($exists as $exist) {
                         $key = array_search($value, Arrays::force($exist['phones']));
 
-                        if($key !== false) {
+                        if ($key !== false) {
                             /*
                              * The current phone number is already in use by another user
                              */
@@ -2269,7 +2269,7 @@ function user_validate($user, $options = array()) {
  */
 function users_get($user, $column = null, $status = null, $parent = false) {
     try{
-        if(is_numeric($user)) {
+        if (is_numeric($user)) {
             $where[] = ' `users`.`id` = :id ';
             $execute[':id'] = $user;
 
@@ -2278,18 +2278,18 @@ function users_get($user, $column = null, $status = null, $parent = false) {
             $execute[':seoname'] = $user;
         }
 
-        if($status !== false) {
+        if ($status !== false) {
             $execute[':status'] = $status;
             $where[] = ' `users`.`status` '.sql_is($status, ':status');
         }
 
-        if($parent) {
+        if ($parent) {
             /*
              * Explicitly must be a parent user
              */
             $where[] = ' `users`.`parents_id` IS NULL ';
 
-        } elseif($parent === false) {
+        } elseif ($parent === false) {
             /*
              * Explicitly cannot be a parent user
              */
@@ -2303,7 +2303,7 @@ function users_get($user, $column = null, $status = null, $parent = false) {
 
         $where = ' WHERE '.implode(' AND ', $where).' ';
 
-        if($column) {
+        if ($column) {
             $retval = sql_get('SELECT `'.$column.'` FROM `users` '.$where, true, $execute);
 
         } else {
@@ -2379,22 +2379,22 @@ function users_get($user, $column = null, $status = null, $parent = false) {
  */
 function user_get_key($user = null, $force = false) {
     try{
-        if(!$user) {
+        if (!$user) {
             $user = $_SESSION['user']['username'];
         }
 
-        if(is_numeric($user)) {
+        if (is_numeric($user)) {
             $dbuser = sql_get('SELECT `id`, `email`, `key` FROM `users` WHERE `id`    = :id    AND `status` IS NULL', array(':id'    => $user));
 
         } else {
             $dbuser = sql_get('SELECT `id`, `email`, `key` FROM `users` WHERE `email` = :email AND `status` IS NULL', array(':email' => $user));
         }
 
-        if(!$dbuser) {
+        if (!$dbuser) {
             throw new CoreException(tr('user_get_key(): Specified user ":user" does not exist', array(':user' => str_log($user))), 'not-exists');
         }
 
-        if(!$dbuser['key'] or $force) {
+        if (!$dbuser['key'] or $force) {
             $dbuser['key']           = unique_code();
             $_SESSION['user']['key'] = $dbuser['key'];
 
@@ -2430,10 +2430,10 @@ function user_check_key($user, $key, $timestamp) {
         $future = 10;
         $past   = 1800;
 
-        if(is_numeric($user)) {
+        if (is_numeric($user)) {
             $dbkey = sql_get('SELECT `key` FROM `users` WHERE `id`    = :id'   , 'key', array(':id'    => $user));
 
-        } elseif(is_string($user)) {
+        } elseif (is_string($user)) {
             $dbkey = sql_get('SELECT `key` FROM `users` WHERE `email` = :email', 'key', array(':email' => $user));
 
         } else {
@@ -2443,7 +2443,7 @@ function user_check_key($user, $key, $timestamp) {
             $dbkey = $user['key'];
         }
 
-        if(!$dbkey) {
+        if (!$dbkey) {
             /*
              * This user doesn't exist, or doesn't have a key yet!
              */
@@ -2452,7 +2452,7 @@ function user_check_key($user, $key, $timestamp) {
 
         $diff = microtime(true) - $timestamp;
 
-        if($diff > $past) {
+        if ($diff > $past) {
             /*
              * More then N seconds differece between timestamps is NOT allowed
              */
@@ -2464,7 +2464,7 @@ function user_check_key($user, $key, $timestamp) {
             return false;
         }
 
-        if(-$diff > $future) {
+        if (-$diff > $future) {
             /*
              * More then N seconds differece between timestamps is NOT allowed
              */
@@ -2492,7 +2492,7 @@ function user_check_key($user, $key, $timestamp) {
  */
 function user_key_form_fields($user = null, $prefix = '') {
     try{
-        if(!$user) {
+        if (!$user) {
             $user = $_SESSION['user']['email'];
         }
 
@@ -2518,7 +2518,7 @@ function user_get_from_key($user, $key, $timestamp) {
     try{
         $user = user_get($user);
 
-        if(user_check_key($user, $key, $timestamp)) {
+        if (user_check_key($user, $key, $timestamp)) {
             return $user;
         }
 
@@ -2538,7 +2538,7 @@ function user_key_or_redirect($user, $key = null, $timestamp = null, $redirect =
     global $_CONFIG;
 
     try{
-        if(is_array($user)) {
+        if (is_array($user)) {
             /*
              * Assume we got an array, like $_POST, and extract data from there
              */
@@ -2550,11 +2550,11 @@ function user_key_or_redirect($user, $key = null, $timestamp = null, $redirect =
 
         $user = user_get($user);
 
-        if(user_check_key($user, $key, $timestamp)) {
+        if (user_check_key($user, $key, $timestamp)) {
             return $user;
         }
 
-        if(!$redirect) {
+        if (!$redirect) {
             $redirect = $_CONFIG['redirects']['signin'];
         }
 
@@ -2595,7 +2595,7 @@ function user_update_apikey($users_id = null) {
     global $_CONFIG;
 
     try{
-        if(!$users_id) {
+        if (!$users_id) {
             $users_id = $_SESSION['user']['id'];
         }
 
@@ -2716,14 +2716,14 @@ function user_update_reference_codes($user, $allow_duplicate_reference_codes = n
     try{
         sql_query('DELETE FROM `users_reference_codes` WHERE `users_id` = :users_id', array(':users_id' => cfi($user['id'])));
 
-        if(empty($user['reference_codes'])) {
+        if (empty($user['reference_codes'])) {
             return false;
         }
 
         /*
          * Allow duplicate reference codes? Default to configured value
          */
-        if($allow_duplicate_reference_codes === null) {
+        if ($allow_duplicate_reference_codes === null) {
             $allow_duplicate_reference_codes = $_CONFIG['users']['duplicate_reference_codes'];
         }
 
@@ -2734,16 +2734,16 @@ function user_update_reference_codes($user, $allow_duplicate_reference_codes = n
                                VALUES                              (:users_id , :code )');
 
         foreach($codes as $code) {
-            if(empty($code)) continue;
+            if (empty($code)) continue;
 
-            if($allow_duplicate_reference_codes) {
+            if ($allow_duplicate_reference_codes) {
                 $exists = false;
 
             } else {
                 $exists = sql_get('SELECT `users_id` FROM `users_reference_codes` WHERE `code` = :code', true, array(':code' => $code));
             }
 
-            if($exists) {
+            if ($exists) {
                 $user        = sql_get('SELECT `id`, `username`, `email`, `name`, `nickname` FROM `users` WHERE `id` = :id', array(':id' => $exists));
                 $fail[$code] = tr('Users reference code ":code" is already in use by user ":user", and has been removed from the list of reference codes', array(':code' => $code, ':user' => name($user)));
 
@@ -2753,7 +2753,7 @@ function user_update_reference_codes($user, $allow_duplicate_reference_codes = n
             }
         }
 
-        if($fail) {
+        if ($fail) {
             /*
              * One or multiple reference codes failed to be added because they
              * were already in use.
@@ -2799,11 +2799,11 @@ function user_update_location($user) {
          */
         Arrays::ensure($user, 'id,users_id,latitude,longitude,accuracy,cities_id,states_id,countries_id');
 
-        if($user['users_id']) {
+        if ($user['users_id']) {
             $user['id'] = $user['users_id'];
         }
 
-        if(!$user['id']) {
+        if (!$user['id']) {
             throw new CoreException(tr('user_update_location(): No users id or users_id specified'), 'not-specified');
         }
         $geo     = geo_validate($user);
@@ -2812,8 +2812,8 @@ function user_update_location($user) {
         /*
          * Set automated location offset?
          */
-        if(!$_CONFIG['user']['location']['max_offset']) {
-            if($_CONFIG['user']['location']['max_offset'] === 0) {
+        if (!$_CONFIG['user']['location']['max_offset']) {
+            if ($_CONFIG['user']['location']['max_offset'] === 0) {
                 /*
                  * Location offset system has no offset
                  */
@@ -2832,11 +2832,11 @@ function user_update_location($user) {
             /*
              * Automatically generate a random offset
              */
-            if(!is_natural($_CONFIG['user']['location']['max_offset'], 0)) {
+            if (!is_natural($_CONFIG['user']['location']['max_offset'], 0)) {
                 throw new CoreException(tr('user_update_location(): Configured max offset ":max_offset" is invalid', array(':max_offset' => $_CONFIG['user']['location']['max_offset'])), 'invalid');
             }
 
-            if($_CONFIG['user']['location']['max_offset'] > 10000) {
+            if ($_CONFIG['user']['location']['max_offset'] > 10000) {
                 notify(array('code'    => 'invalid',
                              'groups'  => 'developers',
                              'title'   => tr('Problematic configuration'),
@@ -2856,9 +2856,9 @@ function user_update_location($user) {
          * to have an offset to hide the exact location, we do not want to have
          * the user appear in the completely wrong city!
          */
-        if($_CONFIG['user']['location']['detect']) {
-            if(!$user['cities_id'] or !$user['states_id'] or !$user['countries_id']) {
-                if(!geo_loaded()) {
+        if ($_CONFIG['user']['location']['detect']) {
+            if (!$user['cities_id'] or !$user['states_id'] or !$user['countries_id']) {
+                if (!geo_loaded()) {
                     throw new CoreException(tr('user_update_location(): Failed to auto detect city, state, and country because the geo database has not yet been loaded'), 'not-available');
                 }
 

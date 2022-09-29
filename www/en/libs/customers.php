@@ -61,7 +61,7 @@ function customers_validate($customer) {
         /*
          * Validate basic data
          */
-        if($customer['description']) {
+        if ($customer['description']) {
             $v->hasMinChars($customer['description'],    8, tr('Please ensure the description has at least 8 characters'));
             $v->hasMaxChars($customer['description'], 2047, tr('Please ensure the description has less than 2047 characters'));
             $v->hasNoHTML($customer['description'], tr('Please ensure the description has no HTML code'));
@@ -72,7 +72,7 @@ function customers_validate($customer) {
             $customer['description'] = null;
         }
 
-        if($customer['url']) {
+        if ($customer['url']) {
             $v->hasMaxChars($customer['url'], 255, tr('Please ensure the URL has less than 255 characters'));
             $v->isURL($customer['url'], tr('Please a valid URL'));
 
@@ -80,7 +80,7 @@ function customers_validate($customer) {
             $customer['url'] = null;
         }
 
-        if($customer['company']) {
+        if ($customer['company']) {
             $v->hasMaxChars($customer['company'], 64, tr('Please ensure the company has less than 64 characters'));
 
             $customer['company'] = str_clean($customer['company']);
@@ -89,7 +89,7 @@ function customers_validate($customer) {
             $customer['company'] = null;
         }
 
-        if($customer['email']) {
+        if ($customer['email']) {
             $v->hasMaxChars($customer['email'], 96, tr('Please ensure the email has less than 96 characters'));
             $v->isEmail($customer['email'], tr('Please specify a valid emailaddress'));
 
@@ -97,7 +97,7 @@ function customers_validate($customer) {
             $customer['email'] = null;
         }
 
-        if($customer['url']) {
+        if ($customer['url']) {
             $v->hasMaxChars($customer['url'], 255, tr('Please ensure the email has less than 255 characters'));
             $v->isUrl($customer['url'], tr('Please specify a valid url'));
 
@@ -105,7 +105,7 @@ function customers_validate($customer) {
             $customer['url'] = '';
         }
 
-        if($customer['phones']) {
+        if ($customer['phones']) {
             $v->hasMaxChars($customer['phones'], 36, tr('Please ensure the phones field has less than 36 characters'));
 
             foreach(Arrays::force($customer['phones']) as &$phone) {
@@ -118,7 +118,7 @@ function customers_validate($customer) {
             $customer['phones'] = null;
         }
 
-        if($customer['code']) {
+        if ($customer['code']) {
             $v->hasMinChars($customer['code'],  2, tr('Please ensure the customer\'s description has at least 2 characters'));
             $v->hasMaxChars($customer['code'], 64, tr('Please ensure the customer\'s description has less than 64 characters'));
             $v->isAlphaNumeric($customer['code'], tr('Please ensure the customer\'s description has less than 64 characters'), VALIDATE_IGNORE_SPACE|VALIDATE_IGNORE_DASH|VALIDATE_IGNORE_UNDERSCORE);
@@ -130,12 +130,12 @@ function customers_validate($customer) {
         /*
          * Validate linked document
          */
-        if($customer['documents_id']) {
+        if ($customer['documents_id']) {
             load_libs('storage-documents');
 
             $exists = storage_documents_get('customers', $customer['documents_id'], false, 'id');
 
-            if(!$exists) {
+            if (!$exists) {
                 $v->setError(tr('Specified document does not exist'));
             }
 
@@ -146,12 +146,12 @@ function customers_validate($customer) {
         /*
          * Validate category
          */
-        if($customer['seocategory']) {
+        if ($customer['seocategory']) {
             load_libs('categories');
 
             $customer['categories_id'] = categories_get($customer['seocategory'], 'id');
 
-            if(!$customer['categories_id']) {
+            if (!$customer['categories_id']) {
                 $v->setError(tr('Specified category does not exist'));
             }
 
@@ -162,25 +162,25 @@ function customers_validate($customer) {
         /*
          * Confirm country, state, city
          */
-        if($customer['seocountry']) {
+        if ($customer['seocountry']) {
             load_libs('geo');
             $customer['countries_id'] = geo_get_country($customer['seocountry'], true);
 
-            if(!$customer['countries_id']) {
+            if (!$customer['countries_id']) {
                 $v->setError(tr('Specified country does not exist'));
             }
 
-            if($customer['seostate']) {
+            if ($customer['seostate']) {
                 $customer['states_id'] = geo_get_state($customer['seostate'], true);
 
-                if(!$customer['states_id']) {
+                if (!$customer['states_id']) {
                     $v->setError(tr('Specified state does not exist in this country'));
                 }
 
-                if($customer['seocity']) {
+                if ($customer['seocity']) {
                     $customer['cities_id'] = geo_get_city($customer['seocity'], true);
 
-                    if(!$customer['cities_id']) {
+                    if (!$customer['cities_id']) {
                         $v->setError(tr('Specified city does not exist in this state'));
                     }
 
@@ -201,7 +201,7 @@ function customers_validate($customer) {
         /*
          * Validate address data
          */
-        if($customer['address1']) {
+        if ($customer['address1']) {
             $v->hasMinChars($customer['address1'],  8, tr('Please ensure the customer\'s address1 has at least 3 characters'));
             $v->hasMaxChars($customer['address1'], 64, tr('Please ensure the customer\'s address1 has less than 64 characters'));
 
@@ -211,7 +211,7 @@ function customers_validate($customer) {
             $customer['address1'] = null;
         }
 
-        if($customer['address2']) {
+        if ($customer['address2']) {
             $v->hasMinChars($customer['address2'],  8, tr('Please ensure the customer\'s address2 has at least 3 characters'));
             $v->hasMaxChars($customer['address2'], 64, tr('Please ensure the customer\'s address2 has less than 64 characters'));
 
@@ -221,7 +221,7 @@ function customers_validate($customer) {
             $customer['address2'] = null;
         }
 
-        if($customer['address3']) {
+        if ($customer['address3']) {
             $v->hasMinChars($customer['address3'],  8, tr('Please ensure the customer\'s address3 has at least 3 characters'));
             $v->hasMaxChars($customer['address3'], 64, tr('Please ensure the customer\'s address3 has less than 64 characters'));
 
@@ -231,7 +231,7 @@ function customers_validate($customer) {
             $customer['address3'] = null;
         }
 
-        if($customer['address3']) {
+        if ($customer['address3']) {
             $v->hasMinChars($customer['address3'],  8, tr('Please ensure the customer\'s address3 has at least 3 characters'));
             $v->hasMaxChars($customer['address3'], 64, tr('Please ensure the customer\'s address3 has less than 64 characters'));
 
@@ -241,8 +241,8 @@ function customers_validate($customer) {
             $customer['address3'] = null;
         }
 
-        if($customer['zipcode']) {
-            if($customer['countries_id']) {
+        if ($customer['zipcode']) {
+            if ($customer['countries_id']) {
                 /*
                  * Verify exact country zipcode format for the specified country
                  */
@@ -263,7 +263,7 @@ function customers_validate($customer) {
          */
         $exists = sql_get('SELECT `id` FROM `customers` WHERE `name` = :name AND `id` != :id', true, array(':name' => $customer['name'], ':id' => isset_get($customer['id'])));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The customer ":customer" already exists with id ":id"', array(':customer' => $customer['name'], ':id' => $exists)));
         }
 
@@ -471,26 +471,26 @@ function customers_select($params = null) {
         array_default($params, 'none'         , tr('Select a customer'));
         array_default($params, 'orderby'      , '`name`');
 
-        if($params['seocategory']) {
+        if ($params['seocategory']) {
             load_libs('categories');
             $params['categories_id'] = categories_get($params['seocategory'], 'id', null, $_CONFIG['customers']['categories_parent']);
 
-            if(!$params['categories_id']) {
+            if (!$params['categories_id']) {
                 throw new CoreException(tr('customers_select(): The reqested category ":category" does exist, but is deleted', array(':category' => $params['seocategory'])), 'deleted');
             }
         }
 
-        if($params['categories_id'] !== false) {
+        if ($params['categories_id'] !== false) {
             $where[] = ' `categories_id` '.sql_is($params['categories_id'], ':categories_id');
             $execute[':categories_id'] = $params['categories_id'];
         }
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {

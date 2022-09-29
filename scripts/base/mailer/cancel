@@ -13,7 +13,7 @@ try{
 
     load_libs('mailer');
 
-    if($count = mailer_cancel($argv)) {
+    if ($count = mailer_cancel($argv)) {
         log_console('Canceled "'.$count.'" mailers', '', 'white');
 
     } else {

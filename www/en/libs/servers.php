@@ -58,21 +58,21 @@ function servers_validate($server, $structure_only = false, $password_strength =
 
         $v = new ValidateForm($server, 'id,ipv4,ipv6,port,domain,domains,seoprovider,seocustomer,ssh_account,description,ssh_proxy,database_accounts_id,bill_duedate,cost,interval,allow_sshd_modification,register');
 
-        if($structure_only) {
+        if ($structure_only) {
             return $server;
         }
 
         /*
          * Check password
          */
-        if($password_strength) {
+        if ($password_strength) {
             $v->isPassword($server['db_password'], tr('Please specifiy a strong password'), '');
         }
 
-        if($server['database_accounts_id']) {
+        if ($server['database_accounts_id']) {
             $exists = sql_get('SELECT `id` FROM `database_accounts` WHERE `id` = :id', true, array(':id' => $server['database_accounts_id']), 'core');
 
-            if(!$exists) {
+            if (!$exists) {
                 $v->setError(tr('The specified database account does not exist'));
             }
 
@@ -86,17 +86,17 @@ function servers_validate($server, $structure_only = false, $password_strength =
         $v->isNotEmpty($server['domain'], tr('Please specifiy a domain'));
         $v->isDomain($server['domain'], tr('The domain ":domain" is invalid', array(':domain' => $server['domain'])));
 
-        if(!empty($server['url']) and !FORCE) {
+        if (!empty($server['url']) and !FORCE) {
             $v->setError(tr('Both domain ":domain" and URL ":url" specified, please specify one or the other', array(':domain' => $server['domain'], ':url' => $server['url'])));
 
-        } elseif(!preg_match('/[a-z0-9][a-z0-9-.]+/', $server['domain'])) {
+        } elseif (!preg_match('/[a-z0-9][a-z0-9-.]+/', $server['domain'])) {
             $v->setError(tr('Invalid server specified, be sure it contains only a-z, 0-9, . and -'));
         }
 
         /*
          * Description
          */
-        if(empty($server['description'])) {
+        if (empty($server['description'])) {
             $server['description'] = '';
 
         } else {
@@ -109,7 +109,7 @@ function servers_validate($server, $structure_only = false, $password_strength =
         /*
          * IPv4 check
          */
-        if($server['ipv4']) {
+        if ($server['ipv4']) {
             /*
              * IP was specified manually
              */
@@ -121,11 +121,11 @@ function servers_validate($server, $structure_only = false, $password_strength =
              */
             $server['ipv4'] = gethostbynamel($server['domain']);
 
-            if(!$server['ipv4']) {
+            if (!$server['ipv4']) {
                 $server['ipv4'] = null;
 
             } else {
-                if(count($server['ipv4']) == 1) {
+                if (count($server['ipv4']) == 1) {
                     $server['ipv4'] = array_shift($server['ipv4']);
 
                 } else {
@@ -137,18 +137,18 @@ function servers_validate($server, $structure_only = false, $password_strength =
         /*
          * Port check
          */
-        if(empty($server['port'])) {
+        if (empty($server['port'])) {
             $server['port'] = ssh_get_port();
             log_console(tr('servers_validate(): No SSH port specified, using port ":port" as default', array(':port' => $server['port'])), 'yellow');
         }
 
-        if(!is_numeric($server['port']) or ($server['port'] < 1) or ($server['port'] > 65535)) {
+        if (!is_numeric($server['port']) or ($server['port'] < 1) or ($server['port'] > 65535)) {
             $v->setError(tr('Specified port ":port" is not valid', array(':port' => $server['port'])));
         }
 
         $server['allow_sshd_modification'] = (boolean) $server['allow_sshd_modification'];
 
-        if($server['domains']) {
+        if ($server['domains']) {
             $server['domains'] = Arrays::force($server['domains'], "\n");
 
             foreach($server['domains'] as &$domain) {
@@ -179,10 +179,10 @@ function servers_validate($server, $structure_only = false, $password_strength =
         /*
          * Validate provider, customer, and ssh account
          */
-        if($server['seoprovider']) {
+        if ($server['seoprovider']) {
             $server['providers_id'] = sql_get('SELECT `id` FROM `providers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server['seoprovider']), 'core');
 
-            if(!$server['providers_id']) {
+            if (!$server['providers_id']) {
                 $v->setError(tr('Specified provider ":provider" does not exist', array(':provider' => $server['seoprovider'])));
             }
 
@@ -191,10 +191,10 @@ function servers_validate($server, $structure_only = false, $password_strength =
             //$v->setError(tr('Please specify a provider'));
         }
 
-        if($server['seocustomer']) {
+        if ($server['seocustomer']) {
             $server['customers_id'] = sql_get('SELECT `id` FROM `customers` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server['seocustomer']), 'core');
 
-            if(!$server['customers_id']) {
+            if (!$server['customers_id']) {
                 $v->setError(tr('Specified customer ":customer" does not exist', array(':customer' => $server['seocustomer'])));
             }
 
@@ -202,10 +202,10 @@ function servers_validate($server, $structure_only = false, $password_strength =
             $server['customers_id'] = null;
         }
 
-        if($server['ssh_account']) {
+        if ($server['ssh_account']) {
             $server['ssh_accounts_id'] = sql_get('SELECT `id` FROM `ssh_accounts` WHERE `seoname` = :seoname AND `status` IS NULL', true, array(':seoname' => $server['ssh_account']), 'core');
 
-            if(!$server['ssh_accounts_id']) {
+            if (!$server['ssh_accounts_id']) {
                 $v->setError(tr('Specified SSH account ":account" does not exist', array(':account' => $server['ssh_account'])));
             }
 
@@ -218,7 +218,7 @@ function servers_validate($server, $structure_only = false, $password_strength =
          */
         $exists = sql_get('SELECT `id` FROM `servers` WHERE `domain` = :domain AND `id` != :id LIMIT 1', true, array(':domain' => $server['domain'], ':id' => isset_get($server['id'], 0)), 'core');
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('A server with domain ":domain" already exists', array(':domain' => $server['domain'])));
         }
 
@@ -276,7 +276,7 @@ function servers_insert($server) {
 
         log_console(tr('Inserted server ":domain" with id ":id"', array(':domain' => $server['domain'], ':id' => $server['id'])), 'VERBOSE/green');
 
-        if($server['register']) {
+        if ($server['register']) {
             ssh_add_known_host($server['domain'], $server['port']);
         }
 
@@ -399,8 +399,8 @@ function servers_update($server) {
  */
 function servers_like($domain) {
     try{
-        if(!$domain) {
-            if(($domain === '') or ($domain === null)) {
+        if (!$domain) {
+            if (($domain === '') or ($domain === null)) {
                 /*
                  * "" server is the localdomain server
                  * null means no server
@@ -409,11 +409,11 @@ function servers_like($domain) {
             }
         }
 
-        if(is_array($domain)) {
+        if (is_array($domain)) {
             return $domain;
         }
 
-        if(is_numeric($domain)) {
+        if (is_numeric($domain)) {
             $server = sql_get('SELECT `domain`
 
                                FROM   `servers`
@@ -436,7 +436,7 @@ function servers_like($domain) {
                                            ':seodomain' => '%'.$domain.'%'), 'core');
         }
 
-        if($server === null) {
+        if ($server === null) {
             /*
              * Specified server not found in the default servers list, try domains list
              */
@@ -454,7 +454,7 @@ function servers_like($domain) {
                                true, array(':domain'    => '%'.$domain.'%',
                                            ':seodomain' => '%'.$domain.'%'), 'core');
 
-            if(!$server) {
+            if (!$server) {
                 throw new CoreException(tr('servers_like(): Specified server ":server" does not exist', array(':server' => $domain)), 'not-exists');
             }
         }
@@ -503,12 +503,12 @@ function servers_select($params = null) {
         array_default($params, 'none'    , tr('Select a server'));
         array_default($params, 'orderby' , '`domain`');
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {
@@ -547,7 +547,7 @@ function servers_update_domains($server, $domains = null) {
 
         sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id', array(':servers_id' => $servers_id), 'core');
 
-        if(empty($domains)) {
+        if (empty($domains)) {
             return false;
         }
 
@@ -560,7 +560,7 @@ function servers_update_domains($server, $domains = null) {
              */
             $domains_id = domains_get_id($domain);
 
-            if(!$domains_id) {
+            if (!$domains_id) {
                 $domain = domains_insert(array('domain'       => $server['domain'],
                                                'seodomain'    => $server['seodomain'],
                                                'customers_id' => $server['customers_id'],
@@ -604,7 +604,7 @@ function servers_add_domain($server, $domain) {
         $domain = domains_get_id($domain);
         $exists = sql_get('SELECT `id` FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', true, array(':servers_id' => $server, ':domains_id' => $domain), 'core');
 
-        if($exists) {
+        if ($exists) {
             return false;
         }
 
@@ -641,7 +641,7 @@ function servers_add_domain($server, $domain) {
  */
 function servers_remove_domain($server, $domain = null) {
     try{
-        if(!$domain) {
+        if (!$domain) {
             /*
              * Remove all domains
              */
@@ -657,8 +657,8 @@ function servers_remove_domain($server, $domain = null) {
         $server = servers_get_id($server);
         $domain = domains_get_id($domain);
 
-        if($server) {
-            if($domain) {
+        if ($server) {
+            if ($domain) {
                 $r = sql_query('DELETE FROM `domains_servers` WHERE `servers_id` = :servers_id AND `domains_id` = :domains_id', array(':domains_id' => $domain, ':servers_id' => $server), 'core');
 
             } else {
@@ -666,7 +666,7 @@ function servers_remove_domain($server, $domain = null) {
             }
 
         } else {
-            if($domain) {
+            if ($domain) {
                 $r = sql_query('DELETE FROM `domains_servers` WHERE `domains_id` = :domains_id', array(':domains_id' => $domain), 'core');
 
             } else {
@@ -747,12 +747,12 @@ function servers_exec($server, $params) {
         $server = servers_like($server);
         $server = servers_get($server);
 
-        if(!empty($server['domain'])) {
+        if (!empty($server['domain'])) {
             array_default($server, 'hostkey_check', true);
 
-            if(empty($server['identity_file'])) {
-                if(empty($server['ssh_key'])) {
-                    if(empty($server['password'])) {
+            if (empty($server['identity_file'])) {
+                if (empty($server['ssh_key'])) {
+                    if (empty($server['password'])) {
                         throw new CoreException(tr('servers_exec(): The specified server ":server" has no identity file or SSH key available and no password was specified', array(':server' => $server['domain'])), 'missing-data');
                     }
                 }
@@ -804,7 +804,7 @@ function servers_exec($server, $params) {
  */
 function servers_exec_on_all($params) {
     try{
-        if(is_executable($params)) {
+        if (is_executable($params)) {
             /*
              * Just the callback function was given
              */
@@ -895,7 +895,7 @@ function servers_register_host($server) {
             $server  = servers_get($domain);
             $entries = ssh_add_known_host($server['domain'], $server['port']);
 
-            if($entries) {
+            if ($entries) {
                 $retval = array_merge($entries, $entries);
             }
         }
@@ -931,7 +931,7 @@ function servers_unregister_host($server) {
             $server  = servers_get($domain);
             $entries = ssh_add_known_host($server['domain'], $server['port']);
 
-            if($entries) {
+            if ($entries) {
                 $retval = array_merge($entries, $entries);
             }
         }
@@ -971,7 +971,7 @@ function servers_list($as_resource = false) {
                   ORDER BY `domain` = "" DESC,
                            `createdon`   ASC';
 
-        if($as_resource) {
+        if ($as_resource) {
             $retval = sql_query($query, null, 'core');
 
         } else {
@@ -1004,14 +1004,14 @@ function servers_list($as_resource = false) {
  */
 function servers_get($server, $database = false, $return_proxies = true, $limited_columns = false) {
     try{
-        if($server === null) {
+        if ($server === null) {
             /*
              * This means local server, no network connection needed
              */
             return null;
         }
 
-        if(is_array($server)) {
+        if (is_array($server)) {
             /*
              * Specified host is an array, so it should already contain all
              * information
@@ -1021,18 +1021,18 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
              * Assume that if identity_file data is available, that we have a
              * complete one
              */
-            if(empty($server['domain'])) {
+            if (empty($server['domain'])) {
                 return null;
             }
 
-            if(!empty($server['id'])) {
+            if (!empty($server['id'])) {
                 return $server;
             }
 
-        } elseif(!is_scalar($server)) {
+        } elseif (!is_scalar($server)) {
             throw new CoreException(tr('servers_get(): The specified server ":server" is invalid', array(':server' => $server)), 'invalid');
 
-        } elseif(substr($server, 0, 1) === '+') {
+        } elseif (substr($server, 0, 1) === '+') {
             /*
              * Use persistent connections
              */
@@ -1040,7 +1040,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
             $persist = true;
         }
 
-        if($limited_columns) {
+        if ($limited_columns) {
             $query = 'SELECT `servers`.`id`,
                              `servers`.`domain`,
                              `servers`.`port`,
@@ -1094,25 +1094,25 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                    LEFT JOIN `ssh_accounts`
                    ON        `ssh_accounts`.`id`              = `servers`.`ssh_accounts_id` ';
 
-        if(is_numeric($server)) {
+        if (is_numeric($server)) {
             /*
              * Host specified by id
              */
             $where   = ' WHERE `servers`.`id` = :id';
             $execute = array(':id' => $server);
 
-        } elseif(is_array($server)) {
+        } elseif (is_array($server)) {
             /*
              * Server host specified by array containing domain
              */
-            if(is_numeric($server['domain'])) {
+            if (is_numeric($server['domain'])) {
                 /*
                  * Host specified by id
                  */
                 $where   = ' WHERE `servers`.`id` = :id';
                 $execute = array(':id' => $server['domain']);
 
-            } elseif(is_scalar($server['domain'])) {
+            } elseif (is_scalar($server['domain'])) {
                 /*
                  * Host specified by domain
                  */
@@ -1124,7 +1124,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                 throw new CoreException(tr('servers_get(): Specified server array domain should be a natural numeric id or a domain, but is a ":type"', array(':type' => gettype($server['domain']))), 'invalid');
             }
 
-        } elseif(is_string($server)) {
+        } elseif (is_string($server)) {
             /*
              * Domain specified by name
              */
@@ -1138,7 +1138,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
             throw new CoreException(tr('servers_get(): Invalid server or domain specified. Should be either a natural nuber, domain, or array containing domain information'), 'invalid');
         }
 
-        if($database) {
+        if ($database) {
             $query .= ' ,
                         `database_accounts`.`username`      AS `db_username`,
                         `database_accounts`.`password`      AS `db_password`,
@@ -1150,16 +1150,16 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
 
         $dbserver = sql_get($query.$from.$where.' GROUP BY `servers`.`id`', null, $execute, 'core');
 
-        if(!$dbserver) {
+        if (!$dbserver) {
             throw new CoreException(tr('servers_get(): Specified server ":server" does not exist', array(':server' => (is_array($server) ? $server['domain'] : $server))), 'not-exists');
         }
 
-        if($return_proxies) {
+        if ($return_proxies) {
             $dbserver['proxies'] = array();
 
             $dbserver_proxy = servers_get_proxy($dbserver['id']);
 
-            if($dbserver_proxy) {
+            if ($dbserver_proxy) {
                 $dbserver['proxies'][] = $dbserver_proxy;
                 $proxy                 = $dbserver_proxy['proxies_id'];
 
@@ -1167,7 +1167,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                     $dbserver_proxy = servers_get_proxy($proxy);
                     $proxy          = false;
 
-                    if(!empty($dbserver_proxy)) {
+                    if (!empty($dbserver_proxy)) {
                         $dbserver['proxies'][] = $dbserver_proxy;
                         $proxy                 = $dbserver_proxy['proxies_id'];
                     }
@@ -1176,19 +1176,19 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
                 $dbserver['proxies'] = array_filter($dbserver['proxies']);
             }
 
-            if(is_array($server)) {
+            if (is_array($server)) {
                 $dbserver = array_merge($server, $dbserver);
             }
         }
 
-        if(isset($persist)) {
+        if (isset($persist)) {
             $dbserver['persist'] = true;
         }
 
         return $dbserver;
 
     }catch(Exception $e) {
-        if($e->getCode() == 'multiple') {
+        if ($e->getCode() == 'multiple') {
             throw new CoreException(tr('servers_get(): Specified domain ":domain" matched multiple results, please specify a more exact domain', array(':domain' => (is_array($server) ? isset_get($server['domain']) : $server))), 'multiple');
         }
 
@@ -1206,7 +1206,7 @@ function servers_get($server, $database = false, $return_proxies = true, $limite
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
  * @category Function reference
  * @package servers
- * @exception BException/failed-connect when server connection test fails
+ * @exception CoreException/failed-connect when server connection test fails
  *
  * @param mixed $server The server to be tested. Specified either by only a domain string, or a server array
  * @return void If the server test was executed succesfully, nothing happens
@@ -1218,7 +1218,7 @@ function servers_test($domain) {
         $result = servers_exec($domain, array('commands' => array('echo', array('1'))));
         $result = array_pop($result);
 
-        if($result != '1') {
+        if ($result != '1') {
             throw new CoreException(tr('servers_test(): Failed to SSH connect to ":server"', array(':server' => $user.'@'.$domain.':'.$port)), 'failed-connect');
         }
 
@@ -1268,11 +1268,11 @@ function servers_get_key($username) {
  */
 function servers_clear_key(&$server) {
     try{
-        if(empty($server['ssh_key'])) {
+        if (empty($server['ssh_key'])) {
             return false;
         }
 
-        if(function_exists('sodium_memzero')) {
+        if (function_exists('sodium_memzero')) {
             sodium_memzero($server['ssh_key']);
             unset($server['ssh_key']);
 
@@ -1306,7 +1306,7 @@ function servers_create_identity_file($server) {
     global $core;
 
     try{
-        if(empty($server['ssh_key'])) {
+        if (empty($server['ssh_key'])) {
             throw new CoreException(tr('servers_create_identity_file(): Specified server does not contain an ssh_key'), 'not-specified');
         }
 
@@ -1352,14 +1352,14 @@ function servers_create_identity_file($server) {
  */
 function servers_remove_identity_file($identity_file, $background = false) {
     try{
-        if(!$identity_file) {
+        if (!$identity_file) {
             return false;
         }
 
         $identity_file = ROOT.'data/ssh/keys/'.$identity_file;
 
-        if(file_exists($identity_file)) {
-            if($background) {
+        if (file_exists($identity_file)) {
+            if ($background) {
                 safe_exec(array('background' => true,
                                 'commands'   => array('sleep', array('5'),
                                                       'chmod', array('sudo' => true, '0660', $identity_file),
@@ -1400,7 +1400,7 @@ function servers_detect_os($domain) {
          */
         $output_version = servers_exec($domain, array('commands' => array('cat', array('proc/version'))));
 
-        if(empty($output_version)) {
+        if (empty($output_version)) {
             throw new CoreException(tr('servers_detect_os(): No operating system found on /proc/version for domain ":domain"', array(':domain' => $domain)), 'unknown');
         }
 
@@ -1409,7 +1409,7 @@ function servers_detect_os($domain) {
          */
         preg_match('/(ubuntu |debian |red hat )/i', $output_version, $matches);
 
-        if(empty($matches)) {
+        if (empty($matches)) {
             throw new CoreException(tr('servers_detect_os(): No group version found'), 'unknown');
         }
 
@@ -1433,7 +1433,7 @@ function servers_detect_os($domain) {
                 throw new CoreException(tr('servers_detect_os(): No os group valid :group', array(':group' => $matches[0])), 'invalid');
         }
 
-        if(empty($release)) {
+        if (empty($release)) {
             throw new CoreException(tr('servers_detect_os(): No data found on for os group ":group"', array(':group' => $matches[0])), 'not-exists');
         }
 
@@ -1445,7 +1445,7 @@ function servers_detect_os($domain) {
          */
         preg_match('/((:?[kxl]|edu)?ubuntu|mint|debian|red hat enterprise|fedora|centos)/i', $release, $matches);
 
-        if(!isset($matches[0])) {
+        if (!isset($matches[0])) {
             throw new CoreException(tr('servers_detect_os(): No name found for os group ":group"', array(':group' => $matches[0])), 'not-exists');
         }
 
@@ -1456,7 +1456,7 @@ function servers_detect_os($domain) {
          */
         preg_match('/\d*\.?\d+/', $release, $version);
 
-        if(!isset($version[0])) {
+        if (!isset($version[0])) {
             throw new CoreException(tr('servers_detect_os(): No version found for os ":os"', array(':os' => $server_os['name'])), 'not-exists');
         }
 
@@ -1487,7 +1487,7 @@ function servers_get_public_ip($domain) {
     try{
         $ip = servers_exec($domain, array('commands' => array('dig', array('+short', 'myip.opendns.com', '@resolver1.opendns.com'))));
 
-        if(is_array($ip)) {
+        if (is_array($ip)) {
             $ip = $ip[0];
         }
 
@@ -1595,11 +1595,11 @@ function servers_list_proxies($servers_id) {
  */
 function servers_add_ssh_proxy($servers_id, $proxies_id) {
     try{
-        if(empty($servers_id)) {
+        if (empty($servers_id)) {
             throw new CoreException(tr('proxies_create_relation(): No servers id specified'), 'not-specified');
         }
 
-        if(empty($proxies_id)) {
+        if (empty($proxies_id)) {
             throw new CoreException(tr('proxies_create_relation(): No proxies id specified'), 'not-specified');
         }
 
@@ -1634,15 +1634,15 @@ function servers_add_ssh_proxy($servers_id, $proxies_id) {
  */
 function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id) {
     try{
-        if(empty($servers_id)) {
+        if (empty($servers_id)) {
             throw new CoreException(tr('servers_update_ssh_proxy(): No servers id specified'), 'not-specified');
         }
 
-        if(empty($old_proxies_id)) {
+        if (empty($old_proxies_id)) {
             throw new CoreException(tr('servers_update_ssh_proxy(): No old proxies id specified'), 'not-specified');
         }
 
-        if(empty($new_proxies_id)) {
+        if (empty($new_proxies_id)) {
             throw new CoreException(tr('servers_update_ssh_proxy(): No new proxies id specified'), 'not-specified');
         }
 
@@ -1656,7 +1656,7 @@ function servers_update_ssh_proxy($servers_id, $old_proxies_id, $new_proxies_id)
                        array(':servers_id' => $servers_id,
                              ':proxies_id' => $old_proxies_id), true, 'core');
 
-        if($id) {
+        if ($id) {
             sql_query('UPDATE `servers_ssh_proxies`
 
                        SET    `proxies_id` = :proxies_id
@@ -1724,14 +1724,14 @@ function servers_delete_ssh_proxy($servers_id, $proxies_id) {
  */
 function servers_get_id($server) {
     try{
-        if(!$server) {
+        if (!$server) {
             return null;
         }
 
-        if(is_array($server)) {
+        if (is_array($server)) {
             $server = $server['id'];
 
-        } elseif(!is_numeric($server)) {
+        } elseif (!is_numeric($server)) {
             $server = servers_get($server);
             $server = $server['id'];
         }
@@ -1759,7 +1759,7 @@ function servers_get_id($server) {
  */
 function servers_scan_domains($server = null) {
     try{
-        if(!$server) {
+        if (!$server) {
             /*
              * Scan ALL servers
              */
@@ -1805,14 +1805,14 @@ function servers_check_ssh_access($server, $account, $password = null) {
     try{
         $server['username'] = $account;
 
-        if($password) {
+        if ($password) {
             $server['password'] = $password;
             $results = servers_exec($server, array('commands' => array('echo', array('1'))));
 
         } else {
             $account = ssh_get_account($account);
 
-            if(!$account) {
+            if (!$account) {
                 throw new CoreException(tr('servers_check_ssh_access(): The specified account ":account" does not exist in the `ssh_accounts` table', array(':account' => $account)), 'not-exists');
             }
 

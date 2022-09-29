@@ -41,7 +41,7 @@ function url_cloak($url) {
                           true, array(':url'       => $url,
                                       ':createdby' => isset_get($_SESSION['user']['id'])));
 
-        if($cloak) {
+        if ($cloak) {
             /*
              * Found cloaking URL, update the createdon time so that it won't
              * exipre too soon
@@ -90,11 +90,11 @@ function url_decloak($cloak) {
     try{
         $data = sql_get('SELECT `createdby`, `url` FROM `url_cloaks` WHERE `cloak` = :cloak', array(':cloak' => $cloak));
 
-        if(mt_rand(0, 100) <= $_CONFIG['security']['url_cloaking']['interval']) {
+        if (mt_rand(0, 100) <= $_CONFIG['security']['url_cloaking']['interval']) {
             url_cloak_cleanup();
         }
 
-        if($data) {
+        if ($data) {
             $core->register['url_cloak_users_id'] = $data['createdby'];
             return $data['url'];
         }

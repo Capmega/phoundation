@@ -3,7 +3,7 @@ System Library (system.php)
     As stated in the preface, The Phoundation Project is a procedural framework aiming to maximize ease and speed while developing, as well as minimizing
     resource usage. To that purpose, The Phoundation Project lists hundreds of different libraries, each one comprising several functions. The first
     library is the `system.php` library, which, as its name suggests, contains all system functions for Phoundation. The `system.php` library is one of
-    the very few Phoundation libraries to execute code directly. It creates the $core object and defines the bException class which is the default
+    the very few Phoundation libraries to execute code directly. It creates the $core object and defines the CoreException class which is the default
     exception thrown by Phoundation functions. This is so the system gets minimal functionality from the get-go.
 
     $core is the main object for Phoundation. After the `system` library has automatically loaded , determines the platform (cli or http). After this,

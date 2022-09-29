@@ -60,7 +60,7 @@ function apt_library_init() {
  */
 function apt_install($packages, $auto_update = true, $server = null) {
     try{
-        if($auto_update) {
+        if ($auto_update) {
             apt_update($server = null);
         }
 
@@ -90,14 +90,14 @@ function apt_install($packages, $auto_update = true, $server = null) {
                  */
                 $data = $e->getData();
 
-                if($data) {
+                if ($data) {
                     /*
                      * All apt methods failures
                      */
                     $result = end($data);
                     $result = strtolower(trim($result));
 
-                    if(str_contains($result, 'dpkg was interrupted, you must manually run \'sudo dpkg --configure -a\' to correct the problem')) {
+                    if (str_contains($result, 'dpkg was interrupted, you must manually run \'sudo dpkg --configure -a\' to correct the problem')) {
                         log_console(tr('apt reported dpkg was interrupted, trying to fix'), 'yellow');
 
                         /*
@@ -115,7 +115,7 @@ function apt_install($packages, $auto_update = true, $server = null) {
                     foreach($data as $line) {
                         $match = preg_match('/^Try "snap install ([a-z-_]+)"$/ius', $line, $matches);
 
-                        if($match) {
+                        if ($match) {
                             /*
                              * The specific package is not available in apt, try
                              * installing it with snap instead
@@ -131,12 +131,12 @@ function apt_install($packages, $auto_update = true, $server = null) {
 
                         $match = preg_match('/^E: Unable to locate package ([a-z-_]+)$/ius', $line, $matches);
 
-                        if($match) {
+                        if ($match) {
                             throw new CoreException(tr('apt_install(): The specified apt package ":package" does not exist', array(':package' => $matches[1])), 'not-exists');
                         }
                     }
 
-                    if($fixed) {
+                    if ($fixed) {
                         return $data;
                     }
                 }
@@ -224,7 +224,7 @@ function apt_update($server = null) {
             }
         }
 
-        if(!$hits) {
+        if (!$hits) {
             throw new CoreException(tr('apt_update(): apt update failed to download all resources, see exception data for more information'), $e);
         }
 

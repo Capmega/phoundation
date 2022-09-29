@@ -27,7 +27,7 @@
  */
 function email_clients_library_init() {
     try{
-        if(!extension_loaded('imap')) {
+        if (!extension_loaded('imap')) {
             throw new CoreException(tr('email_clients_library_init(): The PHP "imap" module is not available, please install it first. On ubuntu install the module with "apt -y install php-imap"; a restart of the webserver or php fpm server may be required'), 'missing-module');
         }
 
@@ -72,7 +72,7 @@ function email_servers_validate($email_server) {
          */
         $server = servers_get($email_server['server_seodomain'], false, true, true);
 
-        if(!$server) {
+        if (!$server) {
             $v->setError(tr('The specified server ":server" does not exist', array(':server' => $email_server['seodomain'])));
         }
 
@@ -83,7 +83,7 @@ function email_servers_validate($email_server) {
          */
         $domain = domains_get($email_domain['domain_seodomain'], false, true, true);
 
-        if(!$domain) {
+        if (!$domain) {
             $v->setError(tr('The specified domain ":domain" does not exist', array(':domain' => $email_domain['seodomain'])));
         }
 
@@ -92,14 +92,14 @@ function email_servers_validate($email_server) {
         /*
          * Validate the rest
          */
-        if($email_server['smtp_port']) {
+        if ($email_server['smtp_port']) {
             $v->isBetween($email_server['smtp_port'], 1, 65535, tr('Please specify a valid SMTP port'));
 
         } else {
             $email_server['smtp_port'] = 0;
         }
 
-        if($email_server['imap']) {
+        if ($email_server['imap']) {
             $v->hasMaxChars($email_server['imap'], 160, tr('Please specify a valid IMAP string'));
 //            $v->isAlphaNumeric($email_server['imap'], tr('Please specify a valid IMAP string'));
 
@@ -116,7 +116,7 @@ function email_servers_validate($email_server) {
 
         $exists = sql_get('SELECT `id` FROM `email_servers` WHERE `domain` = :domain AND `id` != :id LIMIT 1', true, array(':domain' => $email_server['domain'], ':id' => isset_get($email_server['id'], 0)));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The domain ":domain" is already registered', array(':domain' => $email_server['domain'])));
         }
 
@@ -169,7 +169,7 @@ function email_servers_validate_domain($domain) {
         $v->hasMaxChars($domain['name'], 64, tr('Please specify a domain of less than 64 characters'));
         $v->isFilter($domain['name'], FILTER_VALIDATE_DOMAIN, tr('Please specify a valid domain'));
 
-        if($domain['seocustomer']) {
+        if ($domain['seocustomer']) {
             $domain['customer'] = customers_get(array('columns' => 'seoname',
                                                       'filters' => array('seoname' => $domain['seocustomer'])));
 
@@ -181,7 +181,7 @@ function email_servers_validate_domain($domain) {
 
         $exists = sql_get('SELECT `id` FROM `domains` WHERE `name` = :name LIMIT 1', true, array(':name' => $domain['name']));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The domain ":name" is already registered on this email server', array(':name' => $domain['name'])));
         }
 
@@ -192,7 +192,7 @@ function email_servers_validate_domain($domain) {
         return $domain;
 
     }catch(Exception $e) {
-        if($e->getCode() == '1049') {
+        if ($e->getCode() == '1049') {
             load_libs('servers');
 
             $servers  = servers_list_domains($domain['server']);
@@ -246,12 +246,12 @@ function email_servers_select($params = null) {
         array_default($params, 'extra'   , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby' , '`domain`');
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {
@@ -288,7 +288,7 @@ function email_servers_select($params = null) {
  */
 function email_servers_get($email_server, $column = null, $status = null) {
     try{
-        if(is_numeric($email_server)) {
+        if (is_numeric($email_server)) {
             $where[] = ' `email_servers`.`id` = :id ';
             $execute[':id'] = $email_server;
 
@@ -297,14 +297,14 @@ function email_servers_get($email_server, $column = null, $status = null) {
             $execute[':seodomain'] = $email_server;
         }
 
-        if($status !== false) {
+        if ($status !== false) {
             $execute[':status'] = $status;
             $where[] = ' `email_servers`.`status` '.sql_is($status, ':status');
         }
 
         $where   = ' WHERE '.implode(' AND ', $where).' ';
 
-        if($column) {
+        if ($column) {
             $retval = sql_get('SELECT `'.$column.'` FROM `email_servers` '.$where, true, $execute, 'core');
 
         } else {

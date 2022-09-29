@@ -19,23 +19,23 @@
     $client->client_id = '00000000440E7C65'; $application_line = __LINE__;
     $client->client_secret = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 
-    if(strlen($client->client_id) == 0
+    if (strlen($client->client_id) == 0
     || strlen($client->client_secret) == 0)
         die('Invalid clientId or clientSecret!');
         
     /* scope     */
     $client->scope = 'wl.basic wl.emails wl.birthday wl.skydrive wl.photos';
     
-    if(($success = $client->Initialize()))
+    if (($success = $client->Initialize()))
     {
-        if(($success = $client->Process()))
+        if (($success = $client->Process()))
         {
-            if(strlen($client->authorization_error))
+            if (strlen($client->authorization_error))
             {
                 $client->error = $client->authorization_error;
                 $success = false;
             }
-            elseif(strlen($client->access_token))
+            elseif (strlen($client->access_token))
             {
                 $success = $client->CallAPI(
                     'https://apis.live.net/v5.0/me',
@@ -82,9 +82,9 @@
         }
         $success = $client->Finalize($success);
     }
-    if($client->exit)
+    if ($client->exit)
         exit;
-    if($success)
+    if ($success)
     {
         session_start();
         $_SESSION['userdata']=$user;

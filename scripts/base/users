@@ -281,7 +281,7 @@ switch(cli_method()) {
         $users_id = cli_argument(1);
         $user     = cli_arguments('--name,--email,--username,--latitude,--longitude,--redirect,--domain,--role,--nickname');
 
-        if(!$users_id) {
+        if (!$users_id) {
             $v->setError(tr('No user specified'));
         }
 
@@ -292,8 +292,8 @@ switch(cli_method()) {
          */
         $where = ' AND (`users`.`status` IS NULL OR `users`.`status` != "_new") ';
 
-        if($_CONFIG['users']['type_filter'] !== false) {
-            if($_CONFIG['users']['type_filter'] === null) {
+        if ($_CONFIG['users']['type_filter'] !== false) {
+            if ($_CONFIG['users']['type_filter'] === null) {
                 $where .= ' AND `users`.`type` IS NULL';
 
             } else {
@@ -326,15 +326,15 @@ switch(cli_method()) {
                                   ':username' => $users_id,
                                   ':email'    => $users_id));
 
-        if(!$db_user) {
+        if (!$db_user) {
             throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $users_id)), 'warning/not-exist');
         }
 
-        if(isset($user['role'])) {
+        if (isset($user['role'])) {
             load_libs('roles');
             $role = roles_get($user['role']);
 
-            if(!$role) {
+            if (!$role) {
                 throw new CoreException(tr('Specified role ":role" does not exist'), 'not-exist');
             }
 
@@ -344,7 +344,7 @@ switch(cli_method()) {
         $user    = sql_merge($db_user, $user);
         $updated = user_update($user);
 
-        if($updated) {
+        if ($updated) {
             log_console(tr('Modified user ":user"', array(':user' => name($user))), 'green');
 
         } else {
@@ -364,7 +364,7 @@ switch(cli_method()) {
         $specified_role = cli_argument('--role', true);
         $specified_user = cli_argument('--user', true);
 
-        if(!$specified_role and !$specified_user) {
+        if (!$specified_role and !$specified_user) {
             /*
              * Get arguments by order
              */
@@ -374,23 +374,23 @@ switch(cli_method()) {
 
         cli_no_arguments_left();
 
-        if(!$specified_user) {
+        if (!$specified_user) {
             throw new CoreException(tr('No user specified'), 'warning/not-specified');
         }
 
         $user = user_get($specified_user);
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $specified_user)), 'warning/not-exist');
         }
 
-        if(!$specified_role) {
+        if (!$specified_role) {
             throw new CoreException(tr('No role specified for user ":user"', array(':user' => $user)), 'warning/not-specified');
         }
 
         $role = roles_get($specified_role, 'id,name');
 
-        if(!$role) {
+        if (!$role) {
             throw new CoreException(tr('Specified role ":role" does not exist', array(':role' => $specified_role)), 'warning/not-exist');
         }
 
@@ -427,38 +427,38 @@ switch(cli_method()) {
 
         $execute     = array();
 
-        if(!is_natural($limit) or (!$limit > 99999)) {
+        if (!is_natural($limit) or (!$limit > 99999)) {
             throw new CoreException(tr('--limit must be followed by a natural number lower than 99999'), 'warning/invalid');
         }
 
-        if(STATUS and DELETED and $core->register['all']) {
+        if (STATUS and DELETED and $core->register['all']) {
             throw new CoreException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
         }
 
-        if(STATUS and DELETED) {
+        if (STATUS and DELETED) {
             throw new CoreException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(STATUS and $core->register['all']) {
+        if (STATUS and $core->register['all']) {
             throw new CoreException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(DELETED and $core->register['all']) {
+        if (DELETED and $core->register['all']) {
             throw new CoreException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(DELETED) {
+        if (DELETED) {
             $where[] = ' `users`.`status` = "deleted" ';
 
-        } elseif(STATUS) {
+        } elseif (STATUS) {
             $where[] = ' `users`.`status` = :status ';
             $execute[':status'] = STATUS;
 
-        } elseif(!$core->register['all']) {
+        } elseif (!$core->register['all']) {
             $where[] = ' `users`.`status` IS NULL ';
         }
 
-        if($type) {
+        if ($type) {
             $where[] = ' `users`.`type` = :type ';
             $execute[':type'] = $type;
 
@@ -466,8 +466,8 @@ switch(cli_method()) {
             /*
              * Consider only users with a specific type as real users?
              */
-            if($_CONFIG['users']['type_filter'] !== false) {
-                if($_CONFIG['users']['type_filter'] === null) {
+            if ($_CONFIG['users']['type_filter'] !== false) {
+                if ($_CONFIG['users']['type_filter'] === null) {
                     $where[] .= ' `users`.`type` IS NULL';
 
                 } else {
@@ -478,26 +478,26 @@ switch(cli_method()) {
             }
         }
 
-        if($name) {
+        if ($name) {
             $where[] = ' (`users`.`name` LIKE :name OR `users`.`nickname` LIKE :nickname) ';
 
             $execute[':name']     = '%'.$name.'%';
             $execute[':nickname'] = '%'.$name.'%';
         }
 
-        if($username) {
+        if ($username) {
             $where[] = ' `users`.`username` LIKE :username ';
 
             $execute[':username'] = '%'.$username.'%';
         }
 
-        if($email) {
+        if ($email) {
             $where[] = ' `users`.`email` LIKE :email ';
 
             $execute[':email'] = '%'.$email.'%';
         }
 
-        if($filters) {
+        if ($filters) {
             $count = 0;
 
             foreach($filters as $filter) {
@@ -514,7 +514,7 @@ switch(cli_method()) {
                 $count++;
             }
 
-            if(!empty($list)) {
+            if (!empty($list)) {
                 $where[] = ' ('.implode(' OR ', $list).') ';
             }
         }
@@ -534,13 +534,13 @@ switch(cli_method()) {
 
                     FROM      `users`';
 
-        if(!empty($where)) {
+        if (!empty($where)) {
             $where = ' WHERE '.implode(' AND ', $where);
         }
 
         $r = sql_query($query.$where.sql_limit(), $execute);
 
-        if(!$r->rowCount()) {
+        if (!$r->rowCount()) {
             log_console(tr('There are currently no users registered'), 'QUIET/yellow');
 
         } else {
@@ -577,34 +577,34 @@ switch(cli_method()) {
 
         cli_no_arguments_left();
 
-        if(STATUS and DELETED and $core->register['all']) {
+        if (STATUS and DELETED and $core->register['all']) {
             throw new CoreException(tr('--deleted, --status, and --all cannot be used together. Use only one of the three'), 'warning/invalid');
         }
 
-        if(STATUS and DELETED) {
+        if (STATUS and DELETED) {
             throw new CoreException(tr('--status, --deleted cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(STATUS and $core->register['all']) {
+        if (STATUS and $core->register['all']) {
             throw new CoreException(tr('--status, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(DELETED and $core->register['all']) {
+        if (DELETED and $core->register['all']) {
             throw new CoreException(tr('--deleted, --all cannot be used together. Use only one of the two'), 'warning/invalid');
         }
 
-        if(DELETED) {
+        if (DELETED) {
             $where[] = ' `users`.`status` = "deleted" ';
 
-        } elseif(STATUS) {
+        } elseif (STATUS) {
             $where[] = ' `users`.`status` = :status ';
             $execute[':status'] = STATUS;
 
-        } elseif(!$core->register['all']) {
+        } elseif (!$core->register['all']) {
             $where[] = ' `users`.`status` IS NULL ';
         }
 
-        if($type) {
+        if ($type) {
             $where[] = ' `users`.`type` = :type ';
             $execute[':type'] = $type;
 
@@ -612,8 +612,8 @@ switch(cli_method()) {
             /*
              * Consider only users with a specific type as real users?
              */
-            if($_CONFIG['users']['type_filter'] !== false) {
-                if($_CONFIG['users']['type_filter'] === null) {
+            if ($_CONFIG['users']['type_filter'] !== false) {
+                if ($_CONFIG['users']['type_filter'] === null) {
                     $where[] = ' `users`.`type` IS NULL';
 
                 } else {
@@ -624,26 +624,26 @@ switch(cli_method()) {
             }
         }
 
-        if($name) {
+        if ($name) {
             $where[] = ' (`users`.`name` LIKE :name OR `users`.`nickname` LIKE :nickname) ';
 
             $execute[':name']     = '%'.$name.'%';
             $execute[':nickname'] = '%'.$name.'%';
         }
 
-        if($username) {
+        if ($username) {
             $where[] = ' `users`.`username` LIKE :username ';
 
             $execute[':username'] = '%'.$username.'%';
         }
 
-        if($email) {
+        if ($email) {
             $where[] = ' `users`.`email` LIKE :email ';
 
             $execute[':email'] = '%'.$email.'%';
         }
 
-        if($filters) {
+        if ($filters) {
             $count = 0;
 
             foreach($filters as $filter) {
@@ -660,7 +660,7 @@ switch(cli_method()) {
                 $count++;
             }
 
-            if(!empty($list)) {
+            if (!empty($list)) {
                 $where[] = ' ('.implode(' OR ', $list).') ';
             }
         }
@@ -689,13 +689,13 @@ switch(cli_method()) {
                     ON        `users_god`.`name`       = "god"
                     AND       `users_god`.`users_id`   = `users`.`id`';
 
-        if(!empty($where)) {
+        if (!empty($where)) {
             $where = ' WHERE '.implode(' AND ', $where);
         }
 
         $r = sql_query($query.$where.(ORDERBY ? ORDERBY : '').sql_limit(), $execute);
 
-        if(!$r->rowCount()) {
+        if (!$r->rowCount()) {
                 log_console(tr('There are currently no users registered'), 'QUIET/yellow');
 
         } else {
@@ -711,16 +711,16 @@ switch(cli_method()) {
     case 'show':
         $requested = cli_argument();
 
-        if(!$requested) {
+        if (!$requested) {
             throw new CoreException(tr('Specified user is invalid'), 'warning/not-specified');
         }
 
-        if(is_numeric($requested)) {
+        if (is_numeric($requested)) {
             $where = ' WHERE `id` = :id ';
 
             $execute = array(':id' => $requested);
 
-        } elseif(is_string($requested)) {
+        } elseif (is_string($requested)) {
             $where = ' WHERE `username` = :username OR `email` = :email ';
 
             $execute = array(':username' => $requested,
@@ -732,14 +732,14 @@ switch(cli_method()) {
 
         $user = sql_get('SELECT * FROM `users` '.$where, $execute);
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $requested)), 'warning/not-exist');
         }
 
         ksort($user);
 
         foreach($user as $key => $value) {
-            if($key == 'password') continue;
+            if ($key == 'password') continue;
             log_console(cli_color($key.':', 'white').' '.$value);
         }
 
@@ -748,7 +748,7 @@ switch(cli_method()) {
     case 'unlock':
         $users = cli_arguments();
 
-        if(empty($users)) {
+        if (empty($users)) {
             throw new CoreException(tr('No users specified'), 'warning/not-specified');
         }
 
@@ -761,7 +761,7 @@ switch(cli_method()) {
         $where   = array();
 
         foreach($users as $user) {
-            if(is_numeric($user)) {
+            if (is_numeric($user)) {
                 $id[] = $user;
 
             } else {
@@ -769,7 +769,7 @@ switch(cli_method()) {
             }
         }
 
-        if($name) {
+        if ($name) {
             $email = sql_in($name, ':name');
             $name  = sql_in($name, ':email');
 
@@ -780,7 +780,7 @@ switch(cli_method()) {
             $in[] = ' `email` IN ('.implode(',', array_keys($email)).') ';
         }
 
-        if($id) {
+        if ($id) {
             $id      = sql_in($id, ':id');
             $execute = array_merge($execute, $id);
 
@@ -824,7 +824,7 @@ switch(cli_method()) {
     case 'enable':
         $users = cli_arguments();
 
-        if(empty($users)) {
+        if (empty($users)) {
             throw new CoreException(tr('No users specified'), 'warning/not-specified');
         }
 
@@ -837,7 +837,7 @@ switch(cli_method()) {
         $where   = array(' `role` != "god" ');
 
         foreach($users as $user) {
-            if(is_numeric($user)) {
+            if (is_numeric($user)) {
                 $id[] = $user;
 
             } else {
@@ -845,7 +845,7 @@ switch(cli_method()) {
             }
         }
 
-        if($name) {
+        if ($name) {
             $email = sql_in($name, ':name');
             $name  = sql_in($name, ':email');
 
@@ -856,7 +856,7 @@ switch(cli_method()) {
             $in[] = ' `email` IN ('.implode(',', array_keys($email)).') ';
         }
 
-        if($id) {
+        if ($id) {
             $id      = sql_in($id, ':id');
             $execute = array_merge($execute, $id);
 
@@ -971,27 +971,27 @@ switch(cli_method()) {
         $requested = cli_argument();
         cli_no_arguments_left();
 
-        if(!$requested) {
+        if (!$requested) {
             throw new CoreException(tr('No user specified'), 'warning/not-specified');
         }
 
-        if(is_numeric($requested)) {
+        if (is_numeric($requested)) {
             $user = sql_get('SELECT `id`, `name`, `nickname`, `email`, `username` FROM `users` WHERE `id` = :id', array(':id' => $requested));
 
-        } elseif(is_string($requested)) {
+        } elseif (is_string($requested)) {
             $user = sql_get('SELECT `id`, `name`, `nickname`, `email`, `username`  FROM `users` WHERE `username` = :username OR `email` = :email', array(':username' => $requested, ':email' => $requested));
 
         } else {
             throw new CoreException(tr('Specified user is invalid'), 'warning/invalid');
         }
 
-        if(!$user) {
+        if (!$user) {
             throw new CoreException(tr('Specified user ":user" does not exist', array(':user' => $requested)), 'warning/not-exist');
         }
 
         $password = cli_readline(tr('Password: ')       , true);
 
-        if((strlen($password) < 8) and !FORCE) {
+        if ((strlen($password) < 8) and !FORCE) {
             /*
              * This will fail later anyway
              */
@@ -1000,7 +1000,7 @@ switch(cli_method()) {
 
         $verify   = cli_readline(tr('Verify password: '), true);
 
-        if($password != $verify) {
+        if ($password != $verify) {
             throw new CoreException(tr('Specified password does not match the verification'), 'warning/verification');
         }
 
@@ -1010,7 +1010,7 @@ switch(cli_method()) {
         }catch(Exception $e) {
             switch($e->getCode()) {
                 case 'used-before':
-                    if(!FORCE) {
+                    if (!FORCE) {
                         throw $e->setCode('warning/used-before');
                     }
 
@@ -1018,7 +1018,7 @@ switch(cli_method()) {
                     break;
 
                 case 'banned':
-                    if(!FORCE) {
+                    if (!FORCE) {
                         throw $e->setCode('warning/banned');
                     }
 
@@ -1026,7 +1026,7 @@ switch(cli_method()) {
                     break;
 
                 case 'validation':
-                    if(!FORCE) {
+                    if (!FORCE) {
                         throw $e->setCode('warning/validation');
                     }
 
@@ -1034,7 +1034,7 @@ switch(cli_method()) {
                     break;
 
                 case 'not-specified':
-                    if(!FORCE) {
+                    if (!FORCE) {
                        throw $e->setCode('warning/not-specified');
                     }
 
@@ -1055,7 +1055,7 @@ switch(cli_method()) {
                                               'password2' => $password), false);
 
 
-        if(!$updated) {
+        if (!$updated) {
             throw new CoreException(tr('Password is the same, not updated', array(':user' => $user)), 'warning/not-updated');
         }
 
@@ -1065,7 +1065,7 @@ switch(cli_method()) {
     case 'whoami':
         cli_no_arguments_left();
 
-        if(empty($_SESSION['user']['id'])) {
+        if (empty($_SESSION['user']['id'])) {
             log_console(tr('0 Nobody'));
 
         } else {

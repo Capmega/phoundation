@@ -77,7 +77,7 @@ function tasks_insert($task) {
 
         log_console(tr('Added new task ":description" with id ":id"', array(':description' => $task['description'], ':id' => $task['id'])), 'green');
 
-        if($task['auto_execute']) {
+        if ($task['auto_execute']) {
             log_console(tr('Auto starting tasks manager in background'), 'cyan');
             run_background('base/tasks execute --env '.ENVIRONMENT.(VERBOSE ? (VERYVERBOSE ? ' --very-verbose' : ' --verbose') : ''), true, false);
         }
@@ -118,7 +118,7 @@ function tasks_update($task, $executed = false) {
                          ':pid'      => get_null($task['pid']),
                          ':results'  => $task['results']);
 
-        if($executed) {
+        if ($executed) {
             $execute[':time_spent'] = $task['time_spent'];
         }
 
@@ -182,7 +182,7 @@ function tasks_validate($task) {
 
         $v = new ValidateForm($task, 'status,command,after,data,results,method,timeout,executed,time_spent,parents_id,parrallel,verbose');
 
-        if($task['timeout'] === '') {
+        if ($task['timeout'] === '') {
             $task['timeout'] = $_CONFIG['tasks']['default_timeout'];
         }
 
@@ -202,21 +202,21 @@ function tasks_validate($task) {
         $v->isNatural($task['pid'], 1, tr('Please specify a valid pid (process id)'), VALIDATE_ALLOW_EMPTY_NULL);
         $v->isBetween($task['pid'], 1, 65535, tr('Please specify a valid pid (process id)'), VALIDATE_ALLOW_EMPTY_NULL);
 
-        if($task['parents_id']) {
+        if ($task['parents_id']) {
             $exists = sql_get('SELECT `id`, `method` FROM `tasks` WHERE `id` = :id', array(':id' => $task['parents_id']));
 
-            if(!$exists) {
+            if (!$exists) {
                 $v->setError(tr('Specified parent tasks id ":id" does not exist', array(':id' => $task['parents_id'])));
             }
 
-            if($task['parrallel'] and ($exists['method'] !== 'background')) {
+            if ($task['parrallel'] and ($exists['method'] !== 'background')) {
                 $v->setError(tr('Parrallel tasks require parent task running in mode "background"'));
             }
 
         } else {
             $task['parents_id'] = null;
 
-            if($task['parrallel']) {
+            if ($task['parrallel']) {
                 $v->setError(tr('Parrallel was specified without parents_id'));
             }
         }
@@ -224,11 +224,11 @@ function tasks_validate($task) {
         $task['verbose']   = (integer) (boolean) $task['verbose'];
         $task['parrallel'] = (integer) (boolean) $task['parrallel'];
 
-        if(is_object($task['data'])) {
+        if (is_object($task['data'])) {
             $v->setError(tr('Specified task data is an object data type, which is not supported'));
         }
 
-        if(is_object($task['results'])) {
+        if (is_object($task['results'])) {
             $v->setError(tr('Specified task results is an object data type, which is not supported'));
         }
 
@@ -286,7 +286,7 @@ function tasks_validate_status($status) {
  */
 function tasks_get($filters, $set_status = false, $min_id = null) {
     try{
-        if(is_natural($filters)) {
+        if (is_natural($filters)) {
             $where   = ' WHERE `tasks`.`id` = :id ';
 
             $execute = array(':id' => $filters);
@@ -297,7 +297,7 @@ function tasks_get($filters, $set_status = false, $min_id = null) {
             $where   = ' WHERE  `tasks`.`status` IN('.implode(', ', array_keys($execute)).')
                          AND   (`tasks`.`after` IS NULL OR `tasks`.`after` <= UTC_TIMESTAMP()) ';
 
-            if($min_id) {
+            if ($min_id) {
                 $where .= ' AND `tasks`.`id` > :id ';
                 $execute['id'] = $min_id;
             }
@@ -339,8 +339,8 @@ function tasks_get($filters, $set_status = false, $min_id = null) {
 
                          $execute);
 
-        if($task) {
-            if($set_status) {
+        if ($task) {
+            if ($set_status) {
                 tasks_validate_status($set_status);
                 meta_action($task['meta_id'], 'set-status', $set_status);
                 sql_query('UPDATE `tasks` SET `status` = :status WHERE `id` = :id', array(':id' => $task['id'], ':status' => $set_status));
@@ -361,11 +361,11 @@ function tasks_get($filters, $set_status = false, $min_id = null) {
  */
 function tasks_list($status) {
     try{
-        if($status) {
+        if ($status) {
             $status = Arrays::force($status);
             tasks_validate_status($status);
 
-            if(count($status) == 1) {
+            if (count($status) == 1) {
                 $status = array(':status' => array_shift($status));
                 $where  = 'WHERE    `tasks`.`status` = :status
                            AND     (`tasks`.`after` IS NULL OR `tasks`.`after` <= UTC_TIMESTAMP())';
@@ -440,7 +440,7 @@ function task_test_mysql() {
     }catch(Exception $e) {
         $message = $e->getMessage();
 
-        if(!preg_match('/send of .+? bytes failed with .+? Broken pipe/', $message)) {
+        if (!preg_match('/send of .+? bytes failed with .+? Broken pipe/', $message)) {
             /*
              * This is a different error, keep on throwing
              */
@@ -477,10 +477,10 @@ function tasks_status($tasks_id, $status, $reset = false) {
     try{
         $update = sql_query('UPDATE `tasks` SET `status` = :status '.($reset ? ' , `results` = null ' : '').' WHERE `id` = :id', array(':id' => $tasks_id, ':status' => $status));
 
-        if(!$update->rowCount()) {
+        if (!$update->rowCount()) {
             $exists = sql_get('SELECT `id` FROM `tasks` WHERE `id` = :id', true, array(':id' => $tasks_id));
 
-            if($exists) {
+            if ($exists) {
                 return 0;
             }
 
@@ -595,11 +595,11 @@ function tasks_check_pid($tasks_id) {
     try{
         $task = sql_get('SELECT `id`, `pid` FROM `tasks` WHERE `id` = :id', array(':id' => $tasks_id));
 
-        if(!$task) {
+        if (!$task) {
             throw new CoreException(tr('tasks_check_pid(): Task ":task" does not exist', array(':task' => $tasks_id)), 'not-exists');
         }
 
-        if(!$task['pid']) {
+        if (!$task['pid']) {
             throw new CoreException(tr('tasks_check_pid(): Task ":task" does not have a pid', array(':task' => $tasks_id)), 'empty');
         }
 

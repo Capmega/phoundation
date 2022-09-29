@@ -107,7 +107,7 @@ class IPTC
 
         $size = getimagesize($filename, $info);
 
-        if(isset($info["APP13"])) $this->meta = iptcparse($info["APP13"]);
+        if (isset($info["APP13"])) $this->meta = iptcparse($info["APP13"]);
 
         $this->file = $filename;
     }
@@ -132,7 +132,7 @@ class IPTC
 
         $filename = $this->file;
 
-        if(file_exists($this->file)) unlink($this->file);
+        if (file_exists($this->file)) unlink($this->file);
 
         $fp = fopen($this->file, "w");
         fwrite($fp, $content);
@@ -157,7 +157,7 @@ class IPTC
         $length = strlen($value);
         $retval = chr(0x1C) . chr($rec) . chr($data);
 
-        if($length < 0x8000)
+        if ($length < 0x8000)
         {
             $retval .= chr($length >> 8) .  chr($length & 0xFF);
         }
@@ -186,7 +186,7 @@ class IPTC
     {
         $this->meta = [];
         $img = imagecreatefromstring(implode(file($this->file)));
-        if(file_exists($this->file)) unlink($this->file);
+        if (file_exists($this->file)) unlink($this->file);
         imagejpeg($img, $this->file, 100);
     }
 }

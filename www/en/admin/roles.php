@@ -23,18 +23,18 @@ try{
             /*
              * Erase the specified roles
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot erase roles, no roles selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot erase roles, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('UPDATE `roles` SET `status` = "deleted" WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No user roles have been deleted', 'warning');
 
             } else {
@@ -47,18 +47,18 @@ try{
             /*
              * Erase the specified roles
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot undelete roles, no roles selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot undelete roles, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('UPDATE `roles` SET `status` = NULL WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No user roles have been undeleted', 'warning');
 
             } else {
@@ -71,18 +71,18 @@ try{
             /*
              * Erase the specified roles
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot erase roles, no roles selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot erase roles, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('DELETE FROM `roles` WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No user roles have been erased', 'warning');
 
             } else {
@@ -178,7 +178,7 @@ $query   = 'SELECT    `roles`.`id`,
 /*
  * Apply role filter
  */
-if(!empty($_GET['role'])) {
+if (!empty($_GET['role'])) {
     $where[] = ' `roles`.`name` = :role';
     $execute = array(':role' => $_GET['role']);
 }
@@ -187,7 +187,7 @@ if(!empty($_GET['role'])) {
 /*
  * Apply generic filter
  */
-if(!empty($_GET['filter'])) {
+if (!empty($_GET['filter'])) {
     $where[]              = ' (`roles`.`name` LIKE :name OR `users`.`name` LIKE :username)';
     $execute[':name']     = '%'.$_GET['filter'].'%';
     $execute[':username'] = '%'.$_GET['filter'].'%';
@@ -197,13 +197,13 @@ if(!empty($_GET['filter'])) {
 /*
  * Execute query
  */
-if(!empty($where)) {
+if (!empty($where)) {
     $query .= ' WHERE '.implode(' AND ', $where);
 }
 
 $query .= ' ORDER BY `roles`.`name`';
 
-if($limit) {
+if ($limit) {
     $query .= ' LIMIT '.$limit;
 }
 
@@ -256,7 +256,7 @@ $html    = '<div class="row">
                         <form action="'.domain(true).'" method="post">
                             <div class="panel-body">';
 
-if(!$r->rowCount()) {
+if (!$r->rowCount()) {
     $html .= '<p>'.tr('No roles were found with the current filter').'</p>';
 
 } else {
@@ -287,11 +287,11 @@ if(!$r->rowCount()) {
 
                                        array(':roles_id' => $role['id']));
 
-        if(!empty($_GET['right'])) {
+        if (!empty($_GET['right'])) {
             /*
              * Filter by the specified right.
              */
-            if(!in_array($_GET['right'], $role['rights'])) {
+            if (!in_array($_GET['right'], $role['rights'])) {
                 continue;
             }
         }

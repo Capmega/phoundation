@@ -23,7 +23,7 @@ $files  = sql_query('SELECT `blogs_media`.`id`,
                      WHERE  `blogs_posts`.`status` = "_new"
                      AND    `blogs_posts`.`masters_id` IS NULL');
 
-if($files->rowCount()) {
+if ($files->rowCount()) {
     While($file = sql_fetch($files)) {
         cli_dot();
         file_delete($file['file'], ROOT.'data/content');

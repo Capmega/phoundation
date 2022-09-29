@@ -1,7 +1,7 @@
 <?php
     global $core;
 
-    if(empty($core->register['no_time_zone']) and ($core->register['script'] != 'init')) {
+    if (empty($core->register['no_time_zone']) and ($core->register['script'] != 'init')) {
         throw $e;
     }
 

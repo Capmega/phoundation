@@ -68,8 +68,8 @@ function usb_list($libusb = null, $server = null) {
                             'product' => $matches[4],
                             'name'    => $matches[5]);
 
-            if($libusb) {
-                if($libusb == $device['bus'].':'.$device['device']) {
+            if ($libusb) {
+                if ($libusb == $device['bus'].':'.$device['device']) {
                     /*
                      *
                      */
@@ -126,11 +126,11 @@ function usb_scan($regex_filter, $server = null) {
         foreach($results as $result) {
             $result = trim($result);
 
-            if($result) {
+            if ($result) {
                 $device .= $result."\n";
 
             } else {
-                if(!$device) {
+                if (!$device) {
                     /*
                      * We have no device data yet, probably an empty line at the
                      * top of the file or a double empty line. Ignore and
@@ -148,7 +148,7 @@ function usb_scan($regex_filter, $server = null) {
             //Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
             $found = preg_match($regex_filter, $devices, $matches);
 
-            if($found) {
+            if ($found) {
                 $retval[] = $device;
             }
         }

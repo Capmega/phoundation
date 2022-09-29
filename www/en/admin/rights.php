@@ -23,18 +23,18 @@ try{
             /*
              * Erase the specified rights
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot erase rights, no rights selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot erase rights, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('UPDATE `rights` SET `status` = "deleted" WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No user rights have been deleted', 'warning');
 
             } else {
@@ -47,18 +47,18 @@ try{
             /*
              * Erase the specified rights
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot undelete rights, no rights selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot undelete rights, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('UPDATE `rights` SET `status` = NULL WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No user rights have been undeleted', 'warning');
 
             } else {
@@ -71,18 +71,18 @@ try{
             /*
              * Erase the specified rights
              */
-            if(empty($_POST['id'])) {
+            if (empty($_POST['id'])) {
                 throw new CoreException('Cannot erase rights, no rights selected', 'notspecified');
             }
 
-            if(!is_array($_POST['id'])) {
+            if (!is_array($_POST['id'])) {
                 throw new CoreException('Cannot erase rights, invalid data specified', 'invalid');
             }
 
             $in = sql_in($_POST['id'], ':id');
             $r  = sql_query('DELETE FROM `rights` WHERE `id` IN ('.implode(',', array_keys($in)).')', $in);
 
-            if(!$r->rowCount()) {
+            if (!$r->rowCount()) {
                 html_flash_set('No user rights have been erased', 'warning');
 
             } else {
@@ -166,7 +166,7 @@ $query   = 'SELECT    `rights`.`id`,
             LEFT JOIN `users`
             ON        `users`.`id`   = `rights`.`createdby`';
 
-if(!empty($_GET['right'])) {
+if (!empty($_GET['right'])) {
     $query  .= ' AND `rights`.`name` = :right';
     $execute = array(':right' => $_GET['right']);
 }
@@ -175,7 +175,7 @@ if(!empty($_GET['right'])) {
 /*
  * Apply generic filter
  */
-if(!empty($_GET['filter'])) {
+if (!empty($_GET['filter'])) {
     $where[]              = ' (`rights`.`name` LIKE :name OR `users`.`name` LIKE :username)';
     $execute[':name']     = '%'.$_GET['filter'].'%';
     $execute[':username'] = '%'.$_GET['filter'].'%';
@@ -185,13 +185,13 @@ if(!empty($_GET['filter'])) {
 /*
  * Execute query
  */
-if(!empty($where)) {
+if (!empty($where)) {
     $query .= ' WHERE '.implode(' AND ', $where);
 }
 
 $query .= ' ORDER BY `rights`.`name`';
 
-if($limit) {
+if ($limit) {
     $query .= ' LIMIT '.$limit;
 }
 
@@ -241,7 +241,7 @@ $html    = '<div class="row">
                         <form action="'.domain(true).'" method="post">
                             <div class="panel-body">';
 
-if(!$r->rowCount()) {
+if (!$r->rowCount()) {
     $html .= '<p>'.tr('No rights were found with the current filter').'</p>';
 
 } else {

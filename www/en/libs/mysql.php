@@ -59,21 +59,21 @@ function mysql_exec($server, $query, $root = false, $simple_quotes = false) {
         $query  = addslashes($query);
         $server = servers_get($server, true);
 
-        if(empty($server['database_accounts_id'])) {
+        if (empty($server['database_accounts_id'])) {
             throw new CoreException(tr('mysql_exec(): Cannot execute query on server ":server", it does not have a database account specified', array(':server' => $server['domain'])), 'not-specified');
         }
 
         /*
          * Are we going to execute as root?
          */
-        if($root) {
+        if ($root) {
             mysql_create_password_file('root', $server['db_root_password'], $server);
 
         } else {
             mysql_create_password_file($server['db_username'], $server['db_password'], $server);
         }
 
-        if($simple_quotes) {
+        if ($simple_quotes) {
             $results = servers_exec($server, 'mysql -e \''.Strings::endsWith($query, ';').'\'');
 
         } else {
@@ -177,7 +177,7 @@ function mysql_dump($params) {
 
         load_libs('servers');
 
-        if(!$params['database']) {
+        if (!$params['database']) {
             throw new CoreException(tr('mysql_dump(): No database specified'), 'not-specified');
         }
 
@@ -244,7 +244,7 @@ function mysql_get_database($db_name) {
 
                              array(':name' => $db_name));
 
-        if(!$database) {
+        if (!$database) {
             throw new CoreException(tr('mysql_get_database(): Specified database ":database" does not exist', array(':database' => $db_name)), 'not-exists');
         }
 
@@ -316,10 +316,10 @@ function mysql_register_databases($server) {
                     $skip = false;
             }
 
-            if($skip) continue;
+            if ($skip) continue;
 
             $exists = sql_get('SELECT `id` FROM `databases` WHERE `servers_id` = :servers_id AND `name` = :name', true, array(':servers_id' => $server['id'], ':name' => $database));
-            if($exists) continue;
+            if ($exists) continue;
 
             $database['servers_id'] = $server['id'];
 
@@ -359,7 +359,7 @@ function mysql_validate_database($database, $structure_only = false) {
 
         $v = new ValidateForm($database, 'createdby,status,servers_id,projects_id,replication_status,name,description,error');
 
-        if($structure_only) {
+        if ($structure_only) {
             return $database;
         }
 
@@ -373,7 +373,7 @@ function mysql_validate_database($database, $structure_only = false) {
         /*
          * Description
          */
-        if(empty($database['description'])) {
+        if (empty($database['description'])) {
             $database['description'] = '';
 
         } else {
@@ -393,7 +393,7 @@ function mysql_validate_database($database, $structure_only = false) {
         /*
          * Error data
          */
-        if(empty($database['error'])) {
+        if (empty($database['error'])) {
             $database['error'] = '';
 
         } else {
@@ -407,10 +407,10 @@ function mysql_validate_database($database, $structure_only = false) {
         /*
          * Validate server and project
          */
-        if($database['server']) {
+        if ($database['server']) {
             $database['servers_id'] = servers_get($database['server']);
 
-            if(!$database['servers_id']) {
+            if (!$database['servers_id']) {
                 $v->setError(tr('Specified server ":server" does not exist', array(':server' => $database['server'])));
             }
 
@@ -419,11 +419,11 @@ function mysql_validate_database($database, $structure_only = false) {
             //$v->setError(tr('Please specify a server'));
         }
 
-        if($database['project']) {
+        if ($database['project']) {
             $database['projects_id'] = projects_get(array('column'  => 'id',
                                                           'filters' => array('seoname' => $database['project'])));
 
-            if(!$database['projects_id']) {
+            if (!$database['projects_id']) {
                 $v->setError(tr('Specified project ":project" does not exist', array(':project' => $database['project'])));
             }
 
@@ -436,7 +436,7 @@ function mysql_validate_database($database, $structure_only = false) {
          */
         $exists = mysql_exists_database($database['domain'], isset_get($database['id'], 0));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('A database with name ":domain" already exists', array(':name' => $database['name'])));
         }
 

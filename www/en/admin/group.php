@@ -11,10 +11,10 @@ $group = array();
  * Are we editing a group?
  * If so then get the group data from the DB
  */
-if(!empty($_GET['group'])) {
+if (!empty($_GET['group'])) {
 
 
-    if(is_numeric($_GET['group'])) {
+    if (is_numeric($_GET['group'])) {
         /*
          * We are using an id
          */
@@ -50,7 +50,7 @@ if(!empty($_GET['group'])) {
                        array(':group' => $_GET['group']));
     }
 
-    if(!$db) {
+    if (!$db) {
         html_flash_set(log_database(tr('Specified group "'.str_log($_GET['group']).'" does not exist'), 'group_not_exist'), 'error');
         redirect(domain('/admin/groups.php'));
     }
@@ -60,12 +60,12 @@ if(!empty($_GET['group'])) {
     $group = array_merge($db, $group);
     unset($db);
 
-    if($group['createdon']) {
+    if ($group['createdon']) {
         $group['createdon']  = new DateTime($group['createdon']);
         $group['createdon']  = $group['createdon']->format($_CONFIG['formats']['human_datetime']);
     }
 
-    if($group['modifiedon']) {
+    if ($group['modifiedon']) {
         $group['modifiedon'] = new DateTime($group['modifiedon']);
         $group['modifiedon'] = $group['modifiedon']->format($_CONFIG['formats']['human_datetime']);
     }
@@ -75,7 +75,7 @@ if(!empty($_GET['group'])) {
 /*
  * Was group data submitted?
  */
-if(!empty($_POST['dosubmit'])) {
+if (!empty($_POST['dosubmit'])) {
     $group = array_merge($group, $_POST);
 }
 
@@ -86,7 +86,7 @@ if(!empty($_POST['dosubmit'])) {
 try{
     load_libs('seo');
 
-    if(isset_get($_POST['docreate'])) {
+    if (isset_get($_POST['docreate'])) {
         /*
          * Validate data
          */
@@ -107,8 +107,8 @@ try{
         redirect(domain('/admin/groups.php'));
     }
 
-    if(isset_get($_POST['doupdate'])) {
-        if(empty($group['id'])) {
+    if (isset_get($_POST['doupdate'])) {
+        if (empty($group['id'])) {
             throw new CoreException('Cannot update, no group specified', 'notspecified');
         }
 
@@ -133,7 +133,7 @@ try{
         /*
          * This update might have been done because of a create group action
          */
-        if(!isset_get($_POST['docreate'])) {
+        if (!isset_get($_POST['docreate'])) {
             html_flash_set(log_database('Updated group "'.str_log(isset_get($_POST['name'])).'"', 'group_update'), 'success');
             redirect(domain('/admin/group.php?group='.$group['name']));
         }
@@ -141,8 +141,8 @@ try{
         $group = array();
     }
 
-    if(isset_get($_POST['newmembers'])) {
-        if(empty($group['id'])) {
+    if (isset_get($_POST['newmembers'])) {
+        if (empty($group['id'])) {
             throw new CoreException('Cannot update, no group specified', 'notspecified');
         }
 
@@ -161,7 +161,7 @@ try{
 
                              array(':reference_number' => $member), 'id');
 
-            if(!empty($user)) {
+            if (!empty($user)) {
                 try{
                     /*
                      * Insert the user and the group
@@ -188,9 +188,9 @@ try{
     /*
      * Remove contacts from group
      */
-    if(!empty($_POST['action']) and !empty($_POST['contact_remove'])) {
+    if (!empty($_POST['action']) and !empty($_POST['contact_remove'])) {
         foreach($_POST['contact_remove'] as $contact) {
-            if($contact != 'on') {
+            if ($contact != 'on') {
                 s_delete_user_group($contact, $group);
             }
         }
@@ -203,8 +203,8 @@ try{
 
 $readonly = '';
 
-if(!empty($group['id'])) {
-    if($group['status']) {
+if (!empty($group['id'])) {
+    if ($group['status']) {
         $readonly = 'readonly';
     }
 }
@@ -223,7 +223,7 @@ $html = '   <form name="group" id="group" action="'.domain(true).'" method="post
                         </header>
                         <div class="panel-body">';
 
-if(!empty($group['id'])) {
+if (!empty($group['id'])) {
     $html .= '              <div class="form-group">
                                 <label class="col-md-3 control-label" for="createdon">'.tr('Created on').'</label>
                                 <div class="col-md-12">
@@ -239,7 +239,7 @@ $html .= '                  <div class="form-group">
                                 </div>
                             </div>';
 
-if(empty($profile)) {
+if (empty($profile)) {
     $html .= '              <div class="form-group">
                                 <label class="col-md-3 control-label" for="commentary">'.tr('Description').'</label>
                                 <div class="col-md-12">
@@ -260,7 +260,7 @@ $html .= '                  <div class="form-group">'.
             </form>';
 
 
-if(!empty($group['id'])) {
+if (!empty($group['id'])) {
     /*
      * Build page HTML
      */
@@ -294,7 +294,7 @@ if(!empty($group['id'])) {
 }
 
 
-if(!empty($group['id'])) {
+if (!empty($group['id'])) {
     $html .= ca_group_members($group);
 }
 
@@ -331,7 +331,7 @@ function s_validate_group(&$group) {
         $v->hasMinChars ($group['name'],   4, tr('Please ensure that the name has a minimum of 4 characters'));
         $v->hasMaxChars ($group['name'],  16, tr('Please ensure that the name has a maximum of 16 characters'));
 
-        if(!$v->isValid()) {
+        if (!$v->isValid()) {
             throw new CoreException($v->getErrors(), 'invalid');
         }
 
@@ -359,7 +359,7 @@ function s_delete_user_group($user_id, $group) {
 
                      array(':id' => $user_id));
 
-    if(empty($user)) {
+    if (empty($user)) {
         throw new CoreException(tr('This user does not exists'));
     }
 
@@ -373,7 +373,7 @@ function s_delete_user_group($user_id, $group) {
     //
     //                  array(':id' => $_GET['group']));
     //
-    //if(empty($group)) {
+    //if (empty($group)) {
     //    throw new CoreException(tr('This group does not exists'));
     //}
 
@@ -387,7 +387,7 @@ function s_delete_user_group($user_id, $group) {
                            array(':users_id'  => $user['id'],
                                  ':groups_id' => $group['id']));
 
-    if(empty($user_group)) {
+    if (empty($user_group)) {
         throw new CoreException(tr('The specified user ":user" is not on group ":group"', array(':user' => $user['name'], ':group' => $group['name'])));
     }
 

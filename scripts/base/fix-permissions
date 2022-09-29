@@ -32,7 +32,7 @@ cli_only(true);
 cli_no_arguments_left();
 log_console(tr('Updating project file permissions'), 'white');
 
-if(empty($_CONFIG['deploy'][$target])) {
+if (empty($_CONFIG['deploy'][$target])) {
     throw new CoreException(tr('Specified environment ":env" does not exist', array(':env' => $target)), 'not-exists');
 }
 
@@ -40,31 +40,31 @@ $deploy_config = $_CONFIG['deploy'][$target];
 $target_dir    = cli_argument('--target-dir', true, isset_get($deploy_config['target_dir'], ROOT));
 
 try{
-    if(empty($_CONFIG['deploy'][$target])) {
+    if (empty($_CONFIG['deploy'][$target])) {
         throw new CoreException(tr('Specified target environment ":target" has no deploy configuration $_CONFIG[deploy][:target] in ":ROOTconfig/deploy.php"', array(':target' => $target, ':ROOT' => ROOT)), 'missing-configuration');
     }
 
-    if(!empty($deploy_config['target_server'])) {
-        if(empty($deploy_config['user'])) {
+    if (!empty($deploy_config['target_server'])) {
+        if (empty($deploy_config['user'])) {
             throw new CoreException(tr('No $_CONFIG[deploy][:target][user] specified', array(':target' => $target)), 'missing-configuration');
         }
 
-        if(empty($deploy_config['group'])) {
+        if (empty($deploy_config['group'])) {
             throw new CoreException(tr('No $_CONFIG[deploy][:target][group] specified', array(':target' => $target)), 'missing-configuration');
         }
 
-        if(!isset($deploy_config['modes'])) {
+        if (!isset($deploy_config['modes'])) {
             throw new CoreException(tr('No $_CONFIG[deploy][:target][modes] specified', array(':target' => $target)), 'missing-configuration');
         }
     }
 
-    if(empty($deploy_config['sudo'])) {
+    if (empty($deploy_config['sudo'])) {
         /*
          * Don't use sudo at all
          */
         $sudo = '';
 
-    } elseif(isset_get($deploy_config['sudo']) === true) {
+    } elseif (isset_get($deploy_config['sudo']) === true) {
         /*
          * Use default sudo
          */
@@ -87,10 +87,10 @@ try{
  * Update user:group only if we have a target server configuration, and if we're
  * using sudo, which is required for chown
  */
-if($sudo and !empty($deploy_config['target_server'])) {
+if ($sudo and !empty($deploy_config['target_server'])) {
     passthru($sudo.'chown '.$deploy_config['user'].':'.$deploy_config['group'].' '.ROOT.' -R;', $exitcode);
 
-    if($exitcode) {
+    if ($exitcode) {
         throw new CoreException('Failed to update target directory tree user/group ownership', 'update-ownership');
     }
 
@@ -102,7 +102,7 @@ if($sudo and !empty($deploy_config['target_server'])) {
 /*
  * Merge requested modes with default modes
  */
-if(empty($deploy_config['target_server'])) {
+if (empty($deploy_config['target_server'])) {
     /*
      * No target_server configuration specified, assume this is for local
      * development, make more writable
@@ -135,7 +135,7 @@ if(empty($deploy_config['target_server'])) {
                                             '/scripts'               => 'a-w,ug+x'));
 }
 
-if(empty($deploy_config['modes'])) {
+if (empty($deploy_config['modes'])) {
     $deploy_config['modes'] = array('dirs'  => array(),
                                     'files' => array());
 }
@@ -160,14 +160,14 @@ foreach($deploy_config['modes'] as $type => $modes) {
                  * If this is the case, it is not a problem, just skip. This
                  * script should only care about that which exists
                  */
-                if(VERBOSE) {
+                if (VERBOSE) {
                     log_console(tr('Updated directories mode for ":path"', array(':path' => $path)));
                 }
 
-                if(file_exists(Strings::unslash(ROOT).$path)) {
+                if (file_exists(Strings::unslash(ROOT).$path)) {
                     passthru($sudo.'find '.Strings::unslash(ROOT).$path.' -type d -exec chmod '.$mode.' {} \;', $exitcode);
 
-                    if($exitcode) {
+                    if ($exitcode) {
                         throw new CoreException(tr('Failed to update mode for directories in path ":path"', array(':path' => Strings::unslash(ROOT).$path)), 'failed');
                     }
                 }
@@ -185,14 +185,14 @@ foreach($deploy_config['modes'] as $type => $modes) {
                  * If this is the case, it is not a problem, just skip. This
                  * script should only care about that which exists
                  */
-                if(VERBOSE) {
+                if (VERBOSE) {
                     log_console(tr('Updated directories mode for ":path"', array(':path' => $path)));
                 }
 
-                if(file_exists(Strings::unslash(ROOT).$path)) {
+                if (file_exists(Strings::unslash(ROOT).$path)) {
                     passthru($sudo.'find '.Strings::unslash(ROOT).$path.' -type f -exec chmod '.$mode.' {} \;', $exitcode);
 
-                    if($exitcode) {
+                    if ($exitcode) {
                         throw new CoreException(tr('Failed to update mode for files in path ":path"', array(':path' => Strings::unslash(ROOT).$path)), 'failed');
                     }
                 }
@@ -211,7 +211,7 @@ foreach($deploy_config['modes'] as $type => $modes) {
 /*
  * Fix node_modules directory file access
  */
-if(file_exists(ROOT.'node_modules')) {
+if (file_exists(ROOT.'node_modules')) {
     cli_find(array('start' => ROOT.'node_modules',
                    'exec'  => 'chmod ug-w,o-rwx {}'));
 

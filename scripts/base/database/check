@@ -9,11 +9,11 @@ try{
     $repair = cli_argument('repair');
     $show   = cli_argument('show');
 
-    if(!$user = cli_argument('username', true)) {
+    if (!$user = cli_argument('username', true)) {
         throw new CoreException('No database username specified', 'not-specified');
     }
 
-    if(!$password = cli_argument('password', true)) {
+    if (!$password = cli_argument('password', true)) {
         throw new CoreException('No database password specified', 'not-specified');
     }
 
@@ -24,20 +24,20 @@ try{
     log_console('MySQL check finished, parsing results');
 
     foreach($results as $line => $value) {
-        if(strpos($value, 'dump/reload') !== false) {
+        if (strpos($value, 'dump/reload') !== false) {
             $fails[] = $results[$line - 1];
         }
     }
 
-    if(empty($fails)) {
+    if (empty($fails)) {
         log_console('Table check finished, all tables from all databases on the MySQL server have passed ok', 'info', 'green');
         die(0);
     }
 
-    if(!$repair) {
+    if (!$repair) {
         log_console('Table check finished, "'.count($fails).'" tables failed the check but no repair has been done (use the "repair" option)', 'warning', 'yellow');
 
-        if($show) {
+        if ($show) {
             log_console('Failed tables (database.table):', '', 'yellow');
 
             foreach($fails as $name) {

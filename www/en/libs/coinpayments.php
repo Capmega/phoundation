@@ -115,33 +115,33 @@ function coinpayments_get_ipn_transaction() {
         load_libs('validate');
         $v = new ValidateForm($_POST, 'createdon,modifiedon,users_id,status,status_text,type,mode,currency,confirms,api_transactions_id,tx_id,merchant,address,amount,amounti,amount_btc,amount_usd,amount_usd_rounded,fee,feei,exchange_rate,description,data');
 
-        if(empty($_SERVER['HTTP_HMAC']) or empty($_SERVER['HTTP_HMAC'])) {
+        if (empty($_SERVER['HTTP_HMAC']) or empty($_SERVER['HTTP_HMAC'])) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): No HMAC sent'), 'not-specified');
         }
 
         $request = file_get_contents('php://input');
 
-        if(empty($_POST['address'])) {
+        if (empty($_POST['address'])) {
             log_file(tr('Received invalid request, missing "address"'), 'coinpayments');
         }
 
         log_file(tr('Starting ":type" transaction for address ":address"', array(':type' => isset_get($_POST['ipn_type']), ':address' => isset_get($_POST['address']))), 'crypto');
 
-        if(empty($_POST)) {
+        if (empty($_POST)) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): Error reading POST data'), 'failed');
         }
 
-        if(empty($_POST['merchant'])) {
+        if (empty($_POST['merchant'])) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): No Merchant ID specified'), 'not-specified');
         }
 
-        if($_POST['merchant'] != $_CONFIG['coinpayments']['ipn']['merchants_id']) {
+        if ($_POST['merchant'] != $_CONFIG['coinpayments']['ipn']['merchants_id']) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): Specified merchant ID ":id" is invalid', array(':id' => $_POST['merchant'])), 'invalid');
         }
 
         $hmac = hash_hmac('sha512', $request, $_CONFIG['coinpayments']['ipn']['secret']);
 
-        if($hmac !== $_SERVER['HTTP_HMAC']) {
+        if ($hmac !== $_SERVER['HTTP_HMAC']) {
             throw new CoreException(tr('coinpayments_get_ipn_transaction(): Specified HMAC ":hmac" is invalid', array(':hmac' => $_SERVER['HTTP_HMAC'])), 'invalid');
         }
 
@@ -149,7 +149,7 @@ function coinpayments_get_ipn_transaction() {
         return $_POST;
 
     }catch(Exception $e) {
-        if(!$_CONFIG['production']) {
+        if (!$_CONFIG['production']) {
             /*
              * Ignore all issues, we're testing!
              */
@@ -186,9 +186,9 @@ function coinpayments_get_rates($currencies = null) {
     try{
         $results = coinpayments_call('rates');
 
-        if($currencies) {
+        if ($currencies) {
             foreach(Arrays::force($currencies) as $currency) {
-                if(empty($results[$currency])) {
+                if (empty($results[$currency])) {
                     throw new CoreException(tr('coinpayments_get_rates(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-exists');
                 }
 
@@ -212,15 +212,15 @@ function coinpayments_get_rates($currencies = null) {
  */
 function coinpayments_get_balances($currencies = true) {
     try{
-        if($currency === true) {
+        if ($currency === true) {
             $results = coinpayments_call('balances', array('all' => 1));
 
         } else {
             $results = coinpayments_call('balances');
 
-            if($currencies) {
+            if ($currencies) {
                 foreach(Arrays::force($currencies) as $currency) {
-                    if(empty($results[$currency])) {
+                    if (empty($results[$currency])) {
                         throw new CoreException(tr('coinpayments_get_balances(): Specified coin ":coin" was not found', array(':coin' => $currency)), 'not-exists');
                     }
 
@@ -261,7 +261,7 @@ function coinpayments_get_address($currency) {
  */
 function coinpayments_get_deposit_address($currency, $callback_url = null) {
     try{
-        if(!$callback_url) {
+        if (!$callback_url) {
             $callback_url = domain('/api/coinpayments');
         }
 

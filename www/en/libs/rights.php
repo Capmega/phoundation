@@ -25,7 +25,7 @@ function rights_give($users, $rights) {
             /*
              * Ensure that the specified user exists (either id or name)
              */
-            if(!is_numeric($value)) {
+            if (!is_numeric($value)) {
                 $users[$key] = sql_get('SELECT `id`
 
                                         FROM   `users`
@@ -36,7 +36,7 @@ function rights_give($users, $rights) {
                                         array(':username' => $value,
                                               ':email'    => $value), 'id');
 
-                if(!$users[$key]) {
+                if (!$users[$key]) {
                     /*
                      * This user does not exist...
                      */
@@ -44,7 +44,7 @@ function rights_give($users, $rights) {
                 }
 
             } else {
-                if(!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', array(':id' => $value), 'id')) {
+                if (!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', array(':id' => $value), 'id')) {
                     /*
                      * This user does not exist...
                      */
@@ -57,8 +57,8 @@ function rights_give($users, $rights) {
          * Ensure we have all rights id's
          */
         foreach($rights as $key => $value) {
-            if(!is_numeric($value)) {
-                if(!$rights[$key] = sql_get('SELECT `id`, `name` FROM `rights` WHERE `name` = :name', array(':name' => $value))) {
+            if (!is_numeric($value)) {
+                if (!$rights[$key] = sql_get('SELECT `id`, `name` FROM `rights` WHERE `name` = :name', array(':name' => $value))) {
                     /*
                      * This right does not exist...
                      */
@@ -66,7 +66,7 @@ function rights_give($users, $rights) {
                 }
 
             } else {
-                if(!$rights[$key] = sql_get('SELECT `id`, `name` FROM `rights` WHERE `id` = :id', array(':id' => $value))) {
+                if (!$rights[$key] = sql_get('SELECT `id`, `name` FROM `rights` WHERE `id` = :id', array(':id' => $value))) {
                     /*
                      * This right does not exist...
                      */
@@ -90,7 +90,7 @@ function rights_give($users, $rights) {
 
                     $r->execute($execute);
 
-                    if(!sql_fetch($r, 'id')) {
+                    if (!sql_fetch($r, 'id')) {
                         try{
                             $execute = array(':addedby'   => $user,
                                              ':users_id'  => $user,
@@ -132,8 +132,8 @@ function rights_take($users, $rights) {
             /*
              * Ensure that the specified user exists (either id or name)
              */
-            if(!is_numeric($value)) {
-                if(!$users[$key] = sql_get('SELECT `id` FROM `users` WHERE `username` = :username OR `email` = :email', array(':username' => $value, ':email' => $value), 'id')) {
+            if (!is_numeric($value)) {
+                if (!$users[$key] = sql_get('SELECT `id` FROM `users` WHERE `username` = :username OR `email` = :email', array(':username' => $value, ':email' => $value), 'id')) {
                     /*
                      * This user does not exist...
                      */
@@ -141,7 +141,7 @@ function rights_take($users, $rights) {
                 }
 
             } else {
-                if(!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', array(':id' => $value), 'id')) {
+                if (!sql_get('SELECT `id` FROM `users` WHERE `id` = :id', array(':id' => $value), 'id')) {
                     /*
                      * This user does not exist...
                      */
@@ -154,8 +154,8 @@ function rights_take($users, $rights) {
          * Ensure we have all rights id's
          */
         foreach($rights as $key => $value) {
-            if(!is_numeric($value)) {
-                if(!$rights[$key] = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', array(':name' => $value), 'id')) {
+            if (!is_numeric($value)) {
+                if (!$rights[$key] = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name', array(':name' => $value), 'id')) {
                     /*
                      * This right does not exist...
                      */
@@ -163,7 +163,7 @@ function rights_take($users, $rights) {
                 }
 
             } else {
-                if(!sql_get('SELECT `id` FROM `rights` WHERE `id` = :id', array(':id' => $value), 'id')) {
+                if (!sql_get('SELECT `id` FROM `rights` WHERE `id` = :id', array(':id' => $value), 'id')) {
                     /*
                      * This right does not exist...
                      */
@@ -200,11 +200,11 @@ function rights_take($users, $rights) {
  */
 function rights_get($right) {
     try{
-        if(!$right) {
+        if (!$right) {
             throw new CoreException(tr('rights_get(): No right specified'), 'not-specified');
         }
 
-        if(!is_scalar($right)) {
+        if (!is_scalar($right)) {
             throw new CoreException(tr('rights_get(): Specified right ":right" is not scalar', array(':right' => $right)), 'invalid');
         }
 
@@ -244,13 +244,13 @@ function rights_select($select = '', $name = 'rights_id', $god = true) {
     global $pdo;
 
     try{
-        if($retval = cache_read('rights_'.$name.'_'.$select.($god ? '_all' : ''))) {
+        if ($retval = cache_read('rights_'.$name.'_'.$select.($god ? '_all' : ''))) {
             return $retval;
         }
 
         $retval = '<select class="categories" name="'.$name.'">';
 
-        if($god) {
+        if ($god) {
             $retval .= '<option value="0"'.(!$select ? ' selected' : '').'>All categories</option>';
         }
 
@@ -275,11 +275,11 @@ function rights_select($select = '', $name = 'rights_id', $god = true) {
  */
 function rights_has($user, $right) {
     try{
-        if(is_array($user)) {
+        if (is_array($user)) {
             $user = array_extract_first($user, 'id,email,name');
         }
 
-        if(!$target = sql_get('SELECT `id` FROM `users` WHERE `id` = :id OR `name` = :name OR `email` = :email', array(':name' => $user, ':email' => $user, ':id' => $user), 'id')) {
+        if (!$target = sql_get('SELECT `id` FROM `users` WHERE `id` = :id OR `name` = :name OR `email` = :email', array(':name' => $user, ':email' => $user, ':id' => $user), 'id')) {
             throw new CoreException(tr('rights_has(): Specified user ":user" does not exist', array(':user' => $user)), 'not-exists');
         }
 
@@ -295,7 +295,7 @@ function rights_has($user, $right) {
 
                             array(':users_id' => $target));
 
-        if(empty($rights[$right])) {
+        if (empty($rights[$right])) {
             /*
              * Requested right not found
              */
@@ -318,7 +318,7 @@ function rights_validate($right, $old_right = null) {
     try{
         load_libs('validate');
 
-        if($old_right) {
+        if ($old_right) {
             $right = array_merge($old_right, $right);
         }
 
@@ -328,7 +328,7 @@ function rights_validate($right, $old_right = null) {
         $v->hasMaxChars($right['name'], 32, tr('Please ensure the right\'s name has less than 32 characters'));
         $v->isRegex    ($right['name'], '/^[a-z-]{2,32}$/', tr('Please ensure the right\'s name contains only lower case letters, and dashes'));
 
-        if($right['description']) {
+        if ($right['description']) {
             $v->hasMinChars($right['description'],    2, tr('Please ensure the right\'s description has at least 2 characters'));
             $v->hasMaxChars($right['description'], 2047, tr('Please ensure the right\'s description has less than 2047 characters'));
             $v->hasNoHTML($right['description']);
@@ -337,25 +337,25 @@ function rights_validate($right, $old_right = null) {
             $right['description'] = '';
         }
 
-        if(is_numeric(substr($right['name'], 0, 1))) {
+        if (is_numeric(substr($right['name'], 0, 1))) {
             $v->setError(tr('Please ensure that the rights\'s name does not start with a number'));
         }
 
         /*
          * Does the right already exist?
          */
-        if($id = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name AND `id` != :id', array(':name' => $right['name'], ':id' => $right['id']))) {
+        if ($id = sql_get('SELECT `id` FROM `rights` WHERE `name` = :name AND `id` != :id', array(':name' => $right['name'], ':id' => $right['id']))) {
             $v->setError(tr('The right ":right" already exists with id ":id"', array(':right' => $right['name'], ':id' => $id)));
         }
 
-        if(!empty($right['id'])) {
+        if (!empty($right['id'])) {
             /*
              * Check if this is not the god right. If so, it CAN NOT be
              * updated
              */
             $name = sql_get('SELECT `name` FROM `rights` WHERE `id` = :id', 'name', array(':id' => $right['id']));
 
-            if($name === 'god') {
+            if ($name === 'god') {
                 $v->setError(tr('The right "god" cannot be modified'));
             }
         }

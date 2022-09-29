@@ -21,7 +21,7 @@ $oauth->Initialize();
 
 $code = ($_REQUEST["code"]) ?  ($_REQUEST["code"]) : "";
 
-if(empty($code)) {
+if (empty($code)) {
 	$oauth->Authorize();
 } else {
 	$oauth->code = $code;

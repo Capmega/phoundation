@@ -51,14 +51,14 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
          */
         $id = 0;
 
-        if(empty($source)) {
+        if (empty($source)) {
             /*
              * If the given string is empty, then treat seoname as null, this should not cause indexing issues
              */
             return null;
         }
 
-        if(is_array($source)) {
+        if (is_array($source)) {
             /*
              * The specified source is a key => value array which can be used
              * for unique entries spanning multiple columns
@@ -70,7 +70,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
              * NOTE: The first column will have the identifier added
              */
             foreach($source as $column => &$value) {
-                if(empty($first)) {
+                if (empty($first)) {
                     $first = array($column => $value);
                 }
 
@@ -86,15 +86,15 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
         /*
          * Filter out the id of the record itself
          */
-        if($ownid) {
-            if(is_scalar($ownid)) {
+        if ($ownid) {
+            if (is_scalar($ownid)) {
                 $ownid = ' AND `id` != '.$ownid;
 
-            } elseif(is_array($ownid)) {
+            } elseif (is_array($ownid)) {
                 $key   = key($ownid);
 
-                if(!is_numeric($ownid[$key])) {
-                    if(!is_scalar($ownid[$key])) {
+                if (!is_numeric($ownid[$key])) {
+                    if (!is_scalar($ownid[$key])) {
                         throw new OutOfBoundsException(tr('seo_unique(): Invalid $ownid array value datatype specified, should be scalar and numeric, but is "%type%"', array('%type%' => gettype($ownid[$key]))), 'invalid');
                     }
 
@@ -115,12 +115,12 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
          * If the seostring exists, add an identifier to it.
          */
         while(true) {
-            if(is_array($source)) {
+            if (is_array($source)) {
                 /*
                  * Check on multiple columns, add identifier on first column value
                  */
-                if($id) {
-                    if($first_suffix) {
+                if ($id) {
+                    if ($first_suffix) {
                         $source[key($first)] = reset($first).trim(seo_string($first_suffix, $replace));
                         $first_suffix        = null;
                         $id--;
@@ -132,16 +132,16 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
 
                 $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.array_implode_with_keys($source, '" AND `', '` = "', true).'"'.$ownid.';', true, null, $connector_name);
 
-                if(!$exists) {
+                if (!$exists) {
                     return $source[key($first)];
                 }
 
             } else {
-                if(!$id) {
+                if (!$id) {
                     $str = $source;
 
                 } else {
-                    if($first_suffix) {
+                    if ($first_suffix) {
                         $source       = $source.trim(seo_string($first_suffix, $replace));
                         $first_suffix = null;
                         $id--;
@@ -153,7 +153,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
 
                 $exists = sql_get('SELECT COUNT(*) AS `count` FROM `'.$table.'` WHERE `'.$column.'` = "'.$str.'"'.$ownid.';', true, null, $connector_name);
 
-                if(!$exists) {
+                if (!$exists) {
                     return $str;
                 }
             }
@@ -173,7 +173,7 @@ function seo_unique($source, $table, $ownid = null, $column = 'seoname', $replac
  */
 function seo_string($source, $replace = '-') {
     try{
-        if(str_is_utf8($source)) {
+        if (str_is_utf8($source)) {
             load_libs('mb');
 
             //clean up string

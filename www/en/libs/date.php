@@ -13,11 +13,11 @@
  */
 function date_relative($timestamp, $now = null, $periods = null) {
     try{
-        if(!$now) {
+        if (!$now) {
             $now = time();
         }
 
-        if(!$periods) {
+        if (!$periods) {
             $periods = array(10       => tr('Right now'),
                              86400    => tr('Today'),
                              604800   => tr('Last week'),
@@ -27,7 +27,7 @@ function date_relative($timestamp, $now = null, $periods = null) {
         usort($periods);
 
         foreach($periods as $time => $label) {
-            if($timestamp < $time){
+            if ($timestamp < $time){
                 return $label;
             }
         }
@@ -44,7 +44,7 @@ function date_relative($timestamp, $now = null, $periods = null) {
  */
 function date_random($min = null, $max = null){
     try{
-        if($min){
+        if ($min){
             $min = new DateTime(date_convert($min, 'y-m-d'));
             $min = $min->getTimestamp();
 
@@ -52,7 +52,7 @@ function date_random($min = null, $max = null){
             $min = 1;
         }
 
-        if($max){
+        if ($max){
             $max = new DateTime(date_convert($max, 'y-m-d'));
             $max = $max->getTimestamp();
 
@@ -123,7 +123,7 @@ function date_timezones_list(){
 
         foreach(timezone_abbreviations_list() as $abbriviation => $zones){
             foreach($zones as $timezone){
-                if(empty($timezone['timezone_id'])) continue;
+                if (empty($timezone['timezone_id'])) continue;
 
                 $list[strtolower($timezone['timezone_id'])] = $timezone['timezone_id'];
             }
@@ -150,7 +150,7 @@ function date_interval($date, $interval, $format = null){
         $date = date_convert($date, 'd-m-Y');
         $date = new DateTime($date);
 
-        if(substr($interval, 0, 1) == '-'){
+        if (substr($interval, 0, 1) == '-'){
             $date->sub(new DateInterval(substr($interval, 1)));
 
         } else {
@@ -203,11 +203,11 @@ function date_translate($date){
         /*
          * First check if there are any translatable words in the specified date
          */
-        if(!is_string($date)){
+        if (!is_string($date)){
             throw new OutOfBoundsException(tr('date_translate(): The specified date should be a string but is a ":type"', array(':type' => gettype($date))), 'invalid');
         }
 
-        if(!preg_match('/[a-z]/', $date)){
+        if (!preg_match('/[a-z]/', $date)){
             return $date;
         }
 

@@ -65,7 +65,7 @@ function email_servers_validate($email_server) {
          */
         $server = servers_get($email_server['server_seodomain'], false, true, true);
 
-        if(!$server) {
+        if (!$server) {
             $v->setError(tr('The specified server ":server" does not exist', array(':server' => $email_server['server_seodomain'])));
         }
 
@@ -79,7 +79,7 @@ function email_servers_validate($email_server) {
         /*
          * Validate the rest
          */
-        if($email_server['description']) {
+        if ($email_server['description']) {
             $v->hasMinChars($email_server['description'], 16, tr('Please specify at least 16 characters for a description'));
             $v->hasMaxChars($email_server['description'], 2048, tr('Please specify no more than 2047 characters for a description'));
 
@@ -91,7 +91,7 @@ function email_servers_validate($email_server) {
 
         $exists = sql_get('SELECT `id` FROM `email_servers` WHERE `domain` = :domain AND `id` != :id LIMIT 1', true, array(':domain' => $email_server['domain'], ':id' => isset_get($email_server['id'], 0)), 'core');
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The domain ":domain" is already registered', array(':domain' => $email_server['domain'])));
         }
 
@@ -337,12 +337,12 @@ function email_servers_select($params = null) {
         array_default($params, 'extra'   , 'tabindex="'.$params['tabindex'].'"');
         array_default($params, 'orderby' , '`domain`');
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {
@@ -385,7 +385,7 @@ function email_servers_validate_domain($domain) {
         $v->hasMaxChars($domain['name'], 64, tr('Please specify a domain of less than 64 characters'));
         $v->isFilter($domain['name'], FILTER_VALIDATE_DOMAIN, tr('Please specify a valid domain'));
 
-        if($domain['seocustomer']) {
+        if ($domain['seocustomer']) {
             $domain['customer'] = customers_get(array('columns' => 'seoname',
                                                       'filters' => array('seoname' => $domain['seocustomer'])));
 
@@ -397,11 +397,11 @@ function email_servers_validate_domain($domain) {
 
         $exists = sql_get('SELECT `id` FROM `domains` WHERE `name` = :name and `id` != :id LIMIT 1', true, array(':name' => $domain['name'], ':id' => isset_get($domain['id'], 0)));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The domain ":name" is already registered on this email server', array(':name' => $domain['name'])));
         }
 
-        if($domain['description']) {
+        if ($domain['description']) {
             $v->hasMinChars($domain['description'], 16, tr('Please specify at least 16 characters for a description'));
             $v->hasMaxChars($domain['description'], 2048, tr('Please specify no more than 2047 characters for a description'));
 
@@ -416,7 +416,7 @@ function email_servers_validate_domain($domain) {
         return $domain;
 
     }catch(Exception $e) {
-        if($e->getCode() == '1049') {
+        if ($e->getCode() == '1049') {
             load_libs('servers');
 
             $servers  = servers_list_domains($domain['server']);
@@ -596,12 +596,12 @@ function email_servers_list_domains($params) {
  */
 function email_servers_scan_domains($params = null) {
     try{
-        if(isset($_SESSION['cache']['mail_servers'])) {
+        if (isset($_SESSION['cache']['mail_servers'])) {
             return $_SESSION['cache']['mail_servers'];
         }
 
-        if(empty($_SESSION['user']['customer'])) {
-            if(!has_rights('god')) {
+        if (empty($_SESSION['user']['customer'])) {
+            if (!has_rights('god')) {
                 throw new CoreException(tr('email_servers_scan_domains(): No customer specified for this user'), 'not-specified');
             }
 
@@ -637,7 +637,7 @@ function email_servers_scan_domains($params = null) {
              * If this server has domains where the customer has access to, add
              * it to the list
              */
-            if($domains->rowCount()) {
+            if ($domains->rowCount()) {
                 $retval[$mailserver['seodomain']] = array();
             }
 
@@ -696,19 +696,19 @@ function email_servers_select_domain($params = null) {
         array_default($params, 'none'         , tr('Select a mail domain'));
         array_default($params, 'orderby'      , '`name`');
 
-        if($params['status'] !== false) {
+        if ($params['status'] !== false) {
             $where[] = ' `status` '.sql_is($params['status'], ':status');
             $execute[':status'] = $params['status'];
         }
 
-        if(empty($where)) {
+        if (empty($where)) {
             $where = '';
 
         } else {
             $where = ' WHERE '.implode(' AND ', $where).' ';
         }
 
-        if(empty($params['server'])) {
+        if (empty($params['server'])) {
             /*
              * No mail server specified, we can't check for domains
              */
@@ -770,7 +770,7 @@ function email_servers_validate_account($account) {
             $account['servers_id'] = servers_like($account['server']);
             $account['servers_id'] = servers_get ($account['servers_id'], false, true, true);
 
-            if(!$account['servers_id']) {
+            if (!$account['servers_id']) {
                 $v->setError(tr('The specified mail server ":server" does not exist', array(':server' => $account['server'])));
             }
 
@@ -795,14 +795,14 @@ function email_servers_validate_account($account) {
          */
         $account['domains_id'] = sql_get('SELECT `id` FROM `domains` WHERE `seoname` = :seoname', true, array(':seoname' => $account['domain']));
 
-        if(!$account['domains_id']) {
+        if (!$account['domains_id']) {
             $v->setError(tr('The specified mail domain ":domain" does not exist', array(':domain' => $account['domain'])));
         }
 
         /*
          * Validate description
          */
-        if($account['description']) {
+        if ($account['description']) {
             $v->hasMinChars($account['description'], 16, tr('Please specify at least 16 characters for a description'));
             $v->hasMaxChars($account['description'], 2048, tr('Please specify no more than 2047 characters for a description'));
 
@@ -813,7 +813,7 @@ function email_servers_validate_account($account) {
         /*
          * Validate password
          */
-        if($account['password']) {
+        if ($account['password']) {
             $v->hasMinChars($account['password'], 8, tr('Please specify at least 8 characters for a password'));
             $v->hasMaxChars($account['password'], 64, tr('Please specify no more than 64 characters for a password'));
 
@@ -824,7 +824,7 @@ function email_servers_validate_account($account) {
         /*
          * Validate status
          */
-        if($account['status']) {
+        if ($account['status']) {
             $v->hasMinChars($account['status'], 2, tr('Please specify at least 2 characters for a password'));
             $v->hasMaxChars($account['status'], 16, tr('Please specify no more than 16 characters for a password'));
 
@@ -835,7 +835,7 @@ function email_servers_validate_account($account) {
         /*
          * Validate max_size
          */
-        if($account['max_size']) {
+        if ($account['max_size']) {
             $v->is_natural($account['max_size'], 8, tr('Please specify a valid natural number for max_size'));
 
         } else {
@@ -847,13 +847,13 @@ function email_servers_validate_account($account) {
 
         $exists = sql_get('SELECT `id` FROM `accounts` WHERE `email` = :email AND `id` != :id LIMIT 1', true, array(':email' => $account['email'], ':id' => isset_get($account['id'], 0)));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The account ":account" already exists', array(':domain' => $account['domain'])));
         }
 
         $exists = sql_get('SELECT `id` FROM `aliases` WHERE `source` = :source AND `id` != :id LIMIT 1', true, array(':source' => $account['email'], ':id' => isset_get($account['id'], 0)));
 
-        if($exists) {
+        if ($exists) {
             $v->setError(tr('The account ":account" already exists as an alias', array(':domain' => $account['domain'])));
         }
 
@@ -864,7 +864,7 @@ function email_servers_validate_account($account) {
         return $account;
 
     }catch(Exception $e) {
-        if($e->getCode() == '1049') {
+        if ($e->getCode() == '1049') {
             $servers = servers_list_domains($domain['server']);
             $server  = servers_get($domain['server']);
             $domain  = not_empty($servers[$domain['server']], $domain['server']);
@@ -900,7 +900,7 @@ function email_servers_insert_account($account) {
         $account  = email_servers_validate_account($account);
         $password = 'ENCRYPT(:password, CONCAT("$6$", SUBSTRING(SHA(RAND()), -16)))';
 
-        if(!$account['password']) {
+        if (!$account['password']) {
             /*
              * Have password be an empty entry
              */
@@ -955,7 +955,7 @@ function email_servers_update_account($account) {
 
         $account['_updated'] = (boolean) $update->rowCount();
 
-        if(!empty($account['password'])) {
+        if (!empty($account['password'])) {
             email_servers_update_password($account['email'], $account['password']);
             $account['_updated'] = true;
         }
@@ -1015,7 +1015,7 @@ function email_servers_update_password($account, $password) {
  */
 function email_servers_list_mailbox_sizes($server, $domain) {
     try{
-        if(!filter_var($domain, FILTER_VALIDATE_DOMAIN)) {
+        if (!filter_var($domain, FILTER_VALIDATE_DOMAIN)) {
             throw new CoreException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" is not a valid domain', array(':domain' => $domain)), 'invalid');
         }
 
@@ -1041,7 +1041,7 @@ function email_servers_list_mailbox_sizes($server, $domain) {
         return $retval;
 
     }catch(Exception $e) {
-        if(!linux_file_exists($server, '/var/mail/vhosts/'.$domain, true)) {
+        if (!linux_file_exists($server, '/var/mail/vhosts/'.$domain, true)) {
             $e->setCode('not-exist');
             throw new CoreException(tr('email_servers_list_mailbox_sizes(): Specified domain ":domain" does not exists as a mail domain', array(':domain' => $domain)), $e);
         }
@@ -1120,7 +1120,7 @@ function email_servers_check_seo($params) {
         array_default($params, 'column', 'name');
         array_default($params, 'rerun' , true);
 
-        if($params['rerun']) {
+        if ($params['rerun']) {
             log_console(tr('Checking seo data for table ":table" on mail server ":server"', array(':server' => $params['server'], ':table' => $params['table'])), 'cyan');
 
         } else {
@@ -1131,7 +1131,7 @@ function email_servers_check_seo($params) {
         $domains = sql_query('SELECT `id`, `'.$params['column'].'`, `seo'.$params['column'].'` FROM `'.$params['table'].'`');
 
         while($domain = sql_fetch($domains)) {
-            if($domain['seo'.$params['column']] === seo_string($domain[$params['column']])) {
+            if ($domain['seo'.$params['column']] === seo_string($domain[$params['column']])) {
                 /*
                  * Seo name maches, we're done!
                  */
@@ -1144,8 +1144,8 @@ function email_servers_check_seo($params) {
              */
             $extra = Strings::from($domain['seo'.$params['column']], seo_string($domain[$params['column']]));
 
-            if($extra) {
-                if(is_natural($extra)) {
+            if ($extra) {
+                if (is_natural($extra)) {
                     /*
                      * We have extra data that IS a natural number, so at least
                      * it is valid,
@@ -1159,7 +1159,7 @@ function email_servers_check_seo($params) {
              */
             $failed[] = $domain[$params['column']];
 
-            if($params['rerun']) {
+            if ($params['rerun']) {
                 /*
                  * Update the SEO value to something temmporal because what if
                  * some other value is occupying the real SEO value (whcih then
@@ -1179,7 +1179,7 @@ function email_servers_check_seo($params) {
             }
         }
 
-        if($failed and $params['rerun']) {
+        if ($failed and $params['rerun']) {
             /*
              * We've set all invalid SEO values to something temporary. Run this
              * function again to update it to the permanent, correct value
@@ -1227,13 +1227,13 @@ function email_servers_check_orphans($server, $add = true) {
                 try{
                     $exists = sql_get('SELECT `id`, `status` FROM `accounts` WHERE `email` = :email', array(':email' => $account.'@'.$domain));
 
-                    if(!$exists) {
+                    if (!$exists) {
                         /*
                          * Found an orphan!
                          */
                         log_console(tr('Found orphaned email data path ":path"', array(':path' => '/var/mail/vhosts/'.$domain.'/'.$account)), 'warning');
 
-                        if($add) {
+                        if ($add) {
                             log_console(tr('Adding email account ":account" for orphaned data path ":path"', array(':account' => $account.'@'.$domain, ':path' => '/var/mail/vhosts/'.$domain.'/'.$account)), 'warning');
                             $retval[] = $account.'@'.$domain;
 

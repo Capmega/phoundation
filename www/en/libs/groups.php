@@ -15,11 +15,11 @@
  */
 function groups_get($group, $createdby = null) {
     try{
-        if(!$group) {
+        if (!$group) {
             throw new CoreException(tr('groups_get(): No group specified'), 'not-specified');
         }
 
-        if(!is_scalar($group)) {
+        if (!is_scalar($group)) {
             throw new CoreException(tr('groups_get(): Specified group ":group" is not scalar', array(':group' => $group)), 'invalid');
         }
 
@@ -46,7 +46,7 @@ function groups_get($group, $createdby = null) {
 
         $execute = array(':group' => $group);
 
-        if($createdby) {
+        if ($createdby) {
             $query .= 'AND `groups`.`createdby` = :createdby';
             $execute[':createdby'] = $createdby;
         }
@@ -69,7 +69,7 @@ function groups_validate($group, $old_group = null) {
     try{
         load_libs('validate,seo');
 
-        if($old_group) {
+        if ($old_group) {
             $group = array_merge($old_group, $group);
         }
 
@@ -78,7 +78,7 @@ function groups_validate($group, $old_group = null) {
         $v->hasMinChars($group['name'],  2, tr('Please ensure the group\'s name has at least 2 characters'));
         $v->hasMaxChars($group['name'], 64, tr('Please ensure the group\'s name has less than 64 characters'));
 
-        if(!$group['description']) {
+        if (!$group['description']) {
             $group['description'] = '';
 
         } else {
@@ -86,20 +86,20 @@ function groups_validate($group, $old_group = null) {
             $v->hasMaxChars($group['description'], 2047, tr('Please ensure the group\'s description has less than 2047 characters'));
         }
 
-        if(is_numeric(substr($group['name'], 0, 1))) {
+        if (is_numeric(substr($group['name'], 0, 1))) {
             $v->setError(tr('Please ensure that the groups\'s name does not start with a number'));
         }
 
         /*
          * Does the group already exist?
          */
-        if(empty($group['id'])) {
-            if($id = sql_get('SELECT `id` FROM `groups` WHERE `name` = :name', array(':name' => $group['name']))) {
+        if (empty($group['id'])) {
+            if ($id = sql_get('SELECT `id` FROM `groups` WHERE `name` = :name', array(':name' => $group['name']))) {
                 $v->setError(tr('The group ":group" already exists with id ":id"', array(':group' => $group['name'], ':id' => $id)));
             }
 
         } else {
-            if($id = sql_get('SELECT `id` FROM `groups` WHERE `name` = :name AND `id` != :id', array(':name' => $group['name'], ':id' => $group['id']))) {
+            if ($id = sql_get('SELECT `id` FROM `groups` WHERE `name` = :name AND `id` != :id', array(':name' => $group['name'], ':id' => $group['id']))) {
                 $v->setError(tr('The group ":group" already exists with id ":id"', array(':group' => $group['name'], ':id' => $id)));
             }
         }
@@ -143,7 +143,7 @@ function groups_get_users($group) {
                            WHERE    (`groups`.`id`      = :group
                            OR        `groups`.`seoname` = :group)', array(':group' => $group));
 
-        if(empty($retval)) {
+        if (empty($retval)) {
             throw new CoreException(tr('groups_get_users(): Specified group ":group" does not exist', array(':group' => $group)), 'invalid');
         }
 

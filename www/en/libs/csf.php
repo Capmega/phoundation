@@ -19,7 +19,7 @@ function csf_library_init() {
         /*
          * On the command line we can only run this as root user
          */
-        if(PLATFORM_CLI) {
+        if (PLATFORM_CLI) {
             cli_root_only();
         }
 
@@ -37,7 +37,7 @@ function csf_library_init() {
  */
 function csf_install($server = null) {
     try{
-        if($csf = csf_get_exec($server)) {
+        if ($csf = csf_get_exec($server)) {
             throw new CoreException(tr('csf_install(): CSF has already been installed and is available at ":csf"', array(':csf' => $csf)), 'executable-not-exists');
         }
 
@@ -124,8 +124,8 @@ function csf_get_exec($server = null) {
     try{
         $csf = trim(servers_exec($server, 'which csf 2> /dev/null'));
 
-        if(!$csf) {
-            if(!$install) {
+        if (!$csf) {
+            if (!$install) {
                 throw new CoreException('csf_exec(): CSF is not installed, and installation failed', 'failed');
             }
 
@@ -334,7 +334,7 @@ function csf_remove_deny_rule($server, $protocol, $connection_type, $port, $ip) 
  */
 function csf_validate_protocol($protocol, $lower_case = false) {
     try{
-        if(empty($protocol)) {
+        if (empty($protocol)) {
             throw new CoreException(tr('csf_validate_protocol(): No protocol specified'), 'not-specified');
         }
 
@@ -371,7 +371,7 @@ function csf_validate_protocol($protocol, $lower_case = false) {
  */
 function csf_validate_rule_type($rule_type, $upper_case = false) {
     try{
-        if(empty($rule_type)) {
+        if (empty($rule_type)) {
             throw new CoreException(tr('csf_validate_rule_type(): No rule type specified'), 'not-specified');
         }
 
@@ -404,7 +404,7 @@ function csf_validate_rule_type($rule_type, $upper_case = false) {
   */
  function csf_validate_ip($ip) {
     try{
-        if(filter_var($ip, FILTER_VALIDATE_IP) === false) {
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
             throw new CoreException(tr('csf_validate_ip(): Specified ip ":ip" is not valid', array(':ip' => $ip)), 'invalid');
         }
 
@@ -422,18 +422,18 @@ function csf_validate_rule_type($rule_type, $upper_case = false) {
  */
 function csf_validate_ports($ports, $single = false) {
     try{
-        if(empty($ports)) {
+        if (empty($ports)) {
             throw new CoreException(tr('csf_validate_ports(): No ports specified'), 'not-specified');
         }
 
         $ports = Arrays::force($ports);
 
-        if($single and (count($ports) > 1)) {
+        if ($single and (count($ports) > 1)) {
             throw new CoreException(tr('csf_validate_ports(): Multiple ports specified with single port flag'), 'multiple');
         }
 
         foreach($ports as $port) {
-            if(!is_natural($port) or ($port > 65535)) {
+            if (!is_natural($port) or ($port > 65535)) {
                 throw new CoreException(tr('csf_validate_ports(): Invalid port ":port" specified', array(':port' => $port)), 'invalid');
             }
         }
@@ -452,7 +452,7 @@ function csf_validate_ports($ports, $single = false) {
  */
 function csf_validate_testing($value) {
     try{
-        if(empty($value)) {
+        if (empty($value)) {
             $value = 0;
         }
 
@@ -481,7 +481,7 @@ function csf_validate_testing($value) {
  */
 function csf_validate_restrictsyslog($value) {
     try{
-        if(empty($value)) {
+        if (empty($value)) {
             $value = 0;
         }
 

@@ -30,7 +30,7 @@ function sql_database_exists($database, $query = null, $connector = null) {
     try{
         $retval = sql_query('SHOW DATABASES LIKE "'.cfm($database).'"', null, $connector);
 
-        if(substr($query, 0, 1) == '!') {
+        if (substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
@@ -38,11 +38,11 @@ function sql_database_exists($database, $query = null, $connector = null) {
             $not = false;
         }
 
-        if(empty($retval) xor $not) {
+        if (empty($retval) xor $not) {
             return false;
         }
 
-        if($query) {
+        if ($query) {
             sql_query($query, null, $connector);
         }
 
@@ -79,7 +79,7 @@ function sql_table_exists($table, $query = null, $connector = null) {
     try{
         $retval = sql_list('SHOW TABLES LIKE "'.cfm($table).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!') {
+        if (substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
@@ -87,11 +87,11 @@ function sql_table_exists($table, $query = null, $connector = null) {
             $not = false;
         }
 
-        if(empty($retval) xor $not) {
+        if (empty($retval) xor $not) {
             return false;
         }
 
-        if($query) {
+        if ($query) {
             sql_query($query, null, $connector);
         }
 
@@ -128,7 +128,7 @@ function sql_index_exists($table, $index, $query = null, $connector = null) {
     try{
         $retval = sql_list('SHOW INDEX FROM `'.cfm($table).'` WHERE `Key_name` = "'.cfm($index).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!') {
+        if (substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
@@ -136,11 +136,11 @@ function sql_index_exists($table, $index, $query = null, $connector = null) {
             $not = false;
         }
 
-        if(empty($retval) xor $not) {
+        if (empty($retval) xor $not) {
             return false;
         }
 
-        if($query) {
+        if ($query) {
             sql_query($query, null, $connector);
         }
 
@@ -177,7 +177,7 @@ function sql_column_exists($table, $column, $query = null, $connector = null) {
     try{
         $retval = sql_get('SHOW COLUMNS FROM `'.cfm($table).'` WHERE `Field` = "'.cfm($column).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!') {
+        if (substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
@@ -185,11 +185,11 @@ function sql_column_exists($table, $column, $query = null, $connector = null) {
             $not = false;
         }
 
-        if(empty($retval) xor $not) {
+        if (empty($retval) xor $not) {
             return false;
         }
 
-        if($query) {
+        if ($query) {
             sql_query($query, null, $connector);
         }
 
@@ -236,7 +236,7 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
                               AND    `TABLE_NAME`        = "'.cfm($table).'"
                               AND    `CONSTRAINT_NAME`   = "'.cfm($foreign_key).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!') {
+        if (substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
@@ -244,11 +244,11 @@ function sql_foreignkey_exists($table, $foreign_key, $query = null, $connector =
             $not = false;
         }
 
-        if(empty($retval) xor $not) {
+        if (empty($retval) xor $not) {
             return false;
         }
 
-        if($query) {
+        if ($query) {
             sql_query($query, null, $connector);
         }
 
@@ -285,7 +285,7 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
     try{
         $connector = sql_connector_name($connector);
 
-        if(!$database) {
+        if (!$database) {
             $database = $_CONFIG['db'][$connector]['db'];
         }
 
@@ -297,7 +297,7 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
                            AND    `ROUTINE_TYPE`   = "FUNCTION"
                            AND    `ROUTINE_NAME`   = "'.cfm($name).'"', null, null, $connector);
 
-        if(substr($query, 0, 1) == '!') {
+        if (substr($query, 0, 1) == '!') {
             $not   = true;
             $query = substr($query, 1);
 
@@ -305,11 +305,11 @@ function sql_function_exists($name, $query = null, $database = null, $connector 
             $not = false;
         }
 
-        if(empty($retval) xor $not) {
+        if (empty($retval) xor $not) {
             return false;
         }
 
-        if($query) {
+        if ($query) {
             sql_query($query, null, $connector);
         }
 
