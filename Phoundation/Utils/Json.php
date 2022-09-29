@@ -3,6 +3,7 @@
 namespace Phoundation\Utils;
 
 use Exception;
+use JsonException;
 use Phoundation\Core\CoreException\CoreException;
 
 /**
@@ -38,7 +39,7 @@ class Json
 
             if ($result) {
                 if (isset($data['result'])) {
-                    throw new CoreException(tr('Json::reply(): Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
+                    throw new JsonException(tr('Json::reply(): Result was specified both in the data array as ":result1" as wel as the separate variable as ":result2"', array(':result1' => $data['result'], ':result2' => $result)), 'invalid');
                 }
 
                 /*
@@ -89,11 +90,11 @@ class Json
                     return;
 
                 default:
-                    throw new CoreException(tr('Json::reply(): Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', array(':after' => $after)), 'unknown');
+                    throw new JsonException(tr('Json::reply(): Unknown after ":after" specified. Use one of "die", "continue", or "close_continue"', array(':after' => $after)), 'unknown');
             }
 
         } catch (Exception $e) {
-            throw new CoreException('Json::reply(): Failed', $e);
+            throw new JsonException('Json::reply(): Failed', $e);
         }
     }
 
@@ -180,7 +181,7 @@ class Json
                             $type .= '/' . get_class($message);
                         }
 
-                        throw new CoreException(tr('Json::error(): Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', array(':type' => $type)), 'invalid');
+                        throw new JsonException(tr('Json::error(): Specified message must either be a string or an CoreException ojbect, or PHP Exception ojbect, but is a ":type"', array(':type' => $type)), 'invalid');
                     }
 
                     $code = $message->getCode();
@@ -245,7 +246,7 @@ class Json
             Json::reply($data, ($result ? $result : 'ERROR'), $http_code);
 
         } catch (Exception $e) {
-            throw new CoreException('Json::error(): Failed', $e);
+            throw new JsonException('Json::error(): Failed', $e);
         }
     }
 
@@ -269,7 +270,7 @@ class Json
                 /*
                  * Codes should always use -, never _
                  */
-                notify(new CoreException(tr('Json::message(): Specified code ":code" contains an _ which should never be used, always use a -', array(':code' => $code)), 'warning/invalid'));
+                notify(new JsonException(tr('Json::message(): Specified code ":code" contains an _ which should never be used, always use a -', array(':code' => $code)), 'warning/invalid'));
             }
 
             switch ($code) {
@@ -379,181 +380,58 @@ class Json
             }
 
         } catch (Exception $e) {
-            throw new CoreException('Json::message(): Failed', $e);
+            throw new JsonException('Json::message(): Failed', $e);
         }
     }
 
 
-    /**
-     * Custom JSON encoding function
-     */
-    static public function encode($source, $internal = true)
-    {
-        try {
-            if ($internal) {
-                $source = Json::encode($source);
-
-                switch (Json::last_error()) {
-                    case JSON_ERROR_NONE:
-                        break;
-
-                    case JSON_ERROR_DEPTH:
-                        throw new CoreException('Json::encode(): Maximum stack depth exceeded', 'invalid', print_r($source, true));
-
-                    case JSON_ERROR_STATE_MISMATCH:
-                        throw new CoreException('Json::encode(): Underflow or the modes mismatch', 'invalid', print_r($source, true));
-
-                    case JSON_ERROR_CTRL_CHAR:
-                        throw new CoreException('Json::encode(): Unexpected control character found', 'invalid', print_r($source, true));
-
-                    case JSON_ERROR_SYNTAX:
-                        throw new CoreException('Json::encode(): Syntax error, malformed JSON', 'invalid', print_r($source, true));
-
-                    case JSON_ERROR_UTF8:
-                        /*
-                         * PHP and UTF, yay!
-                         */
-                        load_libs('mb');
-                        return Json::encode(mb_utf8ize($source), true);
-
-                    case JSON_ERROR_RECURSION:
-                        throw new CoreException('Json::encode(): One or more recursive references in the value to be encoded', 'invalid', print_r($source, true));
-
-                    case JSON_ERROR_INF_OR_NAN:
-                        throw new CoreException('Json::encode(): One or more NAN or INF values in the value to be encoded', 'invalid', print_r($source, true));
-
-                    case JSON_ERROR_UNSUPPORTED_TYPE:
-                        throw new CoreException('Json::encode(): A value of a type that cannot be encoded was given', 'invalid', print_r($source, true));
-
-                    case JSON_ERROR_INVALID_PROPERTY_NAME:
-                        throw new CoreException('Json::encode(): A property name that cannot be encoded was given', 'invalid', print_r($source, true));
-
-                    case JSON_ERROR_UTF16:
-                        throw new CoreException('Json::encode(): Malformed UTF-16 characters, possibly incorrectly encoded', 'invalid', print_r($source, true));
-
-
-                    default:
-                        throw new CoreException('Json::encode(): Unknown JSON error occured', 'error');
-                }
-
-                return $source;
-
-            } else {
-                if (is_null($source)) {
-                    return 'null';
-                }
-
-                if ($source === false) {
-                    return 'false';
-                }
-
-                if ($source === true) {
-                    return 'true';
-                }
-
-                if (is_scalar($source)) {
-                    if (is_numeric($source)) {
-                        if (is_float($source)) {
-                            // Always use "." for floats.
-                            $source = floatval(str_replace(',', '.', strval($source)));
-                        }
-
-                        // Always use "" for numerics.
-                        return '"' . strval($source) . '"';
-                    }
-
-                    if (is_string($source)) {
-                        static $json_replaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
-                        return '"' . str_replace($json_replaces[0], $json_replaces[1], $source) . '"';
-                    }
-
-                    return $source;
-                }
-
-                $is_list = true;
-
-                for ($i = 0, reset($source); $i < count($source); $i++, next($source)) {
-                    if (key($source) !== $i) {
-                        $is_list = false;
-                        break;
-                    }
-                }
-
-                $result = array();
-
-                if ($is_list) {
-                    foreach ($source as $v) {
-                        $result[] = Json::encode($v);
-                    }
-
-                    return '[' . join(',', $result) . ']';
-                }
-
-                foreach ($source as $k => $v) {
-                    $result[] = Json::encode($k) . ':' . Json::encode($v);
-                }
-
-                return '{' . join(',', $result) . '}';
-            }
-
-        } catch (Exception $e) {
-            $e->setData($source);
-            throw new CoreException(tr('Json::encode(): Failed with ":message"', array(':message' => json_last_error_msg())), $e);
-        }
-    }
-
 
     /**
-     * Validate the given JSON string
+     * Encode the specified variable into a JSON string
      *
-     * @param string @json
-     * @param bool $as_array
-     * @return mixed If $as_array is set true [default] then this method will always return an array. If not, it will
-     *      return a PHP JSON object
+     * @param mixed $source
+     * @param int $options
+     * @param int $depth Until what depth will we recurse until an exception will be thrown
+     * @return string
+     * @throws JsonException If JSON encoding failed
      */
-    static public function decode(string $json, bool $as_array = true)
+    static public function encode(mixed $source, int $options = 0, int $depth = 512): string
     {
-        try {
-            if ($json === null) {
-                return null;
-            }
+        $return = json_encode($source, $options, $depth);
 
-            /*
-             * Decode the JSON data
-             */
-            $retval = Json::decode($json, $as_array);
-
-            /*
-             * Switch and check possible JSON errors
-             */
-            switch (json_last_error()) {
-                case JSON_ERROR_NONE:
-                    break;
-
-                case JSON_ERROR_DEPTH:
-                    throw new CoreException('Json::decode(): Maximum stack depth exceeded', 'invalid');
-
-                case JSON_ERROR_STATE_MISMATCH:
-                    throw new CoreException('Json::decode(): Underflow or the modes mismatch', 'invalid');
-
-                case JSON_ERROR_CTRL_CHAR:
-                    throw new CoreException('Json::decode(): Unexpected control character found', 'invalid');
-
-                case JSON_ERROR_SYNTAX:
-                    throw new CoreException('Json::decode(): Syntax error, malformed JSON', 'invalid', $json);
-
-                case JSON_ERROR_UTF8:
-                    throw new CoreException('Json::decode(): Syntax error, UTF8 issue', 'invalid', $json);
-
-                default:
-                    throw new CoreException('Json::decode(): Unknown JSON error occured', 'error');
-            }
-
-            return $retval;
-
-        } catch (Exception $e) {
-            $e->setData($json);
-            throw new CoreException('Json::decode(): Failed', $e);
+        if (json_last_error()) {
+            throw new JsonException(tr('JSON encoding failed with :error', [':error' => json_last_error_msg()]), 'error');
         }
+
+        return $return;
+    }
+
+
+
+    /**
+     * Decode the given JSON string back into the original data. Can optionally decode into standard object classes or
+     * arrays [default]
+     *
+     * @param mixed $source
+     * @param int $options
+     * @param int $depth Until what depth will we recurse until an exception will be thrown
+     * @param bool $as_array If $as_array is set true [default] then this method will always return an array. If not,
+     *                       it will return a PHP JSON object
+     * @return mixed The decoded variable
+     * @throws JsonException
+     */
+    static public function decode(?string $source, int $options = 0, int $depth = 512, bool $as_array = true): mixed
+    {
+        if ($source === null) {
+            return null;
+        }
+
+        $return = json_decode($source, $as_array, $depth, $options);
+
+        if (json_last_error()) {
+            throw new JsonException(tr('JSON decoding failed with :error', [':error' => json_last_error_msg()]), 'error');
+        }
+
+        return $return;
     }
 }

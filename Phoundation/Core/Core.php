@@ -32,21 +32,21 @@ class Core {
     /**
      * @var null
      */
-    private $callType = null;
+    protected static ?string $callType = null;
 
     /**
      * @var array $db
      *
      * All database connections for this process
      */
-    public $db = array();
+    protected static array $db = [];
 
     /**
      * @var array $register
      *
-     * Generl purpose data register
+     * General purpose data register
      */
-    public $register = [
+    protected static array $register = [
         'tabindex' => 0,
         'ready' => false,
         'js_header' => [],
@@ -115,6 +115,8 @@ class Core {
              */
             switch (php_sapi_name()) {
                 case 'cli':
+                    global $argv;
+
                     define('PLATFORM'     , 'cli');
                     define('PLATFORM_HTTP', false);
                     define('PLATFORM_CLI' , true);
@@ -122,8 +124,8 @@ class Core {
                     $file = realpath(ROOT . 'scripts/' . Strings::from($argv[0], 'scripts/'));
                     $file = Strings::from($file, ROOT . 'scripts/');
 
-                    $core->register['real_script'] = $file;
-                    $core->register['script'] = Strings::fromReverse($file, '/');
+                    self::$register['real_script'] = $file;
+                    self::$register['script'] = Strings::fromReverse($file, '/');
 
                     unset($file);
 
@@ -144,11 +146,11 @@ class Core {
                      * Define what the current script
                      * Detect requested language
                      */
-                    $core->register['http_code'] = 200;
-                    $core->register['script'] = Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php');
-                    $core->register['real_script'] = $core->register['script'];
-                    $core->register['accepts'] = accepts();
-                    $core->register['accepts_languages'] = accepts_languages();
+                    self::$register['http_code'] = 200;
+                    self::$register['script'] = Strings::untilReverse(Strings::fromReverse($_SERVER['PHP_SELF'], '/'), '.php');
+                    self::$register['real_script'] = self::$register['script'];
+                    self::$register['accepts'] = accepts();
+                    self::$register['accepts_languages'] = accepts_languages();
 
                     /*
                      * Load basic libraries
@@ -178,7 +180,7 @@ class Core {
                      * Load basic configuration for the current environment
                      * Load cache libraries (done until here since these need configuration @ load time)
                      */
-                    $core->register['ready'] = true;
+                    self::$register['ready'] = true;
 
                     /*
                      * Define VERBOSE / VERYVERBOSE here because we need debug() data
@@ -203,7 +205,7 @@ class Core {
              * with those shutdown handlers!
              */
             if (isset($core)) {
-                $core->register = array();
+                self::$register = array();
             }
 
             if (defined('PLATFORM_HTTP')) {
@@ -361,7 +363,7 @@ class Core {
              * Verify project data integrity
              */
             if (!defined('SEED') or !SEED or (PROJECTCODEVERSION == '0.0.0')) {
-                if ($core->register['script'] !== 'setup') {
+                if (self::$register['script'] !== 'setup') {
                     if (!FORCE) {
                         throw new OutOfBoundsException(tr('startup: Project data in "ROOT/config/project.php" has not been fully configured. Please ensure that PROJECT is not empty, SEED is not empty, and PROJECTCODEVERSION is valid and not "0.0.0"'), 'project-not-setup');
                     }
@@ -503,7 +505,7 @@ class Core {
         global $_CONFIG, $core;
 
         try {
-            if (!$core->register['ready']) {
+            if (!self::$register['ready']) {
                 throw new OutOfBoundsException(tr('debug(): Startup has not yet finished and base is not ready to start working properly. debug() may not be called until configuration is fully loaded and available'), 'invalid');
             }
 
@@ -640,10 +642,10 @@ function page_show($pagename, $params = null, $get = null)
             /*
              * This is a system page, HTTP code. Use the page code as http code as well
              */
-            $core->register['http_code'] = $pagename;
+            self::$register['http_code'] = $pagename;
         }
 
-        $core->register['real_script'] = $pagename;
+        self::$register['real_script'] = $pagename;
 
         switch ($core->callType()) {
             case 'ajax':
@@ -816,7 +818,7 @@ function page_show($pagename, $params = null, $get = null)
                 $timeout = getenv('TIMEOUT') ? getenv('TIMEOUT') : $_CONFIG['exec']['timeout'];
             }
 
-            $core->register['timeout'] = $timeout;
+            self::$register['timeout'] = $timeout;
             set_time_limit($timeout);
 
         } catch (Exception $e) {
@@ -857,14 +859,14 @@ function page_show($pagename, $params = null, $get = null)
             /*
              * Do we need to run other shutdown functions?
              */
-            if (empty($core->register['script'])) {
-                error_log(tr('Shutdown procedure started before $core->register[script] was ready, possibly on script ":script"', array(':script' => $_SERVER['PHP_SELF'])));
+            if (empty(self::$register['script'])) {
+                error_log(tr('Shutdown procedure started before self::$register[script] was ready, possibly on script ":script"', array(':script' => $_SERVER['PHP_SELF'])));
                 return;
             }
 
-            log_console(tr('Starting shutdown procedure for script ":script"', array(':script' => $core->register['script'])), 'VERYVERBOSE/cyan');
+            log_console(tr('Starting shutdown procedure for script ":script"', array(':script' => self::$register['script'])), 'VERYVERBOSE/cyan');
 
-            foreach ($core->register as $key => $value) {
+            foreach (self::$register as $key => $value) {
                 try {
                     if (substr($key, 0, 9) !== 'shutdown_') {
                         continue;
@@ -943,7 +945,7 @@ function page_show($pagename, $params = null, $get = null)
         global $core;
 
         try {
-            return $core->register('shutdown_' . $name, $value);
+            return self::$register('shutdown_' . $name, $value);
 
         } catch (Exception $e) {
             throw new OutOfBoundsException('register_shutdown(): Failed', $e);
@@ -973,8 +975,8 @@ function page_show($pagename, $params = null, $get = null)
         global $core;
 
         try {
-            $value = $core->register('shutdown_' . $name);
-            unset($core->register['shutdown_' . $name]);
+            $value = self::$register('shutdown_' . $name);
+            unset(self::$register['shutdown_' . $name]);
             return $value;
 
         } catch (Exception $e) {
@@ -995,7 +997,7 @@ function page_show($pagename, $params = null, $get = null)
 // * @category Function reference
 // * @package system
 // */
-//class BException extends Exception{
+//class CoreException extends Exception{
 //    private $messages = array();
 //    private $data     = null;
 //    public  $code     = null;
@@ -1013,7 +1015,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @param mixed $data
 //     */
 //    function __construct($messages, $code, $data = null) {
-//        return include(__DIR__.'/handlers/system-bexception-construct.php');
+//        return include(__DIR__.'/handlers/system-CoreException-construct.php');
 //    }
 //
 //
@@ -1031,9 +1033,9 @@ function page_show($pagename, $params = null, $get = null)
 //     * @return object $this, so that you can string multiple calls together
 //     */
 //    public function addMessages($messages) {
-//        if(is_object($messages)) {
-//            if(!($messages instanceof BException)) {
-//                throw new OutOfBoundsException(tr('BException::addMessages(): Only supported object class to add to messages is BException'), 'invalid');
+//        if (is_object($messages)) {
+//            if (!($messages instanceof CoreException)) {
+//                throw new OutOfBoundsException(tr('CoreException::addMessages(): Only supported object class to add to messages is CoreException'), 'invalid');
 //            }
 //
 //            $messages = $messages->getMessages();
@@ -1057,7 +1059,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @category Function reference
 //     * @package system
 //     *
-//     * @param string $code The new exception code you wish to set BException::code to
+//     * @param string $code The new exception code you wish to set CoreException::code to
 //     * @return object $this, so that you can string multiple calls together
 //     */
 //    public function setCode($code) {
@@ -1076,7 +1078,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @category Function reference
 //     * @package system
 //     *
-//     * @return string The current BException::code value from the first /
+//     * @return string The current CoreException::code value from the first /
 //     */
 //    public function getRealCode() {
 //        return Strings::from($this->code, '/');
@@ -1097,7 +1099,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @return mixed An array with the messages list for this exception. If $separator has been specified, this method will return all messages in one string, each message separated by $separator
 //     */
 //    public function getMessages($separator = null) {
-//        if($separator === null) {
+//        if ($separator === null) {
 //            return $this->messages;
 //        }
 //
@@ -1115,7 +1117,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @category Function reference
 //     * @package system
 //     *
-//     * @return mixed Returns the content for BException::data
+//     * @return mixed Returns the content for CoreException::data
 //     */
 //    public function getData() {
 //        return $this->data;
@@ -1155,7 +1157,7 @@ function page_show($pagename, $params = null, $get = null)
 //     * @return object $this, so that you can string multiple calls together
 //     */
 //    public function makeWarning($value) {
-//        if($value) {
+//        if ($value) {
 //            $this->code = Strings::startsWith($this->code, 'warning/');
 //
 //        } else {

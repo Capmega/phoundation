@@ -53,7 +53,7 @@ class File
      */
     public static function concat(string $target, string|array $sources): void
     {
-        if(!is_array($sources)) {
+        if (!is_array($sources)) {
             $sources = array($sources);
         }
 
@@ -94,18 +94,18 @@ class File
      *
      * @param string $source
      * @return string
-     * @throws BException
+     * @throws CoreException
      */
     public static function getUploaded(string $source)
     {
         $destination = ROOT.'data/uploads/';
 
-        if(is_array($source)) {
+        if (is_array($source)) {
             /*
              * Asume this is a PHP file upload array entry
              */
-            if(empty($source['tmp_name'])) {
-                throw new CoreException(tr('file_move_uploaded(): Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'), 'invalid');
+            if (empty($source['tmp_name'])) {
+                throw new FilesystemException(tr('file_move_uploaded(): Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'), 'invalid');
             }
 
             $real   = $source['name'];
@@ -120,12 +120,12 @@ class File
         Path::ensure($destination);
 
         // Ensure we're not overwriting anything!
-        if(file_exists($destination.$real)) {
+        if (file_exists($destination.$real)) {
             $real = Strings::untilReverse($real, '.').'_'.substr(uniqid(), -8, 8).'.'.Strings::fromReverse($real, '.');
         }
 
-        if(!move_uploaded_file($source, $destination.$real)) {
-            throw new CoreException(tr('Failed to move file ":source" to destination ":destination"', [':source' => $source, ':destination' => $destination]), 'move');
+        if (!move_uploaded_file($source, $destination.$real)) {
+            throw new FilesystemException(tr('Failed to move file ":source" to destination ":destination"', [':source' => $source, ':destination' => $destination]), 'move');
         }
 
         // Return destination file
@@ -159,8 +159,8 @@ class File
      */
     public static function copyToTarget($file, $path, $extension = false, $singledir = false, $length = 4)
     {
-        if(is_array($file)) {
-            throw new CoreException(tr('file_copy_to_target(): Specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => str_log($file))));
+        if (is_array($file)) {
+            throw new FilesystemException(tr('file_copy_to_target(): Specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => str_log($file))));
         }
 
         return self::moveToTarget($file, $path, $extension, $singledir, $length, true);
@@ -196,19 +196,19 @@ class File
      */
     public static function moveToTarget(string $file, string $path, bool $extension = false, bool $singledir = false, int $length = 4, bool $copy = false, mixed $context = null)
     {
-        if(is_array($file)) {
+        if (is_array($file)) {
             $upload = $file;
             $file   = $file['name'];
         }
 
-        if(isset($upload) and $copy) {
-            throw new CoreException(tr('file_move_to_target(): Copy option has been set, but specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => $file)));
+        if (isset($upload) and $copy) {
+            throw new FilesystemException(tr('file_move_to_target(): Copy option has been set, but specified file ":file" is an uploaded file, and uploaded files cannot be copied, only moved', array(':file' => $file)));
         }
 
         $path     = Path::ensure($path);
         $filename = basename($file);
 
-        if(!$filename) {
+        if (!$filename) {
             /*
              * We always MUST have a filename
              */
@@ -218,15 +218,15 @@ class File
         /*
          * Ensure we have a local copy of the file to work with
          */
-        if($file) {
+        if ($file) {
             $file = file_get_local($file, $is_downloaded, $context);
         }
 
-        if(!$extension) {
+        if (!$extension) {
             $extension = file_get_extension($filename);
         }
 
-        if($length) {
+        if ($length) {
             $targetpath = Strings::slash(file_create_target_path($path, $singledir, $length));
 
         } else {
@@ -239,8 +239,8 @@ class File
          * Check if there is a "point" already in the extension
          * not obligatory at the start of the string
          */
-        if($extension) {
-            if(strpos($extension, '.') === false) {
+        if ($extension) {
+            if (strpos($extension, '.') === false) {
                 $target .= '.'.$extension;
 
             } else {
@@ -251,8 +251,8 @@ class File
         /*
          * Only move file is target does not yet exist
          */
-        if(file_exists($target)) {
-            if(isset($upload)) {
+        if (file_exists($target)) {
+            if (isset($upload)) {
                 /*
                  * File was specified as an upload array
                  */
@@ -265,8 +265,8 @@ class File
         /*
          * Only move if file was specified. If no file specified, then we will only return the available path
          */
-        if($file) {
-            if(isset($upload)) {
+        if ($file) {
+            if (isset($upload)) {
                 /*
                  * This is an uploaded file
                  */
@@ -276,7 +276,7 @@ class File
                 /*
                  * This is a normal file
                  */
-                if($copy and !$is_downloaded) {
+                if ($copy and !$is_downloaded) {
                     copy($file, $target);
 
                 } else {
@@ -298,13 +298,13 @@ class File
         global $_CONFIG;
 
         try{
-            if($length === false) {
+            if ($length === false) {
                 $length = $_CONFIG['file']['target_path_size'];
             }
 
             $path = Strings::unslash(Path::ensure($path));
 
-            if($singledir) {
+            if ($singledir) {
                 /*
                  * Assign path in one dir, like abcde/
                  */
@@ -322,7 +322,7 @@ class File
             return Strings::slash(Path::ensure($path));
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_create_target_path(): Failed'), $e);
+            throw new FilesystemException(tr('file_create_target_path(): Failed'), $e);
         }
     }
 
@@ -348,13 +348,13 @@ class File
         global $_CONFIG;
 
         try{
-            if(!$mode) {
+            if (!$mode) {
                 $mode = $_CONFIG['file']['file_mode'];
             }
 
             Path::ensure(dirname($file), $path_mode);
 
-            if(!file_exists($file)) {
+            if (!file_exists($file)) {
                 /*
                  * Create the file
                  */
@@ -362,7 +362,7 @@ class File
                     log_console(tr('file_ensure_file(): Warning: file ":file" did not exist and was created empty to ensure system stability, but information may be missing', array(':file' => $file)), 'VERBOSE/yellow');
                     touch($file);
 
-                    if($mode) {
+                    if ($mode) {
                         chmod($file, $mode);
                     }
                 });
@@ -371,7 +371,7 @@ class File
             return $file;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_ensure_file(): Failed'), $e);
+            throw new FilesystemException(tr('file_ensure_file(): Failed'), $e);
         }
     }
 
@@ -396,7 +396,7 @@ class File
             /*
              * Multiple paths specified, clear all
              */
-            if(is_array($paths)) {
+            if (is_array($paths)) {
                 foreach($paths as $path) {
                     file_clear_path($path, $restrictions);
                 }
@@ -411,7 +411,7 @@ class File
              */
             Restrict::restrict($path, $restrictions);
 
-            if(!file_exists($path)) {
+            if (!file_exists($path)) {
                 /*
                  * This section does not exist, jump up to the next section
                  */
@@ -422,7 +422,7 @@ class File
                     return file_clear_path($path, $restrictions);
 
                 }catch(Exception $e) {
-                    if($e->getRealCode() === 'access-denied') {
+                    if ($e->getRealCode() === 'access-denied') {
                         /*
                          * We no longer have access to move up more, stop here.
                          */
@@ -432,7 +432,7 @@ class File
                 }
             }
 
-            if(!is_dir($path)) {
+            if (!is_dir($path)) {
                 /*
                  * This is a normal file. Delete it and continue with the directory above
                  */
@@ -449,7 +449,7 @@ class File
                     /*
                      * Skip . and ..
                      */
-                    if(($file == '.') or ($file == '..')) continue;
+                    if (($file == '.') or ($file == '..')) continue;
 
                     $contents = true;
                     break;
@@ -457,7 +457,7 @@ class File
 
                 closedir($h);
 
-                if($contents) {
+                if ($contents) {
                     /*
                      * Do not remove anything more, there is contents here!
                      */
@@ -498,7 +498,7 @@ class File
                 file_clear_path($path, $restrictions);
 
             }catch(Exception $e) {
-                if($e->getRealCode() === 'access-denied') {
+                if ($e->getRealCode() === 'access-denied') {
                     /*
                      * We no longer have access to move up more, stop here.
                      */
@@ -508,7 +508,7 @@ class File
             }
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_clear_path(): Failed'), $e);
+            throw new FilesystemException(tr('file_clear_path(): Failed'), $e);
         }
     }
 
@@ -522,7 +522,7 @@ class File
             return Strings::fromReverse($filename, '.');
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_get_extension(): Failed'), $e);
+            throw new FilesystemException(tr('file_get_extension(): Failed'), $e);
         }
     }
 
@@ -560,11 +560,11 @@ class File
             /*
              * Temp file will contain the session ID
              */
-            if($limit_to_session) {
+            if ($limit_to_session) {
                 $session_id = session_id();
                 $name       = substr(hash('sha1', uniqid().microtime()), 0, 12);
 
-                if($session_id) {
+                if ($session_id) {
                     $name = $session_id.'-'.$name;
                 }
 
@@ -572,7 +572,7 @@ class File
                 $name = substr(hash('sha1', uniqid().microtime()), 0, 12);
             }
 
-            if($extension) {
+            if ($extension) {
                 /*
                  * Temp file will have specified extension
                  */
@@ -584,17 +584,17 @@ class File
             /*
              * Temp file can not exist
              */
-            if(file_exists($file)) {
+            if (file_exists($file)) {
                 file_delete($file);
             }
 
-            if($create) {
-                if($create === true) {
+            if ($create) {
+                if ($create === true) {
                     touch($file);
 
                 } else {
-                    if(!is_string($create)) {
-                        throw new CoreException(tr('file_temp(): Specified $create variable is of datatype ":type" but should be either false, true, or a data string that should be written to the temp file', array(':type' => gettype($create))), $e);
+                    if (!is_string($create)) {
+                        throw new FilesystemException(tr('file_temp(): Specified $create variable is of datatype ":type" but should be either false, true, or a data string that should be written to the temp file', array(':type' => gettype($create))), $e);
                     }
 
                     file_put_contents($file, $create);
@@ -604,7 +604,7 @@ class File
             return $file;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_temp(): Failed'), $e);
+            throw new FilesystemException(tr('file_temp(): Failed'), $e);
         }
     }
 
@@ -625,18 +625,18 @@ class File
      */
     public static function absolute_path($path) {
         try{
-            if(!$path) {
+            if (!$path) {
                 return getcwd();
             }
 
-            if($path[0] === '/') {
+            if ($path[0] === '/') {
                 return $path;
             }
 
             return Strings::slash(getcwd()).Strings::unslash($path);
 
         }catch(Exception $e) {
-            throw new CoreException('file_absolute_path(): Failed', $e);
+            throw new FilesystemException('file_absolute_path(): Failed', $e);
         }
     }
 
@@ -662,30 +662,30 @@ class File
             /*
              * Check the specified file
              */
-            if(!$file) {
-                throw new CoreException(tr('file_mimetype(): No file specified'), 'not-specified');
+            if (!$file) {
+                throw new FilesystemException(tr('file_mimetype(): No file specified'), 'not-specified');
             }
 
-            if(!is_file($file)) {
-                if(!file_exists($file)) {
-                    throw new CoreException(tr('file_mimetype(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
+            if (!is_file($file)) {
+                if (!file_exists($file)) {
+                    throw new FilesystemException(tr('file_mimetype(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exist');
                 }
 
-                if(is_dir($file)) {
-                    throw new CoreException(tr('file_mimetype(): Specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
+                if (is_dir($file)) {
+                    throw new FilesystemException(tr('file_mimetype(): Specified file ":file" is not a normal file but a directory', array(':file' => $file)), 'invalid');
                 }
 
-                throw new CoreException(tr('file_mimetype(): Specified file ":file" is not a file', array(':file' => $file)), 'invalid');
+                throw new FilesystemException(tr('file_mimetype(): Specified file ":file" is not a file', array(':file' => $file)), 'invalid');
             }
 
-            if(!$finfo) {
+            if (!$finfo) {
                 $finfo = finfo_open(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
             }
 
             return finfo_file($finfo, $file);
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_mimetype(): Failed'), $e);
+            throw new FilesystemException(tr('file_mimetype(): Failed'), $e);
         }
     }
 
@@ -706,13 +706,13 @@ class File
      */
     public static function is_text($file) {
         try{
-            if(Strings::until(file_mimetype($file), '/') == 'text') return true;
-            if(Strings::from(file_mimetype($file), '/') == 'xml' ) return true;
+            if (Strings::until(file_mimetype($file), '/') == 'text') return true;
+            if (Strings::from(file_mimetype($file), '/') == 'xml' ) return true;
 
             return false;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_is_text(): Failed'), $e);
+            throw new FilesystemException(tr('file_is_text(): Failed'), $e);
         }
     }
 
@@ -732,12 +732,12 @@ class File
      * @return bolean True if the file exists and is a file
      */
     public static function check($file) {
-        if(!file_exists($file)) {
-            throw new CoreException(tr('file_check(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+        if (!file_exists($file)) {
+            throw new FilesystemException(tr('file_check(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
         }
 
-        if(!is_file($file)) {
-            throw new CoreException(tr('file_check(): Specified file ":file" is not a file', array(':file' => $file)), 'notafile');
+        if (!is_file($file)) {
+            throw new FilesystemException(tr('file_check(): Specified file ":file" is not a file', array(':file' => $file)), 'notafile');
         }
     }
 
@@ -763,13 +763,13 @@ class File
             /*
              * Validate path
              */
-            if(!is_dir($path)) {
-                if(!is_file($path)) {
-                    if(!file_exists($path)) {
-                        throw new CoreException(tr('file_list_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
+            if (!is_dir($path)) {
+                if (!is_file($path)) {
+                    if (!file_exists($path)) {
+                        throw new FilesystemException(tr('file_list_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exist');
                     }
 
-                    throw new CoreException(tr('file_list_tree(): Specified path ":path" is not a directory or a file', array(':path' => $path)), 'invalid');
+                    throw new FilesystemException(tr('file_list_tree(): Specified path ":path" is not a directory or a file', array(':path' => $path)), 'invalid');
                 }
 
                 return array($path);
@@ -785,17 +785,17 @@ class File
                 /*
                  * Loop through the files, skipping . and .. and recursing if necessary
                  */
-                if(($filename == '.') or ($filename == '..')) {
+                if (($filename == '.') or ($filename == '..')) {
                     continue;
                 }
 
                 /*
                  * Does the file match the specified pattern?
                  */
-                if($pattern) {
+                if ($pattern) {
                     $match = preg_match($pattern, $filename);
 
-                    if(!$match) {
+                    if (!$match) {
                         continue;
                     }
                 }
@@ -811,7 +811,7 @@ class File
                  *
                  * Do NOT add the directory itself, only files!
                  */
-                if(is_dir($file) and $recursive) {
+                if (is_dir($file) and $recursive) {
                     $retval = array_merge($retval, file_list_tree($file));
 
                 } else {
@@ -824,7 +824,7 @@ class File
             return $retval;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_list_tree(): Failed for ":path"', array(':path' => $path)), $e);
+            throw new FilesystemException(tr('file_list_tree(): Failed for ":path"', array(':path' => $path)), $e);
         }
     }
 
@@ -852,8 +852,8 @@ class File
      */
     public static function delete($params, $restrictions = null) {
         try{
-            if(!$params) {
-                throw new CoreException(tr('file_delete(): No files or parameters specified'), 'not-specified');
+            if (!$params) {
+                throw new FilesystemException(tr('file_delete(): No files or parameters specified'), 'not-specified');
             }
 
             array_params ($params, 'patterns');
@@ -878,7 +878,7 @@ class File
                  */
                 Restrict::restrict($pattern, $params['restrictions']);
 
-                if($params['force_writable']) {
+                if ($params['force_writable']) {
                     try{
                         /*
                          * First ensure that the files to be deleted are writable
@@ -897,7 +897,7 @@ class File
                         $data = $e->getData();
                         $data = array_shift($data);
 
-                        if(preg_match('/chmod: cannot access .+?: No such file or directory/', $data)) {
+                        if (preg_match('/chmod: cannot access .+?: No such file or directory/', $data)) {
                             continue;
                         }
                     }
@@ -912,13 +912,13 @@ class File
                  * If specified to do so, clear the path upwards from the specified
                  * pattern
                  */
-                if($params['clean_path']) {
+                if ($params['clean_path']) {
                     file_clear_path(dirname($pattern), $params['restrictions']);
                 }
             }
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_delete(): Failed'), $e);
+            throw new FilesystemException(tr('file_delete(): Failed'), $e);
         }
     }
 
@@ -954,7 +954,7 @@ class File
             return implode('*', $pattern);
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_safe_pattern(): Failed'), $e);
+            throw new FilesystemException(tr('file_safe_pattern(): Failed'), $e);
         }
     }
 
@@ -983,15 +983,15 @@ class File
             /*
              * Choose between copy filemode (mode is null), set filemode ($mode is a string or octal number) or preset filemode (take from config, TRUE)
              */
-            if(!is_bool($mode) and !is_null($mode)) {
-                if(is_string($mode)) {
+            if (!is_bool($mode) and !is_null($mode)) {
+                if (is_string($mode)) {
                     $mode = intval($mode, 8);
                 }
 
                 $filemode = $mode;
             }
 
-            if(substr($destination, 0, 1) != '/') {
+            if (substr($destination, 0, 1) != '/') {
                 /*
                  * This is not an absolute path
                  */
@@ -1001,11 +1001,11 @@ class File
             /*
              * Validations
              */
-            if(!$novalidate) {
+            if (!$novalidate) {
                 /*
                  * Prepare search / replace
                  */
-                if(!$search) {
+                if (!$search) {
                     /*
                      * We can only replace if we search
                      */
@@ -1014,40 +1014,40 @@ class File
                     $extensions = null;
 
                 } else {
-                    if(!is_array($extensions)) {
+                    if (!is_array($extensions)) {
                         $extensions = array($extensions);
                     }
 
-                    if(!is_array($search)) {
+                    if (!is_array($search)) {
                         $search = explode(',', $search);
                     }
 
-                    if(!is_array($replace)) {
+                    if (!is_array($replace)) {
                         $replace = explode(',', $replace);
                     }
 
-                    if(count($search) != count($replace)) {
-                        throw new CoreException(tr('file_copy_tree(): The search parameters count ":search" and replace parameters count ":replace" do not match', array(':search' => count($search), ':replace' => count($replace))), 'parameternomatch');
+                    if (count($search) != count($replace)) {
+                        throw new FilesystemException(tr('file_copy_tree(): The search parameters count ":search" and replace parameters count ":replace" do not match', array(':search' => count($search), ':replace' => count($replace))), 'parameternomatch');
                     }
                 }
 
-                if(!file_exists($source)) {
-                    throw new CoreException(tr('file_copy_tree(): Specified source ":source" does not exist', array(':source' => $source)), 'not-exists');
+                if (!file_exists($source)) {
+                    throw new FilesystemException(tr('file_copy_tree(): Specified source ":source" does not exist', array(':source' => $source)), 'not-exists');
                 }
 
                 $destination = Strings::unslash($destination);
 
-                if(!file_exists($destination)) {
+                if (!file_exists($destination)) {
 // :TODO: Check if dirname() here is correct? It somehow does not make sense
-                    if(!file_exists(dirname($destination))) {
-                        throw new CoreException(tr('file_copy_tree(): Specified destination ":destination" does not exist', array(':destination' => dirname($destination))), 'not-exists');
+                    if (!file_exists(dirname($destination))) {
+                        throw new FilesystemException(tr('file_copy_tree(): Specified destination ":destination" does not exist', array(':destination' => dirname($destination))), 'not-exists');
                     }
 
-                    if(!is_dir(dirname($destination))) {
-                        throw new CoreException(tr('file_copy_tree(): Specified destination ":destination" is not a directory', array(':destination' => dirname($destination))), 'not-directory');
+                    if (!is_dir(dirname($destination))) {
+                        throw new FilesystemException(tr('file_copy_tree(): Specified destination ":destination" is not a directory', array(':destination' => dirname($destination))), 'not-directory');
                     }
 
-                    if(is_dir($source)) {
+                    if (is_dir($source)) {
                         /*
                          * We are copying a directory, destination dir does not yet exist
                          */
@@ -1063,16 +1063,16 @@ class File
                     /*
                      * Destination already exists,
                      */
-                    if(is_dir($source)) {
-                        if(!is_dir($destination)) {
-                            throw new CoreException(tr('file_copy_tree(): Cannot copy source directory ":source" into destination file ":destination"', array(':source' => $source, ':destination' => $destination)), 'failed');
+                    if (is_dir($source)) {
+                        if (!is_dir($destination)) {
+                            throw new FilesystemException(tr('file_copy_tree(): Cannot copy source directory ":source" into destination file ":destination"', array(':source' => $source, ':destination' => $destination)), 'failed');
                         }
 
                     } else {
                         /*
                          * Source is a file
                          */
-                        if(!is_dir($destination)) {
+                        if (!is_dir($destination)) {
                             /*
                              * Remove destination file since it would be overwritten
                              */
@@ -1082,22 +1082,22 @@ class File
                 }
             }
 
-            if(is_dir($source)) {
+            if (is_dir($source)) {
                 $source      = Strings::slash($source);
                 $destination = Strings::slash($destination);
 
                 foreach(scandir($source) as $file) {
-                    if(($file == '.') or ($file == '..')) {
+                    if (($file == '.') or ($file == '..')) {
                         /*
                          * Only replacing down
                          */
                         continue;
                     }
 
-                    if(is_null($mode)) {
+                    if (is_null($mode)) {
                         $filemode = $_CONFIG['file']['dir_mode'];
 
-                    } elseif(is_link($source.$file)) {
+                    } elseif (is_link($source.$file)) {
                         /*
                          * No file permissions for symlinks
                          */
@@ -1107,16 +1107,16 @@ class File
                         $filemode = fileperms($source.$file);
                     }
 
-                    if(is_dir($source.$file)) {
+                    if (is_dir($source.$file)) {
                         /*
                          * Recurse
                          */
-                        if(file_exists($destination.$file)) {
+                        if (file_exists($destination.$file)) {
                             /*
                              * Destination path already exists. This -by the way- means that the
                              * destination tree was not clean
                              */
-                            if(!is_dir($destination.$file)) {
+                            if (!is_dir($destination.$file)) {
                                 /*
                                  * Were overwriting here!
                                  */
@@ -1131,10 +1131,10 @@ class File
                 }
 
             } else {
-                if(is_link($source)) {
+                if (is_link($source)) {
                     $link = readlink($source);
 
-                    if(substr($link, 0, 1) == '/') {
+                    if (substr($link, 0, 1) == '/') {
                         /*
                          * Absolute link, this is ok
                          */
@@ -1147,7 +1147,7 @@ class File
                         $reallink = Strings::slash(dirname($source)).$link;
                     }
 
-                    if(!file_exists($reallink)) {
+                    if (!file_exists($reallink)) {
                         /*
                          * This symlink points to no file, its dead
                          */
@@ -1163,23 +1163,23 @@ class File
                 /*
                  * Determine mode
                  */
-                if($mode === null) {
+                if ($mode === null) {
                     $filemode = $_CONFIG['file']['file_mode'];
 
-                } elseif($mode === true) {
+                } elseif ($mode === true) {
                     $filemode = fileperms($source);
                 }
 
                 /*
                  * Check if the file requires search / replace
                  */
-                if(!$search) {
+                if (!$search) {
                     /*
                      * No search specified, just copy tree
                      */
                     $doreplace = false;
 
-                } elseif(!$extensions) {
+                } elseif (!$extensions) {
                     /*
                      * No extensions specified, search / replace all files in tree
                      */
@@ -1194,14 +1194,14 @@ class File
                     foreach($extensions as $extension) {
                         $len = strlen($extension);
 
-                        if(!substr($source, -$len, $len) != $extension) {
+                        if (!substr($source, -$len, $len) != $extension) {
                             $doreplace = true;
                             break;
                         }
                     }
                 }
 
-                if(!$doreplace) {
+                if (!$doreplace) {
                     /*
                      * Just a simple filecopy will suffice
                      */
@@ -1211,7 +1211,7 @@ class File
                     $data = file_get_contents($source);
 
                     foreach($search as $id => $svalue) {
-                        if((substr($svalue, 0, 1 == '/')) and (substr($svalue, -1, 1 == '/'))) {
+                        if ((substr($svalue, 0, 1 == '/')) and (substr($svalue, -1, 1 == '/'))) {
                             /*
                              * Do a regex search / replace
                              */
@@ -1231,7 +1231,7 @@ class File
                     file_put_contents($destination, $data);
                 }
 
-                if($mode) {
+                if ($mode) {
                     /*
                      * Update file mode
                      */
@@ -1239,7 +1239,7 @@ class File
                         chmod($destination, $filemode);
 
                     }catch(Exception $e) {
-                        throw new CoreException(tr('file_copy_tree(): Failed to set filemode for ":destination"', array(':destination' => $destination)), $e);
+                        throw new FilesystemException(tr('file_copy_tree(): Failed to set filemode for ":destination"', array(':destination' => $destination)), $e);
                     }
                 }
             }
@@ -1247,7 +1247,7 @@ class File
             return $destination;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_copy_tree(): Failed'), $e);
+            throw new FilesystemException(tr('file_copy_tree(): Failed'), $e);
         }
     }
 
@@ -1261,19 +1261,19 @@ class File
             /*
              * Validations
              */
-            if(!file_exists($source)) {
-                throw new CoreException(tr('file_rename(): Specified source ":source" does not exist', array(':source' => $source)), 'exists');
+            if (!file_exists($source)) {
+                throw new FilesystemException(tr('file_rename(): Specified source ":source" does not exist', array(':source' => $source)), 'exists');
             }
 
-            if(!file_exists($destination)) {
-                throw new CoreException(tr('file_rename(): Specified destination ":destination" does not exist', array(':destination' => $destination)), 'exists');
+            if (!file_exists($destination)) {
+                throw new FilesystemException(tr('file_rename(): Specified destination ":destination" does not exist', array(':destination' => $destination)), 'exists');
             }
 
-            if(!is_dir($destination)) {
-                throw new CoreException(tr('file_rename(): Specified destination ":destination" is not a directory', array(':destination' => $destination)), 'invalid');
+            if (!is_dir($destination)) {
+                throw new FilesystemException(tr('file_rename(): Specified destination ":destination" is not a directory', array(':destination' => $destination)), 'invalid');
             }
 
-            if(is_file($source)) {
+            if (is_file($source)) {
                 /*
                  * Rename just one file
                  */
@@ -1287,7 +1287,7 @@ class File
 
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_rename(): Failed'), $e);
+            throw new FilesystemException(tr('file_rename(): Failed'), $e);
         }
     }
 
@@ -1303,7 +1303,7 @@ class File
             /*
              * Use default configged mode, or specific mode?
              */
-            if($mode === null) {
+            if ($mode === null) {
                 $mode = $_CONFIG['file']['dir_mode'];
             }
 
@@ -1312,7 +1312,7 @@ class File
             while(true) {
                 $unique = uniqid($prefix);
 
-                if(!file_exists($path.$unique)) {
+                if (!file_exists($path.$unique)) {
                     break;
                 }
             }
@@ -1327,7 +1327,7 @@ class File
             return Strings::slash($path);
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_tempdir(): Failed'), $e);
+            throw new FilesystemException(tr('file_tempdir(): Failed'), $e);
         }
     }
 
@@ -1363,12 +1363,12 @@ class File
             array_default($params, 'mode'        , $mode);
             array_default($params, 'restrictions', $restrictions);
 
-            if(!($params['mode'])) {
-                throw new CoreException(tr('No file mode specified'), 'not-specified');
+            if (!($params['mode'])) {
+                throw new FilesystemException(tr('No file mode specified'), 'not-specified');
             }
 
-            if(!$params['path']) {
-                throw new CoreException(tr('No path specified'), 'not-specified');
+            if (!$params['path']) {
+                throw new FilesystemException(tr('No path specified'), 'not-specified');
             }
 
             foreach(Arrays::force($params['path']) as $path) {
@@ -1378,11 +1378,11 @@ class File
                 $arguments[]    = $params['mode'];
                 $arguments['#'] = file_safe_pattern($path);
 
-                if($params['recursive']) {
+                if ($params['recursive']) {
                     $arguments[] = '-R';
                 }
 
-                if($params['sudo']) {
+                if ($params['sudo']) {
                     $arguments['sudo'] = $params['sudo'];
                 }
 
@@ -1391,7 +1391,7 @@ class File
             }
 
         }catch(Exception $e) {
-            throw new CoreException('file_chmod(): Failed', $e);
+            throw new FilesystemException('file_chmod(): Failed', $e);
         }
     }
 
@@ -1414,12 +1414,12 @@ class File
             $context = file_create_stream_context($context);
             $url     = trim($url);
 
-            if((stripos($url, 'http:') === false) and (stripos($url, 'https:') === false) and (stripos($url, 'ftp:') === false)) {
-                if(!file_exists($url)) {
-                    throw new CoreException(tr('file_get_local(): Specified file ":file" does not exist', array(':file' => $url)), 'not-exists');
+            if ((stripos($url, 'http:') === false) and (stripos($url, 'https:') === false) and (stripos($url, 'ftp:') === false)) {
+                if (!file_exists($url)) {
+                    throw new FilesystemException(tr('file_get_local(): Specified file ":file" does not exist', array(':file' => $url)), 'not-exists');
                 }
 
-                if(is_uploaded_file($url)) {
+                if (is_uploaded_file($url)) {
                     $tmp  = file_get_uploaded($url);
                     $file = file_temp($url, null, false);
 
@@ -1446,15 +1446,15 @@ class File
             $message = $e->getMessage();
             $message = strtolower($message);
 
-            if(str_contains($message, '404 not found')) {
-                throw new CoreException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $url)), 'file-404');
+            if (str_contains($message, '404 not found')) {
+                throw new FilesystemException(tr('file_get_local(): URL ":file" does not exist', array(':file' => $url)), 'file-404');
             }
 
-            if(str_contains($message, '400 bad request')) {
-                throw new CoreException(tr('file_get_local(): URL ":file" is invalid', array(':file' => $url)), 'file-400');
+            if (str_contains($message, '400 bad request')) {
+                throw new FilesystemException(tr('file_get_local(): URL ":file" is invalid', array(':file' => $url)), 'file-400');
             }
 
-            throw new CoreException(tr('file_get_local(): Failed for file ":file"', array(':file' => $url)), $e);
+            throw new FilesystemException(tr('file_get_local(): Failed for file ":file"', array(':file' => $url)), $e);
         }
     }
 
@@ -1476,7 +1476,7 @@ class File
                 return '/pub/css/'.$path;
 
             default:
-                throw new CoreException(tr('file_system_path(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
+                throw new FilesystemException(tr('file_system_path(): Unknown type ":type" specified', array(':type' => $type)), 'unknown');
         }
     }
 
@@ -1489,12 +1489,12 @@ class File
      */
     public static function random($path) {
         try{
-            if(!file_exists($path)) {
-                throw new CoreException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            if (!file_exists($path)) {
+                throw new FilesystemException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
-            if(!file_exists($path)) {
-                throw new CoreException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            if (!file_exists($path)) {
+                throw new FilesystemException(tr('file_random(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
             $files = scandir($path);
@@ -1502,14 +1502,14 @@ class File
             unset($files[array_search('.' , $files)]);
             unset($files[array_search('..', $files)]);
 
-            if(!$files) {
-                throw new CoreException(tr('file_random(): The specified path ":path" contains no files', array(':path' => $path)), 'not-exists');
+            if (!$files) {
+                throw new FilesystemException(tr('file_random(): The specified path ":path" contains no files', array(':path' => $path)), 'not-exists');
             }
 
             return Strings::slash($path).array_get_random($files);
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_random(): Failed'), $e);
+            throw new FilesystemException(tr('file_random(): Failed'), $e);
         }
     }
 
@@ -1520,12 +1520,12 @@ class File
      */
     public static function session_store($label, $file = null, $path = TMP) {
         try{
-            if($file === null) {
+            if ($file === null) {
                 /*
                  * No file specified, return the file name for the specified label
                  * Then remove the temporary file and the label
                  */
-                if(isset($_SESSION['files'][$label])) {
+                if (isset($_SESSION['files'][$label])) {
                     $file = $_SESSION['files'][$label];
                     unset($_SESSION['files'][$label]);
                     return $file;
@@ -1538,7 +1538,7 @@ class File
              * Store this file temporary
              * Check if a file already exists. If so, remove it, and store this one.
              */
-            if(!empty($_SESSION['files'][$label])) {
+            if (!empty($_SESSION['files'][$label])) {
                 file_delete($_SESSION['files'][$label]);
             }
 
@@ -1551,7 +1551,7 @@ class File
             return $file;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_session_store(): Failed'), $e);
+            throw new FilesystemException(tr('file_session_store(): Failed'), $e);
         }
     }
 
@@ -1562,20 +1562,20 @@ class File
      */
     public static function check_dir($path, $writable = false) {
         try{
-            if(!file_exists($path)) {
-                throw new CoreException(tr('file_check_dir(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            if (!file_exists($path)) {
+                throw new FilesystemException(tr('file_check_dir(): The specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
-            if(!is_dir($path)) {
-                throw new CoreException(tr('file_check_dir(): The specified path ":path" is not a directory', array(':path' => $path)), 'notadirectory');
+            if (!is_dir($path)) {
+                throw new FilesystemException(tr('file_check_dir(): The specified path ":path" is not a directory', array(':path' => $path)), 'notadirectory');
             }
 
-            if($writable and !is_writable($path)) {
-                throw new CoreException(tr('file_check_dir(): The specified path ":path" is not writable', array(':path' => $path)), 'notwritable');
+            if ($writable and !is_writable($path)) {
+                throw new FilesystemException(tr('file_check_dir(): The specified path ":path" is not writable', array(':path' => $path)), 'notwritable');
             }
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_check_dir(): Failed'), $e);
+            throw new FilesystemException(tr('file_check_dir(): Failed'), $e);
         }
     }
 
@@ -1608,50 +1608,50 @@ class File
             /*
              * Validate the file name for the user
              */
-            if(!$params['filename']) {
-                throw new CoreException(tr('file_http_download(): No filename specified. Note: This is not the file to be downloaded to the client, but the name it will have when saved on the clients storage'), 'not-specified');
+            if (!$params['filename']) {
+                throw new FilesystemException(tr('file_http_download(): No filename specified. Note: This is not the file to be downloaded to the client, but the name it will have when saved on the clients storage'), 'not-specified');
             }
 
-            if(!is_scalar($params['filename'])) {
-                throw new CoreException(tr('file_http_download(): Specified filename ":filename" is not scalar', array(':filename' => $params['filename'])), 'invalid');
+            if (!is_scalar($params['filename'])) {
+                throw new FilesystemException(tr('file_http_download(): Specified filename ":filename" is not scalar', array(':filename' => $params['filename'])), 'invalid');
             }
 
-            if(mb_strlen($params['filename']) > 250) {
-                throw new CoreException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters', array(':filename' => $params['filename'])), 'invalid');
+            if (mb_strlen($params['filename']) > 250) {
+                throw new FilesystemException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters', array(':filename' => $params['filename'])), 'invalid');
             }
 
-            if($params['data']) {
+            if ($params['data']) {
                 /*
                  * Send the specified data as a file to the client
                  * Write the data to a temp file first so we can just upload from
                  * there
                  */
-                if($params['file']) {
-                    throw new CoreException(tr('file_http_download(): Both "file" and "data" were specified, these parameters are mutually exclusive. Please specify one or the other'), 'invalid');
+                if ($params['file']) {
+                    throw new FilesystemException(tr('file_http_download(): Both "file" and "data" were specified, these parameters are mutually exclusive. Please specify one or the other'), 'invalid');
                 }
 
                 $params['file'] = file_temp($params['data']);
                 $params['data'] = $params['file'];
             }
 
-            if(!$params['file']) {
-                throw new CoreException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
+            if (!$params['file']) {
+                throw new FilesystemException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
             }
 
             /*
              * Send a file from disk
              * Validate data
              */
-            if(!is_scalar($params['file'])) {
-                throw new CoreException(tr('file_http_download(): Specified file ":file" is not scalar', array(':file' => $params['file'])), 'invalid');
+            if (!is_scalar($params['file'])) {
+                throw new FilesystemException(tr('file_http_download(): Specified file ":file" is not scalar', array(':file' => $params['file'])), 'invalid');
             }
 
-            if(!file_exists($params['file'])) {
-                throw new CoreException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible', array(':file' => $params['file'])), 'not-exists');
+            if (!file_exists($params['file'])) {
+                throw new FilesystemException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible', array(':file' => $params['file'])), 'not-exists');
             }
 
-            if(!is_readable($params['file'])) {
-                throw new CoreException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
+            if (!is_readable($params['file'])) {
+                throw new FilesystemException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
             }
 
             Restrict::restrict($params['file'], $params['restrictions']);
@@ -1667,7 +1667,7 @@ class File
             /*
              * What file mode will we use?
              */
-            if(file_is_binary($primary, $secondary)) {
+            if (file_is_binary($primary, $secondary)) {
                 $mode = 'rb';
 
             } else {
@@ -1677,7 +1677,7 @@ class File
             /*
              * Do we need compression?
              */
-            if($params['compression'] === 'auto') {
+            if ($params['compression'] === 'auto') {
                 /*
                  * Detect if the file is already compressed. If so, we don't need
                  * the server to try to compress the data stream too because it
@@ -1686,15 +1686,15 @@ class File
                 $params['compression'] = !file_is_compressed($primary, $secondary);
             }
 
-            if($params['compression']) {
-                if(is_executable('apache_setenv')) {
+            if ($params['compression']) {
+                if (is_executable('apache_setenv')) {
                     apache_setenv('no-gzip', 0);
                 }
 
                 ini_set('zlib.output_compression', 'On');
 
             } else {
-                if(is_executable('apache_setenv')) {
+                if (is_executable('apache_setenv')) {
                     apache_setenv('no-gzip', 1);
                 }
 
@@ -1713,7 +1713,7 @@ class File
             header('Content-Type: '.$mimetype);
             header('Content-length: '.$bytes);
 
-            if($params['attachment']) {
+            if ($params['attachment']) {
                 /*
                  * Instead of sending the file to the browser to display directly,
                  * send it as a file attachement that will be downloaded to their
@@ -1730,11 +1730,11 @@ class File
              * If we created a temporary file for a given data string, then delete
              * the temp file
              */
-            if($params['data']) {
+            if ($params['data']) {
                 file_delete($params['data']);
             }
 
-            if($params['die']) {
+            if ($params['die']) {
                 die();
             }
 
@@ -1743,11 +1743,11 @@ class File
              * If we created a temporary file for a given data string, then delete
              * the temp file
              */
-            if($params['data']) {
+            if ($params['data']) {
                 file_delete($params['data']);
             }
 
-            throw new CoreException(tr('file_http_download(): Failed'), $e);
+            throw new FilesystemException(tr('file_http_download(): Failed'), $e);
         }
     }
 
@@ -1773,9 +1773,9 @@ class File
             /*
              * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
              */
-            if(!$secondary) {
-                if(!str_contains($primary, '/')) {
-                    throw new CoreException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
+            if (!$secondary) {
+                if (!str_contains($primary, '/')) {
+                    throw new FilesystemException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
                 }
 
                 $secondary = Strings::from($primary , '/');
@@ -1824,7 +1824,7 @@ class File
             return true;
 
         }catch(Exception $e) {
-            throw new CoreException('file_is_binary(): Failed', $e);
+            throw new FilesystemException('file_is_binary(): Failed', $e);
         }
     }
 
@@ -1852,9 +1852,9 @@ class File
             /*
              * Check if we received independent primary and secondary mimetype sections, or if we have to cut them ourselves
              */
-            if(!$secondary) {
-                if(!str_contains($primary, '/')) {
-                    throw new CoreException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
+            if (!$secondary) {
+                if (!str_contains($primary, '/')) {
+                    throw new FilesystemException(tr('file_is_compressed(): Invalid primary mimetype data "" specified. Either specify the complete mimetype in $primary, or specify the independant primary and secondary sections in $primary and $secondary', array(':primary' => $primary)), $e);
                 }
 
                 $secondary = Strings::from($primary , '/');
@@ -1864,13 +1864,13 @@ class File
             /*
              * Check the mimetype data
              */
-            if(str_contains($secondary, 'compressed')) {
+            if (str_contains($secondary, 'compressed')) {
                 /*
                  * This file is already compressed
                  */
                 return true;
 
-            } elseif(str_contains($secondary, 'zip')) {
+            } elseif (str_contains($secondary, 'zip')) {
                 /*
                  * This file is already compressed
                  */
@@ -1914,7 +1914,7 @@ class File
             }
 
         }catch(Exception $e) {
-            throw new CoreException('template_function(): Failed', $e);
+            throw new FilesystemException('template_function(): Failed', $e);
         }
     }
 
@@ -1946,7 +1946,7 @@ class File
             /*
              * Do we need compression?
              */
-            if($params['compression']) {
+            if ($params['compression']) {
                 apache_setenv('no-gzip', 0);
                 ini_set('zlib.output_compression', 'On');
 
@@ -1958,50 +1958,50 @@ class File
             /*
              * Validate the file name for the user
              */
-            if(!$params['filename']) {
-                throw new CoreException(tr('file_http_download(): No filename specified. Note: This is not the file to be downloaded to the client, but the name it will have when saved on the clients storage'), 'not-specified');
+            if (!$params['filename']) {
+                throw new FilesystemException(tr('file_http_download(): No filename specified. Note: This is not the file to be downloaded to the client, but the name it will have when saved on the clients storage'), 'not-specified');
             }
 
-            if(!is_scalar($params['filename'])) {
-                throw new CoreException(tr('file_http_download(): Specified filename ":filename" is not scalar', array(':filename' => $params['filename'])), 'invalid');
+            if (!is_scalar($params['filename'])) {
+                throw new FilesystemException(tr('file_http_download(): Specified filename ":filename" is not scalar', array(':filename' => $params['filename'])), 'invalid');
             }
 
-            if(mb_strlen($params['filename']) > 250) {
-                throw new CoreException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters', array(':filename' => $params['filename'])), 'invalid');
+            if (mb_strlen($params['filename']) > 250) {
+                throw new FilesystemException(tr('file_http_download(): Specified filename ":filename" is too long, it cannot be longer than 250 characters', array(':filename' => $params['filename'])), 'invalid');
             }
 
-            if($params['data']) {
+            if ($params['data']) {
                 /*
                  * Send the specified data as a file to the client
                  * Write the data to a temp file first so we can just upload from
                  * there
                  */
-                if($params['file']) {
-                    throw new CoreException(tr('file_http_download(): Both "file" and "data" were specified, these parameters are mutually exclusive. Please specify one or the other'), 'invalid');
+                if ($params['file']) {
+                    throw new FilesystemException(tr('file_http_download(): Both "file" and "data" were specified, these parameters are mutually exclusive. Please specify one or the other'), 'invalid');
                 }
 
                 $params['file'] = file_temp($params['data']);
                 unset($params['data']);
             }
 
-            if(!$params['file']) {
-                throw new CoreException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
+            if (!$params['file']) {
+                throw new FilesystemException(tr('file_http_download(): No file or data specified to download to client'), 'not-specified');
             }
 
             /*
              * Send a file from disk
              * Validate data
              */
-            if(!is_scalar($params['file'])) {
-                throw new CoreException(tr('file_http_download(): Specified file ":file" is not scalar', array(':file' => $params['file'])), 'invalid');
+            if (!is_scalar($params['file'])) {
+                throw new FilesystemException(tr('file_http_download(): Specified file ":file" is not scalar', array(':file' => $params['file'])), 'invalid');
             }
 
-            if(file_exists($params['file'])) {
-                throw new CoreException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible', array(':file' => $params['file'])), 'not-exists');
+            if (file_exists($params['file'])) {
+                throw new FilesystemException(tr('file_http_download(): Specified file ":file" does not exist or is not accessible', array(':file' => $params['file'])), 'not-exists');
             }
 
-            if(is_readable($params['file'])) {
-                throw new CoreException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
+            if (is_readable($params['file'])) {
+                throw new FilesystemException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
             }
 
             Restrict::restrict($params['file'], $params['restrictions']);
@@ -2028,12 +2028,12 @@ class File
             fpassthru($f);
             fclose($f);
 
-            if($params['die']) {
+            if ($params['die']) {
                 die();
             }
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_http_download(): Failed'), $e);
+            throw new FilesystemException(tr('file_http_download(): Failed'), $e);
         }
     }
 
@@ -2044,7 +2044,7 @@ class File
      *
      * @example:
      * function stream_notification_callback($notification_code, $severity, $message, $message_code, $bytes_transferred, $bytes_max) {
-     *     if($notification_code == STREAM_NOTIFY_PROGRESS) {
+     *     if ($notification_code == STREAM_NOTIFY_PROGRESS) {
      *         // save $bytes_transferred and $bytes_max to file or database
      *     }
      * }
@@ -2058,7 +2058,7 @@ class File
             copy($source, $target, $c);
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_copy_progress(): Failed'), $e);
+            throw new FilesystemException(tr('file_copy_progress(): Failed'), $e);
         }
     }
 
@@ -2075,7 +2075,7 @@ class File
             for($i = 0; $i < 3; $i++) {
                 $number = (integer) substr($mode, $i, 1);
 
-                if(($number - 4) >= 0) {
+                if (($number - 4) >= 0) {
                     $retval .= 'r';
                     $number -= 4;
 
@@ -2083,7 +2083,7 @@ class File
                     $retval .= '-';
                 }
 
-                if(($number - 2) >= 0) {
+                if (($number - 2) >= 0) {
                     $retval .= 'w';
                     $number -= 2;
 
@@ -2091,7 +2091,7 @@ class File
                     $retval .= '-';
                 }
 
-                if(($number - 1) >= 0) {
+                if (($number - 1) >= 0) {
                     $retval .= 'x';
 
                 } else {
@@ -2102,7 +2102,7 @@ class File
             return $retval;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_mode_readable(): Failed'), $e);
+            throw new FilesystemException(tr('file_mode_readable(): Failed'), $e);
         }
     }
 
@@ -2114,8 +2114,8 @@ class File
      */
     public static function tree($path, $method) {
         try{
-            if(!file_exists($path)) {
-                throw new CoreException(tr('file_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            if (!file_exists($path)) {
+                throw new FilesystemException(tr('file_tree(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
             switch($method) {
@@ -2125,16 +2125,16 @@ class File
                     break;
 
                 default:
-                    throw new CoreException(tr('file_tree(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
+                    throw new FilesystemException(tr('file_tree(): Unknown method ":method" specified', array(':method' => $method)), 'unknown');
             }
 
             $retval = 0;
             $path   = Strings::slash($path);
 
             foreach(scandir($path) as $file) {
-                if(($file == '.') or ($file == '..')) continue;
+                if (($file == '.') or ($file == '..')) continue;
 
-                if(is_dir($path.$file)) {
+                if (is_dir($path.$file)) {
                     $retval += file_tree($path.$file, $method);
 
                 } else {
@@ -2153,7 +2153,7 @@ class File
             return $retval;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_tree(): Failed'), $e);
+            throw new FilesystemException(tr('file_tree(): Failed'), $e);
         }
     }
 
@@ -2246,7 +2246,7 @@ class File
     public static function ensureWritable(string $file, ?int $file_mode = null, ?int $directory_mode = null, string $type = 'file'): string
     {
         // If the specified file exists and is writable, then we're done.
-        if(is_writable($file)) {
+        if (is_writable($file)) {
 
             return false;
         }
@@ -2254,7 +2254,7 @@ class File
         // From here the file is not writable. It may not exist or it may simply not be writable. Lets continue...
 
         // Get configuration. We need file and directory default modes
-        $file_mode = Config::get('filesystem.mode.default.file', 0660, $file_mode);
+        $file_mode = Config::get('filesystem.mode.default.file', 0640, $file_mode);
         $directory_mode = Config::get('filesystem.mode.default.directory', 0750, $directory_mode);
 
         if (file_exists($file)) {
@@ -2319,43 +2319,43 @@ class File
         $directory = (($perms & 0x4000) == 0x4000);
         $fifopipe  = (($perms & 0x1000) == 0x1000);
 
-        if($socket) {
+        if ($socket) {
             /*
              * This file is a socket
              */
             return 'socket';
 
-        } elseif($symlink) {
+        } elseif ($symlink) {
             /*
              * This file is a symbolic link
              */
             return 'symbolic link';
 
-        } elseif($regular) {
+        } elseif ($regular) {
             /*
              * This file is a regular file
              */
             return 'regular file';
 
-        } elseif($bdevice) {
+        } elseif ($bdevice) {
             /*
              * This file is a block device
              */
             return 'block device';
 
-        } elseif($directory) {
+        } elseif ($directory) {
             /*
              * This file is a directory
              */
             return 'directory';
 
-        } elseif($cdevice) {
+        } elseif ($cdevice) {
             /*
              * This file is a character device
              */
             return 'character device';
 
-        } elseif($fifopipe) {
+        } elseif ($fifopipe) {
             /*
              * This file is a FIFO pipe
              */
@@ -2390,49 +2390,49 @@ class File
             $retval['perms']     = $perms;
             $retval['unknown']   = false;
 
-            if($retval['socket']) {
+            if ($retval['socket']) {
                 /*
                  * This file is a socket
                  */
                 $retval['mode'] = 's';
                 $retval['type'] = 'socket';
 
-            } elseif($retval['symlink']) {
+            } elseif ($retval['symlink']) {
                 /*
                  * This file is a symbolic link
                  */
                 $retval['mode'] = 'l';
                 $retval['type'] = 'symbolic link';
 
-            } elseif($retval['regular']) {
+            } elseif ($retval['regular']) {
                 /*
                  * This file is a regular file
                  */
                 $retval['mode'] = '-';
                 $retval['type'] = 'regular file';
 
-            } elseif($retval['bdevice']) {
+            } elseif ($retval['bdevice']) {
                 /*
                  * This file is a block device
                  */
                 $retval['mode'] = 'b';
                 $retval['type'] = 'block device';
 
-            } elseif($retval['directory']) {
+            } elseif ($retval['directory']) {
                 /*
                  * This file is a directory
                  */
                 $retval['mode'] = 'd';
                 $retval['type'] = 'directory';
 
-            } elseif($retval['cdevice']) {
+            } elseif ($retval['cdevice']) {
                 /*
                  * This file is a character device
                  */
                 $retval['mode'] = 'c';
                 $retval['type'] = 'character device';
 
-            } elseif($retval['fifopipe']) {
+            } elseif ($retval['fifopipe']) {
                 /*
                  * This file is a FIFO pipe
                  */
@@ -2496,7 +2496,7 @@ class File
             return $retval;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_get_permissions(): Failed'), $e);
+            throw new FilesystemException(tr('file_get_permissions(): Failed'), $e);
         }
     }
 
@@ -2520,31 +2520,31 @@ class File
             /*
              * Validate data
              */
-            if(empty($params['callback'])) {
-                throw new CoreException(tr('file_tree_execute(): No callback function specified'), 'not-specified');
+            if (empty($params['callback'])) {
+                throw new FilesystemException(tr('file_tree_execute(): No callback function specified'), 'not-specified');
             }
 
-            if(!is_callable($params['callback'])) {
-                throw new CoreException(tr('file_tree_execute(): Specified callback is not a function'), 'invalid');
+            if (!is_callable($params['callback'])) {
+                throw new FilesystemException(tr('file_tree_execute(): Specified callback is not a function'), 'invalid');
             }
 
-            if(!($params['path'])) {
-                throw new CoreException(tr('file_tree_execute(): No path specified'), 'not-specified');
+            if (!($params['path'])) {
+                throw new FilesystemException(tr('file_tree_execute(): No path specified'), 'not-specified');
             }
 
-            if(substr($params['path'], 0, 1) !== '/') {
-                throw new CoreException(tr('file_tree_execute(): No absolute path specified'), 'invalid');
+            if (substr($params['path'], 0, 1) !== '/') {
+                throw new FilesystemException(tr('file_tree_execute(): No absolute path specified'), 'invalid');
             }
 
-            if(!file_exists($params['path'])) {
-                throw new CoreException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
+            if (!file_exists($params['path'])) {
+                throw new FilesystemException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $params['path'])), 'not-exists');
             }
 
             /*
              * Follow hidden files?
              */
-            if((substr(basename($params['path']), 0, 1) == '.') and !$params['follow_hidden']) {
-                if(VERBOSE and PLATFORM_CLI) {
+            if ((substr(basename($params['path']), 0, 1) == '.') and !$params['follow_hidden']) {
+                if (VERBOSE and PLATFORM_CLI) {
                     log_console(tr('file_tree_execute(): Skipping file ":file" because its hidden', array(':file' => $params['path'])), 'yellow');
                 }
 
@@ -2555,8 +2555,8 @@ class File
              * Filter this path?
              */
             foreach(Arrays::force($params['filters']) as $filter) {
-                if(preg_match($filter, $params['path'])) {
-                    if(VERBOSE and PLATFORM_CLI) {
+                if (preg_match($filter, $params['path'])) {
+                    if (VERBOSE and PLATFORM_CLI) {
                         log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $params['path'], ':filter' => $filter)), 'yellow');
                     }
 
@@ -2576,7 +2576,7 @@ class File
                     break;
 
                 case 'symlink':
-                    if($params['follow_symlinks']) {
+                    if ($params['follow_symlinks']) {
                         $params['path'] = readlink($params['path']);
                         $count += file_tree_execute($params);
                     }
@@ -2589,10 +2589,10 @@ class File
 
                     while(($file = readdir($h)) !== false) {
                         try{
-                            if(($file == '.') or ($file == '..')) continue;
+                            if (($file == '.') or ($file == '..')) continue;
 
-                            if((substr(basename($file), 0, 1) == '.') and !$params['follow_hidden']) {
-                                if(VERBOSE and PLATFORM_CLI) {
+                            if ((substr(basename($file), 0, 1) == '.') and !$params['follow_hidden']) {
+                                if (VERBOSE and PLATFORM_CLI) {
                                     log_console(tr('file_tree_execute(): Skipping file ":file" because its hidden', array(':file' => $file)), 'yellow');
                                 }
 
@@ -2601,15 +2601,15 @@ class File
 
                             $file = $path.$file;
 
-                            if(!file_exists($file)) {
-                                throw new CoreException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $file)), 'not-exists');
+                            if (!file_exists($file)) {
+                                throw new FilesystemException(tr('file_tree_execute(): Specified path ":path" does not exist', array(':path' => $file)), 'not-exists');
                             }
 
                             $type = file_type($file);
 
                             switch($type) {
                                 case 'link':
-                                    if(!$params['follow_symlinks']) {
+                                    if (!$params['follow_symlinks']) {
                                         continue 2;
                                     }
 
@@ -2625,15 +2625,15 @@ class File
                                 case 'directory':
                                     // FALLTHROUGH
                                 case 'regular file':
-                                    if(($type != 'directory') or $params['execute_directory']) {
+                                    if (($type != 'directory') or $params['execute_directory']) {
                                         /*
                                          * Filter this path?
                                          */
                                         $skip = false;
 
                                         foreach(Arrays::force($params['filters']) as $filter) {
-                                            if(preg_match($filter, $file)) {
-                                                if(VERBOSE and PLATFORM_CLI) {
+                                            if (preg_match($filter, $file)) {
+                                                if (VERBOSE and PLATFORM_CLI) {
                                                     log_console(tr('file_tree_execute(): Skipping file ":file" because of filter ":filter"', array(':file' => $params['path'], ':filter' => $filter)), 'yellow');
                                                 }
 
@@ -2641,11 +2641,11 @@ class File
                                             }
                                         }
 
-                                        if(!$skip) {
+                                        if (!$skip) {
                                             $result = $params['callback']($file, $type, $params['params']);
                                             $count++;
 
-                                            if($result === false) {
+                                            if ($result === false) {
                                                 /*
                                                  * When the callback returned boolean false, cancel all other files
                                                  */
@@ -2657,7 +2657,7 @@ class File
                                         }
                                     }
 
-                                    if(($type == 'directory') and $params['recursive']) {
+                                    if (($type == 'directory') and $params['recursive']) {
                                         $params['path'] = $file;
                                         $count         += file_tree_execute($params);
                                     }
@@ -2668,17 +2668,17 @@ class File
                                     /*
                                      * Skip this unsupported file type
                                      */
-                                    if(VERBOSE and PLATFORM_CLI) {
+                                    if (VERBOSE and PLATFORM_CLI) {
                                         log_console(tr('file_tree_execute(): Skipping file ":file" with unsupported file type ":type"', array(':file' => $file, ':type' => $type)), 'yellow');
                                     }
                             }
 
                         }catch(Exception $e) {
-                            if(!$params['ignore_exceptions']) {
+                            if (!$params['ignore_exceptions']) {
                                 throw $e;
                             }
 
-                            if($e->getCode() === 'not-exists') {
+                            if ($e->getCode() === 'not-exists') {
                                 log_console(tr('file_tree_execute(): Skipping file ":file", it does not exist (in case of a symlink, it may be that the target does not exist)', array(':file' => $file)), 'VERBOSE/yellow');
 
                             } else {
@@ -2696,7 +2696,7 @@ class File
                     /*
                      * Skip this unsupported file type
                      */
-                    if(VERBOSE and PLATFORM_CLI) {
+                    if (VERBOSE and PLATFORM_CLI) {
                         log_console(tr('file_tree_execute(): Skipping file ":file" with unsupported file type ":type"', array(':file' => $file, ':type' => $params['path'])), 'yellow');
                     }
             }
@@ -2704,7 +2704,7 @@ class File
             return $count;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_tree_execute(): Failed'), $e);
+            throw new FilesystemException(tr('file_tree_execute(): Failed'), $e);
         }
     }
 
@@ -2716,18 +2716,18 @@ class File
      */
     public static function absolute($path, $root = null) {
         try{
-            if(empty($root)) {
+            if (empty($root)) {
                 $root = Strings::slash(getcwd());
             }
 
-            if(substr($path, 0, 1) !== '/') {
+            if (substr($path, 0, 1) !== '/') {
                 $path = $root.$path;
             }
 
             return $path;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_absolute(): Failed'), $e);
+            throw new FilesystemException(tr('file_absolute(): Failed'), $e);
         }
     }
 
@@ -2739,14 +2739,14 @@ class File
      */
     public static function root($path) {
         try{
-            if(substr($path, 0, 1) !== '/') {
+            if (substr($path, 0, 1) !== '/') {
                 $path = ROOT.$path;
             }
 
             return $path;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_root(): Failed'), $e);
+            throw new FilesystemException(tr('file_root(): Failed'), $e);
         }
     }
 
@@ -2776,7 +2776,7 @@ class File
             /*
              * Apply to all directories below?
              */
-            if($path[0] === '*') {
+            if ($path[0] === '*') {
                 $path  = substr($path, 1);
                 $multi = true;
 
@@ -2784,19 +2784,19 @@ class File
                 $multi = false;
             }
 
-            if(!file_exists($path)) {
-                throw new CoreException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            if (!file_exists($path)) {
+                throw new FilesystemException(tr('file_execute_mode(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
-            if(!is_string($callback) and !is_callable($callback)) {
-                throw new CoreException(tr('file_execute_mode(): Specified callback ":callback" is invalid, it should be a string or a callable function', array(':callback' => $callback)), 'invalid');
+            if (!is_string($callback) and !is_callable($callback)) {
+                throw new FilesystemException(tr('file_execute_mode(): Specified callback ":callback" is invalid, it should be a string or a callable function', array(':callback' => $callback)), 'invalid');
             }
 
             /*
              * Set the requested mode
              */
             try{
-                if(is_dir($path) and $multi) {
+                if (is_dir($path) and $multi) {
                     $paths = cli_find(array('type'  => 'd',
                         'start' => $path));
 
@@ -2806,21 +2806,21 @@ class File
                     }
 
                 } else {
-                    if($mode) {
+                    if ($mode) {
                         $original_mode = fileperms($path);
                         chmod($path, $mode);
                     }
                 }
 
             }catch(Exception $e) {
-                if(empty($subpath)) {
-                    if(!is_writable($path)) {
-                        throw new CoreException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
+                if (empty($subpath)) {
+                    if (!is_writable($path)) {
+                        throw new FilesystemException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", access denied', array(':mode' => decoct($mode), ':path' => $path)), $e);
                     }
 
                 } else {
-                    if(!is_writable($subpath)) {
-                        throw new CoreException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified subpath ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
+                    if (!is_writable($subpath)) {
+                        throw new FilesystemException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified subpath ":path", access denied', array(':mode' => decoct($mode), ':path' => $subpath)), $e);
                     }
                 }
 
@@ -2828,8 +2828,8 @@ class File
                 $message = array_shift($message);
                 $message = strtolower($message);
 
-                if(str_contains($message, 'operation not permitted')) {
-                    throw new CoreException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", operation not permitted', array(':mode' => decoct($mode), ':path' => $path)), $e);
+                if (str_contains($message, 'operation not permitted')) {
+                    throw new FilesystemException(tr('file_execute_mode(): Failed to set mode "0:mode" to specified path ":path", operation not permitted', array(':mode' => decoct($mode), ':path' => $path)), $e);
                 }
 
                 throw $e;
@@ -2840,15 +2840,15 @@ class File
             /*
              * Return the original mode
              */
-            if($mode) {
-                if($multi) {
+            if ($mode) {
+                if ($multi) {
                     foreach($modes as $subpath => $mode) {
                         /*
                          * Path may have been deleted by the callback (for example,
                          * a file_delete() call may have cleaned up the path) so
                          * ensure the path still exists
                          */
-                        if(file_exists($subpath)) {
+                        if (file_exists($subpath)) {
                             chmod($subpath, $mode);
                         }
                     }
@@ -2859,7 +2859,7 @@ class File
                      * a file_delete() call may have cleaned up the path) so
                      * ensure the path still exists
                      */
-                    if(file_exists($path)) {
+                    if (file_exists($path)) {
                         chmod($path, $original_mode);
                     }
                 }
@@ -2868,7 +2868,7 @@ class File
             return $retval;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_execute_mode(): Failed for path(s) ":path"', array(':path' => $path)), $e);
+            throw new FilesystemException(tr('file_execute_mode(): Failed for path(s) ":path"', array(':path' => $path)), $e);
         }
     }
 
@@ -2878,15 +2878,15 @@ class File
      *
      */
     public static function linkExists($file) {
-        if(file_exists($file)) {
+        if (file_exists($file)) {
             return true;
         }
 
-        if(is_link($file)) {
-            throw new CoreException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exists');
+        if (is_link($file)) {
+            throw new FilesystemException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exists');
         }
 
-        throw new CoreException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exists');
+        throw new FilesystemException(tr('file_link_exists(): Symlink ":source" has non existing target ":target"', array(':source' => $file, ':target' => readlink($file))), 'not-exists');
     }
 
 
@@ -2897,16 +2897,16 @@ class File
      */
     public static function searchReplace($source, $target, $replaces) {
         try{
-            if(!file_exists($source)) {
-                throw new CoreException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
+            if (!file_exists($source)) {
+                throw new FilesystemException(tr('file_search_replace(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
             }
 
-            if(!file_exists(dirname($target))) {
-                throw new CoreException(tr('file_search_replace(): Specified target path ":targetg" does not exist', array(':target' => $target)), 'not-exists');
+            if (!file_exists(dirname($target))) {
+                throw new FilesystemException(tr('file_search_replace(): Specified target path ":targetg" does not exist', array(':target' => $target)), 'not-exists');
             }
 
-            if(!is_array($replaces)) {
-                throw new CoreException(tr('file_search_replace(): Specified $replaces ":replaces" should be a search => replace array', array(':replaces' => $replaces)), 'invalid');
+            if (!is_array($replaces)) {
+                throw new FilesystemException(tr('file_search_replace(): Specified $replaces ":replaces" should be a search => replace array', array(':replaces' => $replaces)), 'invalid');
             }
 
             $fs       = fopen($source, 'r');
@@ -2935,7 +2935,7 @@ class File
             fclose($ft);
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_search_replace(): Failed'), $e);
+            throw new FilesystemException(tr('file_search_replace(): Failed'), $e);
         }
     }
 
@@ -2946,12 +2946,12 @@ class File
      */
     public static function lineCount($source) {
         try{
-            if(!file_exists($source)) {
-                throw new CoreException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
+            if (!file_exists($source)) {
+                throw new FilesystemException(tr('file_line_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
             }
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_line_count(): Failed'), $e);
+            throw new FilesystemException(tr('file_line_count(): Failed'), $e);
         }
     }
 
@@ -2962,12 +2962,12 @@ class File
      */
     public static function wordCount($source) {
         try{
-            if(!file_exists($source)) {
-                throw new CoreException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
+            if (!file_exists($source)) {
+                throw new FilesystemException(tr('file_word_count(): Specified source file ":source" does not exist', array(':source' => $source)), 'not-exists');
             }
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_word_count(): Failed'), $e);
+            throw new FilesystemException(tr('file_word_count(): Failed'), $e);
         }
     }
 
@@ -2980,14 +2980,14 @@ class File
      */
     public static function scan($path, $file) {
         try{
-            if(!file_exists($path)) {
-                throw new CoreException(tr('file_scan(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
+            if (!file_exists($path)) {
+                throw new FilesystemException(tr('file_scan(): Specified path ":path" does not exist', array(':path' => $path)), 'not-exists');
             }
 
             while(strlen($path) > 1) {
                 $path = Strings::slash($path);
 
-                if(file_exists($path.$file)) {
+                if (file_exists($path.$file)) {
                     /*
                      * The requested file is found! Return the path where it was found
                      */
@@ -3000,7 +3000,7 @@ class File
             return false;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_word_count(): Failed'), $e);
+            throw new FilesystemException(tr('file_word_count(): Failed'), $e);
         }
     }
 
@@ -3011,7 +3011,7 @@ class File
      */
     public static function moveToBackup($path) {
         try{
-            if(!file_exists($path)) {
+            if (!file_exists($path)) {
                 /*
                  * Specified path doesn't exist, just ignore
                  */
@@ -3023,7 +3023,7 @@ class File
             /*
              * Main sitemap file already exist, move to backup
              */
-            if(file_exists($backup_path)) {
+            if (file_exists($backup_path)) {
                 /*
                  * Backup already exists as well, script run twice
                  * in under a second. Delete the current one
@@ -3038,7 +3038,7 @@ class File
             return true;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_move_to_backup(): Failed'), $e);
+            throw new FilesystemException(tr('file_move_to_backup(): Failed'), $e);
         }
     }
 
@@ -3049,30 +3049,30 @@ class File
      */
     public static function chown($file, $user = null, $group = null) {
         try{
-            if(!$user) {
+            if (!$user) {
                 $user = posix_getpwuid(posix_getuid());
                 $user = $user['name'];
             }
 
-            if(!$group) {
+            if (!$group) {
                 $group = posix_getpwuid(posix_getuid());
                 $group = $group['name'];
             }
 
             $file = realpath($file);
 
-            if(!$file) {
-                throw new CoreException(tr('file_chown(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
+            if (!$file) {
+                throw new FilesystemException(tr('file_chown(): Specified file ":file" does not exist', array(':file' => $file)), 'not-exists');
             }
 
-            if(!strstr($file, ROOT)) {
-                throw new CoreException(tr('file_chown(): Specified file ":file" is not in the projects ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
+            if (!strstr($file, ROOT)) {
+                throw new FilesystemException(tr('file_chown(): Specified file ":file" is not in the projects ROOT path ":path"', array(':path' => $path, ':file' => $file)), 'invalid');
             }
 
             safe_exec(array('commands' => array('chown', array('sudo' => true, $user.':'.$group, $file))));
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_chown(): Failed'), $e);
+            throw new FilesystemException(tr('file_chown(): Failed'), $e);
         }
     }
 
@@ -3093,13 +3093,13 @@ class File
      */
     public static function pathContainsSymlink($path, $prefix = null) {
         try{
-            if(!$path) {
-                throw new CoreException(tr('file_path_contains_symlink(): No path specified'), 'not-specified');
+            if (!$path) {
+                throw new FilesystemException(tr('file_path_contains_symlink(): No path specified'), 'not-specified');
             }
 
-            if(substr($path, 0, 1) === '/') {
-                if($prefix) {
-                    throw new CoreException(tr('file_path_contains_symlink(): The specified path ":path" is absolute, which requires $prefix to be null, but it is ":prefix"', array(':path' => $path, ':prefix' => $prefix)), 'invalid');
+            if (substr($path, 0, 1) === '/') {
+                if ($prefix) {
+                    throw new FilesystemException(tr('file_path_contains_symlink(): The specified path ":path" is absolute, which requires $prefix to be null, but it is ":prefix"', array(':path' => $path, ':prefix' => $prefix)), 'invalid');
                 }
 
                 $location = '/';
@@ -3108,8 +3108,8 @@ class File
                 /*
                  * Specified $path is relative, so prefix it with $prefix
                  */
-                if(substr($prefix, 0, 1) !== '/') {
-                    throw new CoreException(tr('file_path_contains_symlink(): The specified path ":path" is relative, which requires an absolute $prefix but it is ":prefix"', array(':path' => $path, ':prefix' => $prefix)), 'invalid');
+                if (substr($prefix, 0, 1) !== '/') {
+                    throw new FilesystemException(tr('file_path_contains_symlink(): The specified path ":path" is relative, which requires an absolute $prefix but it is ":prefix"', array(':path' => $path, ':prefix' => $prefix)), 'invalid');
                 }
 
                 $location = Strings::endsWith($prefix, '/');
@@ -3120,11 +3120,11 @@ class File
             foreach(explode('/', $path) as $section) {
                 $location .= $section;
 
-                if(!file_exists($location)) {
-                    throw new CoreException(tr('file_path_contains_symlink(): The specified path ":path" with prefix ":prefix" leads to ":location" which does not exist', array(':path' => $path, ':prefix' => $prefix, ':location' => $location)), 'not-exists');
+                if (!file_exists($location)) {
+                    throw new FilesystemException(tr('file_path_contains_symlink(): The specified path ":path" with prefix ":prefix" leads to ":location" which does not exist', array(':path' => $path, ':prefix' => $prefix, ':location' => $location)), 'not-exists');
                 }
 
-                if(is_link($location)) {
+                if (is_link($location)) {
                     return true;
                 }
 
@@ -3134,7 +3134,7 @@ class File
             return false;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_path_contains_symlink(): Failed'), $e);
+            throw new FilesystemException(tr('file_path_contains_symlink(): Failed'), $e);
         }
     }
 
@@ -3159,16 +3159,16 @@ class File
      */
     public static function createStreamContext($context) {
         try{
-            if(!$context) return null;
+            if (!$context) return null;
 
-            if(!is_array($context)) {
-                throw new CoreException(tr('file_create_stream_context(): Specified context is invalid, should be an array but is an ":type"', array(':type' => gettype($context))), 'invalid');
+            if (!is_array($context)) {
+                throw new FilesystemException(tr('file_create_stream_context(): Specified context is invalid, should be an array but is an ":type"', array(':type' => gettype($context))), 'invalid');
             }
 
             return stream_context_create($context);
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_create_stream_context(): Failed'), $e);
+            throw new FilesystemException(tr('file_create_stream_context(): Failed'), $e);
         }
     }
 
@@ -3196,15 +3196,15 @@ class File
         try{
             Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
-            if(empty($params['source'])) {
-                throw new CoreException(tr('file_sed(): No source file specified'), 'not-specified');
+            if (empty($params['source'])) {
+                throw new FilesystemException(tr('file_sed(): No source file specified'), 'not-specified');
             }
 
-            if(empty($params['regex'])) {
-                throw new CoreException(tr('file_sed(): No regex specified'), 'not-specified');
+            if (empty($params['regex'])) {
+                throw new FilesystemException(tr('file_sed(): No regex specified'), 'not-specified');
             }
 
-            if(empty($params['target'])) {
+            if (empty($params['target'])) {
                 $arguments[] = 'i';
                 $arguments[] = $params['regex'];
                 $arguments[] = $params['source'];
@@ -3215,7 +3215,7 @@ class File
                 $arguments['redirect'] = '> '.$params['target'];
             }
 
-            if(!empty($params['sudo'])) {
+            if (!empty($params['sudo'])) {
                 $arguments['sudo'] = $params['sudo'];
             }
 
@@ -3226,7 +3226,7 @@ class File
                 'commands'     => array('sed' => $arguments)));
 
         }catch(Exception $e) {
-            throw new CoreException('file_sed(): Failed', $e);
+            throw new FilesystemException('file_sed(): Failed', $e);
         }
     }
 
@@ -3254,15 +3254,15 @@ class File
         try{
             Arrays::ensure($params, 'ok_exitcodes,function,sudo,background,domain');
 
-            if(empty($params['source'])) {
-                throw new CoreException(tr('file_cat(): No source file specified'), 'not-specified');
+            if (empty($params['source'])) {
+                throw new FilesystemException(tr('file_cat(): No source file specified'), 'not-specified');
             }
 
-            if(empty($params['target'])) {
-                throw new CoreException(tr('file_cat(): No target file specified'), 'not-specified');
+            if (empty($params['target'])) {
+                throw new FilesystemException(tr('file_cat(): No target file specified'), 'not-specified');
             }
 
-            if(!empty($params['sudo'])) {
+            if (!empty($params['sudo'])) {
                 $arguments['sudo'] = $params['sudo'];
             }
 
@@ -3273,7 +3273,7 @@ class File
                 'commands'     => array('cat' => $arguments)));
 
         }catch(Exception $e) {
-            throw new CoreException('file_cat(): Failed', $e);
+            throw new FilesystemException('file_cat(): Failed', $e);
         }
     }
 
@@ -3322,20 +3322,20 @@ class File
              * Determine what restrictions apply. The restrictions is a white list
              * containing the paths where the calling function is allowed to work
              */
-            if(!$restrictions) {
+            if (!$restrictions) {
                 /*
                  * If the file was specified as an array, then the restrictions may
                  * have been included in there for convenience.
                  */
-                if(is_array($params) and isset($params['restrictions'])) {
+                if (is_array($params) and isset($params['restrictions'])) {
                     $restrictions = $params['restrictions'];
                 }
 
-                if(!$restrictions) {
+                if (!$restrictions) {
                     /*
                      * Disable all restrictions?
                      */
-                    if($restrictions === false) {
+                    if ($restrictions === false) {
                         /*
                          * No restrictions required
                          */
@@ -3359,7 +3359,7 @@ class File
             /*
              * If this is a string containing a single path, then test it
              */
-            if(is_string($params)) {
+            if (is_string($params)) {
                 /*
                  * The file or path to be checked must start with the $restriction
                  * Unslash the $restriction to avoid checking a path like "/test/"
@@ -3367,13 +3367,13 @@ class File
                  * missing slash at the end
                  */
                 foreach($restrictions as &$restriction) {
-                    if($restriction === false) {
+                    if ($restriction === false) {
                         return false;
                     }
 
                     $restriction = Strings::unslash($restriction);
 
-                    if(substr($params, 0, strlen($restriction)) === $restriction) {
+                    if (substr($params, 0, strlen($restriction)) === $restriction) {
                         /*
                          * Passed!
                          */
@@ -3382,7 +3382,7 @@ class File
                 }
 
                 unset($restriction);
-                throw new CoreException(tr('Restrict::restrict(): The specified file or path ":path" is outside of the authorized paths ":authorized"', array(':path' => $params, ':authorized' => $restrictions)), 'access-denied', $restrictions);
+                throw new FilesystemException(tr('Restrict::restrict(): The specified file or path ":path" is outside of the authorized paths ":authorized"', array(':path' => $params, ':authorized' => $restrictions)), 'access-denied', $restrictions);
             }
 
             /*
@@ -3391,7 +3391,7 @@ class File
             $keys = array('source', 'target', 'source_path', 'source_path', 'path');
 
             foreach($keys as $key) {
-                if(isset($params[$key])) {
+                if (isset($params[$key])) {
                     /*
                      * All these must be tested
                      */
@@ -3399,13 +3399,13 @@ class File
                         Restrict::restrict($params[$key], $restrictions);
 
                     }catch(Exception $e) {
-                        throw new CoreException(tr('Restrict::restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
+                        throw new FilesystemException(tr('Restrict::restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
                     }
                 }
             }
 
         }catch(Exception $e) {
-            throw new CoreException('Restrict::restrict(): Failed', $e);
+            throw new FilesystemException('Restrict::restrict(): Failed', $e);
         }
     }
 
@@ -3437,7 +3437,7 @@ class File
             return get_null($result);
 
         }catch(Exception $e) {
-            throw new CoreException('file_which(): Failed', $e);
+            throw new FilesystemException('file_which(): Failed', $e);
         }
     }
 
@@ -3470,7 +3470,7 @@ class File
             return $file;
 
         }catch(Exception $e) {
-            throw new CoreException('file_replace(): Failed', $e);
+            throw new FilesystemException('file_replace(): Failed', $e);
         }
     }
 
@@ -3484,7 +3484,7 @@ class File
             return file_chmod($path, $filemode, $dirmode = 0770);
 
         }catch(Exception $e) {
-            throw new CoreException('file_chmod_tree(): Failed', $e);
+            throw new FilesystemException('file_chmod_tree(): Failed', $e);
         }
     }
 
@@ -3521,12 +3521,12 @@ class File
             file_tree_execute(array('execute_directory' => true,
                 'path'              => dirname($file),
                 'callback'          => function($path) use ($file, &$target) {
-                    if(str_contains($path, $file)) {
-                        if($target) {
+                    if (str_contains($path, $file)) {
+                        if ($target) {
                             /*
                              * We already found another file matching the specified path part
                              */
-                            throw new CoreException(tr('file_from_path(): Found multiple files for specified file part ":file"', array(':file' => $file)), 'multiple');
+                            throw new FilesystemException(tr('file_from_path(): Found multiple files for specified file part ":file"', array(':file' => $file)), 'multiple');
                         }
 
                         $target = $path;
@@ -3536,7 +3536,7 @@ class File
             return $target;
 
         }catch(Exception $e) {
-            throw new CoreException(tr('file_from_part(): Failed'), $e);
+            throw new FilesystemException(tr('file_from_part(): Failed'), $e);
         }
     }
 
