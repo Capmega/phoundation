@@ -2,8 +2,6 @@
 
 namespace Phoundation\Filesystem\Exception;
 
-use Phoundation\Exception\Exception;
-
 
 
 /**
@@ -16,6 +14,6 @@ use Phoundation\Exception\Exception;
  * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Filesystem
  */
-class FilesystemException extends Exception
+class FileNotWritableException extends FilesystemException
 {
 }

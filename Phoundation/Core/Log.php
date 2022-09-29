@@ -41,6 +41,13 @@ Class Log {
     protected static int $threshold = 10;
 
     /**
+     * The current file where the log class will write to.
+     *
+     * @var ?string $file
+     */
+    protected static ?string $file = null;
+
+    /**
      * Keeps track of if the static object has been initialized or not
      *
      * @var bool $init
@@ -171,7 +178,15 @@ Class Log {
      */
     public static function setFile(string $file = null): string
     {
+        if ($file === null) {
+            // Default log file is always the syslog
+            $file = ROOT . 'data/log/syslog';
+        }
 
+        // Return the old value and set the class file to the specified file
+        $return = $file;
+        self::$file = $file;
+        return $return;
     }
 
 

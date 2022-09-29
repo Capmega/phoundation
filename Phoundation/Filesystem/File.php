@@ -2,8 +2,12 @@
 
 namespace Phoundation\Filesystem;
 
+use Phoundation\Core\Config;
 use Phoundation\Core\CoreException;
 use Phoundation\Core\Json\Strings;
+use Phoundation\Core\Log;
+use Phoundation\Filesystem\Exception\FileNotWritableException;
+use Phoundation\Processes\Exception\ProcessesException;
 
 /**
  * File class
@@ -2169,29 +2173,51 @@ class File
     }
 
 
-
-    /*
+    /**
+     * Ensure that the specified file is writable
      *
+     * This method will ensure that the specified file will exist and is writable. If it does not exist, an empty file
+     * will be created in the parent directory of the specified $file
+     *
+     * @param string $file
+     * @param int|null $file_mode
+     * @param int|null $directory_mode
+     * @param string $type
+     * @return string
      */
-    public static function ensureWritable($path){
+    public static function ensureWritable(string $file, ?int $file_mode = null, ?int $directory_mode = null, string $type = 'file'): string
+    {
         try{
-            if(is_writable($path)){
+            // If the specified file exists and is writable, then we're done.
+            if(is_writable($file)){
+
                 return false;
             }
 
-            $perms = fileperms($path);
+            // From here the file is not writable. It may not exist or it may simply not be writable. Lets continue...
 
-            if(is_dir($path)){
-                chmod($path, 0770);
+            // Get configuration. We need file and directory default modes
+            $file_mode = Config::get('filesystem.mode.default.file', 0660, $file_mode);
+            $directory_mode = Config::get('filesystem.mode.default.directory', 0750, $directory_mode);
 
-            }else{
-                if(is_executable($path)){
-                    chmod($path, 0770);
-
-                }else{
-                    chmod($path, 0660);
+            if (file_exists($file)) {
+                // Great! The file exists but it is not writable at this moment. Try to make it writable.
+                try {
+                    Log::warning(tr('The specified file ":file" (Realpath ":path") is not writable. Attempting to apply default file mode "' . $file_mode . '"', [':file' => $file, ':path' => realpath($file)]);
+                    self::chmod($file, 'u+w');
+                    return $file;
+                } catch (ProcessesException $e) {
+                    throw new FileNotWritableException(
+                        'The specified file ":file" (Realpath ":path") is not writable, and could not be made writable',
+                        [':file' => $file, ':path' => realpath($file)]
+                    );
                 }
             }
+
+            // As of here we know the file doesn't exist. Attempt to create it. First ensure the parent path exists.
+            Path::ensure(dirname($file));
+
+            //
 
             return $perms;
 

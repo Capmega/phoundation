@@ -3,7 +3,8 @@
 namespace Phoundation\Core;
 
 use Phoundation\Core\Exception\ConfigException;
-use Phoundation\Exception\OutOfBoundsException;
+
+
 
 /**
  * Class Config
@@ -23,8 +24,8 @@ class Config{
      *
      * @var array $data
      */
-    protected static array $data = [];
- v
+    protected static array $data = array();
+
     /**
      * Configuration files that have been read
      *
@@ -67,13 +68,14 @@ class Config{
      * Only set the specified configuration data for the specified key, if the specified key does not yet exist in
      * memory
      *
-     * @param string $keys
+     * @param string|array $keys    The key path to search for. This should be specified either as an array with key
+     *                              names or a . separated string
      * @param mixed $value
      * @return bool True if the default value was applied, false if not
      */
-    public function default(string $keys, mixed $value): bool
+    public function default(string|array $keys, mixed $value): bool
     {
-        if (self::exists($keys)) {
+        if (self::getSection($keys) === null) {
             return false;
         }
 
@@ -82,16 +84,23 @@ class Config{
     }
 
 
-
     /**
      * Return configuration data for the specified key path
      *
-     * @param string $keys
-     * @param mixed|null $default
+     * @param string|array $keys    The key path to search for. This should be specified either as an array with key
+     *                              names or a . separated string
+     * @param mixed|null $default   The default value to return if no value was found in the configuration files
+     * @param mixed|null $specified A value that might have been specified by a calling function. IF this value is not
+     *                              NULL, it will automatically be returned as we will assume that that is the user
+     *                             (developer) specified value we should be using, overriding configuration and defaults
      * @return mixed
      */
-    public static function get(string $keys, mixed $default = null): mixed
+    public static function get(string|array $keys, mixed $default = null, mixed $specified = null): mixed
     {
+        if ($specified) {
+            return $specified;
+        }
+
         return self::getSection($keys, $default);
     }
 
@@ -100,11 +109,12 @@ class Config{
     /**
      * Return configuration data for the specified key path
      *
-     * @param string $keys
+     * @param string|array $keys    The key path to search for. This should be specified either as an array with key
+     *                              names or a . separated string
      * @param mixed $value
      * @return mixed
      */
-    public static function set(string $keys, mixed $value = null): mixed
+    public static function set(string|array $keys, mixed $value = null): mixed
     {
         // Get the section and store the data in the return value
         $section = self::getSection($keys, $value);
@@ -120,8 +130,9 @@ class Config{
     /**
      * Return a byreference configuration data section for the specified key path
      *
-     * @param string|array $keys
-     * @param mixed $default
+     * @param string|array $keys    The key path to search for. This should be specified either as an array with key
+     *                              names or a . separated string
+     * @param mixed|null $default   The default value to return if no value was found in the configuration files
      * @return mixed
      */
     protected static function &getSection(string|array $keys, mixed $default = null): mixed

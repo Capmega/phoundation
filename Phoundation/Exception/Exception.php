@@ -4,6 +4,9 @@ namespace Phoundation\Exception;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Exception\CoreException;
+use Phoundation\Core\Log;
+use Phoundation\Core\Strings;
+use Phoundation\Developer\Debug;
 use RuntimeException;
 use Throwable;
 
@@ -15,6 +18,7 @@ use Throwable;
  *
  * @author Sven Olaf Oostenbrink
  * @copyright Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
+ * @copyright Copyright (c) 2022 <copyright@capmega.com>
  * @package Phoundation\Exception
  */
 class Exception extends RuntimeException
@@ -50,15 +54,31 @@ class Exception extends RuntimeException
 
 
     /**
-     * CoreException constructor.
+     * CoreException __constructor
      *
-     * @param mixed $messages
-     * @param Throwable|null $previous
+     * @param array|string $messages The exception messages
+     * @param array $data [array] Data related to the exception. Should be a named array with elements that may be
+     *      anything, string, array, object, resource, etc. The handler for this exception is assumed to know how to
+     *      handle this data if it wants to do so
+     * @param string|null $code The exception code (optional)
+     * @param Throwable|null $previous A previous exception, if available.
      */
-    public function __construct(mixed $messages, Throwable $previous = null)
+    public function __construct(string|array $messages, mixed $data = null, ?string $code = null, ?Throwable $previous = null)
     {
-        parent::__construct(Arrays::force($messages)[0], 0, $previous);
+        $messages = Arrays::force($messages);
+        $message = reset($messages);
+        $message = Strings::force($message);
+
+        $this->setCode($code);
+        $this->setData($data);
         $this->addMessages($messages);
+
+        parent::__construct($message, 0, $previous);
+
+        if (Debug::enabled()) {
+            // Always log all Phoundation Exceptions in debug mode
+            Log::error($this);
+        }
     }
 
 
