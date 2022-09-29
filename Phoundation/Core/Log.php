@@ -41,10 +41,42 @@ Class Log {
     protected static int $threshold = 10;
 
     /**
+     * Keeps track of if the static object has been initialized or not
+     *
+     * @var bool $init
+     */
+    protected static bool $init = false;
+
+    /**
+     * A unique local code for this log entry
+     *
+     * @var string|null
+     */
+    protected ?string $local_id = null;
+
+    /**
+     * A unique global code for this log entry that is the same code over multiple machines to be able to follow
+     * multi-machine requests more easily
+     *
+     * @var string|null
+     */
+    protected ?string $global_id = null;
+
+    /**
      * Log constructor
      */
     protected function __construct()
     {
+        // Ensure that the log class hasn't been initialized yet
+        if (self::$init) {
+            return;
+        }
+
+        self::$init = true;
+
+        // Set default configuration
+        self::setLevel(Config::get('log.level', 10));
+        self::setFile(Config::get('log.file', ROOT . 'data/log/syslog'));
 
     }
 
@@ -76,7 +108,19 @@ Class Log {
 
 
     /**
-     * Returns the log level on which log messages will pass
+     * Returns if the static Log object has been initialized or not. This SHOULD always return true.
+     *
+     * @return bool
+     */
+    public static function getInit(): bool
+    {
+        return self::$init;
+    }
+
+
+
+    /**
+     * Returns the log threshold on which log messages will pass to log files
      *
      * @return int
      */
@@ -103,6 +147,31 @@ Class Log {
         $return = $threshold;
         self::$threshold = $threshold;
         return $return;
+    }
+
+
+    /**
+     * Returns the file to which log messages will be written
+     *
+     * @return string
+     */
+    public static function getFile(): string
+    {
+        return self::$file;
+    }
+
+
+
+    /**
+     * Sets the log threshold level to the newly specified level and will return the previous level.
+     *
+     * @param int $threshold
+     * @return int
+     * @throws LogException if the specified threshold is invalid.
+     */
+    public static function setFile(string $file = null): string
+    {
+
     }
 
 
