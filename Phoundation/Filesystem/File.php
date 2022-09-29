@@ -4,11 +4,14 @@ namespace Phoundation\Filesystem;
 
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
-use Phoundation\Core\CoreException;
+use Phoundation\Core\Exception\CoreException;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
+use Phoundation\Filesystem\Exception\FilesystemException;
 use Phoundation\Processes\Exception\ProcessesException;
+use Throwable;
+
 
 /**
  * File class
@@ -26,26 +29,18 @@ class File
     /**
      * Append specified data string to the end of the specified file
      *
-     * @param string $target
+     * @param string $file
      * @param string $data
+     * @return void
+     * @throws FilesystemException
      */
-    public static function append(string $target, string $data): void
+    public static function append(string $file, string $data): void
     {
-        global $_CONFIG;
+        Path::ensure(dirname($file));
 
-        try {
-            // Open target
-            if(!file_exists(dirname($target))) {
-                throw new CoreException(tr('file_append(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exists');
-            }
-
-            $target_h = fopen($target, 'a');
-            fwrite($target_h, $data);
-            fclose($target_h);
-
-        }catch(Exception $e) {
-            throw new CoreException(tr('file_append(): Failed'), $e);
-        }
+        $h = fopen($file, 'a');
+        fwrite($h, $data);
+        fclose($h);
     }
 
 
@@ -54,44 +49,44 @@ class File
      * Concatenates a list of files to a target file
      *
      * @param string $target
-     * @param array $sources
-     * @throws BException
+     * @param string|array $sources
      */
-    public static function concat(string $target, array $sources): void
+    public static function concat(string $target, string|array $sources): void
     {
-        global $_CONFIG;
+        if(!is_array($sources)) {
+            $sources = array($sources);
+        }
+
+        // Ensure the target path exists
+        Path::ensure(dirname($target));
 
         try {
-            if(!is_array($sources)) {
-                $sources = array($sources);
-            }
-
-            /*
-             * Open target
-             */
-            if(!file_exists(dirname($target))) {
-                throw new CoreException(tr('file_concat(): Specified target path ":target" does not exist', array(':target' => dirname($target))), 'not-exists');
-            }
-
             $target_h = fopen($target, 'a');
+        } catch (Throwable $e) {
+            // Failed to open the target file
+            self::checkReadable($source, 'target', $e);
+        }
 
-            foreach($sources as $source) {
+        foreach($sources as $source) {
+            try {
                 $source_h = fopen($source, 'r');
-
-                while(!feof($source_h)) {
-                    $data = fread($source_h, 8192);
-                    fwrite($target_h, $data);
-                }
-
-                fclose($source_h);
+            } catch (Throwable $e) {
+                // Failed to open one of the sources, get rid of the partial target file
+                self::delete($target);
+                self::checkReadable($source, 'source', $e);
             }
 
-            fclose($target_h);
+            while(!feof($source_h)) {
+                $data = fread($source_h, 8192);
+                fwrite($target_h, $data);
+            }
 
-        }catch(Exception $e) {
-            throw new CoreException(tr('file_concat(): Failed'), $e);
+            fclose($source_h);
         }
+
+        fclose($target_h);
     }
+
 
 
     /**
@@ -103,49 +98,38 @@ class File
      */
     public static function getUploaded(string $source)
     {
-        global $_CONFIG;
+        $destination = ROOT.'data/uploads/';
 
-        try{
-            $destination = ROOT.'data/uploads/';
-
-            if(is_array($source)) {
-                /*
-                 * Asume this is a PHP file upload array entry
-                 */
-                if(empty($source['tmp_name'])) {
-                    throw new CoreException(tr('file_move_uploaded(): Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'), 'invalid');
-                }
-
-                $real   = $source['name'];
-                $source = $source['tmp_name'];
-
-            } else {
-                $real   = basename($source);
-            }
-
-
-            is_file($source);
-            Path::ensure($destination);
-
+        if(is_array($source)) {
             /*
-             * Ensure we're not overwriting anything!
+             * Asume this is a PHP file upload array entry
              */
-            if(file_exists($destination.$real)) {
-                $real = Strings::untilReverse($real, '.').'_'.substr(uniqid(), -8, 8).'.'.Strings::fromReverse($real, '.');
+            if(empty($source['tmp_name'])) {
+                throw new CoreException(tr('file_move_uploaded(): Invalid source specified, must either be a string containing an absolute file path or a PHP $_FILES entry'), 'invalid');
             }
 
-            if(!move_uploaded_file($source, $destination.$real)) {
-                throw new CoreException(tr('file_move_uploaded(): Faield to move file ":source" to destination ":destination"', array(':source' => $source, ':destination' => $destination)), 'move');
-            }
+            $real   = $source['name'];
+            $source = $source['tmp_name'];
 
-            /*
-             * Return destination file
-             */
-            return $destination.$real;
-
-        }catch(Exception $e) {
-            throw new CoreException(tr('file_move_uploaded(): Failed'), $e);
+        } else {
+            $real   = basename($source);
         }
+
+
+        is_file($source);
+        Path::ensure($destination);
+
+        // Ensure we're not overwriting anything!
+        if(file_exists($destination.$real)) {
+            $real = Strings::untilReverse($real, '.').'_'.substr(uniqid(), -8, 8).'.'.Strings::fromReverse($real, '.');
+        }
+
+        if(!move_uploaded_file($source, $destination.$real)) {
+            throw new CoreException(tr('Failed to move file ":source" to destination ":destination"', [':source' => $source, ':destination' => $destination]), 'move');
+        }
+
+        // Return destination file
+        return $destination.$real;
     }
 
 
@@ -955,7 +939,7 @@ class File
      * @param string $pattern The pattern to make safe
      * @return string The safe pattern
      */
-    public static function safe_pattern($pattern) {
+    public static function safePattern($pattern) {
         try{
             /*
              * Escape patterns manually here, safe_exec() will be told NOT to
@@ -992,7 +976,7 @@ class File
      * set $mode to the default value, specified in $_CONFIG, and then
      * do the same as 0000
      */
-    public static function copy_tree($source, $destination, $search = null, $replace = null, $extensions = null, $mode = true, $novalidate = false, $restrictions = null) {
+    public static function copyTree($source, $destination, $search = null, $replace = null, $extensions = null, $mode = true, $novalidate = false, $restrictions = null) {
         global $_CONFIG;
 
         try{
@@ -2172,6 +2156,79 @@ class File
             throw new CoreException(tr('file_tree(): Failed'), $e);
         }
     }
+
+
+    /**
+     * Check if the specified file exists and is readable. If not both, an exception will be thrown
+     *
+     * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
+     * read action failed. Because of this, the method optionally accepts $previous_e which would be the exception that
+     * is the reason for this check in the first place. If specified, and the method cannot file reasons why the file
+     * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
+     * previous exception attached to it
+     *
+     * @param string $file
+     * @param string|null $type
+     * @param Throwable|null $previous_e
+     * @return void
+     */
+    public static function checkReadable(string $file, ?string $type = null, ?Throwable $previous_e = null) : void
+    {
+        if (!file_exists($file)) {
+            if (!file_exists(dirname($file))) {
+                // The file doesn't exist and neither does its parent directory
+                throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist and neither does the parent path ":path"', [':type' => ($type ? '' : ' ' . $type), ':file' => $file, ':path' => dirname($file)]), previous: $previous_e);
+            }
+
+            throw new FilesystemException(tr('The:type file ":file" cannot be read because it does not exist', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+        }
+
+        if (!is_readable($file)) {
+            throw new FilesystemException(tr('The:type file ":file" cannot be read', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+        }
+
+        if ($previous_e) {
+            // This method was called because a read action failed, throw an exception for it
+            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+        }
+    }
+
+
+    /**
+     * Check if the specified file exists and is writable. If not both, an exception will be thrown
+     *
+     * On various occasions, this method could be used AFTER a file read action failed and is used to explain WHY the
+     * read action failed. Because of this, the method optionally accepts $previous_e which would be the exception that
+     * is the reason for this check in the first place. If specified, and the method cannot file reasons why the file
+     * would not be readable (ie, the file exists, and can be read accessed), it will throw an exception with the
+     * previous exception attached to it
+     *
+     * @param string $file
+     * @param string|null $type
+     * @param Throwable|null $previous_e
+     * @return void
+     */
+    public static function checkWritable(string $file, ?string $type = null, ?Throwable $previous_e = null) : void
+    {
+        if (!file_exists($file)) {
+            if (!file_exists(dirname($file))) {
+                // The file doesn't exist and neither does its parent directory
+                throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist and neither does the parent path ":path"', [':type' => ($type ? '' : ' ' . $type), ':file' => $file, ':path' => dirname($file)]), previous: $previous_e);
+            }
+
+            throw new FilesystemException(tr('The:type file ":file" cannot be written because it does not exist', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+        }
+
+        if (!is_readable($file)) {
+            throw new FilesystemException(tr('The:type file ":file" cannot be written', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+        }
+
+        if ($previous_e) {
+            // This method was called because a read action failed, throw an exception for it
+            throw new FilesystemException(tr('The:type file ":file" cannot be read because of an unknown error', [':type' => ($type ? '' : ' ' . $type), ':file' => $file]), previous: $previous_e);
+        }
+    }
+
 
 
     /**
