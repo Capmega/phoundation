@@ -388,7 +388,7 @@ function scanimage_validate($params) {
             /*
              * Single file scan, ensure that the target file does not exist
              */
-            $params['path'] = slash(dirname($params['file']));
+            $params['path'] = Strings::slash(dirname($params['file']));
 
             if(file_exists($params['file'])) {
                 if(!FORCE) {

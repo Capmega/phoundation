@@ -822,7 +822,7 @@ function route_exec($target, $attachment, $restrictions) {
                 /*
                  * Upload the file to the client as an attachment
                  */
-                $target = file_absolute(unslash($target), ROOT.'www/');
+                $target = file_absolute(Strings::unslash($target), ROOT.'www/');
 
                 log_file(tr('Sending file ":target" as attachment', array(':target' => $target)), 'route', 'cyan');
                 file_http_download(array('restrictions' => $restrictions,

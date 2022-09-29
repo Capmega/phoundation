@@ -482,10 +482,10 @@ function git_clone($repository, $path, $clean = false) {
             /*
              * Delete the .git repository file, leaving on the working tree
              */
-            file_delete(slash($path).$repository.'/.git', $path);
+            file_delete(Strings::slash($path).$repository.'/.git', $path);
         }
 
-        return slash($path).$repository;
+        return Strings::slash($path).$repository;
 
     }catch(Exception $e) {
         throw new CoreException('git_clone(): Failed', $e);

@@ -91,7 +91,7 @@ function cache_read($key, $namespace = null) {
 
             case 'memcached':
                 if($namespace) {
-                    $namespace = unslash($namespace);
+                    $namespace = Strings::unslash($namespace);
                 }
 
                 $data = memcached_get($key, $namespace);
@@ -141,7 +141,7 @@ function cache_read_file($key, $namespace = null) {
 
     try{
         if($namespace) {
-            $namespace = slash($namespace);
+            $namespace = Strings::slash($namespace);
         }
 
         if(!file_exists($file = ROOT.'data/cache/'.$namespace.$key)) {
@@ -248,7 +248,7 @@ function cache_write($value, $key, $namespace = null, $max_age = null) {
 function cache_write_file($value, $key, $namespace = null) {
     try{
         if($namespace) {
-            $namespace = slash($namespace);
+            $namespace = Strings::slash($namespace);
         }
 
         $file = ROOT.'data/cache/'.$namespace.$key;

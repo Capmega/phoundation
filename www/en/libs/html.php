@@ -249,7 +249,7 @@ function html_bundler($list) {
                                          * as a temp file, then include
                                          */
                                         $import = Strings::cut(($match, '(', ')');
-                                        $import = slash(dirname($file)).unslash($import);
+                                        $import = Strings::slash(dirname($file)).Strings::unslash($import);
 
                                         if(!file_exists($import)) {
                                             notify(array('code'    => 'not-exists',

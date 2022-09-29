@@ -324,7 +324,7 @@ if($nofiles) {
 
             try{
 // :TODO: Change this for rsync();
-                passthru($command = 'rsync -aczvAXHS '.$no_times.' --no-perms --progress -p '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':'.slash($deploy_config['target_dir']).slash($path).' '.ROOT.slash($path).' --exclude="*.php" --exclude="*.css" --exclude="*.js" --exclude="/scripts/*" --exclude="/data/doc" --exclude="/data/system" --exclude="/data/mock*" --exclude="/data/sources" --exclude=".htaccess" --exclude=".git*" --exclude="/pub/*"', $exitcode);
+                passthru($command = 'rsync -aczvAXHS '.$no_times.' --no-perms --progress -p '.($deploy_config['sudo'] ? '--rsync-path="sudo rsync" ' : '').'-e "ssh -p '.$deploy_config['target_port'].'" '.($deploy_config['target_user'] ? $deploy_config['target_user'].'@' : '').$deploy_config['target_server'].':'.Strings::slash($deploy_config['target_dir']).Strings::slash($path).' '.ROOT.Strings::slash($path).' --exclude="*.php" --exclude="*.css" --exclude="*.js" --exclude="/scripts/*" --exclude="/data/doc" --exclude="/data/system" --exclude="/data/mock*" --exclude="/data/sources" --exclude=".htaccess" --exclude=".git*" --exclude="/pub/*"', $exitcode);
 
                 if($exitcode) {
                     throw new CoreException(tr('Rsync of remote files with local server failed with exit code ":code"', array(':code' => $exitcode)), 'rsync');

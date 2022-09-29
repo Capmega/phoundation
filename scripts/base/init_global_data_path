@@ -28,7 +28,7 @@ if(empty($_CONFIG['data']['global'])) {
         $path = '/var/lib/data/';
 
     } elseif(!empty($_SERVER['HOME'])) {
-        $path = slash($_SERVER['HOME']).'data/';
+        $path = Strings::slash($_SERVER['HOME']).'data/';
 
     } else {
         /*
@@ -42,7 +42,7 @@ if(substr($path, 0, 1) != '/') {
     throw new CoreException(tr('The specified path ":path" is invalid. An absolute path (starting with a forward slash /) is required', array(':path' => $path)), 'invalid');
 }
 
-$path = slash($path);
+$path = Strings::slash($path);
 
 log_console(tr('Trying to use location ":path" for global data directory', array(':path' => $path)), 'white');
 

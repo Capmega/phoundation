@@ -136,7 +136,7 @@ function uglify_css($paths = null, $force = false) {
             log_console(tr('uglify_css(): Minifying all CSS files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             if(is_dir($path)) {
-                $path = slash($path);
+                $path = Strings::slash($path);
 
                 log_console(tr('uglify_css(): Minifying all CSS files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
                 file_check_dir($path);
@@ -186,7 +186,7 @@ function uglify_css($paths = null, $force = false) {
 				/*
                  * Update path for each file since the file may be in a sub directory
                  */
-                $path = slash(dirname($file));
+                $path = Strings::slash(dirname($file));
 
                 if(is_dir($file)) {
                     /*
@@ -492,7 +492,7 @@ function uglify_js($paths = null, $force = false) {
             log_console(tr('uglify_js(): Minifying all javascript files in ":path"', array(':path' => $path)), 'VERBOSEDOT');
 
             if(is_dir($path)) {
-                $path = slash($path);
+                $path = Strings::slash($path);
 
                 log_console(tr('uglify_js(): Minifying all javascript files in directory ":path"', array(':path' => $path)), 'VERBOSEDOT');
                 file_check_dir($path);
@@ -535,7 +535,7 @@ function uglify_js($paths = null, $force = false) {
                 /*
                  * Update path for each file since the file may be in a sub directory
                  */
-                $path = slash(dirname($file));
+                $path = Strings::slash(dirname($file));
 
                 if(is_dir($file)) {
                     /*

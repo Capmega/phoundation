@@ -345,7 +345,7 @@ function linux_file_clear_path($server, $path, $sudo = false, $restrictions = nu
         /*
          * Go one entry up and continue
          */
-        $path = Strings::untilReverse(unslash($path), '/');
+        $path = Strings::untilReverse(Strings::unslash($path), '/');
         linux_file_clear_path($server, $path, $sudo, $restrictions);
 
     }catch(Exception $e) {
@@ -1393,7 +1393,7 @@ function linux_restrict($server, $params, $restrictions = null) {
              * missing slash at the end
              */
             foreach($restrictions as $restriction) {
-                unslash($restriction);
+                Strings::unslash($restriction);
                 if(substr($params, 0, strlen($restriction)) === $restriction) {
                     /*
                      * Passed!

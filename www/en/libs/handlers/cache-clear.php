@@ -22,7 +22,7 @@ try{
                     /*
                      * Delete only one cache file, and attempt to clear empty directories as possible
                      */
-                    file_delete(array('patterns'     => ROOT.'data/cache/'.slash($namespace).$key,
+                    file_delete(array('patterns'     => ROOT.'data/cache/'.Strings::slash($namespace).$key,
                                       'restrictions' => ROOT.'data/cache/',
                                       'clean_path'   => false));
 

@@ -876,7 +876,7 @@ Class Log {
 //                throw new OutOfBoundsException('log_file(): Failed before $file was determined', $e, array('message' => $messages));
 //            }
 //
-//            if (!is_writable(slash(ROOT . 'data/log') . $file)) {
+//            if (!is_writable(Strings::slash(ROOT . 'data/log') . $file)) {
 //                if (PLATFORM_HTTP) {
 //                    error_log(tr('log_file() failed because log file ":file" is not writable', array(':file' => $file)));
 //                }

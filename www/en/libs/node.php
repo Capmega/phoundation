@@ -171,7 +171,7 @@ function node_find_modules() {
             throw new CoreException('node_find_modules(): Environment variable "HOME" not found, failed to locate users home directory', 'environment_variable_not_found');
         }
 
-        $home  = slash($home);
+        $home  = Strings::slash($home);
         $found = false;
 
         /*
@@ -183,8 +183,8 @@ function node_find_modules() {
             }
 
             foreach(array('node_modules', '.node_modules') as $subpath) {
-                if(file_exists(slash($path).$subpath)) {
-                    $found = slash($path).$subpath;
+                if(file_exists(Strings::slash($path).$subpath)) {
+                    $found = Strings::slash($path).$subpath;
                     break;
                 }
             }
@@ -203,25 +203,25 @@ function node_find_modules() {
         }
 
         log_console(tr('node_find_modules(): Using node_modules ":path"', array(':path' => $found)), 'green');
-        $core->register['node_modules'] = slash($found);
+        $core->register['node_modules'] = Strings::slash($found);
 
         /*
          * Delete the package-lock file if there
          */
 // :TODO: Improve this part. If the package-lock file exists, that means that a node install at least WAS busy, or still is busy in perhaps a parrallel process? Check if node is active, if not THEN delete and continue
-        if(file_exists(slash(dirname($found)).'package-lock.json')) {
-            file_execute_mode(slash(dirname($found)), 0770, function() use ($found) {
+        if(file_exists(Strings::slash(dirname($found)).'package-lock.json')) {
+            file_execute_mode(Strings::slash(dirname($found)), 0770, function() use ($found) {
                 /*
                  * Delete the package-lock.json file. It's okay to use the
                  * variable dirname($found) here for restrictions as $found can
                  * be only one of ROOT, CWD, or the users home directory, and we
                  * are specifically deleting the package-lock.json file
                  */
-                file_chmod(array('path'         => slash(dirname($found)).'package-lock.json',
+                file_chmod(array('path'         => Strings::slash(dirname($found)).'package-lock.json',
                                  'mode'         => 0660,
                                  'restrictions' => dirname($found)));
 
-                file_delete(slash(dirname($found)).'package-lock.json', dirname($found));
+                file_delete(Strings::slash(dirname($found)).'package-lock.json', dirname($found));
             });
         }
 

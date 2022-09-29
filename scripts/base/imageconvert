@@ -82,7 +82,7 @@ cli_no_arguments_left();
  */
 
 if($destination) {
-    $destination = slash($destination);
+    $destination = Strings::slash($destination);
     file_ensure_path($destination);
 }
 
@@ -94,7 +94,7 @@ if($destination) {
 $path = $source;
 
 if($source) {
-    $source = slash(realpath($source));
+    $source = Strings::slash(realpath($source));
 
     if(!file_exists($source)) {
         throw new CoreException(tr('The specified source path ":path" does not exist', array(':path' => $path)), 'not-exists');

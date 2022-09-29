@@ -239,7 +239,7 @@ switch(cli_method()) {
                 }
 
                 if(is_dir($path)) {
-                    $path = slash($path);
+                    $path = Strings::slash($path);
 
                     foreach(scandir($path) as $file) {
                         /*

@@ -89,7 +89,7 @@ try{
                 set_timeout(1);
 
                 $defines = array('ADMIN'    => '',
-                                 'PWD'      => slash(isset_get($_SERVER['PWD'])),
+                                 'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
                                  'VERBOSE'  => ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE' : null),
                                  'QUIET'    => cli_argument('-Q,--quiet'),
                                  'FORCE'    => cli_argument('-F,--force'),
@@ -98,7 +98,7 @@ try{
                                  'ALL'      => cli_argument('-A,--all'),
                                  'DELETED'  => cli_argument('--deleted'),
                                  'STATUS'   => cli_argument('-S,--status' , true),
-                                 'STARTDIR' => slash(getcwd()));
+                                 'STARTDIR' => Strings::slash(getcwd()));
 
                 foreach($defines as $key => $value) {
                     if(!defined($key)) {
@@ -302,8 +302,8 @@ try{
                 log_file($e, 'uncaught-exception', 'exception');
 
                 $defines = array('ADMIN'    => '',
-                                 'PWD'      => slash(isset_get($_SERVER['PWD'])),
-                                 'STARTDIR' => slash(getcwd()),
+                                 'PWD'      => Strings::slash(isset_get($_SERVER['PWD'])),
+                                 'STARTDIR' => Strings::slash(getcwd()),
                                  'FORCE'    => (getenv('FORCE')                    ? 'FORCE'   : null),
                                  'TEST'     => (getenv('TEST')                     ? 'TEST'    : null),
                                  'VERBOSE'  => ((VERYVERBOSE or getenv('VERBOSE')) ? 'VERBOSE' : null),

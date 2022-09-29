@@ -232,7 +232,7 @@ function image_convert($params) {
                 throw new CoreException(tr('image_convert(): Unknown format ":format" specified.', array(':format' => $params['format'])), 'unknown');
         }
 
-        $target = slash($dest_path).$dest_file;
+        $target = Strings::slash($dest_path).$dest_file;
 
         /*
          * Remove the log file so we surely have data from only this session
@@ -795,7 +795,7 @@ function image_info($file, $no_exif = false) {
 
         $retval['filename'] = basename($file);
         $retval['size']     = filesize($file);
-        $retval['path']     = slash(dirname($file));
+        $retval['path']     = Strings::slash(dirname($file));
         $retval['mime']     = $mime;
         $retval['bits']     = $size['bits'];
         $retval['x']        = $size[0];

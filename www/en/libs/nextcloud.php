@@ -266,7 +266,7 @@ function nextcloud_exec($server, $params) {
                 /*
                  * This is a command
                  */
-                $value = slash($nextcloud['path']).$command;
+                $value = Strings::slash($nextcloud['path']).$command;
             }
         }
 

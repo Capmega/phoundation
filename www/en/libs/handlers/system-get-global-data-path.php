@@ -60,7 +60,7 @@ try{
              * Its now created!
              * Strip "data/"
              */
-            $path = slash($path);
+            $path = Strings::slash($path);
 
         }catch(Exception $e) {
             throw new CoreException('get_global_data_path(): Global data path not found, or init_global_data_path failed / aborted', $e);
@@ -86,7 +86,7 @@ try{
         throw new CoreException('The found global data path "'.str_log($path).'" is invalid (realpath returned false)', 'invalid');
     }
 
-    return slash($global_path);
+    return Strings::slash($global_path);
 
 }catch(BException $e) {
     throw new CoreException('get_global_data_path(): Failed', $e);

@@ -124,7 +124,7 @@ class Url {
         }
 
         $url_params['prefix']   = Strings::startsNotWith(Strings::endsWith($url_params['prefix'], '/'), '/');
-        $url_params['domain']   = slash($url_params['domain']);
+        $url_params['domain']   = Strings::slash($url_params['domain']);
         $url_params['language'] = get_language($url_params['language']);
 
         /*

@@ -76,7 +76,7 @@ function files_insert($file, $require_unique = false) {
         file_ensure_path($base_path);
 
         $extension = Strings::fromReverse($file['filename'], '.');
-        $base_path = slash($base_path);
+        $base_path = Strings::slash($base_path);
         $target    = file_assign_target($base_path, $extension);
 
         if(isset($file['name']) and isset($file['tmp_name'])) {
@@ -152,7 +152,7 @@ function files_delete($file, $base_path = ROOT.'data/files/') {
         }
 
         sql_query('DELETE FROM `files` WHERE `id` = :id', array(':id' => $dbfile['id']));
-        file_delete(slash($base_path).$dbfile['filename'], $base_path);
+        file_delete(Strings::slash($base_path).$dbfile['filename'], $base_path);
 
         log_console(tr('Deleted files library file ":file"', array(':file' => $dbfile['filename'])), 'green');
 

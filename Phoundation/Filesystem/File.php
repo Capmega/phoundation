@@ -5,7 +5,6 @@ namespace Phoundation\Filesystem;
 use Phoundation\Core\Arrays;
 use Phoundation\Core\Config;
 use Phoundation\Core\CoreException;
-use Phoundation\Core\Json\Strings;
 use Phoundation\Core\Log;
 use Phoundation\Core\Strings;
 use Phoundation\Filesystem\Exception\FileNotWritableException;
@@ -244,10 +243,10 @@ class File
         }
 
         if($length) {
-            $targetpath = slash(file_create_target_path($path, $singledir, $length));
+            $targetpath = Strings::slash(file_create_target_path($path, $singledir, $length));
 
         } else {
-            $targetpath = slash($path);
+            $targetpath = Strings::slash($path);
         }
 
         $target = $targetpath.strtolower(Strings::convertAccents(Strings::untilReverse($filename, '.'), '-'));
@@ -319,13 +318,13 @@ class File
                 $length = $_CONFIG['file']['target_path_size'];
             }
 
-            $path = unslash(Path::ensure($path));
+            $path = Strings::unslash(Path::ensure($path));
 
             if($singledir) {
                 /*
                  * Assign path in one dir, like abcde/
                  */
-                $path = slash($path).substr(uniqid(), -$length, $length);
+                $path = Strings::slash($path).substr(uniqid(), -$length, $length);
 
             } else {
                 /*
@@ -336,7 +335,7 @@ class File
                 }
             }
 
-            return slash(Path::ensure($path));
+            return Strings::slash(Path::ensure($path));
 
         }catch(Exception $e) {
             throw new CoreException(tr('file_create_target_path(): Failed'), $e);
@@ -402,7 +401,7 @@ class File
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
      * @template Function reference
      * @package files
-     * @see file_restrict() This function uses file location restrictions, see file_restrict() for more information
+     * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
      *
      * @param list $paths A list of path patterns to be cleared
      * @param null list $params[restrictions] A list of paths to which file_delete() operations will be restricted
@@ -426,7 +425,7 @@ class File
             /*
              * Restrict location access
              */
-            file_restrict($path, $restrictions);
+            Restrict::restrict($path, $restrictions);
 
             if(!file_exists($path)) {
                 /*
@@ -435,7 +434,7 @@ class File
                 $path = dirname($path);
 
                 try{
-                    file_restrict($path, $restrictions);
+                    Restrict::restrict($path, $restrictions);
                     return file_clear_path($path, $restrictions);
 
                 }catch(Exception $e) {
@@ -650,7 +649,7 @@ class File
                 return $path;
             }
 
-            return slash(getcwd()).unslash($path);
+            return Strings::slash(getcwd()).Strings::unslash($path);
 
         }catch(Exception $e) {
             throw new CoreException('file_absolute_path(): Failed', $e);
@@ -724,7 +723,7 @@ class File
     public static function is_text($file) {
         try{
             if(Strings::until(file_mimetype($file), '/') == 'text') return true;
-            if(str_from (file_mimetype($file), '/') == 'xml' ) return true;
+            if(Strings::from(file_mimetype($file), '/') == 'xml' ) return true;
 
             return false;
 
@@ -775,7 +774,7 @@ class File
      * @param boolean $recursive If set to true, return all files below the specified path, including in sub directories
      * @return array The matched files
      */
-    public static function list_tree($path, $pattern = null, $recursive = true) {
+    public static function listTree($path, $pattern = null, $recursive = true) {
         try{
             /*
              * Validate path
@@ -820,7 +819,7 @@ class File
                 /*
                  * Get the complete file path
                  */
-                $file = slash($path).$filename;
+                $file = Strings::slash($path).$filename;
 
                 /*
                  * Add the file to the list. If the file is a directory, then
@@ -856,7 +855,7 @@ class File
      * @template Function reference
      * @package files
      * @see file_safe_pattern()
-     * @see file_restrict() This function uses file location restrictions, see file_restrict() for more information
+     * @see Restrict::restrict() This function uses file location restrictions, see Restrict::restrict() for more information
      * @version 2.7.60: Fixed safe file pattern issues
      *
      * @param params $params
@@ -893,7 +892,7 @@ class File
                 /*
                  * Restrict pattern access
                  */
-                file_restrict($pattern, $params['restrictions']);
+                Restrict::restrict($pattern, $params['restrictions']);
 
                 if($params['force_writable']) {
                     try{
@@ -1052,7 +1051,7 @@ class File
                     throw new CoreException(tr('file_copy_tree(): Specified source ":source" does not exist', array(':source' => $source)), 'not-exists');
                 }
 
-                $destination = unslash($destination);
+                $destination = Strings::unslash($destination);
 
                 if(!file_exists($destination)) {
 // :TODO: Check if dirname() here is correct? It somehow does not make sense
@@ -1100,8 +1099,8 @@ class File
             }
 
             if(is_dir($source)) {
-                $source      = slash($source);
-                $destination = slash($destination);
+                $source      = Strings::slash($source);
+                $destination = Strings::slash($destination);
 
                 foreach(scandir($source) as $file) {
                     if(($file == '.') or ($file == '..')) {
@@ -1161,7 +1160,7 @@ class File
                         /*
                          * Relative link, get the absolute path
                          */
-                        $reallink = slash(dirname($source)).$link;
+                        $reallink = Strings::slash(dirname($source)).$link;
                     }
 
                     if(!file_exists($reallink)) {
@@ -1341,7 +1340,7 @@ class File
              */
             Path::ensure($path);
 
-            return slash($path);
+            return Strings::slash($path);
 
         }catch(Exception $e) {
             throw new CoreException(tr('file_tempdir(): Failed'), $e);
@@ -1389,7 +1388,7 @@ class File
             }
 
             foreach(Arrays::force($params['path']) as $path) {
-                file_restrict($path, $params['restrictions']);
+                Restrict::restrict($path, $params['restrictions']);
 
                 $arguments      = array();
                 $arguments[]    = $params['mode'];
@@ -1523,7 +1522,7 @@ class File
                 throw new CoreException(tr('file_random(): The specified path ":path" contains no files', array(':path' => $path)), 'not-exists');
             }
 
-            return slash($path).array_get_random($files);
+            return Strings::slash($path).array_get_random($files);
 
         }catch(Exception $e) {
             throw new CoreException(tr('file_random(): Failed'), $e);
@@ -1671,7 +1670,7 @@ class File
                 throw new CoreException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
             }
 
-            file_restrict($params['file'], $params['restrictions']);
+            Restrict::restrict($params['file'], $params['restrictions']);
 
             /*
              * We have to send the right content type headers and we might need to
@@ -2021,7 +2020,7 @@ class File
                 throw new CoreException(tr('file_http_download(): Specified file ":file" exists but is not readable', array(':file' => $params['file'])), 'not-readable');
             }
 
-            file_restrict($params['file'], $params['restrictions']);
+            Restrict::restrict($params['file'], $params['restrictions']);
 
             /*
              * We have to send the right content type headers
@@ -2146,7 +2145,7 @@ class File
             }
 
             $retval = 0;
-            $path   = slash($path);
+            $path   = Strings::slash($path);
 
             foreach(scandir($path) as $file) {
                 if(($file == '.') or ($file == '..')) continue;
@@ -2529,7 +2528,7 @@ class File
 
                 case 'directory':
                     $h    = opendir($params['path']);
-                    $path = slash($params['path']);
+                    $path = Strings::slash($params['path']);
 
                     while(($file = readdir($h)) !== false) {
                         try{
@@ -2661,7 +2660,7 @@ class File
     public static function absolute($path, $root = null) {
         try{
             if(empty($root)) {
-                $root = slash(getcwd());
+                $root = Strings::slash(getcwd());
             }
 
             if(substr($path, 0, 1) !== '/') {
@@ -2929,7 +2928,7 @@ class File
             }
 
             while(strlen($path) > 1) {
-                $path = slash($path);
+                $path = Strings::slash($path);
 
                 if(file_exists($path.$file)) {
                     /*
@@ -3315,7 +3314,7 @@ class File
                         return false;
                     }
 
-                    $restriction = unslash($restriction);
+                    $restriction = Strings::unslash($restriction);
 
                     if(substr($params, 0, strlen($restriction)) === $restriction) {
                         /*
@@ -3326,7 +3325,7 @@ class File
                 }
 
                 unset($restriction);
-                throw new CoreException(tr('file_restrict(): The specified file or path ":path" is outside of the authorized paths ":authorized"', array(':path' => $params, ':authorized' => $restrictions)), 'access-denied', $restrictions);
+                throw new CoreException(tr('Restrict::restrict(): The specified file or path ":path" is outside of the authorized paths ":authorized"', array(':path' => $params, ':authorized' => $restrictions)), 'access-denied', $restrictions);
             }
 
             /*
@@ -3340,16 +3339,16 @@ class File
                      * All these must be tested
                      */
                     try{
-                        file_restrict($params[$key], $restrictions);
+                        Restrict::restrict($params[$key], $restrictions);
 
                     }catch(Exception $e) {
-                        throw new CoreException(tr('file_restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
+                        throw new CoreException(tr('Restrict::restrict(): Failed for key ":key" test', array(':key' => $key)), $e);
                     }
                 }
             }
 
         }catch(Exception $e) {
-            throw new CoreException('file_restrict(): Failed', $e);
+            throw new CoreException('Restrict::restrict(): Failed', $e);
         }
     }
 

@@ -36,10 +36,10 @@ try{
      * Find the persons names data project location
      */
     if(file_exists($path = realpath(ROOT.'../data/persons/'.$language))) {
-       $import_path = slash($path);
+       $import_path = Strings::slash($path);
 
     } elseif(file_exists($path = realpath(ROOT.'../../data/persons/'.$language))) {
-       $import_path = slash($path);
+       $import_path = Strings::slash($path);
 
     } else {
         throw new CoreException('Could not find "persons" project path');

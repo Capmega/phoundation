@@ -168,7 +168,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
                                 'commands' => array('mysql_tzinfo_to_sql', array('/usr/share/zoneinfo', 'connector' => '|'),
                                                     'mysql'              , array('-p', '-u', 'root', 'mysql'))));
             }
-            define('INITPATH', slash(realpath(ROOT.'init')));
+            define('INITPATH', Strings::slash(realpath(ROOT.'init')));
 
             $versions = array('framework' => $codeversions['FRAMEWORK'],
                               'project'   => $codeversions['PROJECT']);
@@ -184,7 +184,7 @@ function init($projectfrom = null, $frameworkfrom = null) {
                  * and then get a list of all init files for the init type, and walk
                  * over each init file, and see if it needs execution or not
                  */
-                $initpath  = INITPATH.slash($type);
+                $initpath  = INITPATH.Strings::slash($type);
                 $files     = scandir($initpath);
                 $utype     = strtoupper($type);
                 $dbversion = ((FORCE and str_is_version(FORCE)) ? FORCE : $codeversions[$utype]);

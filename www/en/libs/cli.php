@@ -1663,7 +1663,7 @@ function cli_unzip($file, $target_path = null, $remove = true){
         }
 
         $filename    = basename($file);
-        $target_path = slash($target_path);
+        $target_path = Strings::slash($target_path);
 
         file_ensure_path($target_path);
 

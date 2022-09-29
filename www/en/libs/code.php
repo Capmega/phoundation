@@ -67,7 +67,7 @@ function code_locate_phoundation() {
             $home = getenv('HOME');
 
             if($home) {
-                $paths[] = slash($home).'projects/phoundation/';
+                $paths[] = Strings::slash($home).'projects/phoundation/';
             }
 
             foreach($paths as $path) {
@@ -84,7 +84,7 @@ function code_locate_phoundation() {
                          */
                         try{
                             $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
-                            $found  = slash(realpath($path));
+                            $found  = Strings::slash(realpath($path));
 
                         }catch(Exception $e) {
                             if($e->getCode() == 128) {
@@ -143,7 +143,7 @@ function code_locate_toolkit() {
             $home = getenv('HOME');
 
             if($home) {
-                $paths[] = slash($home).'projects/toolkit.capmega.com/';
+                $paths[] = Strings::slash($home).'projects/toolkit.capmega.com/';
             }
 
             foreach($paths as $path) {
@@ -159,7 +159,7 @@ function code_locate_toolkit() {
                          */
                         try{
                             $result = git_show('290071b81e7bebab9c43aa1fd3a8b691ca1f9695', $path, array('check' => true));
-                            $found  = slash(realpath($path));
+                            $found  = Strings::slash(realpath($path));
 
                         }catch(Exception $e) {
                             if($e->getCode() == 128) {
@@ -717,7 +717,7 @@ function code_get_available_versions($path = ROOT, $version_lines = null) {
  */
 function code_get_framework_version($path = ROOT) {
     try{
-        $file = slash($path).'libs/system.php';
+        $file = Strings::slash($path).'libs/system.php';
 
         if(!file_exists($file)) {
             throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
@@ -754,7 +754,7 @@ function code_get_framework_version($path = ROOT) {
  */
 function code_update_framework_version($version, $path = ROOT) {
     try{
-        $file = slash($path).'libs/system.php';
+        $file = Strings::slash($path).'libs/system.php';
 
         if(!file_exists($file)) {
             throw new CoreException(tr('code_get_framework_version(): No system library file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
@@ -787,7 +787,7 @@ function code_update_framework_version($version, $path = ROOT) {
  */
 function code_get_project_version($path = ROOT) {
     try{
-        $file = slash($path).'config/project.php';
+        $file = Strings::slash($path).'config/project.php';
 
         if(!file_exists($file)) {
             throw new CoreException(tr('code_get_project_version(): No project configuration file found for the specified ROOT path ":path"', array(':path' => $path)), 'not-exists');
@@ -976,7 +976,7 @@ function code_patch($params) {
         array_default($params, 'source_path', ROOT);
         array_default($params, 'clean'      , true);
 
-        file_restrict($params);
+        Restrict::restrict($params);
 
         if(!$params['target_path']) {
             throw new CoreException(tr('code_patch(): No target path specified'), 'empty');
@@ -990,8 +990,8 @@ function code_patch($params) {
             throw new CoreException(tr('code_patch(): Specified target path ":target" does not exist', array(':target' => $params['target_path'])), 'not-exist');
         }
 
-        $params['source_path'] = slash($params['source_path']);
-        $params['target_path'] = slash($params['target_path']);
+        $params['source_path'] = Strings::slash($params['source_path']);
+        $params['target_path'] = Strings::slash($params['target_path']);
 
         switch($params['method']) {
             case 'diff':
@@ -1011,7 +1011,7 @@ function code_patch($params) {
                      * The target file exists. Send the changed by patch
                      */
                     $patch      = git_diff($params['source_path'].$params['file']);
-                    $patch_file = slash($params['target_path']).sha1($params['file']).'.patch';
+                    $patch_file = Strings::slash($params['target_path']).sha1($params['file']).'.patch';
 
                     if(empty($patch)) {
                         throw new CoreException(tr('code_patch(): The function git_diff() returned empty patch data for file ":file"', array(':file' => $params['file'])), 'empty');

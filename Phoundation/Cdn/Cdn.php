@@ -143,7 +143,7 @@ class Cdn
                         return cdn_domain($file, $section);
 
                     } else {
-                        $_SESSION['cdn'] = slash($_SESSION['cdn']) . 'pub/' . strtolower(str_replace('_', '-', PROJECT) . '/');
+                        $_SESSION['cdn'] = Strings::slash($_SESSION['cdn']) . 'pub/' . strtolower(str_replace('_', '-', PROJECT) . '/');
                     }
                 }
 
@@ -180,7 +180,7 @@ class Cdn
                 /*
                  * Yay, found the file in the CDN database!
                  */
-                return slash($url['baseurl']) . strtolower(str_replace('_', '-', PROJECT)) . $url['file'];
+                return Strings::slash($url['baseurl']) . strtolower(str_replace('_', '-', PROJECT)) . $url['file'];
             }
 
             /*
@@ -210,7 +210,7 @@ class Cdn
             //        return domain($url, $query, $prefix);
             //    }
             //
-            //    $_SESSION['cdn'] = slash($server).strtolower(str_replace('_', '-', PROJECT));
+            //    $_SESSION['cdn'] = Strings::slash($server).strtolower(str_replace('_', '-', PROJECT));
             //}
             //
             //return $_SESSION['cdn'].$url;

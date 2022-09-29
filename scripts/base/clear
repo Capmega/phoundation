@@ -60,7 +60,7 @@ if($tmp) {
     /*
      * Move TMP out of the way, then delete it
      */
-    $delete = unslash(TMP).'~delete';
+    $delete = Strings::unslash(TMP).'~delete';
 
     rename(TMP, $delete);
     mkdir(TMP, $_CONFIG['file']['dir_mode'], true);

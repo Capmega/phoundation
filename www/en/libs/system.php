@@ -989,7 +989,7 @@
 //             * detection during startup sequence uses load_libs(). For now,
 //             * assume the same directory as this systems library file
 //             */
-//            $libs = slash(__DIR__);
+//            $libs = Strings::slash(__DIR__);
 //        }
 //
 //        foreach(Arrays::force($libraries) as $library) {
@@ -1291,7 +1291,7 @@
 //            }
 //
 //        } else {
-//            $language = slash($language);
+//            $language = Strings::slash($language);
 //        }
 //
 //        if(!isset($replace['###SITENAME###'])) {
@@ -2003,7 +2003,7 @@
 //            throw new CoreException('log_file(): Failed before $file was determined', $e, array('message' => $messages));
 //        }
 //
-//        if(!is_writable(slash(ROOT.'data/log').$file)) {
+//        if(!is_writable(Strings::slash(ROOT.'data/log').$file)) {
 //            if(PLATFORM_HTTP) {
 //                error_log(tr('log_file() failed because log file ":file" is not writable', array(':file' => $file)));
 //            }
@@ -2225,7 +2225,7 @@
 //        }
 //
 //        $url_params['prefix']   = Strings::startsNotWith(Strings::endsWith($url_params['prefix'], '/'), '/');
-//        $url_params['domain']   = slash($url_params['domain']);
+//        $url_params['domain']   = Strings::slash($url_params['domain']);
 //        $url_params['language'] = get_language($url_params['language']);
 //
 //        /*
@@ -3971,7 +3971,7 @@
 //                    return cdn_domain($file, $section);
 //
 //                } else {
-//                    $_SESSION['cdn'] = slash($_SESSION['cdn']).'pub/'.strtolower(str_replace('_', '-', PROJECT).'/');
+//                    $_SESSION['cdn'] = Strings::slash($_SESSION['cdn']).'pub/'.strtolower(str_replace('_', '-', PROJECT).'/');
 //                }
 //            }
 //
@@ -4008,7 +4008,7 @@
 //            /*
 //             * Yay, found the file in the CDN database!
 //             */
-//            return slash($url['baseurl']).strtolower(str_replace('_', '-', PROJECT)).$url['file'];
+//            return Strings::slash($url['baseurl']).strtolower(str_replace('_', '-', PROJECT)).$url['file'];
 //        }
 //
 //        /*
@@ -4038,7 +4038,7 @@
 //        //        return domain($url, $query, $prefix);
 //        //    }
 //        //
-//        //    $_SESSION['cdn'] = slash($server).strtolower(str_replace('_', '-', PROJECT));
+//        //    $_SESSION['cdn'] = Strings::slash($server).strtolower(str_replace('_', '-', PROJECT));
 //        //}
 //        //
 //        //return $_SESSION['cdn'].$url;
@@ -4370,7 +4370,7 @@
 //        return Strings::endsWith($string, '/');
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('slash(): Failed', $e);
+//        throw new CoreException('Strings::slash(): Failed', $e);
 //    }
 //}
 //
@@ -4384,7 +4384,7 @@
 //        return Strings::endsNotWith($string, '/', $loop);
 //
 //    }catch(Exception $e) {
-//        throw new CoreException('unslash(): Failed', $e);
+//        throw new CoreException('Strings::unslash(): Failed', $e);
 //    }
 //}
 //

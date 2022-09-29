@@ -707,7 +707,7 @@ foreach($targets as $target_environment) {
     }
 
     $deploy_config                         = $_CONFIG['deploy'][$target_environment];
-    $deploy_config['target_dir']           = unslash($deploy_config['target_dir']);
+    $deploy_config['target_dir']           = Strings::unslash($deploy_config['target_dir']);
     $deploy_config['preserve_owner_group'] = (!$no_preserve_og and isset_get($deploy_config['preserve_owner_group'], true));
 
     Arrays::ensure($deploy_config, 'target_user,target_server,target_port,target_dir,categories,modes,include_dirs,exclude_dirs,rsync_parrallel,sudo,user,group,dir_mode,file_mode,www_mode');

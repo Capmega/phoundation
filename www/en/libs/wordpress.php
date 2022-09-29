@@ -59,21 +59,21 @@ function wp_admin_signin($params) {
         /*
          * First open the admin page to get the cookie required for wp-login.php
          */
-        $curl = curl_get(array('url'        => slash($params['url']).'wp-admin/',
+        $curl = curl_get(array('url'        => Strings::slash($params['url']).'wp-admin/',
                                'simulation' => $params['simulation'],
                                'close'      => false));
 
         /*
          * Now login
          */
-        $curl = curl_get(array('url'        => slash($params['url']).'wp-login.php',
-                               'redirect'   => slash($params['url']).'wp-admin/',
+        $curl = curl_get(array('url'        => Strings::slash($params['url']).'wp-login.php',
+                               'redirect'   => Strings::slash($params['url']).'wp-admin/',
                                'curl'       => $curl,
                                'post'       => array('log'         => $params['username'],
                                                      'pwd'         => $params['password'],
                                                      'rememberme'  => ($params['rememberme'] ? 'forever' : ''),
                                                      'wp-submit'   => 'Log In',
-                                                     'redirect_to' => slash($params['url']).'wp-admin/',
+                                                     'redirect_to' => Strings::slash($params['url']).'wp-admin/',
                                                      'testcookie'  => 1)));
 
         if($failed = Strings::from($curl['data'], '<div id="login_error">')) {
@@ -98,8 +98,8 @@ function wp_admin_signin($params) {
         }
 
         $curl['type']       = 'wordpress-admin';
-        $curl['url']        = slash($params['url']);
-        $curl['baseurl']    = slash($params['url']);
+        $curl['url']        = Strings::slash($params['url']);
+        $curl['baseurl']    = Strings::slash($params['url']);
         $curl['simulation'] = $simulation;
 
         unset($curl['data']);
@@ -159,8 +159,8 @@ function wp_admin_post($params, $force_new = false) {
          * New document? or update existing document?
          */
         if(empty($params['post_id']) or $force_new) {
-            $params['curl'] = curl_get(array('url'      => slash($params['curl']['baseurl']).'wp-admin/post-new.php?post_type='.$params['type'],
-                                             'redirect' => slash($params['curl']['baseurl']).'wp-admin/',
+            $params['curl'] = curl_get(array('url'      => Strings::slash($params['curl']['baseurl']).'wp-admin/post-new.php?post_type='.$params['type'],
+                                             'redirect' => Strings::slash($params['curl']['baseurl']).'wp-admin/',
                                              'curl'     => $params['curl']));
 
             $keywords = array('post_ID',
@@ -196,19 +196,19 @@ function wp_admin_post($params, $force_new = false) {
         /*
          * Post the page
          */
-        $retval['curl'] = curl_get(array('url'      => slash($params['curl']['baseurl']).'wp-admin/post.php',
-                                         'redirect' => slash($params['curl']['baseurl']).'wp-admin/post-new.php?post_type='.$params['type'],
+        $retval['curl'] = curl_get(array('url'      => Strings::slash($params['curl']['baseurl']).'wp-admin/post.php',
+                                         'redirect' => Strings::slash($params['curl']['baseurl']).'wp-admin/post-new.php?post_type='.$params['type'],
                                          'curl'     => $params['curl'],
                                          'post'     => array('_wpnonce'                  => $params['_wpnonce'],
-                                                             '_wp_http_referer'          => slash($params['curl']['url']).'/wp-admin/post-new.php?post_type='.$params['type'],
+                                                             '_wp_http_referer'          => Strings::slash($params['curl']['url']).'/wp-admin/post-new.php?post_type='.$params['type'],
                                                              'user_ID'                   => $params['user_id'],
                                                              'action'                    => 'editpost',
                                                              'originalaction'            => 'editpost',
                                                              'post_author'               => $params['author'],
                                                              'post_type'                 => $params['type'],
                                                              'original_post_status'      => isset_get($params['original_post_status'], 'auto-draft'),
-                                                             'referredby'                => slash($params['curl']['url']).'wp-admin/post-new.php',
-                                                             '_wp_original_http_referer' => slash($params['curl']['url']).'wp-admin/post-new.php',
+                                                             'referredby'                => Strings::slash($params['curl']['url']).'wp-admin/post-new.php',
+                                                             '_wp_original_http_referer' => Strings::slash($params['curl']['url']).'wp-admin/post-new.php',
                                                              'auto_draft'                => '0',
                                                              'post_ID'                   => $params['post_id'],
                                                              'autosavenonce'             => $params['autosavenonce'],
@@ -323,13 +323,13 @@ function wp_admin_trash($params) {
          * Get the nonce required to do the delete
          * Build up the delete URL
          */
-//        $params['curl'] = curl_get(array('url'  => slash($params['curl']['baseurl']).'wp-admin/edit.php?post_type=page',
-        $params['curl'] = curl_get(array('url'  => slash($params['curl']['baseurl']).'wp-admin/edit.php',
+//        $params['curl'] = curl_get(array('url'  => Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?post_type=page',
+        $params['curl'] = curl_get(array('url'  => Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php',
                                          'curl' => $params['curl']));
 
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
-        $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php&action=trash&m=0&paged=1';
-//        $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_type%3Dpage&action=trash&m=0&paged=1';
+        $url   = Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php&action=trash&m=0&paged=1';
+//        $url   = Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=all&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_type%3Dpage&action=trash&m=0&paged=1';
 
         foreach(Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
@@ -378,11 +378,11 @@ function wp_admin_restore($params) {
          * Get the nonce required to do the delete
          * Build up the delete URL
          */
-        $params['curl'] = curl_get(array('url'  => slash($params['curl']['baseurl']).'wp-admin/edit.php?post_status=trash&post_type=page',
+        $params['curl'] = curl_get(array('url'  => Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?post_status=trash&post_type=page',
                                          'curl' => $params['curl']));
 
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
-        $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=delete&m=0&paged=1';
+        $url   = Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=delete&m=0&paged=1';
 
         foreach(Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
@@ -431,11 +431,11 @@ function wp_admin_remove_permanently($params) {
          * Get the nonce required to do the delete
          * Build up the delete URL
          */
-        $params['curl'] = curl_get(array('url'  => slash($params['curl']['baseurl']).'wp-admin/edit.php?post_status=trash&post_type=page',
+        $params['curl'] = curl_get(array('url'  => Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?post_status=trash&post_type=page',
                                          'curl' => $params['curl']));
 
         $nonce = Strings::until(Strings::from($params['curl']['data'], '_wpnonce" value="'), '"');
-        $url   = slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=untrash&m=0&paged=1';
+        $url   = Strings::slash($params['curl']['baseurl']).'wp-admin/edit.php?s=&post_status=trash&post_type=page&_wpnonce='.$nonce.'&_wp_http_referer=%2Fwp-admin%2Fedit.php%3Fpost_status%3Dtrash%26post_type%3Dpage&action=untrash&m=0&paged=1';
 
         foreach(Arrays::force($params['post_id']) as $post_id) {
             $url .= '&post%5B%5D='.cfi($post_id);
@@ -481,7 +481,7 @@ function wp_admin_get($post_id, $curl) {
         /*
          * New document? or update existing document?
          */
-        $retval                     = curl_get(array('url'  => slash($curl['baseurl']).'wp-admin/post.php?post='.$post_id.'&action=edit',
+        $retval                     = curl_get(array('url'  => Strings::slash($curl['baseurl']).'wp-admin/post.php?post='.$post_id.'&action=edit',
                                                      'curl' => $curl));
 
         $retval['data']             = array('raw' => $retval['data']);
@@ -600,7 +600,7 @@ function wp_xmlrpc_post($params) {
         $rpc     = array(0, $params['username'], $params['password'], $content, true);
         $request = xmlrpc_encode_request('metaWeblog.newPost', $rpc);
 
-        return curl_get(array('url'  => slash($params['url']).'xmlrpc.php',
+        return curl_get(array('url'  => Strings::slash($params['url']).'xmlrpc.php',
                               'post' => $request));
 
     }catch(Exception $e) {

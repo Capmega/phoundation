@@ -852,7 +852,7 @@ class Route
                     /*
                      * Upload the file to the client as an attachment
                      */
-                    $target = file_absolute(unslash($target), ROOT.'www/');
+                    $target = file_absolute(Strings::unslash($target), ROOT.'www/');
 
                     Log::success(tr('Sending file ":target" as attachment', [':target' => $target]));
                     File::httpDownload(array('restrictions' => $restrictions,

@@ -24,7 +24,7 @@ try{
      * Define basic platform constants
      */
     define('ADMIN'      , '');
-    define('PWD'        , slash(isset_get($_SERVER['PWD'])));
+    define('PWD'        , Strings::slash(isset_get($_SERVER['PWD'])));
     define('VERYVERBOSE', (cli_argument('-VV,--very-verbose')                               ? 'VERYVERBOSE' : null));
     define('VERBOSE'    , ((VERYVERBOSE or cli_argument('-V,--verbose,-V2,--very-verbose')) ? 'VERBOSE'     : null));
     define('QUIET'      , cli_argument('-Q,--quiet'));
@@ -33,7 +33,7 @@ try{
     define('TEST'       , cli_argument('-T,--test'));
     define('DELETED'    , cli_argument('--deleted'));
     define('STATUS'     , cli_argument('-S,--status', true));
-    define('STARTDIR'   , slash(getcwd()));
+    define('STARTDIR'   , Strings::slash(getcwd()));
 
 
 

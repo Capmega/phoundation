@@ -22,8 +22,8 @@ try{
      * Define basic platform constants
      */
     define('ADMIN'   , '_admin');
-    define('PWD'     , slash(isset_get($_SERVER['PWD'])));
-    define('STARTDIR', slash(getcwd()));
+    define('PWD'     , Strings::slash(isset_get($_SERVER['PWD'])));
+    define('STARTDIR', Strings::slash(getcwd()));
     define('FORCE'   , (getenv('FORCE')   ? 'FORCE'   : null));
     define('TEST'    , (getenv('TEST')    ? 'TEST'    : null));
     define('QUIET'   , (getenv('QUIET')   ? 'QUIET'   : null));

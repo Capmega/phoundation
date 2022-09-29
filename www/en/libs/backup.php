@@ -190,7 +190,7 @@ function backup_library_init() {
 //            $params['date']   = new DateTime();
 //        }
 //
-//        $params['target'] = slash($params['target']).$params['date']->format('Ymd-His').'/mysql/'.$params['database'].'/';
+//        $params['target'] = Strings::slash($params['target']).$params['date']->format('Ymd-His').'/mysql/'.$params['database'].'/';
 //        file_ensure_path($params['target']);
 //
 //        $target    = $params['target'].$params['table'].'.sql';
