@@ -594,11 +594,43 @@ Class Log {
                 $message = Colors::apply($message, 'green');
                 break;
 
+            case 'error':
+                // no-break
+            case 'exception':
+                $message = Colors::apply($message, 'red');
+                break;
+
+            case 'warning':
+                $message = Colors::apply($message, 'yellow');
+                break;
+
+            case 'notice':
+                // These messages don't get color
+                break;
+
+            case 'information':
+                $message = Colors::apply($message, 'white');
+                break;
+
+            case 'debug':
+                $message = Colors::apply($message, 'light_blue');
+                break;
+
+            default:
+                throw new LogException('Unknown log message class ":class" specified', [':class' => $class]);
         }
 
         // Build the message to be logged and log
+        // The log line format is DATE LEVEL PID GLOBALID/LOCALID MESSAGE EOL
+        $message = date('Y-m-d H:i:s') . ' ' . $level . ' ' . getmypid() . ' ' . self::$global_id . '/' . self::$local_id . $message . PHP_EOL;
+        fwrite(self::$handles[self::$file], $message);
 
         // In Command Line mode always log to the screen too
+        if (PHP_SAPI === 'cli') {
+            echo $message;
+        }
+
+        return true;
     }
 
 
