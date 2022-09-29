@@ -3,6 +3,7 @@
 namespace Phoundation\Core;
 
 use JsonException;
+use Phoundation\Cli\Colors;
 use Phoundation\Core\Exception\LogException;
 use Phoundation\Developer\Debug;
 use Phoundation\Filesystem\Exception\FilesystemException;
@@ -74,6 +75,13 @@ Class Log {
      */
     protected static ?string $global_id = null;
 
+    /**
+     * The last message that was logged.
+     *
+     * @var string|null
+     */
+    protected static ?string $last_message = null;
+
 
 
     /**
@@ -129,6 +137,18 @@ Class Log {
     public static function getInit(): bool
     {
         return self::$init;
+    }
+
+
+
+    /**
+     * Returns the last message that was logged
+     *
+     * @return ?string
+     */
+    public static function getLastMessage(): ?string
+    {
+        return self::$last_message;
     }
 
 
@@ -535,13 +555,50 @@ Class Log {
      * Write the specified log message to the current log file for this instance
      *
      * @param string $class
-     * @param string $message
+     * @param mixed $message
      * @param int $level
+     * @param bool $clean
      * @return bool
      */
-    protected static function write(string $class, string $message, int $level, bool $clean = true): bool
+    protected static function write(string $class, mixed $message, int $level, bool $clean = true): bool
     {
-        // TODO IMPLEMENT
+        // Do we have a log file setup?
+        if (empty(self::$file)) {
+            throw new LogException(tr('Cannot log, no log file specified'));
+        }
+
+        // Get the real level and check if we passed the threshold. If $level was negative, the same message may be
+        // logged multiple times
+        $real_level = abs($level);
+
+        // If the message to be logged is an exception then extract the log information from there
+        if (is_object($message) and $message instanceof Throwable) {
+            // TODO IMPLEMENT
+        }
+
+        // Make sure the log message is clean and readable. Don't truncate as we might have very large log mesages!
+        if ($clean) {
+            $message = Strings::log($message, 0);
+        }
+
+        // Don't log the same message twice in a row
+        if (($level > 0) and (self::$last_message === $message)) {
+            return false;
+        }
+
+        self::$last_message = $message;
+
+        // Add coloring for easier reading
+        switch ($class) {
+            case 'success':
+                $message = Colors::apply($message, 'green');
+                break;
+
+        }
+
+        // Build the message to be logged and log
+
+        // In Command Line mode always log to the screen too
     }
 
 

@@ -66,13 +66,20 @@ class Colors
     /**
      * Apply the specified foreground color and background color to the specified text string
      *
-     * @param string $string
+     * @param string $source
      * @param string|null $foreground_color
      * @param string|null $background_color
      * @return string
      */
-    public function apply(string $string, ?string $foreground_color, ?string $background_color = null): string
+    public static function apply(string $source, ?string $foreground_color, ?string $background_color = null): string
     {
+        if (NOCOLOR) {
+            /*
+             * Do NOT apply color
+             */
+            return $source;
+        }
+
         $retval = '';
 
         // Validate the specified foreground and background colors
@@ -89,7 +96,7 @@ class Colors
         $retval .= "\033[" . self::$available_background_colors[$background_color] . "m";
 
         // Add the specified string that should be colored and the coloring end-tag
-        $retval .= $string . "\033[0m";
+        $retval .= $source . "\033[0m";
 
         return $retval;
     }
@@ -103,11 +110,6 @@ class Colors
     {
         try {
             $colored_string = '';
-
-            if (!is_scalar($string)) {
-                log_console(tr('[ WARNING ] colors::getColoredString(): Specified text ":text" is not a string or scalar. Forcing text to string', array(':text' => $string)), 'warning');
-                $string = str_log($string);
-            }
 
             if (NOCOLOR and !$force) {
                 /*
