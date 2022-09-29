@@ -9,7 +9,7 @@ namespace Phoundation\Databases;
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package Phoundation/Databases
  */
@@ -20,7 +20,7 @@ class SqlExists
      *
      * @author Sven Oostenbrink <support@capmega.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -66,7 +66,7 @@ class SqlExists
      * @author Infospace <infospace@capmega.com>
      * @author Sven Oostenbrink <support@capmega.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -114,7 +114,7 @@ class SqlExists
      *
      * @author Sven Oostenbrink <support@capmega.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -163,7 +163,7 @@ class SqlExists
      *
      * @author Sven Oostenbrink <support@capmega.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -212,7 +212,7 @@ class SqlExists
      *
      * @author Sven Oostenbrink <support@capmega.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -271,7 +271,7 @@ class SqlExists
      *
      * @author Sven Oostenbrink <support@capmega.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *
@@ -329,7 +329,7 @@ class SqlExists
      *
      * @author Sven Oostenbrink <support@capmega.com>
      * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
-     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+     * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
      * @category Function reference
      * @package sql-exists
      *

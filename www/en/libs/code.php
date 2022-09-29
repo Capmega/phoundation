@@ -6,7 +6,7 @@
  *
  * @author Sven Oostenbrink <support@capmega.com>
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  * @category Function reference
  * @package code
  * @note Version lines are all tagged versions that share the same MAJOR.MINOR version numbers. E.g. 2.2.0, 2.2.1, 2.2.2, 2.2.3 are all part of the 2.2 code line

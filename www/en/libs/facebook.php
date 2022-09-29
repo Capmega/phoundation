@@ -5,7 +5,7 @@
  * This library contains various facebook functions
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  */
 
 
@@ -416,7 +416,7 @@ function facebook_get_avatar($user){
 //            $user     = load_user_data($uid);
 //            $username = $user['username'];
 //        }
-//        // mail('jcgeuze@gmail.com','test : '.product_url($product['pid'],$product['title'],$product['first_parent']),print_r($product,true));
+//        // mail('','test : '.product_url($product['pid'],$product['title'],$product['first_parent']),print_r($product,true));
 //    //'message' => str_replace("###PRODUCTNAME###",$product['title'],('Guarda tu producto "###PRODUCTNAME###" en tu lista de cosas deseadas y comparte con tus amigos en EstáSúper!')),
 //
 //        $message = array('message' => array_get_random(array('Me encanta', 'Me gusta', 'Me fascina', 'Me gustaría tener', 'Lo quiero', 'Cosas que me gustaria tener')),

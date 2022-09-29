@@ -5,7 +5,7 @@
  * This is the library to communicate with coinpayments system
  *
  * @license http://opensource.org/licenses/GPL-2.0 GNU Public License, Version 2
- * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <license@capmega.com>
+ * @copyright Copyright (c) 2022 Sven Olaf Oostenbrink <so.oostenbrink@gmail.com>
  *
  * @see https://www.coinpayments.net/downloads/api-example.phps
  * @see https://www.coinpayments.net/merchant-tools
